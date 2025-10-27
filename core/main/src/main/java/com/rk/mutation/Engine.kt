@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 
 import java.lang.reflect.Constructor
 
+@Deprecated("deprecated because of 16KB page sizes also quickJs is no longer maintained")
 class Engine(private val javaScript: String, val scope: CoroutineScope) {
     lateinit var quickJS: QuickJs
 

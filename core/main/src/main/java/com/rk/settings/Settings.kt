@@ -50,6 +50,7 @@ object Settings {
     var terminalVirusNotice by CachedPreference("terminal-virus-notice", false)
     var textmate_suggestion by CachedPreference("textMateSuggestion", true)
     var seccomp by CachedPreference("seccomp", false)
+    var desktopMode by CachedPreference("desktopMode", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

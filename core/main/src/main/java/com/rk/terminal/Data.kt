@@ -2,19 +2,6 @@ package com.rk.terminal
 
 import com.rk.utils.origin
 
-val hosts = """127.0.0.1   localhost.localdomain localhost
-
-# IPv6.
-::1         localhost.localdomain localhost ip6-localhost ip6-loopback
-fe00::0     ip6-localnet
-ff00::0     ip6-mcastprefix
-ff02::1     ip6-allnodes
-ff02::2     ip6-allrouters
-ff02::3     ip6-allhosts
-""".trimIndent()
-
-const val nameserver = "nameserver 8.8.8.8\nnameserver 8.8.4.4"
-
 //provide fake cpu stats
 val stat = """cpu  1957 0 2877 93280 262 342 254 87 0 0
 cpu0 31 0 226 12027 82 10 4 9 0 0

@@ -6,6 +6,7 @@ import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import java.io.File
 
+@Deprecated("deprecated because of 16KB page sizes also quickJs is no longer maintained")
 object Mutators {
 
     data class Mutator(val file: File) {

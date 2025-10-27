@@ -48,7 +48,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO){
             while (isActive){
-                delay(700)
+                delay(300)
                 val runtime = Runtime.getRuntime()
                 val usedMem = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
                 memoryUsage.value = "${usedMem}/${runtime.maxMemory() / (1024 * 1024)}MB"
@@ -122,84 +122,22 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 }
             )
 
-            var showDialog by remember { mutableStateOf(false) }
-            if (showDialog) {
-                PortAndExtensionDialog(
-                    onDismiss = { showDialog = false },
-                    onConfirm = { port, extension ->
-                       if (textmateSources[extension] == null){
-                           toast(strings.unsupported_file_ext)
-                           return@PortAndExtensionDialog
-                       }
-                        if (port.toIntOrNull() == null){
-                            toast(strings.invalid_port)
-                            return@PortAndExtensionDialog
-                        }
-
-                        port.toIntOrNull()?.let { lsp_connections[extension] = it }
-                        //lspPort = port.toIntOrNull()
-                        //lspExt = extension
-                    }
-                )
-            }
 
             SettingsToggle(
-                label = "LSP",
-                description = stringResource(strings.lsp_desc),
-                showSwitch = false,
-                default = false,
+                label = stringResource(strings.desktop_mode),
+                description = stringResource(strings.desktop_mode_desc),
+                showSwitch = true,
+                default = Settings.desktopMode,
                 sideEffect = {
-                    showDialog = true
+                    Settings.desktopMode = it
                 }
             )
+
+
+
 
 
         }
     }
 
-}
-
-@Composable
-fun PortAndExtensionDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (port: String, extension: String) -> Unit
-) {
-    var port by remember { mutableStateOf("") }
-    var extension by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(strings.lsp_header)) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = port,
-                    onValueChange = { port = it },
-                    label = { Text(stringResource(strings.port_number)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = extension,
-                    onValueChange = { extension = it },
-                    label = { Text(stringResource(strings.file_ext_example)) },
-                    singleLine = true
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onConfirm(port, extension)
-                onDismiss()
-            }) {
-                Text(stringResource(strings.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(strings.cancel))
-            }
-        }
-    )
 }

@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -24,11 +25,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -40,6 +47,7 @@ import com.rk.filetree.saveProjects
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
+import com.rk.filetree.FileTreeViewModel
 import com.rk.utils.dialog
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -52,16 +60,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-@Composable
-fun getDrawerWidth(): Dp {
-    val configuration = LocalConfiguration.current
-    return (configuration.screenWidthDp * 0.83).dp
-}
+
+
+
 
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
 
+
     val fileManager = FileManager(this)
+
+    //suspend (isForeground) -> Unit
+    val foregroundListener = hashMapOf<Any,suspend (Boolean)-> Unit>()
 
 
     companion object {
@@ -79,9 +89,8 @@ class MainActivity : AppCompatActivity() {
         isPaused = true
         GlobalScope.launch(Dispatchers.IO) {
             TabCache.saveFileTabs(viewModel.tabs.toList())
-        }
-        GlobalScope.launch(Dispatchers.IO) {
             saveProjects()
+            foregroundListener.values.forEach { it.invoke(false) }
         }
         super.onPause()
     }
@@ -90,8 +99,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         isPaused = false
         instance = this
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
+            foregroundListener.values.forEach { it.invoke(true) }
         }
     }
 
@@ -123,91 +133,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
-            XedTheme {
+
+//            Box(
+//                modifier = Modifier
+//                    .graphicsLayer(
+//                        scaleX = 0.5f,
+//                        scaleY = 0.5f,
+//                        transformOrigin = TransformOrigin.Center
+//                    )
+//                    .fillMaxSize()
+//            ) {
+//
+//            }
+
+            MainContentHost()
 
 
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.surface
-                    ) {
-                        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                        val scope = rememberCoroutineScope()
 
-                        BackHandler {
-                            if (drawerState.isOpen) {
-                                scope.launch {
-                                    drawerState.close()
-                                }
-                            }else if (viewModel.tabs.isNotEmpty()){
-                                dialog(title = strings.attention.getString(), msg = strings.confirm_exit.getString(), onCancel = {}, onOk = {
-                                    finish()
-                                }, okString = strings.exit)
-                            }else{
-                                finish()
-                            }
-
-                        }
-
-                        ModalNavigationDrawer(
-                            modifier = Modifier
-                                .imePadding()
-                                .systemBarsPadding(),
-                            drawerState = drawerState,
-                            gesturesEnabled = drawerState.isOpen,
-                            //scrimColor = androidx.compose.ui.graphics.Color.Transparent,
-                            drawerContent = {
-
-                                ModalDrawerSheet(
-                                    modifier = Modifier.width(getDrawerWidth()),
-                                    drawerShape = RectangleShape
-                                    //drawerTonalElevation = 0.dp
-                                ) {
-
-                                    LaunchedEffect(Unit) {
-                                        isLoading = true
-                                        restoreProjects()
-                                        isLoading = false
-                                    }
-                                    DrawerContent(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(top = 8.dp),
-                                        onFileSelected = { file ->
-                                            scope.launch(Dispatchers.IO) {
-                                                if (file.isFile()) {
-                                                    viewModel.newTab(file, switchToTab = true)
-                                                }
-
-                                                delay(60)
-                                                if (Settings.keep_drawer_locked.not()){
-                                                    drawerState.close()
-                                                }
-
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        ) {
-                            Scaffold(
-                                modifier = Modifier.nestedScroll(
-                                    rememberNestedScrollInteropConnection()
-                                ),
-                                topBar = {
-                                    XedTopBar(drawerState = drawerState, viewModel = viewModel)
-                                }
-                            ) { innerPadding ->
-                                MainContent(
-                                    innerPadding = innerPadding,
-                                    drawerState = drawerState,
-                                    viewModel = viewModel
-                                )
-                            }
-
-                        }
-                    }
-
-            }
         }
     }
 

@@ -67,6 +67,7 @@ import com.rk.lsp.createLspTextActions
 import com.rk.components.CodeItem
 import com.rk.components.FindingsDialog
 import com.rk.components.SingleInputDialog
+import com.rk.file.persistentTempDir
 import com.rk.lsp.ProcessConnection
 import com.rk.lsp.lspRegistry
 import com.rk.resources.drawables
@@ -124,7 +125,7 @@ data class CodeEditorState(
     }
 }
 
-val lsp_connections = mutableMapOf<String, Int>()
+val lsp_connections = mutableStateMapOf<String, Int>()
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(

@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
@@ -177,7 +178,7 @@ var isLoading by mutableStateOf(true)
 
 
 @Composable
-fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Unit) {
+fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Unit,fileTreeViewModel: FileTreeViewModel) {
     val context = LocalContext.current
 
     val openFolder = rememberLauncherForActivityResult(
@@ -257,6 +258,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                                 .weight(1f)
                                 .systemBarsPadding(),
                             rootNode = project.toFileTreeNode(),
+                            viewModel = fileTreeViewModel,
                             onFileClick = {
                                 if (it.isFile) {
                                     onFileSelected.invoke(it.file)
@@ -302,7 +304,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                 if (fileActionDialog != null && currentProject != null){
                     FileActionDialog(modifier = Modifier, file = fileActionDialog!!, root = currentProject!!, onDismissRequest = {
                         fileActionDialog = null
-                    })
+                    }, fileTreeViewModel = fileTreeViewModel)
                 }
 
                 if (closeProjectDialog) {

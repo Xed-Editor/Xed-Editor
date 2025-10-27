@@ -88,8 +88,8 @@
     <string name="value_large">Wartość zbyt wysoka</string>
     <string name="text_size">Rozmiar tekstu</string>
     <string name="text_size_desc">Ustaw rozmiar tekstu</string>
-    <string name="tab_size">Rozmiar kart</string>
-    <string name="tab_size_desc">Ustaw rozmiar kart</string>
+    <string name="tab_size">Rozmiar tabulatora</string>
+    <string name="tab_size_desc">Ilość wstawianych spacji jako tabulator.</string>
     <string name="monet">Dynamiczne kolory</string>
     <string name="monet_desc">Użyj systemowego motywu w aplikacji</string>
     <string name="restart_app">Proszę, uruchom ponownie aplikację.</string>
@@ -441,4 +441,12 @@
     <string name="cannot_rename_symbol">Nie można zmienić nazwy tego symbolu.</string>
     <string name="rename_symbol_multiple_files">Zmiana nazw wielu plików nie jest obsługiwana.</string>
     <string name="continue_action">Kontunuuj</string>
+    <string name="rename_failed">Nie można zmienić nazwy</string>
+    <string name="expert_mode">Tryb eksperta</string>
+    <string name="line_spacing_desc">Mnożnik wysokości dla każdej lini w edytorze</string>
+    <string name="enable_sticky_scroll">Włącz lepkie przewijanie</string>
+    <string name="enable_sticky_scroll_desc">Przypnij aktualny nagłówek bloku kodu, aby pozostał widoczny podczas przewijania</string>
+    <string name="enable_quick_deletion">Włącz szybkie usuwanie linijki</string>
+    <string name="enable_quick_deletion_desc">Automatycznie usuń całą linijkę, gdy jest pusta</string>
+    <string name="expert_mode_warn">Tryb eksperta wyłącza zabezpieczenia, które mogą doprowadzić do utraty danych lub innych awarii. Włącz tylko, jeśli wiesz co robisz.</string>
 </resources>

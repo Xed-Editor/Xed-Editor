@@ -24,8 +24,11 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.settings.Preference
 import com.rk.activities.settings.SettingsRoutes
 import androidx.core.net.toUri
+import com.rk.components.BasicToggle
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.utils.dialog
 import com.rk.resources.getString
+import com.rk.xededitor.BuildConfig
 
 data class Feature(
     val nameRes: Int,
@@ -48,7 +51,7 @@ object InbuiltFeatures {
             default = true
         )
     val mutators = Feature(nameRes = strings.mutators, key = "feature_mutators", default = true)
-    val expertMode = Feature(nameRes = strings.expert_mode, key = "expertMode", default = false)
+    val expertMode = Feature(nameRes = strings.expert_mode, key = "expertMode", default = BuildConfig.DEBUG)
 }
 
 @Composable
@@ -106,17 +109,20 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
 
             val activity = LocalActivity.current
 
-            SettingsToggle(
+            BasicToggle(
                 label = stringResource(InbuiltFeatures.expertMode.nameRes),
-                default = InbuiltFeatures.expertMode.state.value,
-                sideEffect = { enable ->
-                    if (enable){
-                        dialog(context = activity, title = strings.attention.getString(), msg = strings.expert_mode_warn.getString(), onCancel = {}, onOk = {
-                            InbuiltFeatures.expertMode.setEnable(enable)
-                        })
-                    }
+                checked = InbuiltFeatures.expertMode.state.value,
+            ) {
+                if (it){
+                    dialog(context = activity, title = strings.attention.getString(), msg = strings.expert_mode_warn.getString(), onCancel = {
+                        InbuiltFeatures.expertMode.setEnable(false)
+                    }, onOk = {
+                        InbuiltFeatures.expertMode.setEnable(true)
+                    })
+                }else{
+                    InbuiltFeatures.expertMode.setEnable(false)
                 }
-            )
+            }
 
 
         }

@@ -83,7 +83,7 @@ class App : Application() {
             )
         }
 
-        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleListener())
+        //ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleListener())
 
         GlobalScope.launch {
             launch(Dispatchers.IO) {

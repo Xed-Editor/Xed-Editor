@@ -15,10 +15,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.dialog
+
+@Composable
+fun BasicToggle(modifier: Modifier = Modifier,label: String,description: String? = null,checked: Boolean,onSwitch:(Boolean)-> Unit) {
+    PreferenceSwitch(checked =  checked,
+        description = description,
+        onCheckedChange = {
+            onSwitch.invoke(it)
+        },
+        label = label,
+        onClick = {
+            onSwitch.invoke(checked.not())
+        })
+}
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

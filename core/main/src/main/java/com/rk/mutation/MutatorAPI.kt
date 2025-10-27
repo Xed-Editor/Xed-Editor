@@ -17,6 +17,7 @@ import java.util.concurrent.CountDownLatch
  * all function in class must block the caller
  * */
 
+@Deprecated("deprecated because of 16KB page sizes also quickJs is no longer maintained")
 class MutatorAPI(val engine: Engine) : EngineAPI {
     /**
      * Displays a toast message with the specified text.
