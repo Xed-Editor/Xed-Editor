@@ -29,7 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rk.filetree.fileTreeViewModel
 import com.rk.filetree.getAppropriateName
 import com.rk.filetree.removeProject
 import com.rk.file.FileObject
@@ -45,6 +44,7 @@ import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
+import com.rk.filetree.FileTreeViewModel
 import com.rk.icons.CreateNewFile
 import com.rk.icons.CreateNewFolder
 import com.rk.icons.XedIcons
@@ -62,7 +62,8 @@ fun FileActionDialog(
     file: FileObject,
     root: FileObject?,
     onDismissRequest: () -> Unit,
-    fileTreeContext: Boolean = true
+    fileTreeContext: Boolean = true,
+    fileTreeViewModel: FileTreeViewModel
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity

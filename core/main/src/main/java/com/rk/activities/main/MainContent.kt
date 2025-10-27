@@ -46,12 +46,13 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
 import com.rk.components.FileActionDialog
+import com.rk.filetree.FileTreeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewModel: MainViewModel,drawerState: DrawerState) {
+fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, mainViewModel: MainViewModel, fileTreeViewModel: FileTreeViewModel, drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
 
@@ -60,7 +61,7 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
             .fillMaxSize()
             .padding(innerPadding)
     ) {
-        if (viewModel.tabs.isEmpty()) {
+        if (mainViewModel.tabs.isEmpty()) {
             Box(
                 Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -75,26 +76,26 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 }
             }
         } else {
-            val pagerState = rememberPagerState(pageCount = { viewModel.tabs.size })
+            val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
 
-            LaunchedEffect(viewModel.currentTabIndex) {
-                if (viewModel.tabs.isNotEmpty() &&
-                    viewModel.currentTabIndex < viewModel.tabs.size &&
-                    pagerState.currentPage != viewModel.currentTabIndex) {
+            LaunchedEffect(mainViewModel.currentTabIndex) {
+                if (mainViewModel.tabs.isNotEmpty() &&
+                    mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
+                    pagerState.currentPage != mainViewModel.currentTabIndex) {
                     if (Settings.smooth_tabs){
-                        pagerState.animateScrollToPage(viewModel.currentTabIndex)
+                        pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
                     }else{
-                        pagerState.scrollToPage(viewModel.currentTabIndex)
+                        pagerState.scrollToPage(mainViewModel.currentTabIndex)
                     }
                 }
             }
 
-            LaunchedEffect(viewModel.tabs) {
-                if (viewModel.tabs.size != pagerState.pageCount) {
+            LaunchedEffect(mainViewModel.tabs) {
+                if (mainViewModel.tabs.size != pagerState.pageCount) {
                     if (Settings.smooth_tabs){
-                        pagerState.animateScrollToPage(viewModel.currentTabIndex)
+                        pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
                     }else{
-                        pagerState.scrollToPage(viewModel.currentTabIndex)
+                        pagerState.scrollToPage(mainViewModel.currentTabIndex)
                     }
                 }
             }
@@ -102,11 +103,11 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
             LaunchedEffect(pagerState) {
                 snapshotFlow { pagerState.settledPage }
                     .collect { settledPage ->
-                        if (viewModel.tabs.isNotEmpty() &&
-                            settledPage < viewModel.tabs.size &&
-                            viewModel.currentTabIndex != settledPage
+                        if (mainViewModel.tabs.isNotEmpty() &&
+                            settledPage < mainViewModel.tabs.size &&
+                            mainViewModel.currentTabIndex != settledPage
                         ) {
-                            viewModel.currentTabIndex = settledPage
+                            mainViewModel.currentTabIndex = settledPage
                         }
                     }
             }
@@ -114,26 +115,26 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
             //HorizontalDivider()
 
             PrimaryScrollableTabRow(
-                selectedTabIndex = if (viewModel.currentTabIndex < viewModel.tabs.size) viewModel.currentTabIndex else 0,
+                selectedTabIndex = if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex else 0,
                 modifier = Modifier.fillMaxWidth(),
                 edgePadding = 0.dp,
                 divider = {}
             ) {
-                viewModel.tabs.forEachIndexed { index, tabState ->
+                mainViewModel.tabs.forEachIndexed { index, tabState ->
                     key(tabState) {
                         var showTabMenu by remember { mutableStateOf(false) }
                         Tab(
                             modifier = Modifier.combinedClickable(onLongClick = {
-                                if (viewModel.currentTabIndex == index) {
+                                if (mainViewModel.currentTabIndex == index) {
                                     showTabMenu = true
                                 }
                             }, onClick = {}),
-                            selected = viewModel.currentTabIndex == index,
+                            selected = mainViewModel.currentTabIndex == index,
                             onClick = {
-                                if (viewModel.currentTabIndex == index) {
+                                if (mainViewModel.currentTabIndex == index) {
                                     showTabMenu = true
                                 } else {
-                                    viewModel.currentTabIndex = index
+                                    mainViewModel.currentTabIndex = index
                                 }
                             },
                             text = {
@@ -157,19 +158,19 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         onClick = {
                                             showTabMenu = false
                                             val tabToClose = tabState
-                                            val tabIndex = viewModel.tabs.indexOf(tabToClose)
+                                            val tabIndex = mainViewModel.tabs.indexOf(tabToClose)
 
                                             if (tabIndex != -1) {
                                                 if (tabToClose is EditorTab && tabToClose.editorState.isDirty){
                                                     dialog(
                                                         title = strings.file_unsaved.getString(),
                                                         msg = strings.ask_unsaved.getString(),
-                                                        onOk = { viewModel.removeTab(tabIndex) },
+                                                        onOk = { mainViewModel.removeTab(tabIndex) },
                                                         onCancel = {},
                                                         okString = strings.discard
                                                     )
                                                 } else {
-                                                    viewModel.removeTab(tabIndex)
+                                                    mainViewModel.removeTab(tabIndex)
                                                 }
                                             }
                                         }
@@ -179,8 +180,8 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         text = { Text(stringResource(strings.close_others)) },
                                         onClick = {
                                             showTabMenu = false
-                                            viewModel.setCurrentTabIndex(index)
-                                            viewModel.removeOtherTabs()
+                                            mainViewModel.setCurrentTabIndex(index)
+                                            mainViewModel.removeOtherTabs()
                                         }
                                     )
 
@@ -188,7 +189,7 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         text = { Text(stringResource(strings.close_all)) },
                                         onClick = {
                                             showTabMenu = false
-                                            viewModel.closeAllTabs()
+                                            mainViewModel.closeAllTabs()
                                         }
                                     )
 
@@ -214,7 +215,7 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
 
             LaunchedEffect(Unit) {
                 delay(500)
-                cachedTabSize = viewModel.tabs.size
+                cachedTabSize = mainViewModel.tabs.size
             }
 
             HorizontalPager(
@@ -222,10 +223,10 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 modifier = Modifier.fillMaxSize().clipToBounds(),
                 beyondViewportPageCount = cachedTabSize,
                 userScrollEnabled = false,
-                key = { index -> viewModel.tabs[index].refreshKey }
+                key = { index -> mainViewModel.tabs[index].refreshKey }
             ) { page ->
-                if (page < viewModel.tabs.size) {
-                    viewModel.tabs[page].Content()
+                if (page < mainViewModel.tabs.size) {
+                    mainViewModel.tabs[page].Content()
                 }
             }
 
@@ -237,7 +238,8 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                     onDismissRequest = {
                         fileActionDialog = null
                     },
-                    fileTreeContext = false
+                    fileTreeContext = false,
+                    fileTreeViewModel = fileTreeViewModel
                 )
             }
         }

@@ -47,6 +47,7 @@ import com.rk.filetree.saveProjects
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
+import com.rk.filetree.FileTreeViewModel
 import com.rk.utils.dialog
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -66,9 +67,10 @@ import java.lang.ref.WeakReference
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
 
+
     val fileManager = FileManager(this)
 
-    //suspend (isForeground)-> Boolean
+    //suspend (isForeground) -> Unit
     val foregroundListener = hashMapOf<Any,suspend (Boolean)-> Unit>()
 
 
@@ -87,11 +89,7 @@ class MainActivity : AppCompatActivity() {
         isPaused = true
         GlobalScope.launch(Dispatchers.IO) {
             TabCache.saveFileTabs(viewModel.tabs.toList())
-        }
-        GlobalScope.launch(Dispatchers.IO) {
             saveProjects()
-        }
-        GlobalScope.launch {
             foregroundListener.values.forEach { it.invoke(false) }
         }
         super.onPause()
@@ -101,11 +99,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         isPaused = false
         instance = this
-        lifecycleScope.launch {
-            foregroundListener.values.forEach { it.invoke(true) }
-        }
-        lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
+            foregroundListener.values.forEach { it.invoke(true) }
         }
     }
 

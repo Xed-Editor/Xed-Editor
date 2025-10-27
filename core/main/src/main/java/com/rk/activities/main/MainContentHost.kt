@@ -27,9 +27,12 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.components.ResponsiveDrawer
 import com.rk.components.getDrawerWidth
 import com.rk.filetree.DrawerContent
+import com.rk.filetree.FileTreeNode
+import com.rk.filetree.FileTreeViewModel
 import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
 import com.rk.resources.getString
@@ -40,9 +43,14 @@ import com.rk.utils.dialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
+
+var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
 
 @Composable
-fun MainActivity.MainContentHost(modifier: Modifier = Modifier) {
+fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel: FileTreeViewModel = viewModel()) {
+    com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
+
     XedTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -79,7 +87,8 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier) {
                     MainContent(
                         innerPadding = innerPadding,
                         drawerState = drawerState,
-                        viewModel = viewModel
+                        mainViewModel = viewModel,
+                        fileTreeViewModel = fileTreeViewModel
                     )
                 }
             }
@@ -94,6 +103,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 8.dp),
+                    fileTreeViewModel = fileTreeViewModel,
                     onFileSelected = { file ->
                         scope.launch(Dispatchers.IO) {
                             if (file.isFile()) {
