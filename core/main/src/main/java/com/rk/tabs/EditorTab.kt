@@ -67,14 +67,11 @@ import com.rk.lsp.createLspTextActions
 import com.rk.components.CodeItem
 import com.rk.components.FindingsDialog
 import com.rk.components.SingleInputDialog
-import com.rk.file.persistentTempDir
 import com.rk.lsp.ProcessConnection
 import com.rk.lsp.lspRegistry
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.runner.currentRunner
-import com.rk.activities.main.CommandPalette
-import com.rk.activities.main.CommandProvider
 import com.rk.components.EditorQuickActions
 import kotlinx.coroutines.CompletableDeferred
 import java.lang.ref.WeakReference
@@ -100,8 +97,6 @@ data class CodeEditorState(
     var showOptionsMenu by mutableStateOf(false)
     var searchKeyword by mutableStateOf("")
     var replaceKeyword by mutableStateOf("")
-
-    var showControlPanel by mutableStateOf(false)
 
     var showFindingsDialog by mutableStateOf(false)
     var findingsItems by mutableStateOf(listOf<CodeItem>())
@@ -220,9 +215,6 @@ class EditorTab(
                 textmateSources[it.getName().substringAfterLast('.', "").trim()]
             }
 
-            val commands = CommandProvider.getAll(viewModel)
-            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, commands)
-
             if (editorState.showRunnerDialog) {
                 ModalBottomSheet(
                     onDismissRequest = {
@@ -251,17 +243,6 @@ class EditorTab(
                         }
                     }
                 }
-            }
-
-            if (editorState.showControlPanel) {
-                CommandPalette(
-                    commands = commands,
-                    lastUsedCommand = lastUsedCommand,
-                    viewModel = viewModel,
-                    onDismissRequest = {
-                        editorState.showControlPanel = false
-                    }
-                )
             }
 
             if (editorState.showFindingsDialog) {
@@ -541,7 +522,7 @@ private fun EditorTab.CodeEditor(
                         )
                         isHorizontalScrollBarEnabled = false
                         isSaveEnabled = false
-                        addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
+                        addView(getInputView(editor,realSurface.toArgb(), onSurfaceColor.toArgb(), viewModel))
                     }
 
                     val divider = View(ctx).apply {

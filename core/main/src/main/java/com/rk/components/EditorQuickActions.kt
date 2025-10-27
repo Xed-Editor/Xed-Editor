@@ -1,6 +1,5 @@
 package com.rk.components
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -25,13 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.terminal.isV
 import com.rk.utils.x
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlin.math.min
 import kotlin.ranges.random
 import com.rk.activities.main.CommandProvider
 
-@OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun RowScope.EditorQuickActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,16 +15,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,6 +42,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun CommandPalette(
+    progress: Float,
     commands: List<Command>,
     lastUsedCommand: Command?,
     viewModel: MainViewModel,
@@ -47,17 +51,36 @@ fun CommandPalette(
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
-    val sortedCommands = buildList {
-        lastUsedCommand?.let { add(it) }
-        addAll(commands.filter { it != lastUsedCommand })
+    val sortedCommands by remember(commands, lastUsedCommand) {
+        derivedStateOf {
+            buildList {
+                lastUsedCommand?.let { add(it) }
+                addAll(commands.filter { it != lastUsedCommand })
+            }
+        }
     }
 
-    val filteredCommands = sortedCommands.filter {
-        it.label.value.contains(searchQuery, ignoreCase = true) ||
-        it.description?.contains(searchQuery, ignoreCase = true) == true
+    val filteredCommands by remember(sortedCommands, searchQuery) {
+        derivedStateOf {
+            sortedCommands.filter {
+                it.label.value.contains(searchQuery, ignoreCase = true) ||
+                        it.description?.contains(searchQuery, ignoreCase = true) == true
+            }
+        }
     }
 
-    XedDialog(onDismissRequest = onDismissRequest) {
+    val hardThreshold = with (LocalDensity.current) { 100.dp.toPx() }
+    val offsetY = (1f - progress) * hardThreshold
+
+    XedDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = Modifier
+            .graphicsLayer {
+                this.alpha = progress
+                this.translationY = -offsetY
+            }
+            .imePadding()
+    ) {
         Column {
             TextField(
                 value = searchQuery,
@@ -68,12 +91,8 @@ fun CommandPalette(
                 placeholder = { Text(stringResource(strings.type_command)) }
             )
 
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
-            }
-
             LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
-                items(filteredCommands) { command ->
+                items(items = filteredCommands, key = { it.id }) { command ->
                     val isRecentlyUsed = command == lastUsedCommand
                     CommandItem(viewModel, command, isRecentlyUsed, onDismissRequest)
                 }
@@ -85,11 +104,12 @@ fun CommandPalette(
 @Composable
 fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolean, onDismissRequest: () -> Unit) {
     val activity = LocalActivity.current
+    val enabled = command.isEnabled.value && command.isSupported.value
 
     PreferenceTemplate(
-        enabled = command.isEnabled.value && command.isSupported.value,
+        enabled = enabled,
         modifier = Modifier.clickable(
-            enabled = true,
+            enabled = enabled,
             onClick = {
                 onDismissRequest()
                 Settings.last_used_command = command.id
@@ -102,7 +122,9 @@ fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolea
                 Icon(
                     imageVector = command.icon.value,
                     contentDescription = command.label.value,
-                    modifier = Modifier.padding(end = 8.dp).size(16.dp)
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .size(16.dp)
                 )
 
                 command.prefix?.let {

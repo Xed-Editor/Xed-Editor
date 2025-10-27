@@ -1,5 +1,6 @@
 package com.rk.activities.main
 
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -52,7 +53,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, mainViewModel: MainViewModel, fileTreeViewModel: FileTreeViewModel, drawerState: DrawerState) {
+fun MainContent(
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues,
+    mainViewModel: MainViewModel,
+    fileTreeViewModel: FileTreeViewModel,
+    drawerState: DrawerState,
+    commands: List<Command>
+) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
 
@@ -61,6 +69,28 @@ fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, main
             .fillMaxSize()
             .padding(innerPadding)
     ) {
+        if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
+            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, commands)
+
+            CommandPalette(
+                progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
+                commands = commands,
+                lastUsedCommand = lastUsedCommand,
+                viewModel = mainViewModel,
+                onDismissRequest = {
+                    mainViewModel.isDraggingPalette = false
+                    mainViewModel.showCommandPalette = false
+
+                    scope.launch {
+                        mainViewModel.draggingPaletteProgress.animateTo(
+                            0f,
+                            animationSpec = spring(stiffness = 800f)
+                        )
+                    }
+                }
+            )
+        }
+
         if (mainViewModel.tabs.isEmpty()) {
             Box(
                 Modifier.fillMaxSize(),
@@ -81,10 +111,11 @@ fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, main
             LaunchedEffect(mainViewModel.currentTabIndex) {
                 if (mainViewModel.tabs.isNotEmpty() &&
                     mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
-                    pagerState.currentPage != mainViewModel.currentTabIndex) {
-                    if (Settings.smooth_tabs){
+                    pagerState.currentPage != mainViewModel.currentTabIndex
+                ) {
+                    if (Settings.smooth_tabs) {
                         pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
-                    }else{
+                    } else {
                         pagerState.scrollToPage(mainViewModel.currentTabIndex)
                     }
                 }
@@ -92,9 +123,9 @@ fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, main
 
             LaunchedEffect(mainViewModel.tabs) {
                 if (mainViewModel.tabs.size != pagerState.pageCount) {
-                    if (Settings.smooth_tabs){
+                    if (Settings.smooth_tabs) {
                         pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
-                    }else{
+                    } else {
                         pagerState.scrollToPage(mainViewModel.currentTabIndex)
                     }
                 }
@@ -220,7 +251,9 @@ fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, main
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxSize().clipToBounds(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clipToBounds(),
                 beyondViewportPageCount = cachedTabSize,
                 userScrollEnabled = false,
                 key = { index -> mainViewModel.tabs[index].refreshKey }

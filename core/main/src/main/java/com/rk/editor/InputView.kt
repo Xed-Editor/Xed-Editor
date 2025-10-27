@@ -3,14 +3,12 @@ package com.rk.editor
 import android.util.Pair
 import android.view.KeyEvent
 import android.view.View.OnClickListener
-import com.rk.tabs.EditorTab
-import com.rk.activities.main.MainActivity
+import com.rk.activities.main.MainViewModel
 import io.github.rosemoe.sora.widget.CodeEditor
 
 private typealias onClick = OnClickListener
 
-fun getInputView(editor: CodeEditor,surfaceColor: Int,onSurfaceColor: Int): SymbolInputView {
-
+fun getInputView(editor: CodeEditor, surfaceColor: Int, onSurfaceColor: Int, mainViewModel: MainViewModel): SymbolInputView {
     return SymbolInputView(editor.context).apply {
         textColor = onSurfaceColor
         setBgColor(surfaceColor)
@@ -24,11 +22,7 @@ fun getInputView(editor: CodeEditor,surfaceColor: Int,onSurfaceColor: Int): Symb
             }))
 
             add(Pair("⌘", onClick {
-                MainActivity.instance?.viewModel?.currentTab?.let {
-                    if (it is EditorTab){
-                        it.editorState.showControlPanel = true
-                    }
-                }
+                mainViewModel.showCommandPalette = true
             }))
 
             add(Pair("←", onClick {

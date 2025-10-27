@@ -13,11 +13,23 @@ import androidx.compose.ui.window.DialogProperties
 import com.rk.resources.strings
 
 @Composable
-fun Loading(modifier: Modifier = Modifier, onDismissRequest: () -> Unit, text: String = stringResource(
-    strings.wait),dismissOnBackPress: Boolean = false,dismissOnClickOutside: Boolean = false) {
+fun Loading(
+    modifier: Modifier = Modifier, onDismissRequest: () -> Unit, text: String = stringResource(
+        strings.wait
+    ), dismissOnBackPress: Boolean = false, dismissOnClickOutside: Boolean = false
+) {
 
-    XedDialog(onDismissRequest, dialogProperties = DialogProperties(dismissOnBackPress = dismissOnBackPress, dismissOnClickOutside = dismissOnClickOutside)) {
-        Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+    XedDialog(
+        onDismissRequest = onDismissRequest,
+        dialogProperties = DialogProperties(
+            dismissOnBackPress = dismissOnBackPress,
+            dismissOnClickOutside = dismissOnClickOutside
+        )
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             CircularProgressIndicator()
             Text(text, style = MaterialTheme.typography.bodyLarge)
         }

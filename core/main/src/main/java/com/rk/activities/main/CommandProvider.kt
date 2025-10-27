@@ -78,10 +78,7 @@ object CommandProvider {
                     id = "global.new_file",
                     label = mutableStateOf(stringResource(strings.new_file)),
                     action = { vm, _ ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
-                        if (currentTab is EditorTab) {
-                            addDialog = true
-                        }
+                        addDialog = true
                     },
                     isSupported = mutableStateOf(true),
                     isEnabled = mutableStateOf(true),
@@ -94,10 +91,7 @@ object CommandProvider {
                     id = "global.command_palette",
                     label = mutableStateOf(stringResource(strings.command_palette)),
                     action = { vm, _ ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.showControlPanel = true
-                        }
+                        viewModel.showCommandPalette = true
                     },
                     isSupported = mutableStateOf(true),
                     isEnabled = mutableStateOf(true),
@@ -119,9 +113,9 @@ object CommandProvider {
                             }
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = derivedStateOf {
-                        val currentTab = viewModel.tabs[viewModel.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         currentTab is EditorTab && currentTab.file.canWrite()
                     },
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.save)),
@@ -142,7 +136,7 @@ object CommandProvider {
                             }
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.tabs.isNotEmpty() },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.save))
                 )
@@ -153,7 +147,7 @@ object CommandProvider {
                     id = "editor.undo",
                     label = mutableStateOf(stringResource(strings.undo)),
                     action = { vm, _ ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.editor?.apply {
                                 if (canUndo()) {
@@ -163,9 +157,9 @@ object CommandProvider {
                             currentTab.editorState.updateUndoRedo()
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = derivedStateOf {
-                        val currentTab = viewModel.tabs[viewModel.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         currentTab is EditorTab && currentTab.editorState.canUndo
                     },
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.undo))
@@ -177,7 +171,7 @@ object CommandProvider {
                     id = "editor.redo",
                     label = mutableStateOf(stringResource(strings.redo)),
                     action = { vm, _ ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.editor?.apply {
                                 if (canRedo()) {
@@ -187,9 +181,9 @@ object CommandProvider {
                             currentTab.editorState.updateUndoRedo()
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = derivedStateOf {
-                        val currentTab = viewModel.tabs[viewModel.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         currentTab is EditorTab && currentTab.editorState.canRedo
                     },
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.redo))
@@ -202,7 +196,7 @@ object CommandProvider {
                     label = mutableStateOf(stringResource(strings.run)),
                     action = { vm, act ->
                         DefaultScope.launch {
-                            val currentTab = vm.tabs[vm.currentTabIndex]
+                            val currentTab = viewModel.currentTab
                             if (currentTab is EditorTab) {
                                 Runner.run(
                                     context = act!!,
@@ -216,7 +210,7 @@ object CommandProvider {
                         }
                     },
                     isSupported = derivedStateOf {
-                        val currentTab = viewModel.tabs[viewModel.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         currentTab is EditorTab && Runner.isRunnable(currentTab.file)
                     },
                     isEnabled = mutableStateOf(true),
@@ -228,7 +222,7 @@ object CommandProvider {
                 Command(
                     id = "editor.editable",
                     label = derivedStateOf {
-                        val currentTab = viewModel.tabs[viewModel.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab && currentTab.editorState.editable) {
                             readModeText
                         } else {
@@ -236,19 +230,19 @@ object CommandProvider {
                         }
                     },
                     action = { vm, _ ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             val editable = currentTab.editorState.editable
                             currentTab.editorState.editable = !editable
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = derivedStateOf {
-                        val currentTab = viewModel.tabs[viewModel.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         currentTab is EditorTab && currentTab.file.canWrite()
                     },
                     icon = derivedStateOf {
-                        val currentTab = viewModel.tabs[viewModel.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab && currentTab.editorState.editable) {
                             Icons.Outlined.Lock
                         } else {
@@ -263,12 +257,12 @@ object CommandProvider {
                     id = "editor.search",
                     label = mutableStateOf(stringResource(strings.search)),
                     action = { vm, _ ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.isSearching = true
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.search)),
                     keybinds = "Ctrl + F"
@@ -280,13 +274,13 @@ object CommandProvider {
                     id = "editor.replace",
                     label = mutableStateOf(stringResource(strings.replace)),
                     action = { vm, _ ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.isSearching = true
                             currentTab.editorState.isReplaceShown = true
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.find_replace)),
                     keybinds = "Ctrl + H"
@@ -298,7 +292,7 @@ object CommandProvider {
                     id = "editor.refresh",
                     label = mutableStateOf(stringResource(strings.refresh)),
                     action = { vm, act ->
-                        val currentTab = vm.tabs[vm.currentTabIndex]
+                        val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             if (currentTab.editorState.isDirty) {
                                 dialog(
@@ -314,7 +308,7 @@ object CommandProvider {
                             }
                         }
                     },
-                    isSupported = mutableStateOf(true),
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.refresh))
                 )
@@ -343,7 +337,7 @@ object CommandProvider {
                                         )
                                 }
                             },
-                            isSupported = mutableStateOf(true),
+                            isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                             isEnabled = mutableStateOf(true),
                             icon = mutableStateOf(ImageVector.vectorResource(drawables.run))
                         )
