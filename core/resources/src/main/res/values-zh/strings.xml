@@ -448,5 +448,5 @@
     <string name="enable_quick_deletion_desc">自动删除空行</string>
     <string name="rename_failed">无法重命名文件</string>
     <string name="expert_mode">专家模式</string>
-    <string name="expert_mode_warn">专家模式会禁用安全限制，如果使用不当，可能导致数据丢失或其他问题。请在你知道自己在做什么的情况下再启用它。</string>
+    <string name="expert_mode_warn">专家模式会禁用安全限制，若使用不当，可能导致数据丢失或其他问题。请在你知道自己在做什么的情况下再启用。</string>
 </resources>
