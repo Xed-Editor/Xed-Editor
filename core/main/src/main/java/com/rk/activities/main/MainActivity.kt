@@ -24,7 +24,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -53,10 +56,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
+
+
+
+
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
 
     val fileManager = FileManager(this)
+
+    //suspend (isForeground)-> Boolean
+    val foregroundListener = hashMapOf<Any,suspend (Boolean)-> Unit>()
 
 
     companion object {
@@ -78,6 +88,9 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             saveProjects()
         }
+        GlobalScope.launch {
+            foregroundListener.values.forEach { it.invoke(false) }
+        }
         super.onPause()
     }
 
@@ -85,6 +98,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         isPaused = false
         instance = this
+        lifecycleScope.launch {
+            foregroundListener.values.forEach { it.invoke(true) }
+        }
         lifecycleScope.launch {
             handleIntent(intent)
         }

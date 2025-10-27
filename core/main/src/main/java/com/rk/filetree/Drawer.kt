@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
@@ -257,6 +258,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                                 .weight(1f)
                                 .systemBarsPadding(),
                             rootNode = project.toFileTreeNode(),
+                            viewModel = viewModel(key = "Unit"),
                             onFileClick = {
                                 if (it.isFile) {
                                     onFileSelected.invoke(it.file)

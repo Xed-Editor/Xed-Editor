@@ -15,12 +15,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-inline fun getDrawerWidth(): Dp = (LocalWindowInfo.current.containerSize.width * 0.83).dp
+inline fun getDrawerWidth(): Dp {
+    val density = LocalDensity.current
+    val widthPx = LocalWindowInfo.current.containerSize.width
+    val width = with(density){(widthPx * 0.83f).toDp()}
+    return width
+}
 
 var isPermanentDrawer by mutableStateOf(false)
     private set
@@ -31,10 +37,12 @@ fun ResponsiveDrawer(
     mainContent: @Composable () -> Unit,
     sheetContent: @Composable ColumnScope.() -> Unit
 ) {
-    val screenWidthDp = LocalWindowInfo.current.containerSize.width
+    val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
+
+    println("yoyo $screenWidthDp")
 
     // (e.g., 600dp for tablets)
-    isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 600 }
+    isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }
 
     if (isPermanentDrawer) {
         PermanentNavigationDrawer(

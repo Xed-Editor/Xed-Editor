@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.rk.activities.main.MainActivity
 import com.rk.components.getDrawerWidth
 import com.rk.components.isPermanentDrawer
 import com.rk.file.FileObject
@@ -42,9 +43,11 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.folderSurface
+import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.collections.get
 
 private val ic_file = drawables.file
@@ -192,24 +195,24 @@ private fun FileIcon(file: FileObject) {
 // ViewModel to handle file operations and caching
 class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
-    private val fileListCache = mutableStateMapOf<String, List<FileTreeNode>>()
-    private val expandedNodes = mutableStateMapOf<String, Boolean>()
+    private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
+    private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
 
     // Track loading states to avoid showing spinners incorrectly
-    private val _loadingStates = mutableStateMapOf<String, Boolean>()
+    private val _loadingStates = mutableStateMapOf<FileObject, Boolean>()
 
 
-    fun isNodeExpanded(nodePath: String): Boolean = expandedNodes[nodePath] == true
+    fun isNodeExpanded(fileObject: FileObject): Boolean = expandedNodes[fileObject] == true
 
-    fun isNodeLoading(nodePath: String): Boolean = _loadingStates[nodePath] == true
+    fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates[fileObject] == true
 
-    fun toggleNodeExpansion(nodePath: String) {
-        val wasExpanded = expandedNodes[nodePath] == true
-        expandedNodes[nodePath] = !wasExpanded
+    fun toggleNodeExpansion(fileObject: FileObject) {
+        val wasExpanded = expandedNodes[fileObject] == true
+        expandedNodes[fileObject] = !wasExpanded
 
         // If we're expanding and haven't loaded yet, trigger a load
-        if (!wasExpanded && !fileListCache.containsKey(nodePath)) {
-            _loadingStates[nodePath] = true
+        if (!wasExpanded && !fileListCache.containsKey(fileObject)) {
+            _loadingStates[fileObject] = true
         }
     }
 
@@ -218,15 +221,14 @@ class FileTreeViewModel : ViewModel() {
             throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val path = file.getAbsolutePath()
-            _loadingStates[path] = true  // Mark as loading
+            _loadingStates[file] = true  // Mark as loading
 
             try {
                 // Safely access file listing
                 val fileList = try {
                     file.listFiles()
                 } catch (e: Exception) {
-                    _loadingStates[path] = false
+                    _loadingStates[file] = false
                     return@launch
                 }
 
@@ -237,39 +239,43 @@ class FileTreeViewModel : ViewModel() {
                         it.toFileTreeNode()
                     }
 
-                fileListCache[path] = files
+                fileListCache[file] = files
 
-                // If node wasn't expanded before, ensure it's expanded now
-                if (!isNodeExpanded(path)) {
-                    expandedNodes[path] = true
+                //maybe important
+                if (!isNodeExpanded(file)) {
+                    expandedNodes[file] = true
                 }
 
                 viewModelScope.launch {
                     delay(300)
-                    _loadingStates[path] = false
+                    _loadingStates[file] = false
                 }
             } catch (e: Exception) {
-                _loadingStates[path] = false
+                _loadingStates[file] = false
             }
         }
     }
 
+    suspend fun refreshEverything() = withContext(Dispatchers.IO){
+        fileListCache.keys.toList().forEach {
+            updateCache(it)
+        }
+    }
+
     fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> {
-        val path = node.file.getAbsolutePath()
-        return fileListCache[path] ?: emptyList()
+        return fileListCache[node.file] ?: emptyList()
     }
 
     fun loadChildrenForNode(node: FileTreeNode) {
-        val path = node.file.getAbsolutePath()
 
         // If already in cache, don't reload
-        if (fileListCache.containsKey(path)) {
-            _loadingStates[path] = false
+        if (fileListCache.containsKey(node.file)) {
+            _loadingStates[node.file] = false
             return
         }
 
         // Set loading state
-        _loadingStates[path] = true
+        _loadingStates[node.file] = true
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -277,7 +283,7 @@ class FileTreeViewModel : ViewModel() {
                 val fileList = try {
                     node.file.listFiles()
                 } catch (e: Exception) {
-                    _loadingStates[path] = false
+                    _loadingStates[node.file] = false
                     return@launch
                 }
 
@@ -288,13 +294,13 @@ class FileTreeViewModel : ViewModel() {
                         it.toFileTreeNode()
                     }
 
-                fileListCache[path] = files
+                fileListCache[node.file] = files
                 viewModelScope.launch {
                     delay(300)
-                    _loadingStates[path] = false
+                    _loadingStates[node.file] = false
                 }
             } catch (e: Exception) {
-                _loadingStates[path] = false
+                _loadingStates[node.file] = false
             }
         }
     }
@@ -315,15 +321,23 @@ fun FileTree(
     modifier: Modifier = Modifier,
     onFileClick: FileTreeNode.(FileTreeNode) -> Unit,
     onFileLongClick: FileTreeNode.(FileTreeNode) -> Unit = {},
-    viewModel: FileTreeViewModel = viewModel()
+    viewModel: FileTreeViewModel
 ) {
 
     fileTreeViewModel = viewModel
     // Auto-expand root node on first composition
-    LaunchedEffect(rootNode.file.getAbsolutePath()) {
-        if (!viewModel.isNodeExpanded(rootNode.file.getAbsolutePath())) {
-            viewModel.toggleNodeExpansion(rootNode.file.getAbsolutePath())
+    LaunchedEffect(rootNode.file) {
+        if (!viewModel.isNodeExpanded(rootNode.file)) {
+            viewModel.toggleNodeExpansion(rootNode.file)
             viewModel.loadChildrenForNode(rootNode)
+        }
+    }
+
+    LaunchedEffect(MainActivity.instance) {
+        MainActivity.instance?.foregroundListener["fileTreeRefresh"] = { resumed ->
+            if (resumed){
+                viewModel.refreshEverything()
+            }
         }
     }
 
@@ -373,20 +387,19 @@ private fun FileTreeNodeItem(
     onFileLongClick: (FileTreeNode) -> Unit,
     viewModel: FileTreeViewModel
 ) {
-    val nodePath = node.file.getAbsolutePath()
-    val isExpanded = viewModel.isNodeExpanded(nodePath)
+    val isExpanded = viewModel.isNodeExpanded(node.file)
     val horizontalPadding = (depth * 16).dp
 
-    val isLoading = viewModel.isNodeLoading(nodePath)
+    val isLoading = viewModel.isNodeLoading(node.file)
 
     // Load children when expanded
-    LaunchedEffect(nodePath, isExpanded) {
+    LaunchedEffect(node.file, isExpanded) {
         if (isExpanded && node.isDirectory) {
             viewModel.loadChildrenForNode(node)
         }
     }
 
-    val children by remember(nodePath, isExpanded) {
+    val children by remember(node.file, isExpanded) {
         derivedStateOf {
             if (node.isDirectory && isExpanded) {
                 viewModel.getNodeChildren(node)
@@ -404,7 +417,7 @@ private fun FileTreeNodeItem(
                 .combinedClickable(
                     onClick = {
                         if (node.isDirectory) {
-                            viewModel.toggleNodeExpansion(nodePath)
+                            viewModel.toggleNodeExpansion(node.file)
                         } else {
                             scope.launch {
                                 delay(100)
