@@ -1,0 +1,22 @@
+name: "Verify Translation"
+
+on:
+  push:
+    paths:
+      - '**/strings.xml'
+  pull_request:
+    paths:
+      - '**/strings.xml'
+
+jobs:
+  run-kts:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/jetbrains/kotlin:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Kotlin script
+        run: kotlin .github/workflows/verifyTranslations.kts
