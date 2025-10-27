@@ -109,7 +109,7 @@
     <string name="fetch_failed">La requête de téléchargement n’a rien renvoyé</string>
     <string name="app">Application</string>
     <string name="change_theme">Modifier l’apparence</string>
-    <string name="oled_desc">Apparence Noir profond (#000)</string>
+    <string name="oled_desc">Applique l\'apparence Noir profond</string>
     <string name="themes">Apparences</string>
     <string name="editor">Éditeur</string>
     <string name="smooth_tabs">Onglets doux</string>
@@ -210,7 +210,7 @@
     <string name="show_suggestions">Montrer les suggestions clavier</string>
     <string name="github">GitHub</string>
     <string name="cursor_anim_desc">Activer les animations douces pour le curseur</string>
-    <string name="tab_size_desc">Régler la taille des onglets</string>
+    <string name="tab_size_desc">Nombre d\'espaces par tabulation.</string>
     <string name="check_for_updates_desc">Vérifier périodiquement les mises-à-jour</string>
     <string name="copy_failed">Copie fichier échouée</string>
     <string name="about">À propos</string>
@@ -440,6 +440,14 @@
     <string name="find_references_error">Impossible de trouver des références.</string>
     <string name="rename_symbol_error">Impossible de renommer un symbole.</string>
     <string name="cannot_rename_symbol">Vous ne pouvez pas renommer ce symbole.</string>
-    <string name="rename_symbol_multiple_files">Le renommage dans de multiples fichiers n\'est pas encore disponible.</string>
+    <string name="rename_symbol_multiple_files">Le renommage de plusieurs fichiers n\'est pas encore disponible.</string>
     <string name="continue_action">Continuer</string>
+    <string name="line_spacing_desc">Multiplicateur de hauteur pour chaque ligne de l\'éditeur</string>
+    <string name="enable_sticky_scroll">Activer le défilement \"collant\"</string>
+    <string name="enable_sticky_scroll_desc">Garder le bloc actuel à l\'écran en scrollant</string>
+    <string name="enable_quick_deletion">Activer la suppression de ligne rapide</string>
+    <string name="enable_quick_deletion_desc">Supprime la ligne automatiquement si elle est vide</string>
+    <string name="rename_failed">Impossible de renommer le fichier</string>
+    <string name="expert_mode">Mode Expert</string>
+    <string name="expert_mode_warn">Le mode Expert désactive les sécurités, ce qui, mal utilisé, pourrait causer des pertes de données ou autres problèmes. N\'activer qu\'en connaissance de cause.</string>
 </resources>
