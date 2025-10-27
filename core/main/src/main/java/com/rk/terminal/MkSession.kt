@@ -104,7 +104,7 @@ object MkSession {
                 "FDROID=${App.isFDroid}",
                 "SANDBOX=${Settings.sandbox}",
                 "TMP_DIR=${getTempDir()}",
-                "TZ=UTC"
+                "TZ=UTC",   "DOTNET_GCHeapHardLimit=1C0000000"
             )
 
             if (!App.isFDroid){
