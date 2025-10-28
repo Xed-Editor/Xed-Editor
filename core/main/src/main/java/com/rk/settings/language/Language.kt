@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
@@ -13,12 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.os.LocaleListCompat
 import androidx.core.net.toUri
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
@@ -52,6 +55,17 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             )
         }
     ) {
+
+        InfoBlock(
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Warning, contentDescription = null
+                )
+            },
+            text = stringResource(strings.change_lang_warn),
+            warning = true
+        )
+
         val languages = remember { mutableStateListOf<Locale>() }
 
         LaunchedEffect(Unit) {
@@ -70,17 +84,17 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             languages.addAll(langs)
         }
 
-        val resources = context.resources
-        val configuration = resources.configuration
+        val configuration = LocalConfiguration.current
         val localeList = configuration.locales
         val currentLocale = localeList[0]
 
         PreferenceGroup(heading = stringResource(strings.lang)) {
             if (languages.isNotEmpty()) {
                 languages.forEach { locale ->
+
                     SettingsToggle(
                         modifier = Modifier,
-                        label = locale.getDisplayLanguage(locale),
+                        label = "${locale.getDisplayLanguage(locale)} (${locale.toLanguageTag()})",
                         default = false,
                         sideEffect = {
                             setAppLanguage(locale)

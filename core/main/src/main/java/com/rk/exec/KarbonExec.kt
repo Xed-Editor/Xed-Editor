@@ -8,6 +8,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.utils.showTerminalNotice
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
+import com.rk.file.localDir
 
 
 fun isTerminalInstalled(): Boolean{
@@ -17,7 +18,7 @@ fun isTerminalInstalled(): Boolean{
         ).absolutePath
     } ?: emptyList()
 
-    return rootfs.isNotEmpty()
+    return localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").exists() && rootfs.isNotEmpty()
 }
 
 fun launchInternalTerminal(context: Context, terminalCommand: TerminalCommand) {

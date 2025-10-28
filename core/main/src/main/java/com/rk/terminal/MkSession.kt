@@ -1,5 +1,6 @@
 package com.rk.terminal
 
+import android.os.Build
 import com.rk.App
 import com.rk.filetree.currentProject
 import com.rk.file.FileWrapper
@@ -15,6 +16,7 @@ import com.rk.tabs.EditorTab
 import com.rk.xededitor.BuildConfig
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
+import com.rk.utils.getSourceDirOfPackage
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -104,12 +106,17 @@ object MkSession {
                 "FDROID=${App.isFDroid}",
                 "SANDBOX=${Settings.sandbox}",
                 "TMP_DIR=${getTempDir()}",
-                "TZ=UTC",   "DOTNET_GCHeapHardLimit=1C0000000"
+                "TMPDIR=${getTempDir()}",
+                "TZ=UTC",
+                "DOTNET_GCHeapHardLimit=1C0000000",
+                "SOURCE_DIR=${applicationInfo.sourceDir}",
+                "TERMUX_X11_SOURCE_DIR=${getSourceDirOfPackage(application!!,"com.termux.x11")}",
+                "DISPLAY=:0"
             )
 
             if (!App.isFDroid){
                 env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
-                if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
+                if (Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() && File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
                     env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
                 }
             }

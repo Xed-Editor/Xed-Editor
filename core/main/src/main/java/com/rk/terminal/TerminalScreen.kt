@@ -118,16 +118,14 @@ fun TerminalScreenInternal(
     navController: NavController
 ) {
     val context = LocalContext.current
-    val terminalColors = if (isDarkMode(context)){
-        currentTheme.value?.darkTerminalColors
-    }else{
-        currentTheme.value?.lightTerminalColors
-    }
+
     onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
 
     LaunchedEffect("terminal") {
         context.startService(Intent(context, SessionService::class.java))
     }
+
+
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()

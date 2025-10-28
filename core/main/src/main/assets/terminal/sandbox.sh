@@ -60,6 +60,8 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
+chmod -R +x "$PREFIX"/local/bin
+
 if [ "$FDROID" = false ]; then
     if [ $# -gt 0 ]; then
         $LINKER "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i -c "$*"
