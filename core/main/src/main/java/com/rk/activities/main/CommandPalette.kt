@@ -91,8 +91,8 @@ fun CommandPalette(
                 placeholder = { Text(stringResource(strings.type_command)) }
             )
 
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
+            LaunchedEffect(progress) {
+                if (progress == 1f) focusRequester.requestFocus()
             }
 
             LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
