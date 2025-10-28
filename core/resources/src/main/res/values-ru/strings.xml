@@ -254,7 +254,7 @@
     <string name="script_text">Этот текст будет написан в редакторе</string>
     <string name="mutator_desc">Создать пользовательские скрипты</string>
     <string name="restore_sessions">Восстанавливать сессии</string>
-    <string name="terminal_runtime">Среда выполнения терминала</string>
+    <string name="terminal_runtime">Окружение терминала</string>
     <string name="restore_sessions_desc">Восстанавливать открытые вкладки</string>
     <string name="name_empty_err">Имя не должно быть пустым</string>
     <string name="sessions">Сессии</string>
