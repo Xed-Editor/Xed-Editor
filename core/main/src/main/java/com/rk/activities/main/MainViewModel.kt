@@ -83,6 +83,7 @@ class MainViewModel : ViewModel() {
     var showCommandPalette by mutableStateOf(false)
     var draggingPaletteProgress = Animatable(0f)
     var isDraggingPalette by mutableStateOf(false)
+    var commands = emptyList<Command>()
 
     val currentTab: Tab?
         get() = tabs.getOrNull(currentTabIndex)

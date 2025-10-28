@@ -58,8 +58,7 @@ fun MainContent(
     innerPadding: PaddingValues,
     mainViewModel: MainViewModel,
     fileTreeViewModel: FileTreeViewModel,
-    drawerState: DrawerState,
-    commands: List<Command>
+    drawerState: DrawerState
 ) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
@@ -70,11 +69,11 @@ fun MainContent(
             .padding(innerPadding)
     ) {
         if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
-            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, commands)
+            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, mainViewModel.commands)
 
             CommandPalette(
                 progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
-                commands = commands,
+                commands = mainViewModel.commands,
                 lastUsedCommand = lastUsedCommand,
                 viewModel = mainViewModel,
                 onDismissRequest = {

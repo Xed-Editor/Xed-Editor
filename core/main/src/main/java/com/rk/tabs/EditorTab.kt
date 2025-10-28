@@ -291,6 +291,7 @@ class EditorTab(
                 modifier = Modifier,
                 state = editorState,
                 textmateScope = language,
+                parentTab = this@EditorTab,
                 onTextChange = {
                     if (Settings.auto_save) {
                         scope.launch(Dispatchers.IO) {
@@ -350,6 +351,7 @@ class EditorTab(
 private fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
+    parentTab: EditorTab,
     textmateScope: String? = null,
     onKeyEvent: (EditorKeyEvent) -> Unit,
     onTextChange: () -> Unit
@@ -492,7 +494,7 @@ private fun EditorTab.CodeEditor(
                             }
                         }
 
-                        val lspActions = createLspTextActions(scope, context, viewModel, file, editorState) { baseLspConnector }
+                        val lspActions = createLspTextActions(scope, context, viewModel, parentTab)
                         lspActions.forEach { registerTextAction(it) }
 
                         scope.launch(Dispatchers.IO) {

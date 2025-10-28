@@ -68,16 +68,12 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel
                 }
             }
 
-            // TODO: CURRENTLY FOR TESTING
-            // true enables the experimental swiping behavior with a custom swiping animation
-            val USE_CUSTOM_ANIMATION = true
-
             val density = LocalDensity.current
             var accumulator = 0f
             val softThreshold = with (density) { 50.dp.toPx() }
             val hardThreshold = with (density) { 100.dp.toPx() }
 
-            val commands = CommandProvider.getAll(viewModel)
+            viewModel.commands = CommandProvider.getAll(viewModel)
 
             val mainContent: @Composable ()-> Unit = {
                 Scaffold(
@@ -91,11 +87,6 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel
                             onDrag = { dragAmount ->
                                 accumulator += dragAmount
 
-                                if (!USE_CUSTOM_ANIMATION && accumulator >= softThreshold) {
-                                    viewModel.showCommandPalette = true
-                                    return@XedTopBar
-                                }
-
                                 viewModel.isDraggingPalette = true
 
                                 scope.launch {
@@ -104,8 +95,6 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel
                                 }
                             },
                             onDragEnd = {
-                                if (!USE_CUSTOM_ANIMATION) return@XedTopBar
-
                                 val shouldOpen = accumulator >= softThreshold
                                 scope.launch {
                                     viewModel.isDraggingPalette = shouldOpen
@@ -123,8 +112,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel
                         innerPadding = innerPadding,
                         drawerState = drawerState,
                         mainViewModel = viewModel,
-                        fileTreeViewModel = fileTreeViewModel,
-                        commands = commands
+                        fileTreeViewModel = fileTreeViewModel
                     )
                 }
             }

@@ -16,6 +16,9 @@ import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
+import com.rk.lsp.goToDefinition
+import com.rk.lsp.goToReferences
+import com.rk.lsp.renameSymbol
 import com.rk.mutation.Engine
 import com.rk.mutation.Mutators
 import com.rk.resources.drawables
@@ -41,7 +44,6 @@ object CommandProvider {
         val editModeText = stringResource(strings.edit_mode)
 
         // TODO: Add actions from `KEYBINDS.md`
-        // TODO: Add LSP actions
 
         return buildList {
             // Core application commands
@@ -311,6 +313,54 @@ object CommandProvider {
                     isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.refresh))
+                )
+            )
+
+            add(
+                Command(
+                    id = "lsp.go_to_definition",
+                    label = mutableStateOf(stringResource(strings.go_to_definition)),
+                    action = { vm, act ->
+                        val currentTab = viewModel.currentTab
+                        if (currentTab is EditorTab) {
+                            goToDefinition(DefaultScope, act!!, vm, currentTab)
+                        }
+                    },
+                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToDefinitionSupported() == true },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.jump_to_element))
+                )
+            )
+
+            add(
+                Command(
+                    id = "lsp.go_to_references",
+                    label = mutableStateOf(stringResource(strings.go_to_references)),
+                    action = { vm, act ->
+                        val currentTab = viewModel.currentTab
+                        if (currentTab is EditorTab) {
+                            goToReferences(DefaultScope, act!!, vm, currentTab)
+                        }
+                    },
+                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
+                )
+            )
+
+            add(
+                Command(
+                    id = "lsp.rename_symbol",
+                    label = mutableStateOf(stringResource(strings.rename_symbol)),
+                    action = { vm, act ->
+                        val currentTab = viewModel.currentTab
+                        if (currentTab is EditorTab) {
+                            renameSymbol(DefaultScope, currentTab)
+                        }
+                    },
+                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
                 )
             )
 
