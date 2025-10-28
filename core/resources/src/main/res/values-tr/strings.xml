@@ -445,7 +445,7 @@
     <string name="enable_sticky_scroll">Yapışkan kaydırmayı etkinleştir</string>
     <string name="enable_sticky_scroll_desc">Mevcut kod bloğu başlığını kaydırırken görünür tut</string>
     <string name="enable_quick_deletion">Hızlı satır silmeyi etkinleştir</string>
-    <string name="enable_quick_deletion_desc">Eğer boşsa, otomatik olarak tüm satırı silin</string>
+    <string name="enable_quick_deletion_desc">Satır boşsa otomatik olarak tüm satırı sil</string>
     <string name="rename_failed">Dosya adı değiştirilemiyor</string>
     <string name="expert_mode">Uzman Modu</string>
     <string name="expert_mode_warn">Uzman modu, güvenlik kısıtlamalarını kaldırarak yanlış kullanımda veri kaybı gibi sorunlara neden olabilir. Sadece konuyu biliyorsanız açın.</string>
@@ -453,4 +453,5 @@
     <string name="desktop_mode">Masaüstü Modu (Deneysel)</string>
     <string name="desktop_mode_desc">Uygulamayı tabletlerde ve masaüstü boyutundaki ekranlarda kullanımı daha kolay hale getirir.</string>
     <string name="built_in">Dahili</string>
+    <string name="change_lang_warn">Dili değiştirmek, yeni dili hemen uygulamak için bu ekranı yeniden başlatacaktır. Bu, fotosensitif epilepsisi olan kişilerde rahatsızlık tetikleyebilecek kısa süreli boş bir ekran görüntüsüne neden olabilir.</string>
 </resources>
