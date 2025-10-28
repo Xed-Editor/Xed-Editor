@@ -449,4 +449,9 @@
     <string name="rename_failed">Symbol konnte nicht umbenannt werden</string>
     <string name="expert_mode">Experten-Modus</string>
     <string name="expert_mode_warn">Der Experten-Modus deaktiviert Sicherheitsbeschränkungen, die bei Missbrauch zu Datenverlust oder anderen Problemen führen können. Aktiviere ihn nur, wenn du weißt, was du tust.</string>
+    <string name="external_lsp">Externer LSP</string>
+    <string name="desktop_mode">Desktop-Modus (experimentell)</string>
+    <string name="desktop_mode_desc">Erleichtert die Verwendung der App auf Tablets und Desktop-Bildschirmen.</string>
+    <string name="built_in">Integriert</string>
+    <string name="change_lang_warn">Beim Ändern der Sprache wird dieser Bildschirm neu gestartet, um die neue Sprache sofort anzuwenden. Dabei kann kurzzeitig ein leerer Bildschirm angezeigt werden, was bei Menschen mit lichtempfindlicher Epilepsie möglicherweise Unbehagen auslösen kann.</string>
 </resources>

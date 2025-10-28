@@ -149,7 +149,7 @@
     <string name="text_size">Metin boyutu</string>
     <string name="text_size_desc">Metin boyutunu ayarla</string>
     <string name="tab_size">Sekme boyutu</string>
-    <string name="tab_size_desc">Sekme boyutunu ayarla</string>
+    <string name="tab_size_desc">Bir sekme karakteri için eklenen boşluk sayısı.</string>
     <string name="monet">Dinamik renkler</string>
     <string name="monet_desc">Cihaz temasını kullan</string>
     <string name="restart_app">Lütfen uygulamayı yeniden başlatın.</string>
@@ -441,4 +441,16 @@
     <string name="cannot_rename_symbol">Bu simgeyi yeniden adlandıramazsınız.</string>
     <string name="rename_symbol_multiple_files">Çoklu dosyalar arasında yeniden adlandırma henüz desteklenmiyor.</string>
     <string name="continue_action">Devam et</string>
+    <string name="line_spacing_desc">Editördeki her satır için yükseklik çarpanı</string>
+    <string name="enable_sticky_scroll">Yapışkan kaydırmayı etkinleştir</string>
+    <string name="enable_sticky_scroll_desc">Mevcut kod bloğu başlığını kaydırırken görünür tut</string>
+    <string name="enable_quick_deletion">Hızlı satır silmeyi etkinleştir</string>
+    <string name="enable_quick_deletion_desc">Eğer boşsa, otomatik olarak tüm satırı silin</string>
+    <string name="rename_failed">Dosya adı değiştirilemiyor</string>
+    <string name="expert_mode">Uzman Modu</string>
+    <string name="expert_mode_warn">Uzman modu, güvenlik kısıtlamalarını kaldırarak yanlış kullanımda veri kaybı gibi sorunlara neden olabilir. Sadece konuyu biliyorsanız açın.</string>
+    <string name="external_lsp">Harici LSP</string>
+    <string name="desktop_mode">Masaüstü Modu (Deneysel)</string>
+    <string name="desktop_mode_desc">Uygulamayı tabletlerde ve masaüstü boyutundaki ekranlarda kullanımı daha kolay hale getirir.</string>
+    <string name="built_in">Dahili</string>
 </resources>

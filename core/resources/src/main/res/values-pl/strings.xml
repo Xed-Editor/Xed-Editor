@@ -2,7 +2,7 @@
 <resources>
     <string name="open_drawer">Otwórz</string>
     <string name="close_drawer">Zamknij</string>
-    <string name="not_implemented">Funkcja nie jest zaimplementowana</string>
+    <string name="not_implemented">Funkcja nie jest wdrożona</string>
     <string name="unsupported_content">Nieobsługiwana treść</string>
     <string name="null_content">Błąd: treść wykazuje pustą wartość</string>
     <string name="restart_required">Wymagane ponowne uruchomienie</string>
@@ -443,10 +443,14 @@
     <string name="continue_action">Kontunuuj</string>
     <string name="rename_failed">Nie można zmienić nazwy</string>
     <string name="expert_mode">Tryb eksperta</string>
-    <string name="line_spacing_desc">Mnożnik wysokości dla każdej lini w edytorze</string>
+    <string name="line_spacing_desc">Mnożnik odległości między linijkami w edytorze</string>
     <string name="enable_sticky_scroll">Włącz lepkie przewijanie</string>
     <string name="enable_sticky_scroll_desc">Przypnij aktualny nagłówek bloku kodu, aby pozostał widoczny podczas przewijania</string>
     <string name="enable_quick_deletion">Włącz szybkie usuwanie linijki</string>
     <string name="enable_quick_deletion_desc">Automatycznie usuń całą linijkę, gdy jest pusta</string>
     <string name="expert_mode_warn">Tryb eksperta wyłącza zabezpieczenia, które mogą doprowadzić do utraty danych lub innych awarii. Włącz tylko, jeśli wiesz co robisz.</string>
+    <string name="external_lsp">Zewnętrzny serwer</string>
+    <string name="desktop_mode">Tryb stacjonarny (Eksperymentalny)</string>
+    <string name="built_in">Wbudowane</string>
+    <string name="desktop_mode_desc">Spraw, aby aplikacja dostosowała się do większych ekranów.</string>
 </resources>

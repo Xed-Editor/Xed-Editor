@@ -48,8 +48,8 @@ fun EditorSettingsToggle(
                     MainActivity.instance?.apply {
                         viewModel.tabs.forEach{
                             if (it is EditorTab){
-                                it.editorState.editor?.applySettings()
-                                it.editorState.arrowKeys?.visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
+                                it.editorState.editor.get()?.applySettings()
+                                it.editorState.arrowKeys.get()?.visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
                             }
                         }
                     }

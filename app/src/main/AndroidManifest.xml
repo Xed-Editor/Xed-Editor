@@ -15,6 +15,7 @@
 
     <queries>
         <package android:name="com.github.android" />
+        <package android:name="com.termux.x11" />
 
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
@@ -41,17 +42,9 @@
             android:shell="true"
             tools:targetApi="29" />
 
-
-<service
+        <service
             android:name="com.rk.SessionService"
             android:foregroundServiceType="specialUse" />
-
-
-
-
-        <service android:name="com.rk.LogcatService" />
-
-
 
         <activity
             android:name="com.rk.activities.main.MainActivity"
@@ -99,8 +92,8 @@
             android:exported="false" />
         <activity
             android:name="com.rk.runner.runners.web.markdown.MDViewer"
-            tools:ignore="Instantiatable"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="Instantiatable" />
         <activity
             android:name="com.rk.runner.runners.web.WebActivity"
             android:exported="false" />
@@ -111,5 +104,4 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>
-
 </manifest>

@@ -1,12 +1,16 @@
 package com.rk.terminal
 
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,9 +18,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,8 +59,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -81,7 +90,12 @@ import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.blueberry
 import com.rk.theme.currentTheme
 import com.termux.terminal.TerminalColors
+import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
+import io.github.rosemoe.sora.lang.styling.textStyle
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
@@ -110,6 +124,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
 
 
 private var onSurfaceColor: Int? = null
+private var surfaceColor: Int? = null
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TerminalScreenInternal(
@@ -118,16 +133,15 @@ fun TerminalScreenInternal(
     navController: NavController
 ) {
     val context = LocalContext.current
-    val terminalColors = if (isDarkMode(context)){
-        currentTheme.value?.darkTerminalColors
-    }else{
-        currentTheme.value?.lightTerminalColors
-    }
+
     onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
+    surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
 
     LaunchedEffect("terminal") {
         context.startService(Intent(context, SessionService::class.java))
     }
+
+
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
@@ -273,79 +287,112 @@ fun TerminalScreenInternal(
                             }
                         })
                 }) { paddingValues ->
+                    LaunchedEffect(LocalConfiguration.current,paddingValues) {
+                        terminalView.get()?.applyTerminalColors()
+                    }
+
                     Column(modifier = Modifier.padding(paddingValues)) {
 
                         AndroidView(
+
                             factory = { context ->
-                                TerminalView(context, null).apply {
-                                    terminalView = WeakReference(this)
-                                    setTextSize(
-                                        dpToPx(
-                                            Settings.terminal_font_size.toFloat(),
-                                            context
-                                        )
-                                    )
-                                    val client = TerminalBackEnd(this, terminalActivity)
-
-                                    val session = if (pendingCommand != null) {
-                                        terminalActivity.sessionBinder?.get()!!
-                                            .getService().currentSession.value = pendingCommand!!.id
-                                        terminalActivity.sessionBinder?.get()!!
-                                            .getSession(pendingCommand!!.id)
-                                            ?: terminalActivity.sessionBinder?.get()!!.createSession(
-                                                pendingCommand!!.id,
-                                                client,
-                                                terminalActivity
+                                if (terminalView.get() != null){
+                                    terminalView.get()!!
+                                }else{
+                                    TerminalView(context, null).apply {
+                                        applyTerminalColors()
+                                        terminalView = WeakReference(this)
+                                        setTextSize(
+                                            dpToPx(
+                                                Settings.terminal_font_size.toFloat(),
+                                                context
                                             )
-                                    } else {
-                                        terminalActivity.sessionBinder?.get()!!.getSession(
+                                        )
+                                        val client = TerminalBackEnd(this, terminalActivity)
+
+                                        val session = if (pendingCommand != null) {
                                             terminalActivity.sessionBinder?.get()!!
-                                                .getService().currentSession.value
-                                        )
-                                            ?: terminalActivity.sessionBinder?.get()!!.createSession(
-                                                terminalActivity.sessionBinder?.get()!!
-                                                    .getService().currentSession.value,
-                                                client,
-                                                terminalActivity
-                                            )
-                                    }
-
-                                    session.updateTerminalSessionClient(client)
-                                    attachSession(session)
-                                    setTerminalViewClient(client)
-
-                                    val fontFile = sandboxDir().child("etc/font.ttf")
-                                    if (fontFile.exists()){
-                                        setTypeface(Typeface.createFromFile(fontFile))
-                                    }else{
-                                        setTypeface(
-                                            Typeface.createFromAsset(
-                                                context.assets,
-                                                "fonts/Default.ttf"
-                                            )
-                                        )
-                                    }
-
-                                    post {
-                                        keepScreenOn = true
-                                        requestFocus()
-                                        isFocusableInTouchMode = true
-
-                                        var terminalColors = if (isDarkMode(context)) {
-                                            currentTheme.value?.darkTerminalColors
+                                                .getService().currentSession.value = pendingCommand!!.id
+                                            terminalActivity.sessionBinder?.get()!!
+                                                .getSession(pendingCommand!!.id)
+                                                ?: terminalActivity.sessionBinder?.get()!!.createSession(
+                                                    pendingCommand!!.id,
+                                                    client,
+                                                    terminalActivity
+                                                )
                                         } else {
-                                            currentTheme.value?.lightTerminalColors
+                                            terminalActivity.sessionBinder?.get()!!.getSession(
+                                                terminalActivity.sessionBinder?.get()!!
+                                                    .getService().currentSession.value
+                                            )
+                                                ?: terminalActivity.sessionBinder?.get()!!.createSession(
+                                                    terminalActivity.sessionBinder?.get()!!
+                                                        .getService().currentSession.value,
+                                                    client,
+                                                    terminalActivity
+                                                )
                                         }
-                                        if (terminalColors == null){
-                                            terminalColors = if (isDarkMode(context)){
-                                                blueberry.darkTerminalColors
-                                            }else{
-                                                blueberry.lightTerminalColors
+
+                                        session.updateTerminalSessionClient(client)
+                                        attachSession(session)
+                                        setTerminalViewClient(client)
+
+                                        val fontFile = sandboxDir().child("etc/font.ttf")
+                                        if (fontFile.exists()){
+                                            setTypeface(Typeface.createFromFile(fontFile))
+                                        }else{
+                                            setTypeface(
+                                                Typeface.createFromAsset(
+                                                    context.assets,
+                                                    "fonts/Default.ttf"
+                                                )
+                                            )
+                                        }
+
+                                        addOnLayoutChangeListener { v, left, top, right, bottom,
+                                                                    oldLeft, oldTop, oldRight, oldBottom ->
+                                            val widthChanged = (right - left) != (oldRight - oldLeft)
+                                            val heightChanged = (bottom - top) != (oldBottom - oldTop)
+
+                                            if (widthChanged || heightChanged) {
+                                                post {
+                                                    if(onSurfaceColor == null){
+                                                        onSurfaceColor = if (isDarkMode(context)){
+                                                            currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                                                        }else{
+                                                            currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                                        }
+                                                    }
+
+                                                    if(surfaceColor == null){
+                                                        surfaceColor = if (isDarkMode(context)){
+                                                            currentTheme.value?.darkScheme?.surface?.toArgb()
+                                                        }else{
+                                                            currentTheme.value?.lightScheme?.surface?.toArgb()
+                                                        }
+                                                    }
+
+                                                    this?.mEmulator?.mColors?.mCurrentColors?.apply {
+                                                        set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor!!)
+                                                        set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor!!)
+                                                        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor!!)
+                                                    }
+                                                }
                                             }
                                         }
-                                        mEmulator?.mColors?.reset()
-                                        TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
 
+                                        post {
+                                            keepScreenOn = true
+                                            requestFocus()
+                                            isFocusableInTouchMode = true
+                                        }
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f).pointerInput(Unit){
+                                    detectTapGestures(onTap = {
                                         if(onSurfaceColor == null){
                                             onSurfaceColor = if (isDarkMode(context)){
                                                 currentTheme.value?.darkScheme?.onSurface?.toArgb()
@@ -354,91 +401,24 @@ fun TerminalScreenInternal(
                                             }
                                         }
 
-                                        mEmulator?.mColors?.mCurrentColors?.apply {
-                                            set(256, onSurfaceColor!!)
-                                            //set(258, onSurfaceColor!!)
+                                        if(surfaceColor == null){
+                                            surfaceColor = if (isDarkMode(context)){
+                                                currentTheme.value?.darkScheme?.surface?.toArgb()
+                                            }else{
+                                                currentTheme.value?.lightScheme?.surface?.toArgb()
+                                            }
                                         }
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            update = { terminalView ->
-                                terminalView.onScreenUpdated();
 
-                                var terminalColors = if (isDarkMode(context)){
-                                    currentTheme.value?.darkTerminalColors
-                                }else{
-                                    currentTheme.value?.lightTerminalColors
-                                }
 
-                                if (terminalColors == null){
-                                    terminalColors = if (isDarkMode(context)){
-                                        blueberry.darkTerminalColors
-                                    }else{
-                                        blueberry.lightTerminalColors
-                                    }
-                                }
-
-                                terminalView.mEmulator?.mColors?.reset()
-                                TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
-
-                                if(onSurfaceColor == null){
-                                    onSurfaceColor = if (isDarkMode(context)){
-                                        currentTheme.value?.darkScheme?.onSurface?.toArgb()
-                                    }else{
-                                        currentTheme.value?.lightScheme?.onSurface?.toArgb()
-                                    }
-                                }
-
-                                terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
-                                    set(256, onSurfaceColor!!)
-                                    //set(258, onSurfaceColor!!)
-                                }
-                            },
+                                        terminalView.get()?.mEmulator?.mColors?.mCurrentColors?.apply {
+                                            set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor!!)
+                                            set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor!!)
+                                            set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor!!)
+                                        }
+                                    })
+                                },
+                            update = { terminalView -> terminalView.applyTerminalColors() },
                         )
-
-
-                        val darkMode = isSystemInDarkTheme()
-                        LaunchedEffect(currentTheme.value,darkMode) {
-                            val view = terminalView.get()
-                            if (view != null) {
-                                var terminalColors = if (isDarkMode(context)) {
-                                    currentTheme.value?.darkTerminalColors
-                                } else {
-                                    currentTheme.value?.lightTerminalColors
-                                }
-                                if (terminalColors == null){
-                                    terminalColors = if (isDarkMode(context)){
-                                        blueberry.darkTerminalColors
-                                    }else{
-                                        blueberry.lightTerminalColors
-                                    }
-                                }
-
-
-
-                                view.mEmulator?.mColors?.reset()
-                                TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
-
-                                if(onSurfaceColor == null){
-                                    onSurfaceColor = if (isDarkMode(context)){
-                                        currentTheme.value?.darkScheme?.onSurface?.toArgb()
-                                    }else{
-                                        currentTheme.value?.lightScheme?.onSurface?.toArgb()
-                                    }
-                                }
-
-                                view.mEmulator?.mColors?.mCurrentColors?.apply {
-                                    set(256, onSurfaceColor!!)
-                                    //set(258, onSurfaceColor!!)
-                                }
-                                view.invalidate()
-                                view.requestLayout()
-                            }
-                        }
-
 
                         val pagerState = rememberPagerState(pageCount = { 2 })
                         HorizontalPager(
@@ -600,36 +580,6 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
         attachSession(session)
         setTerminalViewClient(client)
 
-        var terminalColors = if (isDarkMode(context)) {
-            currentTheme.value?.darkTerminalColors
-        } else {
-            currentTheme.value?.lightTerminalColors
-        }
-        if (terminalColors == null){
-            terminalColors = if (isDarkMode(context)){
-                blueberry.darkTerminalColors
-            }else{
-                blueberry.lightTerminalColors
-            }
-        }
-
-        mEmulator?.mColors?.reset()
-        TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
-
-        if(onSurfaceColor == null){
-            onSurfaceColor = if (isDarkMode(context)){
-                currentTheme.value?.darkScheme?.onSurface?.toArgb()
-            }else{
-                currentTheme.value?.lightScheme?.onSurface?.toArgb()
-            }
-        }
-
-
-        mEmulator?.mColors?.mCurrentColors?.apply {
-            set(256, onSurfaceColor!!)
-            //set(258, onSurfaceColor!!)
-        }
-
         post {
             keepScreenOn = true
             requestFocus()
@@ -645,6 +595,47 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
 
 }
 
+
+private fun TerminalView.applyTerminalColors(){
+    this?.onScreenUpdated();
+
+    var terminalColors = if (isDarkMode(context)){
+        currentTheme.value?.darkTerminalColors
+    }else{
+        currentTheme.value?.lightTerminalColors
+    }
+
+    if (terminalColors == null){
+        terminalColors = if (isDarkMode(context)){
+            blueberry.darkTerminalColors
+        }else{
+            blueberry.lightTerminalColors
+        }
+    }
+    TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
+
+    if(onSurfaceColor == null){
+        onSurfaceColor = if (isDarkMode(context)){
+            currentTheme.value?.darkScheme?.onSurface?.toArgb()
+        }else{
+            currentTheme.value?.lightScheme?.onSurface?.toArgb()
+        }
+    }
+
+    if(surfaceColor == null){
+        surfaceColor = if (isDarkMode(context)){
+            currentTheme.value?.darkScheme?.surface?.toArgb()
+        }else{
+            currentTheme.value?.lightScheme?.surface?.toArgb()
+        }
+    }
+
+    this?.mEmulator?.mColors?.mCurrentColors?.apply {
+        set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor!!)
+        set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor!!)
+        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor!!)
+    }
+}
 
 const val VIRTUAL_KEYS =
     ("[" + "\n  [" + "\n    \"ESC\"," + "\n    {" + "\n      \"key\": \"/\"," + "\n      \"popup\": \"\\\\\"" + "\n    }," + "\n    {" + "\n      \"key\": \"-\"," + "\n      \"popup\": \"|\"" + "\n    }," + "\n    \"HOME\"," + "\n    \"UP\"," + "\n    \"END\"," + "\n    \"PGUP\"" + "\n  ]," + "\n  [" + "\n    \"TAB\"," + "\n    \"CTRL\"," + "\n    \"ALT\"," + "\n    \"LEFT\"," + "\n    \"DOWN\"," + "\n    \"RIGHT\"," + "\n    \"PGDN\"" + "\n  ]" + "\n]")

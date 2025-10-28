@@ -151,7 +151,7 @@ object CommandProvider {
                     action = { vm, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
-                            currentTab.editorState.editor?.apply {
+                            currentTab.editorState.editor.get()?.apply {
                                 if (canUndo()) {
                                     undo()
                                 }
@@ -175,7 +175,7 @@ object CommandProvider {
                     action = { vm, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
-                            currentTab.editorState.editor?.apply {
+                            currentTab.editorState.editor.get()?.apply {
                                 if (canRedo()) {
                                     redo()
                                 }

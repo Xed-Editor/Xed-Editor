@@ -107,7 +107,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                             MainActivity.instance?.apply {
                                 viewModel.tabs.forEach{
                                     if (it is EditorTab){
-                                        it.editorState.editor?.applyFont()
+                                        it.editorState.editor.get()?.applyFont()
                                     }
                                 }
                             }

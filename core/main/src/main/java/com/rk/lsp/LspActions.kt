@@ -54,7 +54,7 @@ suspend fun generateSnippet(viewModel: MainViewModel, targetFile: FileObject, ra
 
         // Do only read file if it's not already opened as a tab
         val lines = if (openedTab != null) {
-            openedTab.editorState.editor!!.text.toString().lines()
+            openedTab.editorState.editor.get()?.text.toString().lines()
         } else {
             targetFile.getInputStream().bufferedReader().use {
                 it.readLines()
@@ -87,7 +87,7 @@ suspend fun goToTabAndSelect(viewModel: MainViewModel, file: FileObject, range: 
     targetTab!!.editorState.contentRendered.await()
 
     withContext(Dispatchers.Main) {
-        targetTab.editorState.editor?.setSelectionRegion(
+        targetTab.editorState.editor.get()?.setSelectionRegion(
             range.start.line,
             range.start.character,
             range.end.line,
@@ -95,7 +95,7 @@ suspend fun goToTabAndSelect(viewModel: MainViewModel, file: FileObject, range: 
             SelectionChangeEvent.CAUSE_SEARCH
         )
 
-        targetTab.editorState.editor?.ensureSelectionVisible()
+        targetTab.editorState.editor.get()?.ensureSelectionVisible()
     }
 }
 
@@ -109,7 +109,7 @@ fun goToDefinition(
         runCatching {
             val baseLspConnector = editorTab.baseLspConnector
             val editorState = editorTab.editorState
-            val editor = editorState.editor!!
+            val editor = editorState.editor.get()!!
 
             val eitherDefinitions = baseLspConnector!!.requestDefinition(editor)
             val definitions = if (eitherDefinitions.isLeft) eitherDefinitions.left else eitherDefinitions.right
@@ -172,7 +172,7 @@ fun goToReferences(
         runCatching {
             val baseLspConnector = editorTab.baseLspConnector
             val editorState = editorTab.editorState
-            val editor = editorState.editor!!
+            val editor = editorState.editor.get()!!
 
             val references = baseLspConnector!!.requestReferences(editor)
 
@@ -249,7 +249,7 @@ fun renameSymbol(
             val file = editorTab.file
             val baseLspConnector = editorTab.baseLspConnector
             val editorState = editorTab.editorState
-            val editor = editorState.editor!!
+            val editor = editorState.editor.get()!!
 
             if (baseLspConnector!!.isPrepareRenameSymbolSupported()) {
                 val prepareRename = baseLspConnector.requestPrepareRenameSymbol(editor)

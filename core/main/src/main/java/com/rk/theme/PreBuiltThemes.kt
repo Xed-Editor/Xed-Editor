@@ -80,8 +80,8 @@ val blueberry = Theme(
         scrim = Color(0xFF000000)
     ),
     lightTerminalColors = Properties().also {
-        it["foreground"] = Color(0xFF1A1B20).toHex()
-        it["background"] = Color(0xFFF9F9FF).toHex()
+        //it["foreground"] = Color(0xFF1A1B20).toHex()
+        //it["background"] = Color(0xFFF9F9FF).toHex()
         it["cursor"] = "#373b41"
 
         it["color0"] = "#1d1f21"
@@ -109,8 +109,8 @@ val blueberry = Theme(
         it["color21"] = "#e0e0e0"
     },
     darkTerminalColors = Properties().also {
-        it["background"] = Color(0xFF111318).toHex()
-        it["foreground"] = Color(0xFFE2E2E9).toHex()
+        //it["background"] = Color(0xFF111318).toHex()
+        //it["foreground"] = Color(0xFFE2E2E9).toHex()
         it["cursor"] = "#6e6a86"
 
         // black
@@ -229,8 +229,8 @@ val lime = Theme(
         surfaceContainerHighest = Color(0xFF33362E)
     ),
     lightTerminalColors = Properties().also {
-        it["foreground"] = Color(0xFF1A1C16).toHex()
-        it["background"] = Color(0xFFF9FAEF).toHex()
+        //it["foreground"] = Color(0xFF1A1C16).toHex()
+        //it["background"] = Color(0xFFF9FAEF).toHex()
         it["cursor"] = "#373b41"
 
         it["color0"] = "#1d1f21"
@@ -258,8 +258,8 @@ val lime = Theme(
         it["color21"] = "#e0e0e0"
     },
     darkTerminalColors = Properties().also {
-        it["background"] = Color(0xFF12140E).toHex()
-        it["foreground"] = Color(0xFFE2E3D8).toHex()
+        //it["background"] = Color(0xFF12140E).toHex()
+        //it["foreground"] = Color(0xFFE2E3D8).toHex()
         it["cursor"] = "#6e6a86"
 
         // black

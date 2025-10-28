@@ -28,7 +28,7 @@ import kotlin.ranges.random
 import com.rk.activities.main.CommandProvider
 
 @Composable
-fun RowScope.EditorQuickActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 

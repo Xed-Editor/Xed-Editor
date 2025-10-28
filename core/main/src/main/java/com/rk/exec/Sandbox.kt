@@ -1,6 +1,7 @@
 package com.rk.exec
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
 import com.rk.App
 import com.rk.file.child
@@ -123,7 +124,7 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
 
         if (!App.isFDroid){
             env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader.so"
-            if (File(application!!.applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
+            if (Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() && File(application!!.applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
                 env["PROOT_LOADER32"] ="${application!!.applicationInfo.nativeLibraryDir}/libproot-loader32.so"
             }
         }

@@ -241,21 +241,12 @@ fun MainContent(
 
             HorizontalDivider()
 
-            var cachedTabSize by rememberSaveable { mutableIntStateOf(1) }
-
-            LaunchedEffect(Unit) {
-                delay(500)
-                cachedTabSize = mainViewModel.tabs.size
-            }
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clipToBounds(),
-                beyondViewportPageCount = cachedTabSize,
+                modifier = Modifier.fillMaxSize().clipToBounds(),
+                beyondViewportPageCount = mainViewModel.tabs.size,
                 userScrollEnabled = false,
-                key = { index -> mainViewModel.tabs[index].refreshKey }
             ) { page ->
                 if (page < mainViewModel.tabs.size) {
                     mainViewModel.tabs[page].Content()
