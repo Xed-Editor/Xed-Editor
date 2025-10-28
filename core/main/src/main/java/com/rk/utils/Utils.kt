@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -212,7 +213,8 @@ fun composeDialog(
                                     shape = MaterialTheme.shapes.large,
                                     tonalElevation = 1.dp,
                                 ) {
-                                    DividerColumn(
+                                    DividerColumn(modifier = Modifier.verticalScroll(rememberScrollState())
+                                        .fillMaxHeight(),
                                         startIndent = 0.dp,
                                         endIndent = 0.dp,
                                         dividersToSkip = 0,

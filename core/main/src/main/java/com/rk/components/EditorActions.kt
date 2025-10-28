@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
@@ -27,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
@@ -61,9 +65,16 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.ranges.random
 import androidx.compose.ui.platform.LocalResources
+import com.rk.editor.textmateSources
+import com.rk.icons.Edit_note
+import com.rk.icons.Photo
+import com.rk.icons.XedIcons
 import com.rk.runner.RunnerImpl
 import com.rk.runner.currentRunner
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.settings.language.setAppLanguage
+import com.rk.utils.composeDialog
+import kotlinx.coroutines.delay
 import java.lang.ref.WeakReference
 
 sealed class ActionType {
@@ -110,7 +121,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
 
     SideEffect {
         scope.launch{
-            editable = editorState.editor?.editable == true
+            editable = editorState.editor.get()?.editable == true
             isRunnable = Runner.isRunnable(tab.file)
         }
     }
@@ -151,7 +162,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                     GlobalScope.launch{
                         tab.save()
                     }
-                    editorState.editor!!.updateUndoRedo()
+                    editorState.editor.get()!!.updateUndoRedo()
                 }
             ),
             EditorAction(
@@ -160,12 +171,12 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 labelRes = strings.undo,
                 isEnabled = canUndo.value,
                 action = { tab, editorState ->
-                    editorState.editor?.apply {
+                    editorState.editor.get()?.apply {
                         if (canUndo()){
                             undo()
                         }
                     }
-                    editorState.editor!!.updateUndoRedo()
+                    editorState.editor.get()?.updateUndoRedo()
                 }
             ),
             EditorAction(
@@ -174,12 +185,12 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 labelRes = strings.redo,
                 isEnabled = canRedo.value,
                 action = { tab, editorState ->
-                    editorState.editor?.apply {
+                    editorState.editor.get()?.apply {
                         if (canRedo()){
                             redo()
                         }
                     }
-                    editorState.editor!!.updateUndoRedo()
+                    editorState.editor.get()?.updateUndoRedo()
                 }
             ),
             EditorAction(
@@ -222,7 +233,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 },
                 action = { tab,editorState ->
                     editable = editable.not()
-                    editorState.editor?.editable = editable
+                    editorState.editor.get()?.editable = editable
                 }
             ),
             EditorAction(
@@ -271,6 +282,18 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 labelRes = strings.settings,
                 action = { tab,editorState ->
                     activity!!.startActivity(Intent(activity, SettingsActivity::class.java))
+                }
+            ),
+            EditorAction(
+                id = "syntax_highlighting",
+                type = ActionType.VectorAction(XedIcons.Edit_note),
+                labelRes = strings.highlighting,
+                action = { tab,editorState ->
+                    MainActivity.instance?.viewModel?.currentTab?.let {
+                        if (it is EditorTab){
+                            it.editorState.showSyntaxPanel = true
+                        }
+                    }
                 }
             ),
             EditorAction(

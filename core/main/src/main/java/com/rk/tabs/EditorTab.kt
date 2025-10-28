@@ -1,6 +1,7 @@
 package com.rk.tabs
 
 import android.app.Activity
+import android.content.res.Configuration
 import com.rk.activities.main.ControlPanel
 import com.rk.activities.main.MainViewModel
 import android.view.KeyEvent
@@ -17,12 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -64,18 +67,23 @@ import java.nio.charset.Charset
 import com.rk.lsp.createLspTextActions
 import com.rk.components.CodeItem
 import com.rk.components.FindingsDialog
+import com.rk.components.SettingsToggle
 import com.rk.components.SingleInputDialog
+import com.rk.components.SyntaxPanel
 import com.rk.file.persistentTempDir
 import com.rk.lsp.ProcessConnection
 import com.rk.lsp.lspRegistry
 import kotlinx.coroutines.CompletableDeferred
+import java.lang.ref.WeakReference
 
 
 data class CodeEditorState(
     val initialContent: Content? = null,
 ) {
-    var editor: Editor? = null
-    var arrowKeys: HorizontalScrollView? = null
+    var editor: WeakReference<Editor?> = WeakReference(null)
+    var arrowKeys: WeakReference<HorizontalScrollView?> = WeakReference(null)
+    var rootView: WeakReference<ConstraintLayout?> = WeakReference(null)
+
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
     var editable by mutableStateOf(false)
@@ -93,6 +101,7 @@ data class CodeEditorState(
     var replaceKeyword by mutableStateOf("")
 
     var showControlPanel by mutableStateOf(false)
+    var showSyntaxPanel by mutableStateOf(false)
 
     var showFindingsDialog by mutableStateOf(false)
     var findingsItems by mutableStateOf(listOf<CodeItem>())
@@ -103,6 +112,9 @@ data class CodeEditorState(
     var renameValue by mutableStateOf("")
     var renameError by mutableStateOf<String?>(null)
     var renameConfirm by mutableStateOf<((String) -> Unit)?>(null)
+
+    var textmateScope by mutableStateOf<String?>(null)
+
 }
 
 val lsp_connections = mutableStateMapOf<String, Int>()
@@ -145,9 +157,9 @@ class EditorTab(
     override fun onTabRemoved() {
         scope.cancel()
         editorState.content = null
-        editorState.arrowKeys = null
-        editorState.editor?.setText("")
-        editorState.editor?.release()
+        editorState.arrowKeys = WeakReference(null)
+        editorState.editor.get()?.setText("")
+        editorState.editor.get()?.release()
         GlobalScope.launch{
             baseLspConnector?.disconnect()
             lspConnection?.close()
@@ -192,82 +204,92 @@ class EditorTab(
 
     @Composable
     override fun Content(){
-        Column {
-            val language = file.let {
-                textmateSources[it.getName().substringAfterLast('.', "").trim()]
-            }
-
-            if (editorState.showControlPanel){
-                ControlPanel(onDismissRequest = {
-                    editorState.showControlPanel = false
-                }, viewModel = viewModel)
-            }
-
-            if (editorState.showFindingsDialog) {
-                FindingsDialog(
-                    title = editorState.findingsTitle,
-                    codeItems = editorState.findingsItems,
-                    description = editorState.findingsDescription,
-                    onFinish = {
-                        editorState.showFindingsDialog = false
-                    }
-                )
-            }
-
-            if (editorState.showRenameDialog) {
-                SingleInputDialog(
-                    title = stringResource(strings.rename_symbol),
-                    inputLabel = stringResource(strings.new_name),
-                    inputValue = editorState.renameValue,
-                    errorMessage = editorState.renameError,
-                    confirmEnabled = editorState.renameValue.isNotBlank(),
-                    onInputValueChange = {
-                        editorState.renameValue = it
-                        editorState.renameError = null
-                        if (editorState.renameValue.isBlank()) {
-                            editorState.renameError = strings.name_empty_err.getString()
-                        }
-                    },
-                    onConfirm = {
-                        editorState.renameConfirm?.let { it(editorState.renameValue) }
-                    },
-                    onFinish = {
-                        editorState.renameValue = ""
-                        editorState.renameError = null
-                        editorState.renameConfirm = null
-                        editorState.showRenameDialog = false
-                    }
-                )
-            }
-
-            SearchPanel(editorState = editorState)
-            if (editorState.isSearching){
-                HorizontalDivider()
-            }
-
-            CodeEditor(
-                modifier = Modifier,
-                state = editorState,
-                textmateScope = language,
-                onTextChange = {
-                    if (Settings.auto_save){
-                        scope.launch(Dispatchers.IO){
-                            save()
-                            saveMutex.lock()
-                            delay(400)
-                            saveMutex.unlock()
-                        }
-                    }
-                },
-                onKeyEvent = { event ->
-                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                        scope.launch(Dispatchers.IO) {
-                            save()
-                        }
+        key(refreshKey) {
+            Column {
+                if (editorState.textmateScope == null){
+                    editorState.textmateScope = file.let {
+                        textmateSources[it.getName().substringAfterLast('.', "").trim()]
                     }
                 }
-            )
+
+                if (editorState.showControlPanel){
+                    ControlPanel(onDismissRequest = {
+                        editorState.showControlPanel = false
+                    }, viewModel = viewModel)
+                }
+
+                if (editorState.showSyntaxPanel){
+                    SyntaxPanel(onDismissRequest = {
+                        editorState.showSyntaxPanel = false
+                    },editorState)
+                }
+
+                if (editorState.showFindingsDialog) {
+                    FindingsDialog(
+                        title = editorState.findingsTitle,
+                        codeItems = editorState.findingsItems,
+                        description = editorState.findingsDescription,
+                        onFinish = {
+                            editorState.showFindingsDialog = false
+                        }
+                    )
+                }
+
+                if (editorState.showRenameDialog) {
+                    SingleInputDialog(
+                        title = stringResource(strings.rename_symbol),
+                        inputLabel = stringResource(strings.new_name),
+                        inputValue = editorState.renameValue,
+                        errorMessage = editorState.renameError,
+                        confirmEnabled = editorState.renameValue.isNotBlank(),
+                        onInputValueChange = {
+                            editorState.renameValue = it
+                            editorState.renameError = null
+                            if (editorState.renameValue.isBlank()) {
+                                editorState.renameError = strings.name_empty_err.getString()
+                            }
+                        },
+                        onConfirm = {
+                            editorState.renameConfirm?.let { it(editorState.renameValue) }
+                        },
+                        onFinish = {
+                            editorState.renameValue = ""
+                            editorState.renameError = null
+                            editorState.renameConfirm = null
+                            editorState.showRenameDialog = false
+                        }
+                    )
+                }
+
+                SearchPanel(editorState = editorState)
+                if (editorState.isSearching){
+                    HorizontalDivider()
+                }
+
+                CodeEditor(
+                    modifier = Modifier,
+                    state = editorState,
+                    onTextChange = {
+                        if (Settings.auto_save){
+                            scope.launch(Dispatchers.IO){
+                                save()
+                                saveMutex.lock()
+                                delay(400)
+                                saveMutex.unlock()
+                            }
+                        }
+                    },
+                    onKeyEvent = { event ->
+                        if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
+                            scope.launch(Dispatchers.IO) {
+                                save()
+                            }
+                        }
+                    }
+                )
+            }
         }
+
     }
 
     @Composable
@@ -287,8 +309,8 @@ class EditorTab(
             editorState.content = content
             withContext(Dispatchers.Main){
                 editorState.updateLock.withLock{
-                    editorState.editor?.setText(content)
-                    editorState.editor!!.updateUndoRedo()
+                    editorState.editor.get()?.setText(content)
+                    editorState.editor.get()?.updateUndoRedo()
                 }
             }
         }
@@ -300,10 +322,10 @@ class EditorTab(
 private fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
-    textmateScope: String? = null,
     onKeyEvent: (EditorKeyEvent) -> Unit,
-    onTextChange: () -> Unit
+    onTextChange: () -> Unit,
 ) {
+
     val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
     val selectionColors = LocalTextSelectionColors.current
@@ -369,71 +391,7 @@ private fun EditorTab.CodeEditor(
                             dividerColor = divider.toArgb()
                         )
 
-                        state.editor = this
-
-                        textmateScope?.let { langScope ->
-                            scope.launch(Dispatchers.IO) {
-                                val ext = file.getName().substringAfterLast(".").trim()
-
-                                // Connect with debug language server
-                                if (lsp_connections.contains(ext)) {
-                                    baseLspConnector = BaseLspConnector(
-                                        ext,
-                                        textMateScope = textmateSources[ext]!!,
-                                        port = lsp_connections[ext]!!
-                                    )
-
-                                    file.getParentFile()?.let { parent ->
-                                        baseLspConnector?.connect(
-                                            parent,
-                                            fileObject = file,
-                                            codeEditor = editorState.editor!!
-                                        )
-                                    }
-                                    return@launch
-                                }
-
-                                val server = lspRegistry.find { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
-                                if (server != null && Preference.getBoolean("lsp_${server.id}",true)) {
-                                    lspConnection = ProcessConnection(server.command())
-
-                                    // Connect with built-in language server
-                                    if (server.isInstalled(context)) {
-                                        baseLspConnector = BaseLspConnector(
-                                            ext,
-                                            textMateScope = textmateSources[ext]!!,
-                                            connectionProvider = lspConnection!!
-                                        )
-
-                                        file.getParentFile()?.let { parent ->
-                                            baseLspConnector?.connect(
-                                                parent,
-                                                fileObject = file,
-                                                codeEditor = editorState.editor!!
-                                            )
-                                        }
-                                        return@launch
-                                    }
-
-                                    dialog(
-                                        context = context as Activity,
-                                        title = strings.attention.getString(),
-                                        msg = strings.ask_lsp_install.getFilledString(server.languageName),
-                                        cancelString = strings.dont_ask_again,
-                                        okString = strings.install,
-                                        onOk = { server.install(context) },
-                                        onCancel = {
-                                            Preference.setBoolean(
-                                                "lsp_${server.id}",
-                                                false
-                                            )
-                                        }
-                                    )
-                                }
-
-                                setLanguage(langScope)
-                            }
-                        }
+                        state.editor = WeakReference(this)
 
                         val lspActions = createLspTextActions(scope, context, viewModel, file, editorState) { baseLspConnector }
                         lspActions.forEach { registerTextAction(it) }
@@ -462,7 +420,7 @@ private fun EditorTab.CodeEditor(
                     }
 
                     val horizontalScrollView = HorizontalScrollView(ctx).apply {
-                        state.arrowKeys = this
+                        state.arrowKeys = WeakReference(this)
                         id = horizontalScrollViewId
 
                         visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
@@ -511,8 +469,80 @@ private fun EditorTab.CodeEditor(
 
                         applyTo(this@apply)
                     }
+                    editorState.rootView = WeakReference(this)
                 }
             },
         )
+    }
+
+    LaunchedEffect(editorState.textmateScope,editorState,editorState.editor) {
+        if (editorState.editor.get() == null){
+            return@LaunchedEffect
+        }
+        with(editorState.editor.get()!!){
+            editorState.textmateScope?.let { langScope ->
+                scope.launch(Dispatchers.IO) {
+                    val ext = file.getName().substringAfterLast(".").trim()
+
+                    // Connect with debug language server
+                    if (lsp_connections.contains(ext)) {
+                        baseLspConnector = BaseLspConnector(
+                            ext,
+                            textMateScope = textmateSources[ext]!!,
+                            port = lsp_connections[ext]!!
+                        )
+
+                        file.getParentFile()?.let { parent ->
+                            baseLspConnector?.connect(
+                                parent,
+                                fileObject = file,
+                                codeEditor = editorState.editor.get()!!
+                            )
+                        }
+                        return@launch
+                    }
+
+                    val server = lspRegistry.find { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
+                    if (server != null && Preference.getBoolean("lsp_${server.id}",true)) {
+                        lspConnection = ProcessConnection(server.command())
+
+                        // Connect with built-in language server
+                        if (server.isInstalled(context)) {
+                            baseLspConnector = BaseLspConnector(
+                                ext,
+                                textMateScope = textmateSources[ext]!!,
+                                connectionProvider = lspConnection!!
+                            )
+
+                            file.getParentFile()?.let { parent ->
+                                baseLspConnector?.connect(
+                                    parent,
+                                    fileObject = file,
+                                    codeEditor = editorState.editor.get()!!
+                                )
+                            }
+                            return@launch
+                        }
+
+                        dialog(
+                            context = context as Activity,
+                            title = strings.attention.getString(),
+                            msg = strings.ask_lsp_install.getFilledString(server.languageName),
+                            cancelString = strings.dont_ask_again,
+                            okString = strings.install,
+                            onOk = { server.install(context) },
+                            onCancel = {
+                                Preference.setBoolean(
+                                    "lsp_${server.id}",
+                                    false
+                                )
+                            }
+                        )
+                    }
+
+                    setLanguage(langScope)
+                }
+            }
+        }
     }
 }

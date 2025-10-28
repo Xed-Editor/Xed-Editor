@@ -67,7 +67,7 @@ fun SearchPanel(
         if (query.isNotEmpty()) {
             try {
                 val searchOptions = getSearchOptions(editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord)
-                editor?.searcher?.search(query, searchOptions)
+                editor.get()?.searcher?.search(query, searchOptions)
                 hasSearchError = false
                 isSearchingInternal = true
             } catch (e: PatternSyntaxException) {
@@ -75,19 +75,19 @@ fun SearchPanel(
                 isSearchingInternal = false
             }
         } else {
-            editor?.searcher?.stopSearch()
+            editor.get()?.searcher?.stopSearch()
             hasSearchError = false
             isSearchingInternal = false
         }
     }
 
     LaunchedEffect(editor) {
-        editor?.subscribeAlways(PublishSearchResultEvent::class.java) {
-            searchMatchesCount = runCatching { editor.searcher?.matchedPositionCount ?: 0 }.getOrDefault(0)
+        editor.get()?.subscribeAlways(PublishSearchResultEvent::class.java) {
+            searchMatchesCount = runCatching { editor.get()?.searcher?.matchedPositionCount ?: 0 }.getOrDefault(0)
         }
 
-        editor?.subscribeAlways(SelectionChangeEvent::class.java) {
-            searchCurrentIndex = runCatching { editor.searcher?.currentMatchedPositionIndex?.plus(1) ?: 0 }.getOrDefault(0)
+        editor.get()?.subscribeAlways(SelectionChangeEvent::class.java) {
+            searchCurrentIndex = runCatching { editor.get()?.searcher?.currentMatchedPositionIndex?.plus(1) ?: 0 }.getOrDefault(0)
         }
     }
 
@@ -257,7 +257,7 @@ fun SearchPanel(
 
                         IconButton(onClick = {
                             editorState.isSearching = false
-                            editor?.searcher?.stopSearch()
+                            editor.get()?.searcher?.stopSearch()
                         }) {
                             Icon(imageVector = Icons.Outlined.Close, null)
                         }
@@ -303,7 +303,7 @@ fun SearchPanel(
                         .padding(horizontal = 8.dp)
                 ) {
                     TextButton(enabled = isSearchingInternal, onClick = {
-                        editor?.searcher?.gotoPrevious()
+                        editor.get()?.searcher?.gotoPrevious()
                     }) {
                         Text(stringResource(strings.go_prev).uppercase())
                     }
@@ -311,7 +311,7 @@ fun SearchPanel(
                     Spacer(Modifier.height(10.dp))
 
                     TextButton(enabled = isSearchingInternal, onClick = {
-                        editor?.searcher?.gotoNext()
+                        editor.get()?.searcher?.gotoNext()
                     }) {
                         Text(stringResource(strings.go_next).uppercase())
                     }
@@ -320,7 +320,7 @@ fun SearchPanel(
                         TextButton(
                             enabled = isSearchingInternal,
                             onClick = {
-                                editor?.searcher?.replaceCurrentMatch(editorState.replaceKeyword)
+                                editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword)
                             }) {
                             Text(stringResource(strings.replace).uppercase())
                         }
@@ -328,7 +328,7 @@ fun SearchPanel(
                         TextButton(
                             enabled = isSearchingInternal,
                             onClick = {
-                                editor?.searcher?.replaceAll(editorState.replaceKeyword)
+                                editor.get()?.searcher?.replaceAll(editorState.replaceKeyword)
                             }) {
                             Text(stringResource(strings.replace_all).uppercase())
                         }
@@ -344,7 +344,7 @@ fun SearchPanel(
 
         BackHandler {
             editorState.isSearching = false
-            editor?.searcher?.stopSearch()
+            editor.get()?.searcher?.stopSearch()
         }
     }
 }
