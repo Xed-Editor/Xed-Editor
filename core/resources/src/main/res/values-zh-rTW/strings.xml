@@ -449,4 +449,8 @@
     <string name="rename_failed">無法重新命名檔案</string>
     <string name="expert_mode">進階模式</string>
     <string name="expert_mode_warn">進階模式會停用安全限制，若使用不當，可能導致資料遺失或其他問題。請僅在確定了解操作內容時再啟用。</string>
+    <string name="external_lsp">外部 LSP</string>
+    <string name="desktop_mode">桌面模式（實驗性）</string>
+    <string name="desktop_mode_desc">使該應用程序更易於在平板電腦和台式機大小的屏幕上使用。</string>
+    <string name="built_in">內置</string>
 </resources>
