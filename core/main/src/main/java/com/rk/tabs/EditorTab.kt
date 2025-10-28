@@ -475,7 +475,7 @@ private fun EditorTab.CodeEditor(
         )
     }
 
-    LaunchedEffect(editorState.textmateScope,editorState,editorState.editor,refreshKey) {
+    LaunchedEffect(editorState.textmateScope,editorState,editorState.editor,refreshKey,LocalConfiguration.current) {
         if (editorState.editor.get() == null){
             return@LaunchedEffect
         }
