@@ -65,5 +65,6 @@ val textmateSources = mapOf(
     "sql" to "source.sql",
     "p" to "source.pascal",
     "pas" to "source.pascal",
-    "zig" to "source.zig"
+    "zig" to "source.zig",
+    "asm" to "source.asm"
 )
