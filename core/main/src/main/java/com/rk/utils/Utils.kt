@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.telephony.TelephonyManager
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -368,4 +370,23 @@ fun showTerminalNotice(activity: Activity,onOk: () -> Unit){
         onOk()
     }
 }
+
+fun isAppInstalled(context: Context, packageName: String): Boolean {
+    return try {
+        context.packageManager.getPackageInfo(packageName, 0)
+        true // App is installed
+    } catch (e: PackageManager.NameNotFoundException) {
+        false // App not found
+    }
+}
+
+fun getSourceDirOfPackage(context: Context, packageName: String): String? {
+    return try {
+        val info = context.packageManager.getApplicationInfo(packageName, 0)
+        info.sourceDir
+    } catch (e: PackageManager.NameNotFoundException) {
+        null // App not found
+    }
+}
+
 

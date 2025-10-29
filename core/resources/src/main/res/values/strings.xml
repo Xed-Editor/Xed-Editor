@@ -454,4 +454,7 @@
     <string name="desktop_mode">Desktop Mode (Experimental)</string>
     <string name="desktop_mode_desc">Makes the app easier to use on tablets and desktop-sized screens.</string>
     <string name="built_in">Built-in</string>
+    <string name="change_lang_warn">Changing the language will restart this screen to apply the new language immediately.
+    This may briefly show a blank screen, which could potentially trigger discomfort
+    in people with photosensitive epilepsy.</string>
 </resources>

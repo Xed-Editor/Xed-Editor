@@ -1,8 +1,6 @@
 package com.rk.tabs
 
 import android.app.Activity
-import com.rk.activities.main.ControlPanel
-import com.rk.activities.main.MainViewModel
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -18,38 +16,58 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
-import com.rk.file.FileObject
-import com.rk.utils.dialog
-import com.rk.utils.dpToPx
-import com.rk.lsp.BaseLspConnector
+import com.rk.activities.main.ControlPanel
+import com.rk.activities.main.MainViewModel
+import com.rk.components.CodeItem
+import com.rk.components.EditorActions
+import com.rk.components.FindingsDialog
+import com.rk.components.SearchPanel
+import com.rk.components.SingleInputDialog
+import com.rk.components.SyntaxPanel
+import com.rk.components.updateUndoRedo
 import com.rk.editor.Editor
 import com.rk.editor.getInputView
 import com.rk.editor.textmateSources
-import com.rk.utils.errorDialog
+import com.rk.file.FileObject
+import com.rk.lsp.BaseLspConnector
+import com.rk.lsp.ProcessConnection
+import com.rk.lsp.createLspTextActions
+import com.rk.lsp.lspRegistry
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.components.EditorActions
-import com.rk.components.SearchPanel
-import com.rk.components.updateUndoRedo
+import com.rk.utils.dialog
+import com.rk.utils.dpToPx
+import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -60,22 +78,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 import java.nio.charset.Charset
-import com.rk.lsp.createLspTextActions
-import com.rk.components.CodeItem
-import com.rk.components.FindingsDialog
-import com.rk.components.SingleInputDialog
-import com.rk.file.persistentTempDir
-import com.rk.lsp.ProcessConnection
-import com.rk.lsp.lspRegistry
-import kotlinx.coroutines.CompletableDeferred
 
 
 data class CodeEditorState(
     val initialContent: Content? = null,
 ) {
-    var editor: Editor? = null
-    var arrowKeys: HorizontalScrollView? = null
+    var editor: WeakReference<Editor?> = WeakReference(null)
+    var arrowKeys: WeakReference<HorizontalScrollView?> = WeakReference(null)
+    var rootView: WeakReference<ConstraintLayout?> = WeakReference(null)
+
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
     var editable by mutableStateOf(false)
@@ -93,6 +106,7 @@ data class CodeEditorState(
     var replaceKeyword by mutableStateOf("")
 
     var showControlPanel by mutableStateOf(false)
+    var showSyntaxPanel by mutableStateOf(false)
 
     var showFindingsDialog by mutableStateOf(false)
     var findingsItems by mutableStateOf(listOf<CodeItem>())
@@ -103,6 +117,9 @@ data class CodeEditorState(
     var renameValue by mutableStateOf("")
     var renameError by mutableStateOf<String?>(null)
     var renameConfirm by mutableStateOf<((String) -> Unit)?>(null)
+
+    var textmateScope by mutableStateOf<String?>(null)
+
 }
 
 val lsp_connections = mutableStateMapOf<String, Int>()
@@ -126,13 +143,13 @@ class EditorTab(
     val scope = CoroutineScope(Dispatchers.Default)
 
     override var tabTitle: MutableState<String> = mutableStateOf(file.getName()).also {
-        scope.launch{
+        scope.launch {
             delay(100)
             val parent = file.getParentFile()
-            if (viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null){
+            if (viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null) {
 
                 val title = "${parent.getName()}/${tabTitle.value}"
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     tabTitle.value = title
                 }
 
@@ -145,10 +162,10 @@ class EditorTab(
     override fun onTabRemoved() {
         scope.cancel()
         editorState.content = null
-        editorState.arrowKeys = null
-        editorState.editor?.setText("")
-        editorState.editor?.release()
-        GlobalScope.launch{
+        editorState.arrowKeys = WeakReference(null)
+        editorState.editor.get()?.setText("")
+        editorState.editor.get()?.release()
+        GlobalScope.launch {
             baseLspConnector?.disconnect()
             lspConnection?.close()
         }
@@ -173,15 +190,15 @@ class EditorTab(
     private val saveMutex = Mutex()
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun save() = withContext(Dispatchers.IO){
-        saveMutex.withLock{
+    suspend fun save() = withContext(Dispatchers.IO) {
+        saveMutex.withLock {
             runCatching {
-                if (file.canWrite().not()){
+                if (file.canWrite().not()) {
                     errorDialog(strings.cant_write)
                     return@withContext
                 }
                 editorState.isDirty = false
-                file.writeText(editorState.content.toString(),charset)
+                file.writeText(editorState.content.toString(), charset)
                 editorState.isDirty = false
                 baseLspConnector?.notifySave(charset)
             }.onFailure {
@@ -191,87 +208,97 @@ class EditorTab(
     }
 
     @Composable
-    override fun Content(){
-        Column {
-            val language = file.let {
-                textmateSources[it.getName().substringAfterLast('.', "").trim()]
-            }
-
-            if (editorState.showControlPanel){
-                ControlPanel(onDismissRequest = {
-                    editorState.showControlPanel = false
-                }, viewModel = viewModel)
-            }
-
-            if (editorState.showFindingsDialog) {
-                FindingsDialog(
-                    title = editorState.findingsTitle,
-                    codeItems = editorState.findingsItems,
-                    description = editorState.findingsDescription,
-                    onFinish = {
-                        editorState.showFindingsDialog = false
-                    }
-                )
-            }
-
-            if (editorState.showRenameDialog) {
-                SingleInputDialog(
-                    title = stringResource(strings.rename_symbol),
-                    inputLabel = stringResource(strings.new_name),
-                    inputValue = editorState.renameValue,
-                    errorMessage = editorState.renameError,
-                    confirmEnabled = editorState.renameValue.isNotBlank(),
-                    onInputValueChange = {
-                        editorState.renameValue = it
-                        editorState.renameError = null
-                        if (editorState.renameValue.isBlank()) {
-                            editorState.renameError = strings.name_empty_err.getString()
-                        }
-                    },
-                    onConfirm = {
-                        editorState.renameConfirm?.let { it(editorState.renameValue) }
-                    },
-                    onFinish = {
-                        editorState.renameValue = ""
-                        editorState.renameError = null
-                        editorState.renameConfirm = null
-                        editorState.showRenameDialog = false
-                    }
-                )
-            }
-
-            SearchPanel(editorState = editorState)
-            if (editorState.isSearching){
-                HorizontalDivider()
-            }
-
-            CodeEditor(
-                modifier = Modifier,
-                state = editorState,
-                textmateScope = language,
-                onTextChange = {
-                    if (Settings.auto_save){
-                        scope.launch(Dispatchers.IO){
-                            save()
-                            saveMutex.lock()
-                            delay(400)
-                            saveMutex.unlock()
-                        }
-                    }
-                },
-                onKeyEvent = { event ->
-                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                        scope.launch(Dispatchers.IO) {
-                            save()
-                        }
+    override fun Content() {
+        key(refreshKey) {
+            Column {
+                if (editorState.textmateScope == null) {
+                    editorState.textmateScope = file.let {
+                        textmateSources[it.getName().substringAfterLast('.', "").trim()]
                     }
                 }
-            )
+
+                if (editorState.showControlPanel) {
+                    ControlPanel(onDismissRequest = {
+                        editorState.showControlPanel = false
+                    }, viewModel = viewModel)
+                }
+
+                if (editorState.showSyntaxPanel) {
+                    SyntaxPanel(onDismissRequest = {
+                        editorState.showSyntaxPanel = false
+                    }, editorState)
+                }
+
+                if (editorState.showFindingsDialog) {
+                    FindingsDialog(
+                        title = editorState.findingsTitle,
+                        codeItems = editorState.findingsItems,
+                        description = editorState.findingsDescription,
+                        onFinish = {
+                            editorState.showFindingsDialog = false
+                        }
+                    )
+                }
+
+                if (editorState.showRenameDialog) {
+                    SingleInputDialog(
+                        title = stringResource(strings.rename_symbol),
+                        inputLabel = stringResource(strings.new_name),
+                        inputValue = editorState.renameValue,
+                        errorMessage = editorState.renameError,
+                        confirmEnabled = editorState.renameValue.isNotBlank(),
+                        onInputValueChange = {
+                            editorState.renameValue = it
+                            editorState.renameError = null
+                            if (editorState.renameValue.isBlank()) {
+                                editorState.renameError = strings.name_empty_err.getString()
+                            }
+                        },
+                        onConfirm = {
+                            editorState.renameConfirm?.let { it(editorState.renameValue) }
+                        },
+                        onFinish = {
+                            editorState.renameValue = ""
+                            editorState.renameError = null
+                            editorState.renameConfirm = null
+                            editorState.showRenameDialog = false
+                        }
+                    )
+                }
+
+                SearchPanel(editorState = editorState)
+                if (editorState.isSearching) {
+                    HorizontalDivider()
+                }
+
+                CodeEditor(
+                    modifier = Modifier,
+                    state = editorState,
+                    onTextChange = {
+                        if (Settings.auto_save) {
+                            scope.launch(Dispatchers.IO) {
+                                save()
+                                saveMutex.lock()
+                                delay(400)
+                                saveMutex.unlock()
+                            }
+                        }
+                    },
+                    onKeyEvent = { event ->
+                        if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
+                            scope.launch(Dispatchers.IO) {
+                                save()
+                            }
+                        }
+                    }
+                )
+            }
         }
+
     }
 
     @Composable
-    override fun RowScope.Actions(){
+    override fun RowScope.Actions() {
         EditorActions(
             modifier = Modifier,
             tab = this@EditorTab,
@@ -279,16 +306,16 @@ class EditorTab(
         )
     }
 
-    fun refresh(){
-        scope.launch(Dispatchers.IO){
+    fun refresh() {
+        scope.launch(Dispatchers.IO) {
             val content = file.getInputStream().use {
                 ContentIO.createFrom(it)
             }
             editorState.content = content
-            withContext(Dispatchers.Main){
-                editorState.updateLock.withLock{
-                    editorState.editor?.setText(content)
-                    editorState.editor!!.updateUndoRedo()
+            withContext(Dispatchers.Main) {
+                editorState.updateLock.withLock {
+                    editorState.editor.get()?.setText(content)
+                    editorState.editor.get()?.updateUndoRedo()
                 }
             }
         }
@@ -300,11 +327,15 @@ class EditorTab(
 private fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
-    textmateScope: String? = null,
     onKeyEvent: (EditorKeyEvent) -> Unit,
-    onTextChange: () -> Unit
+    onTextChange: () -> Unit,
 ) {
-    val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
+
+    val surfaceColor = if (isSystemInDarkTheme()) {
+        MaterialTheme.colorScheme.surfaceDim
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
     val selectionColors = LocalTextSelectionColors.current
     val realSurface = MaterialTheme.colorScheme.surface
@@ -342,8 +373,8 @@ private fun EditorTab.CodeEditor(
 
                     val editor = Editor(ctx).apply {
                         editable = state.editable
-                        if(isWordwrap.not()){
-                            if (Settings.word_wrap_for_text){
+                        if (isWordwrap.not()) {
+                            if (Settings.word_wrap_for_text) {
                                 isWordwrap = file.getName().endsWith(".txt")
                             }
                         }
@@ -369,73 +400,15 @@ private fun EditorTab.CodeEditor(
                             dividerColor = divider.toArgb()
                         )
 
-                        state.editor = this
+                        state.editor = WeakReference(this)
 
-                        textmateScope?.let { langScope ->
-                            scope.launch(Dispatchers.IO) {
-                                val ext = file.getName().substringAfterLast(".").trim()
-
-                                // Connect with debug language server
-                                if (lsp_connections.contains(ext)) {
-                                    baseLspConnector = BaseLspConnector(
-                                        ext,
-                                        textMateScope = textmateSources[ext]!!,
-                                        port = lsp_connections[ext]!!
-                                    )
-
-                                    file.getParentFile()?.let { parent ->
-                                        baseLspConnector?.connect(
-                                            parent,
-                                            fileObject = file,
-                                            codeEditor = editorState.editor!!
-                                        )
-                                    }
-                                    return@launch
-                                }
-
-                                val server = lspRegistry.find { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
-                                if (server != null && Preference.getBoolean("lsp_${server.id}",true)) {
-                                    lspConnection = ProcessConnection(server.command())
-
-                                    // Connect with built-in language server
-                                    if (server.isInstalled(context)) {
-                                        baseLspConnector = BaseLspConnector(
-                                            ext,
-                                            textMateScope = textmateSources[ext]!!,
-                                            connectionProvider = lspConnection!!
-                                        )
-
-                                        file.getParentFile()?.let { parent ->
-                                            baseLspConnector?.connect(
-                                                parent,
-                                                fileObject = file,
-                                                codeEditor = editorState.editor!!
-                                            )
-                                        }
-                                        return@launch
-                                    }
-
-                                    dialog(
-                                        context = context as Activity,
-                                        title = strings.attention.getString(),
-                                        msg = strings.ask_lsp_install.getFilledString(server.languageName),
-                                        cancelString = strings.dont_ask_again,
-                                        okString = strings.install,
-                                        onOk = { server.install(context) },
-                                        onCancel = {
-                                            Preference.setBoolean(
-                                                "lsp_${server.id}",
-                                                false
-                                            )
-                                        }
-                                    )
-                                }
-
-                                setLanguage(langScope)
-                            }
-                        }
-
-                        val lspActions = createLspTextActions(scope, context, viewModel, file, editorState) { baseLspConnector }
+                        val lspActions = createLspTextActions(
+                            scope,
+                            context,
+                            viewModel,
+                            file,
+                            editorState
+                        ) { baseLspConnector }
                         lspActions.forEach { registerTextAction(it) }
 
                         scope.launch(Dispatchers.IO) {
@@ -449,7 +422,7 @@ private fun EditorTab.CodeEditor(
                         }
 
                         subscribeAlways(ContentChangeEvent::class.java) {
-                            if (!state.updateLock.isLocked){
+                            if (!state.updateLock.isLocked) {
                                 state.isDirty = true
                                 updateUndoRedo()
                                 onTextChange.invoke()
@@ -462,10 +435,14 @@ private fun EditorTab.CodeEditor(
                     }
 
                     val horizontalScrollView = HorizontalScrollView(ctx).apply {
-                        state.arrowKeys = this
+                        state.arrowKeys = WeakReference(this)
                         id = horizontalScrollViewId
 
-                        visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
+                        visibility = if (Settings.show_arrow_keys) {
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
 
                         layoutParams = ConstraintLayout.LayoutParams(
                             ConstraintLayout.LayoutParams.MATCH_PARENT,
@@ -473,14 +450,14 @@ private fun EditorTab.CodeEditor(
                         )
                         isHorizontalScrollBarEnabled = false
                         isSaveEnabled = false
-                        addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
+                        addView(getInputView(editor, realSurface.toArgb(), onSurfaceColor.toArgb()))
                     }
 
                     val divider = View(ctx).apply {
                         id = dividerId
                         layoutParams = ConstraintLayout.LayoutParams(
                             ConstraintLayout.LayoutParams.MATCH_PARENT,
-                            dpToPx(1f,ctx)
+                            dpToPx(1f, ctx)
                         ).apply {
                             setBackgroundColor(divider.toArgb())
                         }
@@ -493,26 +470,166 @@ private fun EditorTab.CodeEditor(
                     with(constraintSet) {
                         clone(this@apply)
 
-                        connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                        connect(editor.id, ConstraintSet.BOTTOM, dividerId, ConstraintSet.TOP) // Connect to divider top
+                        connect(
+                            editor.id,
+                            ConstraintSet.TOP,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.TOP
+                        )
+                        connect(
+                            editor.id,
+                            ConstraintSet.BOTTOM,
+                            dividerId,
+                            ConstraintSet.TOP
+                        ) // Connect to divider top
 
                         connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                        connect(dividerId, ConstraintSet.BOTTOM, horizontalScrollViewId, ConstraintSet.TOP)
-                        connect(dividerId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                        connect(dividerId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                        connect(
+                            dividerId,
+                            ConstraintSet.BOTTOM,
+                            horizontalScrollViewId,
+                            ConstraintSet.TOP
+                        )
+                        connect(
+                            dividerId,
+                            ConstraintSet.START,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.START
+                        )
+                        connect(
+                            dividerId,
+                            ConstraintSet.END,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.END
+                        )
 
-                        connect(horizontalScrollViewId, ConstraintSet.TOP, dividerId, ConstraintSet.BOTTOM)
-                        connect(horizontalScrollViewId, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                        connect(
+                            horizontalScrollViewId,
+                            ConstraintSet.TOP,
+                            dividerId,
+                            ConstraintSet.BOTTOM
+                        )
+                        connect(
+                            horizontalScrollViewId,
+                            ConstraintSet.BOTTOM,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.BOTTOM
+                        )
 
-                        connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                        connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                        connect(horizontalScrollViewId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                        connect(horizontalScrollViewId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                        connect(
+                            editor.id,
+                            ConstraintSet.START,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.START
+                        )
+                        connect(
+                            editor.id,
+                            ConstraintSet.END,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.END
+                        )
+                        connect(
+                            horizontalScrollViewId,
+                            ConstraintSet.START,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.START
+                        )
+                        connect(
+                            horizontalScrollViewId,
+                            ConstraintSet.END,
+                            ConstraintSet.PARENT_ID,
+                            ConstraintSet.END
+                        )
 
                         applyTo(this@apply)
                     }
+                    editorState.rootView = WeakReference(this)
                 }
             },
         )
+    }
+
+    LaunchedEffect(
+        editorState.textmateScope,
+        editorState,
+        editorState.editor,
+        refreshKey,
+        LocalConfiguration.current,
+        LocalContext.current,
+        MaterialTheme.colorScheme
+    ) {
+        if (editorState.editor.get() == null) {
+            return@LaunchedEffect
+        }
+        with(editorState.editor.get()!!) {
+            editorState.textmateScope?.let { langScope ->
+                scope.launch(Dispatchers.IO) {
+                    val ext = file.getName().substringAfterLast(".").trim()
+
+                    // Connect with external language server
+                    if (lsp_connections.contains(ext)) {
+                        baseLspConnector = BaseLspConnector(
+                            ext,
+                            textMateScope = textmateSources[ext]!!,
+                            port = lsp_connections[ext]!!
+                        )
+
+                        file.getParentFile()?.let { parent ->
+                            baseLspConnector?.connect(
+                                parent,
+                                fileObject = file,
+                                codeEditor = editorState.editor.get()!!
+                            )
+                        }
+                        return@launch
+                    }
+
+                    val server = lspRegistry.find {
+                        it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase())
+                    }
+                    if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
+                        lspConnection = ProcessConnection(server.command())
+
+                        // Connect with built-in language server
+                        if (server.isInstalled(context)) {
+                            baseLspConnector = BaseLspConnector(
+                                ext,
+                                textMateScope = textmateSources[ext]!!,
+                                connectionProvider = lspConnection!!
+                            )
+
+                            file.getParentFile()?.let { parent ->
+                                baseLspConnector?.connect(
+                                    parent,
+                                    fileObject = file,
+                                    codeEditor = editorState.editor.get()!!
+                                )
+                            }
+                            return@launch
+                        }
+
+                        dialog(
+                            context = context as Activity,
+                            title = strings.attention.getString(context),
+                            msg = strings.ask_lsp_install.getFilledString(
+                                context,
+                                server.languageName
+                            ),
+                            cancelString = strings.dont_ask_again,
+                            okString = strings.install,
+                            onOk = { server.install(context) },
+                            onCancel = {
+                                Preference.setBoolean(
+                                    "lsp_${server.id}",
+                                    false
+                                )
+                            }
+                        )
+                    }
+
+                    setLanguage(langScope)
+                }
+            }
+        }
     }
 }

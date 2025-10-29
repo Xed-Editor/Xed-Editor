@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import com.rk.App.Companion.getTempDir
 import com.rk.SessionService
 import com.rk.file.localBinDir
@@ -40,6 +41,10 @@ import com.rk.utils.*
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.exec.isTerminalInstalled
+import com.rk.file.child
+import com.rk.file.localDir
+import com.rk.file.localLibDir
+import com.rk.settings.Settings
 import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.TerminalScreen
 import com.rk.terminal.getNextStage
@@ -47,6 +52,7 @@ import com.rk.theme.XedTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -58,7 +64,6 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
 class Terminal : AppCompatActivity() {
-    //var sessionBinder = WeakReference<SessionService.SessionBinder?>(null)
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
 
@@ -92,9 +97,12 @@ class Terminal : AppCompatActivity() {
         }
     }
 
+
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             XedTheme {
                 Surface {
@@ -141,7 +149,7 @@ class Terminal : AppCompatActivity() {
                             talloc_arm
                         } else {
                             throw RuntimeException("Unsupported CPU")
-                        }, outputPath = "local/lib/libtalloc.so.2"
+                        }, outputFile = localLibDir().child("libtalloc.so.2")
                     ),
 
                     DownloadFile(
@@ -153,7 +161,7 @@ class Terminal : AppCompatActivity() {
                             proot_arm
                         } else {
                             throw RuntimeException("Unsupported CPU")
-                        }, outputPath = "local/bin/proot"
+                        }, outputFile = localBinDir().child("proot")
                     ),
                 ).toMutableList()
 
@@ -169,14 +177,13 @@ class Terminal : AppCompatActivity() {
                                 sandbox_arm
                             } else {
                                 throw RuntimeException("Unsupported CPU")
-                            }, outputPath = "tmp/sandbox.tar.gz"
+                            }, outputFile = getTempDir().child("sandbox.tar.gz")
                         )
                     )
-
                 }
 
                 needsDownload = filesToDownload.any { file ->
-                    !File(context.filesDir.parentFile, file.outputPath).exists()
+                    file.outputFile.exists().not()
                 }
 
                 setupEnvironment(context = context,
@@ -271,7 +278,7 @@ class Terminal : AppCompatActivity() {
 
 
     data class DownloadFile(
-        val url: String, val outputPath: String
+        val url: String, val outputFile: File
     )
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -289,7 +296,7 @@ class Terminal : AppCompatActivity() {
                 var completedFiles = 0
 
                 filesToDownload.forEach { file ->
-                    val outputFile = File(context.filesDir.parentFile, file.outputPath)
+                    val outputFile = file.outputFile
                     currentFile = outputFile
 
                     outputFile.parentFile?.mkdirs()
@@ -299,12 +306,12 @@ class Terminal : AppCompatActivity() {
                             url = file.url,
                             outputFile = outputFile,
                             onProgress = { downloaded, total ->
-                                onProgress(file.outputPath.substringAfterLast("/"), downloaded, total)
+                                onProgress(file.outputFile.name, downloaded, total)
                             }
                         )
                     } else {
                         // Report existing file as already downloaded
-                        onProgress(file.outputPath.substringAfterLast("/"), outputFile.length(), outputFile.length())
+                        onProgress(file.outputFile.name, outputFile.length(), outputFile.length())
                     }
                     completedFiles++
 

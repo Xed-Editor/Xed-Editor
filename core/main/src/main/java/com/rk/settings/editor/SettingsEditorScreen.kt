@@ -278,7 +278,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     MainActivity.instance?.apply {
                         viewModel.tabs.forEach { tab ->
                             if (tab is EditorTab) {
-                                (tab.editorState.editor?.editorLanguage as? TextMateLanguage)?.useTab(
+                                (tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage)?.useTab(
                                     it
                                 )
                             }
@@ -379,7 +379,7 @@ private fun reapplyEditorSettings() {
     MainActivity.instance?.apply {
         viewModel.tabs.forEach {
             if (it is EditorTab) {
-                it.editorState.editor?.applySettings()
+                it.editorState.editor.get()?.applySettings()
             }
         }
     }

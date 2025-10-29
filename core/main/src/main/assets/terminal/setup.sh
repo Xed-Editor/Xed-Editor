@@ -131,3 +131,6 @@ else
     clear
     sh "$PREFIX"/local/bin/sandbox
 fi
+
+# DO NOT REMOVE THIS FILE JUST DON'T, TRUST ME
+touch "$PREFIX"/local/.terminal_setup_ok_DO_NOT_REMOVE
