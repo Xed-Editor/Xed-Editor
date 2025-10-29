@@ -46,21 +46,22 @@ class App : Application() {
     }
 
     init {
-        application = this
-        Res.application = this
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
-        GlobalScope.launch(Dispatchers.IO) {
-            TabCache.preloadTabs()
-        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
+        application = this
+        Res.application = this
 
         val currentLocale = Locale.forLanguageTag(Settings.currentLang)
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
+
+        GlobalScope.launch(Dispatchers.IO) {
+            TabCache.preloadTabs()
+        }
 
         updateThemes()
 

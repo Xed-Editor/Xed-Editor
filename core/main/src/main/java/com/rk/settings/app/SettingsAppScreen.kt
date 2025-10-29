@@ -51,7 +51,7 @@ object InbuiltFeatures {
             default = true
         )
     val mutators = Feature(nameRes = strings.mutators, key = "feature_mutators", default = true)
-    val expertMode = Feature(nameRes = strings.expert_mode, key = "expertMode", default = BuildConfig.DEBUG)
+    val expertMode = Feature(nameRes = strings.debug_options, key = "expertMode", default = BuildConfig.DEBUG)
 }
 
 @Composable
