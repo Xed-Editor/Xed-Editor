@@ -453,4 +453,5 @@
     <string name="desktop_mode">Tryb stacjonarny (Eksperymentalny)</string>
     <string name="built_in">Wbudowane</string>
     <string name="desktop_mode_desc">Spraw, aby aplikacja dostosowała się do większych ekranów.</string>
+    <string name="change_lang_warn">Zmiana języka uruchomi ponownie aplikację, aby zastosować zmiany. Ekran może błysnąć wywołu}ąc dyskomfort u ludzi z epilepsją światłoczułą.</string>
 </resources>
