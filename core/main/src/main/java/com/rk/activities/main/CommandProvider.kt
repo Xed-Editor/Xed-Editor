@@ -16,6 +16,8 @@ import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
+import com.rk.icons.Edit_note
+import com.rk.icons.XedIcons
 import com.rk.lsp.goToDefinition
 import com.rk.lsp.goToReferences
 import com.rk.lsp.renameSymbol
@@ -313,6 +315,22 @@ object CommandProvider {
                     isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.refresh))
+                )
+            )
+
+            add(
+                Command(
+                    id = "editor.syntax_highlighting",
+                    label = mutableStateOf(stringResource(strings.highlighting)),
+                    action = { vm, act ->
+                        val currentTab = viewModel.currentTab
+                        if (currentTab is EditorTab) {
+                            currentTab.editorState.showSyntaxPanel = true
+                        }
+                    },
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(XedIcons.Edit_note)
                 )
             )
 

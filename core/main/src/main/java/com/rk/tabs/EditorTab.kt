@@ -265,9 +265,10 @@ class EditorTab(
                 }
 
                 if (editorState.showSyntaxPanel) {
-                    SyntaxPanel(onDismissRequest = {
-                        editorState.showSyntaxPanel = false
-                    }, editorState)
+                    SyntaxPanel(
+                        onDismissRequest = { editorState.showSyntaxPanel = false },
+                        editorState = editorState
+                    )
                 }
 
                 if (editorState.showFindingsDialog) {

@@ -1,19 +1,14 @@
 package com.rk.components
 
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.rk.activities.main.MainViewModel
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.editor.textmateSources
 import com.rk.tabs.CodeEditorState
-import com.rk.utils.composeDialog
-import kotlinx.coroutines.DelicateCoroutinesApi
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun SyntaxPanel(onDismissRequest:()-> Unit,editorState: CodeEditorState) {
     XedDialog(onDismissRequest = onDismissRequest) {
