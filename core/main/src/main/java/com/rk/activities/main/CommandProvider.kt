@@ -45,8 +45,6 @@ object CommandProvider {
         val readModeText = stringResource(strings.read_mode)
         val editModeText = stringResource(strings.edit_mode)
 
-        // TODO: Add actions from `KEYBINDS.md`
-
         return buildList {
             // Core application commands
             add(
@@ -104,6 +102,117 @@ object CommandProvider {
             )
 
             // Core editor commands
+            add(
+                Command(
+                    id = "editor.cut",
+                    label = mutableStateOf(stringResource(strings.cut)),
+                    action = { vm, _ ->
+                        val currentTab = vm.currentTab
+                        if (currentTab is EditorTab) {
+                            currentTab.editorState.editor.get()!!.cutText()
+                        }
+                    },
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                    isEnabled = derivedStateOf {
+                        val currentTab = viewModel.currentTab
+                        currentTab is EditorTab && currentTab.editorState.editable
+                    },
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.cut)),
+                    keybinds = "Ctrl + X"
+                )
+            )
+
+            add(
+                Command(
+                    id = "editor.copy",
+                    label = mutableStateOf(stringResource(strings.copy)),
+                    action = { vm, _ ->
+                        val currentTab = vm.currentTab
+                        if (currentTab is EditorTab) {
+                            currentTab.editorState.editor.get()!!.copyText()
+                        }
+                    },
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.copy)),
+                    keybinds = "Ctrl + C"
+                )
+            )
+
+            add(
+                Command(
+                    id = "editor.paste",
+                    label = mutableStateOf(stringResource(strings.paste)),
+                    action = { vm, _ ->
+                        val currentTab = vm.currentTab
+                        if (currentTab is EditorTab) {
+                            currentTab.editorState.editor.get()!!.pasteText()
+                        }
+                    },
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                    isEnabled = derivedStateOf {
+                        val currentTab = viewModel.currentTab
+                        currentTab is EditorTab && currentTab.editorState.editable
+                    },
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.paste)),
+                    keybinds = "Ctrl + V"
+                )
+            )
+
+            add(
+                Command(
+                    id = "editor.select_all",
+                    label = mutableStateOf(stringResource(strings.select_all)),
+                    action = { vm, _ ->
+                        val currentTab = vm.currentTab
+                        if (currentTab is EditorTab) {
+                            currentTab.editorState.editor.get()!!.selectAll()
+                        }
+                    },
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.select_all)),
+                    keybinds = "Ctrl + A"
+                )
+            )
+
+            add(
+                Command(
+                    id = "editor.select_word",
+                    label = mutableStateOf(stringResource(strings.select_word)),
+                    action = { vm, _ ->
+                        val currentTab = vm.currentTab
+                        if (currentTab is EditorTab) {
+                            currentTab.editorState.editor.get()!!.selectCurrentWord()
+                        }
+                    },
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.select)),
+                    keybinds = "Ctrl + W"
+                )
+            )
+
+            add(
+                Command(
+                    id = "editor.duplicate_line",
+                    label = mutableStateOf(stringResource(strings.duplicate_line)),
+                    action = { vm, _ ->
+                        val currentTab = vm.currentTab
+                        if (currentTab is EditorTab) {
+                            currentTab.editorState.editor.get()!!.duplicateLine()
+                        }
+                    },
+                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                    isEnabled = derivedStateOf {
+                        val currentTab = viewModel.currentTab
+                        currentTab is EditorTab && currentTab.editorState.editable
+                    },
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.duplicate_line)),
+                    keybinds = "Ctrl + D"
+                )
+            )
+
             add(
                 Command(
                     id = "editor.save",
@@ -164,9 +273,10 @@ object CommandProvider {
                     isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = derivedStateOf {
                         val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.editorState.canUndo
+                        currentTab is EditorTab && currentTab.editorState.editable && currentTab.editorState.canUndo
                     },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.undo))
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.undo)),
+                    keybinds = "Ctrl + Z"
                 )
             )
 
@@ -188,9 +298,10 @@ object CommandProvider {
                     isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = derivedStateOf {
                         val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.editorState.canRedo
+                        currentTab is EditorTab && currentTab.editorState.editable && currentTab.editorState.canRedo
                     },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.redo))
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.redo)),
+                    keybinds = "Ctrl + Y"
                 )
             )
 
@@ -238,6 +349,10 @@ object CommandProvider {
                         if (currentTab is EditorTab) {
                             val editable = currentTab.editorState.editable
                             currentTab.editorState.editable = !editable
+
+                            currentTab.editorState.editor.get()?.let {
+                                it.editable = !editable
+                            }
                         }
                     },
                     isSupported = derivedStateOf { viewModel.currentTab is EditorTab },

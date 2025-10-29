@@ -108,7 +108,7 @@ fun CommandPalette(
 @Composable
 fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolean, onDismissRequest: () -> Unit) {
     val activity = LocalActivity.current
-    val enabled = command.isEnabled.value && command.isSupported.value
+    val enabled = command.isSupported.value && command.isEnabled.value
 
     PreferenceTemplate(
         enabled = enabled,
