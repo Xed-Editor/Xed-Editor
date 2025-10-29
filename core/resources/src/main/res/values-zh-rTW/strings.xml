@@ -453,4 +453,5 @@
     <string name="desktop_mode">桌面模式（實驗性）</string>
     <string name="desktop_mode_desc">使該應用程序更易於在平板電腦和台式機大小的屏幕上使用。</string>
     <string name="built_in">內置</string>
+    <string name="change_lang_warn">變更語言後將重新啟動此畫面以立即套用新語言。過程中可能會短暫出現空白畫面，對光敏性癲癇者可能造成不適。</string>
 </resources>
