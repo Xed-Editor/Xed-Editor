@@ -16,6 +16,7 @@ import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.activities.main.TabCache
+import com.rk.settings.developer_options.startThemeFlipperIfNotRunning
 import com.rk.theme.updateThemes
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -128,6 +129,10 @@ class App : Application() {
 
             //wait until UpdateManager is done, it should only take few milliseconds
             UpdateManager.inspect()
+
+
+            //debug options
+            startThemeFlipperIfNotRunning()
 
         }
     }

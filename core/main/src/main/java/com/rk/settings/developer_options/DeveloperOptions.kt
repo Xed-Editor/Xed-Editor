@@ -1,6 +1,7 @@
 package com.rk.settings.developer_options
 
 import androidx.activity.compose.LocalActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -32,12 +33,18 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.lsp_connections
 import com.rk.components.SettingsToggle
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private var flipperJob: Job? = null
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController) {
     val context = LocalContext.current
@@ -134,10 +141,53 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
 
 
+            SettingsToggle(
+                label = "Theme Flipper",
+                description = "Constantly change the theme mode every 7s",
+                showSwitch = true,
+                default = Settings.themeFlipper,
+                sideEffect = {
+                    Settings.themeFlipper = it
+                    if (it){
+                        startThemeFlipperIfNotRunning()
+                    }
+                }
+            )
+
+
+
+
 
 
 
         }
     }
 
+}
+
+
+fun startThemeFlipperIfNotRunning(){
+    if (flipperJob == null || flipperJob?.isActive?.not() == true){
+        flipperJob = GlobalScope.launch {
+            runCatching {
+                while (isActive && Settings.themeFlipper){
+                    delay(7000)
+
+                    val mode = if (Settings.default_night_mode == AppCompatDelegate.MODE_NIGHT_NO){
+                        AppCompatDelegate.MODE_NIGHT_YES
+                    }else{
+                        AppCompatDelegate.MODE_NIGHT_NO
+                    }
+
+
+                    Settings.default_night_mode = mode
+
+                    withContext(Dispatchers.Main){
+                        AppCompatDelegate.setDefaultNightMode(mode)
+                    }
+
+                }
+            }.onFailure { it.printStackTrace() }
+        }
+    }
 }

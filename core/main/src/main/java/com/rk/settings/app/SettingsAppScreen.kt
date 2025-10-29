@@ -51,7 +51,7 @@ object InbuiltFeatures {
             default = true
         )
     val mutators = Feature(nameRes = strings.mutators, key = "feature_mutators", default = true)
-    val expertMode = Feature(nameRes = strings.debug_options, key = "expertMode", default = BuildConfig.DEBUG)
+    val debugMode = Feature(nameRes = strings.debug_options, key = "expertMode", default = BuildConfig.DEBUG)
 }
 
 @Composable
@@ -110,17 +110,17 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             val activity = LocalActivity.current
 
             BasicToggle(
-                label = stringResource(InbuiltFeatures.expertMode.nameRes),
-                checked = InbuiltFeatures.expertMode.state.value,
+                label = stringResource(InbuiltFeatures.debugMode.nameRes),
+                checked = InbuiltFeatures.debugMode.state.value,
             ) {
                 if (it){
-                    dialog(context = activity, title = strings.attention.getString(), msg = strings.expert_mode_warn.getString(), onCancel = {
-                        InbuiltFeatures.expertMode.setEnable(false)
+                    dialog(context = activity, title = strings.attention.getString(), msg = strings.debug_mode_warn.getString(), onCancel = {
+                        InbuiltFeatures.debugMode.setEnable(false)
                     }, onOk = {
-                        InbuiltFeatures.expertMode.setEnable(true)
+                        InbuiltFeatures.debugMode.setEnable(true)
                     })
                 }else{
-                    InbuiltFeatures.expertMode.setEnable(false)
+                    InbuiltFeatures.debugMode.setEnable(false)
                 }
             }
 

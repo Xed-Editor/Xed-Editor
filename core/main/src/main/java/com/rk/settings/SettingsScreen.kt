@@ -90,7 +90,7 @@ private fun Categories(navController: NavController) {
     }
 
 
-    if (InbuiltFeatures.expertMode.state.value) {
+    if (InbuiltFeatures.debugMode.state.value) {
         PreferenceCategory(
             label = stringResource(strings.debug_options),
             description = strings.debug_options_desc.getFilledString(strings.app_name.getString()),
