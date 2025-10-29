@@ -83,7 +83,11 @@ import com.rk.utils.isDarkMode
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.util.Properties
 
@@ -285,13 +289,22 @@ fun TerminalScreenInternal(
 
                             factory = { context ->
                                 TerminalView(context, null).apply {
-                                    val terminalColors = if (isDarkMode) {
-                                        currentTheme.value?.darkTerminalColors
-                                    } else {
-                                        currentTheme.value?.lightTerminalColors
+                                    scope.launch(Dispatchers.Default) {
+                                        while (isActive && currentTheme.value == null){ delay(50) }
+
+                                        withContext(Dispatchers.Main){
+                                            runCatching {
+                                                val terminalColors = if (isDarkMode) {
+                                                    currentTheme.value?.darkTerminalColors
+                                                } else {
+                                                    currentTheme.value?.lightTerminalColors
+                                                }
+
+                                                applyTerminalColors(surfaceColor = surfaceColor, onSurfaceColor = onSurfaceColor, terminalColors = terminalColors!!)
+                                            }.onFailure { it.printStackTrace() }
+                                        }
                                     }
 
-                                    applyTerminalColors(surfaceColor = surfaceColor, onSurfaceColor = onSurfaceColor, terminalColors = terminalColors!!)
 
                                     terminalView = WeakReference(this)
                                     setTextSize(
