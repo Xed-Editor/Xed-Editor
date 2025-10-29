@@ -213,8 +213,7 @@ fun composeDialog(
                                     shape = MaterialTheme.shapes.large,
                                     tonalElevation = 1.dp,
                                 ) {
-                                    DividerColumn(modifier = Modifier.verticalScroll(rememberScrollState())
-                                        .fillMaxHeight(),
+                                    DividerColumn(
                                         startIndent = 0.dp,
                                         endIndent = 0.dp,
                                         dividersToSkip = 0,

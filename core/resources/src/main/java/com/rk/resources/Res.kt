@@ -16,16 +16,20 @@ object Res {
     var application: Application? = null
 }
 
-fun Int.getString(context: Context = Res.application!!): String {
+inline fun Int.getString(context: Context = Res.application!!): String {
     return ContextCompat.getString(context, this)
 }
 
-fun Int.getDrawable(context: Context): Drawable? {
+inline fun Int.getDrawable(context: Context): Drawable? {
     return ContextCompat.getDrawable(context, this)
 }
 
 inline fun Int.getFilledString(vararg args: Any?): String {
     return this.getString().fillPlaceholders(*args)
+}
+
+inline fun Int.getFilledString(context: Context = Res.application!!,vararg args: Any?): String {
+    return this.getString(context).fillPlaceholders(*args)
 }
 
 inline fun String.fillPlaceholders(vararg args: Any?): String {

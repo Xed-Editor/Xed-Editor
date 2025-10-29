@@ -3,6 +3,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.ui.draw.CacheDrawModifierNode
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
@@ -51,6 +52,7 @@ object Settings {
     var textmate_suggestion by CachedPreference("textMateSuggestion", true)
     var seccomp by CachedPreference("seccomp", false)
     var desktopMode by CachedPreference("desktopMode", false)
+    var themeFlipper by CachedPreference("theme_flipper",false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

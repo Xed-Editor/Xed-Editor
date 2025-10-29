@@ -53,7 +53,7 @@ fun SettingsTerminalScreen() {
         val context = LocalContext.current
         val activity = LocalActivity.current
 
-        if (InbuiltFeatures.expertMode.state.value){
+        if (InbuiltFeatures.debugMode.state.value){
             PreferenceGroup {
                 SettingsToggle(label = stringResource(strings.failsafe_mode), description = stringResource(strings.failsafe_mode_desc), default = !Settings.sandbox, sideEffect = {
                     Settings.sandbox = !it

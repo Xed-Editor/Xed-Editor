@@ -453,5 +453,5 @@
     <string name="desktop_mode">桌面模式（实验性）</string>
     <string name="desktop_mode_desc">让应用在平板和桌面大小屏幕上更易于使用。</string>
     <string name="built_in">内置</string>
-    <string name="change_lang_warn">更改语言将重启此屏幕，以立即应用新语言。这可能会短暂显示空白屏幕，从而可能引发光敏性癫痫患者的不适。</string>
+    <string name="change_lang_warn">更改语言将重启此界面以立即应用新语言。这可能会短暂显示白屏，从而引发光敏性癫痫患者的不适。</string>
 </resources>

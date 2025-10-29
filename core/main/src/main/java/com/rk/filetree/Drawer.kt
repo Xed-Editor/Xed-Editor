@@ -374,7 +374,7 @@ private fun AddProjectDialog(
                 )
             }
 
-            if (InbuiltFeatures.expertMode.state.value) {
+            if (InbuiltFeatures.debugMode.state.value) {
                 AddDialogItem(
                     icon = drawables.build,
                     title = stringResource(strings.private_files),
