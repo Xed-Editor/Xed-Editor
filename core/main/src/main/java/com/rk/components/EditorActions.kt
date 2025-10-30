@@ -25,7 +25,7 @@ import com.rk.terminal.isV
 import com.rk.utils.x
 import kotlin.math.min
 import kotlin.ranges.random
-import com.rk.activities.main.CommandProvider
+import com.rk.commands.CommandProvider
 
 @Composable
 fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {

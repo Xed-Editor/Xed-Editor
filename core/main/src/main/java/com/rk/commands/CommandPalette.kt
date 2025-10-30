@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.commands
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.resources.strings

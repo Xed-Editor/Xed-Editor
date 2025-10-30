@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.rk.commands.CommandProvider
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
 import com.rk.filetree.FileTreeViewModel

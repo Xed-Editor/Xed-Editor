@@ -1,4 +1,4 @@
-package com.rk.activities.main
+package com.rk.commands
 
 import android.content.Intent
 import androidx.compose.material.icons.Icons
@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.rk.DefaultScope
+import com.rk.activities.main.MainViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
