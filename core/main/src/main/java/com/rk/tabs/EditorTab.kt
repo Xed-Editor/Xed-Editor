@@ -477,7 +477,7 @@ private fun EditorTab.CodeEditor(
                         state.arrowKeys = WeakReference(this)
                         id = horizontalScrollViewId
 
-                        visibility = if (Settings.show_arrow_keys) {
+                        visibility = if (Settings.show_extra_keys) {
                             View.VISIBLE
                         } else {
                             View.GONE

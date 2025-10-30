@@ -23,7 +23,7 @@ object Settings {
     var word_wrap by CachedPreference("wordwrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
     var cursor_animation by CachedPreference("cursor_animation", true)
-    var show_arrow_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
+    var show_extra_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)

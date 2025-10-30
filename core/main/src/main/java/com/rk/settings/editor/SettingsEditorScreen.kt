@@ -221,18 +221,22 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            var extraKeysEnabled by remember { mutableStateOf(Settings.show_extra_keys) }
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
-                default = Settings.show_arrow_keys,
+                default = Settings.show_extra_keys,
                 sideEffect = {
-                    Settings.show_arrow_keys = it
+                    extraKeysEnabled = it
+                    Settings.show_extra_keys = it
                 }
             )
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.show_nav_extra_keys),
                 description = stringResource(id = strings.show_nav_extra_keys_desc),
+                isEnabled = !extraKeysEnabled,
                 default = Settings.show_nav_extra_keys,
                 sideEffect = {
                     Settings.show_nav_extra_keys = it
@@ -243,6 +247,7 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(
                 label = stringResource(id = strings.change_extra_keys),
                 description = stringResource(id = strings.change_extra_keys_desc),
+                isEnabled = !extraKeysEnabled,
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -283,9 +288,12 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            var useTabChar by remember { mutableStateOf(Settings.actual_tabs) }
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
+                isEnabled = !useTabChar,
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -298,6 +306,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(strings.use_tabs_desc),
                 default = Settings.actual_tabs,
                 sideEffect = {
+                    useTabChar = it
                     Settings.actual_tabs = it
 
                     MainActivity.instance?.apply {

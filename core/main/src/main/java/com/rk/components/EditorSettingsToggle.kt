@@ -44,12 +44,17 @@ fun EditorSettingsToggle(
         sideEffect = {
             DefaultScope.launch(Dispatchers.Main) {
                 sideEffect?.invoke(it)
-                if (showSwitch){
+                if (showSwitch) {
                     MainActivity.instance?.apply {
-                        viewModel.tabs.forEach{
-                            if (it is EditorTab){
+                        viewModel.tabs.forEach {
+                            if (it is EditorTab) {
                                 it.editorState.editor.get()?.applySettings()
-                                it.editorState.arrowKeys.get()?.visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
+                                it.editorState.arrowKeys.get()?.visibility =
+                                    if (Settings.show_extra_keys) {
+                                        View.VISIBLE
+                                    } else {
+                                        View.GONE
+                                    }
                             }
                         }
                     }
