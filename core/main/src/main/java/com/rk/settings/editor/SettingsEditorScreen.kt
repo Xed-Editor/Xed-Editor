@@ -221,6 +221,12 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            NextScreenCard(
+                label = stringResource(strings.toolbar_actions),
+                description = stringResource(strings.toolbar_actions_desc),
+                route = SettingsRoutes.ToolbarActions
+            )
+
             var extraKeysEnabled by remember { mutableStateOf(Settings.show_extra_keys) }
 
             EditorSettingsToggle(
@@ -416,7 +422,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 onInputValueChange = {
                     extraKeysValue = it
                     extraKeysError = null
-                    if (extraKeysValue.isBlank()) {
+                    if (extraKeysValue.isEmpty()) {
                         extraKeysError = strings.name_empty_err.getString()
                     }
                 },

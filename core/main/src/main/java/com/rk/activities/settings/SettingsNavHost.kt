@@ -13,6 +13,7 @@ import com.rk.settings.editor.DefaultEncoding
 import com.rk.settings.editor.EditorFontScreen
 import com.rk.settings.editor.LspSettings
 import com.rk.settings.editor.SettingsEditorScreen
+import com.rk.settings.editor.ToolbarActions
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.mutators.ManageMutators
 import com.rk.settings.runners.Runners
@@ -38,6 +39,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
+        composable(SettingsRoutes.ToolbarActions.route) { ToolbarActions() }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
         composable(SettingsRoutes.Support.route) { Support() }

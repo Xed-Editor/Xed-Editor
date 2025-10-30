@@ -13,6 +13,7 @@ import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import androidx.core.content.edit
+import kotlin.collections.emptyList
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)
@@ -82,6 +83,7 @@ object Settings {
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
+    var action_items by CachedPreference("action_items", "editor.undo|editor.redo|editor.save|global.terminal|global.settings")
 }
 
 object Preference {

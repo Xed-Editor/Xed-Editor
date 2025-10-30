@@ -26,13 +26,14 @@ import com.rk.utils.x
 import kotlin.math.min
 import kotlin.ranges.random
 import com.rk.commands.CommandProvider
+import com.rk.settings.Settings
 
 @Composable
 fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val selectedIds = listOf("editor.undo", "editor.redo", "editor.save", "global.terminal", "global.settings")
+    val selectedIds = Settings.action_items.split("|").toTypedArray()
 
     val allCommands = CommandProvider.getAll(viewModel)
     val allActions = selectedIds.mapNotNull {
