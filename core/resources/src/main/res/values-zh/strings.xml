@@ -454,4 +454,5 @@
     <string name="desktop_mode_desc">让应用在平板和桌面大小屏幕上更易于使用。</string>
     <string name="built_in">内置</string>
     <string name="change_lang_warn">更改语言将重启此界面以立即应用新语言。这可能会短暂显示白屏，从而引发光敏性癫痫患者的不适。</string>
+    <string name="debug_mode_warn">调试模式会禁用安全限制，如果滥用，可能导致数据丢失或其他问题。请只在你清楚自己在做什么的情况下启用它。</string>
 </resources>
