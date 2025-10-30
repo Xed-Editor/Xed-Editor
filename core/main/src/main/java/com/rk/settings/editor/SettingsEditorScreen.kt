@@ -242,7 +242,7 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(
                 label = stringResource(id = strings.show_nav_extra_keys),
                 description = stringResource(id = strings.show_nav_extra_keys_desc),
-                isEnabled = !extraKeysEnabled,
+                isEnabled = extraKeysEnabled,
                 default = Settings.show_nav_extra_keys,
                 sideEffect = {
                     Settings.show_nav_extra_keys = it
@@ -253,7 +253,7 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(
                 label = stringResource(id = strings.change_extra_keys),
                 description = stringResource(id = strings.change_extra_keys_desc),
-                isEnabled = !extraKeysEnabled,
+                isEnabled = extraKeysEnabled,
                 showSwitch = false,
                 default = false,
                 sideEffect = {
