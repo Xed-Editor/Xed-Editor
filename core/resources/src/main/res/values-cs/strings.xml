@@ -433,4 +433,14 @@
     <string name="enable_quick_deletion_desc">Automaticky vymaže celý řádek jestli je prázdný</string>
     <string name="rename_failed">Nelze přejmenovat soubor</string>
     <string name="continue_action">Pokračovat</string>
+    <string name="no_definitions_found">Definice nebyly nalezeny.</string>
+    <string name="find_definitions_error">Nelze najít definice.</string>
+    <string name="expert_mode">Režim pro Experty</string>
+    <string name="expert_mode_warn">Režim pro experty vypne bezpečnostní omezení, což může způsobit ztrátu dat nebo jiné problémy jestli je zneužíván. Jenom zapněte, pokud víte co děláte.</string>
+    <string name="external_lsp">Externí LSP</string>
+    <string name="desktop_mode">Stolní Režim (Experimentální)</string>
+    <string name="desktop_mode_desc">Zlehčuje využívání aplikace pro tablety a stolní obrazovky.</string>
+    <string name="built_in">Vestavěný</string>
+    <string name="go_to_definition">Jít k definici</string>
+    <string name="go_to_definition_desc">Vyberte jednu z(e) %d definic pro přesun k její umístění.</string>
 </resources>
