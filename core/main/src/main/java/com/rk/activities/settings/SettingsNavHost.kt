@@ -1,6 +1,5 @@
 package com.rk.activities.settings
 
-
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -33,18 +32,18 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
     ) {
 
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
-        composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity,navController) }
+        composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity, navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
-        composable(SettingsRoutes.DeveloperOptions.route){ DeveloperOptions(navController = navController) }
+        composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
-        composable(SettingsRoutes.Support.route){ Support() }
-        composable(SettingsRoutes.LanguageScreen.route){ LanguageScreen() }
-        composable(SettingsRoutes.Runners.route){ Runners() }
-        composable(SettingsRoutes.LspSettings.route){ LspSettings() }
+        composable(SettingsRoutes.Support.route) { Support() }
+        composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
+        composable(SettingsRoutes.Runners.route) { Runners() }
+        composable(SettingsRoutes.LspSettings.route) { LspSettings() }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
     }
 }

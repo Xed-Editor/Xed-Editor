@@ -20,6 +20,7 @@ import com.rk.components.EditorSettingsToggle
 import com.rk.components.SingleInputDialog
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
+import com.rk.resources.getString
 import com.rk.settings.app.InbuiltFeatures
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 
@@ -39,6 +40,10 @@ fun SettingsEditorScreen(navController: NavController) {
         var showLineSpacingDialog by remember { mutableStateOf(false) }
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
+
+        var showExtraKeysDialog by remember { mutableStateOf(false) }
+        var extraKeysValue by remember { mutableStateOf(Settings.extra_keys) }
+        var extraKeysError by remember { mutableStateOf<String?>(null) }
 
         PreferenceGroup {
             NextScreenCard(
@@ -225,6 +230,26 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_nav_extra_keys),
+                description = stringResource(id = strings.show_nav_extra_keys_desc),
+                default = Settings.show_nav_extra_keys,
+                sideEffect = {
+                    Settings.show_nav_extra_keys = it
+                    toast(strings.restart_required)
+                }
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.change_extra_keys),
+                description = stringResource(id = strings.change_extra_keys_desc),
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    showExtraKeysDialog = true
+                }
+            )
+
             NextScreenCard(
                 label = stringResource(strings.default_encoding),
                 description = stringResource(strings.default_encoding_desc),
@@ -369,6 +394,31 @@ fun SettingsEditorScreen(navController: NavController) {
                     tabSizeValue = Settings.tab_size.toString()
                     tabSizeError = null
                     showTabSizeDialog = false
+                },
+            )
+        }
+
+        if (showExtraKeysDialog) {
+            SingleInputDialog(
+                title = stringResource(id = strings.extra_keys),
+                inputLabel = stringResource(id = strings.extra_keys),
+                inputValue = extraKeysValue,
+                errorMessage = extraKeysError,
+                onInputValueChange = {
+                    extraKeysValue = it
+                    extraKeysError = null
+                    if (extraKeysValue.isBlank()) {
+                        extraKeysError = strings.name_empty_err.getString()
+                    }
+                },
+                onConfirm = {
+                    Settings.extra_keys = extraKeysValue
+                    toast(strings.restart_required)
+                },
+                onFinish = {
+                    extraKeysValue = Settings.extra_keys
+                    extraKeysError = null
+                    showExtraKeysDialog = false
                 },
             )
         }

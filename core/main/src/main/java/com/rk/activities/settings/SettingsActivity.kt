@@ -18,7 +18,6 @@ var settingsNavController = WeakReference<NavController?>(null)
 class SettingsActivity : AppCompatActivity() {
     val fileManager = FileManager(this)
 
-
     companion object {
         private var activityRef = WeakReference<SettingsActivity?>(null)
         var instance: SettingsActivity?
@@ -34,24 +33,22 @@ class SettingsActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContent {
             XedTheme {
-
-                    Surface {
-                        val navController = rememberNavController()
-                        settingsNavController = WeakReference(navController)
-                        SettingsNavHost(
-                            activity = this@SettingsActivity,
-                            navController = navController
-                        )
-                        if (intent.hasExtra("route")) {
-                            val route = intent.getStringExtra("route")
-                            if (route != null) {
-                                navController.navigate(route)
-                            } else {
-                                toast(strings.unknown_err)
-                            }
+                Surface {
+                    val navController = rememberNavController()
+                    settingsNavController = WeakReference(navController)
+                    SettingsNavHost(
+                        activity = this@SettingsActivity,
+                        navController = navController
+                    )
+                    if (intent.hasExtra("route")) {
+                        val route = intent.getStringExtra("route")
+                        if (route != null) {
+                            navController.navigate(route)
+                        } else {
+                            toast(strings.unknown_err)
                         }
                     }
-
+                }
             }
         }
     }

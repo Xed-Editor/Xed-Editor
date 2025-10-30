@@ -1,9 +1,9 @@
 package com.rk.settings
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.draw.CacheDrawModifierNode
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
@@ -53,6 +53,7 @@ object Settings {
     var seccomp by CachedPreference("seccomp", false)
     var desktopMode by CachedPreference("desktopMode", false)
     var themeFlipper by CachedPreference("theme_flipper",false)
+    var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
@@ -71,6 +72,7 @@ object Settings {
     var selected_font_path by CachedPreference("selected_font_path", "")
     var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
     var currentLang: String? by CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
+    var extra_keys by CachedPreference("extra_keys", "()\"{}[];")
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)

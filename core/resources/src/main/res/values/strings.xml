@@ -142,7 +142,7 @@
     <string name="show_line_number">Show line numbers</string>
     <string name="pin_line_number">Pin line numbers</string>
     <string name="extra_keys">Extra keys</string>
-    <string name="extra_keys_desc">Show extra keys in the editor</string>
+    <string name="extra_keys_desc">Show extra keys above the keyboard</string>
     <string name="auto_save">Auto save</string>
     <string name="auto_save_desc">Automatically save file</string>
     <string name="interval_in_ms">Interval in milliseconds</string>
@@ -463,4 +463,8 @@
     <string name="select_all">Select all</string>
     <string name="select_word">Select word</string>
     <string name="duplicate_line">Duplicate line</string>
+    <string name="show_nav_extra_keys">Show navigation keys</string>
+    <string name="show_nav_extra_keys_desc">Display navigation buttons as extra keys</string>
+    <string name="change_extra_keys">Change extra keys</string>
+    <string name="change_extra_keys_desc">Customize the extra keys shown above the keyboard</string>
 </resources>
