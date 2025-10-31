@@ -455,4 +455,6 @@
     <string name="built_in">Dahili</string>
     <string name="change_lang_warn">Dili değiştirmek, yeni dili hemen uygulamak için bu ekranı yeniden başlatacaktır. Bu, fotosensitif epilepsisi olan kişilerde rahatsızlık tetikleyebilecek kısa süreli boş bir ekran görüntüsüne neden olabilir.</string>
     <string name="debug_mode_warn">Hata ayıklama modu, güvenlik kısıtlamalarını devre dışı bırakır; bu da yanlış kullanıldığında veri kaybına veya başka sorunlara yol açabilir. Yalnızca ne yaptığınızı biliyorsanız etkinleştirin.</string>
+    <string name="address">Adres</string>
+    <string name="invalid_address">Geçersiz adres</string>
 </resources>
