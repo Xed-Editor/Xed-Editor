@@ -389,8 +389,6 @@
     <string name="capturing_logcat">Capturing logcat…</string>
     <string name="unsupported_file_ext">Unsupported file extension</string>
     <string name="invalid_port">Invalid port</string>
-    <string name="lsp_desc">Connect to external LSP server</string>
-    <string name="lsp_header">Enter port and extension</string>
     <string name="port_number">Port number</string>
     <string name="file_ext_example">File extension (e.g. py)</string>
     <string name="logcat_saved">File saved in terminal home directory as logcat.txt</string>
@@ -456,4 +454,6 @@
     <string name="change_lang_warn">Changing the language will restart this screen to apply the new language immediately.
     This may briefly show a blank screen, which could potentially trigger discomfort
     in people with photosensitive epilepsy.</string>
+    <string name="address">Address</string>
+    <string name="invalid_address">Invalid address</string>
 </resources>

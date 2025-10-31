@@ -40,13 +40,15 @@ fun SettingsEditorScreen(navController: NavController) {
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
-        PreferenceGroup {
-            NextScreenCard(
-                navController = navController,
-                label = stringResource(strings.lsp_settings),
-                description = stringResource(strings.lsp_settings_desc),
-                route = SettingsRoutes.LspSettings
-            )
+        if (InbuiltFeatures.terminal.state.value){
+            PreferenceGroup {
+                NextScreenCard(
+                    navController = navController,
+                    label = stringResource(strings.lsp_settings),
+                    description = stringResource(strings.lsp_settings_desc),
+                    route = SettingsRoutes.LspSettings
+                )
+            }
         }
 
         PreferenceGroup(heading = stringResource(strings.content)) {

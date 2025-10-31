@@ -44,11 +44,18 @@ import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
+
+/**
+ * Core connector for initializing LSP servers in a code editor.
+ *
+ * @param fileExtension The file extension this LSP handles (e.g., "kt", "py")
+ * @param textMateScope TextMate grammar scope for syntax highlighting (e.g., "source.kotlin")
+ * @param connectionConfig Configuration for how to connect to the LSP server
+ */
 class BaseLspConnector(
-    private val ext: String,
+    private val fileExtension: String,
     private val textMateScope: String,
-    private val port: Int? = null,
-    private val connectionProvider: StreamConnectionProvider = SocketStreamConnectionProvider(port!!),
+    private val connectionConfig: LspConnectionConfig
 ) {
 
     private var project: LspProject? = null
@@ -66,7 +73,7 @@ class BaseLspConnector(
 
     fun isSupported(file: FileObject): Boolean {
         val fileExt = file.getName().substringAfterLast(".")
-        return fileExt == ext && textmateSources.containsKey(fileExt)
+        return fileExt == fileExtension && textmateSources.containsKey(fileExt)
     }
 
     suspend fun connect(
@@ -96,9 +103,9 @@ class BaseLspConnector(
                 ConcurrentHashMap()
             }
 
-            serverDefinition = projectServerDefinition.computeIfAbsent(ext) {
-                val newDef = object : CustomLanguageServerDefinition(ext, ServerConnectProvider {
-                    connectionProvider
+            serverDefinition = projectServerDefinition.computeIfAbsent(fileExtension) {
+                val newDef = object : CustomLanguageServerDefinition(fileExtension, ServerConnectProvider {
+                    connectionConfig.toFactory().create()
                 }) {}
 
                 project!!.addServerDefinition(newDef)
@@ -133,7 +140,7 @@ class BaseLspConnector(
             )
             isConnected = false
             it.printStackTrace()
-            toast("Failed to connect to lsp server ${it.message}")
+            toast(it.message)
         }
     }
 

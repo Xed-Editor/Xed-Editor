@@ -12,7 +12,7 @@ import com.rk.settings.app.SettingsAppScreen
 import com.rk.settings.developer_options.DeveloperOptions
 import com.rk.settings.editor.DefaultEncoding
 import com.rk.settings.editor.EditorFontScreen
-import com.rk.settings.editor.LspSettings
+import com.rk.settings.lsp.LspSettings
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.mutators.ManageMutators

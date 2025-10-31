@@ -1,4 +1,4 @@
-package com.rk.settings.editor
+package com.rk.settings.lsp
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -96,7 +96,7 @@ fun LspSettings(modifier: Modifier = Modifier) {
                     SettingsToggle(
                         label = server.key,
                         default = true,
-                        description = "Port: ${server.value}",
+                        description = "${server.value.first}:${server.value.second}",
                         showSwitch = false,
                         endWidget = {
                             IconButton(onClick = {
@@ -116,19 +116,28 @@ fun LspSettings(modifier: Modifier = Modifier) {
 
 
         if (showDialog) {
-            PortAndExtensionDialog(
+            ExternalLSP(
                 onDismiss = { showDialog = false },
-                onConfirm = { port, extension ->
-                    if (textmateSources[extension] == null){
-                        toast(strings.unsupported_file_ext)
-                        return@PortAndExtensionDialog
-                    }
-                    if (port.toIntOrNull() == null){
-                        toast(strings.invalid_port)
-                        return@PortAndExtensionDialog
+                onConfirm = { host, port, extension ->
+                    runCatching {
+                        if (textmateSources[extension] == null){
+                            toast(strings.unsupported_file_ext)
+                            return@runCatching
+                        }
+                        if (port.toIntOrNull() == null){
+                            toast(strings.invalid_port)
+                            return@runCatching
+                        }
+                        if (host.isBlank()){
+                            toast(strings.invalid_address)
+                            return@runCatching
+                        }
+
+                        lsp_connections[extension] = Pair(host,port.toInt())
+                    }.onFailure {
+                        toast(it.message)
                     }
 
-                    port.toIntOrNull()?.let { lsp_connections[extension] = it }
                 }
             )
         }
@@ -136,18 +145,26 @@ fun LspSettings(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun PortAndExtensionDialog(
+private fun ExternalLSP(
     onDismiss: () -> Unit,
-    onConfirm: (port: String, extension: String) -> Unit
+    onConfirm: (host:String,port: String, extension: String) -> Unit
 ) {
+    var host by remember { mutableStateOf("localhost") }
     var port by remember { mutableStateOf("") }
     var extension by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(strings.lsp_header)) },
+        title = { Text(stringResource(strings.external_lsp)) },
         text = {
             Column {
+                OutlinedTextField(
+                    value = host,
+                    onValueChange = { host = it },
+                    label = { Text(stringResource(strings.address)) },
+                    singleLine = true,
+                )
+                Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = port,
                     onValueChange = { port = it },
@@ -166,7 +183,7 @@ private fun PortAndExtensionDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                onConfirm(port, extension)
+                onConfirm(host,port, extension)
                 onDismiss()
             }) {
                 Text(stringResource(strings.ok))

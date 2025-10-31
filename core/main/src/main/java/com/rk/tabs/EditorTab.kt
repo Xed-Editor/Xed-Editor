@@ -51,6 +51,7 @@ import com.rk.editor.getInputView
 import com.rk.editor.textmateSources
 import com.rk.file.FileObject
 import com.rk.lsp.BaseLspConnector
+import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.ProcessConnection
 import com.rk.lsp.createLspTextActions
 import com.rk.lsp.lspRegistry
@@ -59,6 +60,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.errorDialog
@@ -121,8 +123,8 @@ data class CodeEditorState(
     var textmateScope by mutableStateOf<String?>(null)
 
 }
-
-val lsp_connections = mutableStateMapOf<String, Int>()
+//<extension : <host,port>>
+val lsp_connections = mutableStateMapOf<String, Pair<String,Int>>()
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
@@ -564,38 +566,17 @@ private fun EditorTab.CodeEditor(
         with(editorState.editor.get()!!) {
             editorState.textmateScope?.let { langScope ->
                 scope.launch(Dispatchers.IO) {
-                    val ext = file.getName().substringAfterLast(".").trim()
 
-                    // Connect with external language server
-                    if (lsp_connections.contains(ext)) {
-                        baseLspConnector = BaseLspConnector(
-                            ext,
-                            textMateScope = textmateSources[ext]!!,
-                            port = lsp_connections[ext]!!
-                        )
+                    if (InbuiltFeatures.terminal.state.value){
+                        val ext = file.getName().substringAfterLast(".").trim()
 
-                        file.getParentFile()?.let { parent ->
-                            baseLspConnector?.connect(
-                                parent,
-                                fileObject = file,
-                                codeEditor = editorState.editor.get()!!
-                            )
-                        }
-                        return@launch
-                    }
+                        if (lsp_connections.contains(ext)) {
+                            val server = lsp_connections[ext]!!
 
-                    val server = lspRegistry.find {
-                        it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase())
-                    }
-                    if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
-                        lspConnection = ProcessConnection(server.command())
-
-                        // Connect with built-in language server
-                        if (server.isInstalled(context)) {
                             baseLspConnector = BaseLspConnector(
                                 ext,
                                 textMateScope = textmateSources[ext]!!,
-                                connectionProvider = lspConnection!!
+                                connectionConfig = LspConnectionConfig.Socket(server.first,server.second)
                             )
 
                             file.getParentFile()?.let { parent ->
@@ -608,24 +589,49 @@ private fun EditorTab.CodeEditor(
                             return@launch
                         }
 
-                        dialog(
-                            context = context as Activity,
-                            title = strings.attention.getString(context),
-                            msg = strings.ask_lsp_install.getFilledString(
-                                context,
-                                server.languageName
-                            ),
-                            cancelString = strings.dont_ask_again,
-                            okString = strings.install,
-                            onOk = { server.install(context) },
-                            onCancel = {
-                                Preference.setBoolean(
-                                    "lsp_${server.id}",
-                                    false
+                        val server = lspRegistry.find {
+                            it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase())
+                        }
+                        if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
+
+                            // Connect with built-in language server
+                            if (server.isInstalled(context)) {
+                                baseLspConnector = BaseLspConnector(
+                                    ext,
+                                    textMateScope = textmateSources[ext]!!,
+                                    connectionConfig = LspConnectionConfig.Process(server.command())
                                 )
+
+                                file.getParentFile()?.let { parent ->
+                                    baseLspConnector?.connect(
+                                        parent,
+                                        fileObject = file,
+                                        codeEditor = editorState.editor.get()!!
+                                    )
+                                }
+                                return@launch
                             }
-                        )
+
+                            dialog(
+                                context = context as Activity,
+                                title = strings.attention.getString(context),
+                                msg = strings.ask_lsp_install.getFilledString(
+                                    context,
+                                    server.languageName
+                                ),
+                                cancelString = strings.dont_ask_again,
+                                okString = strings.install,
+                                onOk = { server.install(context) },
+                                onCancel = {
+                                    Preference.setBoolean(
+                                        "lsp_${server.id}",
+                                        false
+                                    )
+                                }
+                            )
+                        }
                     }
+
 
                     setLanguage(langScope)
                 }
