@@ -56,6 +56,8 @@ class App : Application() {
         application = this
         Res.application = this
 
+        updateThemes()
+
         val currentLocale = Locale.forLanguageTag(Settings.currentLang)
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
@@ -114,7 +116,7 @@ class App : Application() {
 
         }
 
-        updateThemes()
+        
 
         if (BuildConfig.DEBUG || Settings.anr_watchdog) {
             ANRWatchDog().start()
