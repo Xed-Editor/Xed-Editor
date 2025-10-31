@@ -351,6 +351,7 @@ private fun EditorTab.CodeEditor(
     val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
     val divider = MaterialTheme.colorScheme.outlineVariant
+    val isDarkMode = isSystemInDarkTheme()
 
 
     AnimatedVisibility(visible = true) {
@@ -387,6 +388,7 @@ private fun EditorTab.CodeEditor(
                         )
 
                         setThemeColors(
+                            isDarkMode = isDarkMode,
                             editorSurface = surfaceColor.toArgb(),
                             surfaceContainer = surfaceContainer.toArgb(),
                             surface = realSurface.toArgb(),

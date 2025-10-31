@@ -60,34 +60,12 @@ class App : Application() {
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
 
-        GlobalScope.launch(Dispatchers.IO) {
-            TabCache.preloadTabs()
-        }
-
-        updateThemes()
-
-        if (BuildConfig.DEBUG || Settings.anr_watchdog) {
-            ANRWatchDog().start()
-        }
-
-        if (BuildConfig.DEBUG || Settings.strict_mode) {
-            StrictMode.setVmPolicy(
-                StrictMode.VmPolicy.Builder().apply {
-                    detectAll()
-                    penaltyLog()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        penaltyListener(Executors.newSingleThreadExecutor()) { violation ->
-                            violation.printStackTrace()
-                            violation.cause?.let { throw it }
-                        }
-                    }
-                }.build()
-            )
-        }
-
-        //ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleListener())
-
         GlobalScope.launch {
+
+            launch(Dispatchers.IO)  {
+                TabCache.preloadTabs()
+            }
+
             launch(Dispatchers.IO) {
                 Editor.initGrammarRegistry()
             }
@@ -134,6 +112,27 @@ class App : Application() {
             //debug options
             startThemeFlipperIfNotRunning()
 
+        }
+
+        updateThemes()
+
+        if (BuildConfig.DEBUG || Settings.anr_watchdog) {
+            ANRWatchDog().start()
+        }
+
+        if (BuildConfig.DEBUG || Settings.strict_mode) {
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder().apply {
+                    detectAll()
+                    penaltyLog()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        penaltyListener(Executors.newSingleThreadExecutor()) { violation ->
+                            violation.printStackTrace()
+                            violation.cause?.let { throw it }
+                        }
+                    }
+                }.build()
+            )
         }
     }
 

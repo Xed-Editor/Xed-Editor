@@ -15,7 +15,7 @@ fun Color.toHex(): String {
 }
 
 
-val blueberry = Theme(
+val blueberry = ThemeHolder(
     id = "blueberry-default",
     name = "BlueBerry (Default)",
     lightScheme = lightColorScheme(
@@ -144,12 +144,14 @@ val blueberry = Theme(
         // white
         it["color7"] = "#e0def4"
         it["color15"] = "#e0def4"
-    }
+    },
+    lightEditorColors = emptyList(),
+    darkEditorColors = emptyList()
 )
 
 
 
-val lime = Theme(
+val lime = ThemeHolder(
     id = "lime",
     name = "Lime",
     lightScheme = lightColorScheme(
@@ -293,7 +295,9 @@ val lime = Theme(
         // white
         it["color7"] = "#e0def4"
         it["color15"] = "#e0def4"
-    }
+    },
+    lightEditorColors = emptyList(),
+    darkEditorColors = emptyList()
 )
 
-val inbuiltThemes = listOf<Theme>(blueberry,lime)
+val inbuiltThemes = listOf<ThemeHolder>(blueberry,lime)

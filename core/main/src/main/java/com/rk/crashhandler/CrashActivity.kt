@@ -158,6 +158,7 @@ class CrashActivity : ComponentActivity() {
                         val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
 
                         val divider = MaterialTheme.colorScheme.outlineVariant
+                        val isDarkMode = isSystemInDarkTheme()
 
                         AndroidView(
                             modifier = Modifier
@@ -170,6 +171,7 @@ class CrashActivity : ComponentActivity() {
                                     editable = false
                                     isWordwrap = false
                                     setThemeColors(
+                                        isDarkMode = isDarkMode,
                                         editorSurface = surfaceColor.toArgb(),
                                         surfaceContainer = surfaceContainer.toArgb(),
                                         surface = realSurface.toArgb(),

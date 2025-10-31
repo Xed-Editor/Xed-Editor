@@ -44,7 +44,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
 import com.rk.components.BottomSheetContent
 import com.rk.components.SettingsToggle
-import com.rk.theme.Theme
+import com.rk.theme.ThemeHolder
 import com.rk.theme.amoled
 import com.rk.theme.blueberry
 import com.rk.theme.currentTheme
@@ -55,7 +55,7 @@ import com.rk.theme.updateThemes
 import kotlinx.coroutines.launch
 import kotlin.random.Random.Default.nextInt
 
-val themes = mutableStateListOf<Theme>()
+val themes = mutableStateListOf<ThemeHolder>()
 
 @Composable
 fun ThemeScreen(modifier: Modifier = Modifier) {

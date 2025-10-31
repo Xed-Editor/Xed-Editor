@@ -32,12 +32,13 @@ data class ThemePalette(
     val surfaceTint: String? = null,
     val outlineVariant: String? = null,
     val scrim: String? = null,
-    val terminalColors: Map<String, String>? = null
+    val terminalColors: Map<String, String>? = null,
+    val editorColors:Map<String, String>? = null
 ) : Serializable
 
 data class ThemeConfig(
     val id: String,
     val name: String,
     val light: ThemePalette,
-    val dark: ThemePalette
+    val dark: ThemePalette,
 ) : Serializable
