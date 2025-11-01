@@ -476,7 +476,7 @@ private fun EditorTab.CodeEditor(
                         }
                     }
 
-                    val horizontalScrollView = HorizontalScrollView(ctx).apply {
+                    val keyPanel = HorizontalScrollView(ctx).apply {
                         state.arrowKeys = WeakReference(this)
                         id = horizontalScrollViewId
 
@@ -507,7 +507,7 @@ private fun EditorTab.CodeEditor(
 
                     addView(editor)
                     addView(divider)
-                    addView(horizontalScrollView)
+                    addView(keyPanel)
 
                     with(constraintSet) {
                         clone(this@apply)

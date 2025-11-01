@@ -83,7 +83,7 @@ object Settings {
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
-    var action_items by CachedPreference("action_items", "editor.undo|editor.redo|editor.save|global.terminal|global.settings")
+    var action_items by CachedPreference("action_items", "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings")
 }
 
 object Preference {
