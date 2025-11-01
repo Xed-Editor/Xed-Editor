@@ -49,7 +49,12 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
         val visibleActions = allActions.filter { it.isSupported.value }
 
         // Calculate actual number of actions to show in toolbar
-        val actualVisibleCount = min(visibleActions.size, maxVisibleCount)
+        var actualVisibleCount = min(visibleActions.size, maxVisibleCount)
+
+        // Make sure that the dropdown menu never contains only one entry
+        if (visibleActions.size - actualVisibleCount == 1) {
+            actualVisibleCount += 1
+        }
 
         val toolbarActions = visibleActions.take(actualVisibleCount)
         val dropdownActions = visibleActions.drop(actualVisibleCount)
