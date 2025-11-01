@@ -455,4 +455,6 @@
     <string name="built_in">內置</string>
     <string name="change_lang_warn">變更語言後將重新啟動此畫面以立即套用新語言。過程中可能會短暫出現空白畫面，對光敏性癲癇者可能造成不適。</string>
     <string name="debug_mode_warn">偵錯模式會停用安全限制，若使用不當，可能導致資料遺失或其他問題。請僅在確定了解操作內容時再啟用。</string>
+    <string name="address">地址</string>
+    <string name="invalid_address">無效的地址</string>
 </resources>
