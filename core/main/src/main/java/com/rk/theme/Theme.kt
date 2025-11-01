@@ -14,15 +14,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.MaterialColors
-import com.rk.utils.isDarkMode
-import com.rk.utils.toast
 import com.rk.settings.Settings
 import com.rk.settings.theme.themes
-import java.util.Properties
+import com.rk.utils.isDarkMode
+import com.rk.utils.toast
 
-data class Theme(val id: String,val name: String, val lightScheme: ColorScheme, val darkScheme: ColorScheme,val lightTerminalColors: Properties,val darkTerminalColors: Properties)
 
-val currentTheme = mutableStateOf<Theme?>(null)
+val currentTheme = mutableStateOf<ThemeHolder?>(null)
 val dynamicTheme = mutableStateOf(Settings.monet)
 val amoled = mutableStateOf(Settings.amoled)
 
@@ -37,16 +35,17 @@ fun XedTheme(
     dynamicColor: Boolean = dynamicTheme.value,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (dynamicColor && supportsDynamicTheming()){
+    val colorScheme = if (dynamicColor && supportsDynamicTheming()) {
         val context = LocalContext.current
         when {
             darkTheme && highContrastDarkTheme ->
                 dynamicDarkColorScheme(context)
                     .copy(background = Color.Black, surface = Color.Black, surfaceDim = Color.Black)
+
             darkTheme -> dynamicDarkColorScheme(context)
             else -> dynamicLightColorScheme(context)
         }
-    }else{
+    } else {
         if (currentTheme.value == null) {
             currentTheme.value = themes.find { it.id == Settings.theme } ?: blueberry
         }
@@ -66,16 +65,16 @@ fun XedTheme(
         }
 
 
-        if (currentTheme.value == null){
+        if (currentTheme.value == null) {
             LaunchedEffect(theme) {
                 toast("No theme selected")
             }
-            if (darkTheme){
+            if (darkTheme) {
                 blueberry.darkScheme
-            }else{
+            } else {
                 blueberry.lightScheme
             }
-        }else{
+        } else {
             theme
         }
     }
@@ -94,10 +93,22 @@ fun harmonize(color: Long): Int {
 
 // Custom warning colors
 val ColorScheme.warningSurface: Color
-    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF633F00)) else Color(harmonize(0xFFFFDDB4))
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF633F00)) else Color(
+        harmonize(
+            0xFFFFDDB4
+        )
+    )
 
 val ColorScheme.onWarningSurface: Color
-    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFDDB4)) else Color(harmonize(0xFF633F00))
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFDDB4)) else Color(
+        harmonize(
+            0xFF633F00
+        )
+    )
 
 val ColorScheme.folderSurface: Color
-    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFC857)) else Color(harmonize(0xFFFAB72D))
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFC857)) else Color(
+        harmonize(
+            0xFFFAB72D
+        )
+    )

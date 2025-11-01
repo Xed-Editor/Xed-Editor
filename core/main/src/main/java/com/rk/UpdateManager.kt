@@ -53,6 +53,12 @@ object UpdateManager {
                 }
             }
 
+            if (lastVersionCode <= 69L){
+                sandboxDir().child(".cache/.packages_ensured").apply {
+                    if (exists()){ delete() }
+                }
+            }
+
             deleteCommonFiles()
         }
 

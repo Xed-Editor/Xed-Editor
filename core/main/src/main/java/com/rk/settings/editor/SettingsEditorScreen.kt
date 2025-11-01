@@ -45,13 +45,15 @@ fun SettingsEditorScreen(navController: NavController) {
         var extraKeysValue by remember { mutableStateOf(Settings.extra_keys) }
         var extraKeysError by remember { mutableStateOf<String?>(null) }
 
-        PreferenceGroup {
-            NextScreenCard(
-                navController = navController,
-                label = stringResource(strings.lsp_settings),
-                description = stringResource(strings.lsp_settings_desc),
-                route = SettingsRoutes.LspSettings
-            )
+        if (InbuiltFeatures.terminal.state.value) {
+            PreferenceGroup {
+                NextScreenCard(
+                    navController = navController,
+                    label = stringResource(strings.lsp_settings),
+                    description = stringResource(strings.lsp_settings_desc),
+                    route = SettingsRoutes.LspSettings
+                )
+            }
         }
 
         PreferenceGroup(heading = stringResource(strings.content)) {

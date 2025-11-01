@@ -1,12 +1,12 @@
 # Keybinds
 
-Supported KeyBindings on Karbon
+Supported keyboard shortcuts in the Xed-Editor
 
 ## File Operations
 
-| Shortcut&emsp;&emsp;&emsp;&emsp;&emsp;        | Action                |
-| --------------------------------------------- | --------------------- |
-| <kbd>CTRL</kbd>+<kbd>S</kbd>                  | Save the current file |
+| Shortcut&emsp;&emsp;&emsp;&emsp;&emsp; | Action                |
+|----------------------------------------|-----------------------|
+| <kbd>CTRL</kbd>+<kbd>S</kbd>           | Save the current file |
 
 ## Editing
 
@@ -23,7 +23,7 @@ Supported KeyBindings on Karbon
 
 ## Text Navigation
 
-| Shortcut&emsp;&emsp;&emsp;&emsp;&emsp; | Action                                           |
-| -------------------------------------- | ------------------------------------------------ |
-| <kbd>CTRL</kbd>+<kbd>F</kbd>           | Find text in the document                        |
-| <kbd>CTRL</kbd>+<kbd>H</kbd>           | Find and replace text                            |
+| Shortcut&emsp;&emsp;&emsp;&emsp;&emsp; | Action                    |
+|----------------------------------------|---------------------------|
+| <kbd>CTRL</kbd>+<kbd>F</kbd>           | Find text in the document |
+| <kbd>CTRL</kbd>+<kbd>H</kbd>           | Find and replace text     |

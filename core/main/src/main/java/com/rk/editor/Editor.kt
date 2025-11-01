@@ -5,20 +5,15 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
 import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
+import com.rk.settings.Settings
+import com.rk.theme.currentTheme
+import com.rk.theme.getEditorColorSchemeMapping
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isDarkMode
-import com.rk.settings.Settings
-import com.rk.xededitor.R
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -29,7 +24,6 @@ import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
-import io.github.rosemoe.sora.widget.component.EditorCompletionAdapter
 import io.github.rosemoe.sora.widget.component.TextActionItem
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
@@ -41,44 +35,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.InputStreamReader
-import kotlin.math.roundToInt
-
-class AutoCompletionLayoutAdapter(private val density: Density) : EditorCompletionAdapter() {
-    override fun getItemHeight() = with(density) { 45.dp.toPx().roundToInt() }
-
-    override fun getView(
-        position: Int,
-        convertView: View?,
-        parent: ViewGroup?,
-        isCurrentCursorPosition: Boolean
-    ): View {
-        val item = getItem(position)
-        val view = LayoutInflater.from(context).inflate(R.layout.completion, parent, false)
-
-        val label: TextView = view.findViewById(R.id.result_item_label)
-        label.text = item.label
-        label.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY))
-
-        val desc: TextView = view.findViewById(R.id.result_item_desc)
-        desc.text = item.desc
-        desc.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY))
-        desc.visibility = if (item.desc.isNullOrEmpty()) View.GONE else View.VISIBLE
-
-        view.tag = position
-
-        if (isCurrentCursorPosition) {
-            view.setBackgroundColor(getThemeColor(EditorColorScheme.COMPLETION_WND_ITEM_CURRENT))
-        } else {
-            view.setBackgroundColor(0)
-        }
-
-        val iv = view.findViewById<ImageView?>(R.id.result_item_image)
-        iv?.setImageDrawable(item.icon)
-
-        return view
-    }
-
-}
 
 @Suppress("NOTHING_TO_INLINE")
 class Editor : CodeEditor {
@@ -111,11 +67,12 @@ class Editor : CodeEditor {
     }
 
     fun setThemeColors(
+        isDarkMode:Boolean,
         editorSurface: Int,
         surfaceContainer: Int,
-        highSurfaceContainer: Int,
         surface: Int,
         onSurface: Int,
+        highSurfaceContainer: Int,
         colorPrimary: Int,
         colorPrimaryContainer: Int,
         colorSecondary: Int,
@@ -127,6 +84,23 @@ class Editor : CodeEditor {
         dividerColor: Int
     ) {
         updateColors { colors ->
+            val editorColors = if (isDarkMode){
+                currentTheme.value?.darkEditorColors
+            }else{
+                currentTheme.value?.lightEditorColors
+            }
+
+            if (editorColors.isNullOrEmpty().not()){
+                editorColors.forEach {
+                    colorScheme.setColor(it.key,it.color)
+                }
+                //TODO: instead of dismissing the post processing completely apply post process if color is not specified in the theme
+                return@updateColors
+            }
+
+
+
+
             with(colors) {
                 setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
 
@@ -183,13 +157,22 @@ class Editor : CodeEditor {
                 )
 
                 setColors(setAlpha(onSurface, 0.6f), EditorColorScheme.BLOCK_LINE_CURRENT)
-                setColors(setAlpha(onSurface, 0.4f), EditorColorScheme.NON_PRINTABLE_CHAR, EditorColorScheme.BLOCK_LINE)
+                setColors(
+                    setAlpha(onSurface, 0.4f),
+                    EditorColorScheme.NON_PRINTABLE_CHAR,
+                    EditorColorScheme.BLOCK_LINE
+                )
                 setColors(setAlpha(onSurface, 0.3f), EditorColorScheme.SCROLL_BAR_THUMB)
                 setColors(setAlpha(onSurface, 0.2f), EditorColorScheme.SCROLL_BAR_THUMB_PRESSED)
 
                 setColors(currentLine, EditorColorScheme.CURRENT_LINE)
                 setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
-                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER, EditorColorScheme.STICKY_SCROLL_DIVIDER)
+                setColors(
+                    dividerColor,
+                    EditorColorScheme.LINE_DIVIDER,
+                    EditorColorScheme.STICKY_SCROLL_DIVIDER
+                )
+
             }
         }
     }
@@ -206,7 +189,7 @@ class Editor : CodeEditor {
     }
 
 
-    private fun updateColors(postAndPreColor:(EditorColorScheme)-> Unit){
+    private fun updateColors(postAndPreColor: (EditorColorScheme) -> Unit) {
         postAndPreColor.invoke(colorScheme)
         scope.launch(Dispatchers.IO) {
             val cacheKey = getCacheKey(context)
@@ -232,6 +215,7 @@ class Editor : CodeEditor {
                         "textmate/black/darcula.json",
                         "darcula.json"
                     )
+
                     darkTheme -> load("textmate/darcula.json", "darcula.json")
                     else -> load(
                         "textmate/quietlight.json",
@@ -305,7 +289,8 @@ class Editor : CodeEditor {
         runCatching {
             val fontPath = Settings.selected_font_path
             val font = if (fontPath.isNotEmpty()) {
-                FontCache.getFont(context, fontPath, Settings.is_selected_font_asset) ?: FontCache.getFont(context, "fonts/Default.ttf", true)
+                FontCache.getFont(context, fontPath, Settings.is_selected_font_asset)
+                    ?: FontCache.getFont(context, "fonts/Default.ttf", true)
             } else {
                 FontCache.getFont(context, "fonts/Default.ttf", true)
             }
@@ -327,8 +312,7 @@ class Editor : CodeEditor {
     }
 
 
-
-    companion object{
+    companion object {
         var isInit = false
 
         private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
@@ -340,7 +324,7 @@ class Editor : CodeEditor {
                 AppCompatDelegate.MODE_NIGHT_NO -> false
                 else -> isDarkMode(context)
             }
-            return "${if (darkTheme) "dark" else "light"}_${Settings.amoled}"
+            return "${darkTheme}_${Settings.amoled}_${Settings.theme}"
         }
 
         suspend fun initGrammarRegistry() = withContext(Dispatchers.IO) {
@@ -352,7 +336,7 @@ class Editor : CodeEditor {
 
                 textmateSources.values.toSet().forEach {
                     launch(Dispatchers.IO) {
-                        val start = System.currentTimeMillis()
+                        System.currentTimeMillis()
                         val language = TextMateLanguage.create(it, Settings.textmate_suggestion)
                         highlightingCache[it] = language
                     }
@@ -364,13 +348,13 @@ class Editor : CodeEditor {
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.Default) {
         while (!isInit && isActive) delay(5)
-        if (!isActive){
+        if (!isActive) {
             return@withContext
         }
 
-        val language = highlightingCache.getOrPut(languageScopeName){
+        val language = highlightingCache.getOrPut(languageScopeName) {
             TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
-                if (Settings.textmate_suggestion){
+                if (Settings.textmate_suggestion) {
                     launch {
                         context.assets.open("textmate/keywords.json").use {
                             JsonParser.parseReader(InputStreamReader(it))
@@ -388,7 +372,6 @@ class Editor : CodeEditor {
 
         withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
     }
-
 
 
     /**

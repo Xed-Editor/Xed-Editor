@@ -405,7 +405,7 @@
     <string name="failsafe_mode_desc">Uruchom terminal w trybie serwisowym</string>
     <string name="ask_refresh">Czy napewno chcesz odświeżyć dokument? Wszystkie niezapisane zmiany zostaną utracone.</string>
     <string name="docs">Dokumentacja</string>
-    <string name="docs_desc">Odwiedź stronę dokumentacji</string>
+    <string name="docs_desc">Odwiedź stronę dokumentacji.</string>
     <string name="lsp_settings_desc">Ustawienia serwera językowego</string>
     <string name="github_stars">Gwiazdki na GitHub\'ie</string>
     <string name="api_error">Błąd API</string>
@@ -455,4 +455,6 @@
     <string name="desktop_mode_desc">Spraw, aby aplikacja dostosowała się do większych ekranów.</string>
     <string name="change_lang_warn">Zmiana języka uruchomi ponownie aplikację, aby zastosować zmiany. Ekran może błysnąć wywołu}ąc dyskomfort u ludzi z epilepsją światłoczułą.</string>
     <string name="debug_mode_warn">Tryb debug wyłącza zabezpieczenia, może powodować utratę danych lub inne awarie. Użyj na własne ryzyko.</string>
+    <string name="address">Adres</string>
+    <string name="invalid_address">Nieprawidłowy adres</string>
 </resources>

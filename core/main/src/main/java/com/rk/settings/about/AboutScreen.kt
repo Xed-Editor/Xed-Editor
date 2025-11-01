@@ -139,7 +139,7 @@ fun AboutScreen() {
         }
 
         PreferenceGroup(heading = stringResource(strings.community)) {
-            val stars = remember { mutableStateOf(strings.unknown_err.getString()) }
+            val stars = remember { mutableStateOf(strings.loading.getString()) }
 
             LaunchedEffect(Unit) {
                 val client = OkHttpClient()
