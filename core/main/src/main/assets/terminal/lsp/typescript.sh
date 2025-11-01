@@ -1,6 +1,6 @@
 set -e
 
-. "$LOCAL/bin/utils"
+source "$LOCAL/bin/utils"
 
 info 'Preparing installation...'
 apt update && apt upgrade -y
