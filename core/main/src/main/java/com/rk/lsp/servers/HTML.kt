@@ -28,7 +28,7 @@ class HTML() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/system/bin/sh",
+                exe = "/bin/sh",
                 args = arrayOf(installSH.absolutePath),
                 id = "html-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),

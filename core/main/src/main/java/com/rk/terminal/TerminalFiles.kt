@@ -41,8 +41,9 @@ fun setupTerminalFiles() {
     val internalFiles = listOf("init", "sandbox", "setup", "utils")
     internalFiles.forEach { setupAssetFile(it) }
 
-    val lspFiles = listOf("python", "html", "css", "typescript", "json", "bash")
-    lspFiles.forEach { setupLspFile(it) }
+    application!!.assets.list("terminal/lsp")?.forEach {
+        setupLspFile(it.removeSuffix(".sh"))
+    }
 }
 
 fun setupLspFile(fileName: String) = setupAssetFile("lsp/$fileName")

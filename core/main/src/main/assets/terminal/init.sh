@@ -71,7 +71,7 @@ ensure_packages_once() {
 
     #setup node lts
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-    npm config set prefix '/home/.npm-global'
+    #npm config set prefix '/home/.npm-global'
 
 
     # Create cache dir

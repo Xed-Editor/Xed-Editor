@@ -12,7 +12,7 @@ import com.rk.exec.launchInternalTerminal
 class Bash() : BaseLspServer() {
     override val id: String = "bash-lsp"
     override val languageName: String = "Bash"
-    override val supportedExtensions: List<String> = listOf("bash", "sh")
+    override val supportedExtensions: List<String> = listOf("bash", "sh","bashrc")
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
@@ -28,7 +28,7 @@ class Bash() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/system/bin/sh",
+                exe = "/bin/sh",
                 args = arrayOf(installSH.absolutePath),
                 id = "bash-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),

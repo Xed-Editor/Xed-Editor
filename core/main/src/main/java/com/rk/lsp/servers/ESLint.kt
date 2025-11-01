@@ -28,7 +28,7 @@ class ESLint() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/system/bin/sh",
+                exe = "/bin/sh",
                 args = arrayOf(installSH.absolutePath),
                 id = "css-eslint-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
