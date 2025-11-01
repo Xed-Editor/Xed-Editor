@@ -66,6 +66,9 @@ ensure_packages_once() {
     # Exit early if already done
     [[ -f "$marker_file" ]] && return 0
 
+    echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/99norecommends
+    echo 'APT::Install-Suggests "false";' >> /etc/apt/apt.conf.d/99norecommends
+
     #setup node lts
     curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
     npm config set prefix '/home/.npm-global'
@@ -129,6 +132,7 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
+alias pkg='apt'
 
 if [[ -f /initrc ]]; then
     # shellcheck disable=SC1090
