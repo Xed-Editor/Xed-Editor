@@ -65,7 +65,8 @@ fun CommandPalette(
         derivedStateOf {
             sortedCommands.filter {
                 it.label.value.contains(searchQuery, ignoreCase = true) ||
-                        it.description?.contains(searchQuery, ignoreCase = true) == true
+                it.description?.contains(searchQuery, ignoreCase = true) == true ||
+                it.prefix?.contains(searchQuery, ignoreCase = true) == true
             }
         }
     }
@@ -135,7 +136,7 @@ fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolea
                 command.prefix?.let {
                     Text(
                         text = "$it: ",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 Text(text = command.label.value)

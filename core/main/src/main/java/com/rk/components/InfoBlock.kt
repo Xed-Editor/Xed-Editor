@@ -1,6 +1,5 @@
 package com.rk.components
 
-
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -22,7 +21,6 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.theme.onWarningSurface
 import com.rk.theme.warningSurface
 
-
 @SuppressLint("RestrictedApi")
 @Composable
 fun InfoBlock(
@@ -34,7 +32,7 @@ fun InfoBlock(
 ) {
     PreferenceGroup(modifier = modifier) {
         Card(
-            modifier = modifier,
+            modifier = Modifier.fillMaxWidth(),
             shape = shape,
             colors = if (warning) CardDefaults.cardColors(MaterialTheme.colorScheme.warningSurface) else CardDefaults.cardColors()
         ) {

@@ -1,8 +1,6 @@
 package com.rk.settings.editor
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -23,17 +21,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
@@ -42,8 +44,12 @@ import com.rk.activities.main.MainActivity
 import com.rk.commands.Command
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
-import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.InfoBlock
+import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
+import com.rk.components.compose.preferences.base.NestedScrollStretch
+import com.rk.components.compose.preferences.base.PreferenceScaffold
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import kotlinx.coroutines.coroutineScope
@@ -65,16 +71,17 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
         CommandProvider.getForId(id, allCommands)
     }
 
-    PreferenceLayout(
+    PreferenceScaffold(
         label = stringResource(strings.toolbar_actions),
         backArrowVisible = true,
+        isExpandedScreen = LocalIsExpandedScreen.current,
         fab = {
             ExtendedFloatingActionButton(onClick = { showCommandSelectionDialog = true }) {
                 Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
                 Text(stringResource(strings.add_command))
             }
         }
-    ) {
+    ) { paddingValues ->
         if (showCommandSelectionDialog) {
             val commands = MainActivity.instance!!.viewModel.commands.map {
                 Command(
@@ -88,7 +95,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                         // Save order in settings
                         Settings.action_items = commandIds.joinToString("|")
                     },
-                    isEnabled = mutableStateOf(true),
+                    isEnabled = derivedStateOf { !commandIds.contains(it.id) },
                     isSupported = mutableStateOf(true),
                     icon = it.icon,
                     keybinds = it.keybinds
@@ -109,50 +116,63 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
             state = reorderState,
             modifier = modifier,
         ) {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                state = lazyListState,
-                modifier = Modifier
-                    .height(1000.dp)
-                    .padding(horizontal = 16.dp),
-            ) {
-                items(commands, key = { it.id }) { command ->
-                    ReorderableItem(
-                        state = reorderState,
-                        key = command,
-                        data = command.id,
-                        onDrop = {},
-                        onDragEnter = { state ->
-                            val index = commandIds.indexOf(command.id)
-                            if (index == -1) return@ReorderableItem
-
-                            val oldIndex = commandIds.indexOf(state.data)
-
-                            commandIds.removeAt(oldIndex)
-                            commandIds.add(index, state.data)
-
-                            // Save order in settings
-                            Settings.action_items = commandIds.joinToString("|")
-
-                            scope.launch {
-                                handleLazyListScroll(
-                                    lazyListState = lazyListState,
-                                    dropIndex = index,
+            NestedScrollStretch(modifier = modifier) {
+                LazyColumn(
+                    contentPadding = paddingValues,
+                    state = lazyListState,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    item {
+                        InfoBlock(
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Info, contentDescription = null
                                 )
-                            }
-                        },
-                        modifier = Modifier.animateItem()
-                    ) {
-                        ActionItem(
-                            modifier = Modifier.graphicsLayer {
-                                alpha = if (isDragging) 0f else 1f
                             },
-                            command = command
-                        ) {
-                            commandIds.remove(command.id)
+                            text = stringResource(strings.info_toolbar_actions),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
 
-                            // Save order in settings
-                            Settings.action_items = commandIds.joinToString("|")
+                    items(commands, key = { it.id }) { command ->
+                        ReorderableItem(
+                            state = reorderState,
+                            key = command,
+                            data = command.id,
+                            onDrop = {},
+                            onDragEnter = { state ->
+                                val index = commandIds.indexOf(command.id)
+                                if (index == -1) return@ReorderableItem
+
+                                val oldIndex = commandIds.indexOf(state.data)
+
+                                commandIds.removeAt(oldIndex)
+                                commandIds.add(index, state.data)
+
+                                // Save order in settings
+                                Settings.action_items = commandIds.joinToString("|")
+
+                                scope.launch {
+                                    handleLazyListScroll(
+                                        lazyListState = lazyListState,
+                                        dropIndex = index,
+                                    )
+                                }
+                            },
+                            modifier = Modifier.animateItem()
+                        ) {
+                            ActionItem(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .graphicsLayer { alpha = if (isDragging) 0f else 1f },
+                                command = command
+                            ) {
+                                commandIds.remove(command.id)
+
+                                // Save order in settings
+                                Settings.action_items = commandIds.joinToString("|")
+                            }
                         }
                     }
                 }
@@ -167,46 +187,58 @@ fun ActionItem(
     command: Command,
     onRemove: () -> Unit
 ) {
-    PreferenceTemplate(
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        tonalElevation = 1.dp,
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .clickable {},
-        verticalPadding = 16.dp,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = command.icon.value,
-                    contentDescription = command.label.value,
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .size(16.dp)
-                )
+    ) {
+        PreferenceTemplate(
+            modifier = Modifier.clickable {},
+            verticalPadding = 8.dp,
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(drawables.drag_indicator),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .size(20.dp)
+                    )
 
-                command.prefix?.let {
+                    Icon(
+                        imageVector = command.icon.value,
+                        contentDescription = command.label.value,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(20.dp)
+                    )
+
+                    command.prefix?.let {
+                        Text(
+                            text = "$it: ",
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Text(text = command.label.value, style = MaterialTheme.typography.bodyLarge)
+                }
+            },
+            description = {
+                command.description?.let {
                     Text(
-                        text = "$it: ",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = it,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Text(text = command.label.value)
+            },
+            endWidget = {
+                IconButton(onClick = { onRemove() }) {
+                    Icon(imageVector = Icons.Outlined.Delete, null)
+                }
             }
-        },
-        description = {
-            command.description?.let {
-                Text(
-                    text = it,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        },
-        endWidget = {
-            IconButton(onClick = { onRemove() }) {
-                Icon(imageVector = Icons.Outlined.Delete, null)
-            }
-        }
-    )
+        )
+    }
 }
 
 // Helper function copied from https://github.com/MohamedRejeb/compose-dnd/blob/65d48ed0f0bd83a0b01263b7e046864bdd4a9048/sample/common/src/commonMain/kotlin/utils/ScrollUtils.kt
