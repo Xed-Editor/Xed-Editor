@@ -103,6 +103,7 @@ class Editor : CodeEditor {
                     EditorColorScheme.COMPLETION_WND_BACKGROUND,
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,
                     EditorColorScheme.SIGNATURE_BACKGROUND,
+                    EditorColorScheme.HOVER_BACKGROUND
                 )
 
                 setColors(
@@ -118,6 +119,7 @@ class Editor : CodeEditor {
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG,
                     EditorColorScheme.SIGNATURE_TEXT_NORMAL,
+                    EditorColorScheme.HOVER_TEXT_NORMAL,
                     EditorColorScheme.LINE_NUMBER,
                     EditorColorScheme.LINE_NUMBER_CURRENT
                 )
@@ -136,6 +138,7 @@ class Editor : CodeEditor {
                     colorPrimary,
                     EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
                     EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
+                    EditorColorScheme.HOVER_TEXT_HIGHLIGHTED,
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION,
                     EditorColorScheme.COMPLETION_WND_TEXT_MATCHED
                 )
