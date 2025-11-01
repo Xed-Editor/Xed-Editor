@@ -656,7 +656,7 @@ fun EditorTab.applyHighlighting(){
                             baseLspConnector = BaseLspConnector(
                                 ext,
                                 textMateScope = textmateSources[ext]!!,
-                                connectionConfig = LspConnectionConfig.Process(server.command())
+                                connectionConfig = server.getConnectionConfig()
                             )
 
                             file.getParentFile()?.let { parent ->

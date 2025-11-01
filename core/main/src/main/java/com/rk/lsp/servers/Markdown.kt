@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.lsp.LspConnectionConfig
 
 class Markdown() : BaseLspServer() {
     override val id: String = "markdown-lsp"
@@ -28,7 +29,7 @@ class Markdown() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/sh",
+                exe = "/bin/bash",
                 args = arrayOf(installSH.absolutePath),
                 id = "markdown-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -36,7 +37,9 @@ class Markdown() : BaseLspServer() {
         )
     }
 
-    override fun command(): Array<String> {
-        return arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-markdown-language-server",  "--stdio")
+
+
+    override fun getConnectionConfig(): LspConnectionConfig {
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-markdown-language-server",  "--stdio"))
     }
 }

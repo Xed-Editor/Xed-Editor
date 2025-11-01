@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.lsp.LspConnectionConfig
 
 class Bash() : BaseLspServer() {
     override val id: String = "bash-lsp"
@@ -28,7 +29,7 @@ class Bash() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/sh",
+                exe = "/bin/bash",
                 args = arrayOf(installSH.absolutePath),
                 id = "bash-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -36,7 +37,8 @@ class Bash() : BaseLspServer() {
         )
     }
 
-    override fun command(): Array<String> {
-        return arrayOf("/usr/bin/node", "/home/.npm-global/bin/bash-language-server", "start")
+    override fun getConnectionConfig(): LspConnectionConfig {
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/bash-language-server", "start"))
     }
+
 }

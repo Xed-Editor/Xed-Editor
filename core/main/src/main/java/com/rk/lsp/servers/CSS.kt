@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.lsp.LspConnectionConfig
 
 class CSS() : BaseLspServer() {
     override val id: String = "css-lsp"
@@ -28,7 +29,7 @@ class CSS() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/sh",
+                exe = "/bin/bash",
                 args = arrayOf(installSH.absolutePath),
                 id = "css-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -36,7 +37,7 @@ class CSS() : BaseLspServer() {
         )
     }
 
-    override fun command(): Array<String> {
-        return arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-css-language-server",  "--stdio")
+    override fun getConnectionConfig(): LspConnectionConfig {
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-css-language-server",  "--stdio"))
     }
 }
