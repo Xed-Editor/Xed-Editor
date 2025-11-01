@@ -113,7 +113,7 @@ class BaseLspConnector(
             }
 
             lspEditor = withContext(Dispatchers.Main) {
-                project!!.createEditor(fileObject.getAbsolutePath()).apply {
+                project!!.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
                     wrapperLanguage = TextMateLanguage.create(textMateScope, false)
                     editor = codeEditor
                 }
