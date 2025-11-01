@@ -3,76 +3,31 @@ package com.rk.activities.main
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import com.rk.filetree.DrawerContent
-import com.rk.filetree.isLoading
-import com.rk.filetree.restoreProjects
 import com.rk.filetree.saveProjects
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
-import com.rk.filetree.FileTreeViewModel
-import com.rk.utils.dialog
-import com.rk.resources.getString
-import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.theme.XedTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-
-
-
-
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
-
 
     val fileManager = FileManager(this)
 
     //suspend (isForeground) -> Unit
     val foregroundListener = hashMapOf<Any,suspend (Boolean)-> Unit>()
-
 
     companion object {
         var isPaused = false
@@ -105,7 +60,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -133,7 +87,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
-
 //            Box(
 //                modifier = Modifier
 //                    .graphicsLayer(
@@ -145,11 +98,7 @@ class MainActivity : AppCompatActivity() {
 //            ) {
 //
 //            }
-
             MainContentHost()
-
-
-
         }
     }
 

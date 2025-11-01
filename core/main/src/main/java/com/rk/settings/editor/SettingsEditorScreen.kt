@@ -20,6 +20,7 @@ import com.rk.components.EditorSettingsToggle
 import com.rk.components.SingleInputDialog
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
+import com.rk.resources.getString
 import com.rk.settings.app.InbuiltFeatures
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 
@@ -40,7 +41,11 @@ fun SettingsEditorScreen(navController: NavController) {
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
-        if (InbuiltFeatures.terminal.state.value){
+        var showExtraKeysDialog by remember { mutableStateOf(false) }
+        var extraKeysValue by remember { mutableStateOf(Settings.extra_keys) }
+        var extraKeysError by remember { mutableStateOf<String?>(null) }
+
+        if (InbuiltFeatures.terminal.state.value) {
             PreferenceGroup {
                 NextScreenCard(
                     navController = navController,
@@ -218,12 +223,43 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            NextScreenCard(
+                label = stringResource(strings.toolbar_actions),
+                description = stringResource(strings.toolbar_actions_desc),
+                route = SettingsRoutes.ToolbarActions
+            )
+
+            var extraKeysEnabled by remember { mutableStateOf(Settings.show_extra_keys) }
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
-                default = Settings.show_arrow_keys,
+                default = Settings.show_extra_keys,
                 sideEffect = {
-                    Settings.show_arrow_keys = it
+                    extraKeysEnabled = it
+                    Settings.show_extra_keys = it
+                }
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_nav_extra_keys),
+                description = stringResource(id = strings.show_nav_extra_keys_desc),
+                isEnabled = extraKeysEnabled,
+                default = Settings.show_nav_extra_keys,
+                sideEffect = {
+                    Settings.show_nav_extra_keys = it
+                    toast(strings.restart_required)
+                }
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.change_extra_keys),
+                description = stringResource(id = strings.change_extra_keys_desc),
+                isEnabled = extraKeysEnabled,
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    showExtraKeysDialog = true
                 }
             )
 
@@ -260,9 +296,12 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            var useTabChar by remember { mutableStateOf(Settings.actual_tabs) }
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
+                isEnabled = !useTabChar,
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -275,6 +314,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(strings.use_tabs_desc),
                 default = Settings.actual_tabs,
                 sideEffect = {
+                    useTabChar = it
                     Settings.actual_tabs = it
 
                     MainActivity.instance?.apply {
@@ -371,6 +411,31 @@ fun SettingsEditorScreen(navController: NavController) {
                     tabSizeValue = Settings.tab_size.toString()
                     tabSizeError = null
                     showTabSizeDialog = false
+                },
+            )
+        }
+
+        if (showExtraKeysDialog) {
+            SingleInputDialog(
+                title = stringResource(id = strings.extra_keys),
+                inputLabel = stringResource(id = strings.extra_keys),
+                inputValue = extraKeysValue,
+                errorMessage = extraKeysError,
+                onInputValueChange = {
+                    extraKeysValue = it
+                    extraKeysError = null
+                    if (extraKeysValue.isEmpty()) {
+                        extraKeysError = strings.name_empty_err.getString()
+                    }
+                },
+                onConfirm = {
+                    Settings.extra_keys = extraKeysValue
+                    toast(strings.restart_required)
+                },
+                onFinish = {
+                    extraKeysValue = Settings.extra_keys
+                    extraKeysError = null
+                    showExtraKeysDialog = false
                 },
             )
         }

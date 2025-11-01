@@ -1,22 +1,26 @@
 package com.rk.editor
 
+import android.util.Log
 import android.util.Pair
 import android.view.KeyEvent
 import android.view.View.OnClickListener
-import com.rk.tabs.EditorTab
-import com.rk.activities.main.MainActivity
+import com.rk.activities.main.MainViewModel
+import com.rk.settings.Settings
 import io.github.rosemoe.sora.widget.CodeEditor
 
 private typealias onClick = OnClickListener
 
-fun getInputView(editor: CodeEditor,surfaceColor: Int,onSurfaceColor: Int): SymbolInputView {
-
+fun getInputView(
+    editor: CodeEditor,
+    surfaceColor: Int,
+    onSurfaceColor: Int,
+    mainViewModel: MainViewModel
+): SymbolInputView {
     return SymbolInputView(editor.context).apply {
         textColor = onSurfaceColor
         setBgColor(surfaceColor)
 
         val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
-
             add(Pair("->", onClick {
                 editor.onKeyDown(
                     KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
@@ -24,11 +28,7 @@ fun getInputView(editor: CodeEditor,surfaceColor: Int,onSurfaceColor: Int): Symb
             }))
 
             add(Pair("⌘", onClick {
-                MainActivity.instance?.viewModel?.currentTab?.let {
-                    if (it is EditorTab){
-                        it.editorState.showControlPanel = true
-                    }
-                }
+                mainViewModel.showCommandPalette = true
             }))
 
             add(Pair("←", onClick {
@@ -77,12 +77,10 @@ fun getInputView(editor: CodeEditor,surfaceColor: Int,onSurfaceColor: Int): Symb
             }))
         }
 
-        addSymbols(keys.toTypedArray())
+        if (Settings.show_nav_extra_keys) addSymbols(keys.toTypedArray())
 
-        addSymbols(
-            arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"),
-            arrayOf("(", ")", "\"", "{", "}", "[", "]", ";")
-        )
+        val customExtraKeys = Settings.extra_keys.toCharArray().map { it.toString() }.toTypedArray()
+        addSymbols(customExtraKeys, customExtraKeys)
 
         bindEditor(editor)
     }

@@ -68,8 +68,11 @@ class Editor : CodeEditor {
 
     fun setThemeColors(
         isDarkMode:Boolean,
-        editorSurface: Int, surfaceContainer: Int,
-        surface: Int, onSurface: Int,
+        editorSurface: Int,
+        surfaceContainer: Int,
+        surface: Int,
+        onSurface: Int,
+        highSurfaceContainer: Int,
         colorPrimary: Int,
         colorPrimaryContainer: Int,
         colorSecondary: Int,
@@ -119,6 +122,11 @@ class Editor : CodeEditor {
                 )
 
                 setColors(
+                    highSurfaceContainer,
+                    EditorColorScheme.COMPLETION_WND_ITEM_CURRENT
+                )
+
+                setColors(
                     onSurface,
                     EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR,
                     EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY,
@@ -144,7 +152,8 @@ class Editor : CodeEditor {
                     colorPrimary,
                     EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
                     EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
+                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION,
+                    EditorColorScheme.COMPLETION_WND_TEXT_MATCHED
                 )
 
                 setColors(setAlpha(onSurface, 0.6f), EditorColorScheme.BLOCK_LINE_CURRENT)

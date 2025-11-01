@@ -1,5 +1,6 @@
 package com.rk.activities.main
 
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.DrawerState
@@ -10,15 +11,30 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import com.rk.components.GlobalActions
 import com.rk.components.isPermanentDrawer
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel: MainViewModel) {
+fun XedTopBar(
+    modifier: Modifier = Modifier,
+    drawerState: DrawerState,
+    viewModel: MainViewModel,
+    onDrag: (Float) -> Unit = {},
+    onDragEnd: () -> Unit = {}
+) {
     val scope = rememberCoroutineScope()
+
     TopAppBar(
+        modifier = Modifier.pointerInput(Unit) {
+            detectVerticalDragGestures(
+                onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                onDragEnd = { onDragEnd() },
+                onDragCancel = { onDragEnd() },
+            )
+        },
         title = {},
         navigationIcon = {
             if (!isPermanentDrawer){
@@ -38,13 +54,11 @@ fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel:
         actions = {
             GlobalActions(viewModel)
 
-            if (viewModel.tabs.isNotEmpty()){
+            if (viewModel.tabs.isNotEmpty()) {
                 viewModel.tabs[viewModel.currentTabIndex].apply {
                     Actions()
                 }
             }
-
-
         }
     )
 }

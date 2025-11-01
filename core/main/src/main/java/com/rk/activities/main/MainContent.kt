@@ -1,5 +1,6 @@
 package com.rk.activities.main
 
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -24,11 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -38,6 +37,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.rk.commands.CommandPalette
+import com.rk.commands.CommandProvider
 import com.rk.filetree.currentProject
 import com.rk.file.FileObject
 import com.rk.utils.dialog
@@ -47,12 +48,17 @@ import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
 import com.rk.components.FileActionDialog
 import com.rk.filetree.FileTreeViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, mainViewModel: MainViewModel, fileTreeViewModel: FileTreeViewModel, drawerState: DrawerState) {
+fun MainContent(
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues,
+    mainViewModel: MainViewModel,
+    fileTreeViewModel: FileTreeViewModel,
+    drawerState: DrawerState
+) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
 
@@ -61,6 +67,28 @@ fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, main
             .fillMaxSize()
             .padding(innerPadding)
     ) {
+        if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
+            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, mainViewModel.commands)
+
+            CommandPalette(
+                progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
+                commands = mainViewModel.commands,
+                lastUsedCommand = lastUsedCommand,
+                viewModel = mainViewModel,
+                onDismissRequest = {
+                    mainViewModel.isDraggingPalette = false
+                    mainViewModel.showCommandPalette = false
+
+                    scope.launch {
+                        mainViewModel.draggingPaletteProgress.animateTo(
+                            0f,
+                            animationSpec = spring(stiffness = 800f)
+                        )
+                    }
+                }
+            )
+        }
+
         if (mainViewModel.tabs.isEmpty()) {
             Box(
                 Modifier.fillMaxSize(),
@@ -81,10 +109,11 @@ fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, main
             LaunchedEffect(mainViewModel.currentTabIndex) {
                 if (mainViewModel.tabs.isNotEmpty() &&
                     mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
-                    pagerState.currentPage != mainViewModel.currentTabIndex) {
-                    if (Settings.smooth_tabs){
+                    pagerState.currentPage != mainViewModel.currentTabIndex
+                ) {
+                    if (Settings.smooth_tabs) {
                         pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
-                    }else{
+                    } else {
                         pagerState.scrollToPage(mainViewModel.currentTabIndex)
                     }
                 }
@@ -92,9 +121,9 @@ fun MainContent(modifier: Modifier = Modifier, innerPadding: PaddingValues, main
 
             LaunchedEffect(mainViewModel.tabs) {
                 if (mainViewModel.tabs.size != pagerState.pageCount) {
-                    if (Settings.smooth_tabs){
+                    if (Settings.smooth_tabs) {
                         pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
-                    }else{
+                    } else {
                         pagerState.scrollToPage(mainViewModel.currentTabIndex)
                     }
                 }

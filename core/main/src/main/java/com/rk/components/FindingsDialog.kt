@@ -105,7 +105,6 @@ fun CodeItemRow(
         Text(
             text = item.snippet,
             fontFamily = FontFamily.Monospace,
-            fontSize = 14.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)

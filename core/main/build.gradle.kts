@@ -118,6 +118,7 @@ dependencies {
     implementation(libs.lsp4j)
     implementation(libs.kotlin.reflect)
     implementation(libs.androidx.documentfile)
+    implementation(libs.compose.dnd)
 
     // Modules
     implementation(project(":editor"))

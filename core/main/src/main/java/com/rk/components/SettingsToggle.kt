@@ -38,7 +38,6 @@ fun BasicToggle(modifier: Modifier = Modifier,label: String,description: String?
         })
 }
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsToggle(
@@ -57,13 +56,13 @@ fun SettingsToggle(
     startWidget: (@Composable () -> Unit)? = null,
     endWidget: (@Composable () -> Unit)? = null,
 ) {
-
-    if (showSwitch && endWidget != null){
+    if (showSwitch && endWidget != null) {
         throw IllegalStateException("endWidget with show switch")
     }
 
     if (showSwitch) {
-        PreferenceSwitch(checked = state.value,
+        PreferenceSwitch(
+            checked = state.value,
             onLongClick = onLongClick,
             onCheckedChange = {
                 if (isSwitchLocked.not()) {
@@ -89,7 +88,8 @@ fun SettingsToggle(
                 } else {
                     sideEffect?.invoke(state.value)
                 }
-            })
+            }
+        )
     } else {
         val interactionSource = remember { MutableInteractionSource() }
         PreferenceTemplate(
@@ -106,12 +106,10 @@ fun SettingsToggle(
                 .padding(start = 16.dp),
             title = { Text(fontWeight = FontWeight.Bold, text = label) },
             description = { description?.let { Text(text = it) } },
-            enabled = true,
+            enabled = isEnabled,
             applyPaddings = false,
             endWidget = endWidget,
             startWidget = startWidget
         )
     }
-
-
 }

@@ -1,9 +1,9 @@
 package com.rk.settings
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.draw.CacheDrawModifierNode
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
@@ -13,6 +13,7 @@ import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import androidx.core.content.edit
+import kotlin.collections.emptyList
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)
@@ -22,13 +23,13 @@ object Settings {
     var word_wrap_for_text by CachedPreference("ww_txt", true)
     var word_wrap by CachedPreference("wordwrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
-    var cursor_animation by CachedPreference("cursor_animation", false)
-    var show_arrow_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
+    var cursor_animation by CachedPreference("cursor_animation", true)
+    var show_extra_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)
-    var sticky_scroll by CachedPreference("sticky_scroll", false)
-    var quick_deletion by CachedPreference("fast_delete", false)
+    var sticky_scroll by CachedPreference("sticky_scroll", true)
+    var quick_deletion by CachedPreference("fast_delete", true)
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
     var check_for_update by CachedPreference("check_update", false)
@@ -53,6 +54,7 @@ object Settings {
     var seccomp by CachedPreference("seccomp", false)
     var desktopMode by CachedPreference("desktopMode", false)
     var themeFlipper by CachedPreference("theme_flipper",false)
+    var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
@@ -71,6 +73,7 @@ object Settings {
     var selected_font_path by CachedPreference("selected_font_path", "")
     var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
     var currentLang: String? by CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
+    var extra_keys by CachedPreference("extra_keys", "()\"{}[];")
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
@@ -78,6 +81,9 @@ object Settings {
 
     // Float settings
     var line_spacing by CachedPreference("line_spacing", 1f)
+
+    var last_used_command by CachedPreference("last_used_command", "")
+    var action_items by CachedPreference("action_items", "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings")
 }
 
 object Preference {

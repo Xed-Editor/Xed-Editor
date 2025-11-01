@@ -142,7 +142,7 @@
     <string name="show_line_number">Show line numbers</string>
     <string name="pin_line_number">Pin line numbers</string>
     <string name="extra_keys">Extra keys</string>
-    <string name="extra_keys_desc">Show extra keys in the editor</string>
+    <string name="extra_keys_desc">Show extra keys above the keyboard</string>
     <string name="auto_save">Auto save</string>
     <string name="auto_save_desc">Automatically save file</string>
     <string name="interval_in_ms">Interval in milliseconds</string>
@@ -445,9 +445,13 @@
     <string name="enable_sticky_scroll_desc">Keep the current code block header visible while scrolling</string>
     <string name="enable_quick_deletion">Enable quick line deletion</string>
     <string name="enable_quick_deletion_desc">Automatically delete the entire line if it is empty</string>
+    <string name="type_command">Type command</string>
+    <string name="recently_used">(Recently used)</string>
+    <string name="command_palette">Command palette</string>
     <string name="rename_failed">Unable to rename file</string>
     <string name="debug_mode_warn">Debug mode disables safety restrictions, which could lead to data loss or other issues if misused. Only enable it if you know what you\'re doing.</string>
     <string name="external_lsp">External LSP</string>
+    <string name="external">External</string>
     <string name="desktop_mode">Desktop Mode (Experimental)</string>
     <string name="desktop_mode_desc">Makes the app easier to use on tablets and desktop-sized screens.</string>
     <string name="built_in">Built-in</string>
@@ -456,4 +460,15 @@
     in people with photosensitive epilepsy.</string>
     <string name="address">Address</string>
     <string name="invalid_address">Invalid address</string>
+    <string name="select_all">Select all</string>
+    <string name="select_word">Select word</string>
+    <string name="duplicate_line">Duplicate line</string>
+    <string name="show_nav_extra_keys">Show navigation keys</string>
+    <string name="show_nav_extra_keys_desc">Display navigation buttons as extra keys</string>
+    <string name="change_extra_keys">Edit extra keys</string>
+    <string name="change_extra_keys_desc">Customize the extra keys shown above the keyboard</string>
+    <string name="toolbar_actions">Toolbar actions</string>
+    <string name="toolbar_actions_desc">Choose which actions appear in the app bar</string>
+    <string name="add_command">Add command</string>
+    <string name="info_toolbar_actions">Toolbar actions define which commands are shown in the toolbar when a file is open. You can long-press and drag to change their order, or tap the button to add a new command.</string>
 </resources>

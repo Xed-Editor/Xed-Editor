@@ -1,6 +1,7 @@
 package com.rk.tabs
 
 import android.app.Activity
+import com.rk.activities.main.MainViewModel
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -10,11 +11,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,22 +41,21 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
-import com.rk.activities.main.ControlPanel
-import com.rk.activities.main.MainViewModel
+import com.rk.components.AddDialogItem
+import com.rk.file.FileObject
+import com.rk.utils.dialog
+import com.rk.utils.dpToPx
+import com.rk.lsp.BaseLspConnector
 import com.rk.components.CodeItem
 import com.rk.components.EditorActions
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
 import com.rk.components.SyntaxPanel
-import com.rk.components.updateUndoRedo
 import com.rk.editor.Editor
 import com.rk.editor.getInputView
 import com.rk.editor.textmateSources
-import com.rk.file.FileObject
-import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.LspConnectionConfig
-import com.rk.lsp.ProcessConnection
 import com.rk.lsp.createLspTextActions
 import com.rk.lsp.lspRegistry
 import com.rk.resources.getFilledString
@@ -61,8 +64,6 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.dialog
-import com.rk.utils.dpToPx
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
@@ -82,7 +83,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
-
+import com.rk.resources.drawables
+import com.rk.runner.RunnerImpl
+import com.rk.runner.currentRunner
 
 data class CodeEditorState(
     val initialContent: Content? = null,
@@ -107,7 +110,6 @@ data class CodeEditorState(
     var searchKeyword by mutableStateOf("")
     var replaceKeyword by mutableStateOf("")
 
-    var showControlPanel by mutableStateOf(false)
     var showSyntaxPanel by mutableStateOf(false)
 
     var showFindingsDialog by mutableStateOf(false)
@@ -122,9 +124,20 @@ data class CodeEditorState(
 
     var textmateScope by mutableStateOf<String?>(null)
 
+    var runnersToShow by mutableStateOf<List<RunnerImpl>>(emptyList())
+    var showRunnerDialog by mutableStateOf(false)
+
+    var canUndo by mutableStateOf(false)
+    var canRedo by mutableStateOf(false)
+
+    fun updateUndoRedo() {
+        canUndo = editor.get()?.canUndo() ?: false
+        canRedo = editor.get()?.canRedo() ?: false
+    }
 }
-//<extension : <host,port>>
-val lsp_connections = mutableStateMapOf<String, Pair<String,Int>>()
+
+// <extension : <host, port>>
+val lsp_connections = mutableStateMapOf<String, Pair<String, Int>>()
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
@@ -209,8 +222,11 @@ class EditorTab(
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
+        val context = LocalContext.current
+
         key(refreshKey) {
             Column {
                 if (editorState.textmateScope == null) {
@@ -219,16 +235,41 @@ class EditorTab(
                     }
                 }
 
-                if (editorState.showControlPanel) {
-                    ControlPanel(onDismissRequest = {
-                        editorState.showControlPanel = false
-                    }, viewModel = viewModel)
+                if (editorState.showRunnerDialog) {
+                    ModalBottomSheet(
+                        onDismissRequest = {
+                            editorState.showRunnerDialog = false
+                            editorState.runnersToShow = emptyList()
+                        },
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = 16.dp,
+                                top = 0.dp
+                            )
+                        ) {
+                            editorState.runnersToShow.forEach { runner ->
+                                AddDialogItem(
+                                    icon = drawables.run,
+                                    title = runner.getName()
+                                ) {
+                                    currentRunner = WeakReference(runner)
+                                    runner.run(context, file)
+                                    editorState.showRunnerDialog = false
+                                    editorState.runnersToShow = emptyList()
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (editorState.showSyntaxPanel) {
-                    SyntaxPanel(onDismissRequest = {
-                        editorState.showSyntaxPanel = false
-                    }, editorState)
+                    SyntaxPanel(
+                        onDismissRequest = { editorState.showSyntaxPanel = false },
+                        editorState = editorState
+                    )
                 }
 
                 if (editorState.showFindingsDialog) {
@@ -276,6 +317,7 @@ class EditorTab(
                 CodeEditor(
                     modifier = Modifier,
                     state = editorState,
+                    parentTab = this@EditorTab,
                     onTextChange = {
                         if (Settings.auto_save) {
                             scope.launch(Dispatchers.IO) {
@@ -303,7 +345,6 @@ class EditorTab(
     override fun RowScope.Actions() {
         EditorActions(
             modifier = Modifier,
-            tab = this@EditorTab,
             viewModel = viewModel
         )
     }
@@ -317,7 +358,7 @@ class EditorTab(
             withContext(Dispatchers.Main) {
                 editorState.updateLock.withLock {
                     editorState.editor.get()?.setText(content)
-                    editorState.editor.get()?.updateUndoRedo()
+                    editorState.updateUndoRedo()
                 }
             }
         }
@@ -329,16 +370,17 @@ class EditorTab(
 private fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
+    parentTab: EditorTab,
     onKeyEvent: (EditorKeyEvent) -> Unit,
-    onTextChange: () -> Unit,
+    onTextChange: () -> Unit
 ) {
-
     val surfaceColor = if (isSystemInDarkTheme()) {
         MaterialTheme.colorScheme.surfaceDim
     } else {
         MaterialTheme.colorScheme.surface
     }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+    val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
     val selectionColors = LocalTextSelectionColors.current
     val realSurface = MaterialTheme.colorScheme.surface
     val selectionBackground = selectionColors.backgroundColor
@@ -348,11 +390,12 @@ private fun EditorTab.CodeEditor(
     val colorSecondary = MaterialTheme.colorScheme.secondary
     val handleColor = selectionColors.handleColor
     val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
+
     val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+
     val divider = MaterialTheme.colorScheme.outlineVariant
     val isDarkMode = isSystemInDarkTheme()
-
 
     AnimatedVisibility(visible = true) {
         val constraintSet = remember { ConstraintSet() }
@@ -391,6 +434,7 @@ private fun EditorTab.CodeEditor(
                             isDarkMode = isDarkMode,
                             editorSurface = surfaceColor.toArgb(),
                             surfaceContainer = surfaceContainer.toArgb(),
+                            highSurfaceContainer = highSurfaceContainer.toArgb(),
                             surface = realSurface.toArgb(),
                             onSurface = onSurfaceColor.toArgb(),
                             colorPrimary = colorPrimary.toArgb(),
@@ -406,13 +450,7 @@ private fun EditorTab.CodeEditor(
 
                         state.editor = WeakReference(this)
 
-                        val lspActions = createLspTextActions(
-                            scope,
-                            context,
-                            viewModel,
-                            file,
-                            editorState
-                        ) { baseLspConnector }
+                        val lspActions = createLspTextActions(scope, context, viewModel, parentTab)
                         lspActions.forEach { registerTextAction(it) }
 
                         scope.launch(Dispatchers.IO) {
@@ -428,7 +466,7 @@ private fun EditorTab.CodeEditor(
                         subscribeAlways(ContentChangeEvent::class.java) {
                             if (!state.updateLock.isLocked) {
                                 state.isDirty = true
-                                updateUndoRedo()
+                                editorState.updateUndoRedo()
                                 onTextChange.invoke()
                             }
                         }
@@ -438,11 +476,11 @@ private fun EditorTab.CodeEditor(
                         }
                     }
 
-                    val horizontalScrollView = HorizontalScrollView(ctx).apply {
+                    val keyPanel = HorizontalScrollView(ctx).apply {
                         state.arrowKeys = WeakReference(this)
                         id = horizontalScrollViewId
 
-                        visibility = if (Settings.show_arrow_keys) {
+                        visibility = if (Settings.show_extra_keys) {
                             View.VISIBLE
                         } else {
                             View.GONE
@@ -454,7 +492,7 @@ private fun EditorTab.CodeEditor(
                         )
                         isHorizontalScrollBarEnabled = false
                         isSaveEnabled = false
-                        addView(getInputView(editor, realSurface.toArgb(), onSurfaceColor.toArgb()))
+                        addView(getInputView(editor, realSurface.toArgb(), onSurfaceColor.toArgb(), viewModel))
                     }
 
                     val divider = View(ctx).apply {
@@ -469,7 +507,7 @@ private fun EditorTab.CodeEditor(
 
                     addView(editor)
                     addView(divider)
-                    addView(horizontalScrollView)
+                    addView(keyPanel)
 
                     with(constraintSet) {
                         clone(this@apply)
@@ -633,7 +671,6 @@ private fun EditorTab.CodeEditor(
                             )
                         }
                     }
-
 
                     setLanguage(langScope)
                 }

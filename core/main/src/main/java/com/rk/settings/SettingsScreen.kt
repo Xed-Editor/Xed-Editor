@@ -89,7 +89,6 @@ private fun Categories(navController: NavController) {
         )
     }
 
-
     if (InbuiltFeatures.debugMode.state.value) {
         PreferenceCategory(
             label = stringResource(strings.debug_options),
@@ -98,7 +97,6 @@ private fun Categories(navController: NavController) {
             onNavigate = { navController.navigate(SettingsRoutes.DeveloperOptions.route) },
         )
     }
-
 
     PreferenceTemplate(modifier = Modifier
         .padding(horizontal = 16.dp)

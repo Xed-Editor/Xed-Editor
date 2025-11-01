@@ -1,9 +1,11 @@
 package com.rk.activities.main
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rk.commands.Command
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.utils.application
@@ -79,17 +81,21 @@ class MainViewModel : ViewModel() {
     val mutex = Mutex()
     var currentTabIndex by mutableIntStateOf(0)
 
+    var showCommandPalette by mutableStateOf(false)
+    var draggingPaletteProgress = Animatable(0f)
+    var isDraggingPalette by mutableStateOf(false)
+    var commands = emptyList<Command>()
+
     val currentTab: Tab?
         get() = tabs.getOrNull(currentTabIndex)
 
-
     init {
-        if (Settings.restore_sessions){
-            viewModelScope.launch{
-                TabCache.mutex.withLock{
+        if (Settings.restore_sessions) {
+            viewModelScope.launch {
+                TabCache.mutex.withLock {
                     TabCache.preloadedTabs.forEach { file ->
                         viewModelScope.launch {
-                            newEditorTab(file,checkDuplicate = false,switchToTab = false)
+                            newEditorTab(file,checkDuplicate = false, switchToTab = false)
                         }
                     }
                 }
@@ -97,7 +103,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    suspend fun newTab(fileObject: FileObject,checkDuplicate: Boolean = true,switchToTab: Boolean = false) = withContext(Dispatchers.IO){
+    suspend fun newTab(fileObject: FileObject, checkDuplicate: Boolean = true, switchToTab: Boolean = false) = withContext(Dispatchers.IO) {
         val function = suspend {
             TabRegistry.getTab(fileObject){
                 if (it == null){
@@ -109,7 +115,7 @@ class MainViewModel : ViewModel() {
         }
 
         val coroutineScope = this
-        if (expectOOM(fileObject.length())){
+        if (expectOOM(fileObject.length())) {
             dialog(
                 title = strings.attention.getString(),
                 msg = strings.tab_memory_warning.getString(),
@@ -134,7 +140,7 @@ class MainViewModel : ViewModel() {
         return@withContext false
     }
 
-    private suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(
+    private suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true, switchToTab: Boolean = false): Boolean = withContext(
         Dispatchers.IO) {
 
         if (checkDuplicate) {
@@ -151,7 +157,7 @@ class MainViewModel : ViewModel() {
                     val editorTab = EditorTab(file = file, viewModel = this@MainViewModel)
 
                     tabs.add(editorTab)
-                    if (switchToTab){
+                    if (switchToTab) {
                         delay(70)
                         currentTabIndex = tabs.lastIndex
                     }

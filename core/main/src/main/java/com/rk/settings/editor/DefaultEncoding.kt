@@ -27,7 +27,6 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import java.nio.charset.Charset
 import java.util.Locale
 
-
 object DefaultEncoding{
     val charsets = Charset.availableCharsets().map { it.value }
 }
@@ -46,7 +45,6 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
             },
             text = strings.encoding_warning.getString(),
         )
-
 
         PreferenceGroup {
             PreferenceTemplate(
@@ -94,7 +92,6 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                 }
             }
         }
-
     }
 }
 
