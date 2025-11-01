@@ -5,7 +5,7 @@ Supported KeyBindings on Karbon
 ## File Operations
 
 | Shortcut&emsp;&emsp;&emsp;&emsp;&emsp;        | Action                |
-| --------------------------------------------- | --------------------- |
+|-----------------------------------------------|-----------------------|
 | <kbd>CTRL</kbd>+<kbd>S</kbd>                  | Save the current file |
 | <kbd>CTRL</kbd>+<kbd>SHIFT</kbd>+<kbd>S</kbd> | Save As               |
 | <kbd>CTRL</kbd>+<kbd>P</kbd>                  | Print the document    |
@@ -13,7 +13,7 @@ Supported KeyBindings on Karbon
 ## Editing
 
 | Shortcut&emsp;&emsp;&emsp;&emsp;&emsp; | Action                          |
-| -------------------------------------- | ------------------------------- |
+|----------------------------------------|---------------------------------|
 | <kbd>CTRL</kbd>+<kbd>X</kbd>           | Cut selected text               |
 | <kbd>CTRL</kbd>+<kbd>C</kbd>           | Copy selected text              |
 | <kbd>CTRL</kbd>+<kbd>V</kbd>           | Paste copied or cut text        |
@@ -24,7 +24,7 @@ Supported KeyBindings on Karbon
 ## Tab Navigation
 
 | Shortcut&emsp;&emsp;&emsp;&emsp;&emsp; | Action                     |
-| -------------------------------------- | -------------------------- |
+|----------------------------------------|----------------------------|
 | <kbd>CTRL</kbd>+<kbd>K</kbd>           | Switch to the previous tab |
 | <kbd>CTRL</kbd>+<kbd>L</kbd>           | Switch to the next tab     |
 | <kbd>CTRL</kbd>+<kbd>W</kbd>           | Close the current tab      |
@@ -32,7 +32,7 @@ Supported KeyBindings on Karbon
 ## Text Navigation
 
 | Shortcut&emsp;&emsp;&emsp;&emsp;&emsp; | Action                                           |
-| -------------------------------------- | ------------------------------------------------ |
+|----------------------------------------|--------------------------------------------------|
 | <kbd>CTRL</kbd>+<kbd>F</kbd>           | Find text in the document                        |
 | <kbd>CTRL</kbd>+<kbd>H</kbd>           | Find and replace text                            |
 | <kbd>CTRL</kbd>+<kbd>G</kbd>           | Move the cursor to the beginning of the document |

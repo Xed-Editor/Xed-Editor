@@ -91,6 +91,7 @@ class Editor : CodeEditor {
                 editorColors.forEach {
                     colorScheme.setColor(it.key,it.color)
                 }
+                //TODO: instead of dismissing the post processing completely apply post process if color is not specified in the theme
                 return@updateColors
             }
 

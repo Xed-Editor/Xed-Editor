@@ -2,7 +2,7 @@
 force_color_prompt=yes
 shopt -s checkwinsize
 
-source "$PREFIX/local/bin/utils"
+source "$LOCAL/bin/utils"
 
 # Set timezone
 CONTAINER_TIMEZONE="UTC"  # or any timezone like "Asia/Kolkata"
@@ -16,7 +16,7 @@ echo "$CONTAINER_TIMEZONE" > /etc/timezone
 # Reconfigure tzdata to apply without prompts
 DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata >/dev/null 2>&1
 
-ALPINE_DIR="$PREFIX/local/alpine"
+ALPINE_DIR="$LOCAL/alpine"
 RETAINED_FILE="$ALPINE_DIR/.retained"
 
 if [ -d "$ALPINE_DIR" ]; then
@@ -55,16 +55,21 @@ if [[ -f ~/.bashrc ]]; then
 fi
 
 
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$PREFIX/local/bin:$PATH
+export PATH=/home/.npm-global:/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$LOCAL/bin:$PATH
 export SHELL="bash"
 export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 ensure_packages_once() {
     local marker_file="/.cache/.packages_ensured"
-    local PACKAGES=("command-not-found" "sudo" "xkb-data")
+    local PACKAGES=("command-not-found" "sudo" "xkb-data" "curl")
 
     # Exit early if already done
     [[ -f "$marker_file" ]] && return 0
+
+    #setup node lts
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+    npm config set prefix '/home/.npm-global'
+
 
     # Create cache dir
     mkdir -p "/.cache"
@@ -90,7 +95,6 @@ ensure_packages_once() {
        apt install -y "${MISSING[@]}"; then
         touch "$marker_file"
         info "Packages installed."
-        reset
     else
         error "Failed to install packages."
         return 1
@@ -125,9 +129,6 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
-alias editor="xed edit"
-alias edit="xed edit"
-
 
 if [[ -f /initrc ]]; then
     # shellcheck disable=SC1090
