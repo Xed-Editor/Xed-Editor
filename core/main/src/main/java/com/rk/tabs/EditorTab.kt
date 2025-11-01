@@ -1,7 +1,6 @@
 package com.rk.tabs
 
 import android.app.Activity
-import com.rk.activities.main.MainViewModel
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -41,11 +40,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.activities.main.MainViewModel
 import com.rk.components.AddDialogItem
-import com.rk.file.FileObject
-import com.rk.utils.dialog
-import com.rk.utils.dpToPx
-import com.rk.lsp.BaseLspConnector
 import com.rk.components.CodeItem
 import com.rk.components.EditorActions
 import com.rk.components.FindingsDialog
@@ -55,15 +51,22 @@ import com.rk.components.SyntaxPanel
 import com.rk.editor.Editor
 import com.rk.editor.getInputView
 import com.rk.editor.textmateSources
+import com.rk.file.FileObject
+import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.createLspTextActions
 import com.rk.lsp.lspRegistry
+import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.runner.RunnerImpl
+import com.rk.runner.currentRunner
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.dialog
+import com.rk.utils.dpToPx
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
@@ -83,9 +86,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
-import com.rk.resources.drawables
-import com.rk.runner.RunnerImpl
-import com.rk.runner.currentRunner
 
 data class CodeEditorState(
     val initialContent: Content? = null,
@@ -134,6 +134,8 @@ data class CodeEditorState(
         canUndo = editor.get()?.canUndo() ?: false
         canRedo = editor.get()?.canRedo() ?: false
     }
+
+    val lspDialogMutex by lazy { Mutex() }
 }
 
 // <extension : <host, port>>
@@ -492,7 +494,14 @@ private fun EditorTab.CodeEditor(
                         )
                         isHorizontalScrollBarEnabled = false
                         isSaveEnabled = false
-                        addView(getInputView(editor, realSurface.toArgb(), onSurfaceColor.toArgb(), viewModel))
+                        addView(
+                            getInputView(
+                                editor,
+                                realSurface.toArgb(),
+                                onSurfaceColor.toArgb(),
+                                viewModel
+                            )
+                        )
                     }
 
                     val divider = View(ctx).apply {
@@ -607,33 +616,35 @@ private fun EditorTab.CodeEditor(
             editorState.textmateScope?.let { langScope ->
                 scope.launch(Dispatchers.IO) {
 
-                    if (InbuiltFeatures.terminal.state.value){
+                    if (InbuiltFeatures.terminal.state.value) {
                         val ext = file.getName().substringAfterLast(".").trim()
+                        val parent = file.getParentFile()
 
-                        if (lsp_connections.contains(ext)) {
+                        if (lsp_connections.contains(ext) && parent != null) {
                             val server = lsp_connections[ext]!!
 
                             baseLspConnector = BaseLspConnector(
                                 ext,
                                 textMateScope = textmateSources[ext]!!,
-                                connectionConfig = LspConnectionConfig.Socket(server.first,server.second)
+                                connectionConfig = LspConnectionConfig.Socket(
+                                    server.first,
+                                    server.second
+                                )
+                            )
+                            baseLspConnector?.connect(
+                                parent,
+                                fileObject = file,
+                                codeEditor = editorState.editor.get()!!
                             )
 
-                            file.getParentFile()?.let { parent ->
-                                baseLspConnector?.connect(
-                                    parent,
-                                    fileObject = file,
-                                    codeEditor = editorState.editor.get()!!
-                                )
-                            }
                             return@launch
                         }
 
                         val server = lspRegistry.find {
-                            it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase())
+                            it.supportedExtensions.map { e -> e.lowercase() }
+                                .contains(ext.lowercase())
                         }
                         if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
-
                             // Connect with built-in language server
                             if (server.isInstalled(context)) {
                                 baseLspConnector = BaseLspConnector(
@@ -652,23 +663,36 @@ private fun EditorTab.CodeEditor(
                                 return@launch
                             }
 
-                            dialog(
-                                context = context as Activity,
-                                title = strings.attention.getString(context),
-                                msg = strings.ask_lsp_install.getFilledString(
-                                    context,
-                                    server.languageName
-                                ),
-                                cancelString = strings.dont_ask_again,
-                                okString = strings.install,
-                                onOk = { server.install(context) },
-                                onCancel = {
-                                    Preference.setBoolean(
-                                        "lsp_${server.id}",
-                                        false
-                                    )
-                                }
-                            )
+                            if (editorState.lspDialogMutex.isLocked.not()) {
+                                editorState.lspDialogMutex.lock()
+                                dialog(
+                                    context = context as Activity,
+                                    title = strings.attention.getString(context),
+                                    msg = strings.ask_lsp_install.getFilledString(
+                                        context,
+                                        server.languageName
+                                    ),
+                                    cancelString = strings.dont_ask_again,
+                                    okString = strings.install,
+                                    onOk = {
+                                        if (editorState.lspDialogMutex.isLocked) {
+                                            editorState.lspDialogMutex.unlock()
+                                        }
+                                        server.install(context)
+                                    },
+                                    cancelable = false,
+                                    onCancel = {
+                                        if (editorState.lspDialogMutex.isLocked) {
+                                            editorState.lspDialogMutex.unlock()
+                                        }
+                                        Preference.setBoolean(
+                                            "lsp_${server.id}",
+                                            false
+                                        )
+                                    }
+                                )
+                            }
+
                         }
                     }
 

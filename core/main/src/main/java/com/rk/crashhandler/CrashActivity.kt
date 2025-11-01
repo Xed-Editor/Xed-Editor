@@ -54,9 +54,6 @@ class CrashActivity : ComponentActivity() {
 
     companion object {
         fun Context.isModified(): Boolean {
-            if (BuildConfig.DEBUG) {
-                return false
-            }
             val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageManager.getPackageInfo(
                     packageName,

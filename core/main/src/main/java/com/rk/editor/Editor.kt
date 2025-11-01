@@ -84,22 +84,6 @@ class Editor : CodeEditor {
         dividerColor: Int
     ) {
         updateColors { colors ->
-            val editorColors = if (isDarkMode){
-                currentTheme.value?.darkEditorColors
-            }else{
-                currentTheme.value?.lightEditorColors
-            }
-
-            if (editorColors.isNullOrEmpty().not()){
-                editorColors.forEach {
-                    colorScheme.setColor(it.key,it.color)
-                }
-                //TODO: instead of dismissing the post processing completely apply post process if color is not specified in the theme
-                return@updateColors
-            }
-
-
-
 
             with(colors) {
                 setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
@@ -173,6 +157,18 @@ class Editor : CodeEditor {
                     EditorColorScheme.STICKY_SCROLL_DIVIDER
                 )
 
+            }
+
+            val editorColors = if (isDarkMode){
+                currentTheme.value?.darkEditorColors
+            }else{
+                currentTheme.value?.lightEditorColors
+            }
+
+            if (editorColors.isNullOrEmpty().not()){
+                editorColors.forEach {
+                    colorScheme.setColor(it.key,it.color)
+                }
             }
         }
     }
@@ -324,7 +320,15 @@ class Editor : CodeEditor {
                 AppCompatDelegate.MODE_NIGHT_NO -> false
                 else -> isDarkMode(context)
             }
-            return "${darkTheme}_${Settings.amoled}_${Settings.theme}"
+
+            //important
+            val prefix = if (darkTheme){
+                "dark"
+            }else{
+                "light"
+            }
+
+            return "${prefix}_${Settings.amoled}_${Settings.theme}"
         }
 
         suspend fun initGrammarRegistry() = withContext(Dispatchers.IO) {
