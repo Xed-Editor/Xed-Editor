@@ -18,6 +18,8 @@ import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.activities.main.MainViewModel
 import com.rk.components.CodeItem
+import com.rk.file.child
+import com.rk.file.sandboxDir
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
@@ -36,10 +38,19 @@ import kotlin.text.substring
  * Example: The LSP may return `file:///home/...` but Xed-Editor has to resolve the path to `file:///data/user/0/com.rk.xededitor/local/sandbox/home/...`
  * */
 fun fixHomeLocation(context: Context, uri: String): String {
-    if (uri.toUri().path!!.startsWith("/home")) {
-        return Uri.fromFile(File(sandboxHomeDir(context), uri.toUri().path!!.removePrefix("/home/"))).toString()
+    val path = uri.toUri().path ?: return uri
+
+    val fixedPath  = when {
+        path.startsWith("/home") -> {
+            File(sandboxHomeDir(context), uri.toUri().path!!.removePrefix("/home/"))
+        }
+        path.startsWith("/usr") -> {
+            File(sandboxDir(context).child("usr"), uri.toUri().path!!.removePrefix("/usr/"))
+        }
+        else -> null
     }
-    return uri
+
+    return fixedPath?.let { Uri.fromFile(it).toString() } ?: uri
 }
 
 /**
