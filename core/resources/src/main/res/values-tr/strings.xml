@@ -139,7 +139,7 @@
     <string name="show_line_number">Satır numaralarını göster</string>
     <string name="pin_line_number">Satır numaralarını sabitle</string>
     <string name="extra_keys">Ekstra tuşlar</string>
-    <string name="extra_keys_desc">Düzenleyicide ekstra anahtarları göster</string>
+    <string name="extra_keys_desc">Klavyenin üzerindeki ek tuşları göster</string>
     <string name="auto_save">Otomatik kaydetme</string>
     <string name="auto_save_desc">Dosyayı otomatik kaydet</string>
     <string name="interval_in_ms">Milisaniye cinsinden aralık</string>
@@ -457,4 +457,19 @@
     <string name="debug_mode_warn">Hata ayıklama modu, güvenlik kısıtlamalarını devre dışı bırakır; bu da yanlış kullanıldığında veri kaybına veya başka sorunlara yol açabilir. Yalnızca ne yaptığınızı biliyorsanız etkinleştirin.</string>
     <string name="address">Adres</string>
     <string name="invalid_address">Geçersiz adres</string>
+    <string name="type_command">Komut yaz</string>
+    <string name="recently_used">(Son kullanılan)</string>
+    <string name="command_palette">Komut Paleti</string>
+    <string name="external">Harici</string>
+    <string name="select_all">Tümünü seç</string>
+    <string name="select_word">Kelime seç</string>
+    <string name="duplicate_line">Satırı çoğalt</string>
+    <string name="show_nav_extra_keys">Navigasyon tuşlarını göster</string>
+    <string name="show_nav_extra_keys_desc">Navigasyon düğmelerini ek tuşlar olarak göster</string>
+    <string name="change_extra_keys">Ekstra tuşları düzenle</string>
+    <string name="change_extra_keys_desc">Klavyenin üzerinde gösterilen ekstra tuşları özelleştir</string>
+    <string name="toolbar_actions">Araç çubuğu işlemleri</string>
+    <string name="toolbar_actions_desc">Uygulama çubuğunda hangi işlemlerin görüneceğini seçin</string>
+    <string name="add_command">Komut ekle</string>
+    <string name="info_toolbar_actions">Araç çubuğu eylemleri, bir dosya açıkken araç çubuğunda hangi komutların gösterileceğini belirler. Sıralarını değiştirmek için uzun basıp sürükleyebilir veya yeni komut eklemek için düğmeye dokunabilirsiniz.</string>
 </resources>
