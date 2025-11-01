@@ -1,7 +1,9 @@
 package com.rk.commands
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,8 +73,7 @@ fun CommandPalette(
         }
     }
 
-    val hardThreshold = with (LocalDensity.current) { 100.dp.toPx() }
-    val offsetY = (1f - progress) * hardThreshold
+    val offsetY = with(LocalDensity.current) { (1f - progress) * 100.dp.toPx() }
 
     XedDialog(
         onDismissRequest = onDismissRequest,
@@ -83,7 +84,7 @@ fun CommandPalette(
             }
             .imePadding()
     ) {
-        Column {
+        Column(modifier = Modifier.animateContentSize()) {
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -99,8 +100,10 @@ fun CommandPalette(
 
             LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
                 items(items = filteredCommands, key = { it.id }) { command ->
-                    val isRecentlyUsed = command == lastUsedCommand
-                    CommandItem(viewModel, command, isRecentlyUsed, onDismissRequest)
+                    Box(modifier = Modifier.animateItem()) {
+                        val isRecentlyUsed = command == lastUsedCommand
+                        CommandItem(viewModel, command, isRecentlyUsed, onDismissRequest)
+                    }
                 }
             }
         }
@@ -108,7 +111,12 @@ fun CommandPalette(
 }
 
 @Composable
-fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolean, onDismissRequest: () -> Unit) {
+fun CommandItem(
+    viewModel: MainViewModel,
+    command: Command,
+    recentlyUsed: Boolean,
+    onDismissRequest: () -> Unit
+) {
     val activity = LocalActivity.current
     val enabled = command.isSupported.value && command.isEnabled.value
 
