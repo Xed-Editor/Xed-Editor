@@ -133,7 +133,7 @@
     <string name="show_line_number">显示行号</string>
     <string name="pin_line_number">固定行号</string>
     <string name="extra_keys">额外关键字</string>
-    <string name="extra_keys_desc">在编辑器中显示额外关键字</string>
+    <string name="extra_keys_desc">在键盘上方显示额外的键</string>
     <string name="interval_in_ms">间隔（毫秒）</string>
     <string name="value_invalid">无效值</string>
     <string name="value_small">数值太小</string>
