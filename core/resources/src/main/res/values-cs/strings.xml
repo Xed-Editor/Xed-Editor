@@ -197,7 +197,7 @@
     <string name="oled">Černé téma</string>
     <string name="add_session">Přidat relaci</string>
     <string name="editor_desc">Nastavení editoru</string>
-    <string name="extra_keys_desc">Zobrazovat více kláves v editoru</string>
+    <string name="extra_keys_desc">Zobrazovat více kláves nad klávesnicí</string>
     <string name="value_invalid">Neplatná hodnota</string>
     <string name="value_small">Hodnota příliš malá</string>
     <string name="value_large">Hodnota příliš velká</string>
@@ -443,4 +443,20 @@
     <string name="built_in">Vestavěný</string>
     <string name="go_to_definition">Jít k definici</string>
     <string name="go_to_definition_desc">Vyberte jednu z(e) %d definic pro přesun k její umístění.</string>
+    <string name="address">Adresa</string>
+    <string name="invalid_address">Neplatná adresa</string>
+    <string name="select_all">Vybrat vše</string>
+    <string name="select_word">Vybrat slovo</string>
+    <string name="duplicate_line">Duplikovat řádek</string>
+    <string name="show_nav_extra_keys">Zobrazovat navigační klávesy</string>
+    <string name="show_nav_extra_keys_desc">Zobrazovat navigační tlačítka jako klávesy navíc</string>
+    <string name="change_extra_keys">Upravovat extra klávesy</string>
+    <string name="change_extra_keys_desc">Přizpůsobit extra klávesy zobrazující se nad klávesnicí</string>
+    <string name="toolbar_actions">Akce nástrojové lišty</string>
+    <string name="toolbar_actions_desc">Vyberte jaké akce se zobrazují v liště aplikace</string>
+    <string name="add_command">Přidat příkaz</string>
+    <string name="info_toolbar_actions">Akce nástrojové lišty definujou jaké příkazy jsou zobrazeny v nástrojové liště když je soubor otevřen. Můžete dlouhým klepnutím a přetáhnutím změnit jejich pořadí nebo klepnout na tlačítko pro přidání nového příkazu.</string>
+    <string name="external">Externí</string>
+    <string name="recently_used">(Nedávno použité)</string>
+    <string name="debug_mode_warn">Režim pro ladění vypne bezpečnostní omezení, což může způsobit ztrátu dat nebo jiné problémy jestli zneužíváno. Jenom zapněte, pokud víte co děláte.</string>
 </resources>
