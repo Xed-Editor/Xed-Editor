@@ -138,8 +138,8 @@ data class CodeEditorState(
     val lspDialogMutex by lazy { Mutex() }
 }
 
-// <extension : <host, port>>
-val lsp_connections = mutableStateMapOf<String, Pair<String, Int>>()
+// <extensions : <host, port>>
+val lsp_connections = mutableStateMapOf<List<String>, Pair<String, Int>>()
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
@@ -700,24 +700,28 @@ private suspend fun EditorTab.tryConnectExternalLsp(
     ext: String,
     parent: FileObject?
 ): Boolean {
-    if (lsp_connections.contains(ext) && parent != null) {
-        val server = lsp_connections[ext]!!
+    if (parent == null) return false
 
-        baseLspConnector = BaseLspConnector(
-            ext,
-            textMateScope = textmateSources[ext]!!,
-            connectionConfig = LspConnectionConfig.Socket(
-                server.first,
-                server.second
+    lsp_connections.forEach {
+        if (it.key.contains(ext)) {
+            val server = it.value
+
+            baseLspConnector = BaseLspConnector(
+                ext,
+                textMateScope = textmateSources[ext]!!,
+                connectionConfig = LspConnectionConfig.Socket(
+                    server.first,
+                    server.second
+                )
             )
-        )
-        baseLspConnector?.connect(
-            parent,
-            fileObject = file,
-            codeEditor = editorState.editor.get()!!
-        )
+            baseLspConnector?.connect(
+                parent,
+                fileObject = file,
+                codeEditor = editorState.editor.get()!!
+            )
 
-        return true
+            return true
+        }
     }
     return false
 }

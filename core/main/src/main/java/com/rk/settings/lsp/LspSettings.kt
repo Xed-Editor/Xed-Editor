@@ -96,10 +96,10 @@ fun LspSettings(modifier: Modifier = Modifier) {
         }
 
         if (lsp_connections.isNotEmpty()) {
-            lsp_connections.forEach { server ->
-                PreferenceGroup(heading = stringResource(strings.external)) {
+            PreferenceGroup(heading = stringResource(strings.external)) {
+                lsp_connections.forEach { server ->
                     SettingsToggle(
-                        label = server.key,
+                        label = server.key.joinToString(", ") { ".$it" },
                         default = true,
                         description = "${server.value.first}:${server.value.second}",
                         showSwitch = false,
@@ -120,9 +120,9 @@ fun LspSettings(modifier: Modifier = Modifier) {
         if (showDialog) {
             ExternalLSP(
                 onDismiss = { showDialog = false },
-                onConfirm = { host, port, extension ->
+                onConfirm = { host, port, extensions ->
                     runCatching {
-                        lsp_connections[extension] = Pair(host, port.toInt())
+                        lsp_connections[extensions] = Pair(host, port.toInt())
                     }.onFailure { toast(it.message) }
                 }
             )
@@ -133,24 +133,31 @@ fun LspSettings(modifier: Modifier = Modifier) {
 @Composable
 private fun ExternalLSP(
     onDismiss: () -> Unit,
-    onConfirm: (host: String, port: String, extension: String) -> Unit
+    onConfirm: (host: String, port: String, extensions: List<String>) -> Unit
 ) {
     var host by remember { mutableStateOf("localhost") }
     var port by remember { mutableStateOf("") }
-    var extension by remember { mutableStateOf("") }
+    var extensions by remember { mutableStateOf("") }
 
     var hostError by remember { mutableStateOf<String?>(null) }
     var portError by remember { mutableStateOf<String?>(null) }
-    var extensionError by remember { mutableStateOf<String?>(null) }
+    var extensionsError by remember { mutableStateOf<String?>(null) }
 
     val confirmEnabled by remember {
         derivedStateOf {
             hostError == null &&
             portError == null &&
-            extensionError == null &&
+            extensionsError == null &&
             port.isNotBlank() &&
-            extension.isNotBlank()
+            extensions.isNotBlank()
         }
+    }
+
+    fun parseExtensions(input: String): List<String> {
+        return input
+            .split(",")
+            .map { it.trim().trimStart('.') }
+            .filter { it.isNotEmpty() }
     }
 
     AlertDialog(
@@ -219,20 +226,26 @@ private fun ExternalLSP(
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = extension,
-                    onValueChange = {
-                        extension = it
-                        extensionError = null
+                    value = extensions,
+                    onValueChange = { newValue ->
+                        extensions = newValue
+                        extensionsError = null
 
-                        if (textmateSources[extension] == null) {
-                            extensionError = strings.unsupported_file_ext.getString()
+                        val parsedExtensions = parseExtensions(extensions)
+                        if (parsedExtensions.isEmpty()) {
+                            extensionsError = strings.unsupported_file_ext.getString()
+                        } else {
+                            val invalid = parsedExtensions.filter { textmateSources[it] == null }
+                            if (invalid.isNotEmpty()) {
+                                extensionsError = "${strings.unsupported_file_ext.getString()}: ${invalid.joinToString(", ") { ".$it" }}"
+                            }
                         }
                     },
                     label = { Text(stringResource(strings.file_ext_example)) },
                     singleLine = true,
-                    isError = extensionError != null,
+                    isError = extensionsError != null,
                     supportingText = {
-                        extensionError?.let {
+                        extensionsError?.let {
                             Text(
                                 text = it,
                                 color = MaterialTheme.colorScheme.error,
@@ -241,7 +254,7 @@ private fun ExternalLSP(
                         }
                     },
                     trailingIcon = {
-                        if (extensionError != null) {
+                        if (extensionsError != null) {
                             Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
                         }
                     },
@@ -251,7 +264,8 @@ private fun ExternalLSP(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(host, port, extension)
+                    val parsedExtensions = parseExtensions(extensions)
+                    onConfirm(host, port, parsedExtensions)
                     onDismiss()
                 },
                 enabled = confirmEnabled
