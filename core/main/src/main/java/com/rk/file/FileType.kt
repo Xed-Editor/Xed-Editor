@@ -113,7 +113,7 @@ enum class FileType(
         extensions = listOf("less"),
         textmateScope = "source.css.less",
         icon = css,
-        title = "LESS"
+        title = "Less"
     ),
     JSON(
         extensions = listOf("json", "jsonl", "jsonc"),
