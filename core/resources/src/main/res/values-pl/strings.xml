@@ -79,7 +79,7 @@
     <string name="show_line_number">Pokaż numery wierszy</string>
     <string name="pin_line_number">Przypnij numery wierszy</string>
     <string name="extra_keys">Dodatkowe klawisze</string>
-    <string name="extra_keys_desc">Pokaż dodatkowe klawisze w edytorze</string>
+    <string name="extra_keys_desc">Pokaż dodatkowe klawisze nad klawiaturą</string>
     <string name="auto_save">Automatyczny zapis</string>
     <string name="auto_save_desc">Automatyczne zapisywanie pliku</string>
     <string name="interval_in_ms">Interwał w milisekundach</string>
@@ -457,4 +457,20 @@
     <string name="debug_mode_warn">Tryb debug wyłącza zabezpieczenia, może powodować utratę danych lub inne awarie. Użyj na własne ryzyko.</string>
     <string name="address">Adres</string>
     <string name="invalid_address">Nieprawidłowy adres</string>
+    <string name="type_command">Wprowadź polecenie</string>
+    <string name="recently_used">(Ostatnio użyte)</string>
+    <string name="command_palette">Paleta poleceń</string>
+    <string name="external">Zewnętrzne</string>
+    <string name="select_all">Wybierz wszystko</string>
+    <string name="select_word">Wybierz słowo</string>
+    <string name="duplicate_line">Duplikuj linijkę</string>
+    <string name="show_nav_extra_keys">Pokaż klawisze nawigacji</string>
+    <string name="show_nav_extra_keys_desc">Wyświetl klawisze nawigacji jako klawisze dodatkowe</string>
+    <string name="change_extra_keys">Edytuj dodatkowe klawisze</string>
+    <string name="change_extra_keys_desc">Dostosuj dodatkowe klawisze wyświetlane nad klawiaturą</string>
+    <string name="toolbar_actions">Czynności paska narzędzi</string>
+    <string name="toolbar_actions_desc">Wybierz czynności wyświetlane na pasku narzędzi</string>
+    <string name="add_command">Dodaj polecenie</string>
+    <string name="disable">Wyłącz</string>
+    <string name="info_toolbar_actions">Czynności paska narzędzi definiują które polecenia są wyświetlane na pasku podczas otwierania pliku. Zmień kolejność przytrzymując i przeciągając lub dodaj nowe polecenie klikając przycisk.</string>
 </resources>
