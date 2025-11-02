@@ -7,7 +7,6 @@ fun interface ConnectionProviderFactory {
     fun create(): StreamConnectionProvider
 }
 
-
 sealed interface LspConnectionConfig {
     fun toFactory(): ConnectionProviderFactory
 
