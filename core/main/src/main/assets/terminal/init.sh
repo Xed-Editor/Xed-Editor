@@ -24,7 +24,7 @@ if [ -d "$ALPINE_DIR" ]; then
     :
   else
     info "Detected existing Alpine installation"
-    printf "\nxed-editor has now migrated from Alpine to Ubuntu for better compatibility and support.\n\n"
+    printf "\nXed-editor has now migrated from Alpine to Ubuntu for better compatibility and support.\n\n"
 
     if confirm "Do you want to migrate your home data from Alpine to Ubuntu?"; then
       info "Migrating data..."
@@ -55,24 +55,19 @@ if [[ -f ~/.bashrc ]]; then
 fi
 
 
-export PATH=/home/.npm-global:/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$LOCAL/bin:$PATH
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$LOCAL/bin:$PATH
 export SHELL="bash"
 export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 ensure_packages_once() {
     local marker_file="/.cache/.packages_ensured"
-    local PACKAGES=("command-not-found" "sudo" "xkb-data" "curl")
+    local PACKAGES=("command-not-found" "sudo" "xkb-data")
 
     # Exit early if already done
     [[ -f "$marker_file" ]] && return 0
 
     echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/99norecommends
     echo 'APT::Install-Suggests "false";' >> /etc/apt/apt.conf.d/99norecommends
-
-    #setup node lts
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-    #npm config set prefix '/home/.npm-global'
-
 
     # Create cache dir
     mkdir -p "/.cache"

@@ -7,7 +7,7 @@ apt update && apt upgrade -y
 
 install_nodejs() {
   info "Installing Node.js LTS..."
-  apt install -y curl
+  apt install -y curl ca-certificates
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
   apt install -y nodejs
   mkdir -p /home/.npm-global
@@ -24,5 +24,4 @@ fi
 info 'Installing typescript language server...'
 npm install -g typescript typescript-language-server
 
-clear
 info 'TypeScript language server installed successfully. Please reopen all tabs or restart the app.'
