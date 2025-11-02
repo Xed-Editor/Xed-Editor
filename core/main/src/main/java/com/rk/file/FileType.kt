@@ -40,7 +40,6 @@ private val sql = drawables.sql
 // TODO: Add icon for FileType.TOML
 // TODO: Add icon for FileType.EXECUTABLE
 // TODO: Add icon for FileType.GROOVY
-// TODO: Add icon for FileType.GRADLE
 // TODO: Add icon for FileType.PASCAL
 // TODO: Add icon for FileType.ZIG
 // TODO: Add icon for FileType.ASSEMBLY
@@ -49,66 +48,65 @@ private val sql = drawables.sql
 // TODO: Add icon for FileType.LOG
 // TODO: Add icon for FileType.NIM
 // TODO: Add icon for FileType.COQ
+// TODO: Add icon for gradle files
 
-enum class FileType(val extensions: List<String>, val textmateScope: String?, val icon: Int?) {
+enum class FileType(val extensions: List<String>, val textmateScope: String?, val icon: Int?, val title: String) {
     // Web languages
-    JAVASCRIPT(listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"), "source.js", js),
-    TYPESCRIPT(listOf("ts"), "source.ts", ts),
-    JSX(listOf("jsx"), "source.js.jsx", react),
-    TSX(listOf("jsx"), "source.tsx", react),
-    HTML_BASIC(listOf("html", "htm", "xhtml", "xht"), "text.html.basic", html),
-    HTMX(listOf("htmx"), "text.html.htmx", html),
-    CSS(listOf("css", "scss", "sass", "less"), "source.css", css),
-    JSON(listOf("json"), "source.json", json),
-    MARKDOWN(listOf("md", "markdown", "mdown", "mkd", "mkdn", "mdoc", "mdtext", "mdtxt", "mdwn"), "text.html.markdown", markdown),
-    XML(listOf("xml", "xaml", "dtd", "plist", "ascx", "csproj", "wxi", "wxl", "wxs", "svg"), "text.xml", xml),
-    YAML(listOf("yaml", "yml", "eyaml", "eyml", "cff"), "source.yaml", null),
+    JAVASCRIPT(listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"), "source.js", js, "JavaScript"),
+    TYPESCRIPT(listOf("ts"), "source.ts", ts, "TypeScript"),
+    JSX(listOf("jsx"), "source.js.jsx", react, "JavaScript JSX"),
+    TSX(listOf("jsx"), "source.tsx", react, "TypeScript JSX"),
+    HTML_BASIC(listOf("html", "htm", "xhtml", "xht"), "text.html.basic", html, "HTML"),
+    HTMX(listOf("htmx"), "text.html.htmx", html, "HTMX"),
+    CSS(listOf("css", "scss", "sass", "less"), "source.css", css, "CSS"),
+    JSON(listOf("json", "jsonl", "jsonc"), "source.json", json, "JSON"),
+    MARKDOWN(listOf("md", "markdown", "mdown", "mkd", "mkdn", "mdoc", "mdtext", "mdtxt", "mdwn"), "text.html.markdown", markdown, "Markdown"),
+    XML(listOf("xml", "xaml", "dtd", "plist", "ascx", "csproj", "wxi", "wxl", "wxs", "svg"), "text.xml", xml, "XML"),
+    YAML(listOf("yaml", "yml", "eyaml", "eyml", "cff"), "source.yaml", null, "YAML"),
 
     // Programming Languages
-    PYTHON(listOf("py", "pyi"), "source.python", python),
-    JAVA(listOf("java", "jav", "bsh"), "source.java", java),
-    GROOVY(listOf("gsh", "groovy", "gradle", "gvy", "gy"), "source.groovy", null),
-    GRADLE(listOf("gradle"), "source.groovy", null),
-    C(listOf("c"), "source.c", c),
-    CPP(listOf("cpp", "cxx", "cc", "c++", "h", "hpp", "hh", "hxx", "h++"), "source.cpp", cpp),
-    CSHARP(listOf("cs", "csx"), "source.cs", csharp),
-    RUBY(listOf("rb", "erb", "gemspec"), null, null), // TODO: Add TextMate files
-    LUA(listOf("lua"), "source.lua", lua),
-    GO(listOf("go"), "source.go", go),
-    PHP(listOf("php"), "source.php", php),
-    RUST(listOf("rs"), "source.rust", rust),
-    PASCAL(listOf("p", "pas"), "source.pascal", null),
-    ZIG(listOf("zig"), "source.zig", null),
-    NIM(listOf("nim"), "source.nim", null),
-    SWIFT(listOf("swift"), null, null), // TODO: Add TextMate files
-    DART(listOf("dart"), "source.dart", null),
-    COQ(listOf("v", "coq"), "source.coq", null),
-    KOTLIN(listOf("kt", "kts"), "source.kotlin", kotlin),
-    LISP(listOf("lisp", "clisp"), "source.lisp", lisp),
-    SHELL(listOf("sh", "bash", "bash_login", "bash_logout", "bash_profile", "bashrc", "profile", "rhistory", "rprofile", "zsh", "zlogin", "zlogout", "zprofile", "zshenv", "zshrc", "fish", "ksh"), "source.shell", shell),
-    WINDOWS_SHELL(listOf("cmd", "bat"), "source.batchfile", shell),
-    POWERSHELL(listOf("ps1", "psm1", "psd1"), null, null), // TODO: Add TextMate files
-    SMALI(listOf("smali"),"source.smali", null),
-    ASSEMBLY(listOf("asm"), "source.asm", null),
+    PYTHON(listOf("py", "pyi"), "source.python", python, "Python"),
+    JAVA(listOf("java", "jav", "bsh"), "source.java", java, "Java"),
+    GROOVY(listOf("gsh", "groovy", "gradle", "gvy", "gy"), "source.groovy", null, "Groovy"),
+    C(listOf("c"), "source.c", c, "C"),
+    CPP(listOf("cpp", "cxx", "cc", "c++", "h", "hpp", "hh", "hxx", "h++"), "source.cpp", cpp, "C++"),
+    CSHARP(listOf("cs", "csx"), "source.cs", csharp, "C#"),
+    RUBY(listOf("rb", "erb", "gemspec"), null, null, "Ruby"), // TODO: Add TextMate files
+    LUA(listOf("lua"), "source.lua", lua, "Lua"),
+    GO(listOf("go"), "source.go", go, "Go"),
+    PHP(listOf("php"), "source.php", php, "PHP"),
+    RUST(listOf("rs"), "source.rust", rust, "Rust"),
+    PASCAL(listOf("p", "pas"), "source.pascal", null, "Pascal"),
+    ZIG(listOf("zig"), "source.zig", null, "Zig"),
+    NIM(listOf("nim"), "source.nim", null, "Nim"),
+    SWIFT(listOf("swift"), null, null, "Swift"), // TODO: Add TextMate files
+    DART(listOf("dart"), "source.dart", null, "Dart"),
+    COQ(listOf("v", "coq"), "source.coq", null, "Coq"),
+    KOTLIN(listOf("kt", "kts"), "source.kotlin", kotlin, "Kotlin"),
+    LISP(listOf("lisp", "clisp"), "source.lisp", lisp, "Lisp"),
+    SHELL(listOf("sh", "bash", "bash_login", "bash_logout", "bash_profile", "bashrc", "profile", "rhistory", "rprofile", "zsh", "zlogin", "zlogout", "zprofile", "zshenv", "zshrc", "fish", "ksh"), "source.shell", shell, "Shell script"),
+    WINDOWS_SHELL(listOf("cmd", "bat"), "source.batchfile", shell, "Batch"),
+    POWERSHELL(listOf("ps1", "psm1", "psd1"), null, null, "PowerShell"), // TODO: Add TextMate files
+    SMALI(listOf("smali"),"source.smali", null, "Smali"),
+    ASSEMBLY(listOf("asm"), "source.asm", null, "Assembly"),
 
     // Data Files
-    SQL(listOf("sql"), "source.sql", sql),
-    TOML(listOf("toml"), "source.toml", null),
-    INI(listOf("ini", "cfg", "config", "editorconfig"), "source.ini", prop),
-    JAVA_PROPERTIES(listOf("properties"), "source.java-properties", prop),
-    PRO(listOf("pro"), "source.shell", prop),
+    SQL(listOf("sql"), "source.sql", sql, "SQL"),
+    TOML(listOf("toml"), "source.toml", null, "TOML"),
+    INI(listOf("ini", "cfg", "config", "editorconfig"), "source.ini", prop, "INI"),
+    JAVA_PROPERTIES(listOf("properties"), "source.java-properties", prop, "Properties"),
 
     // Documents
-    TEXT(listOf("txt"), null, text),
-    LOG(listOf("log"), null, null), // TODO: Add TextMate files
-    LATEX(listOf("latex", "tex", "ltx"), "text.tex.latex", null),
-    IMAGE(listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "heic", "heif", "avif"), null, image),
-    AUDIO(listOf("mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"), null, audio),
-    VIDEO(listOf("mp4", "avi", "mov", "mkv", "webm"), null, video),
-    ARCHIVE(listOf("zip", "rar", "7z", "tar", "gz", "bz2", "xy"), null, archive),
-    EXECUTABLE(listOf("exe", "dll", "so", "dylib", "bin"), null, null),
-    APK(listOf("apk", "xapk", "apks"), null, apk),
-    UNKNOWN(emptyList(), null, null);
+    TEXT(listOf("txt"), null, text, "Plain text"),
+    LOG(listOf("log"), null, null, "Log"), // TODO: Add TextMate files
+    LATEX(listOf("latex", "tex", "ltx"), "text.tex.latex", null, "LaTeX"),
+    IMAGE(listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "heic", "heif", "avif"), null, image, "Image"),
+    AUDIO(listOf("mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"), null, audio, "Audio"),
+    VIDEO(listOf("mp4", "avi", "mov", "mkv", "webm"), null, video, "Video"),
+    ARCHIVE(listOf("zip", "rar", "7z", "tar", "gz", "bz2", "xy"), null, archive, "Archive"),
+    EXECUTABLE(listOf("exe", "dll", "so", "dylib", "bin"), null, null, "Executable"),
+    APK(listOf("apk", "xapk", "apks"), null, apk, "APK"),
+    UNKNOWN(emptyList(), null, null, "Unknown");
 
     companion object {
         fun fromExtension(ext: String): FileType {
