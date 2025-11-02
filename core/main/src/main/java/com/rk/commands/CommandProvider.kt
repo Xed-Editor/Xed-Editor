@@ -350,10 +350,6 @@ object CommandProvider {
                         if (currentTab is EditorTab) {
                             val editable = currentTab.editorState.editable
                             currentTab.editorState.editable = !editable
-
-                            currentTab.editorState.editor.get()?.let {
-                                it.editable = !editable
-                            }
                         }
                     },
                     isSupported = derivedStateOf { viewModel.currentTab is EditorTab },

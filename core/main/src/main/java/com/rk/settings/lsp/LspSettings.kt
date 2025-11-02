@@ -15,10 +15,12 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +37,10 @@ import com.rk.settings.Preference
 import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.editor.textmateSources
+import com.rk.icons.Error
+import com.rk.icons.XedIcons
 import com.rk.lsp.lspRegistry
+import com.rk.resources.getString
 import com.rk.tabs.lsp_connections
 import com.rk.utils.toast
 import kotlin.collections.set
@@ -48,7 +53,7 @@ fun LspSettings(modifier: Modifier = Modifier) {
         ExtendedFloatingActionButton(onClick = {
             showDialog = true
         }) {
-            Icon(imageVector = Icons.Outlined.Add,null)
+            Icon(imageVector = Icons.Outlined.Add, null)
             Text(stringResource(strings.external_lsp))
         }
     }) {
@@ -77,7 +82,7 @@ fun LspSettings(modifier: Modifier = Modifier) {
                     SettingsToggle(
                         label = server.languageName,
                         default = Preference.getBoolean("lsp_${server.id}", false),
-                        description = server.supportedExtensions.joinToString(", ") {".$it"},
+                        description = server.supportedExtensions.joinToString(", ") { ".$it" },
                         showSwitch = true,
                         sideEffect = {
                             Preference.setBoolean("lsp_${server.id}", it)
@@ -90,11 +95,11 @@ fun LspSettings(modifier: Modifier = Modifier) {
             }
         }
 
-        if (lsp_connections.isNotEmpty()){
-            lsp_connections.forEach { server ->
-                PreferenceGroup(heading = stringResource(strings.external)) {
+        if (lsp_connections.isNotEmpty()) {
+            PreferenceGroup(heading = stringResource(strings.external)) {
+                lsp_connections.forEach { server ->
                     SettingsToggle(
-                        label = server.key,
+                        label = server.key.joinToString(", ") { ".$it" },
                         default = true,
                         description = "${server.value.first}:${server.value.second}",
                         showSwitch = false,
@@ -102,7 +107,7 @@ fun LspSettings(modifier: Modifier = Modifier) {
                             IconButton(onClick = {
                                 lsp_connections.remove(server.key)
                             }) {
-                                Icon(imageVector = Icons.Outlined.Delete,null)
+                                Icon(imageVector = Icons.Outlined.Delete, null)
                             }
                         }
                     )
@@ -110,34 +115,15 @@ fun LspSettings(modifier: Modifier = Modifier) {
             }
         }
 
-
         Spacer(modifier = Modifier.height(60.dp))
-
-
 
         if (showDialog) {
             ExternalLSP(
                 onDismiss = { showDialog = false },
-                onConfirm = { host, port, extension ->
+                onConfirm = { host, port, extensions ->
                     runCatching {
-                        if (textmateSources[extension] == null){
-                            toast(strings.unsupported_file_ext)
-                            return@runCatching
-                        }
-                        if (port.toIntOrNull() == null){
-                            toast(strings.invalid_port)
-                            return@runCatching
-                        }
-                        if (host.isBlank()){
-                            toast(strings.invalid_address)
-                            return@runCatching
-                        }
-
-                        lsp_connections[extension] = Pair(host,port.toInt())
-                    }.onFailure {
-                        toast(it.message)
-                    }
-
+                        lsp_connections[extensions] = Pair(host, port.toInt())
+                    }.onFailure { toast(it.message) }
                 }
             )
         }
@@ -147,11 +133,32 @@ fun LspSettings(modifier: Modifier = Modifier) {
 @Composable
 private fun ExternalLSP(
     onDismiss: () -> Unit,
-    onConfirm: (host:String,port: String, extension: String) -> Unit
+    onConfirm: (host: String, port: String, extensions: List<String>) -> Unit
 ) {
     var host by remember { mutableStateOf("localhost") }
     var port by remember { mutableStateOf("") }
-    var extension by remember { mutableStateOf("") }
+    var extensions by remember { mutableStateOf("") }
+
+    var hostError by remember { mutableStateOf<String?>(null) }
+    var portError by remember { mutableStateOf<String?>(null) }
+    var extensionsError by remember { mutableStateOf<String?>(null) }
+
+    val confirmEnabled by remember {
+        derivedStateOf {
+            hostError == null &&
+            portError == null &&
+            extensionsError == null &&
+            port.isNotBlank() &&
+            extensions.isNotBlank()
+        }
+    }
+
+    fun parseExtensions(input: String): List<String> {
+        return input
+            .split(",")
+            .map { it.trim().trimStart('.') }
+            .filter { it.isNotEmpty() }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -160,32 +167,109 @@ private fun ExternalLSP(
             Column {
                 OutlinedTextField(
                     value = host,
-                    onValueChange = { host = it },
+                    onValueChange = {
+                        host = it
+                        hostError = null
+
+                        if (host.isBlank()) {
+                            hostError = strings.invalid_address.getString()
+                        }
+                    },
                     label = { Text(stringResource(strings.address)) },
                     singleLine = true,
+                    isError = hostError != null,
+                    supportingText = {
+                        hostError?.let {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        if (hostError != null) {
+                            Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                        }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = port,
-                    onValueChange = { port = it },
+                    onValueChange = {
+                        port = it
+                        portError = null
+
+                        val portInt = port.toIntOrNull()
+                        if (port.isBlank() || portInt == null || portInt !in 0..65535) {
+                            portError = strings.invalid_port.getString()
+                        }
+                    },
                     label = { Text(stringResource(strings.port_number)) },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    isError = portError != null,
+                    supportingText = {
+                        portError?.let {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        if (portError != null) {
+                            Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                        }
+                    },
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = extension,
-                    onValueChange = { extension = it },
+                    value = extensions,
+                    onValueChange = { newValue ->
+                        extensions = newValue
+                        extensionsError = null
+
+                        val parsedExtensions = parseExtensions(extensions)
+                        if (parsedExtensions.isEmpty()) {
+                            extensionsError = strings.unsupported_file_ext.getString()
+                        } else {
+                            val invalid = parsedExtensions.filter { textmateSources[it] == null }
+                            if (invalid.isNotEmpty()) {
+                                extensionsError = "${strings.unsupported_file_ext.getString()}: ${invalid.joinToString(", ") { ".$it" }}"
+                            }
+                        }
+                    },
                     label = { Text(stringResource(strings.file_ext_example)) },
-                    singleLine = true
+                    singleLine = true,
+                    isError = extensionsError != null,
+                    supportingText = {
+                        extensionsError?.let {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        if (extensionsError != null) {
+                            Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                        }
+                    },
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                onConfirm(host,port, extension)
-                onDismiss()
-            }) {
+            TextButton(
+                onClick = {
+                    val parsedExtensions = parseExtensions(extensions)
+                    onConfirm(host, port, parsedExtensions)
+                    onDismiss()
+                },
+                enabled = confirmEnabled
+            ) {
                 Text(stringResource(strings.ok))
             }
         },
