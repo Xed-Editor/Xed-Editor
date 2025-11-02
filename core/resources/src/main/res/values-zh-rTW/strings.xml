@@ -459,4 +459,18 @@
     <string name="invalid_address">無效的地址</string>
     <string name="recently_used">（最近使用）</string>
     <string name="select_all">選擇全部</string>
+    <string name="type_command">輸入指令</string>
+    <string name="command_palette">指令面板</string>
+    <string name="external">外部</string>
+    <string name="select_word">選取文字</string>
+    <string name="duplicate_line">重複行</string>
+    <string name="show_nav_extra_keys">顯示導覽鍵</string>
+    <string name="show_nav_extra_keys_desc">將導覽按鈕顯示為額外按鍵</string>
+    <string name="change_extra_keys">編輯額外按鍵</string>
+    <string name="change_extra_keys_desc">自訂鍵盤上方顯示的額外按鍵</string>
+    <string name="toolbar_actions">工具列動作</string>
+    <string name="toolbar_actions_desc">選擇要在應用程式列中顯示的動作</string>
+    <string name="add_command">新增指令</string>
+    <string name="info_toolbar_actions">工具列動作用於定義當檔案開啟時要在工具列中顯示哪些指令。你可以長按並拖曳以變更順序，或點擊按鈕新增新指令。</string>
+    <string name="disable">停用</string>
 </resources>
