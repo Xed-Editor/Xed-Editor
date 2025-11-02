@@ -3,14 +3,10 @@ set -e
 source "$LOCAL/bin/utils"
 
 info 'Preparing installation...'
-apt update && apt upgrade -y
-
-info 'Installing pipx...'
-apt install -y pipx
-pipx ensurepath
+pkg update -y && pkg upgrade -y
 
 info 'Installing python language server...'
-pipx install 'python-lsp-server[all]'
+pip install 'python-lsp-server[all]'
 
 clear
 info 'Python language server installed successfully. Please reopen all tabs or restart the app.'

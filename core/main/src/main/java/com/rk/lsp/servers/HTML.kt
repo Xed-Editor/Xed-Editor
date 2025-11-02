@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.sandboxDir
 import com.rk.lsp.LspConnectionConfig
 
 class HTML() : BaseLspServer() {
@@ -20,7 +21,8 @@ class HTML() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child("/.npm-global/bin/vscode-html-language-server").exists()
+
+        return sandboxDir().child("bin").child("vscode-html-language-server").exists()
     }
 
     override fun install(context: Context) {
@@ -29,7 +31,7 @@ class HTML() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
+                exe = sandboxDir().child("bin").child("bash").absolutePath,
                 args = arrayOf(installSH.absolutePath),
                 id = "html-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -39,6 +41,6 @@ class HTML() : BaseLspServer() {
 
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-html-language-server",  "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("env","vscode-html-language-server",  "--stdio"))
     }
 }

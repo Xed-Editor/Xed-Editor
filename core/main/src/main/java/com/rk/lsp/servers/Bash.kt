@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.sandboxDir
 import com.rk.lsp.LspConnectionConfig
 
 class Bash() : BaseLspServer() {
@@ -20,7 +21,7 @@ class Bash() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child("/.npm-global/bin/bash-language-server").exists()
+        return sandboxDir().child("bin").child("bash-language-server").exists()
     }
 
     override fun install(context: Context) {
@@ -29,16 +30,17 @@ class Bash() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
+                exe = sandboxDir().child("bin").child("bash").absolutePath,
                 args = arrayOf(installSH.absolutePath),
                 id = "bash-lsp-installer",
-                env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
             )
         )
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/bash-language-server", "start"))
+        //bash-language-server", "start
+        ///aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+        return LspConnectionConfig.Process(arrayOf("login","node","\$PREFIX/bin/bash-language-server","start"))
     }
 
 }

@@ -6,10 +6,13 @@ import android.util.Log
 import com.rk.App
 import com.rk.file.child
 import com.rk.file.localBinDir
+import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
 import com.rk.utils.application
+import com.rk.utils.errorDialog
+import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,35 +50,17 @@ fun getDefaultBindings(): List<Binding>{
     val list = mutableListOf<Binding>()
 
     with(list){
-        bind(sandboxHomeDir().absolutePath,"/home")
-        bind("/sdcard")
-        bind("/storage")
-        bind("/data")
-        bind(application!!.filesDir.parentFile!!.absolutePath)
-        bind("/dev")
-        bind("/proc")
-        bind("/system")
-        bind("/sys")
-        bind("/dev/urandom","/dev/random")
-        bind("/system_ext")
-        bind("/product")
-        bind("/odm")
-        bind("/apex")
-        bind("/vendor")
-        bind("/linkerconfig/ld.config.txt")
-        bind("/linkerconfig/com.android.art/ld.config.txt")
-        bind("/plat_property_contexts","/property_contexts")
-        bind("/sys")
-        bind("${App.getTempDir().absolutePath}","/dev/shm")
+        bind(application!!.filesDir.parentFile!!.absolutePath,"/data/data/com.termux")
     }
 
     return list
 }
 
 
-suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File = sandboxDir(), workingDir: String? = null, command: MutableList<String>): Process = withContext(
+suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), workingDir: String? = sandboxHomeDir().absolutePath, command: MutableList<String>): Process = withContext(
     Dispatchers.IO){
 
+    val root: File = File("/")
     if (!root.exists()) throw NoSuchFileException(root)
 
     val randomInt = Random.nextInt()
@@ -97,12 +82,7 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
 
         getDefaultBindings().attachTo(this,excludeMounts)
 
-        bind(tmpDir.absolutePath)
-
-        add("-0")
-        add("--link2symlink")
-        add("--sysvipc")
-        add("-L")
+        //bind(tmpDir.absolutePath)
 
         add("-r")
         add(root.absolutePath)
@@ -111,16 +91,18 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
 
     if (BuildConfig.DEBUG){
         Log.i("SANDBOX", args.toList().toString())
+        //errorDialog(args.toList().toString())
     }
 
     val processBuilder = ProcessBuilder(linker, *args.toTypedArray())
 
     processBuilder.environment().let { env ->
         env["LD_LIBRARY_PATH"] = localLibDir().absolutePath
-
         env["PROOT_TMP_DIR"] = tmpDir.absolutePath
-
-        env["PATH"] = "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}/local/bin:${System.getenv("PATH")}"
+        env["HOME"] = "/data/data/com.termux/files/home"
+        env["PATH"] = "/data/data/com.termux/files/usr/bin:/system/bin"
+        //env["LD_PRELOAD"] = "/data/data/com.termux/files/usr/lib/libtermux-exec.so"
+        env["PREFIX"] = "/data/data/com.termux/files/usr"
 
         if (!App.isFDroid){
             env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader.so"
@@ -134,8 +116,8 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
 }
 
 @SuppressLint("SdCardPath")
-suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(),root: File = sandboxDir(), workingDir: String? = null, vararg command: String): Process{
-    return newSandbox(excludeMounts,root,workingDir,command.toMutableList())
+suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), workingDir: String? = null, vararg command: String): Process{
+    return newSandbox(excludeMounts,workingDir,command.toMutableList())
 }
 
 /** Extension to read all stdout as a single string */

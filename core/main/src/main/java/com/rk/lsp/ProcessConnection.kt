@@ -4,6 +4,7 @@ import android.util.Log
 import com.rk.utils.errorDialog
 import com.rk.exec.newSandbox
 import com.rk.exec.readStderr
+import com.rk.exec.readStdout
 import com.rk.xededitor.BuildConfig
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import kotlinx.coroutines.runBlocking
@@ -30,13 +31,10 @@ class ProcessConnection(
         runBlocking{
             process = newSandbox(command = cmd)
 
-            if (BuildConfig.DEBUG && process?.waitFor(110, TimeUnit.MILLISECONDS) == true) {
-                val exitCode = process?.exitValue() ?: -1
-                if (exitCode != 0) {
-                    val stderr = process?.readStderr().orEmpty()
-                    Log.e(this@ProcessConnection::class.java.simpleName, stderr)
-                    errorDialog(stderr)
-                }
+            if (BuildConfig.DEBUG && process?.waitFor() != 0) {
+                val stderr = process?.readStderr().orEmpty()
+                Log.e(this@ProcessConnection::class.java.simpleName, stderr)
+                errorDialog("------------\n${cmd.toList().toString()}\n------------\n${process?.readStdout()}----------\n${stderr}")
             }
         }
     }

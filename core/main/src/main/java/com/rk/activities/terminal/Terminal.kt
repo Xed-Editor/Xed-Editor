@@ -170,14 +170,16 @@ class Terminal : AppCompatActivity() {
                     filesToDownload.add(
                         DownloadFile(
                             url = if (abi.contains("x86_64")) {
+                                throw RuntimeException("Unsupported CPU")
                                 sandbox_x86_64
                             } else if (abi.contains("arm64-v8a")) {
                                 sandbox_aarch64
                             } else if (abi.contains("armeabi-v7a")) {
+                                throw RuntimeException("Unsupported CPU")
                                 sandbox_arm
                             } else {
                                 throw RuntimeException("Unsupported CPU")
-                            }, outputFile = getTempDir().child("sandbox.tar.gz")
+                            }, outputFile = getTempDir().child("termux.tar")
                         )
                     )
                 }
@@ -392,6 +394,6 @@ private const val proot_x86_64 =
 private const val sandbox_arm =
     "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-armhf.tar.gz"
 private const val sandbox_aarch64 =
-    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-arm64.tar.gz"
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/termux.tar"
 private const val sandbox_x86_64 =
     "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-amd64.tar.gz"

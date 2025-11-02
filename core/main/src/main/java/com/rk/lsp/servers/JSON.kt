@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.sandboxDir
 import com.rk.lsp.LspConnectionConfig
 
 class JSON() : BaseLspServer() {
@@ -20,7 +21,8 @@ class JSON() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child("/.npm-global/bin/vscode-json-language-server").exists()
+
+        return sandboxDir().child("bin").child("vscode-json-language-server").exists()
     }
 
     override fun install(context: Context) {
@@ -29,7 +31,7 @@ class JSON() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
+                exe = sandboxDir().child("bin").child("bash").absolutePath,
                 args = arrayOf(installSH.absolutePath),
                 id = "json-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -39,6 +41,6 @@ class JSON() : BaseLspServer() {
 
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-json-language-server",  "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("env","vscode-json-language-server",  "--stdio"))
     }
 }

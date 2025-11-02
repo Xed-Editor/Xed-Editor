@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.sandboxDir
 import com.rk.lsp.LspConnectionConfig
 
 class Python() : BaseLspServer() {
@@ -20,7 +21,7 @@ class Python() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child(".local/share/pipx/venvs/python-lsp-server/bin/pylsp").exists()
+        return sandboxDir().child("bin").child("pylsp").exists()
     }
 
     override fun install(context: Context) {
@@ -29,7 +30,7 @@ class Python() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
+                exe = sandboxDir().child("bin").child("bash").absolutePath,
                 args = arrayOf(installSH.absolutePath),
                 id = "python-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -38,6 +39,6 @@ class Python() : BaseLspServer() {
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/home/.local/share/pipx/venvs/python-lsp-server/bin/pylsp"))
+        return LspConnectionConfig.Process(arrayOf("env","pylsp"))
     }
 }

@@ -8,6 +8,7 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.sandboxDir
 import com.rk.lsp.LspConnectionConfig
 
 class CSS() : BaseLspServer() {
@@ -20,7 +21,7 @@ class CSS() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child("/.npm-global/bin/vscode-css-language-server").exists()
+        return  sandboxDir().child("bin").child("vscode-css-language-server").exists()
     }
 
     override fun install(context: Context) {
@@ -29,7 +30,7 @@ class CSS() : BaseLspServer() {
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
+                exe = sandboxDir().child("bin").child("bash").absolutePath,
                 args = arrayOf(installSH.absolutePath),
                 id = "css-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -38,6 +39,6 @@ class CSS() : BaseLspServer() {
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-css-language-server",  "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("env","vscode-css-language-server",  "--stdio"))
     }
 }
