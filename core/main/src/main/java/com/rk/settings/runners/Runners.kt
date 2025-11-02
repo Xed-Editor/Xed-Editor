@@ -40,6 +40,8 @@ import com.rk.runner.ShellBasedRunners
 import com.rk.activities.main.MainActivity
 import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
+import com.rk.icons.Error
+import com.rk.icons.XedIcons
 import kotlinx.coroutines.launch
 
 @Composable
@@ -229,6 +231,11 @@ fun Runners(modifier: Modifier = Modifier) {
                                     )
                                 }
                             },
+                            trailingIcon = {
+                                if (nameError != null) {
+                                    Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                                }
+                            },
                             enabled = isEditingExisting == null, // Disable name editing for existing runners
                             readOnly = isEditingExisting != null
                         )
@@ -249,7 +256,12 @@ fun Runners(modifier: Modifier = Modifier) {
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                 }
-                            }
+                            },
+                            trailingIcon = {
+                                if (regexError != null) {
+                                    Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                                }
+                            },
                         )
                     }
                 },

@@ -67,7 +67,7 @@ class Editor : CodeEditor {
     }
 
     fun setThemeColors(
-        isDarkMode:Boolean,
+        isDarkMode: Boolean,
         editorSurface: Int,
         surfaceContainer: Int,
         surface: Int,

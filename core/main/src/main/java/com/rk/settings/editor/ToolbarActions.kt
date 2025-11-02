@@ -121,7 +121,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                     contentPadding = paddingValues,
                     state = lazyListState,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier.fillMaxHeight().padding(bottom = 8.dp)
                 ) {
                     item {
                         InfoBlock(
