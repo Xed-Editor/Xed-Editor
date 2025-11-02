@@ -50,6 +50,8 @@ private val sql = drawables.sql
 // TODO: Add icon for FileType.LOG
 // TODO: Add icon for FileType.NIM
 // TODO: Add icon for FileType.COQ
+// TODO: Add icon for FileType.SCSS
+// TODO: Add icon for FileType.LESS
 // TODO: Add icon for gradle files
 
 enum class FileType(
@@ -96,10 +98,22 @@ enum class FileType(
         title = "HTMX"
     ),
     CSS(
-        extensions = listOf("css", "scss", "sass", "less"),
+        extensions = listOf("css"),
         textmateScope = "source.css",
         icon = css,
         title = "CSS"
+    ),
+    SCSS(
+        extensions = listOf("scss", "sass"),
+        textmateScope = "source.css.scss",
+        icon = css,
+        title = "SCSS"
+    ),
+    LESS(
+        extensions = listOf("less"),
+        textmateScope = "source.css.less",
+        icon = css,
+        title = "LESS"
     ),
     JSON(
         extensions = listOf("json", "jsonl", "jsonc"),
@@ -165,10 +179,10 @@ enum class FileType(
     ),
     RUBY(
         extensions = listOf("rb", "erb", "gemspec"),
-        textmateScope = null,
+        textmateScope = "source.ruby",
         icon = null,
         title = "Ruby"
-    ), // TODO: Add TextMate files
+    ),
     LUA(
         extensions = listOf("lua"),
         textmateScope = "source.lua",
@@ -213,10 +227,10 @@ enum class FileType(
     ),
     SWIFT(
         extensions = listOf("swift"),
-        textmateScope = null,
+        textmateScope = "source.swift",
         icon = null,
         title = "Swift"
-    ), // TODO: Add TextMate files
+    ),
     DART(
         extensions = listOf("dart"),
         textmateScope = "source.dart",
@@ -255,10 +269,10 @@ enum class FileType(
     ),
     POWERSHELL(
         extensions = listOf("ps1", "psm1", "psd1"),
-        textmateScope = null,
+        textmateScope = "source.powershell",
         icon = null,
         title = "PowerShell"
-    ), //TODO: Add TextMate files
+    ),
     SMALI(
         extensions = listOf("smali"),
         textmateScope = "source.smali",
@@ -307,10 +321,10 @@ enum class FileType(
     ),
     LOG(
         extensions = listOf("log"),
-        textmateScope = null,
+        textmateScope = "text.log",
         icon = null,
         title = "Log"
-    ), // TODO: Add TextMate files
+    ),
     LATEX(
         extensions = listOf("latex", "tex", "ltx"),
         textmateScope = "text.tex.latex",

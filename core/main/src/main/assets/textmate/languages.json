@@ -85,6 +85,29 @@
       "languageConfiguration": "textmate/python/language-configuration.json"
     },
     {
+      "grammar": "textmate/ruby/syntaxes/ruby.tmLanguage.json",
+      "name": "ruby",
+      "scopeName": "source.ruby",
+      "languageConfiguration": "textmate/ruby/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/swift/syntaxes/swift.tmLanguage.json",
+      "name": "swift",
+      "scopeName": "source.swift",
+      "languageConfiguration": "textmate/swift/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/powershell/syntaxes/powershell.tmLanguage.json",
+      "name": "powershell",
+      "scopeName": "source.powershell",
+      "languageConfiguration": "textmate/powershell/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/log/syntaxes/log.tmLanguage.json",
+      "name": "log",
+      "scopeName": "text.log"
+    },
+    {
       "grammar": "textmate/xml/syntaxes/xml.tmLanguage.json",
       "name": "xml",
       "scopeName": "text.xml",
@@ -182,6 +205,18 @@
       "name": "css",
       "scopeName": "source.css",
       "languageConfiguration": "textmate/css/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/scss/syntaxes/scss.tmLanguage.json",
+      "name": "scss",
+      "scopeName": "source.css.scss",
+      "languageConfiguration": "textmate/scss/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/less/syntaxes/less.tmLanguage.json",
+      "name": "less",
+      "scopeName": "source.css.less",
+      "languageConfiguration": "textmate/less/language-configuration.json"
     },
     {
       "grammar": "textmate/csharp/syntaxes/csharp.tmLanguage.json",
