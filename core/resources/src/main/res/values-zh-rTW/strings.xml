@@ -139,7 +139,7 @@
     <string name="cursor_anim_desc">啟用平滑游標動畫</string>
     <string name="pin_line_number">固定行號</string>
     <string name="extra_keys">額外關鍵詞</string>
-    <string name="extra_keys_desc">在編輯器中顯示額外關鍵詞</string>
+    <string name="extra_keys_desc">在鍵盤上方顯示額外關鍵詞</string>
     <string name="auto_save">自動儲存</string>
     <string name="auto_save_desc">自動儲存檔案</string>
     <string name="interval_in_ms">間隔（毫秒）</string>
@@ -457,4 +457,6 @@
     <string name="debug_mode_warn">偵錯模式會停用安全限制，若使用不當，可能導致資料遺失或其他問題。請僅在確定了解操作內容時再啟用。</string>
     <string name="address">地址</string>
     <string name="invalid_address">無效的地址</string>
+    <string name="recently_used">（最近使用）</string>
+    <string name="select_all">選擇全部</string>
 </resources>
