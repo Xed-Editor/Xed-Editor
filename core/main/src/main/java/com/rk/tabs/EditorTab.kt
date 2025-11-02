@@ -614,7 +614,7 @@ private fun EditorTab.CodeEditor(
     }
 }
 
-fun EditorTab.applyHighlighting(){
+fun EditorTab.applyHighlighting() {
     if (editorState.editor.get() == null) {
         return
     }
@@ -626,84 +626,98 @@ fun EditorTab.applyHighlighting(){
                     val ext = file.getName().substringAfterLast(".").trim()
                     val parent = file.getParentFile()
 
-                    if (lsp_connections.contains(ext) && parent != null) {
-                        val server = lsp_connections[ext]!!
-
-                        baseLspConnector = BaseLspConnector(
-                            ext,
-                            textMateScope = textmateSources[ext]!!,
-                            connectionConfig = LspConnectionConfig.Socket(
-                                server.first,
-                                server.second
-                            )
-                        )
-                        baseLspConnector?.connect(
-                            parent,
-                            fileObject = file,
-                            codeEditor = editorState.editor.get()!!
-                        )
-
-                        return@launch
-                    }
-
-                    val server = lspRegistry.find {
-                        it.supportedExtensions.map { e -> e.lowercase() }
-                            .contains(ext.lowercase())
-                    }
-                    if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
-                        // Connect with built-in language server
-                        if (server.isInstalled(context)) {
-                            baseLspConnector = BaseLspConnector(
-                                ext,
-                                textMateScope = textmateSources[ext]!!,
-                                connectionConfig = server.getConnectionConfig()
-                            )
-
-                            file.getParentFile()?.let { parent ->
-                                baseLspConnector?.connect(
-                                    parent,
-                                    fileObject = file,
-                                    codeEditor = editorState.editor.get()!!
-                                )
-                            }
-                            return@launch
-                        }
-
-                        if (editorState.lspDialogMutex.isLocked.not()) {
-                            editorState.lspDialogMutex.lock()
-                            dialog(
-                                context = context as Activity,
-                                title = strings.attention.getString(context),
-                                msg = strings.ask_lsp_install.getFilledString(
-                                    context,
-                                    server.languageName
-                                ),
-                                cancelString = strings.dont_ask_again,
-                                okString = strings.install,
-                                onOk = {
-                                    if (editorState.lspDialogMutex.isLocked) {
-                                        editorState.lspDialogMutex.unlock()
-                                    }
-                                    server.install(context)
-                                },
-                                cancelable = false,
-                                onCancel = {
-                                    if (editorState.lspDialogMutex.isLocked) {
-                                        editorState.lspDialogMutex.unlock()
-                                    }
-                                    Preference.setBoolean(
-                                        "lsp_${server.id}",
-                                        false
-                                    )
-                                }
-                            )
-                        }
-
-                    }
+                    if (tryConnectExternalLsp(ext, parent)) return@launch
+                    if (tryConnectBuiltinLsp(ext, this@with)) return@launch
                 }
 
                 setLanguage(langScope)
             }
         }
     }
+}
+
+private suspend fun EditorTab.tryConnectBuiltinLsp(
+    ext: String,
+    editor: Editor,
+): Boolean {
+    val server = lspRegistry.find {
+        it.supportedExtensions.map { e -> e.lowercase() }
+            .contains(ext.lowercase())
+    }
+    if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
+        // Connect with built-in language server
+        if (server.isInstalled(editor.context)) {
+            baseLspConnector = BaseLspConnector(
+                ext,
+                textMateScope = textmateSources[ext]!!,
+                connectionConfig = server.getConnectionConfig()
+            )
+
+            file.getParentFile()?.let { parent ->
+                baseLspConnector?.connect(
+                    parent,
+                    fileObject = file,
+                    codeEditor = editorState.editor.get()!!
+                )
+            }
+            return true
+        }
+
+        if (editorState.lspDialogMutex.isLocked.not()) {
+            editorState.lspDialogMutex.lock()
+            dialog(
+                context = editor.context as Activity,
+                title = strings.attention.getString(editor.context),
+                msg = strings.ask_lsp_install.getFilledString(
+                    editor.context,
+                    server.languageName
+                ),
+                cancelString = strings.disable,
+                okString = strings.install,
+                onOk = {
+                    if (editorState.lspDialogMutex.isLocked) {
+                        editorState.lspDialogMutex.unlock()
+                    }
+                    server.install(editor.context)
+                },
+                cancelable = false,
+                onCancel = {
+                    if (editorState.lspDialogMutex.isLocked) {
+                        editorState.lspDialogMutex.unlock()
+                    }
+                    Preference.setBoolean(
+                        "lsp_${server.id}",
+                        false
+                    )
+                }
+            )
+        }
+    }
+    return false
+}
+
+private suspend fun EditorTab.tryConnectExternalLsp(
+    ext: String,
+    parent: FileObject?
+): Boolean {
+    if (lsp_connections.contains(ext) && parent != null) {
+        val server = lsp_connections[ext]!!
+
+        baseLspConnector = BaseLspConnector(
+            ext,
+            textMateScope = textmateSources[ext]!!,
+            connectionConfig = LspConnectionConfig.Socket(
+                server.first,
+                server.second
+            )
+        )
+        baseLspConnector?.connect(
+            parent,
+            fileObject = file,
+            codeEditor = editorState.editor.get()!!
+        )
+
+        return true
+    }
+    return false
 }
