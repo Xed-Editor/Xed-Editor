@@ -96,7 +96,7 @@ data class CodeEditorState(
 
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
-    var editable by mutableStateOf(false)
+    var editable by mutableStateOf(Settings.read_only_default.not())
     val updateLock = Mutex()
     val contentLoaded = CompletableDeferred<Unit>()
     val contentRendered = CompletableDeferred<Unit>()
@@ -148,7 +148,6 @@ class EditorTab(
 ) : Tab() {
 
     private val charset = Charset.forName(Settings.encoding)
-    var lspConnection: StreamConnectionProvider? = null
     var baseLspConnector: BaseLspConnector? = null
 
     override val icon: ImageVector
@@ -184,18 +183,17 @@ class EditorTab(
         editorState.editor.get()?.release()
         GlobalScope.launch {
             baseLspConnector?.disconnect()
-            lspConnection?.close()
         }
     }
 
     init {
+        editorState.editable = Settings.read_only_default.not() && file.canWrite()
         if (editorState.content == null) {
             scope.launch(Dispatchers.IO) {
                 runCatching {
                     editorState.content = file.getInputStream().use {
                         ContentIO.createFrom(it, charset)
                     }
-                    editorState.editable = Settings.read_only_default.not() && file.canWrite()
                     editorState.contentLoaded.complete(Unit)
                 }.onFailure {
                     errorDialog(it)
@@ -230,6 +228,11 @@ class EditorTab(
         val context = LocalContext.current
 
         key(refreshKey) {
+
+            LaunchedEffect(editorState.editable) {
+                editorState.editor.get()?.editable = editorState.editable
+            }
+
             Column {
                 if (editorState.textmateScope == null) {
                     editorState.textmateScope = file.let {
