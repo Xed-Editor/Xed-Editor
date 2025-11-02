@@ -133,7 +133,7 @@
     <string name="show_line_number">显示行号</string>
     <string name="pin_line_number">固定行号</string>
     <string name="extra_keys">额外关键字</string>
-    <string name="extra_keys_desc">在键盘上方显示额外的键</string>
+    <string name="extra_keys_desc">在输入法上显示额外的关键字</string>
     <string name="interval_in_ms">间隔（毫秒）</string>
     <string name="value_invalid">无效值</string>
     <string name="value_small">数值太小</string>
@@ -457,4 +457,15 @@
     <string name="debug_mode_warn">调试模式会禁用安全限制，若使用不当，可能导致数据丢失或其他问题。请在你清楚自己在做什么的情况下再启用它。</string>
     <string name="address">地址</string>
     <string name="invalid_address">无效地址</string>
+    <string name="type_command">输入命令</string>
+    <string name="recently_used">（最近使用）</string>
+    <string name="command_palette">命令面板</string>
+    <string name="external">外部</string>
+    <string name="select_all">选择全部</string>
+    <string name="select_word">选择单词</string>
+    <string name="duplicate_line">重复行</string>
+    <string name="show_nav_extra_keys">显示导航功能关键字</string>
+    <string name="show_nav_extra_keys_desc">将导航按钮显示为关键字</string>
+    <string name="change_extra_keys">编辑额外关键字</string>
+    <string name="change_extra_keys_desc">自定义输入法上方显示的额外关键字</string>
 </resources>
