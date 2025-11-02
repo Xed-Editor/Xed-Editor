@@ -33,31 +33,33 @@ private val php = drawables.php
 private val go = drawables.golang
 private val lisp = drawables.lisp
 private val sql = drawables.sql
+private val groovy = drawables.apachegroovy
+private val dart = drawables.dart
+private val gradle = drawables.gradle
+private val latex = drawables.latex
+private val less = drawables.less
+private val nim = drawables.nim
+private val ruby = drawables.ruby
+private val sass = drawables.sass
+private val swift = drawables.swift
+private val toml = drawables.toml
+private val yaml = drawables.yaml
+private val zig = drawables.zig
+private val git = drawables.git
 
-// TODO: Add icon for FileType.YAML
-// TODO: Add icon for FileType.RUBY
-// TODO: Add icon for FileType.SWIFT
-// TODO: Add icon for FileType.DART
 // TODO: Add icon for FileType.POWERSHELL
-// TODO: Add icon for FileType.TOML
 // TODO: Add icon for FileType.EXECUTABLE
-// TODO: Add icon for FileType.GROOVY
 // TODO: Add icon for FileType.PASCAL
-// TODO: Add icon for FileType.ZIG
 // TODO: Add icon for FileType.ASSEMBLY
 // TODO: Add icon for FileType.SMALI
-// TODO: Add icon for FileType.LATEX
 // TODO: Add icon for FileType.LOG
-// TODO: Add icon for FileType.NIM
-// TODO: Add icon for FileType.COQ
-// TODO: Add icon for FileType.SCSS
-// TODO: Add icon for FileType.LESS
-// TODO: Add icon for gradle files
+// TODO: Add icon for FileType.ROCQ
 
 enum class FileType(
     val extensions: List<String>,
     val textmateScope: String?,
     val icon: Int?,
+    val iconOverride: Map<String, Int>? = null,
     val title: String
 ) {
     // Web languages
@@ -106,13 +108,13 @@ enum class FileType(
     SCSS(
         extensions = listOf("scss", "sass"),
         textmateScope = "source.css.scss",
-        icon = css,
+        icon = sass,
         title = "SCSS"
     ),
     LESS(
         extensions = listOf("less"),
         textmateScope = "source.css.less",
-        icon = css,
+        icon = less,
         title = "Less"
     ),
     JSON(
@@ -136,7 +138,7 @@ enum class FileType(
     YAML(
         extensions = listOf("yaml", "yml", "eyaml", "eyml", "cff"),
         textmateScope = "source.yaml",
-        icon = null,
+        icon = yaml,
         title = "YAML"
     ),
 
@@ -156,7 +158,8 @@ enum class FileType(
     GROOVY(
         extensions = listOf("gsh", "groovy", "gradle", "gvy", "gy"),
         textmateScope = "source.groovy",
-        icon = null,
+        icon = groovy,
+        iconOverride = mapOf("gradle" to gradle),
         title = "Groovy"
     ),
     C(
@@ -180,7 +183,7 @@ enum class FileType(
     RUBY(
         extensions = listOf("rb", "erb", "gemspec"),
         textmateScope = "source.ruby",
-        icon = null,
+        icon = ruby,
         title = "Ruby"
     ),
     LUA(
@@ -216,32 +219,32 @@ enum class FileType(
     ZIG(
         extensions = listOf("zig"),
         textmateScope = "source.zig",
-        icon = null,
+        icon = zig,
         title = "Zig"
     ),
     NIM(
         extensions = listOf("nim"),
         textmateScope = "source.nim",
-        icon = null,
+        icon = nim,
         title = "Nim"
     ),
     SWIFT(
         extensions = listOf("swift"),
         textmateScope = "source.swift",
-        icon = null,
+        icon = swift,
         title = "Swift"
     ),
     DART(
         extensions = listOf("dart"),
         textmateScope = "source.dart",
-        icon = null,
+        icon = dart,
         title = "Dart"
     ),
-    COQ(
+    ROCQ(
         extensions = listOf("v", "coq"),
         textmateScope = "source.coq",
         icon = null,
-        title = "Coq"
+        title = "Rocq (Coq)"
     ),
     KOTLIN(
         extensions = listOf("kt", "kts"),
@@ -286,9 +289,9 @@ enum class FileType(
         title = "Assembly"
     ),
 
-    // extensions = Data Files
+    // Data Files
     SQL(
-        extensions = listOf("sql"),
+        extensions = listOf("sql", "dsql", "sqllite"),
         textmateScope = "source.sql",
         icon = sql,
         title = "SQL"
@@ -296,23 +299,34 @@ enum class FileType(
     TOML(
         extensions = listOf("toml"),
         textmateScope = "source.toml",
-        icon = null,
+        icon = toml,
         title = "TOML"
     ),
     INI(
-        extensions = listOf("ini", "cfg", "config", "editorconfig"),
+        extensions = listOf("ini"),
         textmateScope = "source.ini",
         icon = prop,
         title = "INI"
     ),
-    JAVA_PROPERTIES(
-        extensions = listOf("properties"),
-        textmateScope = "source.java-properties",
+    PROPERTIES(
+        extensions = listOf("properties", "cfg", "conf", "config", "editorconfig", "gitconfig", "gitmodules", "gitattributes"),
+        textmateScope = "source.properties",
         icon = prop,
+        iconOverride = mapOf(
+            "gitmodules" to git,
+            "gitattributes" to git,
+            "gitconfig" to git,
+        ),
         title = "Properties"
     ),
+    IGNORE(
+        extensions = listOf("gitignore", "gitignore_global", "gitkeep", "git-blame-ignore-revs"),
+        textmateScope = "source.ignore",
+        icon = git,
+        title = "Ignore"
+    ),
 
-    // extensions = Documents
+    // Documents
     TEXT(
         extensions = listOf("txt"),
         textmateScope = null,
@@ -328,7 +342,7 @@ enum class FileType(
     LATEX(
         extensions = listOf("latex", "tex", "ltx"),
         textmateScope = "text.tex.latex",
-        icon = null,
+        icon = latex,
         title = "LaTeX"
     ),
     IMAGE(

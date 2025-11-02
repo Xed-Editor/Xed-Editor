@@ -16,9 +16,10 @@ private val plain_file = drawables.file
 private val folder = drawables.folder
 private val unknown = drawables.unknown_document
 private val fileSymlink = drawables.file_symlink
-private val shell = drawables.bash
 private val archive = drawables.archive
 private val text = drawables.text
+private val gradle = drawables.gradle
+private val info = drawables.info
 
 @Composable
 fun FileIcon(file: FileObject) {
@@ -43,11 +44,12 @@ fun FileIcon(file: FileObject) {
 
 private fun getFileIcon(file: FileObject): Int = when (file.getName()) {
     "contract.sol", "LICENSE", "NOTICE" -> text
-    "gradlew" -> shell
+    "gradlew", "gradlew.bat" -> gradle
+    "README.md" -> info
 
     else -> {
         val ext = file.getName().substringAfterLast('.', "")
         val type = FileType.fromExtension(ext)
-        type.icon ?: plain_file
+        type.iconOverride?.get(ext) ?: type.icon ?: plain_file
     }
 }

@@ -138,12 +138,6 @@
       "languageConfiguration": "textmate/typescript/typescript.language-configuration.json"
     },
     {
-      "grammar": "textmate/prop/properties.tmLanguage.json",
-      "name": "Java Properties",
-      "scopeName": "source.java-properties",
-      "languageConfiguration": "textmate/prop/language-configuration.json"
-    },
-    {
       "grammar": "textmate/typescript/syntaxes/TypeScriptReact.tmLanguage.json",
       "name": "TSX",
       "scopeName": "source.tsx",
@@ -199,6 +193,18 @@
       "scopeName": "source.ini",
       "grammar": "textmate/ini/syntaxes/ini.tmLanguage.json",
       "languageConfiguration": "textmate/ini/ini.language-configuration.json"
+    },
+    {
+      "name": "properties",
+      "scopeName": "source.properties",
+      "grammar": "textmate/properties/syntaxes/properties.tmLanguage.json",
+      "languageConfiguration": "textmate/properties/properties.language-configuration.json"
+    },
+    {
+      "name": "ignore",
+      "scopeName": "source.ignore",
+      "grammar": "textmate/ignore/syntaxes/ignore.tmLanguage.json",
+      "languageConfiguration": "textmate/ignore/ignore.language-configuration.json"
     },
     {
       "grammar": "textmate/css/syntaxes/css.tmLanguage.json",
