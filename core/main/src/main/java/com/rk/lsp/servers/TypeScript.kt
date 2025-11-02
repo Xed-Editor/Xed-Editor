@@ -14,8 +14,7 @@ import com.rk.lsp.LspConnectionConfig
 class TypeScript() : BaseLspServer() {
     override val id: String = "typescript-lsp"
     override val languageName: String = "TypeScript"
-    override val supportedExtensions: List<String> =
-        FileType.JAVASCRIPT.extensions + FileType.TYPESCRIPT.extensions + FileType.JSX.extensions + FileType.TSX.extensions
+    override val supportedExtensions: List<String> = FileType.JAVASCRIPT.extensions + FileType.TYPESCRIPT.extensions + FileType.JSX.extensions + FileType.TSX.extensions
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()){

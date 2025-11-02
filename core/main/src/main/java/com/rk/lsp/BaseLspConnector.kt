@@ -2,11 +2,9 @@ package com.rk.lsp
 
 import com.rk.file.FileObject
 import com.rk.editor.Editor
-import com.rk.editor.textmateSources
+import com.rk.file.FileType
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
-import io.github.rosemoe.sora.lsp.client.connection.SocketStreamConnectionProvider
-import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
 import io.github.rosemoe.sora.lsp.editor.LspEditor
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
@@ -44,7 +42,6 @@ import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-
 /**
  * Core connector for initializing LSP servers in a code editor.
  *
@@ -57,7 +54,6 @@ class BaseLspConnector(
     private val textMateScope: String,
     private val connectionConfig: LspConnectionConfig
 ) {
-
     private var project: LspProject? = null
     private var serverDefinition: CustomLanguageServerDefinition? = null
     private var lspEditor: LspEditor? = null
@@ -73,7 +69,7 @@ class BaseLspConnector(
 
     fun isSupported(file: FileObject): Boolean {
         val fileExt = file.getName().substringAfterLast(".")
-        return fileExt == fileExtension && textmateSources.containsKey(fileExt)
+        return fileExt == fileExtension && FileType.hasFileExtension(fileExt)
     }
 
     suspend fun connect(

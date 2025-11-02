@@ -50,8 +50,8 @@ import com.rk.components.SingleInputDialog
 import com.rk.components.SyntaxPanel
 import com.rk.editor.Editor
 import com.rk.editor.getInputView
-import com.rk.editor.textmateSources
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.createLspTextActions
@@ -233,7 +233,8 @@ class EditorTab(
             Column {
                 if (editorState.textmateScope == null) {
                     editorState.textmateScope = file.let {
-                        textmateSources[it.getName().substringAfterLast('.', "").trim()]
+                        val ext = it.getName().substringAfterLast('.', "")
+                        FileType.fromExtension(ext).textmateScope
                     }
                 }
 
@@ -631,7 +632,7 @@ fun EditorTab.applyHighlighting(){
 
                         baseLspConnector = BaseLspConnector(
                             ext,
-                            textMateScope = textmateSources[ext]!!,
+                            textMateScope = FileType.fromExtension(ext).textmateScope!!,
                             connectionConfig = LspConnectionConfig.Socket(
                                 server.first,
                                 server.second
@@ -655,7 +656,7 @@ fun EditorTab.applyHighlighting(){
                         if (server.isInstalled(context)) {
                             baseLspConnector = BaseLspConnector(
                                 ext,
-                                textMateScope = textmateSources[ext]!!,
+                                textMateScope = FileType.fromExtension(ext).textmateScope!!,
                                 connectionConfig = server.getConnectionConfig()
                             )
 

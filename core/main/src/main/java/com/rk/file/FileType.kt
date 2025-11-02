@@ -379,5 +379,10 @@ enum class FileType(
             val normalized = ext.lowercase().removePrefix(".")
             return entries.firstOrNull { normalized in it.extensions } ?: UNKNOWN
         }
+
+        fun hasFileExtension(ext: String): Boolean {
+            val normalized = ext.lowercase().removePrefix(".")
+            return entries.any { normalized in it.extensions }
+        }
     }
 }
