@@ -8,12 +8,14 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.FileType
 import com.rk.lsp.LspConnectionConfig
 
 class TypeScript() : BaseLspServer() {
     override val id: String = "typescript-lsp"
     override val languageName: String = "TypeScript"
-    override val supportedExtensions: List<String> = listOf("js", "jsx", "ts", "tsx")
+    override val supportedExtensions: List<String> =
+        FileType.JAVASCRIPT.extensions + FileType.TYPESCRIPT.extensions + FileType.JSX.extensions + FileType.TSX.extensions
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()){

@@ -8,12 +8,13 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.FileType
 import com.rk.lsp.LspConnectionConfig
 
 class Python() : BaseLspServer() {
     override val id: String = "python-lsp"
     override val languageName: String = "Python"
-    override val supportedExtensions: List<String> = listOf("py")
+    override val supportedExtensions: List<String> = FileType.PYTHON.extensions
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

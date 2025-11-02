@@ -8,12 +8,13 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.FileType
 import com.rk.lsp.LspConnectionConfig
 
 class JSON() : BaseLspServer() {
     override val id: String = "json-lsp"
     override val languageName: String = "JSON"
-    override val supportedExtensions: List<String> = listOf("json")
+    override val supportedExtensions: List<String> = FileType.JSON.extensions
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()){

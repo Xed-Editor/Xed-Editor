@@ -8,12 +8,13 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.FileType
 import com.rk.lsp.LspConnectionConfig
 
 class HTML() : BaseLspServer() {
     override val id: String = "html-lsp"
     override val languageName: String = "HTML"
-    override val supportedExtensions: List<String> = listOf("html", "htm", "xht", "xhtml")
+    override val supportedExtensions: List<String> = FileType.HTML_BASIC.extensions + FileType.HTMX.extensions
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()){
