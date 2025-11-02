@@ -69,7 +69,7 @@ class BaseLspConnector(
 
     fun isSupported(file: FileObject): Boolean {
         val fileExt = file.getName().substringAfterLast(".")
-        return fileExt == fileExtension && FileType.hasFileExtension(fileExt)
+        return fileExt == fileExtension && FileType.knowsExtension(fileExt)
     }
 
     suspend fun connect(

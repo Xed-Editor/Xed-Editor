@@ -8,9 +8,9 @@ import android.util.AttributeSet
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.unit.Density
 import com.google.gson.JsonParser
+import com.rk.file.FileType
 import com.rk.settings.Settings
 import com.rk.theme.currentTheme
-import com.rk.theme.getEditorColorSchemeMapping
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isDarkMode
@@ -341,17 +341,19 @@ class Editor : CodeEditor {
                 GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
                 isInit = true
 
-                textmateSources.values.toSet().forEach {
-                    launch(Dispatchers.IO) {
-                        System.currentTimeMillis()
-                        val language = TextMateLanguage.create(it, Settings.textmate_suggestion)
-                        highlightingCache[it] = language
+                FileType.entries
+                    .mapNotNull { it.textmateScope }
+                    .toSet()
+                    .forEach {
+                        launch(Dispatchers.IO) {
+                            System.currentTimeMillis()
+                            val language = TextMateLanguage.create(it, Settings.textmate_suggestion)
+                            highlightingCache[it] = language
+                        }
                     }
-                }
             }
         }
     }
-
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.Default) {
         while (!isInit && isActive) delay(5)
