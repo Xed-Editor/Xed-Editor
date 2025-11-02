@@ -1,6 +1,8 @@
 package com.rk.file
 
 import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 private val java = drawables.java
 private val html = drawables.ic_language_html
@@ -50,63 +52,313 @@ private val sql = drawables.sql
 // TODO: Add icon for FileType.COQ
 // TODO: Add icon for gradle files
 
-enum class FileType(val extensions: List<String>, val textmateScope: String?, val icon: Int?, val title: String) {
+enum class FileType(
+    val extensions: List<String>,
+    val textmateScope: String?,
+    val icon: Int?,
+    val title: String
+) {
     // Web languages
-    JAVASCRIPT(listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"), "source.js", js, "JavaScript"),
-    TYPESCRIPT(listOf("ts"), "source.ts", ts, "TypeScript"),
-    JSX(listOf("jsx"), "source.js.jsx", react, "JavaScript JSX"),
-    TSX(listOf("jsx"), "source.tsx", react, "TypeScript JSX"),
-    HTML_BASIC(listOf("html", "htm", "xhtml", "xht"), "text.html.basic", html, "HTML"),
-    HTMX(listOf("htmx"), "text.html.htmx", html, "HTMX"),
-    CSS(listOf("css", "scss", "sass", "less"), "source.css", css, "CSS"),
-    JSON(listOf("json", "jsonl", "jsonc"), "source.json", json, "JSON"),
-    MARKDOWN(listOf("md", "markdown", "mdown", "mkd", "mkdn", "mdoc", "mdtext", "mdtxt", "mdwn"), "text.html.markdown", markdown, "Markdown"),
-    XML(listOf("xml", "xaml", "dtd", "plist", "ascx", "csproj", "wxi", "wxl", "wxs", "svg"), "text.xml", xml, "XML"),
-    YAML(listOf("yaml", "yml", "eyaml", "eyml", "cff"), "source.yaml", null, "YAML"),
+    JAVASCRIPT(
+        extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"),
+        textmateScope = "source.js",
+        icon = js,
+        title = "JavaScript"
+    ),
+    TYPESCRIPT(
+        extensions = listOf("ts"),
+        textmateScope = "source.ts",
+        icon = ts,
+        title = "TypeScript"
+    ),
+    JSX(
+        extensions = listOf("jsx"),
+        textmateScope = "source.js.jsx",
+        icon = react,
+        title = "JavaScript JSX"
+    ),
+    TSX(
+        extensions = listOf("jsx"),
+        textmateScope = "source.tsx",
+        icon = react,
+        title = "TypeScript JSX"
+    ),
+    HTML(
+        extensions = listOf("html", "htm", "xhtml", "xht"),
+        textmateScope = "text.html.basic",
+        icon = html,
+        title = "HTML"
+    ),
+    HTMX(
+        extensions = listOf("htmx"),
+        textmateScope = "text.html.htmx",
+        icon = html,
+        title = "HTMX"
+    ),
+    CSS(
+        extensions = listOf("css", "scss", "sass", "less"),
+        textmateScope = "source.css",
+        icon = css,
+        title = "CSS"
+    ),
+    JSON(
+        extensions = listOf("json", "jsonl", "jsonc"),
+        textmateScope = "source.json",
+        icon = json,
+        title = "JSON"
+    ),
+    MARKDOWN(
+        extensions = listOf("md", "markdown", "mdown", "mkd", "mkdn", "mdoc", "mdtext", "mdtxt", "mdwn"),
+        textmateScope = "text.html.markdown",
+        icon = markdown,
+        title = "Markdown"
+    ),
+    XML(
+        extensions = listOf("xml", "xaml", "dtd", "plist", "ascx", "csproj", "wxi", "wxl", "wxs", "svg"),
+        textmateScope = "text.xml",
+        icon = xml,
+        title = "XML"
+    ),
+    YAML(
+        extensions = listOf("yaml", "yml", "eyaml", "eyml", "cff"),
+        textmateScope = "source.yaml",
+        icon = null,
+        title = "YAML"
+    ),
 
     // Programming Languages
-    PYTHON(listOf("py", "pyi"), "source.python", python, "Python"),
-    JAVA(listOf("java", "jav", "bsh"), "source.java", java, "Java"),
-    GROOVY(listOf("gsh", "groovy", "gradle", "gvy", "gy"), "source.groovy", null, "Groovy"),
-    C(listOf("c"), "source.c", c, "C"),
-    CPP(listOf("cpp", "cxx", "cc", "c++", "h", "hpp", "hh", "hxx", "h++"), "source.cpp", cpp, "C++"),
-    CSHARP(listOf("cs", "csx"), "source.cs", csharp, "C#"),
-    RUBY(listOf("rb", "erb", "gemspec"), null, null, "Ruby"), // TODO: Add TextMate files
-    LUA(listOf("lua"), "source.lua", lua, "Lua"),
-    GO(listOf("go"), "source.go", go, "Go"),
-    PHP(listOf("php"), "source.php", php, "PHP"),
-    RUST(listOf("rs"), "source.rust", rust, "Rust"),
-    PASCAL(listOf("p", "pas"), "source.pascal", null, "Pascal"),
-    ZIG(listOf("zig"), "source.zig", null, "Zig"),
-    NIM(listOf("nim"), "source.nim", null, "Nim"),
-    SWIFT(listOf("swift"), null, null, "Swift"), // TODO: Add TextMate files
-    DART(listOf("dart"), "source.dart", null, "Dart"),
-    COQ(listOf("v", "coq"), "source.coq", null, "Coq"),
-    KOTLIN(listOf("kt", "kts"), "source.kotlin", kotlin, "Kotlin"),
-    LISP(listOf("lisp", "clisp"), "source.lisp", lisp, "Lisp"),
-    SHELL(listOf("sh", "bash", "bash_login", "bash_logout", "bash_profile", "bashrc", "profile", "rhistory", "rprofile", "zsh", "zlogin", "zlogout", "zprofile", "zshenv", "zshrc", "fish", "ksh"), "source.shell", shell, "Shell script"),
-    WINDOWS_SHELL(listOf("cmd", "bat"), "source.batchfile", shell, "Batch"),
-    POWERSHELL(listOf("ps1", "psm1", "psd1"), null, null, "PowerShell"), // TODO: Add TextMate files
-    SMALI(listOf("smali"),"source.smali", null, "Smali"),
-    ASSEMBLY(listOf("asm"), "source.asm", null, "Assembly"),
+    PYTHON(
+        extensions = listOf("py", "pyi"),
+        textmateScope = "source.python",
+        icon = python,
+        title = "Python"
+    ),
+    JAVA(
+        extensions = listOf("java", "jav", "bsh"),
+        textmateScope = "source.java",
+        icon = java,
+        title = "Java"
+    ),
+    GROOVY(
+        extensions = listOf("gsh", "groovy", "gradle", "gvy", "gy"),
+        textmateScope = "source.groovy",
+        icon = null,
+        title = "Groovy"
+    ),
+    C(
+        extensions = listOf("c"),
+        textmateScope = "source.c",
+        icon = c,
+        title = "C"
+    ),
+    CPP(
+        extensions = listOf("cpp", "cxx", "cc", "c++", "h", "hpp", "hh", "hxx", "h++"),
+        textmateScope = "source.cpp",
+        icon = cpp,
+        title = "C++"
+    ),
+    CSHARP(
+        extensions = listOf("cs", "csx"),
+        textmateScope = "source.cs",
+        icon = csharp,
+        title = "C#"
+    ),
+    RUBY(
+        extensions = listOf("rb", "erb", "gemspec"),
+        textmateScope = null,
+        icon = null,
+        title = "Ruby"
+    ), // TODO: Add TextMate files
+    LUA(
+        extensions = listOf("lua"),
+        textmateScope = "source.lua",
+        icon = lua,
+        title = "Lua"
+    ),
+    GO(
+        extensions = listOf("go"),
+        textmateScope = "source.go",
+        icon = go,
+        title = "Go"
+    ),
+    PHP(
+        extensions = listOf("php"),
+        textmateScope = "source.php",
+        icon = php,
+        title = "PHP"
+    ),
+    RUST(
+        extensions = listOf("rs"),
+        textmateScope = "source.rust",
+        icon = rust,
+        title = "Rust"
+    ),
+    PASCAL(
+        extensions = listOf("p", "pas"),
+        textmateScope = "source.pascal",
+        icon = null,
+        title = "Pascal"
+    ),
+    ZIG(
+        extensions = listOf("zig"),
+        textmateScope = "source.zig",
+        icon = null,
+        title = "Zig"
+    ),
+    NIM(
+        extensions = listOf("nim"),
+        textmateScope = "source.nim",
+        icon = null,
+        title = "Nim"
+    ),
+    SWIFT(
+        extensions = listOf("swift"),
+        textmateScope = null,
+        icon = null,
+        title = "Swift"
+    ), // TODO: Add TextMate files
+    DART(
+        extensions = listOf("dart"),
+        textmateScope = "source.dart",
+        icon = null,
+        title = "Dart"
+    ),
+    COQ(
+        extensions = listOf("v", "coq"),
+        textmateScope = "source.coq",
+        icon = null,
+        title = "Coq"
+    ),
+    KOTLIN(
+        extensions = listOf("kt", "kts"),
+        textmateScope = "source.kotlin",
+        icon = kotlin,
+        title = "Kotlin"
+    ),
+    LISP(
+        extensions = listOf("lisp", "clisp"),
+        textmateScope = "source.lisp",
+        icon = lisp,
+        title = "Lisp"
+    ),
+    SHELL(
+        extensions = listOf("sh", "bash", "bash_login", "bash_logout", "bash_profile", "bashrc", "profile", "rhistory", "rprofile", "zsh", "zlogin", "zlogout", "zprofile", "zshenv", "zshrc", "fish", "ksh"),
+        textmateScope = "source.shell",
+        icon = shell,
+        title = "Shell script"
+    ),
+    WINDOWS_SHELL(
+        extensions = listOf("cmd", "bat"),
+        textmateScope = "source.batchfile",
+        icon = shell,
+        title = "Batch"
+    ),
+    POWERSHELL(
+        extensions = listOf("ps1", "psm1", "psd1"),
+        textmateScope = null,
+        icon = null,
+        title = "PowerShell"
+    ), //TODO: Add TextMate files
+    SMALI(
+        extensions = listOf("smali"),
+        textmateScope = "source.smali",
+        icon = null,
+        title = "Smali"
+    ),
+    ASSEMBLY(
+        extensions = listOf("asm"),
+        textmateScope = "source.asm",
+        icon = null,
+        title = "Assembly"
+    ),
 
-    // Data Files
-    SQL(listOf("sql"), "source.sql", sql, "SQL"),
-    TOML(listOf("toml"), "source.toml", null, "TOML"),
-    INI(listOf("ini", "cfg", "config", "editorconfig"), "source.ini", prop, "INI"),
-    JAVA_PROPERTIES(listOf("properties"), "source.java-properties", prop, "Properties"),
+    // extensions = Data Files
+    SQL(
+        extensions = listOf("sql"),
+        textmateScope = "source.sql",
+        icon = sql,
+        title = "SQL"
+    ),
+    TOML(
+        extensions = listOf("toml"),
+        textmateScope = "source.toml",
+        icon = null,
+        title = "TOML"
+    ),
+    INI(
+        extensions = listOf("ini", "cfg", "config", "editorconfig"),
+        textmateScope = "source.ini",
+        icon = prop,
+        title = "INI"
+    ),
+    JAVA_PROPERTIES(
+        extensions = listOf("properties"),
+        textmateScope = "source.java-properties",
+        icon = prop,
+        title = "Properties"
+    ),
 
-    // Documents
-    TEXT(listOf("txt"), null, text, "Plain text"),
-    LOG(listOf("log"), null, null, "Log"), // TODO: Add TextMate files
-    LATEX(listOf("latex", "tex", "ltx"), "text.tex.latex", null, "LaTeX"),
-    IMAGE(listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "heic", "heif", "avif"), null, image, "Image"),
-    AUDIO(listOf("mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"), null, audio, "Audio"),
-    VIDEO(listOf("mp4", "avi", "mov", "mkv", "webm"), null, video, "Video"),
-    ARCHIVE(listOf("zip", "rar", "7z", "tar", "gz", "bz2", "xy"), null, archive, "Archive"),
-    EXECUTABLE(listOf("exe", "dll", "so", "dylib", "bin"), null, null, "Executable"),
-    APK(listOf("apk", "xapk", "apks"), null, apk, "APK"),
-    UNKNOWN(emptyList(), null, null, "Unknown");
+    // extensions = Documents
+    TEXT(
+        extensions = listOf("txt"),
+        textmateScope = null,
+        icon = text,
+        title = "Plain text"
+    ),
+    LOG(
+        extensions = listOf("log"),
+        textmateScope = null,
+        icon = null,
+        title = "Log"
+    ), // TODO: Add TextMate files
+    LATEX(
+        extensions = listOf("latex", "tex", "ltx"),
+        textmateScope = "text.tex.latex",
+        icon = null,
+        title = "LaTeX"
+    ),
+    IMAGE(
+        extensions = listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "heic", "heif", "avif"),
+        textmateScope = null,
+        icon = image,
+        title = "Image"
+    ),
+    AUDIO(
+        extensions = listOf("mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"),
+        textmateScope = null,
+        icon = audio,
+        title = "Audio"
+    ),
+    VIDEO(
+        extensions = listOf("mp4", "avi", "mov", "mkv", "webm"),
+        textmateScope = null,
+        icon = video,
+        title = "Video"
+    ),
+    ARCHIVE(
+        extensions = listOf("zip", "rar", "7z", "tar", "gz", "bz2", "xy"),
+        textmateScope = null,
+        icon = archive,
+        title = "Archive"
+    ),
+    EXECUTABLE(
+        extensions = listOf("exe", "dll", "so", "dylib", "bin"),
+        textmateScope = null,
+        icon = null,
+        title = "Executable"
+    ),
+    APK(
+        extensions = listOf("apk", "xapk", "apks"),
+        textmateScope = null,
+        icon = apk,
+        title = "APK"
+    ),
+    UNKNOWN(
+        extensions = emptyList(),
+        textmateScope = null,
+        icon = null,
+        title = strings.unknown.getString()
+    );
 
     companion object {
         fun fromExtension(ext: String): FileType {
