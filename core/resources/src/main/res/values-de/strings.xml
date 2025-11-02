@@ -167,7 +167,7 @@
     <string name="cursor_anim">Cursor-Animation</string>
     <string name="cursor_anim_desc">Flüssige Cursor-Animationen aktivieren</string>
     <string name="extra_keys">Zusatztasten</string>
-    <string name="extra_keys_desc">Zusatztasten im Editor anzeigen</string>
+    <string name="extra_keys_desc">Zusatztasten über der Tastatur anzeigen</string>
     <string name="is_null">InputStream ist null</string>
     <string name="wait_pkg">Bitte warten, während die Pakete heruntergeladen werden.</string>
     <string name="pkg_download_failed">Download des Pakets fehlgeschlagen</string>
@@ -454,4 +454,23 @@
     <string name="desktop_mode_desc">Erleichtert die Verwendung der App auf Tablets und Desktop-Bildschirmen.</string>
     <string name="built_in">Integriert</string>
     <string name="change_lang_warn">Beim Ändern der Sprache wird dieser Bildschirm neu gestartet, um die neue Sprache sofort anzuwenden. Dabei kann kurzzeitig ein leerer Bildschirm angezeigt werden, was bei Menschen mit lichtempfindlicher Epilepsie möglicherweise Unbehagen auslösen kann.</string>
+    <string name="type_command">Befehl eingeben</string>
+    <string name="recently_used">(Kürzlich verwendet)</string>
+    <string name="command_palette">Befehlspalette</string>
+    <string name="debug_mode_warn">Der Debug-Modus deaktiviert Sicherheitsbeschränkungen, die bei unsachgemäßer Verwendung zu Datenverlust oder anderen Problemen führen können. Aktiviere ihn nur, wenn du genau weißt, was du tust.</string>
+    <string name="external">Extern</string>
+    <string name="select_all">Alles auswählen</string>
+    <string name="select_word">Wort auswählen</string>
+    <string name="duplicate_line">Zeile duplizieren</string>
+    <string name="show_nav_extra_keys">Navigationstasten anzeigen</string>
+    <string name="show_nav_extra_keys_desc">Navigationstasten als zusätzliche Tasten anzeigen</string>
+    <string name="change_extra_keys">Zusatztasten bearbeiten</string>
+    <string name="change_extra_keys_desc">Zusatztasten über der Tastatur anpassen</string>
+    <string name="toolbar_actions">Toolbar-Aktionen</string>
+    <string name="toolbar_actions_desc">Aktionen auswählen, die in der App-Leiste angezeigt werden sollen</string>
+    <string name="add_command">Befehl hinzufügen</string>
+    <string name="info_toolbar_actions">Die Toolbar-Aktionen legen fest, welche Befehle beim Öffnen einer Datei in der App-Leiste angezeigt werden. Du kannst die Reihenfolge durch langes Drücken und Ziehen ändern oder auf die Schaltfläche tippen, um einen neuen Befehl hinzuzufügen.</string>
+    <string name="disable">Deaktivieren</string>
+    <string name="address">Adresse</string>
+    <string name="invalid_address">Ungültige Adresse</string>
 </resources>
