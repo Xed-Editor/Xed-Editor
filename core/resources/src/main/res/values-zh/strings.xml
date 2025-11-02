@@ -65,7 +65,7 @@
     <string name="oled_desc">使用纯黑色主题</string>
     <string name="text_size_desc">设置字体大小</string>
     <string name="tab_size">标签大小</string>
-    <string name="tab_size_desc">设置往 Tab 中插入的空格数量</string>
+    <string name="tab_size_desc">设置往标签中插入的空格数量</string>
     <string name="unsupported_content">不支持的内容</string>
     <string name="null_content">错误：内容为空</string>
     <string name="restart_required">需要重启</string>
@@ -123,7 +123,7 @@
     <string name="yes">是</string>
     <string name="change_theme">更改主题</string>
     <string name="editor">编辑器</string>
-    <string name="smooth_tabs">平滑标签页</string>
+    <string name="smooth_tabs">启用标签页平滑动画</string>
     <string name="smooth_tab_desc">在标签页之间平滑切换</string>
     <string name="word_wrap_desc">在所有编辑器中启用自动换行</string>
     <string name="drawer_lock_desc">在打开文件时保持侧滑栏锁定</string>
@@ -133,7 +133,7 @@
     <string name="show_line_number">显示行号</string>
     <string name="pin_line_number">固定行号</string>
     <string name="extra_keys">额外关键字</string>
-    <string name="extra_keys_desc">在输入法上显示额外的关键字</string>
+    <string name="extra_keys_desc">在输入法上显示额外的符号栏</string>
     <string name="interval_in_ms">间隔（毫秒）</string>
     <string name="value_invalid">无效值</string>
     <string name="value_small">数值太小</string>
@@ -385,7 +385,7 @@
     <string name="logcat_saved">文件 logcat.txt 已保存在终端主目录</string>
     <string name="stop_logcat">终止 Logcat</string>
     <string name="discord">Discord 社区</string>
-    <string name="use_tabs">插入 Tab 字符</string>
+    <string name="use_tabs">使用 Tab 制表符</string>
     <string name="use_tabs_desc">使用制表符 \\t 代替空格进行缩进</string>
     <string name="invalid_port">端口号无效</string>
     <string name="unsupported_file_ext">不支持的文件类型</string>
@@ -464,8 +464,12 @@
     <string name="select_all">选择全部</string>
     <string name="select_word">选择单词</string>
     <string name="duplicate_line">重复行</string>
-    <string name="show_nav_extra_keys">显示导航功能关键字</string>
-    <string name="show_nav_extra_keys_desc">将导航按钮显示为关键字</string>
-    <string name="change_extra_keys">编辑额外关键字</string>
-    <string name="change_extra_keys_desc">自定义输入法上方显示的额外关键字</string>
+    <string name="show_nav_extra_keys">显示导航按钮</string>
+    <string name="show_nav_extra_keys_desc">在符号栏中显示导航按钮</string>
+    <string name="change_extra_keys">编辑符号栏</string>
+    <string name="change_extra_keys_desc">自定义输入法上方显示的符号栏</string>
+    <string name="toolbar_actions">标题栏菜单</string>
+    <string name="toolbar_actions_desc">自定义在标题栏中显示的菜单按钮</string>
+    <string name="add_command">添加命令</string>
+    <string name="info_toolbar_actions">标题栏菜单定义了文件打开时显示的菜单命令。你可以通过长按并拖动的方式来调整顺序，或点击按钮来添加个新的命令。</string>
 </resources>
