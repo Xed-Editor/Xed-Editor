@@ -28,10 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.resources.drawables
 import kotlinx.coroutines.delay
@@ -51,6 +53,7 @@ fun FileTreeNodeItem(
     val horizontalPadding = (depth * 16).dp
 
     val isLoading = viewModel.isNodeLoading(node.file)
+    val isCut = viewModel.isNodeCut(node.file)
 
     // Load children when expanded
     LaunchedEffect(node.file, isExpanded) {
@@ -69,11 +72,13 @@ fun FileTreeNodeItem(
         }
     }
 
-
     val scope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
+                .addIf(isCut) {
+                    Modifier.alpha(0.5f)
+                }
                 .combinedClickable(
                     onClick = {
                         if (node.isDirectory) {
@@ -83,7 +88,6 @@ fun FileTreeNodeItem(
                                 delay(100)
                                 onFileClick(node)
                             }
-
                         }
                         viewModel.selectedFile[currentProject!!] = node.file
                     },
@@ -97,7 +101,7 @@ fun FileTreeNodeItem(
                     }
                 )
                 .then(
-                    if (viewModel.selectedFile[currentProject] == node.file) {
+                    if (viewModel.selectedFile[currentProject] == node.file && !isCut) {
                         Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
                     } else {
                         Modifier
@@ -134,10 +138,8 @@ fun FileTreeNodeItem(
                 }
 
                 Spacer(modifier = Modifier.width(4.dp))
-
             } else {
                 Spacer(modifier = Modifier.width(24.dp))
-
             }
 
             FileIcon(node.file)
