@@ -64,7 +64,6 @@ fun XedTheme(
             currentTheme.value!!.lightScheme
         }
 
-
         if (currentTheme.value == null) {
             LaunchedEffect(theme) {
                 toast("No theme selected")

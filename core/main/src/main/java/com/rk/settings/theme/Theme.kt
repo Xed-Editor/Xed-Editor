@@ -63,36 +63,35 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
     val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
     val amoledState = remember { mutableStateOf(Settings.amoled) }
 
-
     PreferenceLayout(label = stringResource(strings.themes), fab = {
         ExtendedFloatingActionButton(onClick = {
-            SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/json"){
-                DefaultScope.launch{
-                    if (it != null){
+            SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/json") {
+                DefaultScope.launch {
+                    if (it != null) {
                         installFromFile(it.toFileObject(expectedIsFile = true))
                         updateThemes()
                     }
                 }
             }
         }, icon = {
-            Icon(imageVector = Icons.Outlined.Add,null)
+            Icon(imageVector = Icons.Outlined.Add, null)
         }, text = {
             Text(stringResource(strings.add_theme))
         })
     }) {
-
         PreferenceGroup(heading = stringResource(strings.theme_settings)) {
-            SettingsToggle(label = stringResource(id = strings.theme_mode),
+            SettingsToggle(
+                label = stringResource(id = strings.theme_mode),
                 description = stringResource(id = strings.theme_mode_desc),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
                     showDayNightBottomSheet.value = true
-                })
+                }
+            )
 
-
-
-            SettingsToggle(label = stringResource(id = strings.oled),
+            SettingsToggle(
+                label = stringResource(id = strings.oled),
                 description = stringResource(id = strings.oled_desc),
                 default = Settings.amoled,
                 state = amoledState,
@@ -100,7 +99,8 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                     Settings.amoled = it
                     amoled.value = it
                     updateThemes()
-                })
+                }
+            )
 
             SettingsToggle(
                 label = stringResource(id = strings.monet),
@@ -113,72 +113,80 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                     dynamicTheme.value = it
                     updateThemes()
                 }
-
             )
         }
 
-
         PreferenceGroup(heading = stringResource(strings.themes)) {
-            if (themes.isEmpty()){
-                SettingsToggle(label = "No themes found", description = null, showSwitch = false, default = false)
-            }else{
-                themes.forEach{ theme ->
+            if (themes.isEmpty()) {
+                SettingsToggle(
+                    label = "No themes found",
+                    description = null,
+                    showSwitch = false,
+                    default = false
+                )
+            } else {
+                themes.forEach { theme ->
                     SettingsToggle(
                         isEnabled = !dynamicTheme.value,
-                        label = theme.name, description = null, showSwitch = false, default = false, startWidget = {
-                        RadioButton(
-                            enabled = !dynamicTheme.value,
-                            selected = currentTheme.value?.id == theme.id, onClick = {
-                            currentTheme.value = theme
-                            Settings.theme = theme.id
-                                MainActivity.instance?.apply {
-                                    viewModel.tabs.forEach {
-                                        if (it is EditorTab){
-                                            it.refreshKey = nextInt()
-                                        }
-
-                                    }
-                                }
-                        })
-                    }, sideEffect = {
-                        currentTheme.value = theme
-                        Settings.theme = theme.id
-                            MainActivity.instance?.apply {
-                                viewModel.tabs.forEach {
-                                    if (it is EditorTab){
-                                        it.refreshKey = nextInt()
-                                    }
-
-                                }
-                            }
-                    }, endWidget = {
-                        if (!inbuiltThemes.contains(theme)){
-                            IconButton(onClick = {
-                                if (currentTheme.value == theme){
-                                    currentTheme.value = blueberry
-                                    Settings.theme = blueberry.id
-
+                        label = theme.name,
+                        description = null,
+                        showSwitch = false,
+                        default = false,
+                        startWidget = {
+                            RadioButton(
+                                enabled = !dynamicTheme.value,
+                                selected = currentTheme.value?.id == theme.id,
+                                onClick = {
+                                    currentTheme.value = theme
+                                    Settings.theme = theme.id
                                     MainActivity.instance?.apply {
                                         viewModel.tabs.forEach {
-                                            if (it is EditorTab){
+                                            if (it is EditorTab) {
                                                 it.refreshKey = nextInt()
                                             }
-
                                         }
                                     }
                                 }
-
-                                themeDir().child(theme.name).delete()
-                                themes.remove(theme)
-                            }) {
-                                 Icon(imageVector = Icons.Outlined.Delete,null)
+                            )
+                        },
+                        sideEffect = {
+                            currentTheme.value = theme
+                            Settings.theme = theme.id
+                            MainActivity.instance?.apply {
+                                viewModel.tabs.forEach {
+                                    if (it is EditorTab) {
+                                        it.refreshKey = nextInt()
+                                    }
+                                }
                             }
-                        }
+                        },
+                        endWidget = {
+                            if (!inbuiltThemes.contains(theme)) {
+                                IconButton(onClick = {
+                                    if (currentTheme.value == theme) {
+                                        currentTheme.value = blueberry
+                                        Settings.theme = blueberry.id
 
-                    })
+                                        MainActivity.instance?.apply {
+                                            viewModel.tabs.forEach {
+                                                if (it is EditorTab) {
+                                                    it.refreshKey = nextInt()
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    themeDir().child(theme.name).delete()
+                                    themes.remove(theme)
+                                }) {
+                                    Icon(imageVector = Icons.Outlined.Delete, null)
+                                }
+                            }
+
+                        }
+                    )
                 }
             }
-
         }
 
         if (showDayNightBottomSheet.value) {
@@ -216,7 +224,8 @@ fun DayNightDialog(
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet.value = false }, sheetState = bottomSheetState
         ) {
-            BottomSheetContent(title = { Text(text = stringResource(id = strings.theme_mode)) },
+            BottomSheetContent(
+                title = { Text(text = stringResource(id = strings.theme_mode)) },
                 buttons = {
                     OutlinedButton(onClick = {
                         coroutineScope.launch {
@@ -228,7 +237,8 @@ fun DayNightDialog(
                 }) {
                 LazyColumn {
                     itemsIndexed(modes) { index, mode ->
-                        PreferenceTemplate(title = { Text(text = modeLabels[index]) },
+                        PreferenceTemplate(
+                            title = { Text(text = modeLabels[index]) },
                             modifier = Modifier.clickable {
                                 selectedMode = mode
                                 Settings.default_night_mode = selectedMode
@@ -242,7 +252,8 @@ fun DayNightDialog(
                                 RadioButton(
                                     selected = selectedMode == mode, onClick = null
                                 )
-                            })
+                            }
+                        )
                     }
                 }
             }

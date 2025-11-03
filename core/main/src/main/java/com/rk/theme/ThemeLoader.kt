@@ -60,7 +60,6 @@ fun loadThemes() {
                 if (config != null) {
                     themes.add(config.build())
                 }
-
             }
         }.onFailure {
             it.printStackTrace()
@@ -95,7 +94,6 @@ fun ThemeConfig.build(): ThemeHolder {
         lightEditorColors = mapEditorColorScheme(this.light.editorColors),
         darkEditorColors = mapEditorColorScheme(this.dark.editorColors)
     )
-
 }
 
 fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
@@ -191,5 +189,4 @@ fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
             surfaceContainerHighest = surfaceContainerHighest?.toColor() ?: blueberry.lightScheme.surfaceContainerHighest
         )
     }
-
 }

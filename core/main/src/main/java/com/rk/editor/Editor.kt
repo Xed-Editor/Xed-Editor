@@ -84,12 +84,11 @@ class Editor : CodeEditor {
         dividerColor: Int
     ) {
         updateColors { colors ->
-
             with(colors) {
                 setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
 
-                fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
-                    keys.forEach { setColor(it, color) }
+                fun EditorColorScheme.setColors(color: Int, vararg types: Int) {
+                    types.forEach { setColor(it, color) }
                 }
 
                 setColors(
@@ -160,22 +159,20 @@ class Editor : CodeEditor {
                     EditorColorScheme.STICKY_SCROLL_DIVIDER
                 )
 
-            }
+                val editorColors = if (isDarkMode) {
+                    currentTheme.value?.darkEditorColors
+                } else {
+                    currentTheme.value?.lightEditorColors
+                }
 
-            val editorColors = if (isDarkMode){
-                currentTheme.value?.darkEditorColors
-            }else{
-                currentTheme.value?.lightEditorColors
-            }
-
-            if (editorColors.isNullOrEmpty().not()){
-                editorColors.forEach {
-                    colorScheme.setColor(it.key,it.color)
+                if (editorColors.isNullOrEmpty().not()) {
+                    editorColors.forEach {
+                        setColor(it.key, it.color)
+                    }
                 }
             }
         }
     }
-
 
     private fun setAlpha(color: Int, factor: Float): Int {
         val a = Color.alpha(color)
@@ -187,9 +184,8 @@ class Editor : CodeEditor {
         return Color.argb(newAlpha, r, g, b)
     }
 
-
     private fun updateColors(postAndPreColor: (EditorColorScheme) -> Unit) {
-        postAndPreColor.invoke(colorScheme)
+        postAndPreColor(colorScheme)
         scope.launch(Dispatchers.IO) {
             val cacheKey = getCacheKey(context)
             val cachedScheme = colorSchemeCache[cacheKey]
@@ -197,7 +193,7 @@ class Editor : CodeEditor {
             if (cachedScheme != null) {
                 // Use cached scheme if available
                 withContext(Dispatchers.Main) {
-                    setColorScheme(cachedScheme)
+                    colorScheme = cachedScheme
                     postAndPreColor(colorScheme)
                 }
             } else {
@@ -210,11 +206,7 @@ class Editor : CodeEditor {
                 val amoled = cacheKey.endsWith("true")
 
                 val themeModel = when {
-                    darkTheme && amoled -> load(
-                        "textmate/black/darcula.json",
-                        "darcula.json"
-                    )
-
+                    darkTheme && amoled -> load("textmate/black/darcula.json", "darcula.json")
                     darkTheme -> load("textmate/darcula.json", "darcula.json")
                     else -> load(
                         "textmate/quietlight.json",
@@ -230,7 +222,7 @@ class Editor : CodeEditor {
                 colorSchemeCache[cacheKey] = colors
 
                 withContext(Dispatchers.Main) {
-                    setColorScheme(colors)
+                    colorScheme = colors
                     postAndPreColor(colorScheme)
                 }
             }
@@ -283,7 +275,6 @@ class Editor : CodeEditor {
         } else 0
     }
 
-
     fun applyFont() {
         runCatching {
             val fontPath = Settings.selected_font_path
@@ -301,7 +292,6 @@ class Editor : CodeEditor {
         }
     }
 
-
     fun showSuggestions(yes: Boolean) {
         inputType = if (yes) {
             InputType.TYPE_TEXT_VARIATION_NORMAL
@@ -309,7 +299,6 @@ class Editor : CodeEditor {
             InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
         }
     }
-
 
     companion object {
         var isInit = false
@@ -324,13 +313,8 @@ class Editor : CodeEditor {
                 else -> isDarkMode(context)
             }
 
-            //important
-            val prefix = if (darkTheme){
-                "dark"
-            }else{
-                "light"
-            }
-
+            // Important
+            val prefix = if (darkTheme) "dark" else "light"
             return "${prefix}_${Settings.amoled}_${Settings.theme}"
         }
 
