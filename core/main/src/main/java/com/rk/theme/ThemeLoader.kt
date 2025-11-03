@@ -20,7 +20,6 @@ import java.io.ObjectOutputStream
 import java.util.Properties
 import androidx.core.graphics.toColorInt
 
-
 suspend fun installFromFile(file: FileObject) {
     loadConfigFromJson(file)?.installTheme()
 }
@@ -120,8 +119,8 @@ fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
             onTertiaryContainer = onTertiaryContainer?.toColor()
                 ?: blueberry.darkScheme.onTertiaryContainer,
             error = error?.toColor() ?: blueberry.darkScheme.error,
-            errorContainer = errorContainer?.toColor() ?: blueberry.darkScheme.errorContainer,
             onError = onError?.toColor() ?: blueberry.darkScheme.onError,
+            errorContainer = errorContainer?.toColor() ?: blueberry.darkScheme.errorContainer,
             onErrorContainer = onErrorContainer?.toColor() ?: blueberry.darkScheme.onErrorContainer,
             background = background?.toColor() ?: blueberry.darkScheme.background,
             onBackground = onBackground?.toColor() ?: blueberry.darkScheme.onBackground,
@@ -130,12 +129,19 @@ fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
             surfaceVariant = surfaceVariant?.toColor() ?: blueberry.darkScheme.surfaceVariant,
             onSurfaceVariant = onSurfaceVariant?.toColor() ?: blueberry.darkScheme.onSurfaceVariant,
             outline = outline?.toColor() ?: blueberry.darkScheme.outline,
-            inverseOnSurface = inverseOnSurface?.toColor() ?: blueberry.darkScheme.inverseOnSurface,
+            outlineVariant = outlineVariant?.toColor() ?: blueberry.darkScheme.outlineVariant,
+            scrim = scrim?.toColor() ?: blueberry.darkScheme.scrim,
             inverseSurface = inverseSurface?.toColor() ?: blueberry.darkScheme.inverseSurface,
+            inverseOnSurface = inverseOnSurface?.toColor() ?: blueberry.darkScheme.inverseOnSurface,
             inversePrimary = inversePrimary?.toColor() ?: blueberry.darkScheme.inversePrimary,
             surfaceTint = surfaceTint?.toColor() ?: blueberry.darkScheme.surfaceTint,
-            outlineVariant = outlineVariant?.toColor() ?: blueberry.darkScheme.outlineVariant,
-            scrim = scrim?.toColor() ?: blueberry.darkScheme.scrim
+            surfaceDim = surfaceDim?.toColor() ?: blueberry.darkScheme.surfaceDim,
+            surfaceBright = surfaceBright?.toColor() ?: blueberry.darkScheme.surfaceBright,
+            surfaceContainerLowest = surfaceContainerLowest?.toColor() ?: blueberry.darkScheme.surfaceContainerLowest,
+            surfaceContainerLow = surfaceContainerLow?.toColor() ?: blueberry.darkScheme.surfaceContainerLow,
+            surfaceContainer = surfaceContainer?.toColor() ?: blueberry.darkScheme.surfaceContainer,
+            surfaceContainerHigh = surfaceContainerHigh?.toColor() ?: blueberry.darkScheme.surfaceContainerHigh,
+            surfaceContainerHighest = surfaceContainerHighest?.toColor() ?: blueberry.darkScheme.surfaceContainerHighest
         )
     } else {
         lightColorScheme(
@@ -158,8 +164,8 @@ fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
             onTertiaryContainer = onTertiaryContainer?.toColor()
                 ?: blueberry.lightScheme.onTertiaryContainer,
             error = error?.toColor() ?: blueberry.lightScheme.error,
-            errorContainer = errorContainer?.toColor() ?: blueberry.lightScheme.errorContainer,
             onError = onError?.toColor() ?: blueberry.lightScheme.onError,
+            errorContainer = errorContainer?.toColor() ?: blueberry.lightScheme.errorContainer,
             onErrorContainer = onErrorContainer?.toColor()
                 ?: blueberry.lightScheme.onErrorContainer,
             background = background?.toColor() ?: blueberry.lightScheme.background,
@@ -170,13 +176,19 @@ fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
             onSurfaceVariant = onSurfaceVariant?.toColor()
                 ?: blueberry.lightScheme.onSurfaceVariant,
             outline = outline?.toColor() ?: blueberry.lightScheme.outline,
-            inverseOnSurface = inverseOnSurface?.toColor()
-                ?: blueberry.lightScheme.inverseOnSurface,
+            outlineVariant = outlineVariant?.toColor() ?: blueberry.lightScheme.outlineVariant,
+            scrim = scrim?.toColor() ?: blueberry.lightScheme.scrim,
             inverseSurface = inverseSurface?.toColor() ?: blueberry.lightScheme.inverseSurface,
+            inverseOnSurface = inverseOnSurface?.toColor() ?: blueberry.lightScheme.inverseOnSurface,
             inversePrimary = inversePrimary?.toColor() ?: blueberry.lightScheme.inversePrimary,
             surfaceTint = surfaceTint?.toColor() ?: blueberry.lightScheme.surfaceTint,
-            outlineVariant = outlineVariant?.toColor() ?: blueberry.lightScheme.outlineVariant,
-            scrim = scrim?.toColor() ?: blueberry.lightScheme.scrim
+            surfaceDim = surfaceDim?.toColor() ?: blueberry.lightScheme.surfaceDim,
+            surfaceBright = surfaceBright?.toColor() ?: blueberry.lightScheme.surfaceBright,
+            surfaceContainerLowest = surfaceContainerLowest?.toColor() ?: blueberry.lightScheme.surfaceContainerLowest,
+            surfaceContainerLow = surfaceContainerLow?.toColor() ?: blueberry.lightScheme.surfaceContainerLow,
+            surfaceContainer = surfaceContainer?.toColor() ?: blueberry.lightScheme.surfaceContainer,
+            surfaceContainerHigh = surfaceContainerHigh?.toColor() ?: blueberry.lightScheme.surfaceContainerHigh,
+            surfaceContainerHighest = surfaceContainerHighest?.toColor() ?: blueberry.lightScheme.surfaceContainerHighest
         )
     }
 
