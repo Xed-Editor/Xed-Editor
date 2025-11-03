@@ -493,6 +493,7 @@ private fun EditorTab.CodeEditor(
                         subscribeAlways(EditorKeyEvent::class.java) { event ->
                             onKeyEvent.invoke(event)
                         }
+                        applyHighlighting()
                     }
 
                     val keyPanel = HorizontalScrollView(ctx).apply {
@@ -612,7 +613,7 @@ private fun EditorTab.CodeEditor(
                         applyTo(this@apply)
                     }
                     editorState.rootView = WeakReference(this)
-                    applyHighlighting()
+
                 }
             },
         )

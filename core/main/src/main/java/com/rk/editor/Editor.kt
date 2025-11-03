@@ -32,6 +32,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.InputStreamReader
@@ -355,30 +357,37 @@ class Editor : CodeEditor {
         }
     }
 
-    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.Default) {
-        while (!isInit) delay(10)
+    private val langMutex = Mutex()
+    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
+        langMutex.withLock {
 
-        val language = highlightingCache.getOrPut(languageScopeName) {
-            TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
-                if (Settings.textmate_suggestion) {
-                    launch {
-                        context.assets.open("textmate/keywords.json").use {
-                            JsonParser.parseReader(InputStreamReader(it))
-                                .asJsonObject[languageScopeName]?.asJsonArray
-                                ?.map { el -> el.asString }
-                                ?.toTypedArray()
-                                ?.let(::setCompleterKeywords)
+            while (!isInit) {
+                delay(50)
+            }
+
+            val language = highlightingCache.getOrPut(languageScopeName) {
+                TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
+                    if (Settings.textmate_suggestion) {
+                        launch {
+                            context.assets.open("textmate/keywords.json").use {
+                                JsonParser.parseReader(InputStreamReader(it))
+                                    .asJsonObject[languageScopeName]?.asJsonArray
+                                    ?.map { el -> el.asString }
+                                    ?.toTypedArray()
+                                    ?.let(::setCompleterKeywords)
+                            }
                         }
                     }
                 }
             }
+
+            language.useTab(Settings.actual_tabs)
+
+            withContext(Dispatchers.Main) {
+                setEditorLanguage(language as Language);
+            }
         }
-
-        language.useTab(Settings.actual_tabs)
-
-        withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
     }
-
 
     /**
      * Register an action button in the text action window.
