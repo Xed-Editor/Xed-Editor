@@ -135,7 +135,7 @@
     <string name="telegram">Grupa na Telegram\'ie</string>
     <string name="tab_opened">Karta otwarta</string>
     <string name="mutator_name">Nazwa mutatora</string>
-    <string name="name_empty_err">Pole nazwa nie może być puste</string>
+    <string name="name_empty_err">Pole nie może być puste</string>
     <string name="name_used">Nazwa jest już używana</string>
     <string name="script_get_text">Pobierz tekst</string>
     <string name="script_show_toast">Pokaż powiadomienie</string>
@@ -472,5 +472,5 @@
     <string name="toolbar_actions_desc">Wybierz czynności wyświetlane na pasku narzędzi</string>
     <string name="add_command">Dodaj polecenie</string>
     <string name="disable">Wyłącz</string>
-    <string name="info_toolbar_actions">Czynności paska narzędzi definiują które polecenia są wyświetlane na pasku podczas otwierania pliku. Zmień kolejność przytrzymując i przeciągając lub dodaj nowe polecenie klikając przycisk.</string>
+    <string name="info_toolbar_actions">Czynności paska narzędzi ustalają które polecenia są wyświetlane na pasku podczas otwierania pliku. Zmień kolejność przytrzymując i przeciągając lub dodaj nowe polecenie klikając przycisk.</string>
 </resources>
