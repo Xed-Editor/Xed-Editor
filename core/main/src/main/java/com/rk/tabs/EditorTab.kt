@@ -50,6 +50,8 @@ import com.rk.components.SingleInputDialog
 import com.rk.components.SyntaxPanel
 import com.rk.editor.Editor
 import com.rk.editor.getInputView
+import com.rk.exec.isTerminalInstalled
+import com.rk.exec.isTerminalWorking
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
@@ -630,20 +632,24 @@ fun EditorTab.applyHighlighting() {
             scope.launch(Dispatchers.IO) {
                 setLanguage(langScope)
 
-                if (InbuiltFeatures.terminal.state.value) {
+                if (InbuiltFeatures.terminal.state.value && isTerminalInstalled()) {
+                    if (isTerminalWorking().not()){
+                        toast("Terminal is not working or not installed, LSP Server will not work")
+                        return@launch
+                    }
                     val ext = file.getName().substringAfterLast(".").trim()
                     val parent = file.getParentFile()
 
                     println("attempting to connect to external server...")
                     if (tryConnectExternalLsp(ext, parent)) return@launch
-                    println("no externel server connection")
+                    println("no external server connection")
 
                     println("attempting ot connect to built in server...")
                     if (tryConnectBuiltinLsp(ext, this@with)){
                         toast("LSP Server connected")
                         return@launch
                     }else{
-                        println("no builtin server cocnnection")
+                        println("no builtin server connection")
                     }
 
                 }
