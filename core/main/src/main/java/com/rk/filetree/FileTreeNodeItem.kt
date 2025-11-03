@@ -76,6 +76,9 @@ fun FileTreeNodeItem(
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
+                .addIf(isCut) {
+                    Modifier.alpha(0.5f)
+                }
                 .combinedClickable(
                     onClick = {
                         if (node.isDirectory) {
@@ -97,9 +100,6 @@ fun FileTreeNodeItem(
 
                     }
                 )
-                .addIf(isCut) {
-                    Modifier.alpha(0.5f)
-                }
                 .then(
                     if (viewModel.selectedFile[currentProject] == node.file && !isCut) {
                         Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
