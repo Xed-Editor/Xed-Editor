@@ -120,7 +120,7 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
 
         env["PROOT_TMP_DIR"] = tmpDir.absolutePath
 
-        env["PATH"] = "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}/local/bin:${System.getenv("PATH")}"
+        env["PATH"] = "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}:${System.getenv("PATH")}"
 
         if (!App.isFDroid){
             env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader.so"
