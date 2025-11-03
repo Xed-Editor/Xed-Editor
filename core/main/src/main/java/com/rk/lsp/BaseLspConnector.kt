@@ -57,8 +57,6 @@ class BaseLspConnector(
     private var project: LspProject? = null
     private var serverDefinition: CustomLanguageServerDefinition? = null
     private var lspEditor: LspEditor? = null
-    var isConnected: Boolean = false
-        private set
     private var fileObject: FileObject? = null
 
     companion object {
@@ -72,17 +70,25 @@ class BaseLspConnector(
         return fileExt == fileExtension && FileType.knowsExtension(fileExt)
     }
 
+    fun isConnected(): Boolean{
+        return lspEditor?.isConnected ?: false
+    }
+
     suspend fun connect(
         projectFile: FileObject,
         fileObject: FileObject,
         codeEditor: Editor
     ) = withContext(Dispatchers.IO) {
         if (!isSupported(fileObject)) {
+            println("no supported")
             return@withContext
         }
 
-        while (!Editor.Companion.isInit && isActive) delay(5)
+
+        while (!Editor.Companion.isInit && isActive) delay(10)
+        println("wait completed")
         if (!isActive) {
+            println("scope canceled")
             return@withContext
         }
 
@@ -108,15 +114,15 @@ class BaseLspConnector(
                 newDef
             }
 
+
             lspEditor = withContext(Dispatchers.Main) {
                 project!!.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
-                    wrapperLanguage = TextMateLanguage.create(textMateScope, false)
+                    wrapperLanguage = TextMateLanguage.create(textMateScope,false)
                     editor = codeEditor
                 }
             }
 
             lspEditor!!.connectWithTimeout()
-            isConnected = true
             lspEditor!!.requestManager?.didChangeWorkspaceFolders(
                 DidChangeWorkspaceFoldersParams().apply {
                     event = WorkspaceFoldersChangeEvent().apply {
@@ -131,10 +137,7 @@ class BaseLspConnector(
             )
             lspEditor!!.openDocument()
         }.onFailure {
-            codeEditor.setLanguage(
-                languageScopeName = textMateScope,
-            )
-            isConnected = false
+            codeEditor.setLanguage(textMateScope)
             it.printStackTrace()
             toast(it.message)
         }
@@ -219,13 +222,12 @@ class BaseLspConnector(
     }
 
     suspend fun notifySave(charset: Charset = Charsets.UTF_8) {
-        lspEditor!!.saveDocument()
+        lspEditor?.saveDocument()
     }
 
     suspend fun disconnect() {
         runCatching {
             lspEditor?.disposeAsync()
-            isConnected = false
             lspEditor = null
         }.onFailure { it.printStackTrace() }
     }

@@ -68,6 +68,7 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.errorDialog
+import com.rk.utils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.text.Content
@@ -187,6 +188,12 @@ class EditorTab(
 
     init {
         editorState.editable = Settings.read_only_default.not() && file.canWrite()
+        if (editorState.textmateScope == null) {
+            editorState.textmateScope = file.let {
+                val ext = it.getName().substringAfterLast('.', "")
+                FileType.fromExtension(ext).textmateScope
+            }
+        }
         if (editorState.content == null) {
             scope.launch(Dispatchers.IO) {
                 runCatching {
@@ -233,12 +240,6 @@ class EditorTab(
             }
 
             Column {
-                if (editorState.textmateScope == null) {
-                    editorState.textmateScope = file.let {
-                        val ext = it.getName().substringAfterLast('.', "")
-                        FileType.fromExtension(ext).textmateScope
-                    }
-                }
 
                 if (editorState.showRunnerDialog) {
                     ModalBottomSheet(
@@ -341,6 +342,17 @@ class EditorTab(
                         }
                     }
                 )
+
+                LaunchedEffect(
+                    editorState.textmateScope,
+                    refreshKey,
+                    LocalConfiguration.current,
+                    LocalContext.current,
+                    MaterialTheme.colorScheme
+                ) {
+                    applyHighlighting()
+                }
+
             }
         }
 
@@ -604,36 +616,37 @@ private fun EditorTab.CodeEditor(
         )
     }
 
-    LaunchedEffect(
-        editorState.textmateScope,
-        editorState,
-        editorState.editor,
-        refreshKey,
-        LocalConfiguration.current,
-        LocalContext.current,
-        MaterialTheme.colorScheme
-    ) {
-        applyHighlighting()
-    }
+
 }
 
 fun EditorTab.applyHighlighting() {
+
     if (editorState.editor.get() == null) {
         return
     }
+
     with(editorState.editor.get()!!) {
         editorState.textmateScope?.let { langScope ->
             scope.launch(Dispatchers.IO) {
+                setLanguage(langScope)
 
                 if (InbuiltFeatures.terminal.state.value) {
                     val ext = file.getName().substringAfterLast(".").trim()
                     val parent = file.getParentFile()
 
+                    println("attempting to connect to external server...")
                     if (tryConnectExternalLsp(ext, parent)) return@launch
-                    if (tryConnectBuiltinLsp(ext, this@with)) return@launch
-                }
+                    println("no externel server connection")
 
-                setLanguage(langScope)
+                    println("attempting ot connect to built in server...")
+                    if (tryConnectBuiltinLsp(ext, this@with)){
+                        toast("LSP Server connected")
+                        return@launch
+                    }else{
+                        println("no builtin server cocnnection")
+                    }
+
+                }
             }
         }
     }
@@ -650,6 +663,8 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
     if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
         // Connect with built-in language server
         if (server.isInstalled(editor.context)) {
+            println("server installed")
+
             baseLspConnector = BaseLspConnector(
                 ext,
                 textMateScope = FileType.fromExtension(ext).textmateScope!!,
@@ -657,12 +672,15 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
             )
 
             file.getParentFile()?.let { parent ->
+                println("trying to connect")
                 baseLspConnector?.connect(
                     parent,
                     fileObject = file,
                     codeEditor = editorState.editor.get()!!
                 )
-            }
+                println("after connect")
+            } ?: println("no parent")
+
             return true
         }
 

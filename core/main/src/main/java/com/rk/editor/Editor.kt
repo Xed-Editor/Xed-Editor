@@ -356,10 +356,7 @@ class Editor : CodeEditor {
     }
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.Default) {
-        while (!isInit && isActive) delay(5)
-        if (!isActive) {
-            return@withContext
-        }
+        while (!isInit) delay(10)
 
         val language = highlightingCache.getOrPut(languageScopeName) {
             TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
