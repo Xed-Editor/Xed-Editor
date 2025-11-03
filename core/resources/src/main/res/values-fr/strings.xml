@@ -122,7 +122,7 @@
     <string name="show_line_number">Afficher les numéros de lignes</string>
     <string name="pin_line_number">Épingler les numéros de lignes</string>
     <string name="extra_keys">Touches additionnelles</string>
-    <string name="extra_keys_desc">Afficher les touches additionnelles dans l’éditeur</string>
+    <string name="extra_keys_desc">Affiche les touches additionnelles au-dessus du clavier</string>
     <string name="auto_save_desc">Enregistrer les fichiers automatiquement</string>
     <string name="auto_save">Enregistrement auto</string>
     <string name="interval_in_ms">Intervalle en millisecondes</string>
@@ -450,4 +450,28 @@
     <string name="rename_failed">Impossible de renommer le fichier</string>
     <string name="expert_mode">Mode Expert</string>
     <string name="expert_mode_warn">Le mode Expert désactive les sécurités, ce qui, mal utilisé, pourrait causer des pertes de données ou autres problèmes. N\'activer qu\'en connaissance de cause.</string>
+    <string name="type_command">Taper une commande</string>
+    <string name="recently_used">(Utilisé récemment)</string>
+    <string name="command_palette">Palette de commande</string>
+    <string name="debug_mode_warn">Le mode débogage désactive les limitations de sécurité, ce qui pourrait amener à des pertes de données ou d\'autres problèmes, si mal employé. N\'activer qu\'en connaissance de cause.</string>
+    <string name="external_lsp">LSP externe</string>
+    <string name="external">Externe</string>
+    <string name="desktop_mode">Mode bureau (expérimental)</string>
+    <string name="desktop_mode_desc">Facilite l\'utilisation de l\'app sur les tablettes et écrans de bureau.</string>
+    <string name="built_in">Intégré</string>
+    <string name="change_lang_warn">Changer la langue relancera cet écran immédiatement. Cela pourrait afficher brièvement un écran blanc et ainsi causer de l\'inconfort aux personnes atteints d\'épilepsie photosensible.</string>
+    <string name="address">Adresse</string>
+    <string name="invalid_address">Adresse invalide</string>
+    <string name="select_all">Tout sélectionner</string>
+    <string name="select_word">Sélectionner le mot</string>
+    <string name="duplicate_line">Dupliquer la ligne</string>
+    <string name="show_nav_extra_keys">Touches de navigation</string>
+    <string name="show_nav_extra_keys_desc">Affiche des boutons supplémentaires pour la navigation</string>
+    <string name="change_extra_keys">Modifier touches add.</string>
+    <string name="change_extra_keys_desc">Permet de personnaliser les touches additionnelles au-dessus du clavier</string>
+    <string name="toolbar_actions">Barre de menu</string>
+    <string name="toolbar_actions_desc">Choisir quelles actions apparaissent dans la barre d\'app</string>
+    <string name="add_command">Ajouter commande</string>
+    <string name="info_toolbar_actions">Détermine quelles commandes sont affichées quand un fichier est ouvert. Faire un appui long et glisser pour changer l\'ordre, ou appuyer pour ajouter une commande.</string>
+    <string name="disable">Désactiver</string>
 </resources>
