@@ -14,6 +14,7 @@ import com.rk.lsp.LspConnectionConfig
 class CSS() : BaseLspServer() {
     override val id: String = "css-lsp"
     override val languageName: String = "CSS"
+    override val serverName = "vscode-langservers-extracted"
     override val supportedExtensions: List<String> = FileType.CSS.extensions + FileType.SCSS.extensions + FileType.LESS.extensions
 
     override fun isInstalled(context: Context): Boolean {

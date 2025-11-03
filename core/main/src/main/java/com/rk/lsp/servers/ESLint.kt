@@ -14,6 +14,7 @@ import com.rk.lsp.LspConnectionConfig
 class ESLint() : BaseLspServer() {
     override val id: String = "eslint-lsp"
     override val languageName: String = "ESLint"
+    override val serverName = "vscode-langservers-extracted"
     override val supportedExtensions: List<String> = FileType.JAVASCRIPT.extensions + FileType.TYPESCRIPT.extensions + FileType.JSX.extensions + FileType.TSX.extensions
 
     override fun isInstalled(context: Context): Boolean {
