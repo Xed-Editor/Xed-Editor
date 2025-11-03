@@ -365,6 +365,8 @@ class Editor : CodeEditor {
                 delay(50)
             }
 
+            delay(100)
+
             val language = highlightingCache.getOrPut(languageScopeName) {
                 TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
                     if (Settings.textmate_suggestion) {
