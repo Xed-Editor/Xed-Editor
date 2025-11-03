@@ -12,5 +12,4 @@ pipx ensurepath
 info 'Installing python language server...'
 pipx install 'python-lsp-server[all]'
 
-clear
 info 'Python language server installed successfully. Please reopen all tabs or restart the app.'
