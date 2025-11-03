@@ -103,12 +103,20 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    suspend fun newTab(fileObject: FileObject, checkDuplicate: Boolean = true, switchToTab: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun newTab(
+        fileObject: FileObject,
+        checkDuplicate: Boolean = true,
+        switchToTab: Boolean = false
+    ) = withContext(Dispatchers.IO) {
         val function = suspend {
-            TabRegistry.getTab(fileObject){
-                if (it == null){
-                    newEditorTab(fileObject,checkDuplicate = checkDuplicate,switchToTab = switchToTab)
-                }else{
+            TabRegistry.getTab(fileObject) {
+                if (it == null) {
+                    newEditorTab(
+                        fileObject,
+                        checkDuplicate = checkDuplicate,
+                        switchToTab = switchToTab
+                    )
+                } else {
                     newTab(it)
                 }
             }
@@ -129,7 +137,6 @@ class MainViewModel : ViewModel() {
             function.invoke()
         }
     }
-
 
     suspend fun isEditorTabOpened(file: FileObject): Boolean = withContext(Dispatchers.IO){
         tabs.toList().forEachIndexed { index,tab ->

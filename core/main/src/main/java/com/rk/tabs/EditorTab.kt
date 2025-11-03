@@ -50,8 +50,8 @@ import com.rk.components.SingleInputDialog
 import com.rk.components.SyntaxPanel
 import com.rk.editor.Editor
 import com.rk.editor.getInputView
-import com.rk.editor.textmateSources
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.createLspTextActions
@@ -70,7 +70,6 @@ import com.rk.utils.dpToPx
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
-import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import kotlinx.coroutines.CompletableDeferred
@@ -236,7 +235,8 @@ class EditorTab(
             Column {
                 if (editorState.textmateScope == null) {
                     editorState.textmateScope = file.let {
-                        textmateSources[it.getName().substringAfterLast('.', "").trim()]
+                        val ext = it.getName().substringAfterLast('.', "")
+                        FileType.fromExtension(ext).textmateScope
                     }
                 }
 
@@ -652,7 +652,7 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
         if (server.isInstalled(editor.context)) {
             baseLspConnector = BaseLspConnector(
                 ext,
-                textMateScope = textmateSources[ext]!!,
+                textMateScope = FileType.fromExtension(ext).textmateScope!!,
                 connectionConfig = server.getConnectionConfig()
             )
 
@@ -711,7 +711,7 @@ private suspend fun EditorTab.tryConnectExternalLsp(
 
             baseLspConnector = BaseLspConnector(
                 ext,
-                textMateScope = textmateSources[ext]!!,
+                textMateScope = FileType.fromExtension(ext).textmateScope!!,
                 connectionConfig = LspConnectionConfig.Socket(
                     server.first,
                     server.second

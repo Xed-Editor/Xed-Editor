@@ -36,7 +36,7 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
-import com.rk.editor.textmateSources
+import com.rk.file.FileType
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.lsp.lspRegistry
@@ -235,7 +235,7 @@ private fun ExternalLSP(
                         if (parsedExtensions.isEmpty()) {
                             extensionsError = strings.unsupported_file_ext.getString()
                         } else {
-                            val invalid = parsedExtensions.filter { textmateSources[it] == null }
+                            val invalid = parsedExtensions.filter { !FileType.knowsExtension(it) }
                             if (invalid.isNotEmpty()) {
                                 extensionsError = "${strings.unsupported_file_ext.getString()}: ${invalid.joinToString(", ") { ".$it" }}"
                             }

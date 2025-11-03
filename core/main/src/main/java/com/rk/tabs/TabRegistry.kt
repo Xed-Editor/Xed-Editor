@@ -1,14 +1,17 @@
 package com.rk.tabs
 
 import com.rk.file.FileObject
+import com.rk.file.FileType
 
 object TabRegistry {
+    suspend fun getTab(file: FileObject, callback: suspend (Tab?) -> Unit) {
+        val ext = file.getName().substringAfterLast('.', "")
+        val type = FileType.fromExtension(ext)
 
-    suspend fun getTab(file: FileObject,callback: suspend (Tab?)-> Unit){
-        when(file.getName().substringAfterLast(".").toString().trim()){
-            "png","jpg","gif","jpeg" -> callback(ImageTab(file))
+        when (type) {
+            FileType.IMAGE -> callback(ImageTab(file))
 
-            //open code editor
+            // Open code editor
             else -> callback(null)
         }
     }
