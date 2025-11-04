@@ -16,8 +16,8 @@ data class ThemePalette(
     val tertiaryContainer: String? = null,
     val onTertiaryContainer: String? = null,
     val error: String? = null,
-    val errorContainer: String? = null,
     val onError: String? = null,
+    val errorContainer: String? = null,
     val onErrorContainer: String? = null,
     val background: String? = null,
     val onBackground: String? = null,
@@ -26,14 +26,21 @@ data class ThemePalette(
     val surfaceVariant: String? = null,
     val onSurfaceVariant: String? = null,
     val outline: String? = null,
-    val inverseOnSurface: String? = null,
-    val inverseSurface: String? = null,
-    val inversePrimary: String? = null,
-    val surfaceTint: String? = null,
     val outlineVariant: String? = null,
     val scrim: String? = null,
+    val inverseSurface: String? = null,
+    val inverseOnSurface: String? = null,
+    val inversePrimary: String? = null,
+    val surfaceTint: String? = null,
+    val surfaceDim: String? = null,
+    val surfaceBright: String? = null,
+    val surfaceContainerLowest: String? = null,
+    val surfaceContainerLow: String? = null,
+    val surfaceContainer: String? = null,
+    val surfaceContainerHigh: String? = null,
+    val surfaceContainerHighest: String? = null,
     val terminalColors: Map<String, String>? = null,
-    val editorColors:Map<String, String>? = null
+    val editorColors: Map<String, String>? = null
 ) : Serializable
 
 data class ThemeConfig(

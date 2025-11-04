@@ -8,5 +8,6 @@ abstract class BaseLspServer {
     abstract fun getConnectionConfig(): LspConnectionConfig
     abstract val id: String
     abstract val languageName: String
+    abstract val serverName: String
     abstract val supportedExtensions: List<String>
 }

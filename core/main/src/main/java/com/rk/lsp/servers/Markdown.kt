@@ -14,6 +14,7 @@ import com.rk.lsp.LspConnectionConfig
 class Markdown() : BaseLspServer() {
     override val id: String = "markdown-lsp"
     override val languageName: String = "Markdown"
+    override val serverName = "vscode-langservers-extracted"
     override val supportedExtensions: List<String> = FileType.MARKDOWN.extensions
 
     override fun isInstalled(context: Context): Boolean {

@@ -14,6 +14,7 @@ import com.rk.lsp.LspConnectionConfig
 class JSON() : BaseLspServer() {
     override val id: String = "json-lsp"
     override val languageName: String = "JSON"
+    override val serverName = "vscode-langservers-extracted"
     override val supportedExtensions: List<String> = FileType.JSON.extensions
 
     override fun isInstalled(context: Context): Boolean {

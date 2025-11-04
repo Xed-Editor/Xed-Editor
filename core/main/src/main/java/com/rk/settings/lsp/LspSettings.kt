@@ -82,11 +82,13 @@ fun LspSettings(modifier: Modifier = Modifier) {
                     SettingsToggle(
                         label = server.languageName,
                         default = Preference.getBoolean("lsp_${server.id}", false),
-                        description = server.supportedExtensions.joinToString(", ") { ".$it" },
+                        description = server.serverName,
+
                         showSwitch = true,
                         sideEffect = {
                             Preference.setBoolean("lsp_${server.id}", it)
-                        })
+                        }
+                    )
                 }
             }
         } else {
