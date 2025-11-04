@@ -146,7 +146,7 @@
     <string name="auto_save_desc">Datei automatisch speichern</string>
     <string name="value_invalid">Ungültiger Wert</string>
     <string name="tab_size">Tabgröße</string>
-    <string name="tab_size_desc">Anzahl der für ein Tab-Zeichen eingefügten Leerzeichen.</string>
+    <string name="tab_size_desc">Anzahl der für ein Tab-Zeichen eingefügten Leerzeichen</string>
     <string name="value_small">Wert zu klein</string>
     <string name="text_size">Textgröße</string>
     <string name="interval_in_ms">Intervall in Millisekunden</string>
@@ -473,4 +473,5 @@
     <string name="disable">Deaktivieren</string>
     <string name="address">Adresse</string>
     <string name="invalid_address">Ungültige Adresse</string>
+    <string name="open_as_project">Als Projekt öffnen</string>
 </resources>

@@ -45,6 +45,7 @@ import com.rk.tabs.EditorTab
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.filetree.FileTreeViewModel
+import com.rk.filetree.addProject
 import com.rk.icons.CreateNewFile
 import com.rk.icons.CreateNewFolder
 import com.rk.icons.XedIcons
@@ -109,7 +110,7 @@ fun FileActionDialog(
                         title = stringResource(strings.refresh),
                         //description = stringResource(strings.reload_file_tree),
                         onClick = {
-                            fileTreeViewModel?.updateCache(file)
+                            fileTreeViewModel.updateCache(file)
                             showXedDialog = true
                             onDismissRequest()
                         }
@@ -197,6 +198,7 @@ fun FileActionDialog(
                     onClick = {
                         scope.launch {
                             FileOperations.copyToClipboard(file, isCut = true)
+                            fileTreeViewModel.markNodeAsCut(file)
                             showXedDialog = true
                             onDismissRequest()
                         }
@@ -210,15 +212,17 @@ fun FileActionDialog(
                         //description = stringResource(strings.paste_desc),
                         onClick = {
                             scope.launch {
-                                val parentFile = FileOperations.clipboard!!.getParentFile()
+                                val clipboardFile = FileOperations.clipboard!!
+                                val clipboardParentFile = clipboardFile.getParentFile()
                                 pasteFile(
                                     context,
-                                    FileOperations.clipboard!!,
+                                    clipboardFile,
                                     file,
                                     isCut = FileOperations.isCut
                                 )
-                                fileTreeViewModel?.updateCache(file)
-                                fileTreeViewModel?.updateCache(parentFile!!)
+                                fileTreeViewModel.updateCache(file)
+                                fileTreeViewModel.updateCache(clipboardParentFile!!)
+                                fileTreeViewModel.unmarkNodeAsCut(clipboardFile)
                                 //showXedDialog = true
                                 onDismissRequest()
                             }
@@ -262,7 +266,20 @@ fun FileActionDialog(
                             onDismissRequest()
                         }
                     )
+                }
 
+                if (fileTreeContext && file.isDirectory()) {
+                    AddDialogItem(
+                        icon = drawables.folder_code,
+                        title = stringResource(strings.open_as_project),
+                        //description = stringResource(strings.add_file_desc),
+                        onClick = {
+                            // This would typically open a file picker
+                            addProject(file, true)
+                            //showXedDialog = true
+                            onDismissRequest()
+                        }
+                    )
                 }
 
                 AddDialogItem(
@@ -305,7 +322,7 @@ fun FileActionDialog(
                     val success = file.renameTo(newName)
                     if (success) {
                         if (parentFile != null){
-                            fileTreeViewModel?.updateCache(file.getParentFile()!!)
+                            fileTreeViewModel.updateCache(file.getParentFile()!!)
                             MainActivity.instance?.apply {
                                 val targetTab = viewModel.tabs.find { it is EditorTab && it.file == file } as? EditorTab
 
@@ -337,7 +354,7 @@ fun FileActionDialog(
                 scope.launch {
                     val success = FileOperations.deleteFile(file)
                     if (success) {
-                        fileTreeViewModel?.updateCache(file.getParentFile()!!)
+                        fileTreeViewModel.updateCache(file.getParentFile()!!)
                         toast(context.getString(strings.success))
                     }
                 }
@@ -389,7 +406,7 @@ fun FileActionDialog(
                     file.createChild(createFile = isNewFile, newNameValue)
                 }
 
-                fileTreeViewModel?.updateCache(file)
+                fileTreeViewModel.updateCache(file)
                 onDismissRequest()
             },
             onFinish = {

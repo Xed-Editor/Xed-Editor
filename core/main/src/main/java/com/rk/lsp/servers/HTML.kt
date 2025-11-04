@@ -8,12 +8,15 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.LspConnectionConfig
+import java.net.URI
 
 class HTML() : BaseLspServer() {
     override val id: String = "html-lsp"
     override val languageName: String = "HTML"
+    override val serverName = "vscode-langservers-extracted"
     override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
 
     override fun isInstalled(context: Context): Boolean {
@@ -41,5 +44,11 @@ class HTML() : BaseLspServer() {
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-html-language-server",  "--stdio"))
+    }
+    override fun isSupported(file: FileObject): Boolean {
+        return supportedExtensions.contains(file.getName().substringAfterLast("."))
+    }
+    override fun getInitializationOptions(uri: URI?): Any? {
+        return null
     }
 }

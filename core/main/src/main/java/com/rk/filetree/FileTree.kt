@@ -39,7 +39,7 @@ fun FileTree(
 
     LaunchedEffect(MainActivity.instance) {
         MainActivity.instance?.foregroundListener["fileTreeRefresh"] = { resumed ->
-            if (resumed){
+            if (resumed) {
                 viewModel.refreshEverything()
             }
         }
@@ -47,9 +47,9 @@ fun FileTree(
 
     Surface(
         modifier = modifier,
-        color = if (isPermanentDrawer){
+        color = if (isPermanentDrawer) {
             MaterialTheme.colorScheme.surface
-        }else{
+        } else {
             MaterialTheme.colorScheme.surfaceContainerLow
         },
     ) {

@@ -64,12 +64,10 @@ class App : Application() {
 
         GlobalScope.launch {
 
+            launch { Editor.initGrammarRegistry() }
+
             launch(Dispatchers.IO)  {
                 TabCache.preloadTabs()
-            }
-
-            launch(Dispatchers.IO) {
-                Editor.initGrammarRegistry()
             }
             launch {
                 val fontPath = Settings.selected_font_path

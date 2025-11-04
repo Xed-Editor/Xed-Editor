@@ -8,12 +8,15 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.LspConnectionConfig
+import java.net.URI
 
 class TypeScript() : BaseLspServer() {
     override val id: String = "typescript-lsp"
     override val languageName: String = "TypeScript"
+    override val serverName = "typescript-language-server"
     override val supportedExtensions: List<String> = FileType.JAVASCRIPT.extensions + FileType.TYPESCRIPT.extensions + FileType.JSX.extensions + FileType.TSX.extensions
 
     override fun isInstalled(context: Context): Boolean {
@@ -40,5 +43,12 @@ class TypeScript() : BaseLspServer() {
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/typescript-language-server",  "--stdio"))
+    }
+
+    override fun isSupported(file: FileObject): Boolean {
+        return supportedExtensions.contains(file.getName().substringAfterLast("."))
+    }
+    override fun getInitializationOptions(uri: URI?): Any? {
+        return null
     }
 }

@@ -3,9 +3,15 @@ package com.rk.lsp
 import com.rk.file.FileObject
 import com.rk.editor.Editor
 import com.rk.file.FileType
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.utils.dialog
+import com.rk.utils.errorDialog
+import com.rk.utils.info
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
+import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.EventHandler
 import io.github.rosemoe.sora.lsp.editor.LspEditor
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.LspProject
@@ -13,16 +19,17 @@ import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.DefinitionOptions
 import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
+import org.eclipse.lsp4j.InitializeResult
 import org.eclipse.lsp4j.DocumentFormattingOptions
 import org.eclipse.lsp4j.DocumentRangeFormattingOptions
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.LocationLink
+import org.eclipse.lsp4j.MessageParams
+import org.eclipse.lsp4j.MessageType
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.PrepareRenameDefaultBehavior
 import org.eclipse.lsp4j.PrepareRenameParams
@@ -40,26 +47,23 @@ import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.messages.Either3
+import org.eclipse.lsp4j.services.LanguageServer
+import java.net.URI
 import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-/**
- * Core connector for initializing LSP servers in a code editor.
- *
- * @param fileExtension The file extension this LSP handles (e.g., "kt", "py")
- * @param textMateScope TextMate grammar scope for syntax highlighting (e.g., "source.kotlin")
- * @param connectionConfig Configuration for how to connect to the LSP server
- */
+
 class BaseLspConnector(
-    private val fileExtension: String,
-    private val textMateScope: String,
-    private val connectionConfig: LspConnectionConfig
+    private val projectFile: FileObject,
+    private val fileObject: FileObject,
+    private val codeEditor: Editor,
+    private val server: BaseLspServer,
 ) {
     private var project: LspProject? = null
     private var serverDefinition: CustomLanguageServerDefinition? = null
     private var lspEditor: LspEditor? = null
-    private var fileObject: FileObject? = null
+
 
     companion object {
         private val projectCache = ConcurrentHashMap<String, LspProject>()
@@ -68,33 +72,22 @@ class BaseLspConnector(
     }
 
     fun isSupported(file: FileObject): Boolean {
+        if (server.isSupported(file).not()){
+            return false
+        }
         val fileExt = file.getName().substringAfterLast(".")
-        return fileExt == fileExtension && FileType.knowsExtension(fileExt)
+        return fileExt == this.fileObject.getName().substringAfterLast(".") && FileType.knowsExtension(fileExt)
     }
 
     fun isConnected(): Boolean{
         return lspEditor?.isConnected ?: false
     }
 
-    suspend fun connect(
-        projectFile: FileObject,
-        fileObject: FileObject,
-        codeEditor: Editor
-    ) = withContext(Dispatchers.IO) {
+    suspend fun connect(textMateScope: String) = withContext(Dispatchers.IO) {
         if (!isSupported(fileObject)) {
-            println("no supported")
             return@withContext
         }
 
-
-        while (!Editor.Companion.isInit && isActive) delay(10)
-        println("wait completed")
-        if (!isActive) {
-            println("scope canceled")
-            return@withContext
-        }
-
-        this@BaseLspConnector.fileObject = fileObject
 
         runCatching {
             val projectPath = projectFile.getAbsolutePath()
@@ -107,10 +100,45 @@ class BaseLspConnector(
                 ConcurrentHashMap()
             }
 
-            serverDefinition = projectServerDefinition.computeIfAbsent(fileExtension) {
-                val newDef = object : CustomLanguageServerDefinition(fileExtension, ServerConnectProvider {
-                    connectionConfig.toFactory().create()
-                }) {}
+            val fileExt = fileObject.getName().substringAfterLast(".")
+            serverDefinition = projectServerDefinition.computeIfAbsent(fileExt) {
+                val newDef = object : CustomLanguageServerDefinition(fileExt, ServerConnectProvider {
+                    server.getConnectionConfig().providerFactory().create()
+                }) {
+                    override fun getInitializationOptions(uri: URI?): Any? {
+                        return server.getInitializationOptions(uri)
+                    }
+
+                    override val eventListener: EventHandler.EventListener
+                        get() = object : EventHandler.EventListener{
+                            override fun initialize(
+                                server: LanguageServer?,
+                                result: InitializeResult
+                            ) {
+                                super.initialize(server, result)
+                            }
+
+                            override fun onLogMessage(messageParams: MessageParams?) {
+                                if (messageParams == null){
+                                    return super.onLogMessage(messageParams)
+                                }
+                                info(messageParams.message)
+                            }
+
+                            override fun onShowMessage(messageParams: MessageParams?) {
+                                if (messageParams == null) {
+                                    return super.onShowMessage(messageParams)
+                                }
+
+                                when(messageParams.type){
+                                    MessageType.Error -> errorDialog(messageParams.message)
+                                    MessageType.Warning -> dialog(title = strings.warning.getString(),msg = messageParams.message)
+                                    MessageType.Info -> dialog(title = strings.info.getString(),msg = messageParams.message)
+                                    MessageType.Log -> info(messageParams.message)
+                                }
+                            }
+                        }
+                }
 
                 project!!.addServerDefinition(newDef)
                 newDef
@@ -122,6 +150,11 @@ class BaseLspConnector(
                     wrapperLanguage = TextMateLanguage.create(textMateScope,false)
                     editor = codeEditor
                 }
+            }
+
+            if (isConnected()){
+                info("LSP server already connected skipping...")
+                return@withContext
             }
 
             lspEditor!!.connectWithTimeout()

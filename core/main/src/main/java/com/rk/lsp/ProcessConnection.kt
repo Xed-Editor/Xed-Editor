@@ -2,7 +2,7 @@ package com.rk.lsp
 
 import android.util.Log
 import com.rk.utils.errorDialog
-import com.rk.exec.newSandbox
+import com.rk.exec.ubuntuProcess
 import com.rk.exec.readStderr
 import com.rk.xededitor.BuildConfig
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
@@ -28,7 +28,7 @@ class ProcessConnection(
     override fun start() {
         if (process != null) return
         runBlocking{
-            process = newSandbox(command = cmd)
+            process = ubuntuProcess(command = cmd)
 
             if (BuildConfig.DEBUG && process?.waitFor(110, TimeUnit.MILLISECONDS) == true) {
                 val exitCode = process?.exitValue() ?: -1

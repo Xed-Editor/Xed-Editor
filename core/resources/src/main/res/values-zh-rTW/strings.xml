@@ -149,7 +149,7 @@
     <string name="text_size">文字大小</string>
     <string name="text_size_desc">設定文字大小</string>
     <string name="tab_size">標簽大小</string>
-    <string name="tab_size_desc">Tab 字元所插入的空白數量。</string>
+    <string name="tab_size_desc">Tab 字元所插入的空白數量</string>
     <string name="monet">動態配色</string>
     <string name="monet_desc">跟隨系統主題</string>
     <string name="restart_app">請重新啟動應用程式。</string>
@@ -473,4 +473,5 @@
     <string name="add_command">新增指令</string>
     <string name="info_toolbar_actions">工具列動作用於定義當檔案開啟時要在工具列中顯示哪些指令。你可以長按並拖曳以變更順序，或點擊按鈕新增新指令。</string>
     <string name="disable">停用</string>
+    <string name="open_as_project">以專案方式開啟</string>
 </resources>

@@ -145,8 +145,6 @@ val blueberry = ThemeHolder(
         it["color7"] = "#e0def4"
         it["color15"] = "#e0def4"
     },
-    lightEditorColors = emptyList(),
-    darkEditorColors = emptyList()
 )
 
 
@@ -296,8 +294,6 @@ val lime = ThemeHolder(
         it["color7"] = "#e0def4"
         it["color15"] = "#e0def4"
     },
-    lightEditorColors = emptyList(),
-    darkEditorColors = emptyList()
 )
 
 val inbuiltThemes = listOf<ThemeHolder>(blueberry,lime)

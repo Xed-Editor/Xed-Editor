@@ -26,12 +26,15 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.TextActionItem
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.InputStreamReader
@@ -84,12 +87,11 @@ class Editor : CodeEditor {
         dividerColor: Int
     ) {
         updateColors { colors ->
-
             with(colors) {
                 setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
 
-                fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
-                    keys.forEach { setColor(it, color) }
+                fun EditorColorScheme.setColors(color: Int, vararg types: Int) {
+                    types.forEach { setColor(it, color) }
                 }
 
                 setColors(
@@ -159,23 +161,9 @@ class Editor : CodeEditor {
                     EditorColorScheme.LINE_DIVIDER,
                     EditorColorScheme.STICKY_SCROLL_DIVIDER
                 )
-
-            }
-
-            val editorColors = if (isDarkMode){
-                currentTheme.value?.darkEditorColors
-            }else{
-                currentTheme.value?.lightEditorColors
-            }
-
-            if (editorColors.isNullOrEmpty().not()){
-                editorColors.forEach {
-                    colorScheme.setColor(it.key,it.color)
-                }
             }
         }
     }
-
 
     private fun setAlpha(color: Int, factor: Float): Int {
         val a = Color.alpha(color)
@@ -187,9 +175,8 @@ class Editor : CodeEditor {
         return Color.argb(newAlpha, r, g, b)
     }
 
-
     private fun updateColors(postAndPreColor: (EditorColorScheme) -> Unit) {
-        postAndPreColor.invoke(colorScheme)
+        postAndPreColor(colorScheme)
         scope.launch(Dispatchers.IO) {
             val cacheKey = getCacheKey(context)
             val cachedScheme = colorSchemeCache[cacheKey]
@@ -197,7 +184,7 @@ class Editor : CodeEditor {
             if (cachedScheme != null) {
                 // Use cached scheme if available
                 withContext(Dispatchers.Main) {
-                    setColorScheme(cachedScheme)
+                    colorScheme = cachedScheme
                     postAndPreColor(colorScheme)
                 }
             } else {
@@ -210,11 +197,7 @@ class Editor : CodeEditor {
                 val amoled = cacheKey.endsWith("true")
 
                 val themeModel = when {
-                    darkTheme && amoled -> load(
-                        "textmate/black/darcula.json",
-                        "darcula.json"
-                    )
-
+                    darkTheme && amoled -> load("textmate/black/darcula.json", "darcula.json")
                     darkTheme -> load("textmate/darcula.json", "darcula.json")
                     else -> load(
                         "textmate/quietlight.json",
@@ -230,7 +213,7 @@ class Editor : CodeEditor {
                 colorSchemeCache[cacheKey] = colors
 
                 withContext(Dispatchers.Main) {
-                    setColorScheme(colors)
+                    colorScheme = colors
                     postAndPreColor(colorScheme)
                 }
             }
@@ -283,7 +266,6 @@ class Editor : CodeEditor {
         } else 0
     }
 
-
     fun applyFont() {
         runCatching {
             val fontPath = Settings.selected_font_path
@@ -301,7 +283,6 @@ class Editor : CodeEditor {
         }
     }
 
-
     fun showSuggestions(yes: Boolean) {
         inputType = if (yes) {
             InputType.TYPE_TEXT_VARIATION_NORMAL
@@ -310,9 +291,8 @@ class Editor : CodeEditor {
         }
     }
 
-
     companion object {
-        var isInit = false
+        private val completionFuture = CompletableDeferred<Unit>()
 
         private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
         private val highlightingCache = hashMapOf<String, TextMateLanguage>()
@@ -324,61 +304,55 @@ class Editor : CodeEditor {
                 else -> isDarkMode(context)
             }
 
-            //important
-            val prefix = if (darkTheme){
-                "dark"
-            }else{
-                "light"
-            }
-
-            return "${prefix}_${Settings.amoled}_${Settings.theme}"
+            // Important
+            val prefix = if (darkTheme) "dark" else "light"
+            return "${prefix}_${Settings.theme}_${Settings.amoled}"
         }
 
         suspend fun initGrammarRegistry() = withContext(Dispatchers.IO) {
-            if (!isInit) {
+            if (!completionFuture.isCompleted) {
                 FileProviderRegistry.getInstance()
                     .addFileProvider(AssetsFileResolver(application!!.assets))
                 GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-                isInit = true
 
-                FileType.entries
-                    .mapNotNull { it.textmateScope }
-                    .toSet()
-                    .forEach {
-                        launch(Dispatchers.IO) {
-                            System.currentTimeMillis()
-                            val language = TextMateLanguage.create(it, Settings.textmate_suggestion)
-                            highlightingCache[it] = language
-                        }
-                    }
+                completionFuture.complete(Unit)
             }
         }
     }
 
-    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.Default) {
-        while (!isInit) delay(10)
+    private val langMutex = Mutex()
+    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
+        langMutex.withLock {
 
-        val language = highlightingCache.getOrPut(languageScopeName) {
-            TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
-                if (Settings.textmate_suggestion) {
-                    launch {
-                        context.assets.open("textmate/keywords.json").use {
-                            JsonParser.parseReader(InputStreamReader(it))
-                                .asJsonObject[languageScopeName]?.asJsonArray
-                                ?.map { el -> el.asString }
-                                ?.toTypedArray()
-                                ?.let(::setCompleterKeywords)
+            while (!completionFuture.isCompleted) {
+                delay(50)
+            }
+
+            delay(100)
+
+            val language = highlightingCache.getOrPut(languageScopeName) {
+                TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
+                    if (Settings.textmate_suggestion) {
+                        launch {
+                            context.assets.open("textmate/keywords.json").use {
+                                JsonParser.parseReader(InputStreamReader(it))
+                                    .asJsonObject[languageScopeName]?.asJsonArray
+                                    ?.map { el -> el.asString }
+                                    ?.toTypedArray()
+                                    ?.let(::setCompleterKeywords)
+                            }
                         }
                     }
                 }
             }
+
+            language.useTab(Settings.actual_tabs)
+
+            withContext(Dispatchers.Main) {
+                setEditorLanguage(language as Language);
+            }
         }
-
-        language.useTab(Settings.actual_tabs)
-
-        withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
     }
-
 
     /**
      * Register an action button in the text action window.
