@@ -379,4 +379,8 @@
     <string name="memory_usage">Uso da memória</string>
     <string name="strict_mode">Modo estrito</string>
     <string name="strict_mode_desc">Detectar acesso ao disco ou à rede na linha principal</string>
+    <string name="open_as_project">Abrir como um projeto</string>
+    <string name="line_spacing_desc">Multiplicador de altura para cada linha no editor</string>
+    <string name="size">Tamanho</string>
+    <string name="wrapper_type">Tipo de contêiner</string>
 </resources>
