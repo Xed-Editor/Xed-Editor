@@ -149,7 +149,7 @@
     <string name="text_size">Metin boyutu</string>
     <string name="text_size_desc">Metin boyutunu ayarla</string>
     <string name="tab_size">Sekme boyutu</string>
-    <string name="tab_size_desc">Bir sekme karakteri için eklenen boşluk sayısı.</string>
+    <string name="tab_size_desc">Bir sekme karakteri için eklenen boşluk sayısı</string>
     <string name="monet">Dinamik renkler</string>
     <string name="monet_desc">Cihaz temasını kullan</string>
     <string name="restart_app">Lütfen uygulamayı yeniden başlatın.</string>
@@ -473,4 +473,5 @@
     <string name="add_command">Komut ekle</string>
     <string name="info_toolbar_actions">Araç çubuğu eylemleri, bir dosya açıkken araç çubuğunda hangi komutların gösterileceğini belirler. Sıralarını değiştirmek için uzun basıp sürükleyebilir veya yeni komut eklemek için düğmeye dokunabilirsiniz.</string>
     <string name="disable">Devre dışı bırak</string>
+    <string name="open_as_project">Proje olarak aç</string>
 </resources>
