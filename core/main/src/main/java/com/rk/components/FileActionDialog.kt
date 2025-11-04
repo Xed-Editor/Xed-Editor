@@ -45,6 +45,7 @@ import com.rk.tabs.EditorTab
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.filetree.FileTreeViewModel
+import com.rk.filetree.addProject
 import com.rk.icons.CreateNewFile
 import com.rk.icons.CreateNewFolder
 import com.rk.icons.XedIcons
@@ -265,7 +266,20 @@ fun FileActionDialog(
                             onDismissRequest()
                         }
                     )
+                }
 
+                if (fileTreeContext && file.isDirectory()) {
+                    AddDialogItem(
+                        icon = drawables.folder_code,
+                        title = stringResource(strings.open_as_project),
+                        //description = stringResource(strings.add_file_desc),
+                        onClick = {
+                            // This would typically open a file picker
+                            addProject(file, true)
+                            //showXedDialog = true
+                            onDismissRequest()
+                        }
+                    )
                 }
 
                 AddDialogItem(
