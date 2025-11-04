@@ -474,4 +474,13 @@
     <string name="info_toolbar_actions">此功能定义了文件打开时标题栏显示的菜单命令。你可以通过长按并拖动的方式来调整顺序，或点击按钮添加新的命令。</string>
     <string name="disable">禁用</string>
     <string name="open_as_project">作为项目打开</string>
+    <string name="language_server">语言服务器</string>
+    <string name="manage_language_servers">管理语言服务器</string>
+    <string name="manage_language_servers_desc">安装、连接和配置语言服务器</string>
+    <string name="format_on_save">保存时格式化</string>
+    <string name="format_on_save_desc">保存文件时自动格式化</string>
+    <string name="format_document">格式化文档</string>
+    <string name="format_document_range">格式化选定内容</string>
+    <string name="format_error">无法格式化文档。</string>
+    <string name="format_range_error">无法格式化选定内容。</string>
 </resources>
