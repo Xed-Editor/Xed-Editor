@@ -3,10 +3,15 @@ package com.rk.lsp
 import com.rk.file.FileObject
 import com.rk.editor.Editor
 import com.rk.file.FileType
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.utils.dialog
+import com.rk.utils.errorDialog
 import com.rk.utils.info
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
+import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.EventHandler
 import io.github.rosemoe.sora.lsp.editor.LspEditor
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.LspProject
@@ -20,8 +25,11 @@ import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.DefinitionOptions
 import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
+import org.eclipse.lsp4j.InitializeResult
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.LocationLink
+import org.eclipse.lsp4j.MessageParams
+import org.eclipse.lsp4j.MessageType
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.PrepareRenameDefaultBehavior
 import org.eclipse.lsp4j.PrepareRenameParams
@@ -39,6 +47,8 @@ import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.messages.Either3
+import org.eclipse.lsp4j.services.LanguageServer
+import java.net.URI
 import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
@@ -102,7 +112,46 @@ class BaseLspConnector(
             serverDefinition = projectServerDefinition.computeIfAbsent(fileExtension) {
                 val newDef = object : CustomLanguageServerDefinition(fileExtension, ServerConnectProvider {
                     connectionConfig.toFactory().create()
-                }) {}
+                }) {
+                    override fun getInitializationOptions(uri: URI?): Any? {
+                        return super.getInitializationOptions(uri)
+                    }
+
+                    override val eventListener: EventHandler.EventListener
+                        get() = object : EventHandler.EventListener{
+                            override fun initialize(
+                                server: LanguageServer?,
+                                result: InitializeResult
+                            ) {
+                                super.initialize(server, result)
+                            }
+
+                            override fun onHandlerException(exception: Exception) {
+                                errorDialog(exception)
+                                super.onHandlerException(exception)
+                            }
+
+                            override fun onLogMessage(messageParams: MessageParams?) {
+                                if (messageParams == null){
+                                    return super.onLogMessage(messageParams)
+                                }
+                                info(messageParams.message)
+                            }
+
+                            override fun onShowMessage(messageParams: MessageParams?) {
+                                if (messageParams == null) {
+                                    return super.onShowMessage(messageParams)
+                                }
+
+                                when(messageParams.type){
+                                    MessageType.Error -> errorDialog(messageParams.message)
+                                    MessageType.Warning -> dialog(title = strings.warning.getString(),msg = messageParams.message)
+                                    MessageType.Info -> dialog(title = strings.info.getString(),msg = messageParams.message)
+                                    MessageType.Log -> info(messageParams.message)
+                                }
+                            }
+                        }
+                }
 
                 project!!.addServerDefinition(newDef)
                 newDef
