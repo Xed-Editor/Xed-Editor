@@ -89,7 +89,7 @@
     <string name="text_size">Rozmiar tekstu</string>
     <string name="text_size_desc">Ustaw rozmiar tekstu</string>
     <string name="tab_size">Rozmiar tabulatora</string>
-    <string name="tab_size_desc">Ilość wstawianych spacji jako tabulator.</string>
+    <string name="tab_size_desc">Ilość wstawianych spacji jako tabulator</string>
     <string name="monet">Dynamiczne kolory</string>
     <string name="monet_desc">Użyj systemowego motywu w aplikacji</string>
     <string name="restart_app">Proszę, uruchom ponownie aplikację.</string>
@@ -473,4 +473,5 @@
     <string name="add_command">Dodaj polecenie</string>
     <string name="disable">Wyłącz</string>
     <string name="info_toolbar_actions">Czynności paska narzędzi ustalają które polecenia są wyświetlane na pasku podczas otwierania pliku. Zmień kolejność przytrzymując i przeciągając lub dodaj nowe polecenie klikając przycisk.</string>
+    <string name="open_as_project">Otwórz jako projekt</string>
 </resources>
