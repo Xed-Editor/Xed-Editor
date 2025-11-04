@@ -473,4 +473,5 @@
     <string name="add_command">添加命令</string>
     <string name="info_toolbar_actions">此功能定义了文件打开时标题栏显示的菜单命令。你可以通过长按并拖动的方式来调整顺序，或点击按钮添加新的命令。</string>
     <string name="disable">禁用</string>
+    <string name="open_as_project">作为项目打开</string>
 </resources>
