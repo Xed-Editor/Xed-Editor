@@ -8,8 +8,10 @@ import com.rk.exec.TerminalCommand
 import com.rk.lsp.BaseLspServer
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
+import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.LspConnectionConfig
+import java.net.URI
 
 class Python() : BaseLspServer() {
     override val id: String = "python-lsp"
@@ -41,5 +43,12 @@ class Python() : BaseLspServer() {
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("/home/.local/share/pipx/venvs/python-lsp-server/bin/pylsp"))
+    }
+
+    override fun isSupported(file: FileObject): Boolean {
+        return supportedExtensions.contains(file.getName().substringAfterLast("."))
+    }
+    override fun getInitializationOptions(uri: URI?): Any? {
+        return null
     }
 }

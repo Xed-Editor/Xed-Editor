@@ -243,6 +243,8 @@ fun origin(): String {
 }
 
 fun errorDialog(msg: String, activity: Activity? = MainActivity.instance,title:String = strings.error.getString()) {
+    Log.e("ERROR_DIALOG",msg)
+
     runOnUiThread{
         if (msg.isBlank()) {
             Log.w("ERROR_DIALOG", "Message is blank")

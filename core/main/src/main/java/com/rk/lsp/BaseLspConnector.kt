@@ -19,8 +19,6 @@ import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.DefinitionOptions
 import org.eclipse.lsp4j.DefinitionParams
@@ -53,22 +51,17 @@ import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-/**
- * Core connector for initializing LSP servers in a code editor.
- *
- * @param fileExtension The file extension this LSP handles (e.g., "kt", "py")
- * @param textMateScope TextMate grammar scope for syntax highlighting (e.g., "source.kotlin")
- * @param connectionConfig Configuration for how to connect to the LSP server
- */
+
 class BaseLspConnector(
-    private val fileExtension: String,
-    private val textMateScope: String,
-    private val connectionConfig: LspConnectionConfig
+    private val projectFile: FileObject,
+    private val fileObject: FileObject,
+    private val codeEditor: Editor,
+    private val server: BaseLspServer,
 ) {
     private var project: LspProject? = null
     private var serverDefinition: CustomLanguageServerDefinition? = null
     private var lspEditor: LspEditor? = null
-    private var fileObject: FileObject? = null
+
 
     companion object {
         private val projectCache = ConcurrentHashMap<String, LspProject>()
@@ -77,26 +70,22 @@ class BaseLspConnector(
     }
 
     fun isSupported(file: FileObject): Boolean {
+        if (server.isSupported(file).not()){
+            return false
+        }
         val fileExt = file.getName().substringAfterLast(".")
-        return fileExt == fileExtension && FileType.knowsExtension(fileExt)
+        return fileExt == this.fileObject.getName().substringAfterLast(".") && FileType.knowsExtension(fileExt)
     }
 
     fun isConnected(): Boolean{
         return lspEditor?.isConnected ?: false
     }
 
-    suspend fun connect(
-        projectFile: FileObject,
-        fileObject: FileObject,
-        codeEditor: Editor
-    ) = withContext(Dispatchers.IO) {
-
+    suspend fun connect(textMateScope: String) = withContext(Dispatchers.IO) {
         if (!isSupported(fileObject)) {
             return@withContext
         }
-
-
-        this@BaseLspConnector.fileObject = fileObject
+        
 
         runCatching {
             val projectPath = projectFile.getAbsolutePath()
@@ -109,12 +98,13 @@ class BaseLspConnector(
                 ConcurrentHashMap()
             }
 
-            serverDefinition = projectServerDefinition.computeIfAbsent(fileExtension) {
-                val newDef = object : CustomLanguageServerDefinition(fileExtension, ServerConnectProvider {
-                    connectionConfig.toFactory().create()
+            val fileExt = fileObject.getName().substringAfterLast(".")
+            serverDefinition = projectServerDefinition.computeIfAbsent(fileExt) {
+                val newDef = object : CustomLanguageServerDefinition(fileExt, ServerConnectProvider {
+                    server.getConnectionConfig().providerFactory().create()
                 }) {
                     override fun getInitializationOptions(uri: URI?): Any? {
-                        return super.getInitializationOptions(uri)
+                        return server.getInitializationOptions(uri)
                     }
 
                     override val eventListener: EventHandler.EventListener
@@ -124,11 +114,6 @@ class BaseLspConnector(
                                 result: InitializeResult
                             ) {
                                 super.initialize(server, result)
-                            }
-
-                            override fun onHandlerException(exception: Exception) {
-                                errorDialog(exception)
-                                super.onHandlerException(exception)
                             }
 
                             override fun onLogMessage(messageParams: MessageParams?) {

@@ -57,6 +57,7 @@ import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.createLspTextActions
 import com.rk.lsp.lspRegistry
+import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -677,19 +678,24 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
             info("server installed")
 
             baseLspConnector = BaseLspConnector(
-                ext,
-                textMateScope = FileType.fromExtension(ext).textmateScope!!,
-                connectionConfig = server.getConnectionConfig()
+                file.getParentFile()!!,
+                fileObject = file,
+                codeEditor = editorState.editor.get()!!,
+                server = server
             )
+
+            if (baseLspConnector?.isSupported(file)?.not() == true){
+                info("This file not supported")
+                return false
+            }
+
 
             file.getParentFile()?.let { parent ->
                 info("trying to connect")
-                baseLspConnector?.connect(
-                    parent,
-                    fileObject = file,
-                    codeEditor = editorState.editor.get()!!
-                )
-                info("after connect")
+                baseLspConnector?.connect(FileType.fromExtension(ext).textmateScope!!)
+
+
+                info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
             } ?: info("no parent")
 
             return true
@@ -739,18 +745,18 @@ private suspend fun EditorTab.tryConnectExternalLsp(
             val server = it.value
 
             baseLspConnector = BaseLspConnector(
-                ext,
-                textMateScope = FileType.fromExtension(ext).textmateScope!!,
-                connectionConfig = LspConnectionConfig.Socket(
-                    server.first,
-                    server.second
-                )
-            )
-            baseLspConnector?.connect(
                 parent,
                 fileObject = file,
-                codeEditor = editorState.editor.get()!!
+                codeEditor = editorState.editor.get()!!,
+                server = ExternalSocketServer(host = server.first, port = server.second)
             )
+
+            if (baseLspConnector?.isSupported(file)?.not() == true){
+                info("This file not supported")
+                return false
+            }
+
+            baseLspConnector?.connect(editorState.textmateScope!!)
 
             return true
         }
