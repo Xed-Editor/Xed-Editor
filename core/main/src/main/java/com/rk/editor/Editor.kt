@@ -26,6 +26,7 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.TextActionItem
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -160,18 +161,6 @@ class Editor : CodeEditor {
                     EditorColorScheme.LINE_DIVIDER,
                     EditorColorScheme.STICKY_SCROLL_DIVIDER
                 )
-
-                val editorColors = if (isDarkMode) {
-                    currentTheme.value?.darkEditorColors
-                } else {
-                    currentTheme.value?.lightEditorColors
-                }
-
-                if (editorColors.isNullOrEmpty().not()) {
-                    editorColors.forEach {
-                        setColor(it.key, it.color)
-                    }
-                }
             }
         }
     }
@@ -303,7 +292,7 @@ class Editor : CodeEditor {
     }
 
     companion object {
-        var isInit = false
+        private val completionFuture = CompletableDeferred<Unit>()
 
         private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
         private val highlightingCache = hashMapOf<String, TextMateLanguage>()
@@ -317,26 +306,16 @@ class Editor : CodeEditor {
 
             // Important
             val prefix = if (darkTheme) "dark" else "light"
-            return "${prefix}_${Settings.amoled}_${Settings.theme}"
+            return "${prefix}_${Settings.theme}_${Settings.amoled}"
         }
 
         suspend fun initGrammarRegistry() = withContext(Dispatchers.IO) {
-            if (!isInit) {
+            if (!completionFuture.isCompleted) {
                 FileProviderRegistry.getInstance()
                     .addFileProvider(AssetsFileResolver(application!!.assets))
                 GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-                isInit = true
 
-                FileType.entries
-                    .mapNotNull { it.textmateScope }
-                    .toSet()
-                    .forEach {
-                        launch(Dispatchers.IO) {
-                            System.currentTimeMillis()
-                            val language = TextMateLanguage.create(it, Settings.textmate_suggestion)
-                            highlightingCache[it] = language
-                        }
-                    }
+                completionFuture.complete(Unit)
             }
         }
     }
@@ -345,7 +324,7 @@ class Editor : CodeEditor {
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
         langMutex.withLock {
 
-            while (!isInit) {
+            while (!completionFuture.isCompleted) {
                 delay(50)
             }
 

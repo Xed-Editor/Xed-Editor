@@ -40,7 +40,6 @@ data class ThemePalette(
     val surfaceContainerHigh: String? = null,
     val surfaceContainerHighest: String? = null,
     val terminalColors: Map<String, String>? = null,
-    val editorColors: Map<String, String>? = null
 ) : Serializable
 
 data class ThemeConfig(

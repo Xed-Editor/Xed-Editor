@@ -73,7 +73,7 @@ fun getDefaultBindings(): List<Binding>{
 }
 
 
-suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File = sandboxDir(), workingDir: String? = null, command: MutableList<String>): Process = withContext(
+suspend fun ubuntuProcess(excludeMounts:List<String> = listOf<String>(), root: File = sandboxDir(), workingDir: String? = null, command: MutableList<String>): Process = withContext(
     Dispatchers.IO){
 
     if (!root.exists()) throw NoSuchFileException(root)
@@ -134,8 +134,8 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
 }
 
 @SuppressLint("SdCardPath")
-suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(),root: File = sandboxDir(), workingDir: String? = null, vararg command: String): Process{
-    return newSandbox(excludeMounts,root,workingDir,command.toMutableList())
+suspend fun ubuntuProcess(excludeMounts:List<String> = listOf<String>(), root: File = sandboxDir(), workingDir: String? = null, vararg command: String): Process{
+    return ubuntuProcess(excludeMounts,root,workingDir,command.toMutableList())
 }
 
 /** Extension to read all stdout as a single string */

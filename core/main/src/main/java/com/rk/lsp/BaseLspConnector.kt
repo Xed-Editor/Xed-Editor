@@ -3,6 +3,7 @@ package com.rk.lsp
 import com.rk.file.FileObject
 import com.rk.editor.Editor
 import com.rk.file.FileType
+import com.rk.utils.info
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
@@ -79,18 +80,11 @@ class BaseLspConnector(
         fileObject: FileObject,
         codeEditor: Editor
     ) = withContext(Dispatchers.IO) {
+
         if (!isSupported(fileObject)) {
-            println("no supported")
             return@withContext
         }
 
-
-        while (!Editor.Companion.isInit && isActive) delay(10)
-        println("wait completed")
-        if (!isActive) {
-            println("scope canceled")
-            return@withContext
-        }
 
         this@BaseLspConnector.fileObject = fileObject
 
@@ -120,6 +114,11 @@ class BaseLspConnector(
                     wrapperLanguage = TextMateLanguage.create(textMateScope,false)
                     editor = codeEditor
                 }
+            }
+
+            if (isConnected()){
+                info("LSP server already connected skipping...")
+                return@withContext
             }
 
             lspEditor!!.connectWithTimeout()

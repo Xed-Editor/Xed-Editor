@@ -5,7 +5,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
@@ -70,6 +69,7 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.errorDialog
+import com.rk.utils.info
 import com.rk.utils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
@@ -416,209 +416,212 @@ private fun EditorTab.CodeEditor(
     val divider = MaterialTheme.colorScheme.outlineVariant
     val isDarkMode = isSystemInDarkTheme()
 
-    AnimatedVisibility(visible = true) {
-        val constraintSet = remember { ConstraintSet() }
-        val scope = rememberCoroutineScope()
 
-        AndroidView(
-            modifier = modifier.fillMaxSize(),
-            onRelease = {
-                it.children.filterIsInstance<Editor>().firstOrNull()?.release()
-            },
-            update = {},
-            factory = { ctx ->
-                ConstraintLayout(ctx).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
+    val constraintSet = remember { ConstraintSet() }
+    val scope = rememberCoroutineScope()
+
+    AndroidView(
+        modifier = modifier.fillMaxSize(),
+        onRelease = {
+            it.children.filterIsInstance<Editor>().firstOrNull()?.release()
+        },
+        update = {
+            info("Editor view update")
+        },
+        factory = { ctx ->
+            ConstraintLayout(ctx).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+
+                val horizontalScrollViewId = View.generateViewId()
+                val dividerId = View.generateViewId()
+
+                val editor = Editor(ctx).apply {
+                    info("New Editor instance")
+
+                    editable = state.editable
+                    if (isWordwrap.not()) {
+                        if (Settings.word_wrap_for_text) {
+                            isWordwrap = file.getName().endsWith(".txt")
+                        }
+                    }
+                    id = View.generateViewId()
+                    layoutParams = ConstraintLayout.LayoutParams(
+                        ConstraintLayout.LayoutParams.MATCH_PARENT,
+                        0
                     )
 
-                    val horizontalScrollViewId = View.generateViewId()
-                    val dividerId = View.generateViewId()
+                    setThemeColors(
+                        isDarkMode = isDarkMode,
+                        editorSurface = surfaceColor.toArgb(),
+                        surfaceContainer = surfaceContainer.toArgb(),
+                        highSurfaceContainer = highSurfaceContainer.toArgb(),
+                        surface = realSurface.toArgb(),
+                        onSurface = onSurfaceColor.toArgb(),
+                        colorPrimary = colorPrimary.toArgb(),
+                        colorPrimaryContainer = colorPrimaryContainer.toArgb(),
+                        colorSecondary = colorSecondary.toArgb(),
+                        secondaryContainer = secondaryContainer.toArgb(),
+                        selectionBg = selectionBackground.toArgb(),
+                        handleColor = handleColor.toArgb(),
+                        gutterColor = gutterColor.toArgb(),
+                        currentLine = currentLineColor.toArgb(),
+                        dividerColor = divider.toArgb()
+                    )
 
-                    val editor = Editor(ctx).apply {
-                        editable = state.editable
-                        if (isWordwrap.not()) {
-                            if (Settings.word_wrap_for_text) {
-                                isWordwrap = file.getName().endsWith(".txt")
+                    state.editor = WeakReference(this)
+
+                    val lspActions = createLspTextActions(scope, context, viewModel, parentTab)
+                    lspActions.forEach { registerTextAction(it) }
+
+                    scope.launch(Dispatchers.IO) {
+                        state.contentLoaded.await()
+                        state.updateLock.withLock {
+                            withContext(Dispatchers.Main) {
+                                setText(state.content)
+                                state.contentRendered.complete(Unit)
                             }
                         }
-                        id = View.generateViewId()
-                        layoutParams = ConstraintLayout.LayoutParams(
-                            ConstraintLayout.LayoutParams.MATCH_PARENT,
-                            0
-                        )
-
-                        setThemeColors(
-                            isDarkMode = isDarkMode,
-                            editorSurface = surfaceColor.toArgb(),
-                            surfaceContainer = surfaceContainer.toArgb(),
-                            highSurfaceContainer = highSurfaceContainer.toArgb(),
-                            surface = realSurface.toArgb(),
-                            onSurface = onSurfaceColor.toArgb(),
-                            colorPrimary = colorPrimary.toArgb(),
-                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
-                            colorSecondary = colorSecondary.toArgb(),
-                            secondaryContainer = secondaryContainer.toArgb(),
-                            selectionBg = selectionBackground.toArgb(),
-                            handleColor = handleColor.toArgb(),
-                            gutterColor = gutterColor.toArgb(),
-                            currentLine = currentLineColor.toArgb(),
-                            dividerColor = divider.toArgb()
-                        )
-
-                        state.editor = WeakReference(this)
-
-                        val lspActions = createLspTextActions(scope, context, viewModel, parentTab)
-                        lspActions.forEach { registerTextAction(it) }
-
-                        scope.launch(Dispatchers.IO) {
-                            state.contentLoaded.await()
-                            state.updateLock.withLock {
-                                withContext(Dispatchers.Main) {
-                                    setText(state.content)
-                                    state.contentRendered.complete(Unit)
-                                }
-                            }
-                        }
-
-                        subscribeAlways(ContentChangeEvent::class.java) {
-                            if (!state.updateLock.isLocked) {
-                                state.isDirty = true
-                                editorState.updateUndoRedo()
-                                onTextChange.invoke()
-                            }
-                        }
-
-                        subscribeAlways(EditorKeyEvent::class.java) { event ->
-                            onKeyEvent.invoke(event)
-                        }
-                        applyHighlighting()
                     }
 
-                    val keyPanel = HorizontalScrollView(ctx).apply {
-                        state.arrowKeys = WeakReference(this)
-                        id = horizontalScrollViewId
-
-                        visibility = if (Settings.show_extra_keys) {
-                            View.VISIBLE
-                        } else {
-                            View.GONE
-                        }
-
-                        layoutParams = ConstraintLayout.LayoutParams(
-                            ConstraintLayout.LayoutParams.MATCH_PARENT,
-                            ConstraintLayout.LayoutParams.WRAP_CONTENT
-                        )
-                        isHorizontalScrollBarEnabled = false
-                        isSaveEnabled = false
-                        addView(
-                            getInputView(
-                                editor,
-                                realSurface.toArgb(),
-                                onSurfaceColor.toArgb(),
-                                viewModel
-                            )
-                        )
-                    }
-
-                    val divider = View(ctx).apply {
-                        id = dividerId
-                        layoutParams = ConstraintLayout.LayoutParams(
-                            ConstraintLayout.LayoutParams.MATCH_PARENT,
-                            dpToPx(1f, ctx)
-                        ).apply {
-                            setBackgroundColor(divider.toArgb())
+                    subscribeAlways(ContentChangeEvent::class.java) {
+                        if (!state.updateLock.isLocked) {
+                            state.isDirty = true
+                            editorState.updateUndoRedo()
+                            onTextChange.invoke()
                         }
                     }
 
-                    addView(editor)
-                    addView(divider)
-                    addView(keyPanel)
-
-                    with(constraintSet) {
-                        clone(this@apply)
-
-                        connect(
-                            editor.id,
-                            ConstraintSet.TOP,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.TOP
-                        )
-                        connect(
-                            editor.id,
-                            ConstraintSet.BOTTOM,
-                            dividerId,
-                            ConstraintSet.TOP
-                        ) // Connect to divider top
-
-                        connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                        connect(
-                            dividerId,
-                            ConstraintSet.BOTTOM,
-                            horizontalScrollViewId,
-                            ConstraintSet.TOP
-                        )
-                        connect(
-                            dividerId,
-                            ConstraintSet.START,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.START
-                        )
-                        connect(
-                            dividerId,
-                            ConstraintSet.END,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.END
-                        )
-
-                        connect(
-                            horizontalScrollViewId,
-                            ConstraintSet.TOP,
-                            dividerId,
-                            ConstraintSet.BOTTOM
-                        )
-                        connect(
-                            horizontalScrollViewId,
-                            ConstraintSet.BOTTOM,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.BOTTOM
-                        )
-
-                        connect(
-                            editor.id,
-                            ConstraintSet.START,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.START
-                        )
-                        connect(
-                            editor.id,
-                            ConstraintSet.END,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.END
-                        )
-                        connect(
-                            horizontalScrollViewId,
-                            ConstraintSet.START,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.START
-                        )
-                        connect(
-                            horizontalScrollViewId,
-                            ConstraintSet.END,
-                            ConstraintSet.PARENT_ID,
-                            ConstraintSet.END
-                        )
-
-                        applyTo(this@apply)
+                    subscribeAlways(EditorKeyEvent::class.java) { event ->
+                        onKeyEvent.invoke(event)
                     }
-                    editorState.rootView = WeakReference(this)
-
+                    applyHighlighting()
                 }
-            },
-        )
-    }
 
+                val keyPanel = HorizontalScrollView(ctx).apply {
+                    state.arrowKeys = WeakReference(this)
+                    id = horizontalScrollViewId
+
+                    visibility = if (Settings.show_extra_keys) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+
+                    layoutParams = ConstraintLayout.LayoutParams(
+                        ConstraintLayout.LayoutParams.MATCH_PARENT,
+                        ConstraintLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    isHorizontalScrollBarEnabled = false
+                    isSaveEnabled = false
+                    addView(
+                        getInputView(
+                            editor,
+                            realSurface.toArgb(),
+                            onSurfaceColor.toArgb(),
+                            viewModel
+                        )
+                    )
+                }
+
+                //vh
+                val divider = View(ctx).apply {
+                    id = dividerId
+                    layoutParams = ConstraintLayout.LayoutParams(
+                        ConstraintLayout.LayoutParams.MATCH_PARENT,
+                        dpToPx(1f, ctx)
+                    ).apply {
+                        setBackgroundColor(divider.toArgb())
+                    }
+                }
+
+                addView(editor)
+                addView(divider)
+                addView(keyPanel)
+
+                with(constraintSet) {
+                    clone(this@apply)
+
+                    connect(
+                        editor.id,
+                        ConstraintSet.TOP,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.TOP
+                    )
+                    connect(
+                        editor.id,
+                        ConstraintSet.BOTTOM,
+                        dividerId,
+                        ConstraintSet.TOP
+                    ) // Connect to divider top
+
+                    connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
+                    connect(
+                        dividerId,
+                        ConstraintSet.BOTTOM,
+                        horizontalScrollViewId,
+                        ConstraintSet.TOP
+                    )
+                    connect(
+                        dividerId,
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START
+                    )
+                    connect(
+                        dividerId,
+                        ConstraintSet.END,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.END
+                    )
+
+                    connect(
+                        horizontalScrollViewId,
+                        ConstraintSet.TOP,
+                        dividerId,
+                        ConstraintSet.BOTTOM
+                    )
+                    connect(
+                        horizontalScrollViewId,
+                        ConstraintSet.BOTTOM,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.BOTTOM
+                    )
+
+                    connect(
+                        editor.id,
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START
+                    )
+                    connect(
+                        editor.id,
+                        ConstraintSet.END,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.END
+                    )
+                    connect(
+                        horizontalScrollViewId,
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START
+                    )
+                    connect(
+                        horizontalScrollViewId,
+                        ConstraintSet.END,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.END
+                    )
+
+                    applyTo(this@apply)
+                }
+                editorState.rootView = WeakReference(this)
+
+            }
+        },
+    )
 
 }
 
@@ -634,23 +637,24 @@ fun EditorTab.applyHighlighting() {
                 setLanguage(langScope)
 
                 if (InbuiltFeatures.terminal.state.value && isTerminalInstalled()) {
-                    if (isTerminalWorking().not()){
+                    if (isTerminalWorking().not()) {
                         toast("Terminal is not working or not installed, LSP Server will not work")
                         return@launch
                     }
                     val ext = file.getName().substringAfterLast(".").trim()
                     val parent = file.getParentFile()
 
-                    println("attempting to connect to external server...")
+                    info("attempting to connect to external server...")
                     if (tryConnectExternalLsp(ext, parent)) return@launch
-                    println("no external server connection")
+                    info("no external server connection")
 
-                    println("attempting ot connect to built in server...")
-                    if (tryConnectBuiltinLsp(ext, this@with)){
+                    info("attempting to connect to built-in server...")
+
+                    if (tryConnectBuiltinLsp(ext, this@with)) {
                         toast("LSP Server connected")
                         return@launch
-                    }else{
-                        println("no builtin server connection")
+                    } else {
+                        info("no builtin server connection")
                     }
 
                 }
@@ -670,7 +674,7 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
     if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
         // Connect with built-in language server
         if (server.isInstalled(editor.context)) {
-            println("server installed")
+            info("server installed")
 
             baseLspConnector = BaseLspConnector(
                 ext,
@@ -679,14 +683,14 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
             )
 
             file.getParentFile()?.let { parent ->
-                println("trying to connect")
+                info("trying to connect")
                 baseLspConnector?.connect(
                     parent,
                     fileObject = file,
                     codeEditor = editorState.editor.get()!!
                 )
-                println("after connect")
-            } ?: println("no parent")
+                info("after connect")
+            } ?: info("no parent")
 
             return true
         }
