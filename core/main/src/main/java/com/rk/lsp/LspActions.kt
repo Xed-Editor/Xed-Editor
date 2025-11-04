@@ -20,7 +20,10 @@ import com.rk.activities.main.MainViewModel
 import com.rk.components.CodeItem
 import com.rk.file.child
 import com.rk.file.sandboxDir
+import com.rk.settings.Settings
 import io.github.rosemoe.sora.event.SelectionChangeEvent
+import io.github.rosemoe.sora.lsp.editor.LspEventManager
+import io.github.rosemoe.sora.lsp.editor.getOption
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
@@ -30,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.lsp4j.FormattingOptions
 import org.eclipse.lsp4j.Range
 import java.io.File
 import kotlin.text.substring
@@ -322,6 +326,12 @@ fun renameSymbol(
     }
 }
 
+fun applyFormattingOptions(eventManager: LspEventManager) {
+    val formattingOptions = eventManager.getOption<FormattingOptions>()!!
+    formattingOptions.tabSize = Settings.tab_size
+    formattingOptions.isInsertSpaces = !Settings.actual_tabs
+}
+
 /**
  * A suspendable variant of [formatDocument] for use cases that require formatting to be complete
  * before another action is performed, such as `Format on Save`.
@@ -331,9 +341,11 @@ suspend fun formatDocumentSuspend(editorTab: EditorTab) {
         val baseLspConnector = editorTab.baseLspConnector!!
         val editorState = editorTab.editorState
         val editor = editorState.editor.get()!!
+        val eventManager = baseLspConnector.getEventManager()!!
 
-        baseLspConnector.getEventManager()!!
-            .emitAsync(EventType.fullFormatting, editor.text)
+        applyFormattingOptions(eventManager)
+
+        eventManager.emitAsync(EventType.fullFormatting, editor.text)
     }.onFailure {
         it.printStackTrace()
         toast(strings.format_error)
@@ -345,7 +357,7 @@ fun formatDocument(
     editorTab: EditorTab
 ) {
     scope.launch(Dispatchers.Default) {
-        formatDocumentSuspend(editorTab = editorTab)
+        formatDocumentSuspend(editorTab)
     }
 }
 
@@ -358,8 +370,11 @@ fun formatDocumentRange(
             val baseLspConnector = editorTab.baseLspConnector!!
             val editorState = editorTab.editorState
             val editor = editorState.editor.get()!!
+            val eventManager = baseLspConnector.getEventManager()!!
 
-            baseLspConnector.getEventManager()!!
+            applyFormattingOptions(eventManager)
+
+            eventManager
                 .emitAsync(EventType.rangeFormatting) {
                     put("text", editor.text)
                     put("range", editor.cursor.range)

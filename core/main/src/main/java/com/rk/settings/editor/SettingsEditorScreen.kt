@@ -305,12 +305,9 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            var useTabChar by remember { mutableStateOf(Settings.actual_tabs) }
-
             EditorSettingsToggle(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
-                isEnabled = !useTabChar,
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -323,7 +320,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(strings.use_tabs_desc),
                 default = Settings.actual_tabs,
                 sideEffect = {
-                    useTabChar = it
                     Settings.actual_tabs = it
 
                     MainActivity.instance?.apply {
