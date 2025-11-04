@@ -68,7 +68,7 @@
     <string name="unrestricted_file">Otevřít soubory jakékoliv velikosti</string>
     <string name="success">Úspěch</string>
     <string name="failed">Selhalo</string>
-    <string name="go_prev">Zpět</string>
+    <string name="go_prev">Vzad</string>
     <string name="close_search">Ukončit hledání</string>
     <string name="replace">Nahradit</string>
     <string name="share">Sdílet</string>
@@ -356,7 +356,7 @@
     <string name="build_info">Informace o sestavení</string>
     <string name="community">Komunita</string>
     <string name="render_whitespace">Zobrazovat neviditelné znaky</string>
-    <string name="render_whitespace_desc">Zobrazit mezery, tabulároty a nové řádky jako viditelné symboly</string>
+    <string name="render_whitespace_desc">Zobrazit mezery, tabulátory a nové řádky jako viditelné symboly</string>
     <string name="ask_refresh">Opravdu chcete aktualizovat tento soubor? Neuložené změny nelzou vrátit zpět.</string>
     <string name="docs">Dokumentace</string>
     <string name="docs_desc">Otevřít stránku dokumentace.</string>
