@@ -19,6 +19,8 @@ import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.DefinitionOptions
 import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
+import org.eclipse.lsp4j.DocumentFormattingOptions
+import org.eclipse.lsp4j.DocumentRangeFormattingOptions
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.LocationLink
 import org.eclipse.lsp4j.Position
@@ -219,6 +221,18 @@ class BaseLspConnector(
                 )
             )!!.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
+    }
+
+    fun isFormattingSupported(): Boolean {
+        val caps = getCapabilities()
+        val formattingProvider: Either<Boolean, DocumentFormattingOptions>? = caps?.documentFormattingProvider
+        return formattingProvider?.left == true || formattingProvider?.right != null
+    }
+
+    fun isRangeFormattingSupported(): Boolean {
+        val caps = getCapabilities()
+        val rangeFormattingProvider: Either<Boolean, DocumentRangeFormattingOptions>? = caps?.documentRangeFormattingProvider
+        return rangeFormattingProvider?.left == true || rangeFormattingProvider?.right != null
     }
 
     suspend fun notifySave(charset: Charset = Charsets.UTF_8) {

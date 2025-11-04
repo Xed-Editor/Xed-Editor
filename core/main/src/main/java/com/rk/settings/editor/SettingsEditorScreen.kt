@@ -46,12 +46,21 @@ fun SettingsEditorScreen(navController: NavController) {
         var extraKeysError by remember { mutableStateOf<String?>(null) }
 
         if (InbuiltFeatures.terminal.state.value) {
-            PreferenceGroup {
+            PreferenceGroup(heading = stringResource(strings.language_server)) {
                 NextScreenCard(
                     navController = navController,
-                    label = stringResource(strings.lsp_settings),
-                    description = stringResource(strings.lsp_settings_desc),
+                    label = stringResource(strings.manage_language_servers),
+                    description = stringResource(strings.manage_language_servers_desc),
                     route = SettingsRoutes.LspSettings
+                )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.format_on_save),
+                    description = stringResource(strings.format_on_save_desc),
+                    default = Settings.format_on_save,
+                    sideEffect = {
+                        Settings.format_on_save = it
+                    }
                 )
             }
         }
