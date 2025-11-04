@@ -153,7 +153,7 @@
     <string name="text_size">Text size</string>
     <string name="text_size_desc">Set text size</string>
     <string name="tab_size">Tab size</string>
-    <string name="tab_size_desc">Number of spaces inserted for a tab character.</string>
+    <string name="tab_size_desc">Number of spaces inserted for a tab character</string>
     <string name="monet">Dynamic colors</string>
     <string name="monet_desc">Use device theme in app</string>
     <string name="restart_app">Please restart the application.</string>
