@@ -2,6 +2,7 @@ package com.rk.filetree
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
@@ -25,7 +26,7 @@ class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
-    private val cutNodes = mutableStateMapOf<FileObject, Boolean>()
+    private val cutNode = mutableStateOf<FileObject?>(null)
 
     // Track loading states to avoid showing spinners incorrectly
     private val _loadingStates = mutableStateMapOf<FileObject, Boolean>()
@@ -33,14 +34,16 @@ class FileTreeViewModel : ViewModel() {
     fun isNodeExpanded(fileObject: FileObject): Boolean = expandedNodes[fileObject] == true
     fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates[fileObject] == true
 
-    fun isNodeCut(fileObject: FileObject): Boolean = cutNodes[fileObject] == true
+    fun isNodeCut(fileObject: FileObject): Boolean = cutNode.value == fileObject
 
     fun markNodeAsCut(fileObject: FileObject) {
-        cutNodes[fileObject] = true
+        cutNode.value = fileObject
     }
 
     fun unmarkNodeAsCut(fileObject: FileObject) {
-        cutNodes.remove(fileObject)
+        if (isNodeCut(fileObject)){
+            cutNode.value = null
+        }
     }
 
     fun toggleNodeExpansion(fileObject: FileObject) {
