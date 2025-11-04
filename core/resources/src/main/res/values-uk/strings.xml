@@ -228,4 +228,22 @@
     <string name="encoding_warning">Не рекомендується змінювати типове кодування, оскільки це може призвести до пошкодження файлів. Ми наполегливо рекомендуємо використовувати UTF-8, якщо ви не розумієте всіх наслідків і не створили належних резервних копій.</string>
     <string name="line_spacing">Міжрядковий інтервал</string>
     <string name="line_spacing_multiplier">Множник міжрядкового інтервалу</string>
+    <string name="open_as_project">Відкрити як проект</string>
+    <string name="delete_desc">Назавжди видалити документ</string>
+    <string name="line_spacing_desc">Множник висоти для кожного рядка в редакторі</string>
+    <string name="update_av">Доступне нове оновлення</string>
+    <string name="update">Оновити</string>
+    <string name="ignore">Ігнорувати</string>
+    <string name="launch">Запуск</string>
+    <string name="mutator_desc">Створити користуватські скрипти</string>
+    <string name="restore_sessions">Відновити сесії</string>
+    <string name="restore_sessions_desc">Відновити попередні вкладки</string>
+    <string name="info_mutators">Мутатори — це невеликі скрипти, які використовуються для модифікації тексту в редакторі. Створіть мутатор та натисніть на нього, щоб відкрити його в редакторі.</string>
+    <string name="no_mutators">Немає мутаторів</string>
+    <string name="tab_opened">Вкладка відкрита</string>
+    <string name="mutator_name">Назва мутатора</string>
+    <string name="name_empty_err">Ім\'я не можу бути пустим</string>
+    <string name="name_used">Ім\'я вже використовується</string>
+    <string name="script_get_text">Отримати текст</string>
+    <string name="script_network">Мережа</string>
 </resources>
