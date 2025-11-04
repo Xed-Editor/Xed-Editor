@@ -508,14 +508,14 @@ object CommandProvider {
                     },
                     isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isFormattingSupported() == true },
                     isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.auto_fix))
                 )
             )
 
             add(
                 Command(
-                    id = "lsp.format_document_range",
-                    label = mutableStateOf(stringResource(strings.format_document_range)),
+                    id = "lsp.format_selection",
+                    label = mutableStateOf(stringResource(strings.format_selection)),
                     action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
@@ -524,7 +524,7 @@ object CommandProvider {
                     },
                     isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isRangeFormattingSupported() == true },
                     isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.auto_fix))
                 )
             )
 
