@@ -19,6 +19,8 @@ import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
 import com.rk.icons.Edit_note
 import com.rk.icons.XedIcons
+import com.rk.lsp.formatDocument
+import com.rk.lsp.formatDocumentRange
 import com.rk.lsp.goToDefinition
 import com.rk.lsp.goToReferences
 import com.rk.lsp.renameSymbol
@@ -52,7 +54,7 @@ object CommandProvider {
                 Command(
                     id = "global.terminal",
                     label = mutableStateOf(stringResource(strings.terminal)),
-                    action = { vm, act ->
+                    action = { _, act ->
                         showTerminalNotice(act!!) {
                             act.startActivity(Intent(act, Terminal::class.java))
                         }
@@ -67,7 +69,7 @@ object CommandProvider {
                 Command(
                     id = "global.settings",
                     label = mutableStateOf(stringResource(strings.settings)),
-                    action = { vm, act ->
+                    action = { _, act ->
                         act!!.startActivity(Intent(act, SettingsActivity::class.java))
                     },
                     isSupported = mutableStateOf(true),
@@ -80,7 +82,7 @@ object CommandProvider {
                 Command(
                     id = "global.new_file",
                     label = mutableStateOf(stringResource(strings.new_file)),
-                    action = { vm, _ ->
+                    action = { _, _ ->
                         addDialog = true
                     },
                     isSupported = mutableStateOf(true),
@@ -93,7 +95,7 @@ object CommandProvider {
                 Command(
                     id = "global.command_palette",
                     label = mutableStateOf(stringResource(strings.command_palette)),
-                    action = { vm, _ ->
+                    action = { _, _ ->
                         viewModel.showCommandPalette = true
                     },
                     isSupported = mutableStateOf(true),
@@ -260,7 +262,7 @@ object CommandProvider {
                 Command(
                     id = "editor.undo",
                     label = mutableStateOf(stringResource(strings.undo)),
-                    action = { vm, _ ->
+                    action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.editor.get()?.apply {
@@ -285,7 +287,7 @@ object CommandProvider {
                 Command(
                     id = "editor.redo",
                     label = mutableStateOf(stringResource(strings.redo)),
-                    action = { vm, _ ->
+                    action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.editor.get()?.apply {
@@ -310,7 +312,7 @@ object CommandProvider {
                 Command(
                     id = "editor.run",
                     label = mutableStateOf(stringResource(strings.run)),
-                    action = { vm, act ->
+                    action = { _, act ->
                         DefaultScope.launch {
                             val currentTab = viewModel.currentTab
                             if (currentTab is EditorTab) {
@@ -345,7 +347,7 @@ object CommandProvider {
                             editModeText
                         }
                     },
-                    action = { vm, _ ->
+                    action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             val editable = currentTab.editorState.editable
@@ -372,7 +374,7 @@ object CommandProvider {
                 Command(
                     id = "editor.search",
                     label = mutableStateOf(stringResource(strings.search)),
-                    action = { vm, _ ->
+                    action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.isSearching = true
@@ -389,7 +391,7 @@ object CommandProvider {
                 Command(
                     id = "editor.replace",
                     label = mutableStateOf(stringResource(strings.replace)),
-                    action = { vm, _ ->
+                    action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.isSearching = true
@@ -407,7 +409,7 @@ object CommandProvider {
                 Command(
                     id = "editor.refresh",
                     label = mutableStateOf(stringResource(strings.refresh)),
-                    action = { vm, act ->
+                    action = { _, act ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             if (currentTab.editorState.isDirty) {
@@ -434,7 +436,7 @@ object CommandProvider {
                 Command(
                     id = "editor.syntax_highlighting",
                     label = mutableStateOf(stringResource(strings.highlighting)),
-                    action = { vm, act ->
+                    action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             currentTab.editorState.showSyntaxPanel = true
@@ -482,13 +484,45 @@ object CommandProvider {
                 Command(
                     id = "lsp.rename_symbol",
                     label = mutableStateOf(stringResource(strings.rename_symbol)),
-                    action = { vm, act ->
+                    action = { _, _ ->
                         val currentTab = viewModel.currentTab
                         if (currentTab is EditorTab) {
                             renameSymbol(DefaultScope, currentTab)
                         }
                     },
                     isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
+                )
+            )
+
+            add(
+                Command(
+                    id = "lsp.format_document",
+                    label = mutableStateOf(stringResource(strings.format_document)),
+                    action = { _, _ ->
+                        val currentTab = viewModel.currentTab
+                        if (currentTab is EditorTab) {
+                            formatDocument(DefaultScope, currentTab)
+                        }
+                    },
+                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isFormattingSupported() == true },
+                    isEnabled = mutableStateOf(true),
+                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
+                )
+            )
+
+            add(
+                Command(
+                    id = "lsp.format_document_range",
+                    label = mutableStateOf(stringResource(strings.format_document_range)),
+                    action = { _, _ ->
+                        val currentTab = viewModel.currentTab
+                        if (currentTab is EditorTab) {
+                            formatDocumentRange(DefaultScope, currentTab)
+                        }
+                    },
+                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isRangeFormattingSupported() == true },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
                 )

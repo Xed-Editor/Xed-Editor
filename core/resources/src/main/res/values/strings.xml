@@ -397,8 +397,11 @@
     <string name="discord">Discord community</string>
     <string name="use_tabs">Insert tab character</string>
     <string name="use_tabs_desc">Use a real tab (\\t) instead of spaces for indentation</string>
-    <string name="lsp_settings">LSP settings</string>
-    <string name="lsp_settings_desc">Language server settings</string>
+    <string name="language_server">Language server</string>
+    <string name="manage_language_servers">Manage language servers</string>
+    <string name="manage_language_servers_desc">Install, connect and configure language servers</string>
+    <string name="format_on_save">Format on save</string>
+    <string name="format_on_save_desc">Format the file automatically when saved</string>
     <string name="no_language_server">No language server installed.</string>
     <string name="developer">Developer</string>
     <string name="build_info">Build info</string>
@@ -432,6 +435,8 @@
     <string name="go_to_definition">Go to definition</string>
     <string name="go_to_references">Go to references</string>
     <string name="rename_symbol">Rename symbol</string>
+    <string name="format_document">Format document</string>
+    <string name="format_document_range">Format document range</string>
     <string name="go_to_definition_desc">Select one of the %d definitions to navigate to their location.</string>
     <string name="go_to_references_desc">Select one of the %d references to navigate to their location.</string>
     <string name="no_definitions_found">No definitions found.</string>
@@ -441,6 +446,8 @@
     <string name="rename_symbol_error">Unable to rename symbol.</string>
     <string name="cannot_rename_symbol">You cannot rename this symbol.</string>
     <string name="rename_symbol_multiple_files">Renaming across multiple files is not supported yet.</string>
+    <string name="format_error">Unable to format document.</string>
+    <string name="format_range_error">Unable to format document range.</string>
     <string name="continue_action">Continue</string>
     <string name="enable_sticky_scroll">Enable sticky scroll</string>
     <string name="enable_sticky_scroll_desc">Keep the current code block header visible while scrolling</string>

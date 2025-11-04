@@ -20,14 +20,20 @@ import com.rk.activities.main.MainViewModel
 import com.rk.components.CodeItem
 import com.rk.file.child
 import com.rk.file.sandboxDir
+import com.rk.settings.Settings
 import io.github.rosemoe.sora.event.SelectionChangeEvent
+import io.github.rosemoe.sora.lsp.editor.LspEventManager
+import io.github.rosemoe.sora.lsp.editor.getOption
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
+import io.github.rosemoe.sora.lsp.events.format.fullFormatting
+import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
 import io.github.rosemoe.sora.widget.component.TextActionItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.lsp4j.FormattingOptions
 import org.eclipse.lsp4j.Range
 import java.io.File
 import kotlin.text.substring
@@ -75,11 +81,11 @@ suspend fun generateSnippet(viewModel: MainViewModel, targetFile: FileObject, ra
         val targetLine = lines[range.start.line]
 
         buildAnnotatedString {
-            append(targetLine.substring(0, range.start.character).trimStart())
+            append(targetLine.take(range.start.character).trimStart())
             pushStyle(SpanStyle(fontWeight = FontWeight.Bold ))
             append(targetLine.substring(range.start.character, range.end.character))
             pop()
-            append(targetLine.substring(range.end.character, targetLine.length).trimEnd())
+            append(targetLine.drop(range.end.character).trimEnd())
         }
     }
 }
@@ -118,11 +124,11 @@ fun goToDefinition(
 ) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-            val baseLspConnector = editorTab.baseLspConnector
+            val baseLspConnector = editorTab.baseLspConnector!!
             val editorState = editorTab.editorState
             val editor = editorState.editor.get()!!
 
-            val eitherDefinitions = baseLspConnector!!.requestDefinition(editor)
+            val eitherDefinitions = baseLspConnector.requestDefinition(editor)
             val definitions = if (eitherDefinitions.isLeft) eitherDefinitions.left else eitherDefinitions.right
 
             if (definitions.isEmpty()) {
@@ -172,7 +178,6 @@ fun goToDefinition(
     }
 }
 
-
 fun goToReferences(
     scope: CoroutineScope,
     context: Context,
@@ -181,11 +186,11 @@ fun goToReferences(
 ) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-            val baseLspConnector = editorTab.baseLspConnector
+            val baseLspConnector = editorTab.baseLspConnector!!
             val editorState = editorTab.editorState
             val editor = editorState.editor.get()!!
 
-            val references = baseLspConnector!!.requestReferences(editor)
+            val references = baseLspConnector.requestReferences(editor)
 
             if (references.isEmpty()) {
                 toast(strings.no_references_found)
@@ -248,7 +253,6 @@ fun goToReferences(
     }
 }
 
-
 fun renameSymbol(
     scope: CoroutineScope,
     editorTab: EditorTab
@@ -258,11 +262,11 @@ fun renameSymbol(
             var currentName = ""
 
             val file = editorTab.file
-            val baseLspConnector = editorTab.baseLspConnector
+            val baseLspConnector = editorTab.baseLspConnector!!
             val editorState = editorTab.editorState
             val editor = editorState.editor.get()!!
 
-            if (baseLspConnector!!.isPrepareRenameSymbolSupported()) {
+            if (baseLspConnector.isPrepareRenameSymbolSupported()) {
                 val prepareRename = baseLspConnector.requestPrepareRenameSymbol(editor)
 
                 if (prepareRename == null) {
@@ -295,8 +299,7 @@ fun renameSymbol(
             editorState.showRenameDialog = true
             editorState.renameConfirm = { newName ->
                 scope.launch(Dispatchers.Default) {
-                    val workspaceEdit =
-                        baseLspConnector.requestRenameSymbol(editor, newName)
+                    val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
 
                     // TODO: Handle documentChanges too
                     val changes = workspaceEdit.changes
@@ -323,6 +326,67 @@ fun renameSymbol(
     }
 }
 
+fun applyFormattingOptions(eventManager: LspEventManager) {
+    val formattingOptions = eventManager.getOption<FormattingOptions>()!!
+    formattingOptions.tabSize = Settings.tab_size
+    formattingOptions.isInsertSpaces = !Settings.actual_tabs
+}
+
+/**
+ * A suspendable variant of [formatDocument] for use cases that require formatting to be complete
+ * before another action is performed, such as `Format on Save`.
+ * */
+suspend fun formatDocumentSuspend(editorTab: EditorTab) {
+    runCatching {
+        val baseLspConnector = editorTab.baseLspConnector!!
+        val editorState = editorTab.editorState
+        val editor = editorState.editor.get()!!
+        val eventManager = baseLspConnector.getEventManager()!!
+
+        applyFormattingOptions(eventManager)
+
+        eventManager.emitAsync(EventType.fullFormatting, editor.text)
+    }.onFailure {
+        it.printStackTrace()
+        toast(strings.format_error)
+    }
+}
+
+fun formatDocument(
+    scope: CoroutineScope,
+    editorTab: EditorTab
+) {
+    scope.launch(Dispatchers.Default) {
+        formatDocumentSuspend(editorTab)
+    }
+}
+
+fun formatDocumentRange(
+    scope: CoroutineScope,
+    editorTab: EditorTab
+) {
+    scope.launch(Dispatchers.Default) {
+        runCatching {
+            val baseLspConnector = editorTab.baseLspConnector!!
+            val editorState = editorTab.editorState
+            val editor = editorState.editor.get()!!
+            val eventManager = baseLspConnector.getEventManager()!!
+
+            applyFormattingOptions(eventManager)
+
+            eventManager
+                .emitAsync(EventType.rangeFormatting) {
+                    put("text", editor.text)
+                    put("range", editor.cursor.range)
+                }
+
+        }.onFailure {
+            it.printStackTrace()
+            toast(strings.format_range_error)
+        }
+    }
+}
+
 /**
  * Returns a list of registerable LSP text actions.
  * */
@@ -336,20 +400,20 @@ fun createLspTextActions(
     val goToDefinition = TextActionItem(
         titleRes = strings.go_to_definition,
         iconRes = drawables.jump_to_element,
-        shouldShow = { editor -> editorTab.baseLspConnector?.isGoToDefinitionSupported() == true },
-    ) { editor -> goToDefinition(scope, context, viewModel, editorTab) }
+        shouldShow = { _ -> editorTab.baseLspConnector?.isGoToDefinitionSupported() == true },
+    ) { _ -> goToDefinition(scope, context, viewModel, editorTab) }
 
     val goToReferences = TextActionItem(
         titleRes = strings.go_to_references,
         iconRes = drawables.manage_search,
-        shouldShow = { editor -> editorTab.baseLspConnector?.isGoToReferencesSupported() == true },
-    ) { editor -> goToReferences(scope, context, viewModel, editorTab) }
+        shouldShow = { _ -> editorTab.baseLspConnector?.isGoToReferencesSupported() == true },
+    ) { _ -> goToReferences(scope, context, viewModel, editorTab) }
 
     val renameSymbol = TextActionItem(
         titleRes = strings.rename_symbol,
         iconRes = drawables.edit_note,
         shouldShow = { editor -> editor.isEditable && editorTab.baseLspConnector?.isRenameSymbolSupported() == true },
-    ) { editor -> renameSymbol(scope, editorTab) }
+    ) { _ -> renameSymbol(scope, editorTab) }
 
     return listOf(goToDefinition, goToReferences, renameSymbol)
 }

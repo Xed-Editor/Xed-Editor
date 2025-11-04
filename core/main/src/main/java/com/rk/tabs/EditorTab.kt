@@ -56,6 +56,7 @@ import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.createLspTextActions
+import com.rk.lsp.formatDocumentSuspend
 import com.rk.lsp.lspRegistry
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.resources.drawables
@@ -216,6 +217,10 @@ class EditorTab(
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun save() = withContext(Dispatchers.IO) {
         saveMutex.withLock {
+            if (Settings.format_on_save && baseLspConnector?.isFormattingSupported() == true) {
+                formatDocumentSuspend(this@EditorTab)
+            }
+
             runCatching {
                 if (file.canWrite().not()) {
                     errorDialog(strings.cant_write)

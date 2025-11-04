@@ -55,6 +55,7 @@ object Settings {
     var desktopMode by CachedPreference("desktopMode", false)
     var themeFlipper by CachedPreference("theme_flipper",false)
     var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
+    var format_on_save by CachedPreference("format_on_save", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

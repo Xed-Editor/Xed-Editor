@@ -24,6 +24,8 @@ import org.eclipse.lsp4j.DefinitionOptions
 import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
 import org.eclipse.lsp4j.InitializeResult
+import org.eclipse.lsp4j.DocumentFormattingOptions
+import org.eclipse.lsp4j.DocumentRangeFormattingOptions
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.LocationLink
 import org.eclipse.lsp4j.MessageParams
@@ -85,7 +87,6 @@ class BaseLspConnector(
         if (!isSupported(fileObject)) {
             return@withContext
         }
-        
 
         runCatching {
             val projectPath = projectFile.getAbsolutePath()
@@ -194,7 +195,7 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.definition(
                 DefinitionParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn)
                 )
             )!!.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
@@ -211,7 +212,7 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.references(
                 ReferenceParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     ReferenceContext(true)
                 )
@@ -229,7 +230,7 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.rename(
                 RenameParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     newName
                 )
@@ -247,11 +248,23 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.prepareRename(
                 PrepareRenameParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn)
                 )
             )!!.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
+    }
+
+    fun isFormattingSupported(): Boolean {
+        val caps = getCapabilities()
+        val formattingProvider: Either<Boolean, DocumentFormattingOptions>? = caps?.documentFormattingProvider
+        return formattingProvider?.left == true || formattingProvider?.right != null
+    }
+
+    fun isRangeFormattingSupported(): Boolean {
+        val caps = getCapabilities()
+        val rangeFormattingProvider: Either<Boolean, DocumentRangeFormattingOptions>? = caps?.documentRangeFormattingProvider
+        return rangeFormattingProvider?.left == true || rangeFormattingProvider?.right != null
     }
 
     suspend fun notifySave(charset: Charset = Charsets.UTF_8) {

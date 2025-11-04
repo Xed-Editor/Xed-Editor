@@ -49,7 +49,7 @@ import kotlin.collections.set
 fun LspSettings(modifier: Modifier = Modifier) {
     var showDialog by remember { mutableStateOf(false) }
 
-    PreferenceLayout(label = stringResource(strings.lsp_settings), fab = {
+    PreferenceLayout(label = stringResource(strings.manage_language_servers), fab = {
         ExtendedFloatingActionButton(onClick = {
             showDialog = true
         }) {

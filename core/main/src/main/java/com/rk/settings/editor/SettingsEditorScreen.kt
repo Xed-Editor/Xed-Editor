@@ -46,12 +46,21 @@ fun SettingsEditorScreen(navController: NavController) {
         var extraKeysError by remember { mutableStateOf<String?>(null) }
 
         if (InbuiltFeatures.terminal.state.value) {
-            PreferenceGroup {
+            PreferenceGroup(heading = stringResource(strings.language_server)) {
                 NextScreenCard(
                     navController = navController,
-                    label = stringResource(strings.lsp_settings),
-                    description = stringResource(strings.lsp_settings_desc),
+                    label = stringResource(strings.manage_language_servers),
+                    description = stringResource(strings.manage_language_servers_desc),
                     route = SettingsRoutes.LspSettings
+                )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.format_on_save),
+                    description = stringResource(strings.format_on_save_desc),
+                    default = Settings.format_on_save,
+                    sideEffect = {
+                        Settings.format_on_save = it
+                    }
                 )
             }
         }
@@ -296,12 +305,9 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            var useTabChar by remember { mutableStateOf(Settings.actual_tabs) }
-
             EditorSettingsToggle(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
-                isEnabled = !useTabChar,
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -314,7 +320,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(strings.use_tabs_desc),
                 default = Settings.actual_tabs,
                 sideEffect = {
-                    useTabChar = it
                     Settings.actual_tabs = it
 
                     MainActivity.instance?.apply {
