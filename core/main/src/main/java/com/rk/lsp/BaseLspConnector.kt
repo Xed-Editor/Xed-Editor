@@ -88,7 +88,6 @@ class BaseLspConnector(
             return@withContext
         }
 
-
         runCatching {
             val projectPath = projectFile.getAbsolutePath()
 
@@ -196,7 +195,7 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.definition(
                 DefinitionParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn)
                 )
             )!!.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
@@ -213,7 +212,7 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.references(
                 ReferenceParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     ReferenceContext(true)
                 )
@@ -231,7 +230,7 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.rename(
                 RenameParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     newName
                 )
@@ -249,7 +248,7 @@ class BaseLspConnector(
         return withContext(Dispatchers.Default) {
             lspEditor!!.languageServerWrapper.requestManager!!.prepareRename(
                 PrepareRenameParams(
-                    TextDocumentIdentifier(fileObject!!.getAbsolutePath()),
+                    TextDocumentIdentifier(fileObject.getAbsolutePath()),
                     Position(editor.cursor.leftLine, editor.cursor.leftColumn)
                 )
             )!!.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
