@@ -6,8 +6,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import com.rk.resources.strings
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
@@ -26,6 +30,12 @@ fun SingleInputDialog(
     confirmEnabled: Boolean = true,
     errorMessage: String? = null
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    var textFieldValue by remember {
+        mutableStateOf(TextFieldValue(text = inputValue, selection = TextRange(inputValue.length)))
+    }
+
     AlertDialog(
         onDismissRequest = {
             onDismiss()
@@ -35,11 +45,16 @@ fun SingleInputDialog(
         text = {
             Column {
                 OutlinedTextField(
-                    value = inputValue,
+                    value = textFieldValue,
                     singleLine = singleLineMode,
-                    onValueChange = onInputValueChange,
+                    onValueChange = {
+                        textFieldValue = it
+                        onInputValueChange(it.text)
+                    },
                     label = { Text(inputLabel) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     isError = errorMessage != null,
                     supportingText = {
                         if (errorMessage != null) {
@@ -63,6 +78,10 @@ fun SingleInputDialog(
                         imeAction = ImeAction.Done
                     )
                 )
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
             }
         },
         confirmButton = {
