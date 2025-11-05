@@ -474,4 +474,13 @@
     <string name="info_toolbar_actions">Araç çubuğu eylemleri, bir dosya açıkken araç çubuğunda hangi komutların gösterileceğini belirler. Sıralarını değiştirmek için uzun basıp sürükleyebilir veya yeni komut eklemek için düğmeye dokunabilirsiniz.</string>
     <string name="disable">Devre dışı bırak</string>
     <string name="open_as_project">Proje olarak aç</string>
+    <string name="language_server">Dil sunucusu</string>
+    <string name="manage_language_servers">Dil sunucularını yönet</string>
+    <string name="manage_language_servers_desc">Yükle, bağlan ve dil sunucularını yapılandır</string>
+    <string name="format_on_save">Kaydederken biçimlendir</string>
+    <string name="format_on_save_desc">Dosya kaydedildiğinde otomatik olarak biçimlendir</string>
+    <string name="format_document">Belgenin biçimi</string>
+    <string name="format_selection">Biçimlendirme seçimi</string>
+    <string name="format_error">Belge biçimlendirilemiyor.</string>
+    <string name="format_range_error">Belge aralığı biçimlendirilemiyor.</string>
 </resources>
