@@ -44,10 +44,10 @@ data class BaseColors (
     val surfaceContainer: String? = null,
     val surfaceContainerHigh: String? = null,
     val surfaceContainerHighest: String? = null
-)
+) : Serializable
 
 data class ThemePalette(
-    val baseColors: BaseColors,
+    val baseColors: BaseColors?,
     val terminalColors: Map<String, String>? = null,
     val editorColors: Map<String, String>? = null,
     /**
@@ -103,10 +103,10 @@ data class ThemePalette(
 }
 
 data class ThemeConfig(
-    val id: String,
-    val name: String,
-    val targetVersion: String,
+    val id: String?,
+    val name: String?,
+    val targetVersion: String?,
     val useTokenFallback: Boolean?,
-    val light: ThemePalette,
-    val dark: ThemePalette,
+    val light: ThemePalette?,
+    val dark: ThemePalette?,
 ) : Serializable
