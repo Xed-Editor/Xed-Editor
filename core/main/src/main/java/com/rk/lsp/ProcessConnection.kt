@@ -4,12 +4,14 @@ import android.util.Log
 import com.rk.utils.errorDialog
 import com.rk.exec.ubuntuProcess
 import com.rk.exec.readStderr
+import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import kotlinx.coroutines.runBlocking
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.TimeUnit
+
 
 class ProcessConnection(
     private val cmd: Array<String>,
@@ -19,11 +21,11 @@ class ProcessConnection(
 
     override val inputStream: InputStream
         get() = process?.inputStream
-            ?: throw IllegalStateException("Process not started")
+            ?: throw IllegalStateException("Process not running")
 
     override val outputStream: OutputStream
         get() = process?.outputStream
-            ?: throw IllegalStateException("Process not started")
+            ?: throw IllegalStateException("Process not running")
 
     override fun start() {
         if (process != null) return
@@ -35,7 +37,7 @@ class ProcessConnection(
                 if (exitCode != 0) {
                     val stderr = process?.readStderr().orEmpty()
                     Log.e(this@ProcessConnection::class.java.simpleName, stderr)
-                    errorDialog(stderr)
+                    toast(stderr)
                 }
             }
         }

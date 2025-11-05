@@ -10,10 +10,10 @@ import kotlin.random.Random
 
 
 //DO not put this in lsp registry
-class ExternalSocketServer(override val languageName: String,val host: String, val port: Int,override val supportedExtensions: List<String>) : BaseLspServer() {
+class ExternalProcessServer(override val languageName: String, val command: String, override val supportedExtensions: List<String>) : BaseLspServer() {
 
     override val id: String = "${languageName}_${Random.nextInt()}"
-    override val serverName: String = "$host:$port"
+    override val serverName: String = command
 
 
     override fun isInstalled(context: Context): Boolean {
@@ -23,7 +23,7 @@ class ExternalSocketServer(override val languageName: String,val host: String, v
     override fun install(context: Context) {}
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Socket(host = host, port = port)
+        return LspConnectionConfig.Process(arrayOf("bash","-c",command))
     }
 
     override fun isSupported(file: FileObject): Boolean {
@@ -41,16 +41,15 @@ class ExternalSocketServer(override val languageName: String,val host: String, v
 
 
     override fun equals(other: Any?): Boolean {
-        if (other !is ExternalSocketServer){
+        if (other !is ExternalProcessServer){
             return false
         }
-        return other.port == port && other.host == host && supportedExtensions.containsAll(other.supportedExtensions)
+        return other.command == command && supportedExtensions.containsAll(other.supportedExtensions)
     }
 
     override fun hashCode(): Int {
-        var result = port
-        result = 31 * result + languageName.hashCode()
-        result = 31 * result + host.hashCode()
+        var result = languageName.hashCode()
+        result = 31 * result + command.hashCode()
         result = 31 * result + supportedExtensions.hashCode()
         result = 31 * result + id.hashCode()
         result = 31 * result + serverName.hashCode()

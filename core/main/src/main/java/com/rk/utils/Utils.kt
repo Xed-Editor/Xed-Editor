@@ -89,63 +89,7 @@ fun <K> x(m: MutableCollection<K>, c: Int) {
 }
 
 
-@Composable
-fun DialogContent(
-    alertDialog: AlertDialog?,
-    title: String,
-    msg: String,
-    @StringRes cancelString: Int,
-    @StringRes okString: Int,
-    onOk: () -> Unit,
-    onCancel: (() -> Unit)? = null
-) {
-    Column(
-        modifier = Modifier
-            .padding(24.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
 
-        Column(
-            modifier = Modifier
-                .weight(1f,fill = false)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Text(
-                text = msg,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (onCancel != null){
-                TextButton(onClick = {
-                    alertDialog?.dismiss()
-                    onCancel()
-                }) {
-                    Text(stringResource(cancelString))
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-
-            TextButton(onClick = {
-                alertDialog?.dismiss()
-                onOk()
-            }) {
-                Text(stringResource(okString))
-            }
-        }
-    }
-}
 
 fun Activity.openUrl(url: String) {
     val intent = android.content.Intent(
@@ -160,77 +104,10 @@ fun hasHardwareKeyboard(context: Context): Boolean {
     return configuration.keyboard != Configuration.KEYBOARD_NOKEYS
 }
 
-fun dialog(
-    context: Activity? = MainActivity.instance,
-    title: String,
-    msg: String,
-    @StringRes cancelString: Int = strings.cancel,
-    @StringRes okString: Int = strings.ok,
-    onDialog: (AlertDialog?) -> Unit = {},
-    onOk: (AlertDialog?) -> Unit = {},
-    onCancel: ((AlertDialog?) -> Unit)? = null,
-    cancelable: Boolean = true
-) {
-    if (context == null) {
-        toast(msg)
-        return
-    }
-    composeDialog(context = context) { alertDialog ->
-        alertDialog?.setCancelable(cancelable)
-        DialogContent(
-            alertDialog = alertDialog,
-            title = title,
-            msg = msg,
-            cancelString = cancelString,
-            okString = okString,
-            onOk = {
-                onOk(alertDialog)
-            },
-            onCancel = if (onCancel == null){null}else{{
-                onCancel.invoke(alertDialog)
-            }}
-        )
-    }
-}
 
 
-fun composeDialog(
-    context: Activity? = MainActivity.instance,
-    content: @Composable (AlertDialog?) -> Unit
-) {
-    if (context == null) {
-        throw IllegalArgumentException("context cannot be null")
-    }
-    var dialog: AlertDialog? = null
-    runOnUiThread {
-        MaterialAlertDialogBuilder(context).apply {
-            setView(ComposeView(context).apply {
-                setContent {
-                    XedTheme {
-                        Surface {
-                            Surface {
-                                Surface(
-                                    shape = MaterialTheme.shapes.large,
-                                    tonalElevation = 1.dp,
-                                ) {
-                                    DividerColumn(
-                                        startIndent = 0.dp,
-                                        endIndent = 0.dp,
-                                        dividersToSkip = 0,
-                                    ) {
-                                        content(dialog)
-                                    }
-                                }
-                            }
-                        }
 
-                    }
-                }
-            })
-            dialog = show()
-        }
-    }
-}
+
 
 fun origin(): String {
     return application!!.run {
@@ -242,49 +119,11 @@ fun origin(): String {
     }
 }
 
-fun errorDialog(msg: String, activity: Activity? = MainActivity.instance,title:String = strings.error.getString()) {
-    Log.e("ERROR_DIALOG",msg)
-
-    runOnUiThread{
-        if (msg.isBlank()) {
-            Log.w("ERROR_DIALOG", "Message is blank")
-            return@runOnUiThread
-        }
-        if (msg.contains("Job was cancelled")) {
-            Log.w("ERROR_DIALOG", msg)
-            return@runOnUiThread
-        }
-
-        dialog(context = activity, title = title, msg = msg, onOk = {})
-    }
-}
-
-fun errorDialog(@StringRes msgRes: Int) {
-    runOnUiThread{
-        errorDialog(msg = msgRes.getString())
-    }
-}
 
 
-//todo handle multple function call for same throwable
-fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instance) {
-    runOnUiThread{
-        if (throwable.message.toString().contains("Job was cancelled")) {
-            Log.w("ERROR_DIALOG", throwable.message.toString())
-            return@runOnUiThread
-        }
-        val message = StringBuilder()
-        throwable.let {
-            message.append(it.message).append("\n")
-            if (Settings.verbose_error) {
-                message.append(it.stackTraceToString()).append("\n")
-            }
-        }
 
-        errorDialog(msg = message.toString(), activity = activity)
-    }
 
-}
+
 
 fun copyToClipboard(label: String, text: String,showToast: Boolean = true) {
     val clipboard = application!!.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -299,21 +138,7 @@ fun copyToClipboard(text: String,showToast: Boolean = true) {
     copyToClipboard(label = "xed-editor",text, showToast = showToast)
 }
 
-fun errorDialog(exception: Exception) {
-    val message = StringBuilder()
-    exception.let {
-        var msg = it.message
-        if (msg.isNullOrBlank()){
-            msg = it.javaClass.simpleName.replace("Exception","")
-        }
-        message.append(msg).append("\n")
-        if (Settings.verbose_error) {
-            message.append(it.stackTraceToString()).append("\n")
-        }
-    }
 
-    errorDialog(msg = message.toString())
-}
 
 
 fun expectOOM(requiredMemBytes: Long): Boolean {

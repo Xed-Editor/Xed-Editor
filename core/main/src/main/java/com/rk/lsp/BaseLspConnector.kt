@@ -71,20 +71,13 @@ class BaseLspConnector(
             ConcurrentHashMap<String, ConcurrentHashMap<String, CustomLanguageServerDefinition>>()
     }
 
-    fun isSupported(file: FileObject): Boolean {
-        if (server.isSupported(file).not()){
-            return false
-        }
-        val fileExt = file.getName().substringAfterLast(".")
-        return fileExt == this.fileObject.getName().substringAfterLast(".") && FileType.knowsExtension(fileExt)
-    }
 
     fun isConnected(): Boolean{
         return lspEditor?.isConnected ?: false
     }
 
     suspend fun connect(textMateScope: String) = withContext(Dispatchers.IO) {
-        if (!isSupported(fileObject)) {
+        if (!server.isSupported(fileObject)) {
             return@withContext
         }
 

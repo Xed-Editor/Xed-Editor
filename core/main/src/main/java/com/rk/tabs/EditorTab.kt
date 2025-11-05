@@ -23,7 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,10 +53,10 @@ import com.rk.exec.isTerminalWorking
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
-import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.createLspTextActions
 import com.rk.lsp.formatDocumentSuspend
-import com.rk.lsp.lspRegistry
+import com.rk.lsp.builtInServer
+import com.rk.lsp.externalServers
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
@@ -141,9 +140,6 @@ data class CodeEditorState(
 
     val lspDialogMutex by lazy { Mutex() }
 }
-
-// <extensions : <host, port>>
-val lsp_connections = mutableStateMapOf<List<String>, Pair<String, Int>>()
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
@@ -651,7 +647,7 @@ fun EditorTab.applyHighlighting() {
                     val parent = file.getParentFile()
 
                     info("attempting to connect to external server...")
-                    if (tryConnectExternalLsp(ext, parent)) return@launch
+                    if (tryConnectExternalLsp()) return@launch
                     info("no external server connection")
 
                     info("attempting to connect to built-in server...")
@@ -673,7 +669,7 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
     ext: String,
     editor: Editor,
 ): Boolean {
-    val server = lspRegistry.find {
+    val server = builtInServer.find {
         it.supportedExtensions.map { e -> e.lowercase() }
             .contains(ext.lowercase())
     }
@@ -681,6 +677,11 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
         // Connect with built-in language server
         if (server.isInstalled(editor.context)) {
             info("server installed")
+
+            if (server.isSupported(file).not()){
+                info("This server: ${server.serverName} does not support this file")
+                return false
+            }
 
             val parentFile = file.getParentFile() ?: run {
                 info("File has no parent directory")
@@ -693,11 +694,6 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
                 codeEditor = editorState.editor.get()!!,
                 server = server
             )
-
-            if (baseLspConnector?.isSupported(file)?.not() == true){
-                info("This file not supported")
-                return false
-            }
 
 
             file.getParentFile()?.let { parent ->
@@ -744,32 +740,25 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
     return false
 }
 
-private suspend fun EditorTab.tryConnectExternalLsp(
-    ext: String,
-    parent: FileObject?
-): Boolean {
+private suspend fun EditorTab.tryConnectExternalLsp(): Boolean {
+    val parent = file.getParentFile()
     if (parent == null) return false
 
-    lsp_connections.forEach {
-        if (it.key.contains(ext)) {
-            val server = it.value
-
+    externalServers.forEach { server ->
+        if (server.isSupported(file)){
             baseLspConnector = BaseLspConnector(
                 parent,
                 fileObject = file,
                 codeEditor = editorState.editor.get()!!,
-                server = ExternalSocketServer(host = server.first, port = server.second)
+                server = server
             )
 
-            if (baseLspConnector?.isSupported(file)?.not() == true){
-                info("This file not supported")
-                return false
-            }
-
             baseLspConnector?.connect(editorState.textmateScope!!)
-
             return true
+        }else{
+            info("This server: ${server.serverName} does not support this file")
         }
     }
+
     return false
 }
