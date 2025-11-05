@@ -7,7 +7,7 @@ fun Any.debug(msg:String){
     Log.d(this::class.java.simpleName,msg)
 }
 
-fun Any.error(msg:String){
+fun Any.logError(msg:String){
     Log.e(this::class.java.simpleName,msg)
 }
 

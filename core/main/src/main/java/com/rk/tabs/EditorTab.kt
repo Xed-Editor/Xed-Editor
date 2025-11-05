@@ -682,8 +682,13 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
         if (server.isInstalled(editor.context)) {
             info("server installed")
 
+            val parentFile = file.getParentFile() ?: run {
+                info("File has no parent directory")
+                return false
+            }
+
             baseLspConnector = BaseLspConnector(
-                file.getParentFile()!!,
+                parentFile,
                 fileObject = file,
                 codeEditor = editorState.editor.get()!!,
                 server = server
