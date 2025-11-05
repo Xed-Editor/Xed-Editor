@@ -7,7 +7,7 @@ import java.io.ObjectOutputStream
 import java.io.Serial
 import java.io.Serializable
 
-data class ThemePalette(
+data class BaseColors (
     val primary: String? = null,
     val onPrimary: String? = null,
     val primaryContainer: String? = null,
@@ -43,7 +43,11 @@ data class ThemePalette(
     val surfaceContainerLow: String? = null,
     val surfaceContainer: String? = null,
     val surfaceContainerHigh: String? = null,
-    val surfaceContainerHighest: String? = null,
+    val surfaceContainerHighest: String? = null
+)
+
+data class ThemePalette(
+    val baseColors: BaseColors,
     val terminalColors: Map<String, String>? = null,
     val editorColors: Map<String, String>? = null,
     /**
