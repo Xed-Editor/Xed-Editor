@@ -113,7 +113,7 @@ fun ThemeConfig.build(): ThemeHolder {
     return ThemeHolder(
         id = id!!,
         name = name!!,
-        inheritBase = useTokenFallback ?: true,
+        inheritBase = inheritBase ?: true,
         lightScheme = light?.build(isDarkTheme = false) ?: blueberry.lightScheme,
         darkScheme = dark?.build(isDarkTheme = true) ?: blueberry.darkScheme,
         lightTerminalColors = light?.terminalColors?.toProperties() ?: Properties(),

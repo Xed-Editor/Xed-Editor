@@ -106,7 +106,7 @@ data class ThemeConfig(
     val id: String?,
     val name: String?,
     val targetVersion: String?,
-    val useTokenFallback: Boolean?,
+    val inheritBase: Boolean?,
     val light: ThemePalette?,
     val dark: ThemePalette?,
 ) : Serializable
