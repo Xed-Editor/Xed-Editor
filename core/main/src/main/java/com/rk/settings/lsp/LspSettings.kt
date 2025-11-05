@@ -20,6 +20,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -137,6 +140,8 @@ private fun ExternalLSP(
     onDismiss: () -> Unit,
     onConfirm: (host: String, port: String, extensions: List<String>) -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+
     var host by remember { mutableStateOf("localhost") }
     var port by remember { mutableStateOf("") }
     var extensions by remember { mutableStateOf("") }
@@ -195,6 +200,7 @@ private fun ExternalLSP(
                         }
                     },
                 )
+
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = port,
@@ -208,6 +214,7 @@ private fun ExternalLSP(
                         }
                     },
                     label = { Text(stringResource(strings.port_number)) },
+                    modifier = Modifier.focusRequester(focusRequester),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     isError = portError != null,
@@ -226,6 +233,11 @@ private fun ExternalLSP(
                         }
                     },
                 )
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = extensions,

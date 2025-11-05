@@ -25,8 +25,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -46,15 +49,20 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Runners(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var runnerName by remember { mutableStateOf("") }
-    var regexPattern by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf<String?>(null) }
     var regexError by remember { mutableStateOf<String?>(null) }
     var isEditingExisting by remember { mutableStateOf<ShellBasedRunner?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+
+    val nameFocusRequester = remember { FocusRequester() }
+    val regexFocusRequester = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
+
+    var regexFieldValue by remember {
+        mutableStateOf(TextFieldValue("", selection = TextRange(runnerName.length)))
+    }
 
     // Validation functions
     fun validateName() {
@@ -77,7 +85,7 @@ fun Runners(modifier: Modifier = Modifier) {
     }
 
     fun validateRegex() {
-        regexError = if (regexPattern.isValidRegex()) {
+        regexError = if (regexFieldValue.text.isValidRegex()) {
             null
         } else {
             strings.invalid_regex.getString()
@@ -86,7 +94,7 @@ fun Runners(modifier: Modifier = Modifier) {
 
     fun resetDialogState() {
         runnerName = ""
-        regexPattern = ""
+        regexFieldValue = regexFieldValue.copy(text = "")
         nameError = null
         regexError = null
         isEditingExisting = null
@@ -165,7 +173,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                     IconButton(onClick = {
                                         isEditingExisting = runner
                                         runnerName = runner.getName()
-                                        regexPattern = runner.regex
+                                        regexFieldValue = regexFieldValue.copy(text = runner.regex, selection = TextRange(runner.regex.length))
                                         showDialog = true
                                     }) {
                                         Icon(
@@ -219,6 +227,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                 validateName()
                             },
                             label = { Text(stringResource(strings.runner_name)) },
+                            modifier = Modifier.focusRequester(nameFocusRequester),
                             isError = nameError != null,
                             supportingText = {
                                 nameError?.let {
@@ -241,12 +250,13 @@ fun Runners(modifier: Modifier = Modifier) {
                         )
 
                         OutlinedTextField(
-                            value = regexPattern,
+                            value = regexFieldValue,
                             onValueChange = {
-                                regexPattern = it
+                                regexFieldValue = it
                                 validateRegex()
                             },
                             label = { Text(stringResource(strings.regex_pattern)) },
+                            modifier = Modifier.focusRequester(regexFocusRequester),
                             isError = regexError != null,
                             supportingText = {
                                 regexError?.let {
@@ -263,6 +273,14 @@ fun Runners(modifier: Modifier = Modifier) {
                                 }
                             },
                         )
+
+                        LaunchedEffect(showDialog) {
+                            if (isEditingExisting == null) {
+                                nameFocusRequester.requestFocus()
+                            } else {
+                                regexFocusRequester.requestFocus()
+                            }
+                        }
                     }
                 },
                 confirmButton = {
@@ -282,7 +300,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                     // Create new runner
                                     val runner = ShellBasedRunner(
                                         name = runnerName,
-                                        regex = regexPattern
+                                        regex = regexFieldValue.text
                                     )
                                     val created = ShellBasedRunners.newRunner(runner)
                                     if (created) {
@@ -299,7 +317,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                     // Update existing runner
                                     val updatedRunner = ShellBasedRunner(
                                         name = runnerName, // Name remains the same
-                                        regex = regexPattern
+                                        regex = regexFieldValue.text
                                     )
                                     ShellBasedRunners.deleteRunner(isEditingExisting!!, deleteScript = false)
                                     val updated = ShellBasedRunners.newRunner(updatedRunner)
