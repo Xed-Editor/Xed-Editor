@@ -481,5 +481,4 @@
     <string name="format_on_save_desc">Die Datei beim Speichern automatisch formatieren</string>
     <string name="format_document">Dokument formatieren</string>
     <string name="format_selection">Auswahl formatieren</string>
-    <string name="format_error"></string>
 </resources>
