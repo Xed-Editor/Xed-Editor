@@ -19,6 +19,12 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.Properties
 import androidx.core.graphics.toColorInt
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
 
 suspend fun installFromFile(file: FileObject) {
     loadConfigFromJson(file)?.installTheme()
@@ -84,14 +90,59 @@ fun ThemeConfig.build(): ThemeHolder {
         return props
     }
 
+    val lightTokenColors = light.tokenColors.toTokenColorArray()
+    val darkTokenColors = light.tokenColors.toTokenColorArray()
+
     return ThemeHolder(
         id = id,
         name = name,
-        lightScheme = this.light.build(isDarkTheme = false),
-        darkScheme = this.dark.build(isDarkTheme = true),
+        lightScheme = light.build(isDarkTheme = false),
+        darkScheme = dark.build(isDarkTheme = true),
         lightTerminalColors = light.terminalColors?.toProperties() ?: Properties(),
         darkTerminalColors = dark.terminalColors?.toProperties() ?: Properties(),
+        lightTokenColors = lightTokenColors,
+        darkTokenColors = darkTokenColors
     )
+}
+
+/**
+ * Build `tokenColors` JsonArray (which is compatible with TextMate theme format)
+ * from a JsonElement (which can be a JsonObject map or JsonArray of TextMate entries)
+ *
+ * Return value structure:
+ * ```json
+ * [
+ *     {
+ *         "scope": "<scope>",
+ *         "settings": {
+ *             "foreground": "#RRGGBB"
+ *         }
+ *     }
+ * ]
+ * ```
+ */
+private fun JsonElement?.toTokenColorArray(): JsonArray {
+    if (this == null || isJsonNull) return JsonArray()
+
+    return when {
+        isJsonArray -> this.asJsonArray
+        isJsonObject -> {
+            val convertedArray = JsonArray()
+            for ((scope, colorHex) in asJsonObject.entrySet()) {
+                if (!colorHex.isJsonPrimitive) toast("Invalid value for $scope")
+
+                val item = JsonObject().apply {
+                    addProperty("scope", scope)
+                    val settings = JsonObject()
+                    settings.addProperty("foreground", colorHex.asString)
+                    add("settings", settings)
+                }
+                convertedArray.add(item)
+            }
+            return convertedArray
+        }
+        else -> JsonArray()
+    }
 }
 
 fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {

@@ -1,5 +1,6 @@
 package com.rk.theme
 
+import com.google.gson.JsonElement
 import java.io.Serializable
 
 data class ThemePalette(
@@ -40,6 +41,42 @@ data class ThemePalette(
     val surfaceContainerHigh: String? = null,
     val surfaceContainerHighest: String? = null,
     val terminalColors: Map<String, String>? = null,
+    /**
+     * Can be either a JsonArray or a JsonObject.
+     *
+     * Option 1:
+     * ```json
+     * {
+     *     "tokenColors": {
+     *         "comment": "#FF0000",
+     *         "keyword": "#00FF00",
+     *         // ...
+     *     }
+     * }
+     * ```
+     *
+     * Option 2 (TextMate-style):
+     * ```json
+     * {
+     *     "tokenColors": [
+     *         {
+     *             "scope": "comment",
+     *             "settings": {
+     *                 "foreground": "#FF0000"
+     *             }
+     *         },
+     *         {
+     *             "scope": "keyword",
+     *             "settings": {
+     *                 "foreground": "#00FF00"
+     *             }
+     *         },
+     *         // ...
+     *     ]
+     * }
+     * ```
+     * */
+    val tokenColors: JsonElement? = null
 ) : Serializable
 
 data class ThemeConfig(
