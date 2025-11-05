@@ -101,6 +101,7 @@ data class ThemePalette(
 data class ThemeConfig(
     val id: String,
     val name: String,
+    val targetVersion: String,
     val useTokenFallback: Boolean?,
     val light: ThemePalette,
     val dark: ThemePalette,
