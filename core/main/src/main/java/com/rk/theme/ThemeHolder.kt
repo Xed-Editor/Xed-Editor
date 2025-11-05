@@ -7,6 +7,7 @@ import java.util.Properties
 data class ThemeHolder(
     val id: String,
     val name: String,
+    val inheritBase: Boolean,
     val lightScheme: ColorScheme,
     val darkScheme: ColorScheme,
     val lightTerminalColors: Properties,

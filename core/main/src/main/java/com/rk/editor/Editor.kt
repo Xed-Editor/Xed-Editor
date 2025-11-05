@@ -263,8 +263,13 @@ class Editor : CodeEditor {
 
                 if (!tokenArray.isEmpty) {
                     if (arrayName != null) {
-                        val existingTokenColors = jsonObject[arrayName].asJsonArray
-                        existingTokenColors.addAll(tokenArray)
+                        if (selectedTheme?.inheritBase == true) {
+                            val existingTokenColors = jsonObject[arrayName].asJsonArray
+                            existingTokenColors.addAll(tokenArray)
+                        } else {
+                            jsonObject.remove(arrayName)
+                            jsonObject.add(arrayName, tokenArray)
+                        }
                     } else {
                         jsonObject.add("tokenColors", tokenArray)
                     }

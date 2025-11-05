@@ -19,6 +19,7 @@ fun Color.toHex(): String {
 val blueberry = ThemeHolder(
     id = "blueberry-default",
     name = "BlueBerry (Default)",
+    inheritBase = true,
     lightScheme = lightColorScheme(
         primary = Color(0xFF445E91),
         onPrimary = Color(0xFFFFFFFF),
@@ -156,6 +157,7 @@ val blueberry = ThemeHolder(
 val lime = ThemeHolder(
     id = "lime",
     name = "Lime",
+    inheritBase = true,
     lightScheme = lightColorScheme(
         primary = Color(0xFF4C662B),
         onPrimary = Color(0xFFFFFFFF),

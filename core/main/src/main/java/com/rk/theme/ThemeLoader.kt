@@ -4,7 +4,6 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
-import com.google.gson.Gson
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.themeDir
@@ -19,10 +18,10 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.Properties
 import androidx.core.graphics.toColorInt
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
@@ -33,17 +32,10 @@ suspend fun installFromFile(file: FileObject) {
 
 suspend fun loadConfigFromJson(file: FileObject): ThemeConfig? = withContext(Dispatchers.IO) {
     return@withContext try {
-        val gson = Gson()
-        val themeJson = file.readText()
-        val output = gson.fromJson(themeJson, ThemeConfig::class.java)
-
-        val parsedTheme = JsonParser.parseString(themeJson).asJsonObject
-        val parsedTokenColorsLight = parsedTheme["light"].asJsonObject["tokenColors"]
-        val parsedTokenColorsDark = parsedTheme["dark"].asJsonObject["tokenColors"]
-
-        output.light.tokenColors = parsedTokenColorsLight
-        output.dark.tokenColors = parsedTokenColorsDark
-        output
+        val gson = GsonBuilder()
+            .excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC)
+            .create()
+        gson.fromJson(file.readText(), ThemeConfig::class.java)
     } catch (e: Exception) {
         errorDialog(e)
         null
@@ -54,8 +46,6 @@ suspend fun ThemeConfig.installTheme() = withContext(Dispatchers.IO) {
     val themeFile = themeDir().child(this@installTheme.name)
     ObjectOutputStream(FileOutputStream(themeFile)).use { out ->
         out.writeObject(this@installTheme)
-        out.writeObject(light.tokenColors?.toString())
-        out.writeObject(dark.tokenColors?.toString())
     }
 }
 
@@ -75,11 +65,6 @@ fun loadThemes() {
         runCatching {
             ObjectInputStream(FileInputStream(file)).use { input ->
                 val config = input.readObject() as? ThemeConfig
-                val lightTokenColors = input.readObject() as? String
-                val darkTokenColors = input.readObject() as? String
-
-                config?.light?.tokenColors = JsonParser.parseString(lightTokenColors)
-                config?.dark?.tokenColors = JsonParser.parseString(darkTokenColors)
                 if (config != null) {
                     themes.add(config.build())
                 }
@@ -113,6 +98,7 @@ fun ThemeConfig.build(): ThemeHolder {
     return ThemeHolder(
         id = id,
         name = name,
+        inheritBase = useTokenFallback ?: true,
         lightScheme = light.build(isDarkTheme = false),
         darkScheme = dark.build(isDarkTheme = true),
         lightTerminalColors = light.terminalColors?.toProperties() ?: Properties(),

@@ -1,6 +1,10 @@
 package com.rk.theme
 
 import com.google.gson.JsonElement
+import com.google.gson.JsonParser
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serial
 import java.io.Serializable
 
 data class ThemePalette(
@@ -79,11 +83,25 @@ data class ThemePalette(
      * */
     @Transient
     var tokenColors: JsonElement? = null
-) : Serializable
+) : Serializable {
+    @Serial
+    private fun writeObject(out: ObjectOutputStream) {
+        out.defaultWriteObject()
+        out.writeObject(tokenColors?.toString())
+    }
+
+    @Serial
+    private fun readObject(input: ObjectInputStream) {
+        input.defaultReadObject()
+        val tokenColorsStr = input.readObject() as? String
+        tokenColors = tokenColorsStr?.let { JsonParser.parseString(it) }
+    }
+}
 
 data class ThemeConfig(
     val id: String,
     val name: String,
+    val useTokenFallback: Boolean?,
     val light: ThemePalette,
     val dark: ThemePalette,
 ) : Serializable
