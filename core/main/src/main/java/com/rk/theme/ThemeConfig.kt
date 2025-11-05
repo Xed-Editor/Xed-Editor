@@ -77,7 +77,8 @@ data class ThemePalette(
      * }
      * ```
      * */
-    val tokenColors: JsonElement? = null
+    @Transient
+    var tokenColors: JsonElement? = null
 ) : Serializable
 
 data class ThemeConfig(

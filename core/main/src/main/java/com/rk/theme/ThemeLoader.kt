@@ -22,6 +22,7 @@ import androidx.core.graphics.toColorInt
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
@@ -33,7 +34,16 @@ suspend fun installFromFile(file: FileObject) {
 suspend fun loadConfigFromJson(file: FileObject): ThemeConfig? = withContext(Dispatchers.IO) {
     return@withContext try {
         val gson = Gson()
-        gson.fromJson(file.readText(), ThemeConfig::class.java)
+        val themeJson = file.readText()
+        val output = gson.fromJson(themeJson, ThemeConfig::class.java)
+
+        val parsedTheme = JsonParser.parseString(themeJson).asJsonObject
+        val parsedTokenColorsLight = parsedTheme["light"].asJsonObject["tokenColors"]
+        val parsedTokenColorsDark = parsedTheme["dark"].asJsonObject["tokenColors"]
+
+        output.light.tokenColors = parsedTokenColorsLight
+        output.dark.tokenColors = parsedTokenColorsDark
+        output
     } catch (e: Exception) {
         errorDialog(e)
         null
@@ -44,6 +54,8 @@ suspend fun ThemeConfig.installTheme() = withContext(Dispatchers.IO) {
     val themeFile = themeDir().child(this@installTheme.name)
     ObjectOutputStream(FileOutputStream(themeFile)).use { out ->
         out.writeObject(this@installTheme)
+        out.writeObject(light.tokenColors?.toString())
+        out.writeObject(dark.tokenColors?.toString())
     }
 }
 
@@ -63,6 +75,11 @@ fun loadThemes() {
         runCatching {
             ObjectInputStream(FileInputStream(file)).use { input ->
                 val config = input.readObject() as? ThemeConfig
+                val lightTokenColors = input.readObject() as? String
+                val darkTokenColors = input.readObject() as? String
+
+                config?.light?.tokenColors = JsonParser.parseString(lightTokenColors)
+                config?.dark?.tokenColors = JsonParser.parseString(darkTokenColors)
                 if (config != null) {
                     themes.add(config.build())
                 }
@@ -91,7 +108,7 @@ fun ThemeConfig.build(): ThemeHolder {
     }
 
     val lightTokenColors = light.tokenColors.toTokenColorArray()
-    val darkTokenColors = light.tokenColors.toTokenColorArray()
+    val darkTokenColors = dark.tokenColors.toTokenColorArray()
 
     return ThemeHolder(
         id = id,
