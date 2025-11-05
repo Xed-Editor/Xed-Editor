@@ -474,4 +474,13 @@
     <string name="disable">Wyłącz</string>
     <string name="info_toolbar_actions">Czynności paska narzędzi ustalają które polecenia są wyświetlane na pasku podczas otwierania pliku. Zmień kolejność przytrzymując i przeciągając lub dodaj nowe polecenie klikając przycisk.</string>
     <string name="open_as_project">Otwórz jako projekt</string>
+    <string name="language_server">Serwer językowy</string>
+    <string name="manage_language_servers">Zarządzaj serwerami językowymi</string>
+    <string name="manage_language_servers_desc">Instaluj, połącz oraz konfiguruj serwery językowe</string>
+    <string name="format_on_save">Format przy zapisywaniu</string>
+    <string name="format_on_save_desc">Formatuj automatycznie przy zapisie</string>
+    <string name="format_document">Formatuj dokument</string>
+    <string name="format_selection">Wybór formatu</string>
+    <string name="format_error">Nie można sformatować dokumentu.</string>
+    <string name="format_range_error">Nie można sformatować zakresu dokumentu.</string>
 </resources>
