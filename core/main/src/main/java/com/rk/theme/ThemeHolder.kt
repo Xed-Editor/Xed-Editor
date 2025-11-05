@@ -11,6 +11,8 @@ data class ThemeHolder(
     val darkScheme: ColorScheme,
     val lightTerminalColors: Properties,
     val darkTerminalColors: Properties,
+    val lightEditorColors: List<EditorColor>,
+    val darkEditorColors: List<EditorColor>,
     val lightTokenColors: JsonArray,
     val darkTokenColors: JsonArray
 )

@@ -161,6 +161,18 @@ class Editor : CodeEditor {
                     EditorColorScheme.LINE_DIVIDER,
                     EditorColorScheme.STICKY_SCROLL_DIVIDER
                 )
+
+                val editorColors = if (isDarkMode) {
+                    currentTheme.value?.darkEditorColors
+                } else {
+                    currentTheme.value?.lightEditorColors
+                }
+
+                if (editorColors.isNullOrEmpty().not()) {
+                    editorColors.forEach {
+                        setColor(it.key, it.color)
+                    }
+                }
             }
         }
     }

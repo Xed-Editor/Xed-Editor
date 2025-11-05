@@ -5,6 +5,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import com.google.gson.JsonArray
 import java.util.Properties
+import kotlin.collections.emptyList
 
 fun Color.toHex(): String {
     val intColor = this.value.toLong().toInt()
@@ -82,6 +83,8 @@ val blueberry = ThemeHolder(
     ),
     lightTokenColors = JsonArray(),
     darkTokenColors = JsonArray(),
+    lightEditorColors = emptyList(),
+    darkEditorColors = emptyList(),
     lightTerminalColors = Properties().also {
         it["foreground"] = Color(0xFF1A1B20).toHex()
         it["background"] = Color(0xFFF9F9FF).toHex()
@@ -231,6 +234,8 @@ val lime = ThemeHolder(
     ),
     lightTokenColors = JsonArray(),
     darkTokenColors = JsonArray(),
+    lightEditorColors = emptyList(),
+    darkEditorColors = emptyList(),
     lightTerminalColors = Properties().also {
         it["foreground"] = Color(0xFF1A1C16).toHex()
         it["background"] = Color(0xFFF9FAEF).toHex()

@@ -100,6 +100,8 @@ fun ThemeConfig.build(): ThemeHolder {
         darkScheme = dark.build(isDarkTheme = true),
         lightTerminalColors = light.terminalColors?.toProperties() ?: Properties(),
         darkTerminalColors = dark.terminalColors?.toProperties() ?: Properties(),
+        lightEditorColors = mapEditorColorScheme(light.editorColors),
+        darkEditorColors = mapEditorColorScheme(dark.editorColors),
         lightTokenColors = lightTokenColors,
         darkTokenColors = darkTokenColors
     )
