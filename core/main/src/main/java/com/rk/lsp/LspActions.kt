@@ -348,7 +348,7 @@ suspend fun formatDocumentSuspend(editorTab: EditorTab) {
         eventManager.emitAsync(EventType.fullFormatting, editor.text)
     }.onFailure {
         it.printStackTrace()
-        toast(strings.format_error)
+        toast(strings.format_document_error)
     }
 }
 
@@ -382,7 +382,7 @@ fun formatDocumentRange(
 
         }.onFailure {
             it.printStackTrace()
-            toast(strings.format_range_error)
+            toast(strings.format_selection_error)
         }
     }
 }

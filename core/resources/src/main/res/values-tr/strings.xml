@@ -481,6 +481,6 @@
     <string name="format_on_save_desc">Dosya kaydedildiğinde otomatik olarak biçimlendir</string>
     <string name="format_document">Belgenin biçimi</string>
     <string name="format_selection">Biçimlendirme seçimi</string>
-    <string name="format_error">Belge biçimlendirilemiyor.</string>
-    <string name="format_range_error">Belge aralığı biçimlendirilemiyor.</string>
+    <string name="format_document_error">Belge biçimlendirilemiyor.</string>
+    <string name="format_selection_error">Belge aralığı biçimlendirilemiyor.</string>
 </resources>
