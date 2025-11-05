@@ -436,7 +436,7 @@
     <string name="go_to_references">Go to references</string>
     <string name="rename_symbol">Rename symbol</string>
     <string name="format_document">Format document</string>
-    <string name="format_document_range">Format document range</string>
+    <string name="format_selection">Format selection</string>
     <string name="go_to_definition_desc">Select one of the %d definitions to navigate to their location.</string>
     <string name="go_to_references_desc">Select one of the %d references to navigate to their location.</string>
     <string name="no_definitions_found">No definitions found.</string>
