@@ -474,4 +474,12 @@
     <string name="address">Adresse</string>
     <string name="invalid_address">Ungültige Adresse</string>
     <string name="open_as_project">Als Projekt öffnen</string>
+    <string name="language_server">Sprachserver</string>
+    <string name="manage_language_servers">Sprachserver verwalten</string>
+    <string name="manage_language_servers_desc">Sprachserver installieren, verbinden und konfigurieren</string>
+    <string name="format_on_save">Beim Speichern formatieren</string>
+    <string name="format_on_save_desc">Die Datei beim Speichern automatisch formatieren</string>
+    <string name="format_document">Dokument formatieren</string>
+    <string name="format_selection">Auswahl formatieren</string>
+    <string name="format_error"></string>
 </resources>
