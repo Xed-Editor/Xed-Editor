@@ -82,7 +82,7 @@ enum class FileType(
         title = "JavaScript JSX"
     ),
     TSX(
-        extensions = listOf("jsx"),
+        extensions = listOf("tsx"),
         textmateScope = "source.tsx",
         icon = react,
         title = "TypeScript JSX"

@@ -481,7 +481,7 @@
     <string name="format_on_save_desc">保存文件时自动格式化</string>
     <string name="format_document">格式化文档</string>
     <string name="format_document_range">格式化选定内容</string>
-    <string name="format_error">无法格式化文档。</string>
-    <string name="format_range_error">无法格式化选定内容。</string>
+    <string name="format_document_error">无法格式化文档。</string>
+    <string name="format_selection_error">无法格式化选定内容。</string>
     <string name="format_selection">格式化选定内容</string>
 </resources>

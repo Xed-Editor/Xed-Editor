@@ -1,0 +1,55 @@
+{
+    "id": "test-theme",
+    "name": "Test theme",
+    "targetVersion": 71,
+    "inheritBase": true,
+    "light": {
+        "baseColors": {
+            "primary": "#ff0000",
+            // ...
+            "surfaceContainerHighest": "#00ff00"
+        },
+        "terminalColors": {
+            "foreground": "#ff0000",
+            // ...
+            "color21": "#00ff00"
+        },
+        "editorColors": {
+            // ...
+            "whole_background": "#ffffff"
+        },
+        "tokenColors": [
+            // Option 1 (TextMate-style)
+            {
+                "scope": [
+                    "comment"
+                ],
+                "settings": {
+                    "foreground": "#ff0000"
+                }
+            },
+            // ...
+        ]
+    },
+    "dark": {
+        "baseColors": {
+            "primary": "#ff0000",
+            // ...
+            "surfaceContainerHighest": "#00ff00"
+        },
+        "terminalColors": {
+            "foreground": "#ff0000",
+            // ...
+            "color21": "#00ff00"
+        },
+        "editorColors": {
+             // ...
+            "whole_background": "#ff0000"
+        },
+        "tokenColors": {
+            // Option 2 (Quick version)
+            "comment": "#ff0000",
+            // ...
+        }
+    }
+}

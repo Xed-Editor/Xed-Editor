@@ -3,7 +3,9 @@ package com.rk.theme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import com.google.gson.JsonArray
 import java.util.Properties
+import kotlin.collections.emptyList
 
 fun Color.toHex(): String {
     val intColor = this.value.toLong().toInt()
@@ -14,10 +16,10 @@ fun Color.toHex(): String {
     return String.format("#%02X%02X%02X", r, g, b)
 }
 
-
 val blueberry = ThemeHolder(
     id = "blueberry-default",
     name = "BlueBerry (Default)",
+    inheritBase = true,
     lightScheme = lightColorScheme(
         primary = Color(0xFF445E91),
         onPrimary = Color(0xFFFFFFFF),
@@ -48,7 +50,8 @@ val blueberry = ThemeHolder(
         surfaceTint = Color(0xFF445E91),
         outlineVariant = Color(0xFFC4C6D0),
         scrim = Color(0xFF000000),
-    ), darkScheme = darkColorScheme(
+    ),
+    darkScheme = darkColorScheme(
         primary = Color(0xFFADC6FF),
         onPrimary = Color(0xFF102F60),
         primaryContainer = Color(0xFF2B4678),
@@ -79,6 +82,10 @@ val blueberry = ThemeHolder(
         outlineVariant = Color(0xFF44474F),
         scrim = Color(0xFF000000)
     ),
+    lightTokenColors = JsonArray(),
+    darkTokenColors = JsonArray(),
+    lightEditorColors = emptyList(),
+    darkEditorColors = emptyList(),
     lightTerminalColors = Properties().also {
         it["foreground"] = Color(0xFF1A1B20).toHex()
         it["background"] = Color(0xFFF9F9FF).toHex()
@@ -147,11 +154,10 @@ val blueberry = ThemeHolder(
     },
 )
 
-
-
 val lime = ThemeHolder(
     id = "lime",
     name = "Lime",
+    inheritBase = true,
     lightScheme = lightColorScheme(
         primary = Color(0xFF4C662B),
         onPrimary = Color(0xFFFFFFFF),
@@ -228,6 +234,10 @@ val lime = ThemeHolder(
         surfaceContainerHigh = Color(0xFF282B24),
         surfaceContainerHighest = Color(0xFF33362E)
     ),
+    lightTokenColors = JsonArray(),
+    darkTokenColors = JsonArray(),
+    lightEditorColors = emptyList(),
+    darkEditorColors = emptyList(),
     lightTerminalColors = Properties().also {
         it["foreground"] = Color(0xFF1A1C16).toHex()
         it["background"] = Color(0xFFF9FAEF).toHex()
