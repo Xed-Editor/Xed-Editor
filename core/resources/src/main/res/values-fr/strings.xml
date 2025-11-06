@@ -474,4 +474,14 @@
     <string name="add_command">Ajouter commande</string>
     <string name="info_toolbar_actions">Détermine quelles commandes sont affichées quand un fichier est ouvert. Faire un appui long et glisser pour changer l\'ordre, ou appuyer pour ajouter une commande.</string>
     <string name="disable">Désactiver</string>
+    <string name="open_as_project">Ouvrir en tant que projet</string>
+    <string name="language_server">Serveur de langue</string>
+    <string name="manage_language_servers">Gérer les serveurs de langue</string>
+    <string name="manage_language_servers_desc">Installer, connecter et configurer des serveurs de langue</string>
+    <string name="format_on_save">Mise en forme lors de l\'enregistrement</string>
+    <string name="format_on_save_desc">Mettre en forme automatiquement le fichier lors de l\'enregistrement</string>
+    <string name="format_document">Mise en forme du document</string>
+    <string name="format_selection">Mise en forme de la sélection</string>
+    <string name="format_error">Impossible de mettre en forme le document.</string>
+    <string name="format_range_error">Impossible de mettre en forme la partie du document.</string>
 </resources>
