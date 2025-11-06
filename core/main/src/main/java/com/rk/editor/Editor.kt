@@ -406,7 +406,7 @@ class Editor : CodeEditor {
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
         langMutex.withLock {
 
-            while (!completionFuture.isCompleted) {
+            if (!completionFuture.isCompleted) {
                 completionFuture.await()
             }
 
