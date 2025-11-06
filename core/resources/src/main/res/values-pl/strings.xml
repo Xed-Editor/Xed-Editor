@@ -483,4 +483,6 @@
     <string name="format_selection">Wybór formatu</string>
     <string name="format_error">Nie można sformatować dokumentu.</string>
     <string name="format_range_error">Nie można sformatować zakresu dokumentu.</string>
+    <string name="format_document_error">Nie można sformatować dokumentu.</string>
+    <string name="format_selection_error">Nie można sformatować wyboru.</string>
 </resources>
