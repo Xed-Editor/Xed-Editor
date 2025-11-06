@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.unit.Density
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import com.rk.settings.Settings
 import com.rk.theme.currentTheme
 import com.rk.utils.application
@@ -261,9 +262,13 @@ class Editor : CodeEditor {
                     "tokenColors"
                 } else null
 
+                selectedTheme?.let {
+                    jsonObject.add("name", JsonPrimitive(it.name))
+                }
+
                 if (!tokenArray.isEmpty) {
                     if (arrayName != null) {
-                        if (selectedTheme?.inheritBase == true) {
+                        if (selectedTheme!!.inheritBase) {
                             val existingTokenColors = jsonObject[arrayName].asJsonArray
                             existingTokenColors.addAll(tokenArray)
                         } else {
