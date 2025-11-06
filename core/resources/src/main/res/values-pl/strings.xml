@@ -51,7 +51,7 @@
     <string name="restart_to_apply">Proszę, uruchom ponownie, aby zastosować zmiany</string>
     <string name="oled">Czarny motyw</string>
     <string name="word_wrap">Zawijanie tekstu</string>
-    <string name="keep_drawer_locked">Utrzymuj szufladę w pozycji zablokowanej</string>
+    <string name="keep_drawer_locked">Zablokuj szufladę</string>
     <string name="restart">Uruchom ponownie</string>
     <string name="refresh">Przeładuj</string>
     <string name="dir_example">Nazwa (np. Test)</string>
@@ -352,7 +352,7 @@
     <string name="logcat_saved">Plik zapisany w katalogu głównym terminalu jako logcat.txt</string>
     <string name="stop_logcat">Zatrzymaj przechwytywanie dzienników komunikatów</string>
     <string name="discord">Społeczność Discord\'a</string>
-    <string name="use_tabs">Wstaw tabulator</string>
+    <string name="use_tabs">Wstaw znak Tab</string>
     <string name="view_github_profile">Odwiedź profil GitHub</string>
     <string name="debug_options">Opcje debug</string>
     <string name="debug_options_desc">Opcje debug dla %s</string>
@@ -477,8 +477,8 @@
     <string name="language_server">Serwer językowy</string>
     <string name="manage_language_servers">Zarządzaj serwerami językowymi</string>
     <string name="manage_language_servers_desc">Instaluj, połącz oraz konfiguruj serwery językowe</string>
-    <string name="format_on_save">Format przy zapisywaniu</string>
-    <string name="format_on_save_desc">Formatuj automatycznie przy zapisie</string>
+    <string name="format_on_save">Formatuj przy zapisie</string>
+    <string name="format_on_save_desc">Automatycznie formatowanie przy zapisywaniu</string>
     <string name="format_document">Formatuj dokument</string>
     <string name="format_selection">Wybór formatu</string>
     <string name="format_error">Nie można sformatować dokumentu.</string>
