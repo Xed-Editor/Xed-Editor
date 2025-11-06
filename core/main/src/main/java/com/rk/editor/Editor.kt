@@ -365,10 +365,26 @@ class Editor : CodeEditor {
                 else -> isDarkMode(context)
             }
 
-            // Important
             val prefix = if (darkTheme) "dark" else "light"
-            return "${prefix}_${Settings.theme}_${Settings.amoled}"
+
+            //do not change order of prefix and amoled
+            return buildString {
+                append(prefix)
+                append('_')
+                append(Settings.theme)
+                append('_')
+                append(currentTheme.value?.darkEditorColors.hashCode())
+                append('_')
+                append(currentTheme.value?.lightEditorColors.hashCode())
+                append('_')
+                append(currentTheme.value?.darkTokenColors.hashCode())
+                append('_')
+                append(currentTheme.value?.lightTokenColors.hashCode())
+                append('_')
+                append(Settings.amoled)
+            }
         }
+
 
         suspend fun initGrammarRegistry() = withContext(Dispatchers.IO) {
             if (!completionFuture.isCompleted) {
@@ -386,12 +402,12 @@ class Editor : CodeEditor {
         langMutex.withLock {
 
             while (!completionFuture.isCompleted) {
-                delay(50)
+                completionFuture.await()
             }
 
             delay(100)
 
-            val language = highlightingCache.getOrPut(languageScopeName) {
+            val language = highlightingCache.getOrPut(getCacheKey(context)+languageScopeName) {
                 TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
                     if (Settings.textmate_suggestion) {
                         launch {

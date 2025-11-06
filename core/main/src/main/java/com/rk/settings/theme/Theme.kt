@@ -163,7 +163,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                         endWidget = {
                             if (!inbuiltThemes.contains(theme)) {
                                 IconButton(onClick = {
-                                    if (currentTheme.value == theme) {
+                                    if (currentTheme.value?.id == theme.id) {
                                         currentTheme.value = blueberry
                                         Settings.theme = blueberry.id
 
