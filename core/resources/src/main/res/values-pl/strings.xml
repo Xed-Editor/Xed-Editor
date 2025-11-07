@@ -81,7 +81,7 @@
     <string name="extra_keys">Dodatkowe klawisze</string>
     <string name="extra_keys_desc">Pokaż dodatkowe klawisze nad klawiaturą</string>
     <string name="auto_save">Automatyczny zapis</string>
-    <string name="auto_save_desc">Automatyczne zapisywanie pliku</string>
+    <string name="auto_save_desc">Automatycznie zapisuj plik</string>
     <string name="interval_in_ms">Interwał w milisekundach</string>
     <string name="value_invalid">Nieprawidłowa wartość</string>
     <string name="value_small">Wartość zbyt niska</string>
@@ -220,7 +220,7 @@
     <string name="toggle_suggestion">Włącz sugestie</string>
     <string name="run">Uruchom</string>
     <string name="txt_word_wrap">Zawijanie w plikach TXT</string>
-    <string name="txt_word_wrap_desc">Automatycznie zawijaj pliki TXT</string>
+    <string name="txt_word_wrap_desc">Automatyczne zawijanie w plikach TXT</string>
     <string name="manage_editor_font">Zarządzaj czcionkami edytora</string>
     <string name="default_encoding">Domyślne kodowanie</string>
     <string name="default_encoding_desc">Domyślne kodowanie w edytorze</string>
@@ -364,7 +364,7 @@
     <string name="strict_mode_desc">Wykryj dostęp do dysku lub sieci w głównym wątku</string>
     <string name="use_tabs_desc">Użyj prawdziwego tabulatora (/t) zamiast spacji, aby zastosować wcięcie</string>
     <string name="render_whitespace">Renderowanie białej spacji</string>
-    <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w lini jako widoczne symbole</string>
+    <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w linijkach jako widoczne symbole</string>
     <string name="manage_storage_reason">Aplikacja wymaga dostępu, aby edytować pliki w pamięci wewnętrznej. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
     <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji aplikacji. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
@@ -444,9 +444,9 @@
     <string name="rename_failed">Nie można zmienić nazwy</string>
     <string name="expert_mode">Tryb eksperta</string>
     <string name="line_spacing_desc">Mnożnik odległości między linijkami w edytorze</string>
-    <string name="enable_sticky_scroll">Włącz lepkie przewijanie</string>
+    <string name="enable_sticky_scroll">Lepkie przewijanie</string>
     <string name="enable_sticky_scroll_desc">Przypnij aktualny nagłówek bloku kodu, aby pozostał widoczny podczas przewijania</string>
-    <string name="enable_quick_deletion">Włącz szybkie usuwanie linijki</string>
+    <string name="enable_quick_deletion">Szybkie usuwanie linijki</string>
     <string name="enable_quick_deletion_desc">Automatycznie usuń całą linijkę, gdy jest pusta</string>
     <string name="expert_mode_warn">Tryb eksperta wyłącza zabezpieczenia, które mogą doprowadzić do utraty danych lub innych awarii. Włącz tylko, jeśli wiesz co robisz.</string>
     <string name="external_lsp">Zewnętrzny serwer</string>
@@ -478,11 +478,12 @@
     <string name="manage_language_servers">Zarządzaj serwerami językowymi</string>
     <string name="manage_language_servers_desc">Instaluj, połącz oraz konfiguruj serwery językowe</string>
     <string name="format_on_save">Formatuj przy zapisie</string>
-    <string name="format_on_save_desc">Automatycznie formatowanie przy zapisywaniu</string>
+    <string name="format_on_save_desc">Automatycznie formatuj przy zapisywaniu</string>
     <string name="format_document">Formatuj dokument</string>
     <string name="format_selection">Wybór formatu</string>
     <string name="format_error">Nie można sformatować dokumentu.</string>
     <string name="format_range_error">Nie można sformatować zakresu dokumentu.</string>
     <string name="format_document_error">Nie można sformatować dokumentu.</string>
     <string name="format_selection_error">Nie można sformatować wyboru.</string>
+    <string name="project_restore_failed">Niepowodzenie przywrócenia projektów</string>
 </resources>
