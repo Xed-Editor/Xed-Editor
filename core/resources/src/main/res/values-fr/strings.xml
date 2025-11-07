@@ -484,4 +484,6 @@
     <string name="format_selection">Mise en forme de la sélection</string>
     <string name="format_error">Impossible de mettre en forme le document.</string>
     <string name="format_range_error">Impossible de mettre en forme la partie du document.</string>
+    <string name="format_document_error">Impossible de mettre en forme le document.</string>
+    <string name="format_selection_error">Impossible de mettre en forme la sélection.</string>
 </resources>
