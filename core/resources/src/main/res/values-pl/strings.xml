@@ -486,4 +486,12 @@
     <string name="format_document_error">Nie można sformatować dokumentu.</string>
     <string name="format_selection_error">Nie można sformatować wyboru.</string>
     <string name="project_restore_failed">Niepowodzenie przywrócenia projektów</string>
+    <string name="can_execute">Można uruchomić</string>
+    <string name="calculating">Obliczanie…</string>
+    <string name="permissions">Uprawnienia</string>
+    <string name="lsp_process_desc">Skrypty startowe terminalu, np: /initrc oraz .bashrc, nie będą uruchamiane przed poleceniem.</string>
+    <string name="command">Polecenie</string>
+    <string name="empty_command">Puste polecenie</string>
+    <string name="socket">Gniazdo</string>
+    <string name="process">Proces</string>
 </resources>
