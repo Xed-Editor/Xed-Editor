@@ -2,7 +2,6 @@ package com.rk.tabs
 
 import android.widget.ImageView
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -18,10 +17,10 @@ import com.rk.icons.Photo
 import com.rk.icons.XedIcons
 
 class ImageTab(
-    private val fileObject: FileObject
+    override val file: FileObject
 ) : Tab() {
 
-    override var tabTitle: MutableState<String> = mutableStateOf(fileObject.getName())
+    override var tabTitle: MutableState<String> = mutableStateOf(file.getName())
 
     override val icon: ImageVector
         get() = XedIcons.Photo
@@ -31,20 +30,17 @@ class ImageTab(
 
     @Composable
     override fun Content() {
-        Box(modifier = Modifier.fillMaxSize().clipToBounds()){
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .clipToBounds()) {
             AndroidView(
                 factory = { context ->
                     PhotoView(context).apply {
                         this.scaleType = ImageView.ScaleType.FIT_CENTER
-                        Glide.with(context).load(fileObject.toUri()).into(this)
+                        Glide.with(context).load(file.toUri()).into(this)
                     }
                 }
             )
         }
     }
-
-    @Composable
-    override fun RowScope.Actions() { }
-
-    override fun onTabRemoved(){}
 }

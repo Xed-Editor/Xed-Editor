@@ -7,18 +7,24 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.file.FileObject
 import kotlin.random.Random.Default.nextInt
 
-
 abstract class Tab() {
     var refreshKey: Int = nextInt()
     abstract val name: String
     abstract val icon: ImageVector
 
+    /**
+     * Can be null if tab is not file-related.
+     * */
+    open val file: FileObject? = null
+
     abstract var tabTitle: MutableState<String>
-    abstract fun onTabRemoved()
+    open fun onTabRemoved() {}
 
     @Composable
     abstract fun Content()
 
     @Composable
-    abstract fun RowScope.Actions()
+    open fun RowScope.Actions() {}
+
+    open val showGlobalActions: Boolean = true
 }
