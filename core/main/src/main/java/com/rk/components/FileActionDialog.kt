@@ -579,9 +579,7 @@ fun PropertiesDialog(
     val calculatingText = stringResource(strings.calculating)
 
     LaunchedEffect(file) {
-        size = withContext(Dispatchers.IO) {
-            file.calcSize()
-        }
+        size = file.calcSize()
     }
 
     AlertDialog(

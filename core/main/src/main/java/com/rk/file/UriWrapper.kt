@@ -178,11 +178,11 @@ class UriWrapper : FileObject {
         return@withContext file.length()
     }
 
-    override suspend fun calcSize(): Long {
-        return if (isFile()) length() else folderSize(this)
+    override suspend fun calcSize(): Long = withContext(Dispatchers.IO) {
+        return@withContext if (isFile()) length() else folderSize(this@UriWrapper)
     }
 
-    private fun folderSize(folder: FileObject): Long {
+    private suspend fun folderSize(folder: FileObject): Long {
         var length: Long = 0
         for (file in folder.listFiles()) {
             length += if (file.isFile()) {

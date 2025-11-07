@@ -101,8 +101,8 @@ class FileWrapper(var file: File) : FileObject {
         return@withContext file.length()
     }
 
-    override suspend fun calcSize(): Long {
-        return if (isFile()) length() else getFolderSize(this)
+    override suspend fun calcSize(): Long = withContext(Dispatchers.IO) {
+        return@withContext if (isFile()) length() else getFolderSize(this@FileWrapper)
     }
 
     private suspend fun getFolderSize(folder: FileObject): Long {
