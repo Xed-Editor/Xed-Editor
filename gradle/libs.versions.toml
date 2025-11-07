@@ -1,5 +1,5 @@
 [versions]
-agp = "8.11.1"
+agp = "8.13.0"
 annotation = "1.9.1"
 anrwatchdog = "1.4.0"
 appcompat = "1.7.1"
@@ -46,6 +46,7 @@ runner = "1.5.2"
 benchmarkJunit4 = "1.2.4"
 lifecycleProcess = "2.9.4"
 composeDnd = "0.4.0"
+jsch = "2.27.6"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
@@ -87,6 +88,7 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
+jsch = { module = "com.github.mwiede:jsch", version.ref = "jsch" }
 
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 androidx-collection = { module = "androidx.collection:collection", version = "1.5.0" }
