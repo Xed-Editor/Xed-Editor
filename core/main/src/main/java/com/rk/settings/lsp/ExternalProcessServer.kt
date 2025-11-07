@@ -56,9 +56,9 @@ fun ExternalProcessServer(modifier: Modifier = Modifier,onConfirm: (BaseLspServe
     val confirmEnabled by remember {
         derivedStateOf {
             error == null &&
-                    extensionsError == null &&
-                    command.isNotBlank() &&
-                    extensions.isNotBlank()
+            extensionsError == null &&
+            command.isNotBlank() &&
+            extensions.isNotBlank()
         }
     }
 
@@ -71,11 +71,9 @@ fun ExternalProcessServer(modifier: Modifier = Modifier,onConfirm: (BaseLspServe
 
     Text(
         modifier = Modifier.padding(8.dp),
-        text = "The terminal's initialization scripts, e.g., /initrc and .bashrc, will not run. before this command",
+        text = stringResource(strings.lsp_process_desc),
         style = MaterialTheme.typography.bodySmall
     )
-
-
 
     OutlinedTextField(
         value = command,
@@ -84,10 +82,10 @@ fun ExternalProcessServer(modifier: Modifier = Modifier,onConfirm: (BaseLspServe
             error = null
 
             if (command.isBlank()) {
-                error = "Empty Command"
+                error = strings.empty_command.getString()
             }
         },
-        label = { Text("Command") },
+        label = { Text(stringResource(strings.command)) },
         singleLine = true,
         isError = error != null,
         supportingText = {
@@ -107,6 +105,7 @@ fun ExternalProcessServer(modifier: Modifier = Modifier,onConfirm: (BaseLspServe
     )
 
     Spacer(Modifier.height(4.dp))
+
     OutlinedTextField(
         value = extensions,
         onValueChange = { newValue ->
@@ -142,7 +141,11 @@ fun ExternalProcessServer(modifier: Modifier = Modifier,onConfirm: (BaseLspServe
         },
     )
 
-    Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         TextButton(onClick = {
             onDismiss()
         }) {
@@ -153,7 +156,11 @@ fun ExternalProcessServer(modifier: Modifier = Modifier,onConfirm: (BaseLspServe
 
         TextButton(onClick = {
             runCatching {
-                val server = ExternalProcessServer(languageName = parseExtensions(extensions).first(),command = command, supportedExtensions = parseExtensions(extensions))
+                val server = ExternalProcessServer(
+                    languageName = parseExtensions(extensions).first(),
+                    command = command,
+                    supportedExtensions = parseExtensions(extensions)
+                )
                 onConfirm(server)
             }.onFailure { toast(it.message) }
             onDismiss()
