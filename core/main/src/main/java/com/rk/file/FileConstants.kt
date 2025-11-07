@@ -1,12 +1,17 @@
 package com.rk.file
 
 import android.content.Context
-import com.rk.libcommons.application
-import com.rk.xededitor.BuildConfig
+import com.rk.utils.application
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 fun getPrivateDir(context: Context = application!!): File {
-    return context.filesDir.parentFile!!
+    //blocking thread is fine since we are always know it is just a java.io.File and we are not doing heavy stuff
+    return runBlocking { context.filesDir.createDirIfNot().parentFile.createDirIfNot() }
+}
+
+fun getCacheDir(context: Context = application!!): File {
+    return context.cacheDir.createDirIfNot()
 }
 
 fun localDir(context: Context = application!!): File {
@@ -43,4 +48,8 @@ fun runnerDir(context: Context = application!!): File{
 
 fun themeDir(context: Context = application!!): File{
     return localDir(context).child("themes").createDirIfNot()
+}
+
+fun persistentTempDir(context: Context = application!!): File{
+    return getCacheDir(context).child("tempFiles").createDirIfNot()
 }

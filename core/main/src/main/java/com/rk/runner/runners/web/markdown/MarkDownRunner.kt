@@ -14,17 +14,17 @@ var mdViewerRef = WeakReference<MDViewer?>(null)
 var toPreviewFile: FileObject? = null
 
 class MarkDownRunner : RunnerImpl() {
-    override suspend fun run(context: Context,file: FileObject) {
+    override suspend fun run(context: Context, file: FileObject) {
         val intent = Intent(context, MDViewer::class.java)
         toPreviewFile = file
         context.startActivity(intent)
     }
 
-    override suspend fun getName(): String {
+    override fun getName(): String {
         return "MarkDown"
     }
 
-    override suspend fun getIcon(context: Context): Drawable? {
+    override fun getIcon(context: Context): Drawable? {
         return ContextCompat.getDrawable(context, R.drawable.markdown)
     }
 

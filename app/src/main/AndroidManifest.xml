@@ -15,6 +15,7 @@
 
     <queries>
         <package android:name="com.github.android" />
+        <package android:name="com.termux.x11" />
 
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
@@ -41,8 +42,12 @@
             android:shell="true"
             tools:targetApi="29" />
 
+        <service
+            android:name="com.rk.SessionService"
+            android:foregroundServiceType="specialUse" />
+
         <activity
-            android:name="com.rk.xededitor.ui.activities.main.MainActivity"
+            android:name="com.rk.activities.main.MainActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
             android:inputType="textFilter"
@@ -69,11 +74,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="com.rk.SessionService"
-            android:foregroundServiceType="specialUse" />
-        <service android:name="com.rk.LogcatService" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -88,20 +88,20 @@
             android:name="com.rk.crashhandler.CrashActivity"
             android:exported="false" />
         <activity
-            android:name="com.rk.xededitor.ui.activities.settings.SettingsActivity"
+            android:name="com.rk.activities.settings.SettingsActivity"
             android:exported="false" />
         <activity
             android:name="com.rk.runner.runners.web.markdown.MDViewer"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="Instantiatable" />
         <activity
             android:name="com.rk.runner.runners.web.WebActivity"
             android:exported="false" />
         <activity
-            android:name="com.rk.xededitor.ui.activities.terminal.Terminal"
+            android:name="com.rk.activities.terminal.Terminal"
             android:exported="true"
             android:label="Terminal"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>
-
 </manifest>

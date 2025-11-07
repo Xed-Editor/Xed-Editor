@@ -34,7 +34,7 @@
     <string name="null_content">பிழை: உள்ளடக்கம் பூச்யமானது</string>
     <string name="saved_all">எல்லா கோப்புகளையும் சேமித்தது</string>
     <string name="save">சேமி</string>
-    <string name="ww_wait">சொல் மடக்கு முடிவடையும் வரை காத்திருங்கள்</string>
+    <string name="word_wrap_wait">சொல் மடக்கு முடிவடையும் வரை காத்திருங்கள்</string>
     <string name="open_file_or_folder">கோப்பு அல்லது கோப்புறையைத் திறக்கவும்</string>
     <string name="new_file">புதிய கோப்பு</string>
     <string name="new_file_hint">பெயர் எ.கா. Test.txt</string>
@@ -67,10 +67,9 @@
     <string name="cancel">ரத்துசெய்</string>
     <string name="save_exit">சேமித்து வெளியேறவும்</string>
     <string name="exit">வெளியேறு</string>
-    <string name="rr">மறுதொடக்கம் தேவை</string>
     <string name="restart_to_apply">அமைப்புகளைப் பயன்படுத்த மறுதொடக்கம் செய்யுங்கள்</string>
     <string name="oled">கருப்பு கருப்பொருள்</string>
-    <string name="ww">சொல் மடக்கு</string>
+    <string name="word_wrap">சொல் மடக்கு</string>
     <string name="keep_drawer_locked">டிராயரை பூட்டிக் கொள்ளுங்கள்</string>
     <string name="restart">மறுதொடக்கம்</string>
     <string name="refresh">மறுஏற்றம்</string>
@@ -84,8 +83,6 @@
     <string name="cant_handle">கோப்பைக் கையாள எந்த பயன்பாடும் கிடைக்கவில்லை</string>
     <string name="terminal">முனையத்தில்</string>
     <string name="keyword_regex">முக்கிய சொல் (ரீசெக்ச்)</string>
-    <string name="add_new_replacement_batch">புதிய மாற்று தொகுதியைச் சேர்க்கவும்</string>
-    <string name="remove_a_search_batch">ஒரு தேடல் தொகுதியை அகற்று</string>
     <string name="replacement">மாற்று</string>
     <string name="tab_text_1">தாவல் 1</string>
     <string name="tab_text_2">தாவல் 2</string>
@@ -93,7 +90,6 @@
     <string name="description">விவரம்</string>
     <string name="download">பதிவிறக்கம்</string>
     <string name="dir_exist_not">கோப்புறை இல்லை</string>
-    <string name="file_exist_not">கோப்பு இனி இல்லை</string>
     <string name="close_current_project">தற்போதைய திட்டத்தை மூடு</string>
     <string name="file_saved">கோப்பு சேமிக்கப்பட்டது</string>
     <string name="open_in_terminal">முனையத்தில் திறந்திருக்கும்</string>
@@ -147,7 +143,7 @@
     <string name="editor">திருத்தி</string>
     <string name="smooth_tabs">மென்மையான தாவல்கள்</string>
     <string name="smooth_tab_desc">தாவல்களுக்கு இடையில் சீராக மாறவும்</string>
-    <string name="ww_desc">அனைத்து ஆசிரியர்களிடமும் சொல் மடக்கை இயக்கவும்</string>
+    <string name="word_wrap_desc">அனைத்து ஆசிரியர்களிடமும் சொல் மடக்கை இயக்கவும்</string>
     <string name="drawer_lock_desc">கோப்பைத் திறக்கும்போது டிராயரை பூட்டிக் கொள்ளுங்கள்</string>
     <string name="diagonal_scroll">மூலைவிட்ட ச்க்ரோலிங்</string>
     <string name="diagonal_scroll_desc">கோப்பு மரத்தில் மூலைவிட்ட ச்க்ரோலிங் இயக்கவும்</string>
@@ -158,9 +154,9 @@
     <string name="auto_save">தானியங்கு சேமிப்பு</string>
     <string name="auto_save_desc">கோப்பை தானாக சேமிக்கவும்</string>
     <string name="interval_in_ms">மில்லி விநாடிகளில் இடைவெளி</string>
-    <string name="invalid_v">தவறான மதிப்பு</string>
-    <string name="v_small">மதிப்பு மிகவும் சிறியது</string>
-    <string name="v_large">மதிப்பு மிகப் பெரியது</string>
+    <string name="value_invalid">தவறான மதிப்பு</string>
+    <string name="value_small">மதிப்பு மிகவும் சிறியது</string>
+    <string name="value_large">மதிப்பு மிகப் பெரியது</string>
     <string name="text_size">உரை அளவு</string>
     <string name="text_size_desc">உரை அளவை அமைக்கவும்</string>
     <string name="tab_size">தாவல் அளவு</string>
@@ -174,7 +170,7 @@
     <string name="terminal_desc">பொது முனைய அமைப்புகள்</string>
     <string name="terminal_text_size_desc">முனைய உரை அளவை அமைக்கவும்</string>
     <string name="terminal_text_size">முனைய உரை அளவு</string>
-    <string name="u_err">தெரியாத பிழை</string>
+    <string name="unknown_error">தெரியாத பிழை</string>
     <string name="saved">சேமிக்கப்பட்டது</string>
     <string name="is_null">உள்ளீட்டு நீரோடை பூச்யமாகும்</string>
     <string name="wait_pkg">தொகுப்புகள் பதிவிறக்கம் செய்யப்படும்போது தயவுசெய்து காத்திருங்கள்.</string>
@@ -217,8 +213,8 @@
     <string name="file_too_large">கோப்பு திறக்க முடியாத அளவுக்கு பெரியது</string>
     <string name="toggle_suggestion">ஆலோசனையை மாற்றவும்</string>
     <string name="run">ஓடு</string>
-    <string name="txt_ww">உரை கோப்புகளை மடிக்கவும்</string>
-    <string name="txt_ww_desc">உரை கோப்புகளை தானாக மடிக்கவும்</string>
+    <string name="txt_word_wrap">உரை கோப்புகளை மடிக்கவும்</string>
+    <string name="txt_word_wrap_desc">உரை கோப்புகளை தானாக மடிக்கவும்</string>
     <string name="manage_editor_font">ஆசிரியர் எழுத்துருக்களை நிர்வகிக்கவும்</string>
     <string name="default_encoding">இயல்புநிலை குறியாக்கம்</string>
     <string name="other">மற்றொன்று</string>
@@ -251,8 +247,6 @@
     <string name="add_session">அமர்வு சேர்க்கவும்</string>
     <string name="terminal_runtime">முனைய இயக்க நேரம்</string>
     <string name="terminal_runtime_desc">முனைய இயக்க நேரத்தைத் தேர்ந்தெடுக்கவும்</string>
-    <string name="enable_ext">நீட்டிப்புகள்</string>
-    <string name="enable_ext_desc">மூன்றாம் தரப்பு நீட்டிப்புகளை ஏற்றவும்</string>
     <string name="ext">நீட்டிப்புகள்</string>
     <string name="ext_desc">நீட்டிப்புகளை நிர்வகிக்கவும்</string>
     <string name="info_mutators">பிறழ்வுகள் சிறிய ச்கிரிப்ட்கள் ஆகும், அவை எடிட்டர் உரையை மாற்ற பயன்படுகின்றன. ஒரு பிறழ்வை உருவாக்கி, அதை எடிட்டரில் திறக்க அதைக் சொடுக்கு செய்க.</string>
@@ -288,7 +282,7 @@
     <string name="unrestricted_file_desc">எந்த அளவிலான கோப்புகளையும் திறக்க அனுமதிக்கவும். விபத்துக்களுக்கு வழிவகுக்கும்.</string>
     <string name="suggest_clear_app_data">பயன்பாட்டு தரவை அழிக்க பரிந்துரைக்கப்படுகிறது</string>
     <string name="update_files_cleared">பயன்பாடு புதுப்பிக்கப்பட்டது: தரவு அழிக்கப்பட்டது</string>
-    <string name="toggle_ww">சொல் மடக்கு மாற்று</string>
+    <string name="toggle_word_wrap">சொல் மடக்கு மாற்று</string>
     <string name="warning_private_dir">நீங்கள் தரவை அழித்தால் அல்லது xed-editer ஐ நீக்கினால் இந்த கோப்பகத்தின் உள்ளடக்கம் நீக்கப்படும்</string>
     <string name="read_only_file">கோப்பு மட்டுமே படிக்கப்படுகிறது</string>
     <string name="new_document">புதிய ஆவணம்</string>
@@ -309,7 +303,6 @@
     <string name="saf_expose_warning">வீட்டு கோப்பகத்தை அம்பலப்படுத்துவது, அறிவிலி டோக்கன்கள், கடவுச்சொற்கள், பயனர்பெயர்கள் மற்றும் உங்கள் டெர்மினல் ஓம் டைரக்டரியில் சேமிக்கப்பட்ட பிற கோப்புகள் உள்ளிட்ட தீங்கிழைக்கும் பயன்பாடுகளுக்கு முக்கியமான தகவல்களை வெளிப்படுத்தக்கூடும். நீங்கள் தொடர விரும்புகிறீர்களா?</string>
     <string name="info">தகவல்</string>
     <string name="file_info">கோப்பு செய்தி</string>
-    <string name="file_size">கோப்பு அளவு</string>
     <string name="can_read">படிக்க முடியும்</string>
     <string name="can_write">எழுத முடியும்</string>
     <string name="is_file">கோப்பு</string>
@@ -352,7 +345,6 @@
     <string name="control_panel">Controlpanel</string>
     <string name="tab_memory_warning">இந்த தாவலைத் திறக்க போதுமான நினைவகம் கிடைக்கவில்லை. அதைத் திறப்பது xed-editor விபத்துக்குள்ளாக்கக்கூடும். எப்படியும் தொடர விரும்புகிறீர்களா?</string>
     <string name="read_mode_desc">இயல்புநிலையாக வாசிப்பு பயன்முறையை இயக்கவும்</string>
-    <string name="preview_err">இந்த கோப்பை முன்னோட்டமிட முடியவில்லை. பெற்றோர் அடைவு எதுவும் கிடைக்கவில்லை. இந்த கோப்பை வேறு எங்காவது நகர்த்துவதைக் கவனியுங்கள்.</string>
     <string name="acquire_wakelock">வேக்கலாக் பெறுங்கள்</string>
     <string name="release_wakelock">வேக்க்லாக் வெளியீடு</string>
     <string name="getting_ready">எல்லாவற்றையும் ஆயத்தம் செய்வது…</string>

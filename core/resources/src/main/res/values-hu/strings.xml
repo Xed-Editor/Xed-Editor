@@ -29,7 +29,6 @@
     <string name="close_drawer">bezárás</string>
     <string name="close_all">Mind bezárása</string>
     <string name="exit">Kilépés</string>
-    <string name="rr">Újraindítás Szükséges</string>
     <string name="dir_example">Név pl.: Teszt</string>
     <string name="already_exists">Már van dokumentum ilyen néven</string>
     <string name="create">Elkészítés</string>
@@ -41,7 +40,7 @@
     <string name="ask_enter_name">Írj be egy nevet</string>
     <string name="unsupported_content">Nem támogatott tartalom</string>
     <string name="null_content">Hiba: A tartalom null</string>
-    <string name="ww_wait">Várj amíg a sortörés befejeződik</string>
+    <string name="word_wrap_wait">Várj amíg a sortörés befejeződik</string>
     <string name="open_file_or_folder">Fájl vagy mappa megnyitása</string>
     <string name="open_directory">Mappa megnyitása</string>
     <string name="new_file">Új Fájl</string>
@@ -57,8 +56,6 @@
     <string name="delete">Törlés</string>
     <string name="keep_drawer_locked">Polc zárva tartása</string>
     <string name="restart">Újraindítás</string>
-    <string name="add_new_replacement_batch">Új cseretétel hozzáadása</string>
-    <string name="remove_a_search_batch">keresési cseretétel eltávolítása</string>
     <string name="replacement">helyettesítés</string>
     <string name="tab_text_1">1.Lap</string>
     <string name="tab_text_2">2.Lap</string>
@@ -77,9 +74,8 @@
     <string name="close_search">Keresés bezárása</string>
     <string name="keyword_regex">kulcsszó (Regex)</string>
     <string name="terminal">Terminál</string>
-    <string name="ww">Sortörés</string>
+    <string name="word_wrap">Sortörés</string>
     <string name="ask_del">Biztosan törlöd?</string>
-    <string name="file_exist_not">A fájl már nem létezik</string>
     <string name="data_clear">Alkalmazásadatok törölve</string>
     <string name="action_done">Kérés végrehajtva</string>
     <string name="clone_repo">Repo klónozása</string>
@@ -108,7 +104,7 @@
     <string name="editor">Szerkesztő</string>
     <string name="smooth_tabs">Sima lapok</string>
     <string name="smooth_tab_desc">Sima váltás a lapok között</string>
-    <string name="ww_desc">Sortörés bekapcsolása minden szerkesztőben</string>
+    <string name="word_wrap_desc">Sortörés bekapcsolása minden szerkesztőben</string>
     <string name="drawer_lock_desc">Eszköztár zárva tartása fájl megnyitása közben</string>
     <string name="diagonal_scroll">Átlós görgetés</string>
     <string name="diagonal_scroll_desc">Átlós görgetés engedélyezése a fájlfában</string>
@@ -121,9 +117,9 @@
     <string name="auto_save">Automentés</string>
     <string name="auto_save_desc">fájlok automatikus elmentése</string>
     <string name="interval_in_ms">Intervallum milliszekundumokban megadva</string>
-    <string name="invalid_v">Invalid érték</string>
-    <string name="v_small">A megadott érték túl alacsony</string>
-    <string name="v_large">A megadott érték túl nagy</string>
+    <string name="value_invalid">Invalid érték</string>
+    <string name="value_small">A megadott érték túl alacsony</string>
+    <string name="value_large">A megadott érték túl nagy</string>
     <string name="text_size">Szöveg mérete</string>
     <string name="text_size_desc">Szöveg méretének beállítása</string>
     <string name="tab_size_desc">Lapok méretének beállítása</string>

@@ -12,7 +12,7 @@
     <string name="restart_required">পুনরায় চালু করা প্রয়োজন</string>
     <string name="saved_all">সব ফাইল সংরক্ষিত হয়েছে</string>
     <string name="save">সংরক্ষন করুন</string>
-    <string name="ww_wait">শব্দ মোড়ানো সম্পূর্ণ করার জন্য অপেক্ষা করুন</string>
+    <string name="word_wrap_wait">ওয়ার্ড র‍্যাপ সম্পূর্ণ হওয়া পর্যন্ত অপেক্ষা করুন</string>
     <string name="open_file_or_folder">ফাইল বা ফোল্ডার খুলুন</string>
     <string name="open_directory">একটি ডিরেক্টরি খুলুন</string>
     <string name="new_file">নতুন ফাইল</string>
@@ -20,4 +20,19 @@
     <string name="mime">মাইম টাইপ যেমন text/plain</string>
     <string name="rep">প্রতিস্থাপন</string>
     <string name="force_char_desc">Forza Char in base all\'input nel terminale</string>
+    <string name="saved">ফাইল সংরক্ষন করা হয়েছে</string>
+    <string name="search_keyword">সার্চ কিওয়ার্ড</string>
+    <string name="cs">অক্ষর সংবেদনশীল</string>
+    <string name="report_issue">সমস্যা জানান</string>
+    <string name="copy">কপি</string>
+    <string name="save_all">সব সংরক্ষণ করুন</string>
+    <string name="undo">পূর্বাবস্থায় ফিরিয়ে আনুন</string>
+    <string name="settings">সেটিংস</string>
+    <string name="print">প্রিন্ট করুন</string>
+    <string name="replace">প্রতিস্থাপন</string>
+    <string name="share">শেয়ার</string>
+    <string name="reselect">পুনরায় নির্বাচন</string>
+    <string name="open_file">ফাইল খুলুন</string>
+    <string name="new_folder">নতুন ফোল্ডার</string>
+    <string name="rename">পুনঃনামকরণ</string>
 </resources>

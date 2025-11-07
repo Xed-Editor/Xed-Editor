@@ -1,0 +1,30 @@
+set -e
+
+source "$LOCAL/bin/utils"
+
+info 'Preparing installation...'
+apt update && apt upgrade -y
+
+install_nodejs() {
+  info "Installing Node.js LTS..."
+  apt install -y curl ca-certificates
+  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+  apt install -y nodejs
+  mkdir -p /home/.npm-global
+  npm config set prefix '/home/.npm-global'
+  grep -qxF "export PATH=\"/home/.npm-global/bin:\$PATH\"" ~/.bashrc || \
+      echo "export PATH=\"/home/.npm-global/bin:\$PATH\"" >> ~/.bashrc
+  export PATH="/home/.npm-global/bin:$PATH"
+}
+
+if ! command_exists node || ! command_exists npm; then
+  install_nodejs
+fi
+
+info 'Installing bash language server...'
+npm i -g bash-language-server
+
+info 'Installing ShellCheck...'
+apt install -y shellcheck
+
+info 'Bash language server installed successfully. Please reopen all tabs or restart the app.'

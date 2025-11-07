@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.Environment
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import com.rk.libcommons.toast
+import com.rk.utils.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import java.io.File
@@ -16,8 +16,14 @@ fun File.child(fileName: String): File {
     return File(this, fileName)
 }
 
-suspend fun File.createFileIfNot(): File {
-    return (FileWrapper(this).createFileIfNot() as FileWrapper).file
+fun File.createFileIfNot(): File {
+    if (getParentFile()?.exists()?.not() == true) {
+        getParentFile()!!.mkdirs()
+    }
+    if (exists().not()) {
+        createNewFile()
+    }
+    return this
 }
 
 suspend fun FileObject.createFileIfNot(): FileObject {
@@ -30,16 +36,14 @@ suspend fun FileObject.createFileIfNot(): FileObject {
     return this
 }
 
-
-
-suspend fun FileObject.createDirIfNot(): FileObject {
+fun File.createDirIfNot(): File {
     if (exists().not()){
         mkdirs()
     }
     return this
 }
 
-fun File.createDirIfNot(): File {
+suspend fun FileObject.createDirIfNot(): FileObject {
     if (exists().not()){
         mkdirs()
     }

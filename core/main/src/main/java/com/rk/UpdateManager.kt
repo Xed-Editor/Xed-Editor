@@ -1,55 +1,67 @@
 package com.rk
 
 import androidx.core.content.pm.PackageInfoCompat
-import com.rk.libcommons.application
+import com.rk.file.child
+import com.rk.utils.application
 import com.rk.file.localBinDir
-import com.rk.libcommons.toast
-import com.rk.resources.strings
+import com.rk.file.localDir
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 
 object UpdateManager {
-    private suspend fun deleteCommonFiles() = with(application!!){
+    private fun deleteCommonFiles() = with(application!!) {
         codeCacheDir.apply {
-            if (exists()){
+            if (exists()) {
                 deleteRecursively()
             }
         }
 
         localBinDir().apply {
-            if (exists()){
+            if (exists()) {
                 deleteRecursively()
             }
         }
     }
 
-    suspend fun inspect() = with(application!!){
+    fun inspect() = with(application!!) {
         val lastVersionCode = Settings.lastVersionCode
-        val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
+        val currentVersionCode =
+            PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
 
-        if (lastVersionCode != currentVersionCode){
-            //app is updated
-            when(lastVersionCode){
-                //what to do if the last version code matches this
+        if (lastVersionCode != currentVersionCode) {
+            // App is updated -> Migrate existing files
+            if (lastVersionCode <= 40L) {
+                Preference.clearData()
+            }
 
-                -1L -> {
-                    deleteCommonFiles()
-                }
-                40L -> {
-                    Preference.clearData()
-                    deleteCommonFiles()
-                }
-                48L -> {
-                    deleteCommonFiles()
-                }
-                else -> {
-                    deleteCommonFiles()
+            if (lastVersionCode <= 66L) {
+                Settings.line_spacing = 1f
+            }
+
+            if (lastVersionCode <= 68L){
+                val rootfs = sandboxDir().listFiles()?.filter {
+                    it.absolutePath != sandboxHomeDir().absolutePath && it.absolutePath != sandboxDir().child(
+                        "tmp"
+                    ).absolutePath
+                } ?: emptyList()
+
+
+                if (rootfs.isNotEmpty()){
+                    localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").createNewFile()
                 }
             }
 
+            if (lastVersionCode <= 69L){
+                sandboxDir().child(".cache/.packages_ensured").apply {
+                    if (exists()){ delete() }
+                }
+            }
+
+            deleteCommonFiles()
         }
 
         Settings.lastVersionCode = currentVersionCode
-
     }
 }

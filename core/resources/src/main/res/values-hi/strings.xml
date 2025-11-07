@@ -9,7 +9,7 @@
     <string name="restart_required">रिस्टार्ट जरूरी</string>
     <string name="saved_all">सभी फ़ाइलें सेव हुईं</string>
     <string name="save">सेव करें</string>
-    <string name="ww_wait">वर्ड रैप पूरा होने तक प्रतीक्षा करें</string>
+    <string name="word_wrap_wait">वर्ड रैप पूरा होने तक प्रतीक्षा करें</string>
     <string name="open_file_or_folder">फ़ाइल या फ़ोल्डर खोलें</string>
     <string name="open_directory">डायरेक्टरी खोलें</string>
     <string name="new_file">नई फ़ाइल</string>
@@ -49,10 +49,9 @@
     <string name="cancel">कैंसिल</string>
     <string name="save_exit">सेव करके बाहर निकलें</string>
     <string name="exit">बाहर निकलें</string>
-    <string name="rr">रिस्टार्ट जरूरी</string>
     <string name="restart_to_apply">सेटिंग्स लागू करने के लिए रिस्टार्ट करें</string>
     <string name="oled">ब्लैक थीम</string>
-    <string name="ww">वर्ड रैप</string>
+    <string name="word_wrap">वर्ड रैप</string>
     <string name="keep_drawer_locked">ड्रॉअर लॉक रखें</string>
     <string name="restart">रिस्टार्ट करें</string>
     <string name="refresh">रीलोड करें</string>
@@ -68,8 +67,6 @@
     <string name="add_file">बाहरी फ़ाइल जोड़ें</string>
     <string name="keyword_regex">कीवर्ड (रेजेक्स)</string>
     <string name="replace_all">सभी रिप्लेस करें</string>
-    <string name="add_new_replacement_batch">नया रिप्लेसमेंट बैच जोड़ें</string>
-    <string name="remove_a_search_batch">खोज बैच हटाएँ</string>
     <string name="replacement">रिप्लेसमेंट</string>
     <string name="tab_text_1">टैब १</string>
     <string name="tab_text_2">टैब २</string>
@@ -77,7 +74,6 @@
     <string name="description">विवरण</string>
     <string name="download">डाउनलोड</string>
     <string name="dir_exist_not">फ़ोल्डर मौजूद नहीं</string>
-    <string name="file_exist_not">फ़ाइल मौजूद नहीं</string>
     <string name="file_saved">फ़ाइल सेव हुई</string>
     <string name="apply">लागू करें</string>
     <string name="userdata">यूज़र डेटा</string>
@@ -135,7 +131,7 @@
     <string name="editor">एडिटर</string>
     <string name="smooth_tabs">स्मूथ टैब्स</string>
     <string name="smooth_tab_desc">टैब्स के बीच सहजता से स्विच करें</string>
-    <string name="ww_desc">सभी एडिटर्स में वर्ड रैप सक्षम करें</string>
+    <string name="word_wrap_desc">सभी एडिटर्स में वर्ड रैप सक्षम करें</string>
     <string name="drawer_lock_desc">फ़ाइल खोलते समय ड्रॉअर लॉक रखें</string>
     <string name="diagonal_scroll">डायगोनल स्क्रॉलिंग</string>
     <string name="diagonal_scroll_desc">फ़ाइल ट्री में डायगोनल स्क्रॉलिंग सक्षम करें</string>
@@ -148,9 +144,9 @@
     <string name="auto_save">ऑटो सेव</string>
     <string name="auto_save_desc">फ़ाइल को स्वचालित रूप से सेव करें</string>
     <string name="interval_in_ms">मिलीसेकंड में अंतराल</string>
-    <string name="invalid_v">अमान्य मान</string>
-    <string name="v_small">मान बहुत छोटा</string>
-    <string name="v_large">मान बहुत बड़ा</string>
+    <string name="value_invalid">अमान्य मान</string>
+    <string name="value_small">मान बहुत छोटा</string>
+    <string name="value_large">मान बहुत बड़ा</string>
     <string name="text_size">टेक्स्ट साइज़</string>
     <string name="text_size_desc">टेक्स्ट साइज़ सेट करें</string>
     <string name="tab_size">टैब साइज़</string>
@@ -164,7 +160,7 @@
     <string name="terminal_desc">सामान्य टर्मिनल सेटिंग्स</string>
     <string name="terminal_text_size">टर्मिनल टेक्स्ट साइज़</string>
     <string name="terminal_text_size_desc">टर्मिनल टेक्स्ट साइज़ सेट करें</string>
-    <string name="u_err">अज्ञात त्रुटि</string>
+    <string name="unknown_error">अज्ञात त्रुटि</string>
     <string name="is_null">इनपुट स्ट्रीम नल है</string>
     <string name="wait_pkg">कृपया प्रतीक्षा करें जब तक पैकेज डाउनलोड हो रहे हैं।</string>
     <string name="unsupported_aarch">असमर्थित प्लेटफ़ॉर्म, फ़ेल सेफ़ उपयोग करें</string>
@@ -210,8 +206,8 @@
     <string name="file_too_large">फ़ाइल बहुत बड़ी है, खोलने के लिए</string>
     <string name="toggle_suggestion">सुझाव टॉगल करें</string>
     <string name="run">रन करें</string>
-    <string name="txt_ww">टेक्स्ट फ़ाइलें रैप करें</string>
-    <string name="txt_ww_desc">टेक्स्ट फ़ाइलों को स्वचालित रूप से रैप करें</string>
+    <string name="txt_word_wrap">टेक्स्ट फ़ाइलें रैप करें</string>
+    <string name="txt_word_wrap_desc">टेक्स्ट फ़ाइलों को स्वचालित रूप से रैप करें</string>
     <string name="manage_editor_font">एडिटर फ़ॉन्ट प्रबंधित करें</string>
     <string name="default_encoding">डिफ़ॉल्ट एन्कोडिंग</string>
     <string name="default_encoding_desc">एडिटर की डिफ़ॉल्ट एन्कोडिंग</string>
@@ -246,8 +242,6 @@
     <string name="add_session">सेशन जोड़ें</string>
     <string name="terminal_runtime">टर्मिनल रनटाइम</string>
     <string name="terminal_runtime_desc">टर्मिनल रनटाइम चुनें</string>
-    <string name="enable_ext">एक्सटेंशन्स</string>
-    <string name="enable_ext_desc">थर्ड-पार्टी एक्सटेंशन्स लोड करें</string>
     <string name="ext">एक्सटेंशन्स</string>
     <string name="ext_desc">एक्सटेंशन्स प्रबंधित करें</string>
     <string name="info_mutators">म्यूटेटर्स छोटी स्क्रिप्ट्स हैं जो एडिटर टेक्स्ट को मॉडिफ़ाई करने के लिए उपयोग की जाती हैं। म्यूटेटर बनाएं और एडिटर में खोलने के लिए उस पर क्लिक करें।</string>
@@ -286,7 +280,7 @@
     <string name="unrestricted_file_desc">किसी भी साइज़ की फ़ाइलें खोलने की अनुमति दें। क्रैश का कारण बन सकता है</string>
     <string name="suggest_clear_app_data">ऐप डेटा क्लियर करने की सिफारिश की गई है</string>
     <string name="update_files_cleared">ऐप अपडेटेड : डेटा क्लियर हो गया</string>
-    <string name="toggle_ww">वर्ड रैप टॉगल करें</string>
+    <string name="toggle_word_wrap">वर्ड रैप टॉगल करें</string>
     <string name="warning_private_dir">यदि आप डेटा क्लियर करते हैं या Xed-Editor डिलीट करते हैं तो इस डायरेक्टरी का कंटेंट डिलीट हो जाएगा</string>
     <string name="read_only_file">फ़ाइल रीड-ओनली है</string>
     <string name="new_document">नया डॉक्यूमेंट</string>
@@ -309,7 +303,6 @@
     <string name="saf_expose_warning">होम डायरेक्टरी एक्सपोज़ करने से संवेदनशील जानकारी (Git टोकन, पासवर्ड, यूज़रनेम आदि) दुर्भावनापूर्ण ऐप्स को दिख सकती है। क्या आप जारी रखना चाहते हैं?</string>
     <string name="info">जानकारी</string>
     <string name="file_info">फ़ाइल जानकारी</string>
-    <string name="file_size">फ़ाइल साइज़</string>
     <string name="can_read">पढ़ सकते हैं</string>
     <string name="can_write">लिख सकते हैं</string>
     <string name="is_file">फ़ाइल है</string>

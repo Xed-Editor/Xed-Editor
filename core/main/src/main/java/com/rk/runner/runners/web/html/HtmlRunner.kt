@@ -2,18 +2,14 @@ package com.rk.runner.runners.web.html
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import com.rk.file.FileObject
-import com.rk.libcommons.errorDialog
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
-import com.rk.resources.getString
-import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
 import androidx.core.net.toUri
-import com.rk.libcommons.toast
+import com.rk.utils.toast
 
 
 class HtmlRunner() : RunnerImpl() {
@@ -24,7 +20,7 @@ class HtmlRunner() : RunnerImpl() {
 
     //a broadcasts should be used instead of this hack
 //    class DevTools : Service(){
-//        override suspend fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+//        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 //            httpServer?.let {
 //                if (it.isAlive.not()){
 //                    stopSelf()
@@ -35,12 +31,12 @@ class HtmlRunner() : RunnerImpl() {
 //            stopSelf()
 //            return super.onStartCommand(intent, flags, startId)
 //        }
-//        override suspend fun onBind(p0: Intent?): IBinder? {
+//        override fun onBind(p0: Intent?): IBinder? {
 //            return null
 //        }
 //    }
 
-    override suspend fun run(context: Context,file: FileObject) {
+    override suspend fun run(context: Context, file: FileObject) {
         stop()
         httpServer = HttpServer(PORT, file.getParentFile() ?: file)
 
@@ -59,11 +55,11 @@ class HtmlRunner() : RunnerImpl() {
         }.build().launchUrl(context, url.toUri())
     }
 
-    override suspend fun getName(): String {
+    override fun getName(): String {
         return "Html"
     }
 
-    override suspend fun getIcon(context: Context): Drawable? =
+    override fun getIcon(context: Context): Drawable? =
         drawables.ic_language_html.getDrawable(context)
 
     override suspend fun isRunning(): Boolean = httpServer?.isAlive == true

@@ -1,3 +1,4 @@
+# shellcheck disable=SC2034
 force_color_prompt=yes
 
 ARGS="--kill-on-exit"
@@ -23,9 +24,9 @@ ARGS="$ARGS -b /dev/urandom:/dev/random"
 ARGS="$ARGS -b /proc"
 ARGS="$ARGS -b $EXT_HOME:/home"
 ARGS="$ARGS -b $EXT_HOME:/root"
-ARGS="$ARGS -b $PREFIX"
-ARGS="$ARGS -b $PREFIX/local/stat:/proc/stat"
-ARGS="$ARGS -b $PREFIX/local/vmstat:/proc/vmstat"
+ARGS="$ARGS -b $PRIVATE_DIR"
+ARGS="$ARGS -b $LOCAL/stat:/proc/stat"
+ARGS="$ARGS -b $LOCAL/vmstat:/proc/vmstat"
 
 if [ -e "/proc/self/fd" ]; then
   ARGS="$ARGS -b /proc/self/fd:/dev/fd"
@@ -44,33 +45,35 @@ if [ -e "/proc/self/fd/2" ]; then
 fi
 
 
-ARGS="$ARGS -b $PREFIX"
+ARGS="$ARGS -b $PRIVATE_DIR"
 ARGS="$ARGS -b /sys"
 
-if [ ! -d "$PREFIX/local/sandbox/tmp" ]; then
- mkdir -p "$PREFIX/local/sandbox/tmp"
- chmod 1777 "$PREFIX/local/sandbox/tmp"
+if [ ! -d "$LOCAL/sandbox/tmp" ]; then
+ mkdir -p "$LOCAL/sandbox/tmp"
+ chmod 1777 "$LOCAL/sandbox/tmp"
 fi
 
-ARGS="$ARGS -b $PREFIX/local/sandbox/tmp:/dev/shm"
+ARGS="$ARGS -b $LOCAL/sandbox/tmp:/dev/shm"
 
-ARGS="$ARGS -r $PREFIX/local/sandbox"
+ARGS="$ARGS -r $LOCAL/sandbox"
 ARGS="$ARGS -0"
 ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
+chmod -R +x $LOCAL/bin
+
 if [ "$FDROID" = false ]; then
     if [ $# -gt 0 ]; then
-        $LINKER "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i -c "$*"
+        $LINKER $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i -c "$*"
     else
-        $LINKER "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i
+        $LINKER $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i
     fi
 else
     if [ $# -gt 0 ]; then
-        "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i -c "$*"
+        $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i -c "$*"
     else
-        "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i
+        $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i
     fi
 fi
 

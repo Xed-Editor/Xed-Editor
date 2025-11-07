@@ -8,7 +8,7 @@
     <string name="restart_required">Потрібен перезапуск</string>
     <string name="saved_all">зберіг усі файли</string>
     <string name="save">Зберегти</string>
-    <string name="ww_wait">Зачекайте, доки завершиться перенесення слів</string>
+    <string name="word_wrap_wait">Зачекайте, доки завершиться перенесення слів</string>
     <string name="open_file_or_folder">Відкрити файл або теку</string>
     <string name="open_directory">Відкрити каталог</string>
     <string name="new_file">Новий файл</string>
@@ -17,7 +17,7 @@
     <string name="rep">Заміна</string>
     <string name="search_keyword">Ключове слово для пошуку</string>
     <string name="cs">Враховувати регістр</string>
-    <string name="wait">Будь ласка, зачекайте...</string>
+    <string name="wait">Будь ласка, зачекайте…</string>
     <string name="report_issue">Повідомити про проблему</string>
     <string name="copy">Копія</string>
     <string name="save_all">Зберегти все</string>
@@ -34,7 +34,7 @@
     <string name="open_file">Відкрити файл</string>
     <string name="new_folder">Нова тека</string>
     <string name="rename">Перейменувати</string>
-    <string name="open_with">Відкрити за допомогою...</string>
+    <string name="open_with">Відкрити за допомогою…</string>
     <string name="save_as">Зберегти як</string>
     <string name="paste">Вставити</string>
     <string name="delete">Видалити</string>
@@ -48,10 +48,9 @@
     <string name="cancel">Скасувати</string>
     <string name="save_exit">Зберегти та вийти</string>
     <string name="exit">Вийти</string>
-    <string name="rr">Потрібен перезапуск</string>
     <string name="restart_to_apply">Перезапустіть, щоб застосувати налаштування</string>
     <string name="oled">Тема «Чорна ніч»</string>
-    <string name="ww">Перенесення слова</string>
+    <string name="word_wrap">Перенесення слова</string>
     <string name="keep_drawer_locked">Тримати вкладку заблокованою</string>
     <string name="restart">Перезапустити</string>
     <string name="refresh">Оновити</string>
@@ -67,8 +66,6 @@
     <string name="add_file">Додати файл</string>
     <string name="keyword_regex">ключове слово (регулярний вираз)</string>
     <string name="replace_all">Замінити все</string>
-    <string name="add_new_replacement_batch">Додайте нову партію заміни</string>
-    <string name="remove_a_search_batch">Видалити пошук</string>
     <string name="replacement">Заміна</string>
     <string name="tab_text_1">Вкладка 1</string>
     <string name="tab_text_2">Вкладка 2</string>
@@ -76,7 +73,6 @@
     <string name="description">Опис</string>
     <string name="download">Завантажити</string>
     <string name="dir_exist_not">Каталог не існує</string>
-    <string name="file_exist_not">Файл більше не існує</string>
     <string name="file_saved">Файл збережено</string>
     <string name="apply">Застосувати</string>
     <string name="userdata">Дані користувача</string>
@@ -134,7 +130,7 @@
     <string name="editor">Редактор</string>
     <string name="smooth_tabs">Плавні вкладки</string>
     <string name="smooth_tab_desc">Плавне перемикання між вкладками</string>
-    <string name="ww_desc">Увімкніть перенесення слів у всіх редакторах</string>
+    <string name="word_wrap_desc">Увімкніть перенесення слів у всіх редакторах</string>
     <string name="drawer_lock_desc">Тримати вкладку відкритою, відкривши файл</string>
     <string name="diagonal_scroll">Діагональна прокрутка</string>
     <string name="diagonal_scroll_desc">Увімкнути діагональне прокручування в дереві файлів</string>
@@ -147,9 +143,9 @@
     <string name="auto_save">Автоматичне збереження</string>
     <string name="auto_save_desc">Автоматично зберігати файл</string>
     <string name="interval_in_ms">Інтервал у мілісекундах</string>
-    <string name="invalid_v">Недійсне значення</string>
-    <string name="v_small">Замале значення</string>
-    <string name="v_large">Завелике значення</string>
+    <string name="value_invalid">Недійсне значення</string>
+    <string name="value_small">Замале значення</string>
+    <string name="value_large">Завелике значення</string>
     <string name="text_size">Розмір тексту</string>
     <string name="text_size_desc">Встановити розмір тексту</string>
     <string name="tab_size">Розмір вкладки</string>
@@ -163,7 +159,7 @@
     <string name="terminal_desc">Загальні налаштування терміналів</string>
     <string name="terminal_text_size">Розмір тексту терміналу</string>
     <string name="terminal_text_size_desc">Встановити розмір тексту терміналу</string>
-    <string name="u_err">Невідома помилка</string>
+    <string name="unknown_error">Невідома помилка</string>
     <string name="saved">Збережено</string>
     <string name="is_null">InputStream порожній</string>
     <string name="wait_pkg">Зачекайте, поки пакети завантажаться.</string>
@@ -210,8 +206,8 @@
     <string name="file_too_large">Файл завеликий для відкриття</string>
     <string name="toggle_suggestion">Змінити пропозицію</string>
     <string name="run">Запустити</string>
-    <string name="txt_ww">Перенесення txt файлів</string>
-    <string name="txt_ww_desc">Автоматично переносити текстові файли</string>
+    <string name="txt_word_wrap">Перенесення txt файлів</string>
+    <string name="txt_word_wrap_desc">Автоматично переносити текстові файли</string>
     <string name="mutators">Мутатори</string>
     <string name="manage_editor_font">Керування шрифтами редактора</string>
     <string name="default_encoding">Типове кодування</string>
@@ -232,4 +228,22 @@
     <string name="encoding_warning">Не рекомендується змінювати типове кодування, оскільки це може призвести до пошкодження файлів. Ми наполегливо рекомендуємо використовувати UTF-8, якщо ви не розумієте всіх наслідків і не створили належних резервних копій.</string>
     <string name="line_spacing">Міжрядковий інтервал</string>
     <string name="line_spacing_multiplier">Множник міжрядкового інтервалу</string>
+    <string name="open_as_project">Відкрити як проект</string>
+    <string name="delete_desc">Назавжди видалити документ</string>
+    <string name="line_spacing_desc">Множник висоти для кожного рядка в редакторі</string>
+    <string name="update_av">Доступне нове оновлення</string>
+    <string name="update">Оновити</string>
+    <string name="ignore">Ігнорувати</string>
+    <string name="launch">Запуск</string>
+    <string name="mutator_desc">Створити користуватські скрипти</string>
+    <string name="restore_sessions">Відновити сесії</string>
+    <string name="restore_sessions_desc">Відновити попередні вкладки</string>
+    <string name="info_mutators">Мутатори — це невеликі скрипти, які використовуються для модифікації тексту в редакторі. Створіть мутатор та натисніть на нього, щоб відкрити його в редакторі.</string>
+    <string name="no_mutators">Немає мутаторів</string>
+    <string name="tab_opened">Вкладка відкрита</string>
+    <string name="mutator_name">Назва мутатора</string>
+    <string name="name_empty_err">Ім\'я не можу бути пустим</string>
+    <string name="name_used">Ім\'я вже використовується</string>
+    <string name="script_get_text">Отримати текст</string>
+    <string name="script_network">Мережа</string>
 </resources>

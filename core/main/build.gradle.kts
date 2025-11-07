@@ -55,12 +55,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
-
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(21)
     }
 
     buildFeatures {
@@ -87,52 +86,50 @@ tasks.named("preBuild") {
 }
 
 dependencies {
-    api(libs.appcompat)
-    api(libs.material)
-    api(libs.constraintlayout)
-    api(libs.navigation.fragment)
-    api(libs.navigation.ui)
-    api(libs.navigation.fragment.ktx)
-    api(libs.navigation.ui.ktx)
-    api(libs.activity)
-    api(libs.lifecycle.viewmodel.ktx)
-    api(libs.lifecycle.runtime.ktx)
-    api(libs.activity.compose)
-    api(platform(libs.compose.bom))
-    api(libs.ui)
-    api(libs.ui.graphics)
-    api(libs.material3)
-    api(libs.navigation.compose)
-    api(libs.utilcode)
-    api(libs.coil.compose)
-    api(libs.gson)
-    api(libs.commons.net)
-    api(libs.okhttp)
-    api(libs.material.motion.compose.core)
-    api(libs.nanohttpd)
-    api(libs.photoview)
-    api(libs.glide)
-    api(libs.media3.ui)
-    api(libs.browser)
-    api(libs.quickjs.android)
-    api(libs.anrwatchdog)
-    api(libs.lsp4j)
-    api(libs.kotlin.reflect)
-    api(libs.androidx.documentfile)
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.jsch)
+    implementation(libs.appcompat)
+    implementation(libs.material)
+    implementation(libs.constraintlayout)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    implementation(libs.activity)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.activity.compose)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.ui)
+    implementation(libs.ui.graphics)
+    implementation(libs.material3)
+    implementation(libs.navigation.compose)
+    implementation(libs.utilcode)
+    implementation(libs.coil.compose)
+    implementation(libs.gson)
+    implementation(libs.commons.net)
+    implementation(libs.okhttp)
+    implementation(libs.material.motion.compose.core)
+    implementation(libs.nanohttpd)
+    implementation(libs.photoview)
+    implementation(libs.glide)
+    implementation(libs.media3.ui)
+    implementation(libs.browser)
+    implementation(libs.quickjs.android)
+    implementation(libs.anrwatchdog)
+    implementation(libs.lsp4j)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.androidx.documentfile)
+    implementation(libs.compose.dnd)
 
     // Modules
-    api(project(":editor"))
-    api(project(":editor-lsp"))
-    api(project(":language-textmate"))
-    api(project(":core:resources"))
-    api(project(":core:components"))
-    api(project(":core:bridge"))
-    //api(project(":core:extension"))
-    api(project(":core:terminal-view"))
-    api(project(":core:terminal-emulator"))
-
+    implementation(project(":editor"))
+    implementation(project(":editor-lsp"))
+    implementation(project(":language-textmate"))
+    implementation(project(":core:resources"))
+    implementation(project(":core:components"))
+    //implementation(project(":core:extension"))
+    implementation(project(":core:terminal-view"))
+    implementation(project(":core:terminal-emulator"))
+    implementation(libs.androidx.lifecycle.process)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

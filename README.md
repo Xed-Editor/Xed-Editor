@@ -2,7 +2,7 @@
   <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Karbon Editor" width="90" height="90"/>
 </p>
 
-<h2 align="center"><b>Xed-Editor (Karbon)</b></h2>
+<h2 align="center"><b>Xed-Editor</b></h2>
 
 <div align="center">
 
@@ -77,7 +77,7 @@ We welcome contributions! Please read the [CONTRIBUTING.md](/docs/CONTRIBUTING.m
 
 ## Get Involved
 
-Translate Karbon! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/) to get involved:
+Translate Xed-Editor! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/) to get involved:
 
 <a href="https://hosted.weblate.org/engage/xed-editor/">
     <img src="https://hosted.weblate.org/widgets/xed-editor/-/multi-auto.svg" alt="Translation Status">

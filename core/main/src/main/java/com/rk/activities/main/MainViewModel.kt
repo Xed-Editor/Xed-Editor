@@ -1,0 +1,260 @@
+package com.rk.activities.main
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rk.commands.Command
+import com.rk.file.FileObject
+import com.rk.file.child
+import com.rk.utils.application
+import com.rk.utils.dialog
+import com.rk.utils.expectOOM
+import com.rk.utils.toast
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.settings.Settings
+import com.rk.tabs.EditorTab
+import com.rk.tabs.Tab
+import com.rk.tabs.TabRegistry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+
+
+object TabCache {
+    val mutex = Mutex()
+    val preloadedTabs = mutableListOf<FileObject>()
+    suspend fun preloadTabs() = mutex.withLock {
+        runCatching {
+            val file = application!!.cacheDir.child("tabs")
+            if (file.exists() && file.canRead()) {
+                ObjectInputStream(FileInputStream(file)).use { ois ->
+                    val files = ois.readObject() as List<FileObject>
+                    preloadedTabs.clear()
+                    files.forEach { f ->
+                        runCatching {
+                            if (f.exists() && f.canRead() && f.canWrite() && f.isFile()) {
+                                preloadedTabs.add(f)
+                            }
+                        }.onFailure { e ->
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }
+    }
+
+
+    suspend fun saveFileTabs(tabs: List<Tab>) = withContext(Dispatchers.IO){
+        mutex.withLock {
+            runCatching {
+                val files = tabs.filter { it is EditorTab }.map { (it as EditorTab).file }
+
+                val file = application!!.cacheDir.child("tabs")
+
+                ObjectOutputStream(FileOutputStream(file)).use { oos ->
+                    oos.writeObject(files)
+                }
+            }.onFailure {
+                it.printStackTrace()
+                toast("Unable to save tabs")
+            }
+        }
+    }
+}
+
+
+class MainViewModel : ViewModel() {
+    val tabs = mutableStateListOf<Tab>()
+    val mutex = Mutex()
+    var currentTabIndex by mutableIntStateOf(0)
+
+    var showCommandPalette by mutableStateOf(false)
+    var draggingPaletteProgress = Animatable(0f)
+    var isDraggingPalette by mutableStateOf(false)
+    var commands = emptyList<Command>()
+
+    val currentTab: Tab?
+        get() = tabs.getOrNull(currentTabIndex)
+
+    init {
+        if (Settings.restore_sessions) {
+            viewModelScope.launch {
+                TabCache.mutex.withLock {
+                    TabCache.preloadedTabs.forEach { file ->
+                        viewModelScope.launch {
+                            newEditorTab(file,checkDuplicate = false, switchToTab = false)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun newTab(
+        fileObject: FileObject,
+        checkDuplicate: Boolean = true,
+        switchToTab: Boolean = false
+    ) = withContext(Dispatchers.IO) {
+        val function = suspend {
+            TabRegistry.getTab(fileObject) {
+                if (it == null) {
+                    newEditorTab(
+                        fileObject,
+                        checkDuplicate = checkDuplicate,
+                        switchToTab = switchToTab
+                    )
+                } else {
+                    newTab(it)
+                }
+            }
+        }
+
+        val coroutineScope = this
+        if (expectOOM(fileObject.length())) {
+            dialog(
+                title = strings.attention.getString(),
+                msg = strings.tab_memory_warning.getString(),
+                okString = strings.continue_action,
+                onOk = {
+                    coroutineScope.launch {
+                        function.invoke()
+                    }
+                })
+        } else {
+            function.invoke()
+        }
+    }
+
+    suspend fun isEditorTabOpened(file: FileObject): Boolean = withContext(Dispatchers.IO){
+        tabs.toList().forEachIndexed { index,tab ->
+            if (tab is EditorTab && tab.file == file){
+                return@withContext true
+            }
+        }
+        return@withContext false
+    }
+
+    private suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true, switchToTab: Boolean = false): Boolean = withContext(
+        Dispatchers.IO) {
+
+        if (checkDuplicate) {
+            tabs.forEachIndexed { index,tab ->
+                if (tab is EditorTab && tab.file == file){
+                    currentTabIndex = index
+                    return@withContext true
+                }
+            }
+        }
+
+        return@withContext withContext(Dispatchers.Main) {
+                mutex.withLock{
+                    val editorTab = EditorTab(file = file, viewModel = this@MainViewModel)
+
+                    tabs.add(editorTab)
+                    if (switchToTab) {
+                        delay(70)
+                        currentTabIndex = tabs.lastIndex
+                    }
+                }
+
+                true
+            }
+
+    }
+
+    suspend fun newTab(tab: Tab){
+        mutex.withLock{
+            tabs.add(tab)
+            delay(70)
+            currentTabIndex = tabs.lastIndex
+        }
+    }
+
+    fun removeTab(index: Int): Boolean {
+        if (index !in tabs.indices) return false
+
+        (tabs[index] as? EditorTab)?.onTabRemoved()
+
+        tabs.removeAt(index)
+
+        currentTabIndex = when {
+            tabs.isEmpty() -> 0
+            index <= currentTabIndex -> maxOf(0, currentTabIndex - 1)
+            else -> currentTabIndex
+        }
+        return true
+    }
+
+    /**
+     * Remove all tabs except the current one
+     * @return true if any tabs were removed, false if no current tab or only one tab exists
+     */
+    fun removeOtherTabs(): Boolean {
+        if (tabs.isEmpty() || currentTabIndex < 0 || currentTabIndex >= tabs.size) {
+            return false
+        }
+
+        if (tabs.size <= 1) {
+            return false
+        }
+
+        val currentTab = tabs[currentTabIndex]
+
+        tabs.clear()
+        tabs.add(currentTab)
+        currentTabIndex = 0
+
+        return true
+    }
+
+    /**
+     * Close all tabs
+     * @return true if any tabs were closed, false if no tabs existed
+     */
+    fun closeAllTabs(): Boolean {
+        if (tabs.isEmpty()) {
+            return false
+        }
+
+        tabs.clear()
+        currentTabIndex = 0
+
+        return true
+    }
+
+    /**
+     * Get the total number of tabs
+     */
+    fun getTabCount(): Int = tabs.size
+
+    /**
+     * Check if there are any tabs open
+     */
+    fun hasOpenTabs(): Boolean = tabs.isNotEmpty()
+
+    /**
+     * Safely set the current tab index
+     * @param index the new index to set
+     * @return true if the index was valid and set, false otherwise
+     */
+    fun setCurrentTabIndex(index: Int): Boolean {
+        if (index < 0 || index >= tabs.size) {
+            return false
+        }
+        currentTabIndex = index
+        return true
+    }
+}

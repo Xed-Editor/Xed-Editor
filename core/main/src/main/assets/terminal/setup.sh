@@ -1,16 +1,6 @@
 set -e
 
-info() {
-  printf '\033[34;1m[*] \033[0m%s\n' "$1"
-}
-
-warn() {
-  printf '\033[33;1m[!] \033[0m%s\n' "$1"
-}
-
-error() {
-  printf '\033[31;1m[x] \033[0m%s\n' "$1"
-}
+source "$LOCAL/bin/utils"
 
 info "Extracting the Ubuntu container…"
 
@@ -35,7 +25,7 @@ ARGS="$ARGS -b /dev"
 ARGS="$ARGS -b /data"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
 ARGS="$ARGS -b /proc"
-ARGS="$ARGS -b $PREFIX"
+ARGS="$ARGS -b $PRIVATE_DIR"
 
 if [ -e "/proc/self/fd" ]; then
   ARGS="$ARGS -b /proc/self/fd:/dev/fd"
@@ -54,7 +44,7 @@ if [ -e "/proc/self/fd/2" ]; then
 fi
 
 
-ARGS="$ARGS -b $PREFIX"
+ARGS="$ARGS -b $PRIVATE_DIR"
 ARGS="$ARGS -b /sys"
 
 ARGS="$ARGS -r /"
@@ -63,16 +53,16 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-COMMAND="tar -xf $TMP_DIR/sandbox.tar.gz -C $PREFIX/local/sandbox"
+COMMAND="(cd $LOCAL/sandbox && tar -xvf $TMP_DIR/sandbox.tar.gz)"
 
 if [ "$FDROID" = false ]; then
-    $LINKER "$PREFIX"/local/bin/proot $ARGS /system/bin/sh -c "$COMMAND"
+    $LINKER $LOCAL/bin/proot $ARGS /system/bin/sh -c "$COMMAND"
 else
-    "$PREFIX"/local/bin/proot $ARGS /system/bin/sh -c "$COMMAND"
+    $LOCAL/bin/proot $ARGS /system/bin/sh -c "$COMMAND"
 fi
 
 
-SANDBOX_DIR="$PREFIX/local/sandbox"
+SANDBOX_DIR="$LOCAL/sandbox"
 
 info "Setting up the Ubuntu container…"
 
@@ -134,10 +124,12 @@ done
 
 
 rm "$TMP_DIR"/sandbox.tar.gz
+# DO NOT REMOVE THIS FILE JUST DON'T, TRUST ME
+touch $LOCAL/.terminal_setup_ok_DO_NOT_REMOVE
 
 if [ $# -gt 0 ]; then
     sh $@
 else
     clear
-    sh "$PREFIX"/local/bin/sandbox
+    sh $LOCAL/bin/sandbox
 fi

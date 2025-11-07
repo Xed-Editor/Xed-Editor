@@ -16,24 +16,22 @@ object Res {
     var application: Application? = null
 }
 
-inline fun Int.getString(): String {
-    return ContextCompat.getString(Res.application!!, this)
+inline fun Int.getString(context: Context = Res.application!!): String {
+    return ContextCompat.getString(context, this)
 }
 
 inline fun Int.getDrawable(context: Context): Drawable? {
     return ContextCompat.getDrawable(context, this)
 }
 
-inline fun Int.getFilledString(values: Map<String, Any>): String {
-    return this.getString().fillPlaceholders(values)
+inline fun Int.getFilledString(vararg args: Any?): String {
+    return this.getString().fillPlaceholders(*args)
 }
 
-inline fun String.fillPlaceholders(values: Map<String, Any>): String {
-    var result = this
+inline fun Int.getFilledString(context: Context = Res.application!!,vararg args: Any?): String {
+    return this.getString(context).fillPlaceholders(*args)
+}
 
-    values.forEach { (key, value) ->
-        result = result.replace("%($key)", value.toString())
-    }
-
-    return result
+inline fun String.fillPlaceholders(vararg args: Any?): String {
+    return String.format(this, *args)
 }

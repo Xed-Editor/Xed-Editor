@@ -32,8 +32,7 @@ class HttpServer(
                 return@runBlocking try {
                     newFixedLengthResponse(
                         Status.OK,
-                        URLConnection.guessContentTypeFromName(root.getName())
-                            ?: "application/octet-stream",
+                        URLConnection.guessContentTypeFromName(root.getName()) ?: "application/octet-stream",
                         root.getInputStream(),
                         root.length(),
                     )
@@ -71,8 +70,7 @@ class HttpServer(
             return@runBlocking try {
                 newFixedLengthResponse(
                     Status.OK,
-                    URLConnection.guessContentTypeFromName(file.getName())
-                        ?: "application/octet-stream",
+                    URLConnection.guessContentTypeFromName(file.getName()) ?: "application/octet-stream",
                     file.getInputStream(),
                     file.length(),
                 )
@@ -90,6 +88,7 @@ class HttpServer(
                 )
             }
         }
+
     }
 
 }

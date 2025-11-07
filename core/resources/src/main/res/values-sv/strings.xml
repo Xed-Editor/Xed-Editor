@@ -8,7 +8,7 @@
     <string name="restart_required">Omstart krävs</string>
     <string name="saved_all">alla filer sparade</string>
     <string name="save">Spara</string>
-    <string name="ww_wait">Vänta tills radbryt är klar</string>
+    <string name="word_wrap_wait">Vänta tills radbryt är klar</string>
     <string name="open_file_or_folder">Öppna fil eller katalog</string>
     <string name="open_directory">Öppna katalog</string>
     <string name="new_file">Ny fil</string>
@@ -48,10 +48,9 @@
     <string name="cancel">Avbryt</string>
     <string name="save_exit">Spara och stäng</string>
     <string name="exit">Avsluta</string>
-    <string name="rr">Omstart krävs</string>
     <string name="restart_to_apply">Vänligen starta om för att applicera ändringar</string>
     <string name="oled">Mörkt tema</string>
-    <string name="ww">Radbryt</string>
+    <string name="word_wrap">Radbryt</string>
     <string name="keep_drawer_locked">Håll sidomeny stängd</string>
     <string name="restart">Omstart</string>
     <string name="refresh">Ladda om</string>
@@ -67,8 +66,6 @@
     <string name="add_file">Lägg till extern fil</string>
     <string name="keyword_regex">nyckelord (Regex)</string>
     <string name="replace_all">Ersätt allt</string>
-    <string name="add_new_replacement_batch">Lägg till ny ersättningskörning</string>
-    <string name="remove_a_search_batch">ta bort en sökningskörning</string>
     <string name="replacement">ersättning</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
@@ -76,7 +73,6 @@
     <string name="description">Beskrivning</string>
     <string name="download">Nerladdning</string>
     <string name="dir_exist_not">Katalogen finns inte</string>
-    <string name="file_exist_not">Filen finns inte längre</string>
     <string name="file_saved">Fil sparad</string>
     <string name="apply">Tillämpa</string>
     <string name="userdata">Användardata</string>
@@ -134,7 +130,7 @@
     <string name="editor">Editor</string>
     <string name="smooth_tabs">Mjuka flikar</string>
     <string name="smooth_tab_desc">Byt mjukt mellan flikar</string>
-    <string name="ww_desc">Slå på radbryt i alla editorer</string>
+    <string name="word_wrap_desc">Slå på radbryt i alla editorer</string>
     <string name="drawer_lock_desc">Håll kvar sidomeny vid öppning av fil</string>
     <string name="diagonal_scroll">Diagonal skrollning</string>
     <string name="diagonal_scroll_desc">Slå på diagonal skrollning i filträdet</string>
@@ -147,9 +143,9 @@
     <string name="auto_save">Autospara</string>
     <string name="auto_save_desc">spara fil automatiskt</string>
     <string name="interval_in_ms">Intervall i millisekunder</string>
-    <string name="invalid_v">Ogiltigt värde</string>
-    <string name="v_small">Värde för litet</string>
-    <string name="v_large">Värde för stort</string>
+    <string name="value_invalid">Ogiltigt värde</string>
+    <string name="value_small">Värde för litet</string>
+    <string name="value_large">Värde för stort</string>
     <string name="text_size">Textstorlek</string>
     <string name="text_size_desc">Sätt textstorlek</string>
     <string name="tab_size">Tabstorlek</string>
@@ -163,7 +159,7 @@
     <string name="terminal_desc">Generella terminalinställningar</string>
     <string name="terminal_text_size">Textstorlek för terminal</string>
     <string name="terminal_text_size_desc">Sätt textstorlek för terminal</string>
-    <string name="u_err">Okänt fel</string>
+    <string name="unknown_error">Okänt fel</string>
     <string name="is_null">InputStream är null</string>
     <string name="wait_pkg">Vänligen vänta medan paket laddas ner.</string>
     <string name="unsupported_aarch">Plattform stöds ej, använd felsäkert läge</string>
@@ -208,8 +204,8 @@
     <string name="file_too_large">Filen är för stor för att öppna</string>
     <string name="toggle_suggestion">Slå på/av förslag</string>
     <string name="run">Kör</string>
-    <string name="txt_ww">Radbryt textfiler</string>
-    <string name="txt_ww_desc">Radbryt automatiskt textfiler</string>
+    <string name="txt_word_wrap">Radbryt textfiler</string>
+    <string name="txt_word_wrap_desc">Radbryt automatiskt textfiler</string>
     <string name="manage_editor_font">Hantera teckensnitt för editor</string>
     <string name="default_encoding">Default encoding</string>
     <string name="default_encoding_desc">Editor default encoding</string>

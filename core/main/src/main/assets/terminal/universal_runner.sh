@@ -6,23 +6,9 @@ if [ ! -f "$file" ]; then
   exit 1
 fi
 
-command_exists() {
-  command -v "$1" >/dev/null 2>&1
-}
+source "$LOCAL/bin/utils"
 
-info() {
-  printf '\033[34;1m[*] \033[0m%s\n' "$1"
-}
-
-warn() {
-  printf '\033[33;1m[!] \033[0m%s\n' "$1"
-}
-
-error() {
-  printf '\033[31;1m[x] \033[0m%s\n' "$1"
-}
-
-run_code(){
+run_code() {
     echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
     chmod +x "$1"
     if [ -x "$1" ]; then
@@ -50,8 +36,8 @@ install_nodejs() {
   apt install -y nodejs
   mkdir -p /home/.npm-global
   npm config set prefix '/home/.npm-global'
-  grep -qxF "export PATH=\"/home/.npm-global/bin:$PATH\"" ~/.bashrc || \
-      echo "export PATH=\"/home/.npm-global/bin:$PATH\"" >> ~/.bashrc
+  grep -qxF "export PATH=\"/home/.npm-global/bin:\$PATH\"" ~/.bashrc || \
+      echo "export PATH=\"/home/.npm-global/bin:\$PATH\"" >> ~/.bashrc
   export PATH="/home/.npm-global/bin:$PATH"
 }
 
@@ -193,6 +179,7 @@ case "$file" in
     # Create a temporary project
     mkdir -p temp_cs_project
     cd temp_cs_project
+    export DOTNET_GCHeapHardLimit=1C0000000
     dotnet new console --force
     cp "../$file" Program.cs
     dotnet run

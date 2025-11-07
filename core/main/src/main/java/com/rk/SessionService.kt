@@ -12,10 +12,8 @@ import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.terminal.ActionHandler
-import com.rk.terminal.bridge.Bridge
-import com.rk.xededitor.ui.activities.terminal.Terminal
-import com.rk.xededitor.ui.screens.terminal.MkSession
+import com.rk.activities.terminal.Terminal
+import com.rk.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -61,7 +59,7 @@ class SessionService : Service() {
             if (sessions.isEmpty()) {
                 stopSelf()
                 if (deamonRunning){
-                    Bridge.close()
+                    
                     deamonRunning = false
                 }
             } else {
@@ -81,7 +79,7 @@ class SessionService : Service() {
 
     override fun onDestroy() {
         sessions.forEach { s -> s.value.finishIfRunning() }
-        Bridge.close()
+        
         deamonRunning = false
         if (wakeLock?.isHeld == true){
             wakeLock?.release()
@@ -99,7 +97,6 @@ class SessionService : Service() {
 
         if (deamonRunning.not()){
             GlobalScope.launch {
-                Bridge.startServer(ActionHandler::onAction)
                 deamonRunning = true
             }
         }
@@ -121,7 +118,7 @@ class SessionService : Service() {
             "ACTION_EXIT" -> {
                 sessions.forEach { s -> s.value.finishIfRunning() }
                 if (deamonRunning){
-                    Bridge.close()
+                    
                     deamonRunning = false
                 }
                 stopSelf()

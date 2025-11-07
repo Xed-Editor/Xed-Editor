@@ -10,8 +10,11 @@ android {
     compileSdk = 36
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+    kotlin {
+        jvmToolchain(21)
     }
 
     defaultConfig {
@@ -22,12 +25,6 @@ android {
     }
 
     targetProjectPath = ":app"
-
-    flavorDimensions += listOf("store")
-    productFlavors {
-        create("Fdroid") { dimension = "store" }
-        create("PlayStore") { dimension = "store" }
-    }
 }
 
 // This is the configuration block for the Baseline Profile plugin.

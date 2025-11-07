@@ -1,10 +1,8 @@
 package com.rk.runner
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.DefaultScope
@@ -13,13 +11,10 @@ import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.file.runnerDir
-import com.rk.file.sandboxHomeDir
-import com.rk.libcommons.TerminalCommand
-import com.rk.libcommons.pendingCommand
+import com.rk.exec.TerminalCommand
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
-import com.rk.terminal.launchInternalTerminal
-import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.exec.launchInternalTerminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,12 +44,12 @@ object ShellBasedRunners{
         }
     }
 
-    suspend fun saveRunners(){
+    suspend fun saveRunners() {
         val json = Gson().toJson(runners)
         localDir().child("runners.json").writeText(json)
     }
 
-    suspend fun deleteRunner(runner: ShellBasedRunner,deleteScript: Boolean = true){
+    suspend fun deleteRunner(runner: ShellBasedRunner, deleteScript: Boolean = true) {
         runners.remove(runner)
         saveRunners()
         runnerDir().child("${runner.getName()}.sh").createFileIfNot().delete()
@@ -71,28 +66,29 @@ object ShellBasedRunners{
             }
         }
     }
-
 }
 
 data class ShellBasedRunner(private val name: String,val regex: String): RunnerImpl(){
-    override suspend fun run(context: Context,fileObject: FileObject) {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         val script = runnerDir().child("${name}.sh").createFileIfNot()
-        launchInternalTerminal(context, TerminalCommand(
-            exe = "/bin/bash",
-            args = arrayOf(script.absolutePath,fileObject.getAbsolutePath()),
-            id = name,
-        ))
+        launchInternalTerminal(
+            context, TerminalCommand(
+                exe = "/bin/bash",
+                args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),
+                id = name,
+            )
+        )
     }
 
-    override suspend fun getName(): String {
+    override fun getName(): String {
         return name
     }
 
-    suspend fun getScript():File{
+    fun getScript(): File {
         return runnerDir().child("${getName()}.sh").createFileIfNot()
     }
 
-    override suspend fun getIcon(context: Context): Drawable? {
+    override fun getIcon(context: Context): Drawable? {
         return drawables.bash.getDrawable(context)
     }
 
@@ -103,5 +99,4 @@ data class ShellBasedRunner(private val name: String,val regex: String): RunnerI
     override suspend fun stop() {
 
     }
-
 }

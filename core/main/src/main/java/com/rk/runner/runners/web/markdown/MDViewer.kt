@@ -5,17 +5,13 @@ import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.*
 import androidx.lifecycle.lifecycleScope
 import com.rk.file.FileObject
-import com.rk.libcommons.errorDialog
-import com.rk.resources.getString
-import com.rk.resources.strings
 import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
 import com.rk.runner.runners.web.WebScreen
 import com.rk.runner.runners.web.html.HtmlRunner
-import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.theme.XedTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.Dispatchers
@@ -38,22 +34,20 @@ class MDViewer : WebActivity() {
         mdViewerRef = WeakReference(this)
         file = toPreviewFile!!
 
-        var title by mutableStateOf("")
+        val isDarkMode: Boolean =
+            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+        // kill any existing HtmlRunner server
+        HtmlRunner.httpServer?.let {
+            if (it.isAlive) it.stop()
+        }
+
 
         lifecycleScope.launch {
-            title = file.getName()
-            val isDarkMode: Boolean =
-                (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-
-            // kill any existing HtmlRunner server
-            HtmlRunner.httpServer?.let {
-                if (it.isAlive) it.stop()
-            }
-
-
             // start markdown-serving server
             httpServer = HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
                 return@HttpServer runBlocking {
+
                     val parameters = session.parameters
                     val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
                     if (parameters.containsKey("textmd")) {
@@ -82,38 +76,39 @@ class MDViewer : WebActivity() {
                     return@runBlocking null
                 }
             }
-        }
 
+            // now load WebView inside Compose
+            setContent {
+                XedTheme {
+                    WebScreen(
+                        title = file.getName(),
+                        onBackPressed = { onBackPressedDispatcher.onBackPressed() },
+                        setupWebView = { webView ->
+                            setupWebView(webView)
+                            webView.webViewClient = WebViewClient()
+                            webViewRef = WeakReference(webView)
 
-
-        // now load WebView inside Compose
-        setContent {
-            KarbonTheme {
-                WebScreen(
-                    title = title,
-                    onBackPressed = { onBackPressedDispatcher.onBackPressed() },
-                    setupWebView = { webView ->
-                        setupWebView(webView)
-                        webView.webViewClient = WebViewClient()
-                        webViewRef = WeakReference(webView)
-
-                        lifecycleScope.launch(Dispatchers.Default) {
-                            val html = fetchMarkdownFile("http://localhost:$PORT/${file.getName()}")
-                            withContext(Dispatchers.Main) {
-                                webView.loadDataWithBaseURL(
-                                    "http://localhost:$PORT",
-                                    html,
-                                    "text/html",
-                                    "utf-8",
-                                    null
-                                )
+                            lifecycleScope.launch(Dispatchers.Default) {
+                                val html = fetchMarkdownFile("http://localhost:$PORT/${file.getName()}")
+                                withContext(Dispatchers.Main) {
+                                    webView.loadDataWithBaseURL(
+                                        "http://localhost:$PORT",
+                                        html,
+                                        "text/html",
+                                        "utf-8",
+                                        null
+                                    )
+                                }
                             }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
+            }
         }
+
+
+
     }
 
     private suspend fun fetchMarkdownFile(url: String): String {

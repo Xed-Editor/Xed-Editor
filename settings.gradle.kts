@@ -16,6 +16,9 @@ pluginManagement {
         kotlin("jvm") version "2.2.20"
     }
 }
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -38,7 +41,6 @@ include(":core:main")
 
 include(":core:components")
 include(":core:resources")
-include(":core:bridge")
 include(":core:terminal-view")
 include(":core:terminal-emulator")
 include(":core:extension")
@@ -58,7 +60,7 @@ if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
 }
 
 
-//includeBuild("soraX")
+
 include(":editor")
 project(":editor").projectDir = file("soraX/editor")
 

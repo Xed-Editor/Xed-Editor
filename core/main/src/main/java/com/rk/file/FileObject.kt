@@ -2,24 +2,21 @@ package com.rk.file
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import com.rk.App
-import com.rk.libcommons.PathUtils
-import com.rk.libcommons.PathUtils.toPath
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.rk.utils.PathUtils.toPath
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
 import java.nio.charset.Charset
 
-// why tf i didnt make them suspended by default?
-
 interface FileObject : Serializable {
     suspend fun listFiles(): List<FileObject>
-    suspend fun isDirectory(): Boolean
-    suspend fun isFile(): Boolean
-    suspend fun getName(): String
+    fun isDirectory(): Boolean
+    fun isFile(): Boolean
+    fun getName(): String
     suspend fun getParentFile(): FileObject?
     suspend fun exists(): Boolean
     suspend fun createNewFile(): Boolean
@@ -31,22 +28,24 @@ interface FileObject : Serializable {
     suspend fun getOutPutStream(append: Boolean): OutputStream
     fun getAbsolutePath(): String
     suspend fun length(): Long
+    suspend fun calcSize(): Long
     suspend fun delete(): Boolean
-    fun toUri(): Uri
+    suspend fun toUri(): Uri
     suspend fun getMimeType(context: Context): String?
     suspend fun renameTo(string: String): Boolean
     suspend fun hasChild(name: String): Boolean
     suspend fun createChild(createFile: Boolean, name: String): FileObject?
-    suspend fun canWrite(): Boolean
-    suspend fun canRead(): Boolean
+    fun canWrite(): Boolean
+    fun canRead(): Boolean
+    fun canExecute(): Boolean
     suspend fun getChildForName(name: String): FileObject
     suspend fun readText(): String?
     suspend fun readText(charset: Charset): String?
     suspend fun writeText(content: String, charset: Charset): Boolean
-    suspend fun isSymlink(): Boolean
+    fun isSymlink(): Boolean
 }
 
-suspend fun FileObject.copyToTempDir() = withContext(Dispatchers.IO) {
+suspend fun FileObject.copyToTempDir() = run {
     val file = File(App.getTempDir(), getName()).createFileIfNot()
 
     getInputStream().use { input ->
@@ -58,17 +57,26 @@ suspend fun FileObject.copyToTempDir() = withContext(Dispatchers.IO) {
     file
 }
 
-fun Uri.toFileObject(isFile: Boolean): FileObject{
+suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+    // First, try to resolve to a real File (for direct access when possible)
     val file = File(this.toPath())
-    var shouldUseUri = true
-    if (file.exists() && file.canRead() && file.canWrite()){
-        if (isFile == file.isFile){
-             shouldUseUri = false
-        }
+
+    // On Android 11+, force Uri if we lack full storage access (scoped storage rules)
+    if (needsUriFallback()) {
+        return UriWrapper(this,!expectedIsFile)
     }
-    return if (shouldUseUri){
-        UriWrapper(this,isFile.not())
-    }else{
-        FileWrapper(file)
+
+    // If File access works and matches expectations (file vs. dir), use it
+    if (file.exists() && file.canRead() && file.canWrite() &&
+        expectedIsFile == file.isFile) {
+        return FileWrapper(file)
     }
+
+    // Fallback to Uri for safety/compatibility
+    return UriWrapper(this,!expectedIsFile)
+}
+
+
+private suspend fun needsUriFallback(): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()
 }

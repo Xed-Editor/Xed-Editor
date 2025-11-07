@@ -5,7 +5,7 @@
     <string name="saved">Ficheiro gravado</string>
     <string name="saved_all">Todos os ficheiros foram gravados</string>
     <string name="save">Gravar</string>
-    <string name="ww_wait">Aguarde a conclusão da quebra de linha</string>
+    <string name="word_wrap_wait">Aguarde a conclusão da quebra de linha</string>
     <string name="rep">Substituição</string>
     <string name="wait">Por favor, aguarde…</string>
     <string name="copy">Copiar</string>
@@ -43,14 +43,12 @@
     <string name="cant_handle">Nenhuma app encontrada para abrir o ficheiro</string>
     <string name="terminal">Terminal</string>
     <string name="replace_all">Substituir tudo</string>
-    <string name="add_new_replacement_batch">Adicionar novo lote de substituição</string>
     <string name="tab_text_1">Guia 1</string>
     <string name="tab_text_2">Guia 2</string>
     <string name="title">Título</string>
     <string name="description">Descrição</string>
     <string name="download">Descarregar</string>
     <string name="dir_exist_not">Pasta não existe</string>
-    <string name="file_exist_not">O ficheiro já não existe</string>
     <string name="apply">Aplicar</string>
     <string name="userdata">Dados do utilizador</string>
     <string name="invalid_userdata">Dados do utilizador inválidos. Altere-os nas configurações</string>
@@ -93,9 +91,9 @@
     <string name="drawer_lock_desc">Manter gaveta bloqueada ao abrir um ficheiro</string>
     <string name="extra_keys_desc">Exibir teclas extras no editor</string>
     <string name="interval_in_ms">Intervalo em milissegundos</string>
-    <string name="invalid_v">Valor inválido</string>
-    <string name="v_small">Valor muito pequeno</string>
-    <string name="v_large">Valor muito grande</string>
+    <string name="value_invalid">Valor inválido</string>
+    <string name="value_small">Valor muito pequeno</string>
+    <string name="value_large">Valor muito grande</string>
     <string name="text_size_desc">Defina o tamanho do texto</string>
     <string name="tab_size_desc">Defina o tamanho da tabulação</string>
     <string name="monet_desc">Usar o tema do sistema</string>
@@ -148,7 +146,6 @@
     <string name="restore_sessions_desc">Restaurar as guias anteriores</string>
     <string name="terminal_home_desc">Diretório inicial padrão do terminal</string>
     <string name="sessions">Sessões</string>
-    <string name="enable_ext">Extensões</string>
     <string name="ext">Extensões</string>
     <string name="info_mutators">Mutadores são pequenos scripts usados para modificar o texto do editor. Crie um mutador e clique nele para abri-lo no editor.</string>
     <string name="no_mutators">Sem mutadores</string>
@@ -225,7 +222,6 @@
     <string name="non_native_filetype">A execução de código não é suportada neste local. Considere mover o seu ficheiro para o diretório inicial do terminal para executá-lo.</string>
     <string name="sdcard_filetype">Não é recomendável executar código neste local. Considere mover o seu ficheiro para o diretório inicial do terminal.</string>
     <string name="new_name">Novo nome</string>
-    <string name="file_type">Tipo de Ficheiro</string>
     <string name="type">Tipo</string>
     <string name="name">Nome</string>
     <string name="use_tabs_desc">Usar uma tabulação real (\\t) em vez de espaços para recuo</string>
@@ -240,10 +236,9 @@
     <string name="mime">Tipo de MIME (por exemplo, text/plain)</string>
     <string name="search_keyword">Procurar palavra-chave</string>
     <string name="dir_example">Nome (por exemplo, teste)</string>
-    <string name="ask_del">Tem certeza que deseja apagar %(file_name) permanentemente?</string>
+    <string name="ask_del">Tem certeza que deseja apagar %s permanentemente?</string>
     <string name="add_file">Adicionar ficheiro externo</string>
     <string name="keyword_regex">Palavra-chave (regex)</string>
-    <string name="remove_a_search_batch">Remover um lote de pesquisa</string>
     <string name="replacement">Substituição</string>
     <string name="file_saved">Ficheiro gravado</string>
     <string name="open_in_terminal">Abrir no Terminal</string>

@@ -3,12 +3,10 @@ package com.rk.crashhandler
 import android.content.Intent
 import android.os.Looper
 import android.util.Log
-import com.rk.libcommons.application
+import com.rk.utils.application
 import com.rk.file.child
 import com.rk.file.createFileIfNot
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
@@ -72,13 +70,9 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
             }
         }
     }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun logErrorOrExit(throwable: Throwable){
-    runCatching {
-        GlobalScope.launch {
+    fun logErrorOrExit(throwable: Throwable){
+        runCatching {
             application!!.filesDir.child("crash.log").createFileIfNot().appendText(throwable.toString())
-        }
-    }.onFailure { it.printStackTrace();exitProcess(-1) }
+        }.onFailure { it.printStackTrace();exitProcess(-1) }
+    }
 }
