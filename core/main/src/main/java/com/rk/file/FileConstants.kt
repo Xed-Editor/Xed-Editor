@@ -2,10 +2,12 @@ package com.rk.file
 
 import android.content.Context
 import com.rk.utils.application
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 fun getPrivateDir(context: Context = application!!): File {
-    return context.filesDir.createDirIfNot().parentFile.createDirIfNot()
+    //blocking thread is fine since we are always know it is just a java.io.File and we are not doing heavy stuff
+    return runBlocking { context.filesDir.createDirIfNot().parentFile.createDirIfNot() }
 }
 
 fun getCacheDir(context: Context = application!!): File {

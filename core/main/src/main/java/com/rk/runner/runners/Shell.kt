@@ -13,7 +13,7 @@ import com.rk.runner.RunnerImpl
 import com.rk.exec.launchInternalTerminal
 
 class Shell : RunnerImpl(){
-    override fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         if(fileObject !is FileWrapper){
             errorDialog(msgRes = strings.native_runner)
             return
@@ -38,11 +38,11 @@ class Shell : RunnerImpl(){
         return drawables.bash.getDrawable(context)
     }
 
-    override fun isRunning(): Boolean {
+    override suspend fun isRunning(): Boolean {
         return false
     }
 
-    override fun stop() {
+    override suspend fun stop() {
 
     }
 

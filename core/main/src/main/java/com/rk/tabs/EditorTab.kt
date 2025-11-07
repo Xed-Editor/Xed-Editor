@@ -38,6 +38,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.DefaultScope
 import com.rk.activities.main.MainViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.CodeItem
@@ -265,10 +266,12 @@ class EditorTab(
                                     icon = drawables.run,
                                     title = runner.getName()
                                 ) {
-                                    currentRunner = WeakReference(runner)
-                                    runner.run(context, file)
-                                    editorState.showRunnerDialog = false
-                                    editorState.runnersToShow = emptyList()
+                                    DefaultScope.launch {
+                                        currentRunner = WeakReference(runner)
+                                        runner.run(context, file)
+                                        editorState.showRunnerDialog = false
+                                        editorState.runnersToShow = emptyList()
+                                    }
                                 }
                             }
                         }

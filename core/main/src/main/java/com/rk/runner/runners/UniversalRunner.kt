@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Environment
+import com.rk.DefaultScope
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -17,10 +18,11 @@ import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.exec.launchInternalTerminal
 import com.rk.terminal.setupAssetFile
+import kotlinx.coroutines.launch
 
 class UniversalRunner : RunnerImpl() {
     @SuppressLint("SdCardPath")
-    override fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         setupAssetFile("universal_runner")
 
         if (fileObject !is FileWrapper) {
@@ -43,7 +45,11 @@ class UniversalRunner : RunnerImpl() {
                 msg = strings.sdcard_filetype.getString(),
                 okString = strings.continue_action,
                 onCancel = {},
-                onOk = { launchUniversalRunner(context, fileObject) },
+                onOk = {
+                    DefaultScope.launch {
+                        launchUniversalRunner(context, fileObject)
+                    }
+                },
             )
             return
         }
@@ -51,7 +57,7 @@ class UniversalRunner : RunnerImpl() {
         launchUniversalRunner(context, fileObject)
     }
 
-    fun launchUniversalRunner(context: Context, fileObject: FileObject) {
+    suspend fun launchUniversalRunner(context: Context, fileObject: FileObject) {
         launchInternalTerminal(
             context, terminalCommand = TerminalCommand(
                 sandbox = true,
@@ -75,11 +81,11 @@ class UniversalRunner : RunnerImpl() {
         return drawables.run.getDrawable(context)
     }
 
-    override fun isRunning(): Boolean {
+    override suspend fun isRunning(): Boolean {
         return false
     }
 
-    override fun stop() {
+    override suspend fun stop() {
 
     }
 }

@@ -69,7 +69,7 @@ object ShellBasedRunners{
 }
 
 data class ShellBasedRunner(private val name: String,val regex: String): RunnerImpl(){
-    override fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         val script = runnerDir().child("${name}.sh").createFileIfNot()
         launchInternalTerminal(
             context, TerminalCommand(
@@ -92,11 +92,11 @@ data class ShellBasedRunner(private val name: String,val regex: String): RunnerI
         return drawables.bash.getDrawable(context)
     }
 
-    override fun isRunning(): Boolean {
+    override suspend fun isRunning(): Boolean {
         return false
     }
 
-    override fun stop() {
+    override suspend fun stop() {
 
     }
 }

@@ -1,6 +1,7 @@
 package com.rk.terminal
 
 import android.os.Build
+import androidx.lifecycle.lifecycleScope
 import com.rk.App
 import com.rk.filetree.currentProject
 import com.rk.file.FileWrapper
@@ -20,6 +21,8 @@ import com.rk.utils.getSourceDirOfPackage
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 object MkSession {
@@ -40,7 +43,7 @@ object MkSession {
                 "PATH" to "${System.getenv("PATH")}:${localBinDir().absolutePath}"
             )
 
-            fun getPwd(): String?{
+            suspend fun getPwd(): String?{
                 if (pendingCommand?.workingDir != null){
                     return pendingCommand?.workingDir
                 }
@@ -78,7 +81,7 @@ object MkSession {
                 }
             }
 
-            val workingDir = getPwd()
+            val workingDir = runBlocking { getPwd() }
 
             val tmpDir = File(getTempDir(), "terminal/$session_id")
 
