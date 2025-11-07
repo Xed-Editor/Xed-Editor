@@ -14,6 +14,7 @@ private val EDITOR_COLOR_MAPPING: Map<String, Int> by lazy {
 }
 
 private fun String.toColorIntSafe(): Int = runCatching {
+    if (this == "0") return 0
     toColorInt()
 }.getOrElse { exception ->
     toast(exception.message)
