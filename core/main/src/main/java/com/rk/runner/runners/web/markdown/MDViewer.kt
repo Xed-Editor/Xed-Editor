@@ -16,6 +16,7 @@ import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
@@ -42,16 +43,19 @@ class MDViewer : WebActivity() {
         }
 
 
-        // start markdown-serving server
-        httpServer = HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
-            val parameters = session.parameters
-            val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
-            if (parameters.containsKey("textmd")) {
-                return@HttpServer null
-            }
+        lifecycleScope.launch {
+            // start markdown-serving server
+            httpServer = HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
+                return@HttpServer runBlocking {
 
-            if (md.exists() && md.isFile() && md.getName().endsWith(".md")) {
-                val htmlString = """
+                    val parameters = session.parameters
+                    val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
+                    if (parameters.containsKey("textmd")) {
+                        return@runBlocking null
+                    }
+
+                    if (md.exists() && md.isFile() && md.getName().endsWith(".md")) {
+                        val htmlString = """
                     <!DOCTYPE html>
                     <html>
                     <head>
@@ -65,41 +69,46 @@ class MDViewer : WebActivity() {
                     </html>
                 """.trimIndent()
 
-                return@HttpServer newFixedLengthResponse(
-                    NanoHTTPD.Response.Status.OK, "text/html", htmlString
-                )
+                        return@runBlocking newFixedLengthResponse(
+                            NanoHTTPD.Response.Status.OK, "text/html", htmlString
+                        )
+                    }
+                    return@runBlocking null
+                }
             }
-            return@HttpServer null
-        }
 
-        // now load WebView inside Compose
-        setContent {
-            XedTheme {
-                WebScreen(
-                    title = file.getName(),
-                    onBackPressed = { onBackPressedDispatcher.onBackPressed() },
-                    setupWebView = { webView ->
-                        setupWebView(webView)
-                        webView.webViewClient = WebViewClient()
-                        webViewRef = WeakReference(webView)
+            // now load WebView inside Compose
+            setContent {
+                XedTheme {
+                    WebScreen(
+                        title = file.getName(),
+                        onBackPressed = { onBackPressedDispatcher.onBackPressed() },
+                        setupWebView = { webView ->
+                            setupWebView(webView)
+                            webView.webViewClient = WebViewClient()
+                            webViewRef = WeakReference(webView)
 
-                        lifecycleScope.launch(Dispatchers.Default) {
-                            val html = fetchMarkdownFile("http://localhost:$PORT/${file.getName()}")
-                            withContext(Dispatchers.Main) {
-                                webView.loadDataWithBaseURL(
-                                    "http://localhost:$PORT",
-                                    html,
-                                    "text/html",
-                                    "utf-8",
-                                    null
-                                )
+                            lifecycleScope.launch(Dispatchers.Default) {
+                                val html = fetchMarkdownFile("http://localhost:$PORT/${file.getName()}")
+                                withContext(Dispatchers.Main) {
+                                    webView.loadDataWithBaseURL(
+                                        "http://localhost:$PORT",
+                                        html,
+                                        "text/html",
+                                        "utf-8",
+                                        null
+                                    )
+                                }
                             }
                         }
-                    }
-                )
-            }
+                    )
+                }
 
+            }
         }
+
+
+
     }
 
     private suspend fun fetchMarkdownFile(url: String): String {

@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.filetree.FileTreeViewModel
@@ -86,10 +87,12 @@ class FileManager(private val activity: ComponentActivity) {
             putExtra(Intent.EXTRA_TITLE, title)
         }) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val uri = result.data?.data
+                this.activity.lifecycleScope.launch {
+                    val uri = result.data?.data
 
-                val fileObject = uri?.toFileObject(expectedIsFile = true)
-                callback(fileObject)
+                    val fileObject = uri?.toFileObject(expectedIsFile = true)
+                    callback(fileObject)
+                }
             } else {
                 callback(null)
             }
@@ -152,14 +155,17 @@ class FileManager(private val activity: ComponentActivity) {
             }
 
             try {
-                val fileObject = uri.toFileObject(expectedIsFile = true)
-                if (fileObject.hasChild(fileName)) {
-                    toast("File with name $fileName already exists")
-                    callback(null)
-                } else {
-                    val newFile = fileObject.createChild(true, fileName)
-                    callback(newFile)
+                this.activity.lifecycleScope.launch {
+                    val fileObject = uri.toFileObject(expectedIsFile = true)
+                    if (fileObject.hasChild(fileName)) {
+                        toast("File with name $fileName already exists")
+                        callback(null)
+                    } else {
+                        val newFile = fileObject.createChild(true, fileName)
+                        callback(newFile)
+                    }
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 callback(null)

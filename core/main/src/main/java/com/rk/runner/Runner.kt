@@ -12,11 +12,11 @@ import kotlin.text.Regex
 
 
 abstract class RunnerImpl(){
-    abstract fun run(context: Context,fileObject: FileObject)
+    abstract suspend fun run(context: Context,fileObject: FileObject)
     abstract fun getName(): String
     abstract fun getIcon(context: Context): Drawable?
-    abstract fun isRunning(): Boolean
-    abstract fun stop()
+    abstract suspend fun isRunning(): Boolean
+    abstract suspend fun stop()
 }
 
 

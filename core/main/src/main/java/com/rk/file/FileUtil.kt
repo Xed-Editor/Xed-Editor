@@ -17,10 +17,16 @@ fun File.child(fileName: String): File {
 }
 
 fun File.createFileIfNot(): File {
-    return (FileWrapper(this).createFileIfNot() as FileWrapper).file
+    if (getParentFile()?.exists()?.not() == true) {
+        getParentFile()!!.mkdirs()
+    }
+    if (exists().not()) {
+        createNewFile()
+    }
+    return this
 }
 
-fun FileObject.createFileIfNot(): FileObject {
+suspend fun FileObject.createFileIfNot(): FileObject {
     if (getParentFile()?.exists()?.not() == true) {
         getParentFile()!!.mkdirs()
     }
@@ -31,10 +37,13 @@ fun FileObject.createFileIfNot(): FileObject {
 }
 
 fun File.createDirIfNot(): File {
-    return (FileWrapper(this).createDirIfNot() as FileWrapper).file
+    if (exists().not()){
+        mkdirs()
+    }
+    return this
 }
 
-fun FileObject.createDirIfNot(): FileObject {
+suspend fun FileObject.createDirIfNot(): FileObject {
     if (exists().not()){
         mkdirs()
     }
@@ -49,7 +58,7 @@ inline fun isFileManager(): Boolean {
     return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && Environment.isExternalStorageManager())
 }
 
-fun openWith(context: Context, file: FileObject) {
+suspend fun openWith(context: Context, file: FileObject) {
     try {
         val uri: Uri = when (file) {
             is UriWrapper -> {

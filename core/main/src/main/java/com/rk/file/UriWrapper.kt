@@ -48,19 +48,21 @@ class UriWrapper : FileObject {
     constructor(uri: Uri, isTree: Boolean) : this(uri.getDocumentFile(isTree)!!)
 
 
-    override fun listFiles(): List<FileObject> = when {
-        !file.isDirectory -> emptyList()
-        !file.canRead() -> emptyList()
-        else -> file.listFiles().map { UriWrapper(it) }
+    override suspend fun listFiles(): List<FileObject> = withContext(Dispatchers.IO) {
+        return@withContext when {
+            !file.isDirectory -> emptyList()
+            !file.canRead() -> emptyList()
+            else -> file.listFiles().map { UriWrapper(it) }
+        }
     }
 
     override fun isDirectory(): Boolean = file.isDirectory
     override fun isFile(): Boolean = file.isFile
     override fun getName(): String = file.name ?: "Invalid"
-    override fun getParentFile(): FileObject? =
-        file.parentFile?.let { UriWrapper(it) }
 
-    override fun exists(): Boolean = file.exists()
+    override suspend fun getParentFile(): FileObject? = file.parentFile?.let { UriWrapper(it) }
+
+    override suspend fun exists(): Boolean = file.exists()
 
     fun isTermuxUri(): Boolean {
         return getAbsolutePath().startsWith("content://com.termux")
@@ -80,41 +82,41 @@ class UriWrapper : FileObject {
         return File(path)
     }
 
-    override fun createNewFile(): Boolean {
-        if (exists()) return false
+    override suspend fun createNewFile(): Boolean = withContext(Dispatchers.IO) {
+        if (exists()) return@withContext false
 
         val parent = file.parentFile ?: throw IOException("Parent directory doesn't exist")
 
-        return parent.createFile(
+        return@withContext parent.createFile(
             file.type ?: "application/octet-stream", file.name ?: "unnamed"
         ) != null
     }
 
-    override fun getCanonicalPath(): String {
-        return getAbsolutePath()
+    override suspend fun getCanonicalPath(): String = withContext(Dispatchers.IO) {
+        return@withContext getAbsolutePath()
     }
 
     @Throws(IOException::class)
-    override fun mkdir(): Boolean {
-        if (exists()) return false
+    override suspend fun mkdir(): Boolean = withContext(Dispatchers.IO) {
+        if (exists()) return@withContext false
 
         val parent = file.parentFile ?: throw IOException("Parent directory doesn't exist")
 
-        return parent.createDirectory(file.name ?: "unnamed") != null
+        return@withContext parent.createDirectory(file.name ?: "unnamed") != null
     }
 
-    override fun mkdirs(): Boolean {
-        if (exists()) return true
+    override suspend fun mkdirs(): Boolean = withContext(Dispatchers.IO) {
+        if (exists()) return@withContext true
 
         val parent = file.parentFile ?: throw IOException("Cannot create parent directory")
         if (!parent.exists()) {
             UriWrapper(parent).mkdirs()
         }
-        return mkdir()
+        return@withContext mkdir()
     }
 
-    override fun writeText(text: String) {
-        getOutPutStream(false).use { outputStream ->
+    override suspend fun writeText(text: String) = withContext(Dispatchers.IO) {
+        return@withContext getOutPutStream(false).use { outputStream ->
             try {
                 outputStream.write(text.toByteArray())
                 outputStream.flush()
@@ -125,21 +127,21 @@ class UriWrapper : FileObject {
     }
 
     @Throws(FileNotFoundException::class, SecurityException::class)
-    override fun getInputStream(): InputStream {
-        return application!!.contentResolver?.openInputStream(file.uri)
+    override suspend fun getInputStream(): InputStream = withContext(Dispatchers.IO) {
+        return@withContext application!!.contentResolver?.openInputStream(file.uri)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
-    override fun getOutPutStream(append: Boolean): OutputStream {
+    override suspend fun getOutPutStream(append: Boolean): OutputStream = withContext(Dispatchers.IO) {
         val mode = if (append) "wa" else "wt"
-        return application!!.contentResolver?.openOutputStream(file.uri, mode)
+        return@withContext application!!.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
-    override fun getMimeType(context: Context): String? {
+    override suspend fun getMimeType(context: Context): String? = withContext(Dispatchers.IO) {
         val uri = toUri()
         val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-        return if (extension != null) {
+        return@withContext if (extension != null) {
             MimeTypeMap.getSingleton()
                 .getMimeTypeFromExtension(extension.lowercase(Locale.getDefault()))
         } else {
@@ -147,23 +149,23 @@ class UriWrapper : FileObject {
         }
     }
 
-    override fun renameTo(string: String): Boolean {
-        return file.renameTo(string)
+    override suspend fun renameTo(string: String): Boolean = withContext(Dispatchers.IO) {
+        return@withContext file.renameTo(string)
     }
 
-    override fun hasChild(name: String): Boolean {
+    override suspend fun hasChild(name: String): Boolean = withContext(Dispatchers.IO) {
         if (isDirectory()) {
             for (child in listFiles()) {
                 if (child.getName() == name) {
-                    return true
+                    return@withContext true
                 }
             }
         }
-        return false
+        return@withContext false
     }
 
-    override fun createChild(createFile: Boolean, name: String): FileObject? {
-        return if (createFile) {
+    override suspend fun createChild(createFile: Boolean, name: String): FileObject? = withContext(Dispatchers.IO) {
+        return@withContext if (createFile) {
             file.createFile("application/octet-stream", name)?.let { UriWrapper(it) }
         } else {
             file.createDirectory(name)?.let { UriWrapper(it) }
@@ -173,11 +175,11 @@ class UriWrapper : FileObject {
 
     override fun getAbsolutePath(): String = toString()
 
-    override fun length(): Long {
-        return file.length()
+    override suspend fun length(): Long = withContext(Dispatchers.IO) {
+        return@withContext file.length()
     }
 
-    override fun delete(): Boolean {
+    override suspend fun delete(): Boolean = withContext(Dispatchers.IO) {
         fun deleteFolder(documentFile: DocumentFile): Boolean {
             if (!documentFile.isDirectory) {
                 return documentFile.delete()
@@ -189,11 +191,11 @@ class UriWrapper : FileObject {
         }
 
 
-        return deleteFolder(file)
+        return@withContext deleteFolder(file)
     }
 
-    override fun toUri(): Uri {
-        return file.uri
+    override suspend fun toUri(): Uri = withContext(Dispatchers.IO) {
+        return@withContext file.uri
     }
 
     override fun canWrite(): Boolean {
@@ -204,7 +206,7 @@ class UriWrapper : FileObject {
         return file.canRead()
     }
 
-    override fun getChildForName(name: String): FileObject {
+    override suspend fun getChildForName(name: String): FileObject = withContext(Dispatchers.IO) {
         if (!file.isDirectory) {
             throw IllegalStateException("Cannot get child for a non-directory file")
         }
@@ -212,21 +214,21 @@ class UriWrapper : FileObject {
         val child = file.listFiles().find { it.name == name || it.name == name.removePrefix("/") }
             ?: throw FileNotFoundException("Child with name $name not found")
 
-        return UriWrapper(child)
+        return@withContext UriWrapper(child)
     }
 
-    override fun readText(): String? {
+    override suspend fun readText(): String? = withContext(Dispatchers.IO) {
         val uri: Uri = file.uri
-        return application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+        return@withContext application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
             BufferedReader(InputStreamReader(inputStream)).use { reader ->
                 reader.readText()
             }
         }
     }
 
-    override fun readText(charset: Charset): String? {
+    override suspend fun readText(charset: Charset): String? = withContext(Dispatchers.IO) {
         val uri: Uri = file.uri
-        return application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+        return@withContext application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
             BufferedReader(InputStreamReader(inputStream, charset)).use { reader ->
                 reader.readText()
             }
@@ -236,14 +238,14 @@ class UriWrapper : FileObject {
     override suspend fun writeText(
         content: String,
         charset: Charset
-    ): Boolean {
+    ): Boolean = withContext(Dispatchers.IO) {
         withContext(Dispatchers.IO) {
             getOutPutStream(false).use {
                 it.write(content.toByteArray(charset))
                 it.flush()
             }
         }
-        return true
+        return@withContext true
     }
 
     override fun isSymlink(): Boolean {

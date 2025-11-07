@@ -62,6 +62,7 @@ import com.rk.components.AddDialogItem
 import com.rk.components.CloseConfirmationDialog
 import com.rk.components.FileActionDialog
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -133,7 +134,10 @@ suspend fun restoreProjects() {
                     }
                 }
 
-            }.onFailure { it.printStackTrace();errorDialog(it) }
+            }.onFailure {
+                it.printStackTrace();
+                toast(strings.project_restore_failed)
+            }
         }
     }
 
@@ -184,6 +188,7 @@ fun DrawerContent(
     fileTreeViewModel: FileTreeViewModel
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val openFolder = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
@@ -195,8 +200,10 @@ fun DrawerContent(
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 }.onFailure { it.printStackTrace() }
-                
-                addProject(it.toFileObject(expectedIsFile = false))
+
+                scope.launch {
+                    addProject(it.toFileObject(expectedIsFile = false))
+                }
             }
         }
     )

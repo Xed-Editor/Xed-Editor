@@ -96,26 +96,26 @@ fun SettingsTerminalScreen() {
                     return@rememberLauncherForActivityResult
                 }
 
-                val fileObject = uri.toFileObject(expectedIsFile = true)
-
-                val tempFile = App.getTempDir().child("terminal-backup.tar.gz")
-
-                fileObject.getInputStream().use { inputStream ->
-                    FileOutputStream(tempFile).use { outputStream ->
-                        inputStream.copyTo(outputStream)
-                    }
-                }
-
-
-                if (fileObject.canRead().not()) {
-                    toast(strings.invalid_path)
-                    return@rememberLauncherForActivityResult
-                }
-
                 val loading = LoadingPopup(context, null)
                 loading.show()
 
                 GlobalScope.launch(Dispatchers.IO) {
+                    val fileObject = uri.toFileObject(expectedIsFile = true)
+
+                    val tempFile = App.getTempDir().child("terminal-backup.tar.gz")
+
+                    fileObject.getInputStream().use { inputStream ->
+                        FileOutputStream(tempFile).use { outputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
+
+
+                    if (fileObject.canRead().not()) {
+                        toast(strings.invalid_path)
+                        return@launch
+                    }
+
                     sandboxDir().deleteRecursively()
                     sandboxDir().mkdirs()
 
@@ -149,69 +149,72 @@ fun SettingsTerminalScreen() {
 
 
                     fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz"){ fileObject ->
-                        if (fileObject != null){
-                            val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
+                        GlobalScope.launch {
+                            if (fileObject != null){
+                                val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
 
-                            fileObject.getInputStream().use { inputStream ->
-                                FileOutputStream(targetFile).use { outputStream ->
-                                    inputStream.copyTo(outputStream)
-                                }
-                            }
-
-                            val loading = LoadingPopup(context, null)
-                            loading.show()
-                            GlobalScope.launch(Dispatchers.IO) {
-                                try {
-                                    val sandboxDir = sandboxDir().absolutePath
-                                    val targetPath = targetFile.absolutePath
-
-                                    val processBuilder = ProcessBuilder(
-                                        "tar",
-                                        "-czf",
-                                        targetPath,
-                                        ".",
-                                        "--exclude=dev",
-                                        "--exclude=sys",
-                                        "--exclude=proc",
-                                        "--exclude=system",
-                                        "--exclude=apex",
-                                        "--exclude=vendor",
-                                        "--exclude=data",
-                                        "--exclude=home",
-                                        "--exclude=root",
-                                        "--exclude=var/cache",
-                                        "--exclude=var/tmp",
-                                        "--exclude=lost+found",
-                                        "--exclude=storage",
-                                        "--exclude=system_ext",
-                                        "--exclude=tmp",
-                                        "--exclude=vendor",
-                                        "--exclude=sdcard",
-                                        "--exclude=storage"
-                                    ).apply {
-                                        directory(File(sandboxDir))
-                                        redirectErrorStream(true)
-                                    }
-
-                                    processBuilder.start().waitFor()
-
-                                    withContext(Dispatchers.Main) {
-                                        loading.hide()
-                                    }
-                                } catch (e: Exception) {
-                                    withContext(Dispatchers.Main) {
-                                        loading.hide()
-                                        toast("Error: ${e.message}")
-                                    }
-                                }
-                                FileInputStream(targetFile).use { inputStream ->
-                                    fileObject.getOutPutStream(false).use { outputStream ->
+                                fileObject.getInputStream().use { inputStream ->
+                                    FileOutputStream(targetFile).use { outputStream ->
                                         inputStream.copyTo(outputStream)
                                     }
                                 }
 
+                                val loading = LoadingPopup(context, null)
+                                loading.show()
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    try {
+                                        val sandboxDir = sandboxDir().absolutePath
+                                        val targetPath = targetFile.absolutePath
+
+                                        val processBuilder = ProcessBuilder(
+                                            "tar",
+                                            "-czf",
+                                            targetPath,
+                                            ".",
+                                            "--exclude=dev",
+                                            "--exclude=sys",
+                                            "--exclude=proc",
+                                            "--exclude=system",
+                                            "--exclude=apex",
+                                            "--exclude=vendor",
+                                            "--exclude=data",
+                                            "--exclude=home",
+                                            "--exclude=root",
+                                            "--exclude=var/cache",
+                                            "--exclude=var/tmp",
+                                            "--exclude=lost+found",
+                                            "--exclude=storage",
+                                            "--exclude=system_ext",
+                                            "--exclude=tmp",
+                                            "--exclude=vendor",
+                                            "--exclude=sdcard",
+                                            "--exclude=storage"
+                                        ).apply {
+                                            directory(File(sandboxDir))
+                                            redirectErrorStream(true)
+                                        }
+
+                                        processBuilder.start().waitFor()
+
+                                        withContext(Dispatchers.Main) {
+                                            loading.hide()
+                                        }
+                                    } catch (e: Exception) {
+                                        withContext(Dispatchers.Main) {
+                                            loading.hide()
+                                            toast("Error: ${e.message}")
+                                        }
+                                    }
+                                    FileInputStream(targetFile).use { inputStream ->
+                                        fileObject.getOutPutStream(false).use { outputStream ->
+                                            inputStream.copyTo(outputStream)
+                                        }
+                                    }
+
+                                }
                             }
                         }
+
                     }
                 }
             )

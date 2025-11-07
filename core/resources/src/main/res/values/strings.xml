@@ -485,4 +485,5 @@
     <string name="empty_command">Empty command</string>
     <string name="socket">Socket</string>
     <string name="process">Process</string>
+    <string name="project_restore_failed">Failed to restore projects</string>
 </resources>

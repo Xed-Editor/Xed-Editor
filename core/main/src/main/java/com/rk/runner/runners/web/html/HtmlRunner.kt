@@ -36,7 +36,7 @@ class HtmlRunner() : RunnerImpl() {
 //        }
 //    }
 
-    override fun run(context: Context,file: FileObject) {
+    override suspend fun run(context: Context, file: FileObject) {
         stop()
         httpServer = HttpServer(PORT, file.getParentFile() ?: file)
 
@@ -62,9 +62,9 @@ class HtmlRunner() : RunnerImpl() {
     override fun getIcon(context: Context): Drawable? =
         drawables.ic_language_html.getDrawable(context)
 
-    override fun isRunning(): Boolean = httpServer?.isAlive == true
+    override suspend fun isRunning(): Boolean = httpServer?.isAlive == true
 
-    override fun stop() {
+    override suspend fun stop() {
         if (isRunning()) {
             httpServer?.closeAllConnections()
             httpServer?.stop()
