@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
-import com.rk.utils.toast
 import com.rk.resources.strings
+import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -94,13 +94,28 @@ class FileWrapper(var file: File) : FileObject {
         }
     }
 
-
     override fun getAbsolutePath(): String {
         return file.absolutePath
     }
 
     override fun length(): Long {
         return file.length()
+    }
+
+    override suspend fun calcSize(): Long {
+        return if (isFile()) length() else folderSize(this)
+    }
+
+    private fun folderSize(folder: FileObject): Long {
+        var length: Long = 0
+        for (file in folder.listFiles()) {
+            length += if (file.isFile()) {
+                file.length()
+            } else {
+                folderSize(file)
+            }
+        }
+        return length
     }
 
     override fun delete(): Boolean {
@@ -155,6 +170,10 @@ class FileWrapper(var file: File) : FileObject {
 
     override fun canRead(): Boolean {
         return file.canRead()
+    }
+
+    override fun canExecute(): Boolean {
+        return file.canExecute()
     }
 
     override fun getChildForName(name: String): FileObject {

@@ -170,11 +170,26 @@ class UriWrapper : FileObject {
         }
     }
 
-
     override fun getAbsolutePath(): String = toString()
 
     override fun length(): Long {
         return file.length()
+    }
+
+    override suspend fun calcSize(): Long {
+        return if (isFile()) length() else folderSize(this)
+    }
+
+    private fun folderSize(folder: FileObject): Long {
+        var length: Long = 0
+        for (file in folder.listFiles()) {
+            length += if (file.isFile()) {
+                file.length()
+            } else {
+                folderSize(file)
+            }
+        }
+        return length
     }
 
     override fun delete(): Boolean {
@@ -187,7 +202,6 @@ class UriWrapper : FileObject {
             }
             return documentFile.delete()
         }
-
 
         return deleteFolder(file)
     }
@@ -202,6 +216,10 @@ class UriWrapper : FileObject {
 
     override fun canRead(): Boolean {
         return file.canRead()
+    }
+
+    override fun canExecute(): Boolean {
+        return false
     }
 
     override fun getChildForName(name: String): FileObject {

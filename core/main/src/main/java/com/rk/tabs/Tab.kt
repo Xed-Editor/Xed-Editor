@@ -17,7 +17,7 @@ abstract class Tab() {
      * */
     open val file: FileObject? = null
 
-    abstract var tabTitle: MutableState<String>
+    abstract val tabTitle: MutableState<String>
     open fun onTabRemoved() {}
 
     @Composable

@@ -28,6 +28,7 @@ interface FileObject : Serializable {
     fun getOutPutStream(append: Boolean): OutputStream
     fun getAbsolutePath(): String
     fun length(): Long
+    suspend fun calcSize(): Long
     fun delete(): Boolean
     fun toUri(): Uri
     fun getMimeType(context: Context): String?
@@ -36,6 +37,7 @@ interface FileObject : Serializable {
     fun createChild(createFile: Boolean, name: String): FileObject?
     fun canWrite(): Boolean
     fun canRead(): Boolean
+    fun canExecute(): Boolean
     fun getChildForName(name: String): FileObject
     fun readText(): String?
     fun readText(charset: Charset): String?

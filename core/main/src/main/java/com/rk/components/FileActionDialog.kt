@@ -19,15 +19,23 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.rk.filetree.getAppropriateName
 import com.rk.filetree.removeProject
@@ -54,6 +62,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
+import androidx.compose.ui.text.font.FontStyle
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -371,7 +380,7 @@ fun FileActionDialog(
 
     // Info dialog
     if (showInfoDialog) {
-        FileInfoDialog(
+        PropertiesDialog(
             file = file,
             onDismiss = {
                 showXedDialog = true
@@ -554,12 +563,21 @@ fun DeleteConfirmationDialog(
     )
 }
 
-// File Info Dialog
+// Properties Dialog
 @Composable
-fun FileInfoDialog(
+fun PropertiesDialog(
     file: FileObject,
     onDismiss: () -> Unit
 ) {
+    var size by remember { mutableStateOf<Long?>(null) }
+    val calculatingText = stringResource(strings.calculating)
+
+    LaunchedEffect(file) {
+        size = withContext(Dispatchers.IO) {
+            file.calcSize()
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -568,26 +586,27 @@ fun FileInfoDialog(
         text = {
             Column {
                 InfoRow(stringResource(strings.name), file.getName())
-
-                if (file.isFile()) {
-                    InfoRow(stringResource(strings.size), formatFileSize(file.length()))
-                }
-
                 InfoRow(
-                    stringResource(strings.type),
-                    if (file.isDirectory()) stringResource(strings.folder) else stringResource(
-                        strings.file
-                    )
+                    label = stringResource(strings.size),
+                    value = size?.let { AnnotatedString(formatFileSize(it)) } ?: buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
+                            append(calculatingText)
+                        }
+                    }
                 )
                 InfoRow(
-                    stringResource(strings.can_read),
-                    if (file.canRead()) stringResource(strings.yes) else stringResource(strings.no)
+                    label = stringResource(strings.type),
+                    value = if (file.isDirectory()) {
+                        stringResource(strings.folder)
+                    } else {
+                        stringResource(strings.file)
+                    }
                 )
-                InfoRow(
-                    stringResource(strings.can_write),
-                    if (file.canWrite()) stringResource(strings.yes) else stringResource(strings.no)
+                PermissionRow(
+                    canRead = file.canRead(),
+                    canWrite = file.canWrite(),
+                    canExecute = file.canExecute()
                 )
-
                 InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
                 InfoRow(stringResource(strings.path), file.getAbsolutePath())
             }
@@ -603,24 +622,92 @@ fun FileInfoDialog(
 
 @Composable
 fun InfoRow(label: String, value: String) {
+    InfoRow(label, AnnotatedString(value))
+}
+
+@Composable
+fun InfoRow(label: String, value: AnnotatedString) {
     SelectionContainer {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 text = "$label:",
-                modifier = Modifier.weight(1f),
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
             Text(
+                modifier = Modifier.padding(top = 2.dp),
                 text = value,
-                modifier = Modifier.weight(2f)
+                style = MaterialTheme.typography.bodyLarge
             )
         }
     }
+}
 
+@Composable
+fun PermissionRow(canRead: Boolean, canWrite: Boolean, canExecute: Boolean) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text(
+                text = stringResource(strings.permissions),
+                fontWeight = FontWeight.Medium,
+            )
+            Column(
+                modifier = Modifier.padding(top = 2.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(if (canRead) drawables.check else drawables.close),
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+
+                    Text(
+                        text = stringResource(strings.can_read),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(if (canWrite) drawables.check else drawables.close),
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+
+                    Text(
+                        text = stringResource(strings.can_write),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(if (canExecute) drawables.check else drawables.close),
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+
+                    Text(
+                        text = stringResource(strings.can_execute),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+        }
+    }
 }
 
 // Utility functions

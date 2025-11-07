@@ -309,6 +309,7 @@
     <string name="size">Size</string>
     <string name="can_read">Can read</string>
     <string name="can_write">Can write</string>
+    <string name="can_execute">Can execute</string>
     <string name="is_file">Is file</string>
     <string name="copied">Copied</string>
     <string name="flavor">Flavor</string>
@@ -480,4 +481,6 @@
     <string name="add_command">Add command</string>
     <string name="info_toolbar_actions">Toolbar actions define which commands are shown in the toolbar when a file is open. You can long-press and drag to change their order, or tap the button to add a new command.</string>
     <string name="disable">Disable</string>
+    <string name="calculating">Calculating…</string>
+    <string name="permissions">Permissions</string>
 </resources>
