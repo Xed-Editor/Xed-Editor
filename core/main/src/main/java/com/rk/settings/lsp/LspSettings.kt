@@ -130,23 +130,27 @@ private fun ExternalLSP(
     onDismiss: () -> Unit,
     onConfirm: (BaseLspServer) -> Unit
 ) {
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(strings.external_lsp)) },
         confirmButton = {},
         text = {
             Column {
-                var selected by remember { mutableStateOf("Socket") }
-                val options = listOf("Socket", "Process")
+                val socketLabel = stringResource(strings.socket)
+                val processLabel = stringResource(strings.process)
+                var selected by remember { mutableStateOf(socketLabel) }
+                val options = listOf(socketLabel, processLabel)
 
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth(),) {
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     options.forEach { option ->
                         SegmentedButton(
                             selected = selected == option,
                             onClick = { selected = option },
                             label = { Text(option) },
-                            shape = SegmentedButtonDefaults.itemShape(index = options.indexOf(option), count = options.size)
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = options.indexOf(option),
+                                count = options.size
+                            )
                         )
                     }
                 }
@@ -154,15 +158,21 @@ private fun ExternalLSP(
                 Spacer(Modifier.height(8.dp))
 
                 when (selected) {
-                    "Socket" -> ExternalSocketServer(onConfirm = onConfirm, onDismiss = {
-                        onDismiss()
-                    })
-                    "Process" -> ExternalProcessServer(onConfirm = onConfirm,onDismiss = {
-                        onDismiss()
-                    })
+                    socketLabel -> ExternalSocketServer(
+                        onConfirm = onConfirm,
+                        onDismiss = {
+                            onDismiss()
+                        }
+                    )
+
+                    processLabel -> ExternalProcessServer(
+                        onConfirm = onConfirm,
+                        onDismiss = {
+                            onDismiss()
+                        }
+                    )
                 }
             }
-
         },
     )
 }

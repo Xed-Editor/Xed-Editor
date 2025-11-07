@@ -480,6 +480,10 @@
     <string name="add_command">Add command</string>
     <string name="info_toolbar_actions">Toolbar actions define which commands are shown in the toolbar when a file is open. You can long-press and drag to change their order, or tap the button to add a new command.</string>
     <string name="disable">Disable</string>
+    <string name="lsp_process_desc">The terminal\'s initialization scripts, e.g., /initrc and .bashrc, will not run before this command.</string>
+    <string name="command">Command</string>
+    <string name="empty_command">Empty command</string>
+    <string name="socket">Socket</string>
+    <string name="process">Process</string>
     <string name="project_restore_failed">Failed to restore projects</string>
 </resources>
-
