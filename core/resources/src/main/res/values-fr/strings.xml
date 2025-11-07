@@ -273,7 +273,7 @@
     <string name="file_not_loaded">Le fichier n\'est pas encore chargé.</string>
     <string name="file_not_exist">Le fichier n\'existe plus</string>
     <string name="experimental_feature">Fonctionnalité expérimentale</string>
-    <string name="experimental_session_restore_warning">Cettz fonctionnalité est expérimentale et susceptible de provoquer des pertes de données</string>
+    <string name="experimental_session_restore_warning">Cette fonctionnalité est expérimentale et susceptible de provoquer des pertes de données</string>
     <string name="warning_private_dir">Le contenu de ce dossier sera supprimé si vous videz mes données ou désinstallez Xed-editor</string>
     <string name="highlighting">Coloration syntaxique</string>
     <string name="unrestricted_file">Ouvrir des fichiers de toute taille</string>
@@ -486,4 +486,5 @@
     <string name="format_range_error">Impossible de mettre en forme la partie du document.</string>
     <string name="format_document_error">Impossible de mettre en forme le document.</string>
     <string name="format_selection_error">Impossible de mettre en forme la sélection.</string>
+    <string name="project_restore_failed">Échec de la restauration des projets</string>
 </resources>
