@@ -39,7 +39,6 @@ fun PreferenceSwitch(
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
-
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
