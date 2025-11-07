@@ -483,4 +483,5 @@
     <string name="disable">Disable</string>
     <string name="calculating">Calculating…</string>
     <string name="permissions">Permissions</string>
+    <string name="project_restore_failed">Failed to restore projects</string>
 </resources>

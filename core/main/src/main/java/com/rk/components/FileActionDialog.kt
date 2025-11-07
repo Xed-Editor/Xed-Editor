@@ -57,6 +57,7 @@ import com.rk.filetree.addProject
 import com.rk.icons.CreateNewFile
 import com.rk.icons.CreateNewFolder
 import com.rk.icons.XedIcons
+import com.rk.resources.getString
 import com.rk.settings.app.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -245,7 +246,10 @@ fun FileActionDialog(
                     title = stringResource(strings.open_with),
                     //description = stringResource(strings.open_with_other),
                     onClick = {
-                        FileOperations.openWithExternalApp(context, file)
+                        scope.launch {
+                            FileOperations.openWithExternalApp(context, file)
+                        }
+
                         //showXedDialog = true
                         onDismissRequest()
                     }
@@ -411,11 +415,13 @@ fun FileActionDialog(
                 }
             },
             onConfirm = {
-                if (!file.hasChild(newNameValue)){
-                    file.createChild(createFile = isNewFile, newNameValue)
-                }
+                scope.launch {
+                    if (!file.hasChild(newNameValue)){
+                        file.createChild(createFile = isNewFile, newNameValue)
+                    }
 
-                fileTreeViewModel.updateCache(file)
+                    fileTreeViewModel.updateCache(file)
+                }
                 onDismissRequest()
             },
             onFinish = {
@@ -463,7 +469,7 @@ object FileOperations {
         }
     }
 
-    fun openWithExternalApp(context: Context, file: FileObject) {
+    suspend fun openWithExternalApp(context: Context, file: FileObject) {
         openWith(context,file)
     }
 
@@ -812,7 +818,7 @@ private suspend fun copyRecursive(
 /**
  * Checks if parentDir is a parent of childDir (prevents copying directory into itself)
  */
-private fun isParentOf(parentDir: FileObject, childDir: FileObject): Boolean {
+private suspend fun isParentOf(parentDir: FileObject, childDir: FileObject): Boolean {
     var current: FileObject? = childDir
     while (current != null) {
         if (current == parentDir) {

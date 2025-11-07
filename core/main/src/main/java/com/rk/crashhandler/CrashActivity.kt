@@ -49,6 +49,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.system.exitProcess
 import androidx.core.net.toUri
+import com.rk.crashhandler.CrashHandler.logErrorOrExit
 
 class CrashActivity : ComponentActivity() {
 

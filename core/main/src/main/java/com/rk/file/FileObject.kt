@@ -13,39 +13,39 @@ import java.io.Serializable
 import java.nio.charset.Charset
 
 interface FileObject : Serializable {
-    fun listFiles(): List<FileObject>
+    suspend fun listFiles(): List<FileObject>
     fun isDirectory(): Boolean
     fun isFile(): Boolean
     fun getName(): String
-    fun getParentFile(): FileObject?
-    fun exists(): Boolean
-    fun createNewFile(): Boolean
-    fun getCanonicalPath(): String
-    fun mkdir(): Boolean
-    fun mkdirs(): Boolean
-    fun writeText(text: String)
-    fun getInputStream(): InputStream
-    fun getOutPutStream(append: Boolean): OutputStream
+    suspend fun getParentFile(): FileObject?
+    suspend fun exists(): Boolean
+    suspend fun createNewFile(): Boolean
+    suspend fun getCanonicalPath(): String
+    suspend fun mkdir(): Boolean
+    suspend fun mkdirs(): Boolean
+    suspend fun writeText(text: String)
+    suspend fun getInputStream(): InputStream
+    suspend fun getOutPutStream(append: Boolean): OutputStream
     fun getAbsolutePath(): String
-    fun length(): Long
+    suspend fun length(): Long
     suspend fun calcSize(): Long
-    fun delete(): Boolean
-    fun toUri(): Uri
-    fun getMimeType(context: Context): String?
-    fun renameTo(string: String): Boolean
-    fun hasChild(name: String): Boolean
-    fun createChild(createFile: Boolean, name: String): FileObject?
+    suspend fun delete(): Boolean
+    suspend fun toUri(): Uri
+    suspend fun getMimeType(context: Context): String?
+    suspend fun renameTo(string: String): Boolean
+    suspend fun hasChild(name: String): Boolean
+    suspend fun createChild(createFile: Boolean, name: String): FileObject?
     fun canWrite(): Boolean
     fun canRead(): Boolean
     fun canExecute(): Boolean
-    fun getChildForName(name: String): FileObject
-    fun readText(): String?
-    fun readText(charset: Charset): String?
+    suspend fun getChildForName(name: String): FileObject
+    suspend fun readText(): String?
+    suspend fun readText(charset: Charset): String?
     suspend fun writeText(content: String, charset: Charset): Boolean
     fun isSymlink(): Boolean
 }
 
-fun FileObject.copyToTempDir() = run {
+suspend fun FileObject.copyToTempDir() = run {
     val file = File(App.getTempDir(), getName()).createFileIfNot()
 
     getInputStream().use { input ->
@@ -57,7 +57,7 @@ fun FileObject.copyToTempDir() = run {
     file
 }
 
-fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
     // First, try to resolve to a real File (for direct access when possible)
     val file = File(this.toPath())
 
@@ -77,6 +77,6 @@ fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
 }
 
 
-private fun needsUriFallback(): Boolean {
+private suspend fun needsUriFallback(): Boolean {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()
 }

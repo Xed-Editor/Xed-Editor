@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -15,6 +16,7 @@ import com.bumptech.glide.Glide
 import com.rk.file.FileObject
 import com.rk.icons.Photo
 import com.rk.icons.XedIcons
+import kotlinx.coroutines.launch
 
 class ImageTab(
     override val file: FileObject
@@ -30,14 +32,19 @@ class ImageTab(
 
     @Composable
     override fun Content() {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clipToBounds()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds()
+        ) {
+            val scope = rememberCoroutineScope()
             AndroidView(
                 factory = { context ->
                     PhotoView(context).apply {
                         this.scaleType = ImageView.ScaleType.FIT_CENTER
-                        Glide.with(context).load(file.toUri()).into(this)
+                        scope.launch {
+                            Glide.with(context).load(file.toUri()).into(this@apply)
+                        }
                     }
                 }
             )
