@@ -222,12 +222,12 @@ fun MainContent(
                                         }
                                     )
 
-                                    if (tabState is EditorTab){
+                                    tabState.file?.let {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(strings.more)) },
                                             onClick = {
                                                 showTabMenu = false
-                                                fileActionDialog = tabState.file
+                                                fileActionDialog = it
                                             }
                                         )
                                     }

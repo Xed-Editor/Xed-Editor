@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
-import com.rk.utils.toast
 import com.rk.resources.strings
+import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -16,7 +16,6 @@ import java.io.OutputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.Locale
-
 
 class FileWrapper(var file: File) : FileObject {
     override suspend fun listFiles(): List<FileObject> = withContext(Dispatchers.IO) {
@@ -94,13 +93,28 @@ class FileWrapper(var file: File) : FileObject {
         }
     }
 
-
     override fun getAbsolutePath(): String {
         return file.absolutePath
     }
 
     override suspend fun length(): Long = withContext(Dispatchers.IO) {
         return@withContext file.length()
+    }
+
+    override suspend fun calcSize(): Long = withContext(Dispatchers.IO) {
+        return@withContext if (isFile()) length() else getFolderSize(this@FileWrapper)
+    }
+
+    private suspend fun getFolderSize(folder: FileObject): Long {
+        var length: Long = 0
+        for (file in folder.listFiles()) {
+            length += if (file.isFile()) {
+                file.length()
+            } else {
+                getFolderSize(file)
+            }
+        }
+        return length
     }
 
     override suspend fun delete(): Boolean = withContext(Dispatchers.IO) {
@@ -158,6 +172,10 @@ class FileWrapper(var file: File) : FileObject {
 
     override fun canRead(): Boolean {
         return file.canRead()
+    }
+
+    override fun canExecute(): Boolean {
+        return file.canExecute()
     }
 
     override suspend fun getChildForName(name: String): FileObject {

@@ -144,7 +144,7 @@ data class CodeEditorState(
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
-    var file: FileObject,
+    override var file: FileObject,
     val viewModel: MainViewModel,
 ) : Tab() {
 
@@ -372,6 +372,8 @@ class EditorTab(
             viewModel = viewModel
         )
     }
+
+    override val showGlobalActions: Boolean = false
 
     fun refresh() {
         scope.launch(Dispatchers.IO) {

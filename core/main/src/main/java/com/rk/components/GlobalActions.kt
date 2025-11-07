@@ -26,7 +26,6 @@ import com.rk.DefaultScope
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
-import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.utils.application
 import com.rk.utils.errorDialog
@@ -51,7 +50,7 @@ var addDialog by mutableStateOf(false)
 @Composable
 fun RowScope.GlobalActions(viewModel: MainViewModel) {
     val context = LocalContext.current
-    if (viewModel.tabs.isEmpty()) {
+    if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         IconButton(onClick = {
             addDialog = true
         }) {

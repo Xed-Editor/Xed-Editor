@@ -172,11 +172,26 @@ class UriWrapper : FileObject {
         }
     }
 
-
     override fun getAbsolutePath(): String = toString()
 
     override suspend fun length(): Long = withContext(Dispatchers.IO) {
         return@withContext file.length()
+    }
+
+    override suspend fun calcSize(): Long = withContext(Dispatchers.IO) {
+        return@withContext if (isFile()) length() else folderSize(this@UriWrapper)
+    }
+
+    private suspend fun folderSize(folder: FileObject): Long {
+        var length: Long = 0
+        for (file in folder.listFiles()) {
+            length += if (file.isFile()) {
+                file.length()
+            } else {
+                folderSize(file)
+            }
+        }
+        return length
     }
 
     override suspend fun delete(): Boolean = withContext(Dispatchers.IO) {
@@ -189,7 +204,6 @@ class UriWrapper : FileObject {
             }
             return documentFile.delete()
         }
-
 
         return@withContext deleteFolder(file)
     }
@@ -204,6 +218,10 @@ class UriWrapper : FileObject {
 
     override fun canRead(): Boolean {
         return file.canRead()
+    }
+
+    override fun canExecute(): Boolean {
+        return false
     }
 
     override suspend fun getChildForName(name: String): FileObject = withContext(Dispatchers.IO) {
