@@ -464,8 +464,8 @@
     <string name="select_all">Tümünü seç</string>
     <string name="select_word">Kelime seç</string>
     <string name="duplicate_line">Satırı çoğalt</string>
-    <string name="show_nav_extra_keys">Navigasyon tuşlarını göster</string>
-    <string name="show_nav_extra_keys_desc">Navigasyon düğmelerini ek tuşlar olarak göster</string>
+    <string name="show_nav_extra_keys">Gezinme tuşlarını göster</string>
+    <string name="show_nav_extra_keys_desc">Gezinme düğmelerini ek tuşlar olarak göster</string>
     <string name="change_extra_keys">Ekstra tuşları düzenle</string>
     <string name="change_extra_keys_desc">Klavyenin üzerinde gösterilen ekstra tuşları özelleştir</string>
     <string name="toolbar_actions">Araç çubuğu işlemleri</string>
