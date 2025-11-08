@@ -471,4 +471,13 @@
     <string name="line_spacing_desc">Násobky vzdálenosti pro každý řádek v editoru</string>
     <string name="language_server">Jazykový server</string>
     <string name="manage_language_servers">Spravovat jazykové servery</string>
+    <string name="manage_language_servers_desc">Instalovat, připojovat a konfigurovat jazykové servery</string>
+    <string name="format_on_save">Formátovat na uložení</string>
+    <string name="format_on_save_desc">Automaticky formátovat soubor při uložení</string>
+    <string name="command_palette">Paleta příkazů</string>
+    <string name="format_document">Formátovat soubor</string>
+    <string name="format_selection">Formátovat výběr</string>
+    <string name="format_selection_error">Nelze formátovat tento výběr.</string>
+    <string name="format_document_error">Nelze formátovat tento soubor.</string>
+    <string name="can_execute">Je spustitelný</string>
 </resources>
