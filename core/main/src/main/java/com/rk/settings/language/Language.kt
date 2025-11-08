@@ -30,12 +30,48 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.components.SettingsToggle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Locale
+import com.rk.utils.application
+
+// Data class to hold locale with its availability status
+data class LocaleInfo(
+    val locale: Locale,
+    val isInstalled: Boolean,
+    val tag: String,
+    val displayName: String
+)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LanguageScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+
+    // Single state for processed locale data
+    val localeInfoList = remember { mutableStateOf<List<LocaleInfo>?>(null) }
+    val currentLocale = LocalConfiguration.current.locales[0]
+
+    // Load and process locales once
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val supportedLocales = readSupportedLocales(context)
+            val installedTags = application?.resources?.assets?.locales?.toSet() ?: emptySet()
+
+            // Process all data at once
+            val processed = supportedLocales.map { locale ->
+                val tag = locale.toLanguageTag()
+                LocaleInfo(
+                    locale = locale,
+                    isInstalled = installedTags.contains(tag),
+                    tag = tag,
+                    displayName = "${locale.getDisplayLanguage(locale)} ($tag)"
+                )
+            }
+            localeInfoList.value = processed
+        }
+    }
+
     PreferenceLayout(
         label = stringResource(strings.lang),
         backArrowVisible = true,
@@ -49,66 +85,35 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
                         )
                     )
                 },
-                text = {
-                    Text(stringResource(strings.translate))
-                },
-                icon = {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                }
+                text = { Text(stringResource(strings.translate)) },
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) }
             )
         }
     ) {
-
         InfoBlock(
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Warning, contentDescription = null
-                )
-            },
+            icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
             text = stringResource(strings.change_lang_warn),
             warning = true
         )
 
-        val languages = remember { mutableStateListOf<Locale>() }
+        PreferenceGroup {
+            val locales = localeInfoList.value
 
-        LaunchedEffect(Unit) {
-            fun readSupportedLocales(context: Context): List<Locale> {
-                val json = context.assets.open("supported_locales.json")
-                    .bufferedReader()
-                    .use { it.readText() }
-                val localeStrings: List<String> = Gson().fromJson(
-                    json,
-                    object : TypeToken<List<String>>() {}.type
-                )
-                return localeStrings.map { Locale.forLanguageTag(it) }
-            }
-
-            val langs = readSupportedLocales(context)
-            languages.addAll(langs)
-        }
-
-        val configuration = LocalConfiguration.current
-        val localeList = configuration.locales
-        val currentLocale = localeList[0]
-
-        PreferenceGroup() {
-            if (languages.isNotEmpty()) {
-                languages.forEach { locale ->
+            if (locales != null) {
+                locales.forEach { localeInfo ->
+                    val isSelected = currentLocale.toLanguageTag() == localeInfo.tag
 
                     SettingsToggle(
                         modifier = Modifier,
-                        label = "${locale.getDisplayLanguage(locale)} (${locale.toLanguageTag()})",
+                        label = localeInfo.displayName,
                         default = false,
-                        sideEffect = {
-                            setAppLanguage(locale)
-                        },
+                        sideEffect = { setAppLanguage(localeInfo.locale) },
                         showSwitch = false,
+                        isEnabled = localeInfo.isInstalled,
                         startWidget = {
                             RadioButton(
-                                selected = currentLocale.toLanguageTag() == locale.toLanguageTag(),
-                                onClick = {
-                                    setAppLanguage(locale)
-                                }
+                                selected = isSelected,
+                                onClick = { setAppLanguage(localeInfo.locale) }
                             )
                         }
                     )
@@ -126,6 +131,18 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
         }
 
         Spacer(modifier = Modifier.height(60.dp))
+    }
+}
+
+// Extract function outside composable to avoid recreation
+private suspend fun readSupportedLocales(context: Context): List<Locale>  = withContext(Dispatchers.IO){
+    return@withContext context.assets.open("supported_locales.json").use { stream ->
+        val json = stream.bufferedReader().use { it.readText() }
+        val localeStrings: List<String> = Gson().fromJson(
+            json,
+            object : TypeToken<List<String>>() {}.type
+        )
+        localeStrings.map { Locale.forLanguageTag(it) }
     }
 }
 
