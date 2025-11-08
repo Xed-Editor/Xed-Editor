@@ -9,12 +9,14 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.surfaceColorAtElevation
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
@@ -75,6 +78,7 @@ import com.rk.utils.info
 import com.rk.utils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
+import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import kotlinx.coroutines.CompletableDeferred
@@ -84,6 +88,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -140,6 +145,7 @@ data class CodeEditorState(
     }
 
     val lspDialogMutex by lazy { Mutex() }
+    var isEditorBusy by mutableStateOf(false)
 }
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -327,6 +333,14 @@ class EditorTab(
                     HorizontalDivider()
                 }
 
+
+                if (editorState.isEditorBusy){
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        strokeCap = StrokeCap.Butt
+                    )
+                }
+
                 CodeEditor(
                     modifier = Modifier,
                     state = editorState,
@@ -390,6 +404,8 @@ class EditorTab(
         }
     }
 }
+
+private var isWrapping = false
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
@@ -504,6 +520,13 @@ private fun EditorTab.CodeEditor(
                     subscribeAlways(EditorKeyEvent::class.java) { event ->
                         onKeyEvent.invoke(event)
                     }
+
+
+                    subscribeAlways(LayoutStateChangeEvent::class.java){ event ->
+                        isWrapping = isWrapping.not()
+                        editorState.isEditorBusy = isWrapping
+                    }
+
                     applyHighlighting()
                 }
 
@@ -533,9 +556,13 @@ private fun EditorTab.CodeEditor(
                     )
                 }
 
-                //vh
                 val divider = View(ctx).apply {
                     id = dividerId
+                    visibility = if (Settings.show_extra_keys) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
                     layoutParams = ConstraintLayout.LayoutParams(
                         ConstraintLayout.LayoutParams.MATCH_PARENT,
                         dpToPx(1f, ctx)
