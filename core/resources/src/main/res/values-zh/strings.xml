@@ -484,4 +484,13 @@
     <string name="format_document_error">无法格式化文档。</string>
     <string name="format_selection_error">无法格式化选定内容。</string>
     <string name="format_selection">格式化选定内容</string>
+    <string name="can_execute">可以执行</string>
+    <string name="calculating">计算中…</string>
+    <string name="permissions">权限</string>
+    <string name="lsp_process_desc">终端的初始化脚本（例如 /initrc 和 .bashrc）不会在此命令执行之前运行。</string>
+    <string name="command">命令</string>
+    <string name="empty_command">空命令</string>
+    <string name="socket">套接字</string>
+    <string name="process">进程</string>
+    <string name="project_restore_failed">恢复项目失败</string>
 </resources>
