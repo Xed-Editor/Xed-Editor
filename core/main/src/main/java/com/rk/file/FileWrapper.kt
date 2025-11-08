@@ -176,11 +176,11 @@ class FileWrapper(var file: File) : FileObject {
         return FileWrapper(File(file, name))
     }
 
-    override fun readText(): String {
+    override suspend fun readText(): String {
         return file.readText()
     }
 
-    override fun readText(charset: Charset): String {
+    override suspend fun readText(charset: Charset): String {
         return file.readText(charset = charset)
     }
 

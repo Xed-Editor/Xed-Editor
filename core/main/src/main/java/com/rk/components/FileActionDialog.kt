@@ -290,7 +290,9 @@ fun FileActionDialog(
                         //description = stringResource(strings.add_file_desc),
                         onClick = {
                             // This would typically open a file picker
-                            addProject(file, true)
+                            scope.launch {
+                                addProject(file, true)
+                            }
                             //showXedDialog = true
                             onDismissRequest()
                         }

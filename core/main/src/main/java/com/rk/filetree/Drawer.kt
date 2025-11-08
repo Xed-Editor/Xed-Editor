@@ -81,7 +81,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.Serializable
-import com.rk.xededitor.ui.components.*
 import kotlinx.coroutines.delay
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -228,6 +227,7 @@ suspend fun connectToSftpAndCreateFileObject(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SftpCredentialsDialog(
     onDismiss: () -> Unit,
@@ -239,7 +239,7 @@ private fun SftpCredentialsDialog(
     var password by rememberSaveable { mutableStateOf("") }
     var initialPath by rememberSaveable { mutableStateOf("") }
 
-        XedDialog(onDismissRequest = onDismiss) {
+        AlertDialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -552,9 +552,9 @@ private fun AddProjectDialog(
                 }
             )
 
-
+//          todo: Icon for SFTP/Remote Folders.
             AddDialogItem(
-                icon = drawables.upload,
+                icon = drawables.folder,
                 title = stringResource(strings.add_sftp),
                 description = stringResource(strings.add_sftp_desc),
                 onClick = {

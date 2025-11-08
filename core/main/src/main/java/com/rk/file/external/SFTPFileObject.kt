@@ -148,7 +148,7 @@ class SFTPFileObject(
     }
 
     companion object {
-        suspend fun createSessionInternal(
+        fun createSessionInternal(
             hostname: String,
             port: Int,
             username: String,
@@ -180,7 +180,7 @@ class SFTPFileObject(
 
         }
 
-       suspend fun createChannelInternal(session: Session): ChannelSftp? {
+       fun createChannelInternal(session: Session): ChannelSftp? {
             return try {
                 val channel = session.openChannel("sftp") as ChannelSftp
                 channel.connect(5000)
@@ -232,7 +232,7 @@ class SFTPFileObject(
     //     Log.d("SFTPFileObject", "Deserialized SFTPFileObject: $remotePath")
     //}
 
-    override suspend fun getName(): String {
+    override fun getName(): String {
         if (isRoot) {
             val userInfo = session?.userName
             return "$userInfo@${session?.host}"
@@ -263,7 +263,7 @@ class SFTPFileObject(
         )
     }
 
-    private suspend fun getSftpAttrs(): SftpATTRS? {
+    private fun getSftpAttrs(): SftpATTRS? {
         Log.d("SftpFileObject", "Attempting lstat for path: '$remotePath'")
         return try {
             channelSftp?.lstat(remotePath)
@@ -280,7 +280,7 @@ class SFTPFileObject(
         }
     }
 
-    override suspend fun isFile(): Boolean {
+    override fun isFile(): Boolean {
         Log.d("SftpFileObject", "Checking if path is file: '$remotePath'")
         if (attrsFetched?.not() == true) {
             Log.e(
@@ -292,7 +292,7 @@ class SFTPFileObject(
         return attrs?.isReg ?: false
     }
 
-    override suspend fun isDirectory(): Boolean {
+    override fun isDirectory(): Boolean {
         if (attrsFetched?.not() == true) {
             Log.e("SFTPFileObject", "isDirectory() called without prefetching attributes first!")
         }
@@ -413,6 +413,9 @@ class SFTPFileObject(
     }
 
     override suspend fun length(): Long = attrs?.size ?: 0L
+    override suspend fun calcSize(): Long {
+        TODO("Not yet implemented")
+    }
 
     suspend fun lastModified(): Long =
         getSftpAttrs()?.mTime?.toLong()?.times(1000L) ?: 0L // sftp mTime is in seconds
@@ -499,7 +502,7 @@ class SFTPFileObject(
         }
     }
 
-    override fun toUri(): Uri {
+    override suspend fun toUri(): Uri {
         // sftp://username@host:port/path/to/file
         return Uri.parse("sftp://${session?.userName}@${session?.host}:${session?.port}/$remotePath")
     }
@@ -583,12 +586,23 @@ class SFTPFileObject(
 
     suspend fun getUri(): Uri? = toUri()
 
-    override suspend fun canRead(): Boolean {
+    override fun canRead(): Boolean {
         // JSch doesn't have a direct "canRead" like java.io.File.
         // Existence and permissions from SftpATTRS can give an idea.
         // For simplicity, if it exists, assume readable.
         // More precise check would involve trying to open for read or checking attrs.permissions.
-        return exists()
+        if (attrsFetched?.not() == true) {
+            Log.e(
+                "SFTPFileObject",
+                "canRead() called without prefetching attributes first! This can lead to incorrect results."
+            )
+        }
+
+        return attrs == null;
+    }
+
+    override fun canExecute(): Boolean {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getChildForName(name: String): FileObject {
@@ -626,7 +640,7 @@ class SFTPFileObject(
 
 //    override suspend fun isSymlink(): Boolean = getSftpAttrs()?.isLink ?: false
 
-    override suspend fun isSymlink(): Boolean {
+    override fun isSymlink(): Boolean {
         Log.d(
             "SftpFileObject",
             "Checking if path is symlink: '$remotePath', attrsFetched=$attrsFetched"
@@ -638,12 +652,19 @@ class SFTPFileObject(
         return attrs?.isLink ?: false
     }
 
-    override suspend fun canWrite(): Boolean {
+    override fun canWrite(): Boolean {
+        if (attrsFetched?.not() == true) {
+            Log.e(
+                "SFTPFileObject",
+                "canWrite() called without prefetching attributes first! This can lead to incorrect results."
+            )
+        }
+
         // Similar to canRead, a precise check is complex.
         // Checking SftpATTRS permissions is better.
         // For now, assume writable if it exists and isn't a directory (or handle dir writes via mkdir).
         // This is a simplification.
-        return exists() // A more robust check would look at sftpAttrs.getPermissions()
+        return attrs == null // A more robust check would look at sftpAttrs.getPermissions()
     }
 
     // Call this when the FileObject is no longer needed, especially for the root object

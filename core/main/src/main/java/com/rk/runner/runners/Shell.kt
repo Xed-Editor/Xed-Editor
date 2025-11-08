@@ -30,11 +30,11 @@ class Shell : RunnerImpl(){
         ))
     }
 
-    override suspend fun getName(): String {
+    override fun getName(): String {
         return "Shell Runner"
     }
 
-    override suspend fun getIcon(context: Context): Drawable? {
+    override fun getIcon(context: Context): Drawable? {
         return drawables.bash.getDrawable(context)
     }
 
