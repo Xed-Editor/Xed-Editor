@@ -145,7 +145,7 @@ data class CodeEditorState(
     }
 
     val lspDialogMutex by lazy { Mutex() }
-    var isEditorBusy by mutableStateOf(false)
+    var isWrapping by mutableStateOf(false)
 }
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -334,7 +334,7 @@ class EditorTab(
                 }
 
 
-                if (editorState.isEditorBusy){
+                if (editorState.isWrapping){
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
                         strokeCap = StrokeCap.Butt
@@ -405,7 +405,6 @@ class EditorTab(
     }
 }
 
-private var isWrapping = false
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
@@ -523,8 +522,7 @@ private fun EditorTab.CodeEditor(
 
 
                     subscribeAlways(LayoutStateChangeEvent::class.java){ event ->
-                        isWrapping = isWrapping.not()
-                        editorState.isEditorBusy = isWrapping
+                        editorState.isWrapping = event.isLayoutBusy
                     }
 
                     applyHighlighting()
