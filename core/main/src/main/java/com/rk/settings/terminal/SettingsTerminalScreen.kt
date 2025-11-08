@@ -32,6 +32,8 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
 import com.rk.components.SettingsToggle
 import com.rk.components.ValueSlider
+import com.rk.file.createFileIfNot
+import com.rk.file.localDir
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.terminal.terminalView
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -94,7 +96,6 @@ fun SettingsTerminalScreen() {
                 ActivityResultContracts.GetContent()
             ) { uri ->
                 if (uri == null) {
-                    toast(strings.invalid_path)
                     return@rememberLauncherForActivityResult
                 }
 
@@ -114,7 +115,8 @@ fun SettingsTerminalScreen() {
 
 
                     if (fileObject.canRead().not()) {
-                        toast(strings.invalid_path)
+                        toast(strings.permission_denied)
+                        loading.hide()
                         return@launch
                     }
 
@@ -132,6 +134,8 @@ fun SettingsTerminalScreen() {
                             toast(strings.failed)
                         }
                     }
+
+                    localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").createFileIfNot()
                 }
             }
 
@@ -148,7 +152,7 @@ fun SettingsTerminalScreen() {
                     }
 
 
-                    fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz"){ fileObject ->
+                    fileManager.createNewFile(mimeType = "application/octet-stream", title = "terminal-backup.tar.gz"){ fileObject ->
                         GlobalScope.launch {
                             if (fileObject != null){
                                 val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
@@ -214,7 +218,6 @@ fun SettingsTerminalScreen() {
                                 }
                             }
                         }
-
                     }
                 }
             )
@@ -247,6 +250,7 @@ fun SettingsTerminalScreen() {
                                 localBinDir().deleteRecursively()
                                 localLibDir().deleteRecursively()
                                 sandboxDir().deleteRecursively()
+                                localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").delete()
                             }
                             loading.hide()
                         }
