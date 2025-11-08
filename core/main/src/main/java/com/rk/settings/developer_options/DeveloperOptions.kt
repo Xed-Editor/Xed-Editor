@@ -65,6 +65,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     })
                 }
             )
+
             SettingsToggle(
                 label = stringResource(strings.memory_usage),
                 description = memoryUsage.value,
@@ -72,39 +73,24 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 default = false,
             )
 
-            var state by remember {
-                mutableStateOf(Settings.strict_mode)
-            }
-            PreferenceSwitch(checked = state,
-                onCheckedChange = {
-                    state = it
-                    Settings.strict_mode = state
-                },
+            SettingsToggle(
                 label = stringResource(strings.strict_mode),
                 description = stringResource(strings.strict_mode_desc),
-                modifier = modifier,
-                onClick = {
-                    state = !state
-                    Settings.strict_mode = state
-                })
+                showSwitch = true,
+                default = Settings.strict_mode,
+                sideEffect = {
+                    Settings.strict_mode = it
+                }
+            )
 
-
-            var state1 by remember {
-                mutableStateOf(Settings.anr_watchdog)
-            }
-            PreferenceSwitch(checked = state1,
-                onCheckedChange = {
-                    state1 = it
-                    Settings.anr_watchdog = state1
-                },
+            SettingsToggle(
                 label = stringResource(strings.anr_watchdog),
                 description = stringResource(strings.anr_watchdog_desc),
-                modifier = modifier,
-                onClick = {
-                    state1 = !state1
-                    Settings.anr_watchdog = state1
-                })
-
+                default = Settings.anr_watchdog,
+                sideEffect = {
+                    Settings.anr_watchdog = it
+                }
+            )
 
             SettingsToggle(
                 label = stringResource(strings.verbose_errors),
@@ -116,7 +102,6 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 }
             )
 
-
             SettingsToggle(
                 label = stringResource(strings.desktop_mode),
                 description = stringResource(strings.desktop_mode_desc),
@@ -126,7 +111,6 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     Settings.desktopMode = it
                 }
             )
-
 
             SettingsToggle(
                 label = "Theme Flipper",
@@ -140,16 +124,8 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     }
                 }
             )
-
-
-
-
-
-
-
         }
     }
-
 }
 
 

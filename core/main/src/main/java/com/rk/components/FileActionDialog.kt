@@ -65,6 +65,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 import androidx.compose.ui.text.font.FontStyle
+import com.rk.DefaultScope
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -416,17 +417,18 @@ fun FileActionDialog(
                 }
             },
             onConfirm = {
-                scope.launch {
+                DefaultScope.launch {
                     if (!file.hasChild(newNameValue)){
                         file.createChild(createFile = isNewFile, newNameValue)
                     }
 
                     fileTreeViewModel.updateCache(file)
+                    newNameValue = ""
                 }
+
                 onDismissRequest()
             },
             onFinish = {
-                newNameValue = ""
                 newNameError = null
                 showXedDialog = true
                 showNewDialog = false
