@@ -170,7 +170,7 @@ class SFTPFileObject(
 
                 session.setConfig(config)
 
-                session.connect(30000)
+                session.connect(60000)
 
                 session
             } catch (e: JSchException) {
@@ -183,7 +183,7 @@ class SFTPFileObject(
        fun createChannelInternal(session: Session): ChannelSftp? {
             return try {
                 val channel = session.openChannel("sftp") as ChannelSftp
-                channel.connect(5000)
+                channel.connect(65000)
 
                 channel
             } catch (e: JSchException) {
