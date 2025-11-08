@@ -10,32 +10,30 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.dialog
 
 @Composable
-fun BasicToggle(modifier: Modifier = Modifier,label: String,description: String? = null,checked: Boolean,onSwitch:(Boolean)-> Unit) {
-    PreferenceSwitch(checked =  checked,
+fun BasicToggle(
+    modifier: Modifier = Modifier,
+    label: String,
+    description: String? = null,
+    checked: Boolean,
+    onSwitch: (Boolean) -> Unit
+) {
+    PreferenceSwitch(
+        checked = checked,
         description = description,
         onCheckedChange = {
             onSwitch.invoke(it)
         },
-        label = label,
-        onClick = {
-            onSwitch.invoke(checked.not())
-        })
+        label = label
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -73,22 +71,11 @@ fun SettingsToggle(
                 } else {
                     sideEffect?.invoke(state.value)
                 }
-
             },
             label = label,
             modifier = modifier,
             description = description,
-            enabled = isEnabled,
-            onClick = {
-                if (isSwitchLocked.not()) {
-                    state.value = !state.value
-                }
-                if (reactiveSideEffect != null) {
-                    state.value = reactiveSideEffect.invoke(state.value) == true
-                } else {
-                    sideEffect?.invoke(state.value)
-                }
-            }
+            enabled = isEnabled
         )
     } else {
         val interactionSource = remember { MutableInteractionSource() }

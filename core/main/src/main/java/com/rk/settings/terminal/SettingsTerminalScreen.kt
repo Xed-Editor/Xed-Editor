@@ -5,7 +5,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +34,6 @@ import com.rk.components.SettingsToggle
 import com.rk.components.ValueSlider
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.terminal.terminalView
-import com.rk.utils.isAppInstalled
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -55,12 +53,16 @@ fun SettingsTerminalScreen() {
 
         if (InbuiltFeatures.debugMode.state.value){
             PreferenceGroup {
-                SettingsToggle(label = stringResource(strings.failsafe_mode), description = stringResource(strings.failsafe_mode_desc), default = !Settings.sandbox, sideEffect = {
-                    Settings.sandbox = !it
-                })
+                SettingsToggle(
+                    label = stringResource(strings.failsafe_mode),
+                    description = stringResource(strings.failsafe_mode_desc),
+                    default = !Settings.sandbox,
+                    sideEffect = {
+                        Settings.sandbox = !it
+                    }
+                )
             }
         }
-
 
         ValueSlider(
             label = {
@@ -131,8 +133,6 @@ fun SettingsTerminalScreen() {
                         }
                     }
                 }
-
-
             }
 
             SettingsToggle(
@@ -255,7 +255,6 @@ fun SettingsTerminalScreen() {
             )
         }
 
-
         PreferenceGroup {
             SettingsToggle(
                 label = stringResource(strings.project_as_wk), description = stringResource(strings.project_as_wk_desc),
@@ -266,36 +265,32 @@ fun SettingsTerminalScreen() {
                 showSwitch = true,
             )
 
-
-            var state by remember { mutableStateOf(Settings.expose_home_dir) }
-            val sideEffect: (Boolean) -> Unit = {
-                if (it) {
-                    dialog(
-                        context = activity,
-                        title = strings.attention.getString(),
-                        msg = strings.saf_expose_warning.getString(),
-                        okString = strings.continue_action,
-                        onCancel = {},
-                        onOk = {
-                            Settings.expose_home_dir = true
-                            DocumentProvider.setDocumentProviderEnabled(context, true)
-                            state = true
-                        })
-                } else {
-                    Settings.expose_home_dir = false
-                    state = false
-                    DocumentProvider.setDocumentProviderEnabled(context, false)
-                }
-            }
-
+            var exposeHomeDirState by remember { mutableStateOf(Settings.expose_home_dir) }
             PreferenceSwitch(
-                checked = state,
-                onCheckedChange = { sideEffect(it) },
+                checked = exposeHomeDirState,
+                onCheckedChange = {
+                    if (it) {
+                        dialog(
+                            context = activity,
+                            title = strings.attention.getString(),
+                            msg = strings.saf_expose_warning.getString(),
+                            okString = strings.continue_action,
+                            onCancel = {},
+                            onOk = {
+                                Settings.expose_home_dir = true
+                                DocumentProvider.setDocumentProviderEnabled(context, true)
+                                exposeHomeDirState = true
+                            }
+                        )
+                    } else {
+                        Settings.expose_home_dir = false
+                        exposeHomeDirState = false
+                        DocumentProvider.setDocumentProviderEnabled(context, false)
+                    }
+                },
                 label = stringResource(strings.expose_saf),
-                description = stringResource(strings.expose_saf_desc),
-                onClick = { sideEffect(!state) })
-
+                description = stringResource(strings.expose_saf_desc)
+            )
         }
-
     }
 }
