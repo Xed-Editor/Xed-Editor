@@ -17,7 +17,6 @@ sealed interface LspConnectionConfig {
         override fun providerFactory() = ConnectionProviderFactory { SocketStreamConnectionProvider(port, host) }
     }
 
-
     data class Process(
         val command: Array<String>
     ) : LspConnectionConfig {
@@ -35,7 +34,6 @@ sealed interface LspConnectionConfig {
             return command.contentHashCode()
         }
     }
-
 
     data class Custom(
         val provider: StreamConnectionProvider

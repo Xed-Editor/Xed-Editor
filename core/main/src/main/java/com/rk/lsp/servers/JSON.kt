@@ -45,9 +45,11 @@ class JSON() : BaseLspServer() {
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-json-language-server",  "--stdio"))
     }
+
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
     }
+
     override fun getInitializationOptions(uri: URI?): Any? {
         return null
     }

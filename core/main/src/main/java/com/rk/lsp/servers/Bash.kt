@@ -52,5 +52,4 @@ class Bash() : BaseLspServer() {
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
     }
-
 }

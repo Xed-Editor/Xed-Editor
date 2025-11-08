@@ -11,10 +11,8 @@ import kotlin.random.Random
 
 //DO not put this in lsp registry
 class ExternalProcessServer(override val languageName: String, val command: String, override val supportedExtensions: List<String>) : BaseLspServer() {
-
     override val id: String = "${languageName}_${Random.nextInt()}"
     override val serverName: String = command
-
 
     override fun isInstalled(context: Context): Boolean {
         return true
@@ -55,6 +53,4 @@ class ExternalProcessServer(override val languageName: String, val command: Stri
         result = 31 * result + serverName.hashCode()
         return result
     }
-
-
 }
