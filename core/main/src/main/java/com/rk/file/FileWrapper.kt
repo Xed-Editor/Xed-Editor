@@ -149,21 +149,15 @@ class FileWrapper(var file: File) : FileObject {
         return@withContext File(file, name).exists()
     }
 
-    override suspend fun createChild(createFile: Boolean, name: String): FileObject {
-        withContext(Dispatchers.IO){
-            if (createFile) {
-                File(file, name).apply {
-                    createNewFile()
-                    return@withContext FileWrapper(this)
-                }
-            } else {
-                File(file, name).apply {
-                    mkdirs()
-                    return@withContext FileWrapper(this)
-                }
-            }
+    override suspend fun createChild(createFile: Boolean, name: String): FileObject = withContext(Dispatchers.IO){
+        if (name.isBlank()){
+            throw IllegalArgumentException("name cannot be blank")
         }
-        throw IllegalStateException()
+        return@withContext if (createFile){
+            FileWrapper(File(file, name)).createFileIfNot()
+        }else{
+            FileWrapper(File(file, name)).createDirIfNot()
+        }
     }
 
     override fun canWrite(): Boolean {
