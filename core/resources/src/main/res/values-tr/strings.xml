@@ -492,4 +492,6 @@
     <string name="socket">Soket</string>
     <string name="process">İşlem</string>
     <string name="project_restore_failed">Projeler geri yüklenemedi</string>
+    <string name="theme_flipper">Tema değiştirici</string>
+    <string name="theme_flipper_desc">Tema modunu her 7 saniyede bir sürekli değiştir</string>
 </resources>
