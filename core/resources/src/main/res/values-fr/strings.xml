@@ -487,4 +487,14 @@
     <string name="format_document_error">Impossible de mettre en forme le document.</string>
     <string name="format_selection_error">Impossible de mettre en forme la sélection.</string>
     <string name="project_restore_failed">Échec de la restauration des projets</string>
+    <string name="can_execute">Peut exécuter</string>
+    <string name="calculating">Calcul en cours…</string>
+    <string name="permissions">Permissions</string>
+    <string name="lsp_process_desc">Les scripts d\'initialisation depuis le terminal, p. ex. /initrc et .bashrc, ne se lanceront pas avant cette commande.</string>
+    <string name="command">Commande</string>
+    <string name="empty_command">Commande vide</string>
+    <string name="socket">Prise</string>
+    <string name="process">Processus</string>
+    <string name="theme_flipper">Rotation de thème</string>
+    <string name="theme_flipper_desc">Change constamment le mode du thème toutes les 7 s</string>
 </resources>
