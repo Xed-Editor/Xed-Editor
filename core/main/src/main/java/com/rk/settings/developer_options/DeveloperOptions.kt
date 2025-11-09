@@ -113,8 +113,8 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
 
             SettingsToggle(
-                label = "Theme Flipper",
-                description = "Constantly change the theme mode every 7s",
+                label = stringResource(strings.theme_flipper),
+                description = stringResource(strings.theme_flipper_desc),
                 showSwitch = true,
                 default = Settings.themeFlipper,
                 sideEffect = {
