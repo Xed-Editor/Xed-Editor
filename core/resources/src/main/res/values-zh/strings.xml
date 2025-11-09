@@ -453,7 +453,7 @@
     <string name="desktop_mode">桌面模式（实验性）</string>
     <string name="desktop_mode_desc">让应用在平板和桌面大小屏幕上更易于使用。</string>
     <string name="built_in">内置</string>
-    <string name="change_lang_warn">更改语言将重启此界面以立即应用新语言。这可能会短暂显示白屏，从而引发光敏性癫痫患者的不适。</string>
+    <string name="change_lang_warn">更改语言将重启此界面以应用新语言。这可能会短暂显示白屏，从而引发光敏性癫痫患者的不适。</string>
     <string name="debug_mode_warn">调试模式会禁用安全限制，若使用不当，可能导致数据丢失或其他问题。请在你清楚自己在做什么的情况下再启用它。</string>
     <string name="address">地址</string>
     <string name="invalid_address">无效地址</string>
@@ -493,4 +493,6 @@
     <string name="socket">套接字</string>
     <string name="process">进程</string>
     <string name="project_restore_failed">恢复项目失败</string>
+    <string name="theme_flipper">主题翻转器</string>
+    <string name="theme_flipper_desc">每 7 秒种切换一次主题模式</string>
 </resources>
