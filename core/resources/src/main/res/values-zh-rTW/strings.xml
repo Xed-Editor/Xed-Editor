@@ -492,4 +492,6 @@
     <string name="socket">Socket</string>
     <string name="process">處理程序</string>
     <string name="project_restore_failed">無法還原專案</string>
+    <string name="theme_flipper">主題切換器</string>
+    <string name="theme_flipper_desc">每 7 秒自動切換主題模式</string>
 </resources>
