@@ -4,53 +4,31 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
-import com.jcraft.jsch.ChannelSftp
-import com.jcraft.jsch.JSch
-import com.jcraft.jsch.JSchException
-import com.jcraft.jsch.Logger
-import com.jcraft.jsch.Logger.DEBUG
-import com.jcraft.jsch.Logger.ERROR
-import com.jcraft.jsch.Logger.FATAL
-import com.jcraft.jsch.Logger.INFO
-import com.jcraft.jsch.Logger.WARN
-import com.jcraft.jsch.Session
-import com.jcraft.jsch.SftpATTRS
-import com.jcraft.jsch.SftpException
 import com.rk.file.FileObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.FileAttributes
+import net.schmizz.sshj.sftp.RemoteFile
+import net.schmizz.sshj.sftp.RemoteResourceInfo
+import net.schmizz.sshj.sftp.SFTPClient
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import net.schmizz.sshj.userauth.keyprovider.KeyProviderUtil
+import net.schmizz.sshj.xfer.FilePermission
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
+import java.security.Security
+import java.util.Arrays
+import java.util.EnumSet
 import java.util.Locale
-import java.util.Properties
-import java.util.Vector
-
-class JsChSFTPLogger : Logger {
-
-    var name: MutableMap<Int?, String?> = HashMap<Int?, String?>()
-
-    init {
-        name.put(DEBUG, "DEBUG: ")
-        name.put(INFO, "INFO: ")
-        name.put(WARN, "WARN: ")
-        name.put(ERROR, "ERROR: ")
-        name.put(FATAL, "FATAL: ")
-    }
-
-    override fun isEnabled(level: Int): Boolean {
-        return true
-    }
-
-    override fun log(level: Int, message: String?) {
-        Log.println(level, "JschSftpLogger", message!!)
-    }
-
-}
 
 class SFTPFileObject(
     private val hostname: String,
@@ -58,15 +36,15 @@ class SFTPFileObject(
     private val username: String,
     private val password: String,
     @Transient
-    private var session: Session?,
+    private var sshClient: SSHClient?,
     @Transient
-    private var channelSftp: ChannelSftp?,
+    private var sftpClient: SFTPClient?,
     private val absolutePath: String,
     private val isRoot: Boolean = false,
 ) : FileObject {
     //    variables, I love them, being at the top 🙃
     @Transient
-    private var attrs: SftpATTRS? = null
+    private var attrs: FileAttributes? = null
 
     @Transient
     private var attrsFetched: Boolean? = false
@@ -77,6 +55,8 @@ class SFTPFileObject(
     @Transient
     private var childrenFetched: Boolean? = false
 
+    @Transient
+    private val sftpLock = Mutex()
 
     private val remotePath: String
 
@@ -119,25 +99,25 @@ class SFTPFileObject(
     }
 
     suspend fun connect() {
-        if (session?.isConnected == true) {
+        if (sshClient?.isConnected == true) {
             return
         }
-        val session = createSessionInternal(this.hostname, this.port, this.username, this.password)
-        if (session == null || !session.isConnected) {
+        val client = createSessionInternal(this.hostname, this.port, this.username, this.password)
+        if (client == null || !client.isConnected) {
             Log.e("SFTP_CONNECT", "Failed to create or connect session to ${this.hostname}")
             return
         }
 
-        val channelSftp = createChannelInternal(session)
+        val sftp = createSftpClientInternal(client)
 
-        if (channelSftp == null || !channelSftp.isConnected) {
+        if (sftp == null) {
             Log.e("SFTP_CONNECT", "Failed to create or connect SFTP channel to ${this.hostname}")
-            session.disconnect() // Clean up session
+            client.disconnect() // Clean up session
             return
         }
 
-        this.session = session
-        this.channelSftp = channelSftp
+        this.sshClient = client
+        this.sftpClient = sftp
 
         prefetchAttributes()
         fetchChildren()
@@ -153,43 +133,81 @@ class SFTPFileObject(
             port: Int,
             username: String,
             password: String?
-        ): Session? {
+        ): SSHClient? {
             return try {
-                JSch.setLogger(JsChSFTPLogger())
-
-                val jsch = JSch()
-
-
-                val session = jsch.getSession(username, hostname, port)
-
-                password?.let { session.setPassword(it) }
-
-                val config = Properties()
-
-                config.setProperty("StrictHostKeyChecking", "no")
-
-                session.setConfig(config)
-
-                session.connect(60000)
-
-                session
-            } catch (e: JSchException) {
+                Security.removeProvider("BC")
+                Security.insertProviderAt(BouncyCastleProvider(), 0)
+                Log.i("SFTP_CONNECT","Security Providers for X25519 " + Security.getProviders()
+                    .contentToString()
+                )
+                val client = SSHClient()
+                client.addHostKeyVerifier(PromiscuousVerifier())
+                client.connect(hostname, port)
+                password?.let { client.authPassword(username, it) }
+                client
+            } catch (e: Exception) {
                 Log.e("SFTPFileObject", "createSession: ${e.message}")
                 null
             }
 
         }
 
-       fun createChannelInternal(session: Session): ChannelSftp? {
+        fun createSftpClientInternal(client: SSHClient): SFTPClient? {
             return try {
-                val channel = session.openChannel("sftp") as ChannelSftp
-                channel.connect(65000)
-
-                channel
-            } catch (e: JSchException) {
-                Log.e("SftpFileObject", "ChannelSftp creation failed: ${e.message}", e)
-                session.disconnect()
+                client.newSFTPClient()
+            } catch (e: IOException) {
+                Log.e("SftpFileObject", "SFTPClient creation failed: ${e.message}", e)
+                client.disconnect()
                 null
+            }
+        }
+    }
+
+    private fun normalizeAbs(path: String): String {
+        // Always use absolute paths for SFTP
+        return if (path.startsWith("/")) path else "/$path"
+    }
+
+    suspend fun safeLstat(path: String): FileAttributes? {
+        val abs = normalizeAbs(path)
+        return withSftpChannel { ch ->
+            ch.lstat(abs)
+        }
+    }
+
+    suspend fun safeLs(path: String): List<RemoteResourceInfo> {
+        val abs = normalizeAbs(path)
+        return withSftpChannel { ch ->
+            ch.ls(abs)
+        } ?: emptyList()
+    }
+
+    private suspend fun <T> withSftpChannel(block: (SFTPClient) -> T): T? {
+        return withContext(Dispatchers.IO) {
+            sftpLock.withLock {
+                val client = sshClient
+                if (client == null || !client.isConnected) {
+                    Log.e("SFTP", "Session not connected")
+                    return@withLock null
+                }
+
+                var sftp: SFTPClient? = null
+                try {
+                    sftp = createSftpClientInternal(client)
+                    if (sftp == null) {
+                        Log.e("SFTP", "Failed to open SFTP channel")
+                        return@withLock null
+                    }
+                    block(sftp)
+                } catch (e: Exception) {
+                    Log.e("SFTP", "SFTP op failed: ${e.message}", e)
+                    null
+                } finally {
+                    try {
+                        sftp?.close()
+                    } catch (_: Exception) {
+                    }
+                }
             }
         }
     }
@@ -206,14 +224,14 @@ class SFTPFileObject(
             try {
                 Log.d("SftpFileObject", "Prefetching attributes for: '$remotePath'")
                 if (remotePath.isNotEmpty()) {
-                    channelSftp?.lstat(remotePath)
+                    sftpClient?.lstat(remotePath)
                 } else {
                     // Handle case where remotePath might be empty for root, JSch might expect "."
                     // Or if your logic now ensures root is "/", this branch may not be needed.
                     // Let's assume remotePath is now always a valid path like "/" or "file.txt"
                     // If remotePath can be empty, use "."
                     // That's all, Buy a better Chair & touch Grass 🙃
-                    channelSftp?.lstat(if (remotePath.isEmpty() && isRoot) "." else remotePath)
+                    sftpClient?.lstat(if (remotePath.isEmpty() && isRoot) "." else remotePath)
                 }
             } catch (e: Exception) {
                 Log.e("SftpFileObject", "lstat failed for $remotePath: ${e.message}", e)
@@ -223,19 +241,9 @@ class SFTPFileObject(
         attrsFetched = true
     }
 
-    // @Throws(IOException::class, ClassNotFoundException::class)
-    // private suspend fun readObject(input: ObjectInputStream) {
-    //    input.defaultReadObject()   // Restores host, port, username, password, remotePath
-    //// Reconnect after deserialization
-
-    //   connectOnDeserialization();
-    //     Log.d("SFTPFileObject", "Deserialized SFTPFileObject: $remotePath")
-    //}
-
     override fun getName(): String {
         if (isRoot) {
-            val userInfo = session?.userName
-            return "$userInfo@${session?.host}"
+            return "$username@$hostname"
         }
         return remotePath.substringAfterLast('/', if (remotePath.contains('/')) "" else remotePath)
     }
@@ -249,7 +257,7 @@ class SFTPFileObject(
             return null // Root has no parent in this context
         }
         val parentPathString = remotePath.substringBeforeLast('/', "")
-        val parentAbsolutePath = "sftp://${session?.userName}@${session?.host}:${session?.port}/${
+        val parentAbsolutePath = "sftp://$username@$hostname:$port/${
             parentPathString.removePrefix("/")
         }"
         return SFTPFileObject(
@@ -257,25 +265,18 @@ class SFTPFileObject(
             port,
             username,
             password,
-            session,
-            channelSftp,
+            sshClient,
+            sftpClient,
             parentAbsolutePath
         )
     }
 
-    private fun getSftpAttrs(): SftpATTRS? {
+    private fun getSftpAttrs(): FileAttributes? {
         Log.d("SftpFileObject", "Attempting lstat for path: '$remotePath'")
         return try {
-            channelSftp?.lstat(remotePath)
-        } catch (e: SftpException) {
-            if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                // File or directory does not exist
-            } else {
-                Log.e("SftpFileObject", "lstat failed for $remotePath: ${e.message}", e)
-            }
-            null
-        } catch (e: Exception) {
-            Log.e("SftpFileObject", "SftpException during lstat for $remotePath", e)
+            sftpClient?.lstat(remotePath)
+        } catch (e: IOException) {
+            Log.e("SftpFileObject", "lstat failed for $remotePath: ${e.message}", e)
             null
         }
     }
@@ -289,7 +290,7 @@ class SFTPFileObject(
             )
         }
 
-        return attrs?.isReg ?: false
+        return attrs?.type == net.schmizz.sshj.sftp.FileMode.Type.REGULAR
     }
 
     override fun isDirectory(): Boolean {
@@ -297,34 +298,26 @@ class SFTPFileObject(
             Log.e("SFTPFileObject", "isDirectory() called without prefetching attributes first!")
         }
 
-        return attrs?.isDir ?: false
+        return attrs?.type == net.schmizz.sshj.sftp.FileMode.Type.DIRECTORY
     }
-
-//    @Suppress("UNCHECKED_CAST")
-//    override suspend fun listFiles(): List<FileObject> {
-//        if (!isDirectory()) return emptyList()
-//        val files = mutableListOf<SFTPFileObject>()
-//        try {
-//            val entries = channelSftp.ls(remotePath) as Vector<ChannelSftp.LsEntry>
-//            for (entry in entries) {
-//                val entryName = entry.filename
-//                if (entryName == "." || entryName == "..") continue
-//
-//                val childPath = if (remotePath.endsWith("/")) remotePath + entryName else "$remotePath/$entryName"
-//                val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childPath"
-//                files.add(SFTPFileObject(session, channelSftp, childAbsolutePath))
-//            }
-//        } catch (e: SftpException) {
-//            Log.e("SftpFileObject", "ls failed for $remotePath: ${e.message}", e)
-//        }
-//        return files
-//    }
 
     override suspend fun listFiles(): List<FileObject> {
         Log.d(
             "SftpFileObject",
             "Listing files for path: '$remotePath', childrenFetched=$childrenFetched (using cache/pre-fetched? $childrenFetched), cached children size: ${childrenCache?.size}"
         )
+
+        if(childrenFetched?.not() == true or this.isDirectory()) {
+            Log.i(
+                "SftpFileObject",
+                "fetching children as children are not fetched for path: '$remotePath' currentState -> childrenFetched=$childrenFetched (using cache/pre-fetched? $childrenFetched), cached children size: ${childrenCache?.size}"
+                )
+
+            this.fetchChildren().also {
+                Log.i("SftpFileObject", "fetched children for path: '$remotePath' currentState -> childrenFetched=$childrenFetched (using cache/pre-fetched? $childrenFetched), cached children size: ${childrenCache?.size}")
+            }
+        }
+
         if (childrenFetched?.not() == true) {
             Log.w(
                 "SFTPFileObject",
@@ -341,16 +334,19 @@ class SFTPFileObject(
             val files = mutableListOf<SFTPFileObject>()
             if (isDirectory()) { // Uses the cached 'attrs'
                 try {
-                    @Suppress("UNCHECKED_CAST")
-                    val entries = channelSftp?.ls(remotePath) as Vector<ChannelSftp.LsEntry>
+                    val entries = sftpClient?.ls(remotePath)
+                    if(entries == null) {
+                        Log.e("SFTPFileObject", "ls failed for $remotePath");
+                        return@withContext emptyList()
+                    }
                     for (entry in entries) {
-                        val entryName = entry.filename
+                        val entryName = entry.name
                         if (entryName == "." || entryName == "..") continue
 
                         val childPath =
                             if (remotePath.endsWith("/")) remotePath + entryName else "$remotePath/$entryName"
                         val childAbsolutePath =
-                            "sftp://${session?.userName}@${session?.host}:${session?.port}${
+                            "sftp://$username@$hostname:$port${
                                 if (childPath.startsWith(
                                         "/"
                                     )
@@ -363,8 +359,8 @@ class SFTPFileObject(
                                 port,
                                 username,
                                 password,
-                                session,
-                                channelSftp,
+                                sshClient,
+                                sftpClient,
                                 childAbsolutePath
                             )
                         )
@@ -392,76 +388,89 @@ class SFTPFileObject(
     override suspend fun getInputStream(): InputStream {
         if (!isFile()) throw FileNotFoundException("Not a file or does not exist: $remotePath")
         try {
-            return channelSftp?.get(remotePath) ?: throw IOException("SFTP get failed: null channel")
-        } catch (e: SftpException) {
+            return sftpClient?.open(remotePath)?.RemoteFileInputStream()
+                ?: throw IOException("SFTP get failed: null channel")
+        } catch (e: IOException) {
             Log.e("SftpFileObject", "get (InputStream) failed for $remotePath: ${e.message}", e)
             throw IOException("SFTP get failed: ${e.message}", e)
         }
     }
 
     override suspend fun getOutPutStream(append: Boolean): OutputStream {
-        // JSch's put method can take an OutputStream, or you can write to a local temp file first.
-        // For direct streaming, ensure channelSftp.put() is used correctly.
-        // This example shows writing (overwrite or append).
-        val mode = if (append) ChannelSftp.APPEND else ChannelSftp.OVERWRITE
+        val mode = if (append) EnumSet.of(net.schmizz.sshj.sftp.OpenMode.APPEND) else EnumSet.of(
+            net.schmizz.sshj.sftp.OpenMode.WRITE
+        )
         try {
-            return channelSftp?.put(remotePath, mode) ?: throw IOException("SFTP put failed: null channel")
-        } catch (e: SftpException) {
+            return sftpClient?.open(remotePath, mode)?.RemoteFileOutputStream()
+                ?: throw IOException("SFTP put failed: null channel")
+        } catch (e: IOException) {
             Log.e("SftpFileObject", "put (OutputStream) failed for $remotePath: ${e.message}", e)
             throw IOException("SFTP put failed: ${e.message}", e)
         }
     }
 
     override suspend fun length(): Long = attrs?.size ?: 0L
-    override suspend fun calcSize(): Long {
-        TODO("Not yet implemented")
+    override suspend fun calcSize(): Long = withContext(Dispatchers.IO) {
+        return@withContext if (isFile()) length() else getFolderSize(this@SFTPFileObject)
+    }
+
+    private suspend fun getFolderSize(folder: FileObject): Long {
+        var length: Long = 0
+        for (file in folder.listFiles()) {
+            length += if (file.isFile()) {
+                file.length()
+            } else {
+                getFolderSize(file)
+            }
+        }
+        return length
     }
 
     suspend fun lastModified(): Long =
-        getSftpAttrs()?.mTime?.toLong()?.times(1000L) ?: 0L // sftp mTime is in seconds
+        getSftpAttrs()?.mtime?.toLong()?.times(1000L) ?: 0L // sftp mTime is in seconds
 
-    // Other methods like length(), canWrite(), etc., would also use the cached 'attrs'
-    // just so I don't forget to modify other Methods 🙃
     override suspend fun exists(): Boolean {
         if (attrsFetched?.not() == true) {
             Log.e("SFTPFileObject", "exists() called without prefetching attributes first!")
         }
-        // If we successfully fetched and got a result, it exists.
         return attrs != null
     }
 
     override suspend fun createNewFile(): Boolean {
         if (exists()) return false
         return try {
-            // Create an empty file by opening an output stream and immediately closing it.
-            channelSftp?.put(remotePath, ChannelSftp.OVERWRITE)?.close()
+            sftpClient?.open(remotePath, EnumSet.of(net.schmizz.sshj.sftp.OpenMode.CREAT))?.close()
             true
-        } catch (e: Exception) { // SftpException or IOException
-            Log.e("JschSftpFileObject", "createNewFile failed for $remotePath: ${e.message}", e)
+        } catch (e: Exception) {
+            Log.e("SFTPFileObject", "createNewFile failed for $remotePath: ${e.message}", e)
             false
         }
     }
 
-    override suspend fun getCanonicalPath(): String = absolutePath // SFTP paths are generally canonical
+    override suspend fun getCanonicalPath(): String =
+        absolutePath // SFTP paths are generally canonical
 
 
     override suspend fun mkdir(): Boolean {
         if (exists()) return false
         return try {
-            channelSftp?.mkdir(remotePath)
+            sftpClient?.mkdir(remotePath)
             true
-        } catch (e: SftpException) {
-            Log.e("JschSftpFileObject", "mkdir failed for $remotePath: ${e.message}", e)
+        } catch (e: IOException) {
+            Log.e("SFTPFileObject", "mkdir failed for $remotePath: ${e.message}", e)
             false
         }
     }
 
     override suspend fun mkdirs(): Boolean {
         if (exists()) return isDirectory()
-        // JSch doesn't have a direct mkdirs. You might need to create parent directories iteratively.
-        // For simplicity, this is not implemented here. You can use channelSftp.cd and mkdir.
-        Log.w("JschSftpFileObject", "mkdirs() not fully implemented. Will attempt single mkdir.")
-        return mkdir() //
+        return try {
+            sftpClient?.mkdirs(remotePath)
+            true
+        } catch (e: IOException) {
+            Log.e("SFTPFileObject", "mkdirs failed for $remotePath: ${e.message}", e)
+            false
+        }
     }
 
     override suspend fun writeText(text: String) {
@@ -478,7 +487,7 @@ class SFTPFileObject(
                 }
                 true
             } catch (e: Exception) {
-                Log.e("JschSftpFileObject", "writeText failed for $remotePath", e)
+                Log.e("SFTPFileObject", "writeText failed for $remotePath", e)
                 false
             }
         }
@@ -491,20 +500,19 @@ class SFTPFileObject(
         if (!exists()) return false
         return try {
             if (isDirectory()) {
-                channelSftp?.rmdir(remotePath)
+                sftpClient?.rmdir(remotePath)
             } else {
-                channelSftp?.rm(remotePath)
+                sftpClient?.rm(remotePath)
             }
             true
-        } catch (e: SftpException) {
-            Log.e("JschSftpFileObject", "delete failed for $remotePath: ${e.message}", e)
+        } catch (e: IOException) {
+            Log.e("SFTPFileObject", "delete failed for $remotePath: ${e.message}", e)
             false
         }
     }
 
     override suspend fun toUri(): Uri {
-        // sftp://username@host:port/path/to/file
-        return Uri.parse("sftp://${session?.userName}@${session?.host}:${session?.port}/$remotePath")
+        return Uri.parse("sftp://$username@$hostname:$port/$remotePath")
     }
 
     override suspend fun getMimeType(context: Context): String? {
@@ -523,20 +531,15 @@ class SFTPFileObject(
 
 
     override suspend fun renameTo(string: String): Boolean {
-        // newNameFull here is expected to be just the new name, not the full path
-        // For JSch, rename needs the old path and the new full path.
         if (!exists()) return false
         val parentPath = remotePath.substringBeforeLast('/', "")
         val newFullPath = if (parentPath.isEmpty()) string else "$parentPath/$string"
         return try {
-            channelSftp?.rename(remotePath, newFullPath)
-            // If successful, you might want to update the internal remotePath of this object,
-            // but FileObject API typically implies the original object is now invalid
-            // and a new one should be fetched/created for the new name.
+            sftpClient?.rename(remotePath, newFullPath)
             true
-        } catch (e: SftpException) {
+        } catch (e: IOException) {
             Log.e(
-                "JschSftpFileObject",
+                "SFTPFileObject",
                 "renameTo failed for $remotePath to $newFullPath: ${e.message}",
                 e
             )
@@ -555,14 +558,14 @@ class SFTPFileObject(
         val childRemotePath =
             if (remotePath.endsWith("/")) remotePath + name else "$remotePath/$name"
         val childAbsolutePath =
-            "sftp://${session?.userName}@${session?.host}:${session?.port}/$childRemotePath"
+            "sftp://$username@$hostname:$port/$childRemotePath"
         val childFile = SFTPFileObject(
             hostname,
             port,
             username,
             password,
-            session,
-            channelSftp,
+            sshClient,
+            sftpClient,
             childAbsolutePath
         )
 
@@ -574,7 +577,7 @@ class SFTPFileObject(
             }
         } catch (e: Exception) {
             Log.e(
-                "JschSftpFileObject",
+                "SFTPFileObject",
                 "createChild ($name, file=$createFile) failed: ${e.message}",
                 e
             )
@@ -587,10 +590,6 @@ class SFTPFileObject(
     suspend fun getUri(): Uri? = toUri()
 
     override fun canRead(): Boolean {
-        // JSch doesn't have a direct "canRead" like java.io.File.
-        // Existence and permissions from SftpATTRS can give an idea.
-        // For simplicity, if it exists, assume readable.
-        // More precise check would involve trying to open for read or checking attrs.permissions.
         if (attrsFetched?.not() == true) {
             Log.e(
                 "SFTPFileObject",
@@ -602,20 +601,24 @@ class SFTPFileObject(
     }
 
     override fun canExecute(): Boolean {
-        TODO("Not yet implemented")
+    // 0b111 = (below)
+    // 0b001 = others execute
+    // 0b010 = group execute
+    // 0b100 = owner execute
+       return (attrs?.mode?.mask?.and(0b111)) != 0
     }
 
     override suspend fun getChildForName(name: String): FileObject {
         val childPath = if (remotePath.endsWith("/")) remotePath + name else "$remotePath/$name"
         val childAbsolutePath =
-            "sftp://${session?.userName}@${session?.host}:${session?.port}/$childPath"
+            "sftp://$username@$hostname:$port/$childPath"
         return SFTPFileObject(
             hostname,
             port,
             username,
             password,
-            session,
-            channelSftp,
+            sshClient,
+            sftpClient,
             childAbsolutePath
         )
     }
@@ -632,13 +635,10 @@ class SFTPFileObject(
                 }
             }
         } catch (e: Exception) { // SftpException or IOException
-            Log.e("JschSftpFileObject", "readText failed for $remotePath", e)
+            Log.e("SFTPFileObject", "readText failed for $remotePath", e)
             null
         }
     }
-
-
-//    override suspend fun isSymlink(): Boolean = getSftpAttrs()?.isLink ?: false
 
     override fun isSymlink(): Boolean {
         Log.d(
@@ -649,8 +649,10 @@ class SFTPFileObject(
             Log.e("SFTPFileObject", "isSymlink() called without prefetching attributes first!")
         }
 
-        return attrs?.isLink ?: false
+        return attrs?.type == net.schmizz.sshj.sftp.FileMode.Type.SYMLINK
     }
+
+
 
     override fun canWrite(): Boolean {
         if (attrsFetched?.not() == true) {
@@ -659,23 +661,16 @@ class SFTPFileObject(
                 "canWrite() called without prefetching attributes first! This can lead to incorrect results."
             )
         }
-
-        // Similar to canRead, a precise check is complex.
-        // Checking SftpATTRS permissions is better.
-        // For now, assume writable if it exists and isn't a directory (or handle dir writes via mkdir).
-        // This is a simplification.
-        return attrs == null // A more robust check would look at sftpAttrs.getPermissions()
+        return attrs == null
     }
 
-    // Call this when the FileObject is no longer needed, especially for the root object
-    // to close the session and channel.
     suspend fun disconnect() {
-        if (channelSftp?.isConnected == true) {
-            channelSftp?.disconnect()
+        if (sftpClient !== null) {
+            sftpClient?.close()
         }
-        if (session?.isConnected == true) {
-            session?.disconnect()
+        if (sshClient?.isConnected == true) {
+            sshClient?.disconnect()
         }
-        Log.d("SftpFileObject", "SFTP session to ${session?.host} disconnected.")
+        Log.d("SftpFileObject", "SFTP session to $hostname disconnected.")
     }
 }

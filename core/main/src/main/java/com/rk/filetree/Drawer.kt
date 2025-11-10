@@ -48,30 +48,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.jcraft.jsch.ChannelSftp
-import com.jcraft.jsch.Session
-import com.jcraft.jsch.SftpException
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
 import com.rk.DefaultScope
-import com.rk.file.child
-import com.rk.file.external.SFTPFileObject
-import com.rk.file.sandboxHomeDir
-import com.rk.file.toFileObject
-import com.rk.utils.application
-import com.rk.utils.dialog
-import com.rk.utils.errorDialog
-import com.rk.resources.drawables
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.activities.main.MainActivity
 import com.rk.components.AddDialogItem
 import com.rk.components.CloseConfirmationDialog
 import com.rk.components.FileActionDialog
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
+import com.rk.file.child
+import com.rk.file.external.SFTPFileObject
+import com.rk.file.sandboxHomeDir
+import com.rk.file.toFileObject
+import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.application
+import com.rk.utils.dialog
+import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -80,16 +77,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.Serializable
-import kotlinx.coroutines.delay
+import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.SFTPClient
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.InputStream
+import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.OutputStream
-import java.nio.charset.Charset
-import kotlin.onFailure
+import java.io.Serializable
 
 
 data class FileObjectWrapper(val fileObject: FileObject, val name: String) : Serializable {
@@ -171,36 +166,32 @@ suspend fun connectToSftpAndCreateFileObject(
     initialPath: String?
 ): SFTPFileObject? {
     return withContext(Dispatchers.IO) {
-        var session: Session? = null
-        var channelSftp: ChannelSftp? = null
+        var sshClient: SSHClient? = null
+        var sftpClient: SFTPClient? = null
 
         try {
-            session = SFTPFileObject.createSessionInternal(hostname, port, username, password)
-            if (session == null || !session.isConnected) {
+            sshClient = SFTPFileObject.createSessionInternal(hostname, port, username, password)
+            if (sshClient == null || !sshClient.isConnected) {
                 toast("Failed to create or connect SFTP channel to $hostname")
                 Log.e("SFTP_CONNECT", "Failed to create or connect session to $hostname")
                 return@withContext null
             }
 
-            channelSftp = SFTPFileObject.createChannelInternal(session)
-            if (channelSftp == null || !channelSftp.isConnected) {
+            sftpClient = SFTPFileObject.createSftpClientInternal(sshClient)
+            if (sftpClient == null) {
                 toast("Failed to create or connect SFTP channel to $hostname")
                 Log.e("SFTP_CONNECT", "Failed to create or connect SFTP channel to $hostname")
-                session.disconnect() // Clean up session
+                sshClient.disconnect() // Clean up session
                 return@withContext null
             }
 
-            // Determine the actual initial path on the server
             val actualInitialPath = run {
-                // Ensure initialPathString starts with a slash if it's not empty and not already the case
                 val path = if (initialPath.isNullOrBlank()) "/" else initialPath
-                // You might want to verify if this path exists or cd to it
                 try {
-                    channelSftp.cd(path) // Try to change to the path
-                    channelSftp.pwd()    // Get the canonical path after cd
-                } catch (e: SftpException) {
+                    sftpClient.canonicalize(path)
+                } catch (e: IOException) {
                     Log.w("SFTP_CONNECT", "Initial path '$path' not found or not accessible, defaulting to PWD. Error: ${e.message}")
-                    channelSftp.pwd() // Default to current working directory on error
+                    sftpClient.sftpEngine.canonicalize(".") // Default to current working directory on error
                 }
             }
 
@@ -211,16 +202,14 @@ suspend fun connectToSftpAndCreateFileObject(
 
             toast("Successfully connected to $hostname. Initial path: $actualInitialPath")
 
-            // Create the root FileObject for this SFTP connection
-            // The sftpFileObject will hold the session and channel.
             SFTPFileObject(hostname, port, username, password,
-                session, channelSftp, rootAbsolutePath, isRoot = true)
+                sshClient, sftpClient, rootAbsolutePath, isRoot = true)
 
         } catch (e: Exception) { // Catch JSchException, SftpException, etc.
             Log.e("SFTP_CONNECT", "SFTP connection to $hostname failed: ${e.message}", e)
             toast("SFTP connection to $hostname failed: ${e.message}")
-            channelSftp?.disconnect()
-            session?.disconnect()
+            sftpClient?.close()
+            sshClient?.disconnect()
             null
         }
 

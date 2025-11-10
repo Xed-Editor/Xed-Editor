@@ -130,7 +130,9 @@ dependencies {
     implementation(project(":core:terminal-view"))
     implementation(project(":core:terminal-emulator"))
     implementation(libs.androidx.lifecycle.process)
-    implementation(libs.jsch)
+    implementation(libs.sshj)
+    implementation(libs.bouncycastle.bc)
+    implementation(libs.bouncycastle.bcpkix)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {
