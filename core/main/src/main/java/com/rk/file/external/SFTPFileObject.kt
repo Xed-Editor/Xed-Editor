@@ -369,7 +369,7 @@ class SFTPFileObject(
                     // handle exception, Am I supposed?? I guess, That's for the TO-DO upside down
                     null
                 }
-            }
+            } else Log.d("SFTPFileObject", "fetchChildren() called on non-directory path: '$remotePath'")
             files
         }
 
@@ -473,27 +473,6 @@ class SFTPFileObject(
         }
     }
 
-    override suspend fun writeText(text: String) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun writeText(content: String, charset: Charset): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                getOutPutStream(append = false).use { outputStream ->
-                    outputStream.writer(charset).use { writer ->
-                        writer.write(content)
-                    }
-                }
-                true
-            } catch (e: Exception) {
-                Log.e("SFTPFileObject", "writeText failed for $remotePath", e)
-                false
-            }
-        }
-    }
-
-
     suspend fun createFile(): Boolean = createNewFile() // Alias
 
     override suspend fun delete(): Boolean {
@@ -589,6 +568,19 @@ class SFTPFileObject(
 
     suspend fun getUri(): Uri? = toUri()
 
+    override fun canWrite(): Boolean {
+        if (attrsFetched?.not() == true) {
+            Log.e(
+                "SFTPFileObject",
+                "canWrite() called without prefetching attributes first! This can lead to incorrect results."
+            )
+        }
+        val perms = attrs?.mode?.permissions ?: return false
+        return perms.contains(FilePermission.USR_W) ||
+                perms.contains(FilePermission.GRP_W) ||
+                perms.contains(FilePermission.OTH_W)
+    }
+
     override fun canRead(): Boolean {
         if (attrsFetched?.not() == true) {
             Log.e(
@@ -644,6 +636,26 @@ class SFTPFileObject(
         }
     }
 
+    override suspend fun writeText(text: String) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun writeText(content: String, charset: Charset): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                getOutPutStream(append = false).use { outputStream ->
+                    outputStream.writer(charset).use { writer ->
+                        writer.write(content)
+                    }
+                }
+                true
+            } catch (e: Exception) {
+                Log.e("SFTPFileObject", "writeText failed for $remotePath", e)
+                false
+            }
+        }
+    }
+
     override fun isSymlink(): Boolean {
         Log.d(
             "SftpFileObject",
@@ -654,21 +666,6 @@ class SFTPFileObject(
         }
 
         return attrs?.type == net.schmizz.sshj.sftp.FileMode.Type.SYMLINK
-    }
-
-
-
-    override fun canWrite(): Boolean {
-        if (attrsFetched?.not() == true) {
-            Log.e(
-                "SFTPFileObject",
-                "canWrite() called without prefetching attributes first! This can lead to incorrect results."
-            )
-        }
-        val perms = attrs?.mode?.permissions ?: return false
-        return perms.contains(FilePermission.USR_W) ||
-                perms.contains(FilePermission.GRP_W) ||
-                perms.contains(FilePermission.OTH_W)
     }
 
     suspend fun disconnect() {

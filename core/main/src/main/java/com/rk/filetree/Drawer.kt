@@ -21,8 +21,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -39,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -228,83 +231,96 @@ private fun SftpCredentialsDialog(
     var password by rememberSaveable { mutableStateOf("") }
     var initialPath by rememberSaveable { mutableStateOf("") }
 
-        AlertDialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        BasicAlertDialog(onDismissRequest = onDismiss) {
+
+
+       Surface(modifier = Modifier.widthIn(min = 280.dp, max = 560.dp)) {
+           Column(
+               modifier = Modifier.padding(16.dp),
+               verticalArrangement = Arrangement.spacedBy(8.dp),
+               horizontalAlignment = Alignment.CenterHorizontally
+           ) {
+               Icon(
+                   painter = painterResource(drawables.folder),
+                   contentDescription = null,
+                   Modifier.size(24.dp)
+               )
+               Spacer(modifier = Modifier.width(16.dp))
+
 //            TODO: add Strings
-            Text(
-                text = "Add SFTP Connection", // Title for the dialog
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+               Text(
+                   text = "Add SFTP Connection", // Title for the dialog
+                   style = MaterialTheme.typography.titleLarge,
+                   modifier = Modifier.padding(bottom = 8.dp)
+               )
 
-            OutlinedTextField(
-                value = hostname,
-                onValueChange = { hostname = it },
-                label = { Text("Hostname or IP Address") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+               OutlinedTextField(
+                   value = hostname,
+                   onValueChange = { hostname = it },
+                   label = { Text("Hostname or IP Address") },
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
 
-            OutlinedTextField(
-                value = portText,
-                onValueChange = { portText = it },
-                label = { Text("Port") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+               OutlinedTextField(
+                   value = portText,
+                   onValueChange = { portText = it },
+                   label = { Text("Port") },
+                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
 
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+               OutlinedTextField(
+                   value = username,
+                   onValueChange = { username = it },
+                   label = { Text("Username") },
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
 
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
+               OutlinedTextField(
+                   value = password,
+                   onValueChange = { password = it },
+                   label = { Text("Password") },
+                   visualTransformation = PasswordVisualTransformation(),
+                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
 
-            OutlinedTextField(
-                value = initialPath,
-                onValueChange = { initialPath = it },
-                label = { Text("Initial Remote Path (Optional)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                placeholder = { Text("/") }
-            )
+               OutlinedTextField(
+                   value = initialPath,
+                   onValueChange = { initialPath = it },
+                   label = { Text("Initial Remote Path (Optional)") },
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true,
+                   placeholder = { Text("/") }
+               )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = onDismiss) {
-                    Text("Cancel")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        val port = portText.toIntOrNull() ?: 22 // Default to 22 if input is invalid
-                        val finalInitialPath = initialPath.ifBlank { null } // Use null if blank
-                        onSubmit(hostname, port, username, password, finalInitialPath)
-                        // onDismiss() will be called by the caller after onSubmit to close AddProjectDialog
-                    }
-                ) {
-                    Text("Connect")
-                }
-            }
-        }
+               Row(
+                   modifier = Modifier.fillMaxWidth(),
+                   horizontalArrangement = Arrangement.End,
+                   verticalAlignment = Alignment.CenterVertically
+               ) {
+                   TextButton(onClick = onDismiss) {
+                       Text("Cancel")
+                   }
+                   Spacer(modifier = Modifier.width(8.dp))
+                   Button(
+                       onClick = {
+                           val port =
+                               portText.toIntOrNull() ?: 22 // Default to 22 if input is invalid
+                           val finalInitialPath = initialPath.ifBlank { null } // Use null if blank
+                           onSubmit(hostname, port, username, password, finalInitialPath)
+                           // onDismiss() will be called by the caller after onSubmit to close AddProjectDialog
+                       }
+                   ) {
+                       Text("Connect")
+                   }
+               }
+           }
+       }
     }
 }
 
