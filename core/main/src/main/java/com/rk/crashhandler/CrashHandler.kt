@@ -76,5 +76,3 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
         }.onFailure { it.printStackTrace();exitProcess(-1) }
     }
 }
-
-
