@@ -64,8 +64,8 @@
     <string name="app">应用程序</string>
     <string name="oled_desc">使用纯黑色主题</string>
     <string name="text_size_desc">设置字体大小</string>
-    <string name="tab_size">标签大小</string>
-    <string name="tab_size_desc">设置往标签中插入的空格数量</string>
+    <string name="tab_size">软缩进长度</string>
+    <string name="tab_size_desc">设置软缩进的空格数量</string>
     <string name="unsupported_content">不支持的内容</string>
     <string name="null_content">错误：内容为空</string>
     <string name="restart_required">需要重启</string>
