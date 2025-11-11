@@ -596,8 +596,12 @@ class SFTPFileObject(
                 "canRead() called without prefetching attributes first! This can lead to incorrect results."
             )
         }
-
-        return attrs == null;
+        val perms = attrs?.mode?.permissions ?: return false
+        return (
+                perms.contains(FilePermission.USR_R)
+                || perms.contains(FilePermission.GRP_R)
+                || perms.contains(FilePermission.OTH_R)
+               )
     }
 
     override fun canExecute(): Boolean {
@@ -661,7 +665,10 @@ class SFTPFileObject(
                 "canWrite() called without prefetching attributes first! This can lead to incorrect results."
             )
         }
-        return attrs == null
+        val perms = attrs?.mode?.permissions ?: return false
+        return perms.contains(FilePermission.USR_W) ||
+                perms.contains(FilePermission.GRP_W) ||
+                perms.contains(FilePermission.OTH_W)
     }
 
     suspend fun disconnect() {
