@@ -474,4 +474,24 @@
     <string name="info_toolbar_actions">工具列動作用於定義當檔案開啟時要在工具列中顯示哪些指令。你可以長按並拖曳以變更順序，或點擊按鈕新增新指令。</string>
     <string name="disable">停用</string>
     <string name="open_as_project">以專案方式開啟</string>
+    <string name="can_execute">可執行</string>
+    <string name="language_server">語言伺服器</string>
+    <string name="manage_language_servers">管理語言伺服器</string>
+    <string name="manage_language_servers_desc">安裝，連線並設定語言伺服器</string>
+    <string name="format_on_save">儲存時自動格式化</string>
+    <string name="format_on_save_desc">在儲存檔案時自動進行格式化</string>
+    <string name="format_document">格式化文件</string>
+    <string name="format_selection">格式化選取範圍</string>
+    <string name="format_document_error">無法格式化文件。</string>
+    <string name="format_selection_error">無法格式化選取範圍。</string>
+    <string name="calculating">計算中…</string>
+    <string name="permissions">權限</string>
+    <string name="lsp_process_desc">終端機的初始化腳本（例如 /initrc 和 .bashrc）在執行此指令前不會被執行。</string>
+    <string name="command">指令</string>
+    <string name="empty_command">空白指令</string>
+    <string name="socket">Socket</string>
+    <string name="process">處理程序</string>
+    <string name="project_restore_failed">無法還原專案</string>
+    <string name="theme_flipper">主題切換器</string>
+    <string name="theme_flipper_desc">每 7 秒自動切換主題模式</string>
 </resources>

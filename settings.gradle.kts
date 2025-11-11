@@ -64,6 +64,9 @@ if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
 include(":editor")
 project(":editor").projectDir = file("soraX/editor")
 
+include(":oniguruma-native")
+project(":oniguruma-native").projectDir = file("soraX/oniguruma-native")
+
 include(":editor-lsp")
 project(":editor-lsp").projectDir = file("soraX/editor-lsp")
 

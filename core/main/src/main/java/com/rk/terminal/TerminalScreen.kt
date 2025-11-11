@@ -180,7 +180,7 @@ fun TerminalScreenInternal(
                                         var newString: String
 
                                         do {
-                                            newString = "main$index"
+                                            newString = "main #$index"
                                             index++
                                         } while (newString in existingStrings)
 

@@ -491,4 +491,6 @@
     <string name="socket">Socket</string>
     <string name="process">Process</string>
     <string name="project_restore_failed">Failed to restore projects</string>
+    <string name="theme_flipper">Theme flipper</string>
+    <string name="theme_flipper_desc">Constantly change the theme mode every 7s</string>
 </resources>
