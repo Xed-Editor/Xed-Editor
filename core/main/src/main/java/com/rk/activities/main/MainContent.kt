@@ -3,9 +3,11 @@ package com.rk.activities.main
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +18,7 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
@@ -52,6 +55,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
 import com.rk.components.FileActionDialog
+import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeViewModel
 import com.rk.tabs.Tab
 import kotlinx.coroutines.launch
@@ -153,7 +157,8 @@ fun MainContent(
                 PrimaryScrollableTabRow(
                     selectedTabIndex = if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex else 0,
                     modifier = Modifier.fillMaxWidth(),
-                    edgePadding = 0.dp
+                    edgePadding = 0.dp,
+                    divider = {}
                 ) {
                     mainViewModel.tabs.forEachIndexed { index, tabState ->
                         key(tabState) {
@@ -200,15 +205,25 @@ fun MainContent(
                                         }
                                     },
                                     text = {
-                                        Text(
-                                            text = if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                                "*${tabState.tabTitle.value}"
-                                            } else {
-                                                tabState.tabTitle.value
-                                            },
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            tabState.file?.let {
+                                                if (Settings.show_tab_icons) FileIcon(it)
+                                            }
+
+                                            Text(
+                                                text = if (tabState is EditorTab && tabState.editorState.isDirty) {
+                                                    "*${tabState.tabTitle.value}"
+                                                } else {
+                                                    tabState.tabTitle.value
+                                                },
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+
                                         DropdownMenu(
                                             expanded = showTabMenu,
                                             offset = DpOffset((-22).dp,15.dp),
@@ -272,6 +287,8 @@ fun MainContent(
                     }
                 }
             }
+
+            HorizontalDivider()
 
             HorizontalPager(
                 state = pagerState,
