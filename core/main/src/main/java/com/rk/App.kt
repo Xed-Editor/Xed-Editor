@@ -62,14 +62,14 @@ class App : Application() {
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
 
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
 
             launch { Editor.initGrammarRegistry() }
 
             launch(Dispatchers.IO)  {
                 TabCache.preloadTabs()
             }
-            launch {
+            launch(Dispatchers.IO){
                 val fontPath = Settings.selected_font_path
                 if (fontPath.isNotEmpty()) {
                     FontCache.loadFont(this@App, fontPath, Settings.is_selected_font_asset)

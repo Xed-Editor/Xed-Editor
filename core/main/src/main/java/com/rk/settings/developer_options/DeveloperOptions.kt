@@ -131,7 +131,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
 
 fun startThemeFlipperIfNotRunning(){
     if (flipperJob == null || flipperJob?.isActive?.not() == true){
-        flipperJob = GlobalScope.launch {
+        flipperJob = GlobalScope.launch(Dispatchers.IO) {
             runCatching {
                 while (isActive && Settings.themeFlipper){
                     delay(7000)

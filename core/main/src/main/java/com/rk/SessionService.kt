@@ -17,6 +17,7 @@ import com.rk.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -96,7 +97,7 @@ class SessionService : Service() {
 
 
         if (deamonRunning.not()){
-            GlobalScope.launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 deamonRunning = true
             }
         }

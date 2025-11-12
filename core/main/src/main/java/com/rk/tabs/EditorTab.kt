@@ -166,7 +166,7 @@ class EditorTab(
     val scope = CoroutineScope(Dispatchers.Default)
 
     override var tabTitle: MutableState<String> = mutableStateOf(file.getName()).also {
-        scope.launch {
+        scope.launch(Dispatchers.IO) {
             delay(100)
             val parent = file.getParentFile()
             if (viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null) {
@@ -188,7 +188,7 @@ class EditorTab(
         editorState.arrowKeys = WeakReference(null)
         editorState.editor.get()?.setText("")
         editorState.editor.get()?.release()
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
             baseLspConnector?.disconnect()
         }
     }

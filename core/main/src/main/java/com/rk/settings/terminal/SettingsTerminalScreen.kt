@@ -153,7 +153,7 @@ fun SettingsTerminalScreen() {
 
 
                     fileManager.createNewFile(mimeType = "application/octet-stream", title = "terminal-backup.tar.gz"){ fileObject ->
-                        GlobalScope.launch {
+                        GlobalScope.launch(Dispatchers.IO) {
                             if (fileObject != null){
                                 val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
 
