@@ -1,11 +1,3 @@
-import com.android.build.gradle.internal.tasks.factory.dependsOn
-import java.io.BufferedOutputStream
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.net.URI
-import java.security.DigestInputStream
-import java.security.MessageDigest
-
 import java.util.Properties
 
 plugins {

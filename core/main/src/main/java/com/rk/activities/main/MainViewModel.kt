@@ -138,6 +138,23 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun moveTab(from: Int, to: Int) {
+        if (from == to || from !in tabs.indices || to !in tabs.indices) return
+
+        val item = tabs.removeAt(from)
+        tabs.add(to, item)
+
+        // Update current index
+        currentTabIndex = when (currentTabIndex) {
+            from -> to
+            in (minOf(from, to)..maxOf(from, to)) -> {
+                if (from < to) currentTabIndex - 1
+                else currentTabIndex + 1
+            }
+            else -> currentTabIndex
+        }
+    }
+
     suspend fun isEditorTabOpened(file: FileObject): Boolean = withContext(Dispatchers.IO){
         tabs.toList().forEachIndexed { index,tab ->
             if (tab is EditorTab && tab.file == file){
