@@ -3,11 +3,9 @@ package com.rk.activities.main
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +18,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LeadingIconTab
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
@@ -32,13 +31,11 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -61,6 +58,7 @@ import com.rk.components.FileActionDialog
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeViewModel
 import com.rk.tabs.Tab
+import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -181,26 +179,33 @@ fun MainContent(
                                 draggableContent = {},
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    // TODO: Combined clickable below won't work
+                                    .combinedClickable(
+                                        onLongClick = {
+                                            if (mainViewModel.currentTabIndex == index) {
+                                                showTabMenu = true
+                                            }
+                                        },
+                                        onDoubleClick = {
+                                            toast("Double click")
+                                        },
+                                        onClick = {}
+                                    )
                                     .onSizeChanged { size ->
                                         calculatedTabWidth = size.width
                                     }
                             ) {
+                                val isSelected = mainViewModel.currentTabIndex == index
+
                                 val tabModifier = Modifier
                                     .let { modifier ->
                                         calculatedTabWidth?.let { width ->
                                             modifier.width(with(LocalDensity.current) { width.toDp() })
                                         } ?: modifier
                                     }
-                                    .combinedClickable(
-                                        onLongClick = {
-                                            if (mainViewModel.currentTabIndex == index) {
-                                                showTabMenu = true
-                                            }
-                                        }, onClick = {}
-                                    )
 
                                 val onClick = {
-                                    if (mainViewModel.currentTabIndex == index) {
+                                    if (isSelected) {
                                         showTabMenu = true
                                     } else {
                                         mainViewModel.currentTabIndex = index
@@ -281,20 +286,32 @@ fun MainContent(
                                     }
                                 }
 
+                                val activeColor = MaterialTheme.colorScheme.primary
+                                val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
+
                                 if (Settings.show_tab_icons && tabState.file != null) {
                                     LeadingIconTab(
                                         modifier = tabModifier,
-                                        selected = mainViewModel.currentTabIndex == index,
+                                        selected = isSelected,
                                         onClick = onClick,
-                                        icon = { FileIcon(tabState.file!!) },
-                                        text = tabText
+                                        icon = {
+                                            FileIcon(
+                                                file = tabState.file!!,
+                                                iconTint = LocalContentColor.current
+                                            )
+                                        },
+                                        text = tabText,
+                                        selectedContentColor = activeColor,
+                                        unselectedContentColor = inactiveColor
                                     )
                                 } else {
                                     Tab(
                                         modifier = tabModifier,
-                                        selected = mainViewModel.currentTabIndex == index,
+                                        selected = isSelected,
                                         onClick = onClick,
-                                        text = tabText
+                                        text = tabText,
+                                        selectedContentColor = activeColor,
+                                        unselectedContentColor = inactiveColor
                                     )
                                 }
                             }
