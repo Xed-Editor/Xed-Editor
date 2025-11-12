@@ -19,6 +19,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
@@ -31,11 +32,13 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -161,7 +164,7 @@ fun MainContent(
                     divider = {}
                 ) {
                     mainViewModel.tabs.forEachIndexed { index, tabState ->
-                        key(tabState) {
+                        key(tabState, Settings.show_tab_icons) {
                             var showTabMenu by remember { mutableStateOf(false) }
                             var calculatedTabWidth by remember { mutableStateOf<Int?>(null) }
 
@@ -182,106 +185,118 @@ fun MainContent(
                                         calculatedTabWidth = size.width
                                     }
                             ) {
-                                Tab(
-                                    modifier = Modifier
-                                        .let { modifier ->
-                                            calculatedTabWidth?.let { width ->
-                                                modifier.width(with(LocalDensity.current) { width.toDp() })
-                                            } ?: modifier
-                                        }
-                                        .combinedClickable(
-                                            onLongClick = {
-                                                if (mainViewModel.currentTabIndex == index) {
-                                                    showTabMenu = true
-                                                }
-                                            }, onClick = {}
-                                        ),
-                                    selected = mainViewModel.currentTabIndex == index,
-                                    onClick = {
-                                        if (mainViewModel.currentTabIndex == index) {
-                                            showTabMenu = true
+                                val tabModifier = Modifier
+                                    .let { modifier ->
+                                        calculatedTabWidth?.let { width ->
+                                            modifier.width(with(LocalDensity.current) { width.toDp() })
+                                        } ?: modifier
+                                    }
+                                    .combinedClickable(
+                                        onLongClick = {
+                                            if (mainViewModel.currentTabIndex == index) {
+                                                showTabMenu = true
+                                            }
+                                        }, onClick = {}
+                                    )
+
+                                val onClick = {
+                                    if (mainViewModel.currentTabIndex == index) {
+                                        showTabMenu = true
+                                    } else {
+                                        mainViewModel.currentTabIndex = index
+                                    }
+                                }
+
+                                val tabText: @Composable () -> Unit = {
+                                    Text(
+                                        text = if (tabState is EditorTab && tabState.editorState.isDirty) {
+                                            "*${tabState.tabTitle.value}"
                                         } else {
-                                            mainViewModel.currentTabIndex = index
-                                        }
-                                    },
-                                    text = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            tabState.file?.let {
-                                                if (Settings.show_tab_icons) FileIcon(it)
-                                            }
+                                            tabState.tabTitle.value
+                                        },
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
 
-                                            Text(
-                                                text = if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                                    "*${tabState.tabTitle.value}"
-                                                } else {
-                                                    tabState.tabTitle.value
-                                                },
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
+                                    DropdownMenu(
+                                        expanded = showTabMenu,
+                                        offset = DpOffset((-22).dp, 15.dp),
+                                        onDismissRequest = { showTabMenu = false },
+                                        modifier = Modifier
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(strings.close_this)) },
+                                            onClick = {
+                                                showTabMenu = false
+                                                val tabToClose = tabState
+                                                val tabIndex =
+                                                    mainViewModel.tabs.indexOf(tabToClose)
 
-                                        DropdownMenu(
-                                            expanded = showTabMenu,
-                                            offset = DpOffset((-22).dp,15.dp),
-                                            onDismissRequest = { showTabMenu = false },
-                                            modifier = Modifier
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text(stringResource(strings.close_this)) },
-                                                onClick = {
-                                                    showTabMenu = false
-                                                    val tabToClose = tabState
-                                                    val tabIndex = mainViewModel.tabs.indexOf(tabToClose)
-
-                                                    if (tabIndex != -1) {
-                                                        if (tabToClose is EditorTab && tabToClose.editorState.isDirty){
-                                                            dialog(
-                                                                title = strings.file_unsaved.getString(),
-                                                                msg = strings.ask_unsaved.getString(),
-                                                                onOk = { mainViewModel.removeTab(tabIndex) },
-                                                                onCancel = {},
-                                                                okString = strings.discard
-                                                            )
-                                                        } else {
-                                                            mainViewModel.removeTab(tabIndex)
-                                                        }
+                                                if (tabIndex != -1) {
+                                                    if (tabToClose is EditorTab && tabToClose.editorState.isDirty) {
+                                                        dialog(
+                                                            title = strings.file_unsaved.getString(),
+                                                            msg = strings.ask_unsaved.getString(),
+                                                            onOk = {
+                                                                mainViewModel.removeTab(
+                                                                    tabIndex
+                                                                )
+                                                            },
+                                                            onCancel = {},
+                                                            okString = strings.discard
+                                                        )
+                                                    } else {
+                                                        mainViewModel.removeTab(tabIndex)
                                                     }
                                                 }
-                                            )
-
-                                            DropdownMenuItem(
-                                                text = { Text(stringResource(strings.close_others)) },
-                                                onClick = {
-                                                    showTabMenu = false
-                                                    mainViewModel.setCurrentTabIndex(index)
-                                                    mainViewModel.removeOtherTabs()
-                                                }
-                                            )
-
-                                            DropdownMenuItem(
-                                                text = { Text(stringResource(strings.close_all)) },
-                                                onClick = {
-                                                    showTabMenu = false
-                                                    mainViewModel.closeAllTabs()
-                                                }
-                                            )
-
-                                            tabState.file?.let {
-                                                DropdownMenuItem(
-                                                    text = { Text(stringResource(strings.more)) },
-                                                    onClick = {
-                                                        showTabMenu = false
-                                                        fileActionDialog = it
-                                                    }
-                                                )
                                             }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(strings.close_others)) },
+                                            onClick = {
+                                                showTabMenu = false
+                                                mainViewModel.setCurrentTabIndex(index)
+                                                mainViewModel.removeOtherTabs()
+                                            }
+                                        )
+
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(strings.close_all)) },
+                                            onClick = {
+                                                showTabMenu = false
+                                                mainViewModel.closeAllTabs()
+                                            }
+                                        )
+
+                                        tabState.file?.let {
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(strings.more)) },
+                                                onClick = {
+                                                    showTabMenu = false
+                                                    fileActionDialog = it
+                                                }
+                                            )
                                         }
                                     }
-                                )
+                                }
+
+                                if (Settings.show_tab_icons && tabState.file != null) {
+                                    LeadingIconTab(
+                                        modifier = tabModifier,
+                                        selected = mainViewModel.currentTabIndex == index,
+                                        onClick = onClick,
+                                        icon = { FileIcon(tabState.file!!) },
+                                        text = tabText
+                                    )
+                                } else {
+                                    Tab(
+                                        modifier = tabModifier,
+                                        selected = mainViewModel.currentTabIndex == index,
+                                        onClick = onClick,
+                                        text = tabText
+                                    )
+                                }
                             }
                         }
                     }
