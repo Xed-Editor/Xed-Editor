@@ -2,7 +2,6 @@ package com.rk.activities.main
 
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,7 +39,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
@@ -58,7 +56,6 @@ import com.rk.components.FileActionDialog
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeViewModel
 import com.rk.tabs.Tab
-import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -174,26 +171,32 @@ fun MainContent(
                                     val index = mainViewModel.tabs.indexOf(tabState)
                                     val oldIndex = mainViewModel.tabs.indexOf(state.data)
 
-                                    mainViewModel.moveTab(index, oldIndex)
+                                    mainViewModel.moveTab(oldIndex, index)
                                 },
                                 draggableContent = {},
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    // TODO: Combined clickable below won't work
-                                    .combinedClickable(
-                                        onLongClick = {
-                                            if (mainViewModel.currentTabIndex == index) {
-                                                showTabMenu = true
-                                            }
-                                        },
-                                        onDoubleClick = {
-                                            toast("Double click")
-                                        },
-                                        onClick = {}
-                                    )
                                     .onSizeChanged { size ->
                                         calculatedTabWidth = size.width
                                     }
+                                // TODO: Combined clickable below won't work
+                                // .combinedClickable(
+                                //     onLongClick = {
+                                //         if (mainViewModel.currentTabIndex == index) {
+                                //             showTabMenu = true
+                                //         }
+                                //     },
+                                //     onDoubleClick = {
+                                //         toast("Double click")
+                                //     },
+                                //     onClick = {
+                                //         if (isSelected) {
+                                //             showTabMenu = true
+                                //         } else {
+                                //             mainViewModel.currentTabIndex = index
+                                //         }
+                                //     }
+                                // )
                             ) {
                                 val isSelected = mainViewModel.currentTabIndex == index
 
@@ -225,7 +228,6 @@ fun MainContent(
 
                                     DropdownMenu(
                                         expanded = showTabMenu,
-                                        offset = DpOffset((-22).dp, 15.dp),
                                         onDismissRequest = { showTabMenu = false },
                                         modifier = Modifier
                                     ) {
@@ -233,26 +235,19 @@ fun MainContent(
                                             text = { Text(stringResource(strings.close_this)) },
                                             onClick = {
                                                 showTabMenu = false
-                                                val tabToClose = tabState
-                                                val tabIndex =
-                                                    mainViewModel.tabs.indexOf(tabToClose)
+                                                val tabIndex = mainViewModel.tabs.indexOf(tabState)
+                                                if (tabIndex == -1) return@DropdownMenuItem
 
-                                                if (tabIndex != -1) {
-                                                    if (tabToClose is EditorTab && tabToClose.editorState.isDirty) {
-                                                        dialog(
-                                                            title = strings.file_unsaved.getString(),
-                                                            msg = strings.ask_unsaved.getString(),
-                                                            onOk = {
-                                                                mainViewModel.removeTab(
-                                                                    tabIndex
-                                                                )
-                                                            },
-                                                            onCancel = {},
-                                                            okString = strings.discard
-                                                        )
-                                                    } else {
-                                                        mainViewModel.removeTab(tabIndex)
-                                                    }
+                                                if (tabState is EditorTab && tabState.editorState.isDirty) {
+                                                    dialog(
+                                                        title = strings.file_unsaved.getString(),
+                                                        msg = strings.ask_unsaved.getString(),
+                                                        onOk = { mainViewModel.removeTab(tabIndex) },
+                                                        onCancel = {},
+                                                        okString = strings.discard
+                                                    )
+                                                } else {
+                                                    mainViewModel.removeTab(tabIndex)
                                                 }
                                             }
                                         )
