@@ -48,6 +48,7 @@ class Python() : BaseLspServer() {
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
     }
+
     override fun getInitializationOptions(uri: URI?): Any? {
         return mapOf(
             "plugins" to mapOf(
