@@ -1,7 +1,11 @@
 package com.rk
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
@@ -9,10 +13,10 @@ import android.os.PowerManager
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
+import com.rk.activities.terminal.Terminal
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.activities.terminal.Terminal
 import com.rk.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -22,10 +26,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class SessionService : Service() {
-
-    private val sessions = hashMapOf<String, TerminalSession>()
+    private val sessions = hashMapOf<SessionId, TerminalSession>()
+    private val sessionWorkDirs = mutableMapOf<SessionId, SessionPwd>()
     val sessionList = mutableStateListOf<String>()
-    var currentSession = mutableStateOf<String>("main")
+    var currentSession = mutableStateOf("main")
     private var deamonRunning = false
 
     inner class SessionBinder : Binder() {
@@ -34,22 +38,33 @@ class SessionService : Service() {
         }
 
         fun createSession(
-            id: String,
+            id: SessionId,
             client: TerminalSessionClient,
             activity: Terminal
-        ): TerminalSession {
-            return MkSession.createSession(activity, client, id).also {
-                sessions[id] = it
+        ): SessionInfo {
+            return MkSession.createSession(activity, client, id).let {
+                val (session, pwd) = it
+                sessions[id] = session
+                sessionWorkDirs[id] = pwd
                 sessionList.add(id)
                 updateNotification()
+                SessionInfo(id, pwd, session)
             }
         }
 
-        fun getSession(id: String): TerminalSession? {
+        fun getSession(id: SessionId): TerminalSession? {
             return sessions[id]
         }
 
-        fun terminateSession(id: String) {
+        fun getSessionInfoByPwd(pwd: SessionPwd): SessionInfo? {
+            return sessionWorkDirs.keys.find {
+                sessionWorkDirs[it] == pwd
+            }?.let {
+                SessionInfo(it, sessionWorkDirs[it]!!, sessions[it]!!)
+            }
+        }
+
+        fun terminateSession(id: SessionId) {
             sessions[id]?.apply {
                 if (emulator != null) {
                     sessions[id]?.finishIfRunning()
@@ -57,10 +72,11 @@ class SessionService : Service() {
             }
             sessions.remove(id)
             sessionList.remove(id)
+            sessionWorkDirs.remove(id)
+
             if (sessions.isEmpty()) {
                 stopSelf()
-                if (deamonRunning){
-                    
+                if (deamonRunning) {
                     deamonRunning = false
                 }
             } else {
@@ -80,9 +96,9 @@ class SessionService : Service() {
 
     override fun onDestroy() {
         sessions.forEach { s -> s.value.finishIfRunning() }
-        
+
         deamonRunning = false
-        if (wakeLock?.isHeld == true){
+        if (wakeLock?.isHeld == true) {
             wakeLock?.release()
         }
         super.onDestroy()
@@ -96,13 +112,13 @@ class SessionService : Service() {
         startForeground(1, notification)
 
 
-        if (deamonRunning.not()){
+        if (deamonRunning.not()) {
             GlobalScope.launch(Dispatchers.IO) {
                 deamonRunning = true
             }
         }
 
-        if (wakeLock == null){
+        if (wakeLock == null) {
             wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
                 "${strings.app_name.getString()}::${this::class.java.simpleName}"
@@ -118,17 +134,16 @@ class SessionService : Service() {
         when (intent?.action) {
             "ACTION_EXIT" -> {
                 sessions.forEach { s -> s.value.finishIfRunning() }
-                if (deamonRunning){
-                    
+                if (deamonRunning) {
                     deamonRunning = false
                 }
                 stopSelf()
             }
 
             "ACTION_WAKE_LOCK" -> {
-                if (wakeLock?.isHeld == true){
+                if (wakeLock?.isHeld == true) {
                     wakeLock?.release()
-                }else{
+                } else {
                     wakeLock?.acquire()
                 }
                 updateNotification()
@@ -153,7 +168,10 @@ class SessionService : Service() {
             this, 1, exitIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val wakelockPendingIntent = PendingIntent.getService(
-            this, 1, wakeLockIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            this,
+            1,
+            wakeLockIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
@@ -171,9 +189,9 @@ class SessionService : Service() {
             .addAction(
                 NotificationCompat.Action.Builder(
                     null,
-                    if (wakeLock?.isHeld == true){
+                    if (wakeLock?.isHeld == true) {
                         strings.release_wakelock.getString()
-                    }else{
+                    } else {
                         strings.acquire_wakelock.getString()
                     },
                     wakelockPendingIntent
@@ -206,6 +224,21 @@ class SessionService : Service() {
 
     private fun getNotificationContentText(wakelock: Boolean): String {
         val count = sessions.size
-        return "$count sessions running ${if (wakelock){"(wake lock held)"}else{""}}"
+        return "$count sessions running ${
+            if (wakelock) {
+                "(wake lock held)"
+            } else {
+                ""
+            }
+        }"
     }
 }
+
+typealias SessionId = String
+typealias SessionPwd = String
+
+data class SessionInfo(
+    val id: SessionId,
+    val pwd: SessionPwd,
+    val session: TerminalSession
+)
