@@ -20,7 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +40,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
@@ -118,10 +122,15 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
         ) {
             NestedScrollStretch(modifier = modifier) {
                 LazyColumn(
-                    contentPadding = paddingValues,
+                    contentPadding = PaddingValues(
+                        top = paddingValues.calculateTopPadding(),
+                        bottom = paddingValues.calculateBottomPadding() + 88.dp, // Add extra space so that FAB doesn't cover content
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr)
+                    ),
                     state = lazyListState,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxHeight().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxHeight(),
                 ) {
                     item {
                         InfoBlock(
@@ -140,7 +149,6 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                             state = reorderState,
                             key = command,
                             data = command.id,
-                            onDrop = {},
                             onDragEnter = { state ->
                                 val index = commandIds.indexOf(command.id)
                                 if (index == -1) return@ReorderableItem
