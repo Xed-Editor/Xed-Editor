@@ -59,4 +59,12 @@
     <string name="ask_enter_name">Παρακαλώ εισάγετε ένα όνομα</string>
     <string name="already_exists">Υπάρχει ήδη ένα έγγραφο με αυτό το όνομα</string>
     <string name="attention">Προσοχή</string>
+    <string name="rename_desc">Μετονομάστε το έγγραφο</string>
+    <string name="open_with_other">Άνοιγμα επιλεγμένου αρχείου σε άλλες εφαρμογές</string>
+    <string name="delete_desc">Μόνιμη διαγραφή εγγράφου</string>
+    <string name="add_file_desc">Επιλέξτε ένα νέο αρχείο για προσθήκη εδώ</string>
+    <string name="create_new_file_desc">Δημιουργήστε ένα νέο αρχείο στον επιλεγμένο φάκελο</string>
+    <string name="paste_desc">Επικόλληση εγγράφου</string>
+    <string name="clipboard_empty">Το πρόχειρο αρχείων είναι άδειο</string>
+    <string name="save_desc">Αποθηκεύστε το επιλεγμένο αρχείο κάπου αλλού</string>
 </resources>
