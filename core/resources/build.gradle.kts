@@ -1,9 +1,7 @@
-import java.io.File
-import groovy.json.JsonOutput
-
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.ktfmt)
 }
 
 android {

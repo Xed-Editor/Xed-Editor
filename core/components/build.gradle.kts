@@ -2,12 +2,13 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ktfmt)
 }
 
 android {
     namespace = "org.robok.engine.core.components"
     compileSdk = 36
-    
+
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

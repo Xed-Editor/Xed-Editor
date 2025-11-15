@@ -144,6 +144,8 @@ class BaseLspConnector(
                 }
             }
 
+            applyLspSettings(lspEditor!!)
+
             if (isConnected()){
                 info("LSP server already connected skipping...")
                 return@withContext
@@ -168,6 +170,10 @@ class BaseLspConnector(
             it.printStackTrace()
             toast(it.message)
         }
+    }
+
+    fun applyLspSettings(lspEditor: LspEditor) {
+        lspEditor.isEnableInlayHint = true
     }
 
     fun getEventManager(): LspEventManager? {

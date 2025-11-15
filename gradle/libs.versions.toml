@@ -33,6 +33,7 @@ activityCompose = "1.11.0"
 composeBom = "2025.09.00"
 coilCompose = "2.7.0"
 navigationCompose = "2.9.4"
+ktfmt = "0.25.0"
 
 tsBinding = "4.3.1"
 lsp4j = "0.24.0"
@@ -129,6 +130,7 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"  }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref = "kotlinPlugin"  }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 
 publish = { id = "com.vanniktech.maven.publish.base", version = "0.34.0" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
