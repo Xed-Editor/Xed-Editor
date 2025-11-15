@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 echo "Formatting code with ktfmt…"
 
@@ -8,5 +9,11 @@ if ! ./gradlew --quiet --no-daemon ktfmtFormat; then
     exit 1
 fi
 
-echo "Formatting completed"
+# Get list of staged Kotlin files
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.kt$|\.kts$' || true)
+if [ ! -z "$staged_files" ]; then
+    git add $staged_files
+fi
+
+echo "Formatting completed."
 exit 0
