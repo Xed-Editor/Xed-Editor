@@ -1,11 +1,3 @@
-import com.android.build.gradle.internal.tasks.factory.dependsOn
-import java.io.BufferedOutputStream
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.net.URI
-import java.security.DigestInputStream
-import java.security.MessageDigest
-
 import java.util.Properties
 
 plugins {
@@ -13,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.ktfmt)
 }
 
 android {
