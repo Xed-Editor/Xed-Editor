@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "Formatting code with ktfmt…"
+
+# Run ktfmt formatter using Gradle
+if ! ./gradlew --quiet --no-daemon ktfmtFormat; then
+    echo "Formatting with ktfmt failed"
+    exit 1
+fi
+
+echo "Formatting completed"
+exit 0
