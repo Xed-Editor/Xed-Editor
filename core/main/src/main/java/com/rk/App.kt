@@ -5,7 +5,6 @@ import android.os.Build
 import android.os.StrictMode
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
-import androidx.lifecycle.ProcessLifecycleOwner
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.utils.application
@@ -67,7 +66,7 @@ class App : Application() {
             launch { Editor.initGrammarRegistry() }
 
             launch(Dispatchers.IO)  {
-                TabCache.preloadTabs()
+                TabCache.preloadTabStates()
             }
             launch(Dispatchers.IO){
                 val fontPath = Settings.selected_font_path
@@ -78,7 +77,7 @@ class App : Application() {
                 }
             }
 
-            if (Settings.restore_sessions){
+            if (Settings.restore_sessions) {
                 launch(Dispatchers.IO) {
                     Preference.preloadAllSettings()
                 }

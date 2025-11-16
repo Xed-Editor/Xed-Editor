@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.chrisbanes.photoview.PhotoView
 import com.bumptech.glide.Glide
+import com.rk.activities.main.FileTabState
+import com.rk.activities.main.TabState
 import com.rk.file.FileObject
 import com.rk.icons.Photo
 import com.rk.icons.XedIcons
@@ -55,5 +57,9 @@ class ImageTab(
                 }
             )
         }
+    }
+
+    override fun getState(): TabState {
+        return FileTabState(file)
     }
 }
