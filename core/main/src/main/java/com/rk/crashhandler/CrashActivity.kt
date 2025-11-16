@@ -26,6 +26,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -33,13 +35,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.pm.PackageInfoCompat
+import androidx.core.net.toUri
+import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
-import com.rk.utils.origin
-import com.rk.utils.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.xededitor.BuildConfig
 import com.rk.theme.XedTheme
+import com.rk.utils.origin
+import com.rk.utils.toast
+import com.rk.xededitor.BuildConfig
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -48,36 +52,38 @@ import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.system.exitProcess
-import androidx.core.net.toUri
-import com.rk.crashhandler.CrashHandler.logErrorOrExit
 
 class CrashActivity : ComponentActivity() {
-
     companion object {
         fun Context.isModified(): Boolean {
-            val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageManager.getPackageInfo(
-                    packageName,
-                    android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES
-                ).signingInfo?.apkContentsSigners
-            } else {
-                @Suppress("DEPRECATION")
-                packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.GET_SIGNATURES).signatures
-            }
+            val signatures =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    packageManager
+                        .getPackageInfo(
+                            packageName,
+                            android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES,
+                        ).signingInfo
+                        ?.apkContentsSigners
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.GET_SIGNATURES).signatures
+                }
 
             if (signatures == null) {
                 return true
             }
 
             for (signature in signatures) {
-                val cert = CertificateFactory.getInstance("X.509")
-                    .generateCertificate(signature.toByteArray().inputStream()) as X509Certificate
+                val cert =
+                    CertificateFactory
+                        .getInstance("X.509")
+                        .generateCertificate(signature.toByteArray().inputStream()) as X509Certificate
                 val sha256 = MessageDigest.getInstance("SHA-256").digest(cert.encoded)
                 val hex = sha256.joinToString(":") { "%02X".format(it) }
 
                 if (hex.equals(
                         assets.open("hash").bufferedReader().use { it.readText() },
-                        ignoreCase = true
+                        ignoreCase = true,
                     )
                 ) {
                     return false
@@ -107,7 +113,7 @@ class CrashActivity : ComponentActivity() {
                                         IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Back"
+                                                contentDescription = "Back",
                                             )
                                         }
                                     },
@@ -122,28 +128,36 @@ class CrashActivity : ComponentActivity() {
                                             Text(stringResource(strings.copy))
                                         }
 
-                                        TextButton(onClick = {
-                                            runCatching {
-                                                val url =
-                                                    "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
-                                                            URLEncoder.encode("``` \n$crashText\n ```", StandardCharsets.UTF_8.toString())
-                                                val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
-                                                context.startActivity(browserIntent)
-                                            }.onFailure { logErrorOrExit(it) }
-                                        }) {
-                                            Text(stringResource(strings.report_issue))
+                                        val showReport = remember { intent.getBooleanExtra("force_crash", false).not() }
+
+                                        if (showReport) {
+                                            TextButton(onClick = {
+                                                runCatching {
+                                                    val url =
+                                                        "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                                                            URLEncoder.encode(
+                                                                "``` \n$crashText\n ```",
+                                                                StandardCharsets.UTF_8.toString(),
+                                                            )
+                                                    val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+                                                    context.startActivity(browserIntent)
+                                                }.onFailure { logErrorOrExit(it) }
+                                            }) {
+                                                Text(stringResource(strings.report_issue))
+                                            }
                                         }
-                                    }
+                                    },
                                 )
                                 HorizontalDivider()
                             }
                         },
                     ) { paddingValues ->
-                        val surfaceColor = if (isSystemInDarkTheme()) {
-                            MaterialTheme.colorScheme.surfaceDim
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        }
+                        val surfaceColor =
+                            if (isSystemInDarkTheme()) {
+                                MaterialTheme.colorScheme.surfaceDim
+                            } else {
+                                MaterialTheme.colorScheme.surface
+                            }
                         val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
                         val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
                         val selectionColors = LocalTextSelectionColors.current
@@ -163,9 +177,10 @@ class CrashActivity : ComponentActivity() {
                         val isDarkMode = isSystemInDarkTheme()
 
                         AndroidView(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(paddingValues),
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(paddingValues),
                             factory = { context ->
                                 Editor(context).apply {
                                     setTextSize(10f)
@@ -187,15 +202,14 @@ class CrashActivity : ComponentActivity() {
                                         handleColor = handleColor.toArgb(),
                                         gutterColor = gutterColor.toArgb(),
                                         currentLine = currentLineColor.toArgb(),
-                                        dividerColor = divider.toArgb()
+                                        dividerColor = divider.toArgb(),
                                     )
                                 }
                             },
                             update = { editor ->
                                 editor.setText(crashText)
-                            }
+                            },
                         )
-
                     }
                 }
             }
@@ -242,12 +256,16 @@ class CrashActivity : ComponentActivity() {
 
             append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
             append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
-            append("Error StackTrace : ").appendLine()
+            append("Error StackTrace : ")
+                .appendLine()
                 .append(intent.getStringExtra("stacktrace"))
         }
     }
 
-    private fun copyToClipboard(context: Context, text: String) {
+    private fun copyToClipboard(
+        context: Context,
+        text: String,
+    ) {
         val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("crashInfo", text)
         clipboard.setPrimaryClip(clip)
