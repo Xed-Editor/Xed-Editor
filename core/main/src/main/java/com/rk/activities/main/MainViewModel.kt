@@ -28,22 +28,23 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.Serializable
 
-object TabCache {
+data class SessionState(
+    val tabStates: List<TabState>,
+    val currentTabIndex: Int,
+) : Serializable
+
+object SessionManager {
     val mutex = Mutex()
-    val preloadedTabStates = mutableListOf<TabState>()
-    suspend fun preloadTabStates() = mutex.withLock {
+    var preloadedSession: SessionState? = null
+    var tabCacheFile = application!!.cacheDir.child("session")
+
+    suspend fun preloadSession() = mutex.withLock {
         runCatching {
-            val tabCacheFile = application!!.cacheDir.child("tabs")
             if (tabCacheFile.exists() && tabCacheFile.canRead()) {
                 ObjectInputStream(FileInputStream(tabCacheFile)).use { ois ->
-                    preloadedTabStates.clear()
-
-                    val obj = ois.readObject()
-                    if (obj is List<*>) {
-                        val tabStates = obj.filterIsInstance<TabState>()
-                        preloadedTabStates.addAll(tabStates)
-                    }
+                    preloadedSession = ois.readObject() as? SessionState
                 }
             }
         }.onFailure {
@@ -51,14 +52,14 @@ object TabCache {
         }
     }
 
-    suspend fun saveFileTabs(tabs: List<Tab>) = withContext(Dispatchers.IO){
+    suspend fun saveSession(tabs: List<Tab>, currentTabIndex: Int) = withContext(Dispatchers.IO){
         mutex.withLock {
             runCatching {
                 val tabStates = tabs.mapNotNull { it.getState() }
-                val tabCacheFile = application!!.cacheDir.child("tabs")
+                val sessionState = SessionState(tabStates, currentTabIndex)
 
                 ObjectOutputStream(FileOutputStream(tabCacheFile)).use { oos ->
-                    oos.writeObject(tabStates)
+                    oos.writeObject(sessionState)
                 }
             }.onFailure {
                 it.printStackTrace()
@@ -89,31 +90,34 @@ class MainViewModel : ViewModel() {
 
     private fun restoreTabs() {
         viewModelScope.launch {
-            TabCache.mutex.withLock {
-                TabCache.preloadedTabStates.forEach { tabState ->
-                    restoreTabFromState(tabState)
+            SessionManager.mutex.withLock {
+                SessionManager.preloadedSession?.let {
+                    it.tabStates.forEach { tabState ->
+                        restoreTabFromState(tabState)
+                    }
+
+                    currentTabIndex = it.currentTabIndex
                 }
             }
         }
     }
 
-    private fun restoreTabFromState(tabState: TabState) {
-        viewModelScope.launch {
-            when (tabState) {
-                is EditorTabState -> {
-                    newEditorTab(
-                        editorState = tabState,
-                        checkDuplicate = false,
-                        switchToTab = false
-                    )
-                }
-                is FileTabState -> {
-                    newTab(
-                        fileObject = tabState.fileObject,
-                        checkDuplicate = false,
-                        switchToTab = false
-                    )
-                }
+    private suspend fun restoreTabFromState(tabState: TabState) {
+        when (tabState) {
+            is EditorTabState -> {
+                newEditorTab(
+                    editorState = tabState,
+                    checkDuplicate = false,
+                    switchToTab = false
+                )
+            }
+
+            is FileTabState -> {
+                newTab(
+                    fileObject = tabState.fileObject,
+                    checkDuplicate = false,
+                    switchToTab = false
+                )
             }
         }
     }
@@ -154,8 +158,8 @@ class MainViewModel : ViewModel() {
     }
 
     suspend fun isEditorTabOpened(file: FileObject): Boolean = withContext(Dispatchers.IO){
-        tabs.toList().forEachIndexed { index, tab ->
-            if (tab is EditorTab && tab.file == file){
+        tabs.toList().forEach { tab ->
+            if (tab is EditorTab && tab.file == file) {
                 return@withContext true
             }
         }
@@ -172,19 +176,22 @@ class MainViewModel : ViewModel() {
             checkDuplicate = checkDuplicate,
             switchToTab = switchToTab
         )
-        editorTab.editorState.contentRendered.await()
-        val editor = editorTab.editorState.editor.get()!!
-        editorState.unsavedContent?.let {
-            editor.setText(it)
+
+        viewModelScope.launch {
+            editorTab.editorState.contentRendered.await()
+            val editor = editorTab.editorState.editor.get()!!
+            editorState.unsavedContent?.let {
+                editor.setText(it)
+            }
+            editor.setSelectionRegion(
+                editorState.cursor.lineLeft,
+                editorState.cursor.columnLeft,
+                editorState.cursor.lineRight,
+                editorState.cursor.columnRight
+            )
+            editor.scrollX = editorState.scrollX
+            editor.scrollY = editorState.scrollY
         }
-        editor.setSelectionRegion(
-            editorState.cursor.lineLeft,
-            editorState.cursor.columnLeft,
-            editorState.cursor.lineRight,
-            editorState.cursor.columnRight
-        )
-        editor.scrollX = editorState.scrollX
-        editor.scrollY = editorState.scrollY
     }
 
     private suspend fun newEditorTab(
@@ -218,7 +225,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    suspend fun newTab(tab: Tab){
+    suspend fun newTab(tab: Tab) {
         mutex.withLock{
             tabs.add(tab)
             delay(70)
