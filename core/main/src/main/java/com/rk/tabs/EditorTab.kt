@@ -392,7 +392,7 @@ class EditorTab(
             ),
             scrollX = editor.scrollX,
             scrollY = editor.scrollY,
-            unsavedContent = null
+            unsavedContent = if (editorState.isDirty) editor.text.toString() else null
         )
     }
 

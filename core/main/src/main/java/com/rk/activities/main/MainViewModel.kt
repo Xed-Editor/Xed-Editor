@@ -235,6 +235,7 @@ class MainViewModel : ViewModel() {
             editorTab.editorState.contentRendered.await()
             val editor = editorTab.editorState.editor.get()!!
             editorState.unsavedContent?.let {
+                editorTab.editorState.isDirty = true
                 editor.setText(it)
             }
             editor.setSelectionRegion(
