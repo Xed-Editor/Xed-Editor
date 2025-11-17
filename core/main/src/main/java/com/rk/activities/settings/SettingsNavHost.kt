@@ -8,13 +8,13 @@ import com.rk.animations.NavigationAnimationTransitions
 import com.rk.settings.SettingsScreen
 import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
-import com.rk.settings.developer_options.DeveloperOptions
+import com.rk.settings.debugOptions.DeveloperOptions
 import com.rk.settings.editor.DefaultEncoding
 import com.rk.settings.editor.EditorFontScreen
-import com.rk.settings.lsp.LspSettings
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.editor.ToolbarActions
 import com.rk.settings.language.LanguageScreen
+import com.rk.settings.lsp.LspSettings
 import com.rk.settings.mutators.ManageMutators
 import com.rk.settings.runners.Runners
 import com.rk.settings.support.Support
@@ -22,7 +22,10 @@ import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.theme.ThemeScreen
 
 @Composable
-fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity) {
+fun SettingsNavHost(
+    navController: NavHostController,
+    activity: SettingsActivity,
+) {
     NavHost(
         navController = navController,
         startDestination = SettingsRoutes.Settings.route,
@@ -31,7 +34,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         popEnterTransition = { NavigationAnimationTransitions.popEnterTransition },
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
-
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity, navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
