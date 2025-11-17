@@ -243,12 +243,7 @@ class MainViewModel : ViewModel() {
                 editorState.cursor.lineRight,
                 editorState.cursor.columnRight
             )
-
-            editor.scrollX = editorState.scrollX
-            editor.scrollY = editorState.scrollY
-
-//            editor.scroller.startScroll(0, 0, editorState.scrollX, editorState.scrollY)
-//            editor.scrollTo(editorState.scrollX, 100)
+            editor.scroller.startScroll(editorState.scrollX, editorState.scrollY, 0, 0)
         }
 
         return editorTab
