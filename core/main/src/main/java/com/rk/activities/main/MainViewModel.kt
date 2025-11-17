@@ -30,11 +30,31 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 
+/**
+ * Represents the state of a user's session, which can be serialized and saved.
+ * This allows for restoring the open tabs and their states when the application is restarted.
+ *
+ * @property tabStates A list containing the state of each open tab.
+ *                     Each element in the list is a [TabState] object, which holds the specific
+ *                     information needed to restore a single tab.
+ * @property currentTabIndex The index of the tab that was active when the session was saved.
+ *                           This is used to restore the user's focus to the correct tab.
+ */
 data class SessionState(
     val tabStates: List<TabState>,
     val currentTabIndex: Int,
 ) : Serializable
 
+/**
+ * Manages the saving and loading of the user's session state.
+ *
+ * This singleton object is responsible for persisting the state of open tabs and the
+ * currently selected tab to a cache file. This allows the application to restore
+ * the previous session when it is restarted.
+ *
+ * Session state is stored in a file named "session" within the application's cache directory.
+ * Operations are synchronized using a [Mutex] to ensure thread safety.
+ */
 object SessionManager {
     val mutex = Mutex()
     var preloadedSession: SessionState? = null
@@ -88,56 +108,72 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Restores tabs from the previous session if session restoration is enabled.
+     * It loads the preloaded session state, restores each tab, and sets the
+     * active tab index.
+     */
     private fun restoreTabs() {
         viewModelScope.launch {
             SessionManager.mutex.withLock {
-                SessionManager.preloadedSession?.let {
-                    it.tabStates.forEach { tabState ->
-                        restoreTabFromState(tabState)
-                    }
+                val session = SessionManager.preloadedSession ?: return@launch
 
-                    currentTabIndex = it.currentTabIndex
+                val deferredRestoredTabs = session.tabStates.mapNotNull { tabState ->
+                    getTabFromState(tabState)
                 }
+
+                tabs.addAll(deferredRestoredTabs)
+
+                currentTabIndex = session.currentTabIndex
             }
         }
     }
 
-    private suspend fun restoreTabFromState(tabState: TabState) {
-        when (tabState) {
-            is EditorTabState -> {
+    /**
+     * Returns a restored tab instance from its serialized [TabState].
+     * Used during session restoration.
+     *
+     * @param tabState The saved state of the tab to restore.
+     * @return The restored [Tab], or `null` on failure.
+     */
+    private suspend fun getTabFromState(tabState: TabState): Tab? {
+        return when (tabState) {
+            is EditorTabState ->
                 newEditorTab(
                     editorState = tabState,
                     checkDuplicate = false,
-                    switchToTab = false
+                    switchToTab = false,
+                    openTab = false
                 )
-            }
 
-            is FileTabState -> {
-                newTab(
-                    fileObject = tabState.fileObject,
-                    checkDuplicate = false,
-                    switchToTab = false
-                )
-            }
+            is FileTabState -> TabRegistry.getTab(tabState.fileObject)
         }
     }
 
+    /**
+     * Opens a file in a new tab, or focuses it if already open.
+     *
+     * Before opening large files, it warns the user about potential memory issues.
+     *
+     * @param fileObject The file to open.
+     * @param checkDuplicate If `true`, focus an existing tab for the file instead of opening a new one.
+     * @param switchToTab If `true`, make the new or existing tab the active one.
+     */
     suspend fun newTab(
         fileObject: FileObject,
         checkDuplicate: Boolean = true,
         switchToTab: Boolean = false
     ) = withContext(Dispatchers.IO) {
         val function = suspend {
-            TabRegistry.getTab(fileObject) {
-                if (it == null) {
-                    newEditorTab(
-                        file = fileObject,
-                        checkDuplicate = checkDuplicate,
-                        switchToTab = switchToTab
-                    )
-                } else {
-                    newTab(it)
-                }
+            val tab = TabRegistry.getTab(fileObject)
+            if (tab == null) {
+                newEditorTab(
+                    file = fileObject,
+                    checkDuplicate = checkDuplicate,
+                    switchToTab = switchToTab
+                )
+            } else {
+                openTab(tab = tab, switchToTab = switchToTab)
             }
         }
 
@@ -157,6 +193,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Checks if a tab for the given [file] is already open.
+     *
+     * @param file The file to check.
+     * @return `true` if the tab is open, `false` otherwise.
+     */
     suspend fun isEditorTabOpened(file: FileObject): Boolean = withContext(Dispatchers.IO){
         tabs.toList().forEach { tab ->
             if (tab is EditorTab && tab.file == file) {
@@ -166,15 +208,27 @@ class MainViewModel : ViewModel() {
         return@withContext false
     }
 
+    /**
+     * Creates a new editor tab from a saved state, used for session restoration.
+     * It restores the content, cursor position, and scroll state.
+     *
+     * @param editorState The state object to restore.
+     * @param checkDuplicate If `true`, avoids creating a duplicate tab for the same file.
+     * @param switchToTab If `true`, makes the new tab active.
+     * @param openTab If `false`, the tab is created but not added to the open tabs list.
+     * @return The restored [Tab].
+     */
     private suspend fun newEditorTab(
         editorState: EditorTabState,
         checkDuplicate: Boolean = true,
-        switchToTab: Boolean = false
-    ) {
+        switchToTab: Boolean = false,
+        openTab: Boolean = true,
+    ): Tab {
         val editorTab = newEditorTab(
             file = editorState.fileObject,
             checkDuplicate = checkDuplicate,
-            switchToTab = switchToTab
+            switchToTab = switchToTab,
+            openTab = openTab,
         )
 
         viewModelScope.launch {
@@ -189,15 +243,31 @@ class MainViewModel : ViewModel() {
                 editorState.cursor.lineRight,
                 editorState.cursor.columnRight
             )
+
             editor.scrollX = editorState.scrollX
             editor.scrollY = editorState.scrollY
+
+//            editor.scroller.startScroll(0, 0, editorState.scrollX, editorState.scrollY)
+//            editor.scrollTo(editorState.scrollX, 100)
         }
+
+        return editorTab
     }
 
+    /**
+     * Creates and adds a new editor tab for the given file.
+     *
+     * @param file The file to open.
+     * @param checkDuplicate If true, switches to an existing tab for this file.
+     * @param switchToTab If true, makes the new tab active.
+     * @param openTab If true, adds the tab to the list of open tabs.
+     * @return The created or existing [EditorTab].
+     */
     private suspend fun newEditorTab(
         file: FileObject,
         checkDuplicate: Boolean = true,
-        switchToTab: Boolean = false
+        switchToTab: Boolean = false,
+        openTab: Boolean = true,
     ): EditorTab = withContext(
         Dispatchers.IO
     ) {
@@ -214,8 +284,8 @@ class MainViewModel : ViewModel() {
             mutex.withLock {
                 val editorTab = EditorTab(file = file, viewModel = this@MainViewModel)
 
-                tabs.add(editorTab)
-                if (switchToTab) {
+                if (openTab) tabs.add(editorTab)
+                if (openTab && switchToTab) {
                     delay(70)
                     currentTabIndex = tabs.lastIndex
                 }
@@ -225,14 +295,31 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    suspend fun newTab(tab: Tab) {
-        mutex.withLock{
+    /**
+     * Adds a pre-existing [Tab] to the list of open tabs.
+     *
+     * @param tab The tab to add.
+     * @param switchToTab If `true`, makes the new tab active.
+     */
+    suspend fun openTab(
+        tab: Tab,
+        switchToTab: Boolean = false
+    ) {
+        mutex.withLock {
             tabs.add(tab)
-            delay(70)
-            currentTabIndex = tabs.lastIndex
+            if (switchToTab) {
+                delay(70)
+                currentTabIndex = tabs.lastIndex
+            }
         }
     }
 
+    /**
+     * Removes the tab at the specified [index].
+     *
+     * @param index The index of the tab to remove.
+     * @return `true` if removed, `false` if the index was invalid.
+     */
     fun removeTab(index: Int): Boolean {
         if (index !in tabs.indices) return false
 
@@ -250,6 +337,7 @@ class MainViewModel : ViewModel() {
 
     /**
      * Remove all tabs except the current one
+     *
      * @return true if any tabs were removed, false if no current tab or only one tab exists
      */
     fun removeOtherTabs(): Boolean {
@@ -272,6 +360,7 @@ class MainViewModel : ViewModel() {
 
     /**
      * Close all tabs
+     *
      * @return true if any tabs were closed, false if no tabs existed
      */
     fun closeAllTabs(): Boolean {
@@ -297,6 +386,7 @@ class MainViewModel : ViewModel() {
 
     /**
      * Safely set the current tab index
+     *
      * @param index the new index to set
      * @return true if the index was valid and set, false otherwise
      */

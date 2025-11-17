@@ -64,7 +64,6 @@ import com.rk.lsp.createLspTextActions
 import com.rk.lsp.formatDocumentSuspend
 import com.rk.lsp.builtInServer
 import com.rk.lsp.externalServers
-import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
