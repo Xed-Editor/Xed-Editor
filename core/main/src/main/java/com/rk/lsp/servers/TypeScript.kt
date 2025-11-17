@@ -24,7 +24,7 @@ class TypeScript() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child("/.npm-global/bin/typescript-language-server").exists()
+        return sandboxHomeDir().child("/usr/bin/typescript-language-server").exists()
     }
 
     override fun install(context: Context) {
@@ -42,7 +42,7 @@ class TypeScript() : BaseLspServer() {
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/typescript-language-server",  "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/typescript-language-server",  "--stdio"))
     }
 
     override fun isSupported(file: FileObject): Boolean {

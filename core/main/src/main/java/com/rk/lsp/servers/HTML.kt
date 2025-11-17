@@ -24,7 +24,7 @@ class HTML() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child("/.npm-global/bin/vscode-html-language-server").exists()
+        return sandboxHomeDir().child("/usr/bin/vscode-html-language-server").exists()
     }
 
     override fun install(context: Context) {
@@ -43,7 +43,7 @@ class HTML() : BaseLspServer() {
 
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-html-language-server",  "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/usr/bin/vscode-html-language-server",  "--stdio"))
     }
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))

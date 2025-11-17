@@ -24,7 +24,7 @@ class Bash() : BaseLspServer() {
             return false
         }
 
-        return sandboxHomeDir().child("/.npm-global/bin/bash-language-server").exists()
+        return sandboxHomeDir().child("/usr/bin/bash-language-server").exists()
     }
 
     override fun install(context: Context) {
@@ -42,7 +42,7 @@ class Bash() : BaseLspServer() {
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/.npm-global/bin/bash-language-server", "start"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/home/usr/bin/bash-language-server", "start"))
     }
 
     override fun getInitializationOptions(uri: URI?): Any? {

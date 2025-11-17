@@ -754,7 +754,6 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
                     }
                     server.install(editor.context)
                 },
-                cancelable = false,
                 onCancel = {
                     if (editorState.lspDialogMutex.isLocked) {
                         editorState.lspDialogMutex.unlock()
