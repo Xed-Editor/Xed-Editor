@@ -94,4 +94,14 @@
     <string name="copy_desc">Αντιγραφή εγγράφου</string>
     <string name="failed_move">Αποτυχία μετακίνησης αρχείου</string>
     <string name="file_name">Όνομα αρχείου</string>
+    <string name="ff_path">Διαδρομή αρχείου ή φακέλου</string>
+    <string name="path">Διαδρομή</string>
+    <string name="open">Άνοιγμα</string>
+    <string name="enter_path">Παρακαλώ εισάγετε μια διαδρομή</string>
+    <string name="invalid_path">Η διαδρομή δεν υπάρχει</string>
+    <string name="permission_denied">Η άδεια απορρίφθηκε</string>
+    <string name="manage_storage">Διαχείριση αποθηκευτικού χώρου</string>
+    <string name="manage_storage_reason">Το Xed-Editor χρειάζεται πρόσβαση για να επεξεργαστεί αρχεία στον αποθηκευτικό σας χώρο. Επιτρέψτε την πρόσβαση στις επερχόμενες ρυθμίσεις συστήματος.</string>
+    <string name="ok">OK</string>
+    <string name="data_clear">Τα δεδομένα της εφαρμογής διαγράφηκαν</string>
 </resources>
