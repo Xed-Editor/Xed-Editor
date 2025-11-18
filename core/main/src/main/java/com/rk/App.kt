@@ -6,7 +6,7 @@ import android.os.StrictMode
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
-import com.rk.activities.main.TabCache
+import com.rk.activities.main.SessionManager
 import com.rk.crashhandler.CrashHandler
 import com.rk.editor.Editor
 import com.rk.editor.FontCache
@@ -14,11 +14,9 @@ import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
-import com.rk.activities.main.SessionManager
 import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
 import com.rk.theme.updateThemes
 import com.rk.utils.application
-import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
