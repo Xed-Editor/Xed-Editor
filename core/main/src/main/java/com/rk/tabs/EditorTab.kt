@@ -77,7 +77,6 @@ import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.errorDialog
 import com.rk.utils.info
-import com.rk.utils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
@@ -176,7 +175,6 @@ class EditorTab(
                 withContext(Dispatchers.Main) {
                     tabTitle.value = title
                 }
-
             }
         }
     }
@@ -246,13 +244,11 @@ class EditorTab(
         val context = LocalContext.current
 
         key(refreshKey) {
-
             LaunchedEffect(editorState.editable) {
                 editorState.editor.get()?.editable = editorState.editable
             }
 
             Column {
-
                 if (editorState.showRunnerDialog) {
                     ModalBottomSheet(
                         onDismissRequest = {
@@ -334,7 +330,6 @@ class EditorTab(
                     HorizontalDivider()
                 }
 
-
                 if (editorState.isWrapping){
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
@@ -377,7 +372,6 @@ class EditorTab(
 
             }
         }
-
     }
 
     override fun getState(): TabState? {
@@ -422,7 +416,6 @@ class EditorTab(
     }
 }
 
-
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 private fun EditorTab.CodeEditor(
@@ -455,7 +448,6 @@ private fun EditorTab.CodeEditor(
     val divider = MaterialTheme.colorScheme.outlineVariant
     val isDarkMode = isSystemInDarkTheme()
 
-
     val constraintSet = remember { ConstraintSet() }
     val scope = rememberCoroutineScope()
 
@@ -481,10 +473,8 @@ private fun EditorTab.CodeEditor(
                     info("New Editor instance")
 
                     editable = state.editable
-                    if (isWordwrap.not()) {
-                        if (Settings.word_wrap_for_text) {
-                            isWordwrap = file.getName().endsWith(".txt")
-                        }
+                    if (Settings.word_wrap_for_text && !isWordwrap) {
+                        isWordwrap = file.getName().endsWith(".txt")
                     }
                     id = View.generateViewId()
                     layoutParams = ConstraintLayout.LayoutParams(
@@ -675,39 +665,41 @@ private fun EditorTab.CodeEditor(
 }
 
 fun EditorTab.applyHighlighting() {
-
-    if (editorState.editor.get() == null) {
-        return
-    }
+    if (editorState.editor.get() == null) return
 
     with(editorState.editor.get()!!) {
         editorState.textmateScope?.let { langScope ->
             scope.launch(Dispatchers.IO) {
                 setLanguage(langScope)
+                applyMarkdownHighlighting()
 
-                if (InbuiltFeatures.terminal.state.value && isTerminalInstalled()) {
-                    if (isTerminalWorking().not()) {
-                        toast("Terminal is not working or not installed, LSP Server will not work")
-                        return@launch
-                    }
-                    val ext = file.getName().substringAfterLast(".").trim()
-                    val parent = file.getParentFile()
+                if (!InbuiltFeatures.terminal.state.value || !isTerminalInstalled() || !isTerminalWorking()) {
+                    if (editorState.lspDialogMutex.isLocked) return@launch
+                    editorState.lspDialogMutex.lock()
+                    dialog(
+                        context = context as Activity,
+                        title = strings.warning.getString(context),
+                        msg = strings.lsp_terminal_unavailable.getString(context),
+                        okString = strings.ok,
+                    )
+                    return@launch
+                }
+                val ext = file.getName().substringAfterLast(".").trim()
 
-                    info("attempting to connect to external server...")
-                    if (tryConnectExternalLsp()) return@launch
-                    info("no external server connection")
+                info("Attempting to connect to external server...")
+                if (tryConnectExternalLsp()) return@launch
+                info("No external server connection")
 
-                    info("attempting to connect to built-in server...")
+                info("Attempting to connect to built-in server...")
 
-                    if (tryConnectBuiltinLsp(ext, this@with)) {
-                        toast("LSP Server connected")
-                        return@launch
-                    } else {
-                        info("no builtin server connection")
-                    }
-
+                if (tryConnectBuiltinLsp(ext, this@with)) {
+                    info("LSP Server connected")
+                    return@launch
+                } else {
+                    info("No builtin server connection")
                 }
             }
+
         }
     }
 }
@@ -723,7 +715,7 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
     if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
         // Connect with built-in language server
         if (server.isInstalled(editor.context)) {
-            info("server installed")
+            info("Server installed")
 
             if (server.isSupported(file).not()){
                 info("This server: ${server.serverName} does not support this file")
@@ -742,14 +734,12 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
                 server = server
             )
 
-
-            file.getParentFile()?.let { parent ->
-                info("trying to connect")
+            file.getParentFile()?.let {
+                info("Trying to connect")
                 baseLspConnector?.connect(FileType.fromExtension(ext).textmateScope!!)
 
-
                 info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
-            } ?: info("no parent")
+            } ?: info("No parent")
 
             return true
         }
@@ -788,8 +778,7 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
 }
 
 private suspend fun EditorTab.tryConnectExternalLsp(): Boolean {
-    val parent = file.getParentFile()
-    if (parent == null) return false
+    val parent = file.getParentFile() ?: return false
 
     externalServers.forEach { server ->
         if (server.isSupported(file)){
@@ -803,7 +792,7 @@ private suspend fun EditorTab.tryConnectExternalLsp(): Boolean {
             baseLspConnector?.connect(editorState.textmateScope!!)
             return true
         }else{
-            info("This server: ${server.serverName} does not support this file")
+            info("Server \"${server.serverName}\" does not support this file")
         }
     }
 
