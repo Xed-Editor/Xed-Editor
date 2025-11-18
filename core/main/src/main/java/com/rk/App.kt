@@ -13,6 +13,8 @@ import com.rk.editor.FontCache
 import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.xededitor.BuildConfig
+import com.rk.activities.main.SessionManager
 import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
 import com.rk.theme.updateThemes
 import com.rk.utils.application
@@ -65,8 +67,9 @@ class App : Application() {
             launch { Editor.initGrammarRegistry() }
 
             launch(Dispatchers.IO) {
-                TabCache.preloadTabs()
+                SessionManager.preloadSession()
             }
+
             launch(Dispatchers.IO) {
                 val fontPath = Settings.selected_font_path
                 if (fontPath.isNotEmpty()) {

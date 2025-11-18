@@ -42,7 +42,10 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.DefaultScope
+import com.rk.activities.main.EditorCursorState
+import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.TabState
 import com.rk.components.AddDialogItem
 import com.rk.components.CodeItem
 import com.rk.components.EditorActions
@@ -61,7 +64,6 @@ import com.rk.lsp.createLspTextActions
 import com.rk.lsp.formatDocumentSuspend
 import com.rk.lsp.builtInServer
 import com.rk.lsp.externalServers
-import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -88,7 +90,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -377,6 +378,22 @@ class EditorTab(
             }
         }
 
+    }
+
+    override fun getState(): TabState? {
+        val editor = editorState.editor.get() ?: return null
+        return EditorTabState(
+            fileObject = file,
+            cursor = EditorCursorState(
+                lineLeft = editor.cursor.leftLine,
+                columnLeft = editor.cursor.leftColumn,
+                lineRight = editor.cursor.rightLine,
+                columnRight = editor.cursor.rightColumn
+            ),
+            scrollX = editor.scrollX,
+            scrollY = editor.scrollY,
+            unsavedContent = if (editorState.isDirty) editor.text.toString() else null
+        )
     }
 
     @Composable
