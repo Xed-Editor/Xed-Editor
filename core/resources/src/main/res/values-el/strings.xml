@@ -4,7 +4,7 @@
     <string name="close_drawer">Κλείσιμο</string>
     <string name="not_implemented">Αυτή η λειτουργία δεν έχει υλοποιηθεί</string>
     <string name="unsupported_content">Μη υποστηριζόμενο περιεχόμενο</string>
-    <string name="null_content">Σφάλμα: το περιεχόμενο είναι μηδενικό</string>
+    <string name="null_content">Σφάλμα: το περιεχόμενο είναι null</string>
     <string name="restart_required">Απαιτείται επανεκκίνηση</string>
     <string name="saved">Το αρχείο αποθηκεύτηκε</string>
     <string name="saved_all">Αποθηκεύτηκαν όλα τα αρχεία</string>
@@ -116,4 +116,28 @@
     <string name="open_path">Εσωτερικός αποθηκευτικός χώρος</string>
     <string name="open_path_desc">Άνοιγμα εσωτερικού χώρου αποθήκευσης</string>
     <string name="add">Προσθήκη</string>
+    <string name="already_opened">Το αρχείο είναι ήδη ανοιχτό</string>
+    <string name="open_cant">Δεν είναι δυνατό το άνοιγμα περισσότερων από</string>
+    <string name="files">Αρχεία</string>
+    <string name="available">Διαθέσιμο</string>
+    <string name="already_installed">Είναι ήδη εγκατεστημένο</string>
+    <string name="download_sure">Είστε σίγουροι ότι θέλετε να κατεβάσετε το \'%s\';</string>
+    <string name="yes">Ναί</string>
+    <string name="fetch_failed">Το αίτημα ανάκτησης επέστρεψε null</string>
+    <string name="app">Εφαρμογή</string>
+    <string name="is_null">Το InputStream είναι null</string>
+    <string name="oled_desc">Εφαρμόζει ένα καθαρό μαύρο θέμα</string>
+    <string name="themes">Θέματα</string>
+    <string name="change_theme">Αλλαγή θέματος</string>
+    <string name="smooth_tabs">Ομαλές καρτέλες</string>
+    <string name="smooth_tab_desc">Ομαλή εναλλαγή μεταξύ καρτελών</string>
+    <string name="word_wrap_desc">Ενεργοποίηση αναδίπλωσης λέξεων σε όλους τους επεξεργαστές</string>
+    <string name="drawer_lock_desc">Κρατήστε το συρτάρι κλειδωμένο κατά το άνοιγμα του αρχείου</string>
+    <string name="diagonal_scroll">Διαγώνια κύλιση</string>
+    <string name="diagonal_scroll_desc">Ενεργοποίηση διαγώνιας κύλισης στο δέντρο αρχείων</string>
+    <string name="cursor_anim">Κίνηση κέρσορα</string>
+    <string name="cursor_anim_desc">Ενεργοποίηση ομαλών κινήσεων κέρσορα</string>
+    <string name="show_line_number">Εμφάνιση αριθμών γραμμών</string>
+    <string name="pin_line_number">Καρφίτσωμα αριθμών γραμμών</string>
+    <string name="extra_keys">Επιπλέον κλειδιά</string>
 </resources>

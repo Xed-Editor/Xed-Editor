@@ -10,11 +10,11 @@ install_nodejs() {
   apt install -y curl ca-certificates
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
   apt install -y nodejs
-  mkdir -p /home/.npm-global
-  npm config set prefix '/home/.npm-global'
-  grep -qxF "export PATH=\"/home/.npm-global/bin:\$PATH\"" ~/.bashrc || \
-      echo "export PATH=\"/home/.npm-global/bin:\$PATH\"" >> ~/.bashrc
-  export PATH="/home/.npm-global/bin:$PATH"
+
+  # Remove old installation
+  if [ -d "$HOME/.npm-global" ]; then
+    npm uninstall -g --prefix $HOME/.npm-global bash-language-server
+  fi
 }
 
 if ! command_exists node || ! command_exists npm; then
@@ -22,7 +22,7 @@ if ! command_exists node || ! command_exists npm; then
 fi
 
 info 'Installing bash language server...'
-npm i -g bash-language-server
+npm install -g --prefix /usr bash-language-server
 
 info 'Installing ShellCheck...'
 apt install -y shellcheck

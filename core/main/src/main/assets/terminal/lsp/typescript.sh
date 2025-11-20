@@ -10,11 +10,12 @@ install_nodejs() {
   apt install -y curl ca-certificates
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
   apt install -y nodejs
-  mkdir -p /home/.npm-global
-  npm config set prefix '/home/.npm-global'
-  grep -qxF "export PATH=\"/home/.npm-global/bin:\$PATH\"" ~/.bashrc || \
-      echo "export PATH=\"/home/.npm-global/bin:\$PATH\"" >> ~/.bashrc
-  export PATH="/home/.npm-global/bin:$PATH"
+
+  # Remove old installation
+  if [ -d "$HOME/.npm-global" ]; then
+    npm uninstall -g --prefix $HOME/.npm-global typescript
+    npm uninstall -g --prefix $HOME/.npm-global typescript-language-server
+  fi
 }
 
 if ! command_exists node || ! command_exists npm; then
@@ -22,6 +23,6 @@ if ! command_exists node || ! command_exists npm; then
 fi
 
 info 'Installing typescript language server...'
-npm install -g typescript typescript-language-server
+npm install -g --prefix /usr typescript typescript-language-server
 
 info 'TypeScript language server installed successfully. Please reopen all tabs or restart the app.'

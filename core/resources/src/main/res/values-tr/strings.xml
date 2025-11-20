@@ -494,4 +494,5 @@
     <string name="project_restore_failed">Projeler geri yüklenemedi</string>
     <string name="theme_flipper">Tema değiştirici</string>
     <string name="theme_flipper_desc">Tema modunu her 7 saniyede bir sürekli değiştir</string>
+    <string name="lsp_terminal_unavailable">LSP dil özellikleri, terminal ortamı kullanılamadığı veya işlevsel olmadığı için çalışmayacaktır.</string>
 </resources>

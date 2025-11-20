@@ -494,4 +494,5 @@
     <string name="project_restore_failed">無法還原專案</string>
     <string name="theme_flipper">主題切換器</string>
     <string name="theme_flipper_desc">每 7 秒自動切換主題模式</string>
+    <string name="lsp_terminal_unavailable">由於終端環境不可用或無法運行，LSP 語言功能將無法使用。</string>
 </resources>

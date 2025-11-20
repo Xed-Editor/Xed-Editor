@@ -139,6 +139,7 @@ class BaseLspConnector(
                 project!!.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
                     wrapperLanguage = TextMateLanguage.create(textMateScope,false)
                     editor = codeEditor
+                    isEnableInlayHint = true
                 }
             }
 

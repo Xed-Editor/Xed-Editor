@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.Density
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
+import com.rk.file.FileType
 import com.rk.settings.Settings
 import com.rk.theme.currentTheme
 import com.rk.utils.application
@@ -23,6 +24,8 @@ import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
+import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
+import io.github.rosemoe.sora.lsp.editor.text.withEditorHighlighter
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.TextActionItem
@@ -186,6 +189,18 @@ class Editor : CodeEditor {
 
         val newAlpha = (a * factor).toInt().coerceIn(0, 255)
         return Color.argb(newAlpha, r, g, b)
+    }
+
+    fun applyMarkdownHighlighting() {
+        MarkdownCodeHighlighterRegistry.global.withEditorHighlighter { languageName ->
+            val textmateScope = FileType.fromMarkdownName(languageName).textmateScope
+                ?: return@withEditorHighlighter null
+
+            Pair(
+                loadLanguage(scope, textmateScope),
+                colorScheme
+            )
+        }
     }
 
     private fun updateColors(postAndPreColor: (EditorColorScheme) -> Unit) {
@@ -412,26 +427,30 @@ class Editor : CodeEditor {
 
             delay(100)
 
-            val language = highlightingCache.getOrPut(getCacheKey(context)+languageScopeName) {
-                TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
-                    if (Settings.textmate_suggestion) {
-                        launch {
-                            context.assets.open("textmate/keywords.json").use {
-                                JsonParser.parseReader(InputStreamReader(it))
-                                    .asJsonObject[languageScopeName]?.asJsonArray
-                                    ?.map { el -> el.asString }
-                                    ?.toTypedArray()
-                                    ?.let(::setCompleterKeywords)
-                            }
-                        }
-                    }
-                }
-            }
+            val language = loadLanguage(this, languageScopeName)
 
             language.useTab(Settings.actual_tabs)
 
             withContext(Dispatchers.Main) {
                 setEditorLanguage(language as Language);
+            }
+        }
+    }
+
+    fun loadLanguage(scope: CoroutineScope, languageScopeName: String): TextMateLanguage {
+        return highlightingCache.getOrPut(getCacheKey(context) + languageScopeName) {
+            TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
+                if (Settings.textmate_suggestion) {
+                    scope.launch {
+                        context.assets.open("textmate/keywords.json").use {
+                            JsonParser.parseReader(InputStreamReader(it))
+                                .asJsonObject[languageScopeName]?.asJsonArray
+                                ?.map { el -> el.asString }
+                                ?.toTypedArray()
+                                ?.let(::setCompleterKeywords)
+                        }
+                    }
+                }
             }
         }
     }

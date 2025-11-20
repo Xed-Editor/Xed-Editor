@@ -188,4 +188,5 @@
     <string name="theme_mode">Режим на тема</string>
     <string name="cannot_be_empty">Не може да бъде празно.</string>
     <string name="theme_mode_desc">Промяна на цветовата тема на приложението</string>
+    <string name="show_suggestions">Показване на предложения за клавиатура</string>
 </resources>
