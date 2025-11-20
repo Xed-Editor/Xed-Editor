@@ -1,5 +1,6 @@
 package com.rk.components
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
+import com.rk.commands.CommandProvider
 import com.rk.file.persistentTempDir
 import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcons
@@ -59,10 +61,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
 
         if (InbuiltFeatures.terminal.state.value) {
             IconButton(onClick = {
-                showTerminalNotice(MainActivity.instance!!) {
-                    val intent = Intent(context, Terminal::class.java)
-                    context.startActivity(intent)
-                }
+                CommandProvider.getForId("global.terminal", viewModel.commands)!!.action(viewModel, context as Activity)
             }) {
                 Icon(painter = painterResource(drawables.terminal), contentDescription = null)
             }

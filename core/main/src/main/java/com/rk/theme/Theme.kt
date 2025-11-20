@@ -14,15 +14,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.MaterialColors
 import com.rk.settings.Settings
 import com.rk.settings.theme.themes
 import com.rk.utils.isDarkMode
 import com.rk.utils.toast
-import java.util.Properties
 
 
 val currentTheme = mutableStateOf<ThemeHolder?>(null)
@@ -66,6 +63,8 @@ fun XedTheme(
         if (currentTheme.value == null) {
             themeHolder = themes.find { it.id == Settings.theme } ?: themeHolder
             currentTheme.value  = themeHolder
+        } else {
+            themeHolder = currentTheme.value ?: themeHolder
         }
 
         val theme = if (darkTheme) {
