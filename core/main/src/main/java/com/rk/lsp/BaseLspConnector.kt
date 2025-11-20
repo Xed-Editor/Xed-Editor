@@ -2,7 +2,6 @@ package com.rk.lsp
 
 import com.rk.file.FileObject
 import com.rk.editor.Editor
-import com.rk.file.FileType
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.dialog
@@ -52,7 +51,6 @@ import java.net.URI
 import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
-
 
 class BaseLspConnector(
     private val projectFile: FileObject,

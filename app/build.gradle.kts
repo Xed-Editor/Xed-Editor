@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.ktfmt)
 }
 
 android {
