@@ -9,20 +9,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.MaterialColors
 import com.rk.settings.Settings
 import com.rk.settings.theme.themes
 import com.rk.utils.isDarkMode
 import com.rk.utils.toast
+import java.util.Properties
 
 
 val currentTheme = mutableStateOf<ThemeHolder?>(null)
 val dynamicTheme = mutableStateOf(Settings.monet)
 val amoled = mutableStateOf(Settings.amoled)
+
+val LocalThemeHolder = staticCompositionLocalOf<ThemeHolder> {
+    error("No ThemeHolder state provided")
+}
 
 @Composable
 fun XedTheme(
@@ -35,9 +44,10 @@ fun XedTheme(
     dynamicColor: Boolean = dynamicTheme.value,
     content: @Composable () -> Unit,
 ) {
+    var themeHolder = blueberry
     val colorScheme = if (dynamicColor && supportsDynamicTheming()) {
         val context = LocalContext.current
-        when {
+        val baseColorScheme = when {
             darkTheme && highContrastDarkTheme ->
                 dynamicDarkColorScheme(context)
                     .copy(background = Color.Black, surface = Color.Black, surfaceDim = Color.Black)
@@ -45,25 +55,34 @@ fun XedTheme(
             darkTheme -> dynamicDarkColorScheme(context)
             else -> dynamicLightColorScheme(context)
         }
+
+        // Use default theme
+        themeHolder = blueberry
+
+        currentTheme.value = blueberry
+
+        baseColorScheme
     } else {
         if (currentTheme.value == null) {
-            currentTheme.value = themes.find { it.id == Settings.theme } ?: blueberry
+            themeHolder = themes.find { it.id == Settings.theme } ?: themeHolder
+            currentTheme.value  = themeHolder
         }
 
         val theme = if (darkTheme) {
             if (highContrastDarkTheme) {
-                currentTheme.value!!.darkScheme.copy(
+                themeHolder.darkScheme.copy(
                     background = Color.Black,
                     surface = Color.Black,
                     surfaceDim = Color.Black
                 )
             } else {
-                currentTheme.value!!.darkScheme
+                themeHolder.darkScheme
             }
         } else {
-            currentTheme.value!!.lightScheme
+            themeHolder.lightScheme
         }
 
+        // Is possible?
         if (currentTheme.value == null) {
             LaunchedEffect(theme) {
                 toast("No theme selected")
@@ -78,7 +97,9 @@ fun XedTheme(
         }
     }
 
-    MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+    CompositionLocalProvider(LocalThemeHolder provides themeHolder) {
+        MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+    }
 }
 
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)

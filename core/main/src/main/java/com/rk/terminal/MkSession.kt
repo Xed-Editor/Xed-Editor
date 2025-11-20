@@ -1,34 +1,34 @@
 package com.rk.terminal
 
 import android.os.Build
-import androidx.lifecycle.lifecycleScope
 import com.rk.App
-import com.rk.filetree.currentProject
-import com.rk.file.FileWrapper
-import com.rk.exec.pendingCommand
-import com.rk.settings.Settings
 import com.rk.App.Companion.getTempDir
+import com.rk.SessionPwd
+import com.rk.activities.main.MainActivity
+import com.rk.activities.terminal.Terminal
+import com.rk.exec.pendingCommand
+import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
+import com.rk.filetree.currentProject
+import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
-import com.rk.xededitor.BuildConfig
-import com.rk.activities.main.MainActivity
-import com.rk.activities.terminal.Terminal
 import com.rk.utils.getSourceDirOfPackage
+import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.File
 
 object MkSession {
+
     fun createSession(
-        activity: Terminal, sessionClient: TerminalSessionClient, session_id: String
-    ): TerminalSession {
+        activity: Terminal, sessionClient: TerminalSessionClient, sessionId: String
+    ): Pair<TerminalSession, SessionPwd> {
         with(activity) {
             val envVariables = mapOf(
                 "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
@@ -43,47 +43,9 @@ object MkSession {
                 "PATH" to "${System.getenv("PATH")}:${localBinDir().absolutePath}"
             )
 
-            suspend fun getPwd(): String?{
-                if (pendingCommand?.workingDir != null){
-                    return pendingCommand?.workingDir
-                }
-
-                if (intent.hasExtra("cwd")){
-                    return intent.getStringExtra("cwd").toString()
-                }
-
-                if (Settings.project_as_pwd){
-                    if (currentProject != null && currentProject is FileWrapper){
-                        return if (Settings.sandbox){
-                            currentProject!!.getAbsolutePath().removePrefix(localDir().absolutePath)
-                        }else{
-                            currentProject!!.getAbsolutePath()
-                        }
-                    }
-                }else{
-                    MainActivity.instance?.viewModel?.currentTab?.let {
-                        if (it is EditorTab && it.file is FileWrapper){
-                            val parent = it.file.getParentFile()
-                            if (parent != null && parent is FileWrapper){
-                                return if (Settings.sandbox){
-                                    parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
-                                }else {
-                                    parent.getAbsolutePath().toString()
-                                }
-                            }
-                        }
-                    }
-                }
-                return if (Settings.sandbox){
-                    "/home"
-                }else{
-                    sandboxHomeDir().absolutePath
-                }
-            }
-
             val workingDir = runBlocking { getPwd() }
 
-            val tmpDir = File(getTempDir(), "terminal/$session_id")
+            val tmpDir = File(getTempDir(), "terminal/$sessionId")
 
             if (tmpDir.exists()) {
                 tmpDir.deleteRecursively()
@@ -168,8 +130,8 @@ object MkSession {
                 arrayOf("-c",*args)
             }
 
-
             pendingCommand = null
+
             return TerminalSession(
                 actualShell,
                 localDir().absolutePath,
@@ -177,8 +139,48 @@ object MkSession {
                 env.toTypedArray(),
                 TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
                 sessionClient,
-            )
+            ) to workingDir
         }
 
+    }
+}
+
+suspend fun Terminal.getPwd(): String {
+    val pendingWorkingDir = pendingCommand?.workingDir
+    if (pendingWorkingDir != null) {
+        return pendingWorkingDir
+    }
+
+    if (intent.hasExtra("cwd")) {
+        return intent.getStringExtra("cwd").toString()
+    }
+
+    if (Settings.project_as_pwd) {
+        if (currentProject != null && currentProject is FileWrapper) {
+            val absolutePath = currentProject!!.getAbsolutePath()
+            return if (Settings.sandbox) {
+                absolutePath.removePrefix(localDir().absolutePath)
+            } else {
+                absolutePath
+            }
+        }
+    } else {
+        MainActivity.instance?.viewModel?.currentTab?.let {
+            if (it is EditorTab && it.file is FileWrapper) {
+                val parent = it.file.getParentFile()
+                if (parent != null && parent is FileWrapper) {
+                    return if (Settings.sandbox) {
+                        parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
+                    } else {
+                        parent.getAbsolutePath()
+                    }
+                }
+            }
+        }
+    }
+    return if (Settings.sandbox) {
+        "/home"
+    } else {
+        sandboxHomeDir().absolutePath
     }
 }

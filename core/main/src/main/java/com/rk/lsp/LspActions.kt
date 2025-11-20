@@ -2,11 +2,22 @@ package com.rk.lsp
 
 import android.content.Context
 import android.net.Uri
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
+import com.rk.activities.main.MainActivity
 import com.rk.file.FileObject
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
@@ -21,14 +32,18 @@ import com.rk.components.CodeItem
 import com.rk.file.child
 import com.rk.file.sandboxDir
 import com.rk.settings.Settings
+import com.rk.theme.currentTheme
+import com.rk.utils.isDarkMode
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.getOption
+import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
 import io.github.rosemoe.sora.widget.component.TextActionItem
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,16 +75,48 @@ fun fixHomeLocation(context: Context, uri: String): String {
 }
 
 /**
- * Generates a text portion of the line in the provided file that contains the range.
- * The text of the range is printed bold.
+ * Converts a [Spanned] text object to an [AnnotatedString].
  * */
-suspend fun generateSnippet(viewModel: MainViewModel, targetFile: FileObject, range: Range): AnnotatedString {
+private fun Spanned.toAnnotatedString(): AnnotatedString {
+    val builder = AnnotatedString.Builder(this.toString())
+    val spans = getSpans(0, length, Any::class.java)
+    spans.forEach { span ->
+        val start = getSpanStart(span)
+        val end = getSpanEnd(span)
+        val style = when (span) {
+            is ForegroundColorSpan -> SpanStyle(color = androidx.compose.ui.graphics.Color(span.foregroundColor))
+            is StyleSpan -> when (span.style) {
+                Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
+                Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
+                Typeface.BOLD_ITALIC -> SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
+                else -> null
+            }
+            is UnderlineSpan -> SpanStyle(textDecoration = TextDecoration.Underline)
+            is StrikethroughSpan -> SpanStyle(textDecoration = TextDecoration.LineThrough)
+            else -> null
+        }
+        if (style != null) {
+            builder.addStyle(style, start, end)
+        }
+    }
+    return builder.toAnnotatedString()
+}
+
+/**
+ * Generates a text portion of the line in the provided file that contains the range.
+ *
+ * The text of the range is printed bold. The code is highlighted with the help
+ * of the [MarkdownCodeHighlighterRegistry].
+ *
+ * @return An [AnnotatedString] containing the highlighted code.
+ * */
+suspend fun generateSnippet(viewModel: MainViewModel, context: Context, targetFile: FileObject, range: Range): AnnotatedString {
     return withContext(Dispatchers.Default) {
         val openedTab = viewModel.tabs.find {
-            it is EditorTab && it.file.getCanonicalPath() == targetFile.getCanonicalPath()
+            it is EditorTab && it.file == targetFile
         } as? EditorTab
 
-        // Do only read file if it's not already opened as a tab
+        // Only read file if it's not already opened as a tab
         val lines = if (openedTab != null) {
             openedTab.editorState.editor.get()?.text.toString().lines()
         } else {
@@ -79,13 +126,40 @@ suspend fun generateSnippet(viewModel: MainViewModel, targetFile: FileObject, ra
         }
 
         val targetLine = lines[range.start.line]
+        val trimmedTargetLine = targetLine.trim()
+        val leadingWhitespace = targetLine.indexOf(trimmedTargetLine)
+
+        val rangeStartTrimmed = range.start.character - leadingWhitespace
+        val rangeEndTrimmed = range.end.character - leadingWhitespace
+
+        val fileExt = targetFile.getName().substringAfterLast(".")
+
+        val highlightedSpanned = MarkdownCodeHighlighterRegistry.global.highlightAsync(
+            code = trimmedTargetLine,
+            language = fileExt,
+            codeTypeface = Typeface.MONOSPACE
+        )
+
+        val highlightedAnnotated = (highlightedSpanned as Spannable).toAnnotatedString()
+
+        val editorColors = if (isDarkMode(context)) {
+            currentTheme.value?.darkEditorColors
+        } else {
+            currentTheme.value?.lightEditorColors
+        }
+        val selectionColor = editorColors
+            ?.find { it.key == EditorColorScheme.SELECTED_TEXT_BACKGROUND }
+            ?.color
+            ?.let { Color(it) }
+            ?: Color.Unspecified
 
         buildAnnotatedString {
-            append(targetLine.take(range.start.character).trimStart())
-            pushStyle(SpanStyle(fontWeight = FontWeight.Bold ))
-            append(targetLine.substring(range.start.character, range.end.character))
-            pop()
-            append(targetLine.drop(range.end.character).trimEnd())
+            append(highlightedAnnotated)
+            addStyle(
+                style = SpanStyle(background = selectionColor),
+                start = rangeStartTrimmed,
+                end = rangeEndTrimmed
+            )
         }
     }
 }
@@ -160,7 +234,7 @@ fun goToDefinition(
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
                     CodeItem(
-                        snippet = generateSnippet(viewModel, targetFile, range),
+                        snippet = generateSnippet(viewModel, context, targetFile, range),
                         fileName = targetFile.getName(),
                         line = range.start.line + 1,
                         column = range.start.character + 1,
@@ -227,7 +301,7 @@ fun goToReferences(
                         )
 
                     CodeItem(
-                        snippet = generateSnippet(viewModel, targetFile, range),
+                        snippet = generateSnippet(viewModel, context, targetFile, range),
                         fileName = targetFile.getName(),
                         line = range.start.line + 1,
                         column = range.start.character + 1,

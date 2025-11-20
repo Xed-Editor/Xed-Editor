@@ -139,7 +139,7 @@
     <string name="show_line_number">إظهار أرقام الأسطر</string>
     <string name="pin_line_number">تثبيت أرقام الأسطر</string>
     <string name="extra_keys">مفاتيح اضافية</string>
-    <string name="extra_keys_desc">إظهار المفاتيح الإضافية في المحرر</string>
+    <string name="extra_keys_desc">إظهار المفاتيح الإضافية أعلى لوحة المفاتيح</string>
     <string name="auto_save">الحفظ التلقائي</string>
     <string name="auto_save_desc">حفظ الملف تلقائيا</string>
     <string name="interval_in_ms">الفاصل الزمني بالمللي ثانية</string>
@@ -336,4 +336,15 @@
     <string name="regex_pattern">نمط التعبيرات العادية</string>
     <string name="invalid_runner_name">مسموح فقط بالأحرف والأرقام والشرطات السفلية وعلامات الوصل</string>
     <string name="invalid_regex">نمط تعبير عادي غير صالح</string>
+    <string name="open_as_project">الفتح كمشروع</string>
+    <string name="can_execute">يمكن تنفيذه</string>
+    <string name="runner_name_exists">اسم مشغل موجود بالفعل</string>
+    <string name="edit_runner">تعديل مشغل</string>
+    <string name="info_runners">المشغلين هم ملفات نصوص باش صغيرة يتم استخدامهم لتشغيل ملف او مشروع. اصنع مشغل وانقر عليه لفتحه في محرر.</string>
+    <string name="redo">أعد</string>
+    <string name="read_mode">وضع قراءة</string>
+    <string name="edit_mode">وضع تعديل</string>
+    <string name="no_folder_opened">لم يتم فتح أي مجلد</string>
+    <string name="cut">قص</string>
+    <string name="cut_desc">نقل مستند</string>
 </resources>
