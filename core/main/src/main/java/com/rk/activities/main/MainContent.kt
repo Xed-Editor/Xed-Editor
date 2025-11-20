@@ -35,6 +35,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -160,7 +161,7 @@ fun MainContent(
                     divider = {}
                 ) {
                     mainViewModel.tabs.forEachIndexed { index, tabState ->
-                        key(tabState, Settings.show_tab_icons) {
+                        key(tabState) {
                             TabItem(
                                 mainViewModel = mainViewModel,
                                 reorderState = reorderState,
@@ -242,8 +243,12 @@ private fun TabItem(
     onCloseAll: (Int) -> Unit,
     showFileActionDialog: (FileObject) -> Unit,
 ) {
-    var showTabMenu by remember { mutableStateOf(false) }
-    var calculatedTabWidth by remember { mutableStateOf<Int?>(null) }
+    var calculatedTabWidth by remember(
+        tabState,
+        tabState.tabTitle.value,
+        tabState is EditorTab && tabState.editorState.isDirty,
+        Settings.show_tab_icons
+    ) { mutableStateOf<Int?>(null) }
 
     ReorderableItem(
         state = reorderState,
@@ -255,7 +260,21 @@ private fun TabItem(
 
             mainViewModel.moveTab(oldIndex, index)
         },
-        draggableContent = {},
+        draggableContent = {
+            TabItemContent(
+                mainViewModel = mainViewModel,
+                index = index,
+                calculatedTabWidth = calculatedTabWidth,
+                reorderState = reorderState,
+                tabState = tabState,
+                onCloseThis = onCloseThis,
+                onCloseOthers = onCloseOthers,
+                onCloseAll = onCloseAll,
+                showFileActionDialog = showFileActionDialog,
+                showIcon = showIcon,
+                isDraggableContent = true
+            )
+        },
         modifier = Modifier
             .fillMaxWidth()
             .onSizeChanged { size ->
@@ -280,102 +299,134 @@ private fun TabItem(
         //     }
         // )
     ) {
-        val isSelected = mainViewModel.currentTabIndex == index
+        TabItemContent(
+            mainViewModel = mainViewModel,
+            index = index,
+            calculatedTabWidth = calculatedTabWidth,
+            reorderState = reorderState,
+            tabState = tabState,
+            onCloseThis = onCloseThis,
+            onCloseOthers = onCloseOthers,
+            onCloseAll = onCloseAll,
+            showFileActionDialog = showFileActionDialog,
+            showIcon = showIcon
+        )
+    }
+}
 
-        val tabModifier = Modifier
-            .let { modifier ->
-                calculatedTabWidth?.let { width ->
-                    modifier.width(with(LocalDensity.current) { width.toDp() })
-                } ?: modifier
-            }
+@Composable
+private fun TabItemContent(
+    mainViewModel: MainViewModel,
+    index: Int,
+    calculatedTabWidth: Int?,
+    reorderState: ReorderState<Tab>,
+    tabState: Tab,
+    onCloseThis: (Int) -> Unit,
+    onCloseOthers: (Int) -> Unit,
+    onCloseAll: (Int) -> Unit,
+    showFileActionDialog: (FileObject) -> Unit,
+    showIcon: Boolean,
+    isDraggableContent: Boolean = false
+) {
+    var showTabMenu by remember { mutableStateOf(false) }
 
-        val onClick = {
-            if (isSelected) {
-                showTabMenu = true
-            } else {
-                mainViewModel.currentTabIndex = index
-            }
+    val isSelected = mainViewModel.currentTabIndex == index
+
+    val tabModifier = Modifier
+        .let { modifier ->
+            calculatedTabWidth?.let { width ->
+                modifier.width(with(LocalDensity.current) { width.toDp() })
+            } ?: modifier
+        }
+        .graphicsLayer {
+            if (reorderState.draggedItem?.data != tabState) return@graphicsLayer
+            alpha = if (isDraggableContent) 1f else 0.4f
+            shadowElevation = if (isDraggableContent) 16.dp.toPx() else 0f
         }
 
-        val tabText: @Composable () -> Unit = {
-            Text(
-                text = if (tabState is EditorTab && tabState.editorState.isDirty) {
-                    "*${tabState.tabTitle.value}"
-                } else {
-                    tabState.tabTitle.value
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            DropdownMenu(
-                expanded = showTabMenu,
-                onDismissRequest = { showTabMenu = false },
-                modifier = Modifier
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(strings.close_this)) },
-                    onClick = {
-                        showTabMenu = false
-                        onCloseThis(index)
-                    }
-                )
-
-                DropdownMenuItem(
-                    text = { Text(stringResource(strings.close_others)) },
-                    onClick = {
-                        showTabMenu = false
-                        onCloseOthers(index)
-                    }
-                )
-
-                DropdownMenuItem(
-                    text = { Text(stringResource(strings.close_all)) },
-                    onClick = {
-                        showTabMenu = false
-                        onCloseAll(index)
-                    }
-                )
-
-                tabState.file?.let {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(strings.more)) },
-                        onClick = {
-                            showTabMenu = false
-                            showFileActionDialog(it)
-                        }
-                    )
-                }
-            }
-        }
-
-        val activeColor = MaterialTheme.colorScheme.primary
-        val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
-
-        if (showIcon && tabState.file != null) {
-            LeadingIconTab(
-                modifier = tabModifier,
-                selected = isSelected,
-                onClick = onClick,
-                icon = {
-                    FileIcon(
-                        file = tabState.file!!,
-                        iconTint = LocalContentColor.current
-                    )
-                },
-                text = tabText,
-                selectedContentColor = activeColor,
-                unselectedContentColor = inactiveColor
-            )
+    val onClick = {
+        if (isSelected) {
+            showTabMenu = true
         } else {
-            Tab(
-                modifier = tabModifier,
-                selected = isSelected,
-                onClick = onClick,
-                text = tabText,
-                selectedContentColor = activeColor,
-                unselectedContentColor = inactiveColor
-            )
+            mainViewModel.currentTabIndex = index
         }
+    }
+
+    val tabText: @Composable () -> Unit = {
+        Text(
+            text = if (tabState is EditorTab && tabState.editorState.isDirty) {
+                "*${tabState.tabTitle.value}"
+            } else {
+                tabState.tabTitle.value
+            },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        DropdownMenu(
+            expanded = showTabMenu,
+            onDismissRequest = { showTabMenu = false },
+            modifier = Modifier
+        ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(strings.close_this)) },
+                onClick = {
+                    showTabMenu = false
+                    onCloseThis(index)
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(strings.close_others)) },
+                onClick = {
+                    showTabMenu = false
+                    onCloseOthers(index)
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(strings.close_all)) },
+                onClick = {
+                    showTabMenu = false
+                    onCloseAll(index)
+                }
+            )
+            tabState.file?.let {
+                DropdownMenuItem(
+                    text = { Text(stringResource(strings.more)) },
+                    onClick = {
+                        showTabMenu = false
+                        showFileActionDialog(it)
+                    }
+                )
+            }
+        }
+    }
+
+    val activeColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    if (showIcon && tabState.file != null) {
+        LeadingIconTab(
+            modifier = tabModifier,
+            selected = isSelected,
+            onClick = onClick,
+            icon = {
+                FileIcon(
+                    file = tabState.file!!,
+                    iconTint = LocalContentColor.current
+                )
+            },
+            text = tabText,
+            selectedContentColor = activeColor,
+            unselectedContentColor = inactiveColor
+        )
+    } else {
+        Tab(
+            modifier = tabModifier,
+            selected = isSelected,
+            onClick = onClick,
+            text = tabText,
+            selectedContentColor = activeColor,
+            unselectedContentColor = inactiveColor
+        )
     }
 }
