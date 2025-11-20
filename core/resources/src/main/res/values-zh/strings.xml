@@ -495,4 +495,5 @@
     <string name="project_restore_failed">恢复项目失败</string>
     <string name="theme_flipper">主题翻转器</string>
     <string name="theme_flipper_desc">每 7 秒种切换一次主题模式</string>
+    <string name="lsp_terminal_unavailable">由于终端环境不可用或无法正常运行，LSP 语言服务器功能将无法使用。</string>
 </resources>

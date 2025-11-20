@@ -493,4 +493,5 @@
     <string name="theme_flipper_desc">Constantly change the theme mode every 7s</string>
     <string name="show_tab_icons">Show tab icons</string>
     <string name="show_tab_icons_desc">Show file icons beside tab titles</string>
+    <string name="lsp_terminal_unavailable">LSP language features will not work because the terminal environment is unavailable or not functioning.</string>
 </resources>

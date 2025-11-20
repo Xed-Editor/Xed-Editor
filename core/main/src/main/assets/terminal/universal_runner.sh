@@ -34,11 +34,6 @@ install_nodejs() {
   install_package "curl"
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
   apt install -y nodejs
-  mkdir -p /home/.npm-global
-  npm config set prefix '/home/.npm-global'
-  grep -qxF "export PATH=\"/home/.npm-global/bin:\$PATH\"" ~/.bashrc || \
-      echo "export PATH=\"/home/.npm-global/bin:\$PATH\"" >> ~/.bashrc
-  export PATH="/home/.npm-global/bin:$PATH"
 }
 
 install_rust() {

@@ -117,8 +117,7 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
             if (activity.sessionBinder?.get()!!.getService().sessionList.isEmpty()) {
                 activity.finish()
             } else {
-                changeSession(
-                    activity,
+                activity.changeSession(
                     activity.sessionBinder?.get()!!.getService().sessionList.first()
                 )
             }

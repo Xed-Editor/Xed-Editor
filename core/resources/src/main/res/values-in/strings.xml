@@ -141,7 +141,7 @@
     <string name="text_size">Ukuran teks</string>
     <string name="text_size_desc">Atur ukuran teks</string>
     <string name="tab_size">Ukuran tab</string>
-    <string name="tab_size_desc">Jumlah spasi yang dimasukkan untuk karakter tab.</string>
+    <string name="tab_size_desc">Jumlah spasi yang dimasukkan untuk karakter tab</string>
     <string name="monet">Warna dinamis</string>
     <string name="monet_desc">Gunakan tema perangkat dalam aplikasi</string>
     <string name="old_android">Versi Android Tidak didukung</string>
@@ -472,4 +472,25 @@
     <string name="add_command">Tambahkan perintah</string>
     <string name="info_toolbar_actions">Aksi bilah alat menentukan perintah mana yang ditampilkan di bilah alat saat berkas terbuka. Anda dapat menekan dan menahan tombol, lalu menyeret untuk mengubah urutannya, atau ketuk tombol untuk menambahkan perintah baru.</string>
     <string name="disable">Nonaktifkan</string>
+    <string name="open_as_project">Buka sebagai proyek</string>
+    <string name="can_execute">Dapat mengeksekusi</string>
+    <string name="language_server">Bahasa server</string>
+    <string name="manage_language_servers">Kelola bahasa server</string>
+    <string name="manage_language_servers_desc">Pasang, sambungkan dan atur bahasa server</string>
+    <string name="format_on_save">Format ketika menyimpan</string>
+    <string name="format_on_save_desc">Format berkas secara otomatis ketika menyimpan</string>
+    <string name="format_document">Format dokumen</string>
+    <string name="format_selection">Format pilihan</string>
+    <string name="format_document_error">Tidak dapat memformat dokumen.</string>
+    <string name="format_selection_error">Tidak dapat memformat pilihan.</string>
+    <string name="calculating">Menghitung…</string>
+    <string name="permissions">Perizinan</string>
+    <string name="lsp_process_desc">Skrip penyiapan terminal, misalnya /initrc dan .bashrc, tidak akan dijalankan sebelum perintah ini.</string>
+    <string name="command">Perintah</string>
+    <string name="empty_command">Perintah kosong</string>
+    <string name="socket">Soket</string>
+    <string name="process">Proses</string>
+    <string name="project_restore_failed">Gagal memulihkan proyek</string>
+    <string name="theme_flipper">Pengubah Tema</string>
+    <string name="theme_flipper_desc">Ubah mode tema setiap 7 detik</string>
 </resources>

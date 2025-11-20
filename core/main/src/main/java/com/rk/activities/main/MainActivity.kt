@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         isPaused = true
         GlobalScope.launch(Dispatchers.IO) {
-            TabCache.saveFileTabs(viewModel.tabs.toList())
+            SessionManager.saveSession(viewModel.tabs.toList(), viewModel.currentTabIndex)
             saveProjects()
             foregroundListener.values.forEach { it.invoke(false) }
         }
