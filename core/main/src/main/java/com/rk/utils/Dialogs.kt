@@ -31,10 +31,10 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 
-fun errorDialog(msg: String, activity: Activity? = MainActivity.instance,title:String = strings.error.getString()) {
-    Log.e("ERROR_DIALOG",msg)
+fun errorDialog(msg: String, activity: Activity? = MainActivity.instance, title: String = strings.error.getString()) {
+    Log.e("ERROR_DIALOG", msg)
 
-    runOnUiThread{
+    runOnUiThread {
         if (msg.isBlank()) {
             Log.w("ERROR_DIALOG", "Message is blank")
             return@runOnUiThread
@@ -49,14 +49,12 @@ fun errorDialog(msg: String, activity: Activity? = MainActivity.instance,title:S
 }
 
 fun errorDialog(@StringRes msgRes: Int) {
-    runOnUiThread{
-        errorDialog(msg = msgRes.getString())
-    }
+    runOnUiThread { errorDialog(msg = msgRes.getString()) }
 }
 
-//todo handle multple function call for same throwable
+// todo handle multple function call for same throwable
 fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instance) {
-    runOnUiThread{
+    runOnUiThread {
         if (throwable.message.toString().contains("Job was cancelled")) {
             Log.w("ERROR_DIALOG", throwable.message.toString())
             return@runOnUiThread
@@ -71,15 +69,14 @@ fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instanc
 
         errorDialog(msg = message.toString(), activity = activity)
     }
-
 }
 
 fun errorDialog(exception: Exception) {
     val message = StringBuilder()
     exception.let {
         var msg = it.message
-        if (msg.isNullOrBlank()){
-            msg = it.javaClass.simpleName.replace("Exception","")
+        if (msg.isNullOrBlank()) {
+            msg = it.javaClass.simpleName.replace("Exception", "")
         }
         message.append(msg).append("\n")
         if (Settings.verbose_error) {
@@ -90,7 +87,6 @@ fun errorDialog(exception: Exception) {
     errorDialog(msg = message.toString())
 }
 
-
 fun dialog(
     context: Activity? = MainActivity.instance,
     title: String,
@@ -100,7 +96,7 @@ fun dialog(
     onDialog: (AlertDialog?) -> Unit = {},
     onOk: (AlertDialog?) -> Unit = {},
     onCancel: ((AlertDialog?) -> Unit)? = null,
-    cancelable: Boolean = true
+    cancelable: Boolean = true,
 ) {
     if (context == null) {
         toast(msg)
@@ -109,47 +105,41 @@ fun dialog(
     var alertDialog: AlertDialog? = null
     runOnUiThread {
         MaterialAlertDialogBuilder(context).apply {
-            setView(ComposeView(context).apply {
-                setContent {
-                    XedTheme {
-                        Surface {
+            setView(
+                ComposeView(context).apply {
+                    setContent {
+                        XedTheme {
                             Surface {
-                                Surface(
-                                    shape = MaterialTheme.shapes.large,
-                                    tonalElevation = 1.dp,
-                                ) {
-                                    DividerColumn(
-                                        startIndent = 0.dp,
-                                        endIndent = 0.dp,
-                                        dividersToSkip = 0,
-                                    ) {
-                                        alertDialog?.setCancelable(cancelable)
-                                        DialogContent(
-                                            alertDialog = alertDialog,
-                                            title = title,
-                                            msg = msg,
-                                            cancelString = cancelString,
-                                            okString = okString,
-                                            onOk = {
-                                                onOk(alertDialog)
-                                            },
-                                            onCancel = if (onCancel == null){null}else{{
-                                                onCancel.invoke(alertDialog)
-                                            }}
-                                        )
+                                Surface {
+                                    Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
+                                        DividerColumn(startIndent = 0.dp, endIndent = 0.dp, dividersToSkip = 0) {
+                                            alertDialog?.setCancelable(cancelable)
+                                            DialogContent(
+                                                alertDialog = alertDialog,
+                                                title = title,
+                                                msg = msg,
+                                                cancelString = cancelString,
+                                                okString = okString,
+                                                onOk = { onOk(alertDialog) },
+                                                onCancel =
+                                                    if (onCancel == null) {
+                                                        null
+                                                    } else {
+                                                        { onCancel.invoke(alertDialog) }
+                                                    },
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
-
                     }
                 }
-            })
+            )
             alertDialog = show()
         }
     }
 }
-
 
 @Composable
 private fun DialogContent(
@@ -159,53 +149,41 @@ private fun DialogContent(
     @StringRes cancelString: Int,
     @StringRes okString: Int,
     onOk: () -> Unit,
-    onCancel: (() -> Unit)? = null
+    onCancel: (() -> Unit)? = null,
 ) {
-    Column(
-        modifier = Modifier
-            .padding(24.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+    Column(modifier = Modifier.padding(24.dp)) {
+        Text(text = title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(bottom = 16.dp))
 
-        Column(
-            modifier = Modifier
-                .weight(1f,fill = false)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Text(
-                text = msg,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
+        Column(modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
+            Text(text = msg, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(bottom = 24.dp))
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (onCancel != null){
-                TextButton(onClick = {
-                    alertDialog?.dismiss()
-                    onCancel()
-                }) {
+            if (onCancel != null) {
+                TextButton(
+                    onClick = {
+                        alertDialog?.dismiss()
+                        onCancel()
+                    }
+                ) {
                     Text(stringResource(cancelString))
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
-            TextButton(onClick = {
-                alertDialog?.dismiss()
-                onOk()
-            }) {
+            TextButton(
+                onClick = {
+                    alertDialog?.dismiss()
+                    onOk()
+                }
+            ) {
                 Text(stringResource(okString))
             }
         }
     }
 }
-

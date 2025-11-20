@@ -38,18 +38,8 @@ fun BottomSheetContent(
             }
         }
         content?.let {
-            Box(
-                modifier =
-                    Modifier.padding(top = if (title != null || text != null) 16.dp else 0.dp)
-            ) {
-                content()
-            }
+            Box(modifier = Modifier.padding(top = if (title != null || text != null) 16.dp else 0.dp)) { content() }
         }
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-        ) {
-            buttons()
-        }
+        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.padding(16.dp).fillMaxWidth()) { buttons() }
     }
 }

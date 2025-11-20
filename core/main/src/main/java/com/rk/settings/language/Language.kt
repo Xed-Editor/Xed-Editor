@@ -13,35 +13,30 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.os.LocaleListCompat
 import androidx.core.net.toUri
+import androidx.core.os.LocaleListCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.components.InfoBlock
+import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.components.SettingsToggle
+import com.rk.utils.application
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Locale
-import com.rk.utils.application
 
 // Data class to hold locale with its availability status
-data class LocaleInfo(
-    val locale: Locale,
-    val isInstalled: Boolean,
-    val tag: String,
-    val displayName: String
-)
+data class LocaleInfo(val locale: Locale, val isInstalled: Boolean, val tag: String, val displayName: String)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -59,15 +54,16 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             val installedTags = application?.resources?.assets?.locales?.toSet() ?: emptySet()
 
             // Process all data at once
-            val processed = supportedLocales.map { locale ->
-                val tag = locale.toLanguageTag()
-                LocaleInfo(
-                    locale = locale,
-                    isInstalled = installedTags.contains(tag),
-                    tag = tag,
-                    displayName = "${locale.getDisplayLanguage(locale)} ($tag)"
-                )
-            }
+            val processed =
+                supportedLocales.map { locale ->
+                    val tag = locale.toLanguageTag()
+                    LocaleInfo(
+                        locale = locale,
+                        isInstalled = installedTags.contains(tag),
+                        tag = tag,
+                        displayName = "${locale.getDisplayLanguage(locale)} ($tag)",
+                    )
+                }
             localeInfoList.value = processed
         }
     }
@@ -79,21 +75,18 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             ExtendedFloatingActionButton(
                 onClick = {
                     context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            "https://hosted.weblate.org/engage/xed-editor/".toUri()
-                        )
+                        Intent(Intent.ACTION_VIEW, "https://hosted.weblate.org/engage/xed-editor/".toUri())
                     )
                 },
                 text = { Text(stringResource(strings.translate)) },
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) }
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
             )
-        }
+        },
     ) {
         InfoBlock(
             icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
             text = stringResource(strings.change_lang_warn),
-            warning = true
+            warning = true,
         )
 
         PreferenceGroup {
@@ -111,11 +104,8 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
                         showSwitch = false,
                         isEnabled = localeInfo.isInstalled,
                         startWidget = {
-                            RadioButton(
-                                selected = isSelected,
-                                onClick = { setAppLanguage(localeInfo.locale) }
-                            )
-                        }
+                            RadioButton(selected = isSelected, onClick = { setAppLanguage(localeInfo.locale) })
+                        },
                     )
                 }
             } else {
@@ -125,7 +115,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
                     default = false,
                     sideEffect = {},
                     showSwitch = false,
-                    startWidget = {}
+                    startWidget = {},
                 )
             }
         }
@@ -135,16 +125,14 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
 }
 
 // Extract function outside composable to avoid recreation
-private suspend fun readSupportedLocales(context: Context): List<Locale>  = withContext(Dispatchers.IO){
-    return@withContext context.assets.open("supported_locales.json").use { stream ->
-        val json = stream.bufferedReader().use { it.readText() }
-        val localeStrings: List<String> = Gson().fromJson(
-            json,
-            object : TypeToken<List<String>>() {}.type
-        )
-        localeStrings.map { Locale.forLanguageTag(it) }
+private suspend fun readSupportedLocales(context: Context): List<Locale> =
+    withContext(Dispatchers.IO) {
+        return@withContext context.assets.open("supported_locales.json").use { stream ->
+            val json = stream.bufferedReader().use { it.readText() }
+            val localeStrings: List<String> = Gson().fromJson(json, object : TypeToken<List<String>>() {}.type)
+            localeStrings.map { Locale.forLanguageTag(it) }
+        }
     }
-}
 
 fun setAppLanguage(locale: Locale) {
     val appLocale = LocaleListCompat.create(locale)

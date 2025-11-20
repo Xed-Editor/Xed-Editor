@@ -4,9 +4,7 @@ import java.io.Serializable
 
 typealias ExtensionId = String
 
-/**
- * @property id Unique identifier of the extension (package name)
- */
+/** @property id Unique identifier of the extension (package name) */
 data class PluginInfo(
     val id: ExtensionId,
     val name: String,
@@ -19,12 +17,11 @@ data class PluginInfo(
     val icon: String? = null,
     val screenshots: List<String> = emptyList(),
     val repository: String = "",
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
 ) : Serializable
-
 
 data class CachedPlugin(
     val sha: String, // from GitHub
     val metadata: PluginInfo,
-    val lastFetched: Long
+    val lastFetched: Long,
 ) : Serializable

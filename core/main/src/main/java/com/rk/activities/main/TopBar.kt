@@ -23,42 +23,35 @@ fun XedTopBar(
     drawerState: DrawerState,
     viewModel: MainViewModel,
     onDrag: (Float) -> Unit = {},
-    onDragEnd: () -> Unit = {}
+    onDragEnd: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
 
     TopAppBar(
-        modifier = Modifier.pointerInput(Unit) {
-            detectVerticalDragGestures(
-                onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                onDragEnd = { onDragEnd() },
-                onDragCancel = { onDragEnd() },
-            )
-        },
+        modifier =
+            Modifier.pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                    onDragEnd = { onDragEnd() },
+                    onDragCancel = { onDragEnd() },
+                )
+            },
         title = {},
         navigationIcon = {
-            if (!isPermanentDrawer){
+            if (!isPermanentDrawer) {
                 IconButton(
-                    onClick = {
-                        scope.launch {
-                            if (drawerState.isClosed) drawerState.open()
-                            else drawerState.close()
-                        }
-                    }
+                    onClick = { scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() } }
                 ) {
                     Icon(Icons.Outlined.Menu, null)
                 }
             }
-
         },
         actions = {
             GlobalActions(viewModel)
 
             if (viewModel.tabs.isNotEmpty()) {
-                viewModel.tabs[viewModel.currentTabIndex].apply {
-                    Actions()
-                }
+                viewModel.tabs[viewModel.currentTabIndex].apply { Actions() }
             }
-        }
+        },
     )
 }

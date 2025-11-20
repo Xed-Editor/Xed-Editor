@@ -14,5 +14,5 @@ data class Command(
     val isEnabled: State<Boolean>,
     val isSupported: State<Boolean>,
     val icon: State<ImageVector>,
-    val keybinds: String? = null
+    val keybinds: String? = null,
 )

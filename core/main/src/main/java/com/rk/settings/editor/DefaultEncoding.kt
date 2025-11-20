@@ -17,17 +17,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.settings.Settings
 import java.nio.charset.Charset
 import java.util.Locale
 
-object DefaultEncoding{
+object DefaultEncoding {
     val charsets = Charset.availableCharsets().map { it.value }
 }
 
@@ -38,60 +38,45 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
         val intraction = remember { MutableInteractionSource() }
 
         InfoBlock(
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Warning, contentDescription = null
-                )
-            },
+            icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
             text = strings.encoding_warning.getString(),
         )
 
         PreferenceGroup {
             PreferenceTemplate(
-                modifier = modifier.clickable(
-                    indication = ripple(),
-                    interactionSource = intraction
-                ) {
-                    //MainActivity.instance?.adapter?.clearAllFragments()
-                    selectedEncoding = Charset.defaultCharset().name()
-                    Settings.encoding = selectedEncoding
-                },
+                modifier =
+                    modifier.clickable(indication = ripple(), interactionSource = intraction) {
+                        // MainActivity.instance?.adapter?.clearAllFragments()
+                        selectedEncoding = Charset.defaultCharset().name()
+                        Settings.encoding = selectedEncoding
+                    },
                 contentModifier = Modifier.fillMaxHeight(),
-                title = { Text(fontWeight = FontWeight.Bold, text = Charset.defaultCharset().name()+" (Default)") },
+                title = { Text(fontWeight = FontWeight.Bold, text = Charset.defaultCharset().name() + " (Default)") },
                 enabled = true,
                 applyPaddings = true,
                 startWidget = {
-                    RadioButton(
-                        selected = Charset.defaultCharset().name() == selectedEncoding, onClick = null
-                    )
-                }
+                    RadioButton(selected = Charset.defaultCharset().name() == selectedEncoding, onClick = null)
+                },
             )
 
             DefaultEncoding.charsets.forEach { charset ->
                 val intraction = remember { MutableInteractionSource() }
                 if (charset.name().lowercase(Locale.getDefault()) != "utf-8") {
                     PreferenceTemplate(
-                        modifier = modifier.clickable(
-                            indication = ripple(),
-                            interactionSource = intraction
-                        ) {
-                            //MainActivity.instance?.adapter?.clearAllFragments()
-                            selectedEncoding = charset.name()
-                            Settings.encoding = charset.name()
-                        },
+                        modifier =
+                            modifier.clickable(indication = ripple(), interactionSource = intraction) {
+                                // MainActivity.instance?.adapter?.clearAllFragments()
+                                selectedEncoding = charset.name()
+                                Settings.encoding = charset.name()
+                            },
                         contentModifier = Modifier.fillMaxHeight(),
                         title = { Text(fontWeight = FontWeight.Bold, text = charset.name()) },
                         enabled = true,
                         applyPaddings = true,
-                        startWidget = {
-                            RadioButton(
-                                selected = charset.name() == selectedEncoding, onClick = null
-                            )
-                        }
+                        startWidget = { RadioButton(selected = charset.name() == selectedEncoding, onClick = null) },
                     )
                 }
             }
         }
     }
 }
-

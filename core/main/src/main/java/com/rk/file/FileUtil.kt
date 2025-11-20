@@ -7,9 +7,9 @@ import android.os.Build
 import android.os.Environment
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import com.rk.utils.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.toast
 import java.io.File
 
 fun File.child(fileName: String): File {
@@ -37,14 +37,14 @@ suspend fun FileObject.createFileIfNot(): FileObject {
 }
 
 fun File.createDirIfNot(): File {
-    if (exists().not()){
+    if (exists().not()) {
         mkdirs()
     }
     return this
 }
 
 suspend fun FileObject.createDirIfNot(): FileObject {
-    if (exists().not()){
+    if (exists().not()) {
         mkdirs()
     }
     return this
@@ -60,32 +60,34 @@ inline fun isFileManager(): Boolean {
 
 suspend fun openWith(context: Context, file: FileObject) {
     try {
-        val uri: Uri = when (file) {
-            is UriWrapper -> {
-                file.toUri()
-            }
+        val uri: Uri =
+            when (file) {
+                is UriWrapper -> {
+                    file.toUri()
+                }
 
-            is FileWrapper -> {
-                FileProvider.getUriForFile(
-                    context,
-                    context.applicationContext.packageName + ".fileprovider",
-                    file.file,
-                )
-            }
+                is FileWrapper -> {
+                    FileProvider.getUriForFile(
+                        context,
+                        context.applicationContext.packageName + ".fileprovider",
+                        file.file,
+                    )
+                }
 
-            else -> {
-                throw RuntimeException("Unsupported FileObject")
+                else -> {
+                    throw RuntimeException("Unsupported FileObject")
+                }
             }
-        }
 
         val mimeType = file.getMimeType(context)
 
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, mimeType)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-        }
+        val intent =
+            Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, mimeType)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
+            }
 
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)

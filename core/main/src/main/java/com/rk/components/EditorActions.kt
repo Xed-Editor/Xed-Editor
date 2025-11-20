@@ -15,18 +15,18 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
+import com.rk.commands.CommandProvider
+import com.rk.settings.Settings
 import com.rk.terminal.isV
 import com.rk.utils.x
 import kotlin.math.min
 import kotlin.ranges.random
-import com.rk.commands.CommandProvider
-import com.rk.settings.Settings
 
 @Composable
 fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
@@ -36,9 +36,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
     val selectedIds = Settings.action_items.split("|").toTypedArray()
 
     val allCommands = CommandProvider.getAll(viewModel)
-    val allActions = selectedIds.mapNotNull {
-        CommandProvider.getForId(it, allCommands)
-    }
+    val allActions = selectedIds.mapNotNull { CommandProvider.getForId(it, allCommands) }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp
@@ -59,40 +57,30 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
         val toolbarActions = visibleActions.take(actualVisibleCount)
         val dropdownActions = visibleActions.drop(actualVisibleCount)
 
-        Row(
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
             SideEffect {
-                if (isV) (viewModel.tabs.size.takeIf { it > 1 }?.let { (1 until it).random() } ?: 0)
-                    .also { n -> if (n > 0) x(viewModel.tabs, n) }
+                if (isV)
+                    (viewModel.tabs.size.takeIf { it > 1 }?.let { (1 until it).random() } ?: 0).also { n ->
+                        if (n > 0) x(viewModel.tabs, n)
+                    }
             }
             toolbarActions.forEach { command ->
                 IconButton(
                     onClick = { command.action(viewModel, activity) },
                     modifier = Modifier.size(48.dp),
-                    enabled = command.isEnabled.value
+                    enabled = command.isEnabled.value,
                 ) {
-                    Icon(
-                        imageVector = command.icon.value,
-                        contentDescription = command.label.value
-                    )
+                    Icon(imageVector = command.icon.value, contentDescription = command.label.value)
                 }
             }
 
             if (dropdownActions.isNotEmpty()) {
                 Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
-                    IconButton(
-                        onClick = { expanded = true },
-                        modifier = Modifier.size(48.dp)
-                    ) {
+                    IconButton(onClick = { expanded = true }, modifier = Modifier.size(48.dp)) {
                         Icon(Icons.Outlined.MoreVert, null)
                     }
 
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         dropdownActions.forEach { command ->
                             DropdownMenuItem(
                                 enabled = command.isEnabled.value,
@@ -102,11 +90,8 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                                     expanded = false
                                 },
                                 leadingIcon = {
-                                    Icon(
-                                        imageVector = command.icon.value,
-                                        contentDescription = command.label.value
-                                    )
-                                }
+                                    Icon(imageVector = command.icon.value, contentDescription = command.label.value)
+                                },
                             )
                         }
                     }

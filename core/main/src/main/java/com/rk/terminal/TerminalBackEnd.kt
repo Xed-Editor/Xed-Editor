@@ -13,17 +13,14 @@ import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : TerminalViewClient,
-    TerminalSessionClient {
+class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
         terminal.onScreenUpdated()
     }
 
     override fun onTitleChanged(changedSession: TerminalSession) {}
 
-    override fun onSessionFinished(finishedSession: TerminalSession) {
-
-    }
+    override fun onSessionFinished(finishedSession: TerminalSession) {}
 
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         ClipboardUtils.copyText("Terminal", text)
@@ -36,18 +33,13 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
         }
     }
 
-    override fun onBell(session: TerminalSession) {
-
-    }
+    override fun onBell(session: TerminalSession) {}
 
     override fun onColorsChanged(session: TerminalSession) {}
 
     override fun onTerminalCursorStateChange(state: Boolean) {}
 
-    override fun setTerminalShellPid(
-        session: TerminalSession,
-        pid: Int
-    ) {}
+    override fun setTerminalShellPid(session: TerminalSession, pid: Int) {}
 
     override fun getTerminalCursorStyle(): Int {
         return TerminalEmulator.DEFAULT_TERMINAL_CURSOR_STYLE
@@ -112,14 +104,13 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            activity.sessionBinder?.get()
+            activity.sessionBinder
+                ?.get()
                 ?.terminateSession(activity.sessionBinder?.get()!!.getService().currentSession.value)
             if (activity.sessionBinder?.get()!!.getService().sessionList.isEmpty()) {
                 activity.finish()
             } else {
-                activity.changeSession(
-                    activity.sessionBinder?.get()!!.getService().sessionList.first()
-                )
+                activity.changeSession(activity.sessionBinder?.get()!!.getService().sessionList.first())
             }
             return true
         }
@@ -136,30 +127,22 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
 
     // keys
     override fun readControlKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(
-            SpecialButton.CTRL, true
-        )
+        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.CTRL, true)
         return state != null && state
     }
 
     override fun readAltKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(
-            SpecialButton.ALT, true
-        )
+        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.ALT, true)
         return state != null && state
     }
 
     override fun readShiftKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(
-            SpecialButton.SHIFT, true
-        )
+        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.SHIFT, true)
         return state != null && state
     }
 
     override fun readFnKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(
-            SpecialButton.FN, true
-        )
+        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.FN, true)
         return state != null && state
     }
 

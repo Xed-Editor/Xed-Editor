@@ -3,15 +3,12 @@ package com.rk.runner.runners.web
 import com.rk.file.FileObject
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
-import kotlinx.coroutines.runBlocking
 import java.net.URLConnection
 import java.util.Date
+import kotlinx.coroutines.runBlocking
 
-class HttpServer(
-    port: Int,
-    val root: FileObject,
-    val serveHook: ((FileObject, IHTTPSession) -> Response?)? = null
-) : NanoHTTPD(port) {
+class HttpServer(port: Int, val root: FileObject, val serveHook: ((FileObject, IHTTPSession) -> Response?)? = null) :
+    NanoHTTPD(port) {
     init {
         start()
     }
@@ -22,11 +19,7 @@ class HttpServer(
 
             if (root.isFile()) {
                 if (!root.exists()) {
-                    return@runBlocking newFixedLengthResponse(
-                        Status.NOT_FOUND,
-                        "text/plain",
-                        "404 not found ${Date()}",
-                    )
+                    return@runBlocking newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "404 not found ${Date()}")
                 }
 
                 return@runBlocking try {
@@ -57,14 +50,12 @@ class HttpServer(
             }
 
             // Hook override
-            serveHook?.invoke(file, session)?.let { return@runBlocking it }
+            serveHook?.invoke(file, session)?.let {
+                return@runBlocking it
+            }
 
             if (!file.exists()) {
-                return@runBlocking newFixedLengthResponse(
-                    Status.NOT_FOUND,
-                    "text/plain",
-                    "404 not found ${Date()}",
-                )
+                return@runBlocking newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "404 not found ${Date()}")
             }
 
             return@runBlocking try {
@@ -75,11 +66,7 @@ class HttpServer(
                     file.length(),
                 )
             } catch (e: SecurityException) {
-                newFixedLengthResponse(
-                    Status.FORBIDDEN,
-                    "text/plain",
-                    "403 forbidden: cannot read ${file.getName()}",
-                )
+                newFixedLengthResponse(Status.FORBIDDEN, "text/plain", "403 forbidden: cannot read ${file.getName()}")
             } catch (e: Exception) {
                 newFixedLengthResponse(
                     Status.INTERNAL_ERROR,
@@ -88,7 +75,5 @@ class HttpServer(
                 )
             }
         }
-
     }
-
 }
