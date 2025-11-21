@@ -48,6 +48,7 @@ import com.rk.utils.showTerminalNotice
 import com.rk.utils.toast
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.activities.main.MainActivity
@@ -290,7 +291,9 @@ fun FileActionDialog(
                         //description = stringResource(strings.add_file_desc),
                         onClick = {
                             // This would typically open a file picker
-                            addProject(file, true)
+                            scope.launch {
+                                addProject(file, true)
+                            }
                             //showXedDialog = true
                             onDismissRequest()
                         }

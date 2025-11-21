@@ -138,7 +138,7 @@ private fun Categories(navController: NavController) {
             HeartbeatIcon()
         }
     )
-    
+
 }
 
 
