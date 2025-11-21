@@ -3,7 +3,6 @@ package com.rk.terminal
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
-import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.activities.terminal.Terminal
@@ -13,7 +12,6 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
-import kotlinx.coroutines.launch
 
 class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : TerminalViewClient,
     TerminalSessionClient {
@@ -119,13 +117,9 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
             if (activity.sessionBinder?.get()!!.getService().sessionList.isEmpty()) {
                 activity.finish()
             } else {
-                activity.lifecycleScope.launch {
-                    changeSession(
-                        activity,
-                        activity.sessionBinder?.get()!!.getService().sessionList.first()
-                    )
-                }
-
+                activity.changeSession(
+                    activity.sessionBinder?.get()!!.getService().sessionList.first()
+                )
             }
             return true
         }

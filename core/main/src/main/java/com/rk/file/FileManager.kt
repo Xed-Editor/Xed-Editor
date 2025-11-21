@@ -155,7 +155,7 @@ class FileManager(private val activity: ComponentActivity) {
             }
 
             try {
-                this.activity.lifecycleScope.launch {
+                this.activity.lifecycleScope.launch(Dispatchers.IO){
                     val fileObject = uri.toFileObject(expectedIsFile = true)
                     if (fileObject.hasChild(fileName)) {
                         toast("File with name $fileName already exists")

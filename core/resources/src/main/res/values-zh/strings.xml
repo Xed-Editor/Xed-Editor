@@ -64,8 +64,8 @@
     <string name="app">应用程序</string>
     <string name="oled_desc">使用纯黑色主题</string>
     <string name="text_size_desc">设置字体大小</string>
-    <string name="tab_size">软缩进长度</string>
-    <string name="tab_size_desc">设置软缩进的空格数量</string>
+    <string name="tab_size">制表符大小（\\t）</string>
+    <string name="tab_size_desc">设置为制表符插入的空格数量</string>
     <string name="unsupported_content">不支持的内容</string>
     <string name="null_content">错误：内容为空</string>
     <string name="restart_required">需要重启</string>
@@ -495,4 +495,5 @@
     <string name="project_restore_failed">恢复项目失败</string>
     <string name="theme_flipper">主题翻转器</string>
     <string name="theme_flipper_desc">每 7 秒种切换一次主题模式</string>
+    <string name="lsp_terminal_unavailable">由于终端环境不可用或无法正常运行，LSP 语言服务器功能将无法使用。</string>
 </resources>

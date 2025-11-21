@@ -134,7 +134,7 @@
     <string name="open_cant">Kann nicht mehr öffnen als</string>
     <string name="download_sure">Möchtest du wirklich \'%s\' herunterladen?</string>
     <string name="oled_desc">Wendet ein rein schwarzes Design an</string>
-    <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
+    <string name="open_dir_desc">Ein Verzeichnis über die System-Dateiauswahl öffnen</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
     <string name="diagonal_scroll">Diagonales Scrollen</string>
     <string name="diagonal_scroll_desc">Diagonales Scrollen im Dateibaum aktivieren</string>
@@ -328,7 +328,7 @@
     <string name="force_normal">Normalmodus erzwingen</string>
     <string name="theme_mode">Thema-Modus</string>
     <string name="cannot_be_empty">Es darf nicht leer sein.</string>
-    <string name="script_api_info">Überprüfe die Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi für weitere Informationen</string>
+    <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi.</string>
     <string name="read_only_file">Datei ist schreibgeschützt</string>
     <string name="expose_saf">Home-Verzeichnis freigeben</string>
     <string name="expose_saf_desc">Home-Verzeichnis über den System-Dateiauswahldialog (SAF) für externe Apps zugänglich machen</string>

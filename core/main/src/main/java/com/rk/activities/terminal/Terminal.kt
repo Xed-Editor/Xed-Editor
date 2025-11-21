@@ -35,24 +35,26 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.rk.App.Companion.getTempDir
 import com.rk.SessionService
-import com.rk.file.localBinDir
-import com.rk.file.sandboxDir
-import com.rk.utils.*
-import com.rk.resources.getString
-import com.rk.resources.strings
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
-import com.rk.file.localDir
+import com.rk.file.localBinDir
 import com.rk.file.localLibDir
-import com.rk.settings.Settings
+import com.rk.file.sandboxDir
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.terminal.NEXT_STAGE
+import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
+import com.rk.terminal.changeSession
 import com.rk.terminal.getNextStage
+import com.rk.terminal.getPwd
+import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
+import com.rk.utils.errorDialog
+import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -89,6 +91,28 @@ class Terminal : AppCompatActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        this.intent = intent
+        val binder = sessionBinder?.get() ?: return
+        val terminalView = terminalView.get() ?: return
+
+        lifecycleScope.launch {
+            val pwd = getPwd()
+            val client = TerminalBackEnd(terminalView, this@Terminal)
+            val sessionId = File(pwd).name
+
+            val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(
+                sessionId,
+                client,
+                this@Terminal
+            )
+
+            this@Terminal.changeSession(info.id)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         if (isBound) {
@@ -96,7 +120,6 @@ class Terminal : AppCompatActivity() {
             isBound = false
         }
     }
-
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,7 +131,7 @@ class Terminal : AppCompatActivity() {
                 Surface {
                     if (sessionBinder != null) {
                         TerminalScreenHost(this)
-                    }else{
+                    } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
                             Text("No service connection")
                         }
@@ -265,7 +288,6 @@ class Terminal : AppCompatActivity() {
                                 modifier = Modifier.padding(top = 8.dp)
                             )
                         }
-
 
 
                     }
