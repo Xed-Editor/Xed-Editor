@@ -34,4 +34,6 @@ dependencies {
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.activity.compose)
+    implementation(libs.androidx.material.icons.core)
+    // implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }

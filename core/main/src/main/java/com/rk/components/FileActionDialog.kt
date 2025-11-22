@@ -80,7 +80,7 @@ fun FileActionDialog(
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
-    val scope = rememberCoroutineScope()
+    val scope = DefaultScope
 
     // State for various dialogs
     var showRenameDialog by remember { mutableStateOf(false) }
