@@ -21,9 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -51,58 +51,54 @@ fun CommandPalette(
     commands: List<Command>,
     lastUsedCommand: Command?,
     viewModel: MainViewModel,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
-    val sortedCommands by remember(commands, lastUsedCommand) {
-        derivedStateOf {
-            buildList {
-                lastUsedCommand?.let { add(it) }
-                addAll(commands.filter { it != lastUsedCommand })
+    val sortedCommands by
+        remember(commands, lastUsedCommand) {
+            derivedStateOf {
+                buildList {
+                    lastUsedCommand?.let { add(it) }
+                    addAll(commands.filter { it != lastUsedCommand })
+                }
             }
         }
-    }
 
-    val filteredCommands by remember(sortedCommands, searchQuery) {
-        derivedStateOf {
-            sortedCommands.filter {
-                it.label.value.contains(searchQuery, ignoreCase = true) ||
-                it.description?.contains(searchQuery, ignoreCase = true) == true ||
-                it.prefix?.contains(searchQuery, ignoreCase = true) == true
+    val filteredCommands by
+        remember(sortedCommands, searchQuery) {
+            derivedStateOf {
+                sortedCommands.filter {
+                    it.label.value.contains(searchQuery, ignoreCase = true) ||
+                        it.description?.contains(searchQuery, ignoreCase = true) == true ||
+                        it.prefix?.contains(searchQuery, ignoreCase = true) == true
+                }
             }
         }
-    }
 
     val offsetY = with(LocalDensity.current) { (1f - progress) * 100.dp.toPx() }
 
     XedDialog(
         onDismissRequest = onDismissRequest,
-        modifier = Modifier
-            .graphicsLayer {
-                this.alpha = progress
-                this.translationY = -offsetY
-            }
-            .imePadding()
+        modifier =
+            Modifier.graphicsLayer {
+                    this.alpha = progress
+                    this.translationY = -offsetY
+                }
+                .imePadding(),
     ) {
         Column(modifier = Modifier.animateContentSize()) {
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 maxLines = 1,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Search
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
-                placeholder = { Text(stringResource(strings.type_command)) }
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                placeholder = { Text(stringResource(strings.type_command)) },
             )
 
-            LaunchedEffect(progress) {
-                if (progress == 1f) focusRequester.requestFocus()
-            }
+            LaunchedEffect(progress) { if (progress == 1f) focusRequester.requestFocus() }
 
             LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
                 items(items = filteredCommands, key = { it.id }) { command ->
@@ -117,42 +113,31 @@ fun CommandPalette(
 }
 
 @Composable
-fun CommandItem(
-    viewModel: MainViewModel,
-    command: Command,
-    recentlyUsed: Boolean,
-    onDismissRequest: () -> Unit
-) {
+fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolean, onDismissRequest: () -> Unit) {
     val activity = LocalActivity.current
     val enabled = command.isSupported.value && command.isEnabled.value
 
     PreferenceTemplate(
         enabled = enabled,
-        modifier = Modifier.clickable(
-            enabled = enabled,
-            onClick = {
-                onDismissRequest()
-                Settings.last_used_command = command.id
-                command.action(viewModel, activity)
-            }
-        ),
+        modifier =
+            Modifier.clickable(
+                enabled = enabled,
+                onClick = {
+                    onDismissRequest()
+                    Settings.last_used_command = command.id
+                    command.action(viewModel, activity)
+                },
+            ),
         verticalPadding = 8.dp,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = command.icon.value,
                     contentDescription = command.label.value,
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .size(16.dp)
+                    modifier = Modifier.padding(end = 8.dp).size(16.dp),
                 )
 
-                command.prefix?.let {
-                    Text(
-                        text = "$it: ",
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
                 Text(text = command.label.value)
                 if (recentlyUsed) {
                     Text(
@@ -160,29 +145,21 @@ fun CommandItem(
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 8.dp),
                     )
                 }
             }
         },
-        description = {
-            command.description?.let {
-                Text(
-                    text = it,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        },
+        description = { command.description?.let { Text(text = it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
         endWidget = {
             command.keybinds?.let {
                 Text(
                     text = command.keybinds,
                     fontFamily = FontFamily.Monospace,
                     style = Typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
-        }
+        },
     )
 }

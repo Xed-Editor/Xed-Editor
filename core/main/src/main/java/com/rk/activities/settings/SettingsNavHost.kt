@@ -22,10 +22,7 @@ import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.theme.ThemeScreen
 
 @Composable
-fun SettingsNavHost(
-    navController: NavHostController,
-    activity: SettingsActivity,
-) {
+fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity) {
     NavHost(
         navController = navController,
         startDestination = SettingsRoutes.Settings.route,

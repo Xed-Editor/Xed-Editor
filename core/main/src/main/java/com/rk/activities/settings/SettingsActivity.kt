@@ -8,9 +8,9 @@ import androidx.compose.material3.Surface
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rk.file.FileManager
-import com.rk.utils.toast
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
+import com.rk.utils.toast
 import java.lang.ref.WeakReference
 
 var settingsNavController = WeakReference<NavController?>(null)
@@ -36,10 +36,7 @@ class SettingsActivity : AppCompatActivity() {
                 Surface {
                     val navController = rememberNavController()
                     settingsNavController = WeakReference(navController)
-                    SettingsNavHost(
-                        activity = this@SettingsActivity,
-                        navController = navController
-                    )
+                    SettingsNavHost(activity = this@SettingsActivity, navController = navController)
                     if (intent.hasExtra("route")) {
                         val route = intent.getStringExtra("route")
                         if (route != null) {

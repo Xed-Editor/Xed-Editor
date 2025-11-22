@@ -3,42 +3,54 @@ package com.rk.runner
 import android.content.Context
 import android.graphics.drawable.Drawable
 import com.rk.file.FileObject
-import com.rk.utils.errorDialog
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
+import com.rk.utils.errorDialog
 import java.lang.ref.WeakReference
 import kotlin.text.Regex
 
+abstract class RunnerImpl() {
+    abstract suspend fun run(context: Context, fileObject: FileObject)
 
-abstract class RunnerImpl(){
-    abstract suspend fun run(context: Context,fileObject: FileObject)
     abstract fun getName(): String
+
     abstract fun getIcon(context: Context): Drawable?
+
     abstract suspend fun isRunning(): Boolean
+
     abstract suspend fun stop()
 }
 
-
 var currentRunner = WeakReference<RunnerImpl?>(null)
 
-abstract class RunnerBuilder(val regex: Regex,val clazz: Class<out RunnerImpl>){
-    fun build(): RunnerImpl{
+abstract class RunnerBuilder(val regex: Regex, val clazz: Class<out RunnerImpl>) {
+    fun build(): RunnerImpl {
         return clazz.getDeclaredConstructor().newInstance()
     }
 }
 
 object Runner {
     val runnerBuilders = mutableListOf<RunnerBuilder>()
+
     init {
         runnerBuilders.apply {
-            add(object : RunnerBuilder(regex = Regex(".*\\.(html|svg)$"), clazz = HtmlRunner::class.java){})
-            add(object : RunnerBuilder(regex = Regex(".*\\.md$"), clazz = MarkDownRunner::class.java){})
-            add(object : RunnerBuilder(regex = Regex(".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"), clazz = UniversalRunner::class.java){})
+            add(object : RunnerBuilder(regex = Regex(".*\\.(html|svg)$"), clazz = HtmlRunner::class.java) {})
+            add(object : RunnerBuilder(regex = Regex(".*\\.md$"), clazz = MarkDownRunner::class.java) {})
+            add(
+                object :
+                    RunnerBuilder(
+                        regex =
+                            Regex(
+                                ".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"
+                            ),
+                        clazz = UniversalRunner::class.java,
+                    ) {}
+            )
         }
     }
 
-    fun isRunnable(fileObject: FileObject): Boolean{
+    fun isRunnable(fileObject: FileObject): Boolean {
         ShellBasedRunners.runners.forEach {
             val name = fileObject.getName()
             val regex = Regex(it.regex)

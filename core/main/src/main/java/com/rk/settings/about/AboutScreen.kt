@@ -22,35 +22,33 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.utils.copyToClipboard
+import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.copyToClipboard
 import com.rk.xededitor.BuildConfig
-import com.rk.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import androidx.core.net.toUri
-import com.rk.resources.getString
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AboutScreen() {
-    val packageInfo =
-        LocalContext.current.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
+    val packageInfo = LocalContext.current.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
     val versionName = packageInfo.versionName
     val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
     val context = LocalContext.current
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
-
         PreferenceGroup(heading = stringResource(strings.developer)) {
             SettingsToggle(
                 label = "RohitKushvaha01",
@@ -64,76 +62,66 @@ fun AboutScreen() {
                 showSwitch = false,
                 startWidget = {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data("https://github.com/RohitKushvaha01.png")
-                            .crossfade(true)
-                            .diskCachePolicy(CachePolicy.ENABLED)
-                            .memoryCachePolicy(CachePolicy.ENABLED)
-                            .build(),
+                        model =
+                            ImageRequest.Builder(LocalContext.current)
+                                .data("https://github.com/RohitKushvaha01.png")
+                                .crossfade(true)
+                                .diskCachePolicy(CachePolicy.ENABLED)
+                                .memoryCachePolicy(CachePolicy.ENABLED)
+                                .build(),
                         contentDescription = "GitHub Avatar",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .size(26.dp)
-                            .clip(CircleShape)
+                        modifier = Modifier.padding(start = 16.dp).size(26.dp).clip(CircleShape),
                     )
-
                 },
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
-                }
+                },
             )
         }
 
         PreferenceGroup(heading = stringResource(strings.build_info)) {
             PreferenceTemplate(
-                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
-                    copyToClipboard(versionName.toString())
-                }),
+                modifier =
+                    Modifier.combinedClickable(
+                        enabled = true,
+                        onClick = {},
+                        onLongClick = { copyToClipboard(versionName.toString()) },
+                    ),
                 title = {
-                    Text(
-                        text = stringResource(id = strings.version),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Text(text = stringResource(id = strings.version), style = MaterialTheme.typography.titleMedium)
                 },
-                description = {
-                    Text(text = versionName.toString(), style = MaterialTheme.typography.titleSmall)
-                },
+                description = { Text(text = versionName.toString(), style = MaterialTheme.typography.titleSmall) },
             )
 
             PreferenceTemplate(
-                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
-                    copyToClipboard(versionCode.toString())
-                }),
+                modifier =
+                    Modifier.combinedClickable(
+                        enabled = true,
+                        onClick = {},
+                        onLongClick = { copyToClipboard(versionCode.toString()) },
+                    ),
                 title = {
-                    Text(
-                        text = stringResource(id = strings.version_code),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Text(text = stringResource(id = strings.version_code), style = MaterialTheme.typography.titleMedium)
                 },
-                description = {
-                    Text(text = versionCode.toString(), style = MaterialTheme.typography.titleSmall)
-                },
+                description = { Text(text = versionCode.toString(), style = MaterialTheme.typography.titleSmall) },
             )
 
             PreferenceTemplate(
-                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
-                    copyToClipboard(BuildConfig.GIT_SHORT_COMMIT_HASH)
-                }),
+                modifier =
+                    Modifier.combinedClickable(
+                        enabled = true,
+                        onClick = {},
+                        onLongClick = { copyToClipboard(BuildConfig.GIT_SHORT_COMMIT_HASH) },
+                    ),
                 title = {
-                    Text(
-                        text = stringResource(id = strings.git_commit),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Text(text = stringResource(id = strings.git_commit), style = MaterialTheme.typography.titleMedium)
                 },
                 description = {
-                    Text(
-                        text = BuildConfig.GIT_SHORT_COMMIT_HASH,
-                        style = MaterialTheme.typography.titleSmall,
-                    )
+                    Text(text = BuildConfig.GIT_SHORT_COMMIT_HASH, style = MaterialTheme.typography.titleSmall)
                 },
             )
         }
@@ -150,14 +138,11 @@ fun AboutScreen() {
                     try {
                         client.newCall(request).execute().use { response ->
                             if (response.isSuccessful) {
-                                val jsonBody = response.body?.string()
-                                    ?: throw RuntimeException("Empty response body")
+                                val jsonBody = response.body?.string() ?: throw RuntimeException("Empty response body")
                                 val json = JSONObject(jsonBody)
                                 val count = json.getInt("stargazers_count")
 
-                                withContext(Dispatchers.Main) {
-                                    stars.value = count.toString()
-                                }
+                                withContext(Dispatchers.Main) { stars.value = count.toString() }
                             } else {
                                 stars.value = strings.error.getString()
                             }
@@ -170,17 +155,9 @@ fun AboutScreen() {
 
             PreferenceTemplate(
                 title = {
-                    Text(
-                        text = stringResource(strings.github_stars),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Text(text = stringResource(strings.github_stars), style = MaterialTheme.typography.titleMedium)
                 },
-                description = {
-                    Text(
-                        text = stars.value,
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                },
+                description = { Text(text = stars.value, style = MaterialTheme.typography.titleSmall) },
             )
 
             SettingsToggle(
@@ -193,14 +170,14 @@ fun AboutScreen() {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 sideEffect = {
                     val url = "https://github.com/Xed-Editor/Xed-Editor"
                     val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
-                }
+                },
             )
 
             SettingsToggle(
@@ -213,14 +190,14 @@ fun AboutScreen() {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 sideEffect = {
                     val url = "https://t.me/XedEditor"
                     val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
-                }
+                },
             )
 
             SettingsToggle(
@@ -233,16 +210,15 @@ fun AboutScreen() {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 sideEffect = {
                     val url = "https://discord.gg/6bKzcQRuef"
                     val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
-                }
+                },
             )
-
         }
     }
 }

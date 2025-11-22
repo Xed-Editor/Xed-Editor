@@ -2,7 +2,6 @@ package com.rk.components.compose.preferences.switch
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Spacer
@@ -59,7 +58,7 @@ fun PreferenceSwitch(
                     } else {
                         onCheckedChange(!checked)
                     }
-                }
+                },
             ),
         contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
@@ -84,8 +83,7 @@ fun PreferenceSwitch(
                     SwitchDefaults.colors()
                         .copy(
                             uncheckedThumbColor = MaterialTheme.colorScheme.background,
-                            uncheckedTrackColor =
-                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                            uncheckedTrackColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                             uncheckedBorderColor = Color.Transparent,
                         ),
             )

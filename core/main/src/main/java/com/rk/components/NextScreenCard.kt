@@ -23,9 +23,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -36,23 +36,19 @@ fun NextScreenCard(
     description: String? = null,
     route: SettingsRoutes,
     isEnabled: Boolean = true,
-    icon:ImageVector? = null,
-    @DrawableRes iconRes:Int? = null,
-    startIconTint:Color = LocalContentColor.current
+    icon: ImageVector? = null,
+    @DrawableRes iconRes: Int? = null,
+    startIconTint: Color = LocalContentColor.current,
 ) {
     PreferenceTemplate(
-        modifier = modifier.combinedClickable(
-            enabled = isEnabled,
-            indication = ripple(),
-            interactionSource = remember { MutableInteractionSource() },
-            onClick = {
-                navController?.navigate(route.route)
-            }
-        ),
-        contentModifier = Modifier
-            .fillMaxHeight()
-            .padding(vertical = 16.dp)
-            .padding(start = 16.dp),
+        modifier =
+            modifier.combinedClickable(
+                enabled = isEnabled,
+                indication = ripple(),
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = { navController?.navigate(route.route) },
+            ),
+        contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
         description = { description?.let { Text(text = it) } },
         enabled = true,
@@ -61,15 +57,18 @@ fun NextScreenCard(
             Icon(
                 modifier = Modifier.padding(16.dp),
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                contentDescription = route.route)
+                contentDescription = route.route,
+            )
         },
         startWidget = {
             if (icon != null) {
-                Icon(modifier = Modifier.size(24.dp),
+                Icon(
+                    modifier = Modifier.size(24.dp),
                     imageVector = icon,
                     tint = startIconTint,
-                    contentDescription = label)
-            }else if (iconRes != null){
+                    contentDescription = label,
+                )
+            } else if (iconRes != null) {
                 Icon(
                     painter = painterResource(id = iconRes),
                     contentDescription = label,
@@ -77,7 +76,6 @@ fun NextScreenCard(
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
-        }
+        },
     )
-
 }

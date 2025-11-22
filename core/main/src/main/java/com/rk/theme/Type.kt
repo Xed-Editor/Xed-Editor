@@ -19,94 +19,19 @@ val OutfitFontFamily = FontFamily(Font(R.font.outfit_regular, FontWeight.Normal,
  */
 val Typography =
     Typography(
-        displayLarge =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 57.sp,
-            ),
-        displayMedium =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 45.sp,
-            ),
-        displaySmall =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 36.sp,
-            ),
-        headlineLarge =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 32.sp,
-            ),
-        headlineMedium =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 28.sp,
-            ),
-        headlineSmall =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 24.sp,
-            ),
-        titleLarge =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 22.sp,
-            ),
-        titleMedium =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 16.sp,
-            ),
-        titleSmall =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-            ),
-        bodyLarge =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-            ),
-        bodyMedium =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 14.sp,
-            ),
-        bodySmall =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 12.sp,
-            ),
-        labelLarge =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-            ),
-        labelMedium =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp,
-            ),
-        labelSmall =
-            TextStyle(
-                fontFamily = OutfitFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 11.sp,
-            ),
+        displayLarge = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 57.sp),
+        displayMedium = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 45.sp),
+        displaySmall = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 36.sp),
+        headlineLarge = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 32.sp),
+        headlineMedium = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 28.sp),
+        headlineSmall = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 24.sp),
+        titleLarge = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 22.sp),
+        titleMedium = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Medium, fontSize = 16.sp),
+        titleSmall = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
+        bodyLarge = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp),
+        bodyMedium = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 14.sp),
+        bodySmall = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
+        labelLarge = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp),
+        labelMedium = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
+        labelSmall = TextStyle(fontFamily = OutfitFontFamily, fontWeight = FontWeight.Medium, fontSize = 11.sp),
     )

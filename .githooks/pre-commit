@@ -4,7 +4,7 @@ set -e
 echo "Formatting code with ktfmt…"
 
 # Run ktfmt formatter using Gradle
-if ! ./gradlew --quiet --no-daemon --rerun-tasks ktfmtFormat; then
+if ! ./gradlew --quiet --no-daemon ktfmtFormat; then
     echo "Formatting with ktfmt failed"
     exit 1
 fi

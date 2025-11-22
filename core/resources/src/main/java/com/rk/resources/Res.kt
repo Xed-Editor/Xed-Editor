@@ -5,15 +5,14 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlin.text.replace
 
 typealias drawables = R.drawable
+
 typealias strings = R.string
 
 @OptIn(DelicateCoroutinesApi::class)
 object Res {
-    @JvmField
-    var application: Application? = null
+    @JvmField var application: Application? = null
 }
 
 inline fun Int.getString(context: Context = Res.application!!): String {

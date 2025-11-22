@@ -9,17 +9,17 @@ import java.lang.reflect.Modifier
 data class EditorColor(val key: Int, val color: Int)
 
 // Cache the mapping to avoid repeated reflection
-private val EDITOR_COLOR_MAPPING: Map<String, Int> by lazy {
-    getEditorColorSchemeMapping()
-}
+private val EDITOR_COLOR_MAPPING: Map<String, Int> by lazy { getEditorColorSchemeMapping() }
 
-private fun String.toColorIntSafe(): Int = runCatching {
-    if (this == "0") return 0
-    toColorInt()
-}.getOrElse { exception ->
-    toast(exception.message)
-    -1 // Invalid color marker
-}
+private fun String.toColorIntSafe(): Int =
+    runCatching {
+            if (this == "0") return 0
+            toColorInt()
+        }
+        .getOrElse { exception ->
+            toast(exception.message)
+            -1 // Invalid color marker
+        }
 
 // Map JSON-like colors to EditorColorScheme keys
 fun mapEditorColorScheme(rawScheme: Map<String, String>?): List<EditorColor> {
@@ -42,15 +42,15 @@ fun mapEditorColorScheme(rawScheme: Map<String, String>?): List<EditorColor> {
 
 // Reflection: Extract all `public static final int` from EditorColorScheme
 fun getEditorColorSchemeMapping(): Map<String, Int> {
-    return EditorColorScheme::class.java.declaredFields
+    return EditorColorScheme::class
+        .java
+        .declaredFields
         .filter { field ->
             Modifier.isPublic(field.modifiers) &&
-                    Modifier.isStatic(field.modifiers) &&
-                    Modifier.isFinal(field.modifiers) &&
-                    field.type == Int::class.javaPrimitiveType
+                Modifier.isStatic(field.modifiers) &&
+                Modifier.isFinal(field.modifiers) &&
+                field.type == Int::class.javaPrimitiveType
         }
         .onEach { it.isAccessible = true }
-        .associate { field ->
-            field.name.lowercase() to (field.get(null) as Int)
-        }
+        .associate { field -> field.name.lowercase() to (field.get(null) as Int) }
 }

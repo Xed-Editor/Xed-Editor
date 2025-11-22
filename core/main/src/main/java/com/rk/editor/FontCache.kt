@@ -9,33 +9,34 @@ object FontCache {
 
     fun loadFont(context: Context, path: String, isAsset: Boolean) {
         try {
-            val font = if (isAsset) {
-                context.assets.open(path).close()
-                Typeface.createFromAsset(context.assets, path)
-            } else {
-                val file = File(path)
-                if (!file.exists()) {
-                    return
+            val font =
+                if (isAsset) {
+                    context.assets.open(path).close()
+                    Typeface.createFromAsset(context.assets, path)
+                } else {
+                    val file = File(path)
+                    if (!file.exists()) {
+                        return
+                    }
+                    Typeface.createFromFile(file)
                 }
-                Typeface.createFromFile(file)
-            }
             cachedFonts[path] = font
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-
     fun getFont(context: Context, path: String, isAsset: Boolean): Typeface? {
-        return if (cachedFonts.containsKey(path)){
+        return if (cachedFonts.containsKey(path)) {
             cachedFonts[path]
-        }else{
+        } else {
             try {
-                val font = if (isAsset) {
-                    Typeface.createFromAsset(context.assets, path)
-                } else {
-                    Typeface.createFromFile(File(path))
-                }
+                val font =
+                    if (isAsset) {
+                        Typeface.createFromAsset(context.assets, path)
+                    } else {
+                        Typeface.createFromFile(File(path))
+                    }
                 cachedFonts[path] = font
                 font
             } catch (e: Exception) {
@@ -44,5 +45,3 @@ object FontCache {
         }
     }
 }
-
-

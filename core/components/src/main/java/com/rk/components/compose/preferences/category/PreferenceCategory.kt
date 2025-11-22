@@ -54,16 +54,13 @@ fun PreferenceCategory(
                 .clip(MaterialTheme.shapes.large)
                 .clickable { onNavigate() }
                 .background(
-                    if (isSelected) MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
-                    else Color.Transparent
+                    if (isSelected) MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp) else Color.Transparent
                 ),
         verticalPadding = 14.dp,
         title = {
             Text(
                 text = label,
-                color =
-                    if (isSelected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onBackground,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             )
         },
         description = {

@@ -13,17 +13,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.utils.dialog
-import com.rk.utils.toast
-import com.rk.resources.drawables
-import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.SettingsToggle
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.resources.drawables
+import com.rk.resources.strings
+import com.rk.settings.Settings
+import com.rk.utils.dialog
+import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -43,14 +43,14 @@ fun Support(modifier: Modifier = Modifier) {
                     Icon(
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
                         painter = painterResource(drawables.github),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 sideEffect = {
@@ -58,7 +58,7 @@ fun Support(modifier: Modifier = Modifier) {
                     val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                     context.startActivity(intent)
                     Settings.donated = true
-                }
+                },
             )
             SettingsToggle(
                 label = "Buy Me a Coffee",
@@ -70,14 +70,14 @@ fun Support(modifier: Modifier = Modifier) {
                     Icon(
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
                         painter = painterResource(drawables.coffee),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 sideEffect = {
@@ -85,7 +85,7 @@ fun Support(modifier: Modifier = Modifier) {
                     val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                     context.startActivity(intent)
                     Settings.donated = true
-                }
+                },
             )
             SettingsToggle(
                 label = "UPI",
@@ -97,26 +97,26 @@ fun Support(modifier: Modifier = Modifier) {
                     Icon(
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
                         painter = painterResource(drawables.upi_pay),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 sideEffect = {
-                    val uri = Uri.parse("upi://pay").buildUpon()
-                        .appendQueryParameter("pa", "rohitkushvaha01@axl")
-                        .appendQueryParameter("pn", "Rohit Kushwaha")
-                        .appendQueryParameter("tn", "Xed-Editor")
-                        .appendQueryParameter("cu", "INR")
-                        .build()
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = uri
-                    }
+                    val uri =
+                        Uri.parse("upi://pay")
+                            .buildUpon()
+                            .appendQueryParameter("pa", "rohitkushvaha01@axl")
+                            .appendQueryParameter("pn", "Rohit Kushwaha")
+                            .appendQueryParameter("tn", "Xed-Editor")
+                            .appendQueryParameter("cu", "INR")
+                            .build()
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = uri }
 
                     val chooser = Intent.createChooser(intent, "Use")
                     if (intent.resolveActivity(context.packageManager) != null) {
@@ -125,14 +125,13 @@ fun Support(modifier: Modifier = Modifier) {
                     } else {
                         toast("No UPI app found")
                     }
-                }
+                },
             )
         }
-
     }
 }
 
-fun MainActivity.handleSupport(){
+fun MainActivity.handleSupport() {
     lifecycleScope.launch(Dispatchers.Main) {
         if (Settings.visits > 300) {
             dialog(
@@ -147,7 +146,7 @@ fun MainActivity.handleSupport(){
                         context = this@handleSupport,
                         title = "We’d Love Your Feedback",
                         msg = "Feel free to share your thoughts in our Telegram group or GitHub repository!",
-                        onOk = {}
+                        onOk = {},
                     )
                 },
                 onOk = {
@@ -163,9 +162,9 @@ fun MainActivity.handleSupport(){
                             val intent = Intent(application!!, SettingsActivity::class.java)
                             intent.putExtra("route", SettingsRoutes.Support.route)
                             startActivity(intent)
-                        }
+                        },
                     )
-                }
+                },
             )
         }
     }

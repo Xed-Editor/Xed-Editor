@@ -13,17 +13,17 @@ import com.rk.editor.FontCache
 import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.xededitor.BuildConfig
 import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
 import com.rk.theme.updateThemes
 import com.rk.utils.application
+import com.rk.xededitor.BuildConfig
+import java.io.File
+import java.util.Locale
+import java.util.concurrent.Executors
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.io.File
-import java.util.Locale
-import java.util.concurrent.Executors
 
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
@@ -37,10 +37,7 @@ class App : Application() {
         }
 
         val isFDroid by lazy {
-            val targetSdkVersion =
-                application!!
-                    .applicationInfo
-                    .targetSdkVersion
+            val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
             targetSdkVersion == 28
         }
     }
@@ -64,9 +61,7 @@ class App : Application() {
         GlobalScope.launch(Dispatchers.IO) {
             launch { Editor.initGrammarRegistry() }
 
-            launch(Dispatchers.IO) {
-                SessionManager.preloadSession()
-            }
+            launch(Dispatchers.IO) { SessionManager.preloadSession() }
 
             launch(Dispatchers.IO) {
                 val fontPath = Settings.selected_font_path
@@ -78,17 +73,10 @@ class App : Application() {
             }
 
             if (Settings.restore_sessions) {
-                launch(Dispatchers.IO) {
-                    Preference.preloadAllSettings()
-                }
+                launch(Dispatchers.IO) { Preference.preloadAllSettings() }
             }
 
-            launch {
-                DocumentProvider.setDocumentProviderEnabled(
-                    this@App,
-                    Settings.expose_home_dir,
-                )
-            }
+            launch { DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir) }
 
             launch(Dispatchers.IO) {
                 getTempDir().apply {
@@ -98,9 +86,7 @@ class App : Application() {
                 }
             }
 
-            launch {
-                runCatching { UpdateChecker.checkForUpdates("dev") }
-            }
+            launch { runCatching { UpdateChecker.checkForUpdates("dev") } }
 
             Settings.visits = Settings.visits + 1
 
@@ -117,8 +103,7 @@ class App : Application() {
 
         if (BuildConfig.DEBUG || Settings.strict_mode) {
             StrictMode.setVmPolicy(
-                StrictMode.VmPolicy
-                    .Builder()
+                StrictMode.VmPolicy.Builder()
                     .apply {
                         detectAll()
                         penaltyLog()
@@ -128,7 +113,8 @@ class App : Application() {
                                 violation.cause?.let { throw it }
                             }
                         }
-                    }.build(),
+                    }
+                    .build()
             )
         }
     }
