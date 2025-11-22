@@ -494,4 +494,5 @@
     <string name="project_restore_failed">Projekte konnten nicht wiederhergestellt werden</string>
     <string name="theme_flipper">Themen-Wechsler</string>
     <string name="theme_flipper_desc">Den Thema-Modus ständig alle 7s ändern</string>
+    <string name="lsp_terminal_unavailable">Die LSP-Sprachfunktionen funktionieren nicht, da die Terminalumgebung nicht verfügbar oder nicht funktionsfähig ist.</string>
 </resources>

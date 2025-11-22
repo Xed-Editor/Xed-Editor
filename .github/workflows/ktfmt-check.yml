@@ -25,5 +25,8 @@ jobs:
           distribution: "temurin"
           cache: gradle
 
+      - name: Clone submodules
+        run: git submodule update --init --recursive
+
       - name: Run ktfmt check
         run: ./gradlew ktfmtCheck --no-daemon --quiet
