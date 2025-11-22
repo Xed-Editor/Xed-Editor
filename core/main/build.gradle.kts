@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ktfmt)
 }
 
 val gitCommitHash: Provider<String> = providers.exec {
@@ -119,6 +120,8 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.androidx.documentfile)
     implementation(libs.compose.dnd)
+ implementation(libs.androidx.material.icons.core)
+    //implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // Modules
     implementation(project(":editor"))

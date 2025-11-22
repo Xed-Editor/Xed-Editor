@@ -55,25 +55,49 @@ private val git = drawables.git
 // TODO: Add icon for FileType.LOG
 // TODO: Add icon for FileType.ROCQ
 
+/**
+ * Represents various file types supported by the application.
+ *
+ * This enum provides metadata for each file type, including:
+ * - Associated file extensions.
+ * - TextMate grammar scope for syntax highlighting.
+ * - Display icons (and potential overrides based on specific extensions).
+ * - Human-readable titles.
+ * - Alternative names used in Markdown code blocks.
+ *
+ * @property extensions A list of file extensions associated with this file type (without the leading dot).
+ * @property textmateScope The TextMate scope string used for syntax highlighting (e.g., "source.kt"). Null if not applicable.
+ * @property icon The resource ID of the default icon for this file type. Null if no icon is available.
+ * @property iconOverride A map of specific extensions to specific icon resource IDs. Useful when a single file type encompasses different formats that need distinct icons (e.g., Gradle vs Groovy).
+ * @property title A human-readable title for the file type.
+ * @property markdownNames A list of additional language identifiers often used in Markdown code blocks (e.g., ```javascript).
+ */
 enum class FileType(
     val extensions: List<String>,
     val textmateScope: String?,
     val icon: Int?,
     val iconOverride: Map<String, Int>? = null,
-    val title: String
+    val title: String,
+    /**
+     * Language identifiers used in Markdown code blocks.
+     * Should only include additional names that are not included in the extensions list.
+     * */
+    val markdownNames: List<String> = emptyList()
 ) {
     // Web languages
     JAVASCRIPT(
         extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"),
         textmateScope = "source.js",
         icon = js,
-        title = "JavaScript"
+        title = "JavaScript",
+        markdownNames = listOf("javascript")
     ),
     TYPESCRIPT(
-        extensions = listOf("ts"),
+        extensions = listOf("ts", "mts", "cts"),
         textmateScope = "source.ts",
         icon = ts,
-        title = "TypeScript"
+        title = "TypeScript",
+        markdownNames = listOf("typescript")
     ),
     JSX(
         extensions = listOf("jsx"),
@@ -147,7 +171,8 @@ enum class FileType(
         extensions = listOf("py", "pyi"),
         textmateScope = "source.python",
         icon = python,
-        title = "Python"
+        title = "Python",
+        markdownNames = listOf("python")
     ),
     JAVA(
         extensions = listOf("java", "jav", "bsh"),
@@ -178,13 +203,15 @@ enum class FileType(
         extensions = listOf("cs", "csx"),
         textmateScope = "source.cs",
         icon = csharp,
-        title = "C#"
+        title = "C#",
+        markdownNames = listOf("csharp")
     ),
     RUBY(
         extensions = listOf("rb", "erb", "gemspec"),
         textmateScope = "source.ruby",
         icon = ruby,
-        title = "Ruby"
+        title = "Ruby",
+        markdownNames = listOf("ruby")
     ),
     LUA(
         extensions = listOf("lua"),
@@ -208,13 +235,15 @@ enum class FileType(
         extensions = listOf("rs"),
         textmateScope = "source.rust",
         icon = rust,
-        title = "Rust"
+        title = "Rust",
+        markdownNames = listOf("rust")
     ),
     PASCAL(
         extensions = listOf("p", "pas"),
         textmateScope = "source.pascal",
         icon = null,
-        title = "Pascal"
+        title = "Pascal",
+        markdownNames = listOf("pascal")
     ),
     ZIG(
         extensions = listOf("zig"),
@@ -250,7 +279,8 @@ enum class FileType(
         extensions = listOf("kt", "kts"),
         textmateScope = "source.kotlin",
         icon = kotlin,
-        title = "Kotlin"
+        title = "Kotlin",
+        markdownNames = listOf("kotlin")
     ),
     LISP(
         extensions = listOf("lisp", "clisp"),
@@ -262,7 +292,8 @@ enum class FileType(
         extensions = listOf("sh", "bash", "bash_login", "bash_logout", "bash_profile", "bashrc", "profile", "rhistory", "rprofile", "zsh", "zlogin", "zlogout", "zprofile", "zshenv", "zshrc", "fish", "ksh"),
         textmateScope = "source.shell",
         icon = shell,
-        title = "Shell script"
+        title = "Shell script",
+        markdownNames = listOf("shell", "console")
     ),
     WINDOWS_SHELL(
         extensions = listOf("cmd", "bat"),
@@ -274,7 +305,8 @@ enum class FileType(
         extensions = listOf("ps1", "psm1", "psd1"),
         textmateScope = "source.powershell",
         icon = null,
-        title = "PowerShell"
+        title = "PowerShell",
+        markdownNames = listOf("powershell", "ps")
     ),
     SMALI(
         extensions = listOf("smali"),
@@ -331,7 +363,8 @@ enum class FileType(
         extensions = listOf("txt"),
         textmateScope = null,
         icon = text,
-        title = "Plain text"
+        title = "Plain text",
+        markdownNames = listOf("plaintext", "text")
     ),
     LOG(
         extensions = listOf("log"),
@@ -392,6 +425,11 @@ enum class FileType(
         fun fromExtension(ext: String): FileType {
             val normalized = ext.lowercase().removePrefix(".")
             return entries.firstOrNull { normalized in it.extensions } ?: UNKNOWN
+        }
+
+        fun fromMarkdownName(name: String): FileType {
+            val normalized = name.lowercase()
+            return entries.firstOrNull { normalized in it.extensions || normalized in it.markdownNames } ?: UNKNOWN
         }
 
         fun knowsExtension(ext: String): Boolean {

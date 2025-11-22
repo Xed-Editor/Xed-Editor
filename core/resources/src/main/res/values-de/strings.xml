@@ -134,7 +134,7 @@
     <string name="open_cant">Kann nicht mehr öffnen als</string>
     <string name="download_sure">Möchtest du wirklich \'%s\' herunterladen?</string>
     <string name="oled_desc">Wendet ein rein schwarzes Design an</string>
-    <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
+    <string name="open_dir_desc">Ein Verzeichnis über die System-Dateiauswahl öffnen</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
     <string name="diagonal_scroll">Diagonales Scrollen</string>
     <string name="diagonal_scroll_desc">Diagonales Scrollen im Dateibaum aktivieren</string>
@@ -328,7 +328,7 @@
     <string name="force_normal">Normalmodus erzwingen</string>
     <string name="theme_mode">Thema-Modus</string>
     <string name="cannot_be_empty">Es darf nicht leer sein.</string>
-    <string name="script_api_info">Überprüfe die Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi für weitere Informationen</string>
+    <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi.</string>
     <string name="read_only_file">Datei ist schreibgeschützt</string>
     <string name="expose_saf">Home-Verzeichnis freigeben</string>
     <string name="expose_saf_desc">Home-Verzeichnis über den System-Dateiauswahldialog (SAF) für externe Apps zugänglich machen</string>
@@ -481,4 +481,18 @@
     <string name="format_on_save_desc">Die Datei beim Speichern automatisch formatieren</string>
     <string name="format_document">Dokument formatieren</string>
     <string name="format_selection">Auswahl formatieren</string>
+    <string name="can_execute">Kann ausführen</string>
+    <string name="format_document_error">Dokument konnte nicht formatiert werden.</string>
+    <string name="format_selection_error">Auswahl konnte nicht formatiert werden.</string>
+    <string name="calculating">Berechnen…</string>
+    <string name="permissions">Berechtigungen</string>
+    <string name="lsp_process_desc">Die Initialisierungsskripte des Terminals, z. B. /initrc und .bashrc, werden vor diesem Befehl nicht ausgeführt.</string>
+    <string name="command">Befehl</string>
+    <string name="empty_command">Leerer Befehl</string>
+    <string name="socket">Socket</string>
+    <string name="process">Prozess</string>
+    <string name="project_restore_failed">Projekte konnten nicht wiederhergestellt werden</string>
+    <string name="theme_flipper">Themen-Wechsler</string>
+    <string name="theme_flipper_desc">Den Thema-Modus ständig alle 7s ändern</string>
+    <string name="lsp_terminal_unavailable">Die LSP-Sprachfunktionen funktionieren nicht, da die Terminalumgebung nicht verfügbar oder nicht funktionsfähig ist.</string>
 </resources>

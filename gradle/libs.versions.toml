@@ -1,5 +1,5 @@
 [versions]
-agp = "8.11.1"
+agp = "8.13.1"
 annotation = "1.9.1"
 anrwatchdog = "1.4.0"
 appcompat = "1.7.1"
@@ -7,32 +7,34 @@ browser = "1.9.0"
 commonsNet = "3.12.0"
 desugar_jdk_libs = "2.1.5"
 documentfile = "1.1.0"
-glide = "5.0.4"
+glide = "5.0.5"
 kotlinReflect = "2.2.20"
 material = "1.13.0"
 constraintlayout = "2.2.1"
+materialIconsCore = "1.7.8"
 media3Ui = "1.8.0"
 nanohttpd = "2.3.1"
-navigationFragment = "2.9.4"
-navigationUi = "2.9.4"
-kotlin = "2.2.20"
-navigationFragmentKtx = "2.9.4"
-navigationUiKtx = "2.9.4"
+navigationFragment = "2.9.6"
+navigationUi = "2.9.6"
+kotlin = "2.2.21"
+navigationFragmentKtx = "2.9.6"
+navigationUiKtx = "2.9.6"
 coreKtx = "1.17.0"
-activity = "1.11.0"
-okhttp = "5.1.0"
+activity = "1.12.0"
+okhttp = "5.3.2"
 photoview = "2.3.0"
 quickjsAndroid = "0.9.2"
-composeRuntime = "1.9.4"
-kotlinPlugin = "2.2.20"
+composeRuntime = "1.9.5"
+kotlinPlugin = "2.2.21"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-lifecycleViewmodelKtx = "2.9.3"
-lifecycleRuntimeKtx = "2.9.3"
-activityCompose = "1.11.0"
-composeBom = "2025.09.00"
+lifecycleViewmodelKtx = "2.10.0"
+lifecycleRuntimeKtx = "2.10.0"
+activityCompose = "1.12.0"
+composeBom = "2025.11.01"
 coilCompose = "2.7.0"
-navigationCompose = "2.9.4"
+navigationCompose = "2.9.6"
+ktfmt = "0.25.0"
 
 tsBinding = "4.3.1"
 lsp4j = "0.24.0"
@@ -41,14 +43,15 @@ uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
 baselineprofile = "1.4.1"
 profileinstaller = "1.4.1"
-benchmark = "1.2.4"
-runner = "1.5.2"
-benchmarkJunit4 = "1.2.4"
-lifecycleProcess = "2.9.4"
+benchmark = "1.4.1"
+runner = "1.7.0"
+benchmarkJunit4 = "1.4.1"
+lifecycleProcess = "2.10.0"
 composeDnd = "0.4.0"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "composeRuntime" }
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "anrwatchdog" }
@@ -129,6 +132,7 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"  }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref = "kotlinPlugin"  }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 
 publish = { id = "com.vanniktech.maven.publish.base", version = "0.34.0" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }

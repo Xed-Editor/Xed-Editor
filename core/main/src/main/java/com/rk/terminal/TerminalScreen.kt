@@ -76,10 +76,9 @@ import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
-import com.rk.theme.blueberry
+import com.rk.theme.LocalThemeHolder
 import com.rk.theme.currentTheme
 import com.rk.utils.dpToPx
-import com.rk.utils.isDarkMode
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
@@ -118,7 +117,6 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
 }
 
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TerminalScreenInternal(
@@ -131,16 +129,16 @@ fun TerminalScreenInternal(
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
     val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
     val isDarkMode = isSystemInDarkTheme()
+    val scope = rememberCoroutineScope()
+    val currentTheme = LocalThemeHolder.current
 
     LaunchedEffect("terminal") {
         context.startService(Intent(context, SessionService::class.java))
     }
 
 
-
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-        val scope = rememberCoroutineScope()
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp
         val drawerWidth = (screenWidthDp * 0.84).dp
@@ -150,8 +148,6 @@ fun TerminalScreenInternal(
                 drawerState.close()
             }
         }
-
-
 
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -180,7 +176,7 @@ fun TerminalScreenInternal(
                                         var newString: String
 
                                         do {
-                                            newString = "main$index"
+                                            newString = "main #$index"
                                             index++
                                         } while (newString in existingStrings)
 
@@ -220,11 +216,11 @@ fun TerminalScreenInternal(
 
                         terminalActivity.sessionBinder?.get()?.getService()?.sessionList?.let {
                             LazyColumn {
-                                items(it) { session_id ->
+                                items(it) { sessionId ->
                                     SelectableCard(
-                                        selected = session_id == terminalActivity.sessionBinder?.get()
+                                        selected = sessionId == terminalActivity.sessionBinder?.get()
                                             ?.getService()?.currentSession?.value,
-                                        onSelect = { changeSession(terminalActivity, session_id) },
+                                        onSelect = { terminalActivity.changeSession(sessionId) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(8.dp)
@@ -234,20 +230,19 @@ fun TerminalScreenInternal(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = session_id,
+                                                text = sessionId,
                                                 style = MaterialTheme.typography.bodyLarge
                                             )
 
-                                            if (session_id != terminalActivity.sessionBinder?.get()
+                                            if (sessionId != terminalActivity.sessionBinder?.get()
                                                     ?.getService()?.currentSession?.value
                                             ) {
                                                 Spacer(modifier = Modifier.weight(1f))
 
                                                 IconButton(
                                                     onClick = {
-                                                        println(session_id)
                                                         terminalActivity.sessionBinder?.get()
-                                                            ?.terminateSession(session_id)
+                                                            ?.terminateSession(sessionId)
                                                     },
                                                     modifier = Modifier.size(24.dp)
                                                 ) {
@@ -285,26 +280,20 @@ fun TerminalScreenInternal(
                 }) { paddingValues ->
 
                     Column(modifier = Modifier.padding(paddingValues)) {
-
                         AndroidView(
-
                             factory = { context ->
                                 TerminalView(context, null).apply {
-                                    scope.launch(Dispatchers.Default) {
-                                        while (isActive && currentTheme.value == null){ delay(50) }
 
-                                        withContext(Dispatchers.Main){
-                                            runCatching {
-                                                val terminalColors = if (isDarkMode) {
-                                                    currentTheme.value?.darkTerminalColors
-                                                } else {
-                                                    currentTheme.value?.lightTerminalColors
-                                                }
-                                                applyTerminalColors(surfaceColor = surfaceColor, onSurfaceColor = onSurfaceColor, terminalColors = terminalColors!!)
-                                            }.onFailure { it.printStackTrace() }
-                                        }
+                                    val terminalColors = if (isDarkMode) {
+                                        currentTheme.darkTerminalColors
+                                    } else {
+                                        currentTheme.lightTerminalColors
                                     }
-
+                                    applyTerminalColors(
+                                        surfaceColor = surfaceColor,
+                                        onSurfaceColor = onSurfaceColor,
+                                        terminalColors = terminalColors
+                                    )
 
                                     terminalView = WeakReference(this)
                                     setTextSize(
@@ -326,7 +315,7 @@ fun TerminalScreenInternal(
                                                     pendingCommand!!.id,
                                                     client,
                                                     terminalActivity
-                                                )
+                                                ).session
                                     } else {
                                         terminalActivity.sessionBinder?.get()!!.getSession(
                                             terminalActivity.sessionBinder?.get()!!
@@ -338,7 +327,7 @@ fun TerminalScreenInternal(
                                                         .getService().currentSession.value,
                                                     client,
                                                     terminalActivity
-                                                )
+                                                ).session
                                     }
 
                                     session.updateTerminalSessionClient(client)
@@ -357,30 +346,26 @@ fun TerminalScreenInternal(
                                         )
                                     }
 
-                                        addOnLayoutChangeListener { v, left, top, right, bottom,
-                                                                    oldLeft, oldTop, oldRight, oldBottom ->
-                                            val widthChanged =
-                                                (right - left) != (oldRight - oldLeft)
-                                            val heightChanged =
-                                                (bottom - top) != (oldBottom - oldTop)
+                                    addOnLayoutChangeListener { v, left, top, right, bottom,
+                                                                oldLeft, oldTop, oldRight, oldBottom ->
+                                        val widthChanged =
+                                            (right - left) != (oldRight - oldLeft)
+                                        val heightChanged =
+                                            (bottom - top) != (oldBottom - oldTop)
 
-                                            if (widthChanged || heightChanged) {
-                                                scope.launch(Dispatchers.Default) {
-                                                    while (isActive && currentTheme.value == null){ delay(50) }
-
-                                                    withContext(Dispatchers.Main){
-                                                        runCatching {
-                                                            val terminalColors = if (isDarkMode) {
-                                                                currentTheme.value?.darkTerminalColors
-                                                            } else {
-                                                                currentTheme.value?.lightTerminalColors
-                                                            }
-                                                            terminalView.get()?.applyTerminalColors(surfaceColor = surfaceColor, onSurfaceColor = onSurfaceColor, terminalColors = terminalColors!!)
-                                                        }.onFailure { it.printStackTrace() }
-                                                    }
-                                                }
+                                        if (widthChanged || heightChanged) {
+                                            val terminalColors = if (isDarkMode) {
+                                                currentTheme.darkTerminalColors
+                                            } else {
+                                                currentTheme.lightTerminalColors
                                             }
+                                            terminalView.get()?.applyTerminalColors(
+                                                surfaceColor = surfaceColor,
+                                                onSurfaceColor = onSurfaceColor,
+                                                terminalColors = terminalColors
+                                            )
                                         }
+                                    }
 
                                     post {
                                         keepScreenOn = true
@@ -393,23 +378,19 @@ fun TerminalScreenInternal(
                                 .fillMaxWidth()
                                 .weight(1f),
                             update = { terminalView ->
-                                scope.launch(Dispatchers.Default) {
-                                    while (isActive && currentTheme.value == null){ delay(50) }
-
-                                    withContext(Dispatchers.Main){
-                                        runCatching {
-                                            val terminalColors = if (isDarkMode) {
-                                                currentTheme.value?.darkTerminalColors
-                                            } else {
-                                                currentTheme.value?.lightTerminalColors
-                                            }
-                                            terminalView.applyTerminalColors(surfaceColor = surfaceColor, onSurfaceColor = onSurfaceColor, terminalColors = terminalColors!!)
-                                        }.onFailure { it.printStackTrace() }
-                                    }
+                                val terminalColors = if (isDarkMode) {
+                                    currentTheme.darkTerminalColors
+                                } else {
+                                    currentTheme.lightTerminalColors
                                 }
+
+                                terminalView.applyTerminalColors(
+                                    surfaceColor = surfaceColor,
+                                    onSurfaceColor = onSurfaceColor,
+                                    terminalColors = terminalColors
+                                )
                             },
                         )
-
 
 
                         val pagerState = rememberPagerState(pageCount = { 2 })
@@ -511,24 +492,6 @@ fun TerminalScreenInternal(
                         }
 
                     }
-
-                    LaunchedEffect(LocalConfiguration.current,isSystemInDarkTheme()) {
-                        launch(Dispatchers.Default) {
-                            while (isActive && currentTheme.value == null){ delay(50) }
-
-                            withContext(Dispatchers.Main){
-                                runCatching {
-                                    val terminalColors = if (isDarkMode) {
-                                        currentTheme.value?.darkTerminalColors
-                                    } else {
-                                        currentTheme.value?.lightTerminalColors
-                                    }
-                                    terminalView.get()?.applyTerminalColors(surfaceColor = surfaceColor, onSurfaceColor = onSurfaceColor, terminalColors = terminalColors!!)
-                                }.onFailure { it.printStackTrace() }
-                            }
-                        }
-                    }
-
                 }
             })
     }
@@ -575,45 +538,48 @@ fun SelectableCard(
 }
 
 
-fun changeSession(terminalActivity: Terminal, session_id: String) {
-    terminalView.get()?.apply {
-        val client = TerminalBackEnd(this, terminalActivity)
-        val session =
-            terminalActivity.sessionBinder?.get()!!.getSession(session_id)
-                ?: terminalActivity.sessionBinder?.get()!!.createSession(
-                    session_id,
-                    client,
-                    terminalActivity
-                )
-        session.updateTerminalSessionClient(client)
-        attachSession(session)
-        setTerminalViewClient(client)
+fun Terminal.changeSession(sessionId: String) {
+    val terminalView = terminalView.get() ?: return
+    val binder = sessionBinder!!.get()!!
 
+    val client = TerminalBackEnd(terminalView, this)
+    val session =
+        binder.getSession(sessionId)
+            ?: binder.createSession(
+                sessionId,
+                client,
+                this
+            ).session
+
+    session.updateTerminalSessionClient(client)
+    terminalView.attachSession(session)
+    terminalView.setTerminalViewClient(client)
+
+    terminalView.apply {
         post {
             keepScreenOn = true
             requestFocus()
             setFocusableInTouchMode(true)
         }
-        virtualKeysView.get()?.apply {
-            virtualKeysViewClient =
-                terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
-        }
-
     }
-    terminalActivity.sessionBinder?.get()!!.getService().currentSession.value = session_id
+    virtualKeysView.get()?.apply {
+        virtualKeysViewClient =
+            VirtualKeysListener(terminalView.mTermSession)
+    }
 
+    binder.getService().currentSession.value = sessionId
 }
 
-private suspend fun TerminalView.applyTerminalColors(onSurfaceColor:Int,surfaceColor: Int,terminalColors: Properties) {
+private fun TerminalView.applyTerminalColors(onSurfaceColor: Int,surfaceColor: Int, terminalColors: Properties) {
     this.onScreenUpdated()
 
     mEmulator?.mColors?.reset()
-    TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
+    TerminalColors.COLOR_SCHEME.updateWith(terminalColors)
 
     mEmulator?.mColors?.mCurrentColors?.apply {
-        set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor!!)
-        set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor!!)
-        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor!!)
+        set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor)
+        set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor)
+        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
     }
 
     invalidate()

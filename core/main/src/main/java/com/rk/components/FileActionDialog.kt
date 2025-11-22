@@ -65,6 +65,7 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 import androidx.compose.ui.text.font.FontStyle
 import com.rk.DefaultScope
+import com.rk.filetree.projects
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +80,7 @@ fun FileActionDialog(
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
-    val scope = rememberCoroutineScope()
+    val scope = DefaultScope
 
     // State for various dialogs
     var showRenameDialog by remember { mutableStateOf(false) }
@@ -282,7 +283,7 @@ fun FileActionDialog(
                     )
                 }
 
-                if (fileTreeContext && file.isDirectory()) {
+                if (fileTreeContext && file.isDirectory() && !projects.any { it.fileObject == file }) {
                     AddDialogItem(
                         icon = drawables.folder_code,
                         title = stringResource(strings.open_as_project),

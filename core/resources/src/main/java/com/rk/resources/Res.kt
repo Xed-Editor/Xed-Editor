@@ -28,7 +28,7 @@ inline fun Int.getFilledString(vararg args: Any?): String {
     return this.getString().fillPlaceholders(*args)
 }
 
-inline fun Int.getFilledString(context: Context = Res.application!!,vararg args: Any?): String {
+inline fun Int.getFilledString(context: Context = Res.application!!, vararg args: Any?): String {
     return this.getString(context).fillPlaceholders(*args)
 }
 

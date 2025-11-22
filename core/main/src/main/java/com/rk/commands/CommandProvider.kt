@@ -39,6 +39,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import com.rk.mutation.MutatorAPI
 import com.rk.utils.errorDialog
+import kotlinx.coroutines.Dispatchers
 
 object CommandProvider {
     /** Get all registered commands */
@@ -223,7 +224,7 @@ object CommandProvider {
                     action = { vm, _ ->
                         vm.currentTab?.let {
                             if (it is EditorTab) {
-                                GlobalScope.launch {
+                                GlobalScope.launch(Dispatchers.IO) {
                                     it.save()
                                 }
                             }
@@ -246,7 +247,7 @@ object CommandProvider {
                     action = { vm, _ ->
                         vm.tabs.forEach {
                             if (it is EditorTab) {
-                                GlobalScope.launch {
+                                GlobalScope.launch(Dispatchers.IO) {
                                     it.save()
                                 }
                             }

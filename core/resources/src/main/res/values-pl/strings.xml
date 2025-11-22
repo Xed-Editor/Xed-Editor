@@ -494,4 +494,7 @@
     <string name="empty_command">Puste polecenie</string>
     <string name="socket">Gniazdo</string>
     <string name="process">Proces</string>
+    <string name="theme_flipper">Zmieniacz motywu</string>
+    <string name="theme_flipper_desc">Zmieniaj motw co 7 sek.</string>
+    <string name="lsp_terminal_unavailable">Funkcje serwerów językowych nie zadziałają ponieważ środowisko terminalu jest niedostępne lub nie działa.</string>
 </resources>
