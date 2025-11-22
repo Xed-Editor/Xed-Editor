@@ -11,6 +11,7 @@ glide = "5.0.5"
 kotlinReflect = "2.2.20"
 material = "1.13.0"
 constraintlayout = "2.2.1"
+materialIconsCore = "1.7.8"
 media3Ui = "1.8.0"
 nanohttpd = "2.3.1"
 navigationFragment = "2.9.6"
@@ -50,6 +51,7 @@ composeDnd = "0.4.0"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+androidx-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "composeRuntime" }
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "anrwatchdog" }
