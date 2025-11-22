@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.rk.file.FileObject
@@ -23,7 +24,7 @@ private val gradle = drawables.gradle
 private val info = drawables.info
 
 @Composable
-fun FileIcon(file: FileObject) {
+fun FileIcon(file: FileObject, iconTint: Color? = null) {
     val icon = when {
         file.isFile() -> getFileIcon(file)
         file.isDirectory() -> folder
@@ -31,7 +32,7 @@ fun FileIcon(file: FileObject) {
         else -> unknown
     }
 
-    val tint = if (icon == folder || icon == archive) {
+    val tint = iconTint ?: if (icon == folder || icon == archive) {
         MaterialTheme.colorScheme.folderSurface
     } else MaterialTheme.colorScheme.secondary
 
