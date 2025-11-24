@@ -1,0 +1,28 @@
+{
+"comments": {
+"lineComment": "#"
+},
+"brackets": [
+["(", ")"],
+["{", "}"],
+["[", "]"]
+],
+"autoClosingPairs": [
+["(", ")"],
+["{", "}"],
+["[", "]"],
+{ "open": "\"", "close": "\"", "notIn": ["string"] }
+],
+"surroundingPairs": [
+["(", ")"],
+["{", "}"],
+["[", "]"],
+["\"", "\""]
+],
+"folding": {
+"markers": {
+"start": "^\\s#\\sregion",
+"end": "^\\s#\\sendregion"
+}
+}
+}
