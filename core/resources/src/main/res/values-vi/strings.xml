@@ -111,7 +111,6 @@
     <string name="ok">OK</string>
     <string name="data_clear">Dữ liệu ứng dụng đã xoá</string>
     <string name="action_done">Hành động đã hoàn thành</string>
-    <string name="clone_repo"></string>
     <string name="exists">Đã tồn tại!</string>
     <string name="private_files">Tệp riêng tư</string>
     <string name="private_files_desc">Tệp riêng tư của Xed-Editor</string>
@@ -129,7 +128,6 @@
     <string name="already_installed">Đã cài đặt rồi</string>
     <string name="download_sure">Xác nhận tải xuống \'%s\'?</string>
     <string name="yes">Có</string>
-    <string name="fetch_failed"></string>
     <string name="app">Ứng dụng</string>
     <string name="oled_desc">Sử dụng chủ đề Pure Black</string>
     <string name="themes">Chủ đề</string>
@@ -154,8 +152,6 @@
     <string name="delete_desc">Xóa vĩnh viễn tài liệu</string>
     <string name="open_cant">Không thể mở nhiều hơn</string>
     <string name="editor_font_desc">Chọn phông chữ cho editor</string>
-    <string name="about_desc"></string>
-    <string name="about"></string>
     <string name="version">Phiên bản</string>
     <string name="version_code">Mã phiên bản</string>
     <string name="add_font">Thêm phông chữ mới</string>
