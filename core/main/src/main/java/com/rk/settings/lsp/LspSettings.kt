@@ -28,45 +28,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.resources.strings
-import com.rk.settings.Preference
 import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.builtInServer
 import com.rk.lsp.externalServers
+import com.rk.resources.strings
+import com.rk.settings.Preference
 
 @Composable
 fun LspSettings(modifier: Modifier = Modifier) {
     var showDialog by remember { mutableStateOf(false) }
 
-    PreferenceLayout(label = stringResource(strings.manage_language_servers), fab = {
-        ExtendedFloatingActionButton(onClick = {
-            showDialog = true
-        }) {
-            Icon(imageVector = Icons.Outlined.Add, null)
-            Text(stringResource(strings.external_lsp))
-        }
-    }) {
-        InfoBlock(
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Info, contentDescription = null
-                )
-            },
-            text = stringResource(strings.info_lsp),
-        )
+    PreferenceLayout(
+        label = stringResource(strings.manage_language_servers),
+        fab = {
+            ExtendedFloatingActionButton(onClick = { showDialog = true }) {
+                Icon(imageVector = Icons.Outlined.Add, null)
+                Text(stringResource(strings.external_lsp))
+            }
+        },
+    ) {
+        InfoBlock(icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) }, text = stringResource(strings.info_lsp))
 
         InfoBlock(
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Warning, contentDescription = null
-                )
-            },
+            icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
             text = stringResource(strings.experimental_lsp),
-            warning = true
+            warning = true,
         )
 
         if (builtInServer.isNotEmpty()) {
@@ -76,11 +66,8 @@ fun LspSettings(modifier: Modifier = Modifier) {
                         label = server.languageName,
                         default = Preference.getBoolean("lsp_${server.id}", false),
                         description = server.serverName,
-
                         showSwitch = true,
-                        sideEffect = {
-                            Preference.setBoolean("lsp_${server.id}", it)
-                        }
+                        sideEffect = { Preference.setBoolean("lsp_${server.id}", it) },
                     )
                 }
             }
@@ -90,22 +77,17 @@ fun LspSettings(modifier: Modifier = Modifier) {
             }
         }
 
-
         if (externalServers.isNotEmpty()) {
             PreferenceGroup(heading = stringResource(strings.external)) {
                 externalServers.forEach { server ->
                     SettingsToggle(
                         label = server.serverName,
                         default = true,
-                        description = server.supportedExtensions.toString(),
+                        description = server.supportedExtensions.joinToString(", ") { ".$it" },
                         showSwitch = false,
                         endWidget = {
-                            IconButton(onClick = {
-                                externalServers.remove(server)
-                            }) {
-                                Icon(imageVector = Icons.Outlined.Delete, null)
-                            }
-                        }
+                            IconButton(onClick = { externalServers.remove(server) }) { Icon(imageVector = Icons.Outlined.Delete, null) }
+                        },
                     )
                 }
             }
@@ -114,22 +96,14 @@ fun LspSettings(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(60.dp))
 
         if (showDialog) {
-            ExternalLSP(
-                onDismiss = { showDialog = false },
-                onConfirm = { server ->
-                    externalServers.add(server)
-                }
-            )
+            ExternalLSP(onDismiss = { showDialog = false }, onConfirm = { server -> externalServers.add(server) })
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExternalLSP(
-    onDismiss: () -> Unit,
-    onConfirm: (BaseLspServer) -> Unit
-) {
+private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(strings.external_lsp)) },
@@ -147,10 +121,7 @@ private fun ExternalLSP(
                             selected = selected == option,
                             onClick = { selected = option },
                             label = { Text(option) },
-                            shape = SegmentedButtonDefaults.itemShape(
-                                index = options.indexOf(option),
-                                count = options.size
-                            )
+                            shape = SegmentedButtonDefaults.itemShape(index = options.indexOf(option), count = options.size),
                         )
                     }
                 }
@@ -158,19 +129,9 @@ private fun ExternalLSP(
                 Spacer(Modifier.height(8.dp))
 
                 when (selected) {
-                    socketLabel -> ExternalSocketServer(
-                        onConfirm = onConfirm,
-                        onDismiss = {
-                            onDismiss()
-                        }
-                    )
+                    socketLabel -> ExternalSocketServer(onConfirm = onConfirm, onDismiss = { onDismiss() })
 
-                    processLabel -> ExternalProcessServer(
-                        onConfirm = onConfirm,
-                        onDismiss = {
-                            onDismiss()
-                        }
-                    )
+                    processLabel -> ExternalProcessServer(onConfirm = onConfirm, onDismiss = { onDismiss() })
                 }
             }
         },

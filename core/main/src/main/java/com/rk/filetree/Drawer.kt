@@ -22,9 +22,9 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.*
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
@@ -33,8 +33,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,26 +43,30 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
 import com.rk.DefaultScope
-import com.rk.file.child
-import com.rk.file.sandboxHomeDir
-import com.rk.file.toFileObject
-import com.rk.utils.application
-import com.rk.utils.dialog
-import com.rk.utils.errorDialog
-import com.rk.resources.drawables
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.activities.main.MainActivity
 import com.rk.components.AddDialogItem
 import com.rk.components.CloseConfirmationDialog
 import com.rk.components.FileActionDialog
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
+import com.rk.file.child
+import com.rk.file.sandboxHomeDir
+import com.rk.file.toFileObject
+import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.application
+import com.rk.utils.dialog
 import com.rk.utils.toast
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -70,12 +74,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.Serializable
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-
 
 data class FileObjectWrapper(val fileObject: FileObject, val name: String) : Serializable {
     override fun equals(other: Any?): Boolean {
@@ -96,7 +94,6 @@ data class FileObjectWrapper(val fileObject: FileObject, val name: String) : Ser
     }
 }
 
-
 private val mutex = Mutex()
 
 suspend fun saveProjects() {
@@ -106,9 +103,7 @@ suspend fun saveProjects() {
 
             val file = application!!.cacheDir.child("projects")
 
-            ObjectOutputStream(FileOutputStream(file)).use { oos ->
-                oos.writeObject(projects.map { it.fileObject })
-            }
+            ObjectOutputStream(FileOutputStream(file)).use { oos -> oos.writeObject(projects.map { it.fileObject }) }
         }
     }
 }
@@ -117,47 +112,42 @@ suspend fun restoreProjects() {
     mutex.withLock {
         withContext(Dispatchers.IO) {
             runCatching {
-                val file = application!!.cacheDir.child("projects")
-                if (file.exists() && file.canRead()) {
-                    ObjectInputStream(FileInputStream(file)).use { ois ->
-                        val list = mutableStateListOf<FileObjectWrapper>()
-                        list.addAll((ois.readObject() as List<FileObject>).map { FileObjectWrapper(it, it.getName()) })
-                        withContext(Dispatchers.Main){
-                            projects = list
+                    val file = application!!.cacheDir.child("projects")
+                    if (file.exists() && file.canRead()) {
+                        ObjectInputStream(FileInputStream(file)).use { ois ->
+                            val list = mutableStateListOf<FileObjectWrapper>()
+                            list.addAll((ois.readObject() as List<FileObject>).map { FileObjectWrapper(it, it.getName()) })
+                            withContext(Dispatchers.Main) { projects = list }
                         }
-
+                    }
+                    projects.forEach {
+                        if (it.fileObject.getAbsolutePath() == Settings.selectedProject) {
+                            currentProject = it.fileObject
+                        }
                     }
                 }
-                projects.forEach{
-                    if (it.fileObject.getAbsolutePath() == Settings.selectedProject){
-                        currentProject = it.fileObject
-                    }
+                .onFailure {
+                    it.printStackTrace()
+                    toast(strings.project_restore_failed)
                 }
-
-            }.onFailure {
-                it.printStackTrace();
-                toast(strings.project_restore_failed)
-            }
         }
     }
-
 }
-
 
 var projects = mutableStateListOf<FileObjectWrapper>()
 var currentProject by mutableStateOf<FileObject?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(fileObject: FileObject, save: Boolean = false) {
-    if (projects.find { it.fileObject == fileObject } != null) {
+    val alreadyExistingProject = projects.find { it.fileObject == fileObject }
+    if (alreadyExistingProject != null) {
+        currentProject = alreadyExistingProject.fileObject
         return
     }
     projects.add(FileObjectWrapper(fileObject = fileObject, name = fileObject.getName()))
     currentProject = fileObject
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) {
-            saveProjects()
-        }
+        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
 }
 
@@ -165,48 +155,43 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
 fun removeProject(fileObject: FileObject, save: Boolean = false) {
     projects.remove(projects.find { it.fileObject == fileObject })
     if (currentProject == fileObject) {
-        currentProject = if (projects.size - 1 >= 0) {
-            projects[projects.size - 1].fileObject
-        } else {
-            null
-        }
+        currentProject =
+            if (projects.size - 1 >= 0) {
+                projects[projects.size - 1].fileObject
+            } else {
+                null
+            }
     }
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) {
-            saveProjects()
-        }
+        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
 }
 
 var isLoading by mutableStateOf(true)
 
-
 @Composable
-fun DrawerContent(
-    modifier: Modifier = Modifier,
-    onFileSelected: (FileObject) -> Unit,
-    fileTreeViewModel: FileTreeViewModel
-) {
+fun DrawerContent(modifier: Modifier = Modifier, onFileSelected: (FileObject) -> Unit, fileTreeViewModel: FileTreeViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val openFolder = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocumentTree(),
-        onResult = { uri ->
-            uri?.let {
-                runCatching {
-                    // Persist access permissions (required for Android 5.0+)
-                    context.contentResolver.takePersistableUriPermission(it,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                }.onFailure { it.printStackTrace() }
+    val openFolder =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocumentTree(),
+            onResult = { uri ->
+                uri?.let {
+                    runCatching {
+                            // Persist access permissions (required for Android 5.0+)
+                            context.contentResolver.takePersistableUriPermission(
+                                it,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                            )
+                        }
+                        .onFailure { it.printStackTrace() }
 
-                scope.launch {
-                    addProject(it.toFileObject(expectedIsFile = false))
+                    scope.launch { addProject(it.toFileObject(expectedIsFile = false)) }
                 }
-            }
-        }
-    )
+            },
+        )
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (isLoading) {
@@ -224,7 +209,10 @@ fun DrawerContent(
                             selected = file.fileObject == currentProject,
                             icon = {
                                 val iconId =
-                                    if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == sandboxHomeDir())) {
+                                    if (
+                                        (file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) ||
+                                            (file.fileObject is FileWrapper && file.fileObject.file == sandboxHomeDir())
+                                    ) {
                                         drawables.terminal
                                     } else {
                                         drawables.outline_folder
@@ -235,28 +223,19 @@ fun DrawerContent(
                                 if (file.fileObject == currentProject) {
                                     closeProjectDialog = true
                                 } else {
-                                    scope.launch {
-                                        currentProject = file.fileObject
-                                    }
+                                    scope.launch { currentProject = file.fileObject }
                                 }
-
                             },
-                            label = {
-                                Text(
-                                    file.fileObject.getAppropriateName(),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            })
+                            label = { Text(file.fileObject.getAppropriateName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        )
                     }
 
-                    NavigationRailItem(selected = false, icon = {
-                        Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
-                    }, onClick = {
-                        showAddDialog = true
-                    }, label = {
-                        Text(stringResource(strings.add))
-                    })
+                    NavigationRailItem(
+                        selected = false,
+                        icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
+                        onClick = { showAddDialog = true },
+                        label = { Text(stringResource(strings.add)) },
+                    )
                 }
 
                 VerticalDivider()
@@ -264,10 +243,7 @@ fun DrawerContent(
                 Crossfade(targetState = currentProject, label = "file tree") { project ->
                     if (project != null) {
                         FileTree(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .weight(1f)
-                                .systemBarsPadding(),
+                            modifier = Modifier.fillMaxSize().weight(1f).systemBarsPadding(),
                             rootNode = project.toFileTreeNode(),
                             viewModel = fileTreeViewModel,
                             onFileClick = {
@@ -275,23 +251,21 @@ fun DrawerContent(
                                     onFileSelected.invoke(it.file)
                                 }
                             },
-                            onFileLongClick = {
-                                fileActionDialog = it.file
-                            })
+                            onFileLongClick = { fileActionDialog = it.file },
+                        )
                     } else {
                         Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .weight(1f),
+                            modifier = Modifier.fillMaxSize().weight(1f),
                             verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Icon(
                                 painter = painterResource(drawables.outline_folder),
-                                contentDescription = null, tint = MaterialTheme.colorScheme.onSurface
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text(stringResource(strings.no_folder_opened),color = MaterialTheme.colorScheme.onSurface)
+                            Text(stringResource(strings.no_folder_opened), color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
@@ -300,14 +274,14 @@ fun DrawerContent(
                     AddProjectDialog(
                         onDismiss = { showAddDialog = false },
                         openFolder = openFolder,
-                        onAddProject = { fileObject ->
-                            scope.launch { addProject(fileObject, true) }
-                        },
+                        onAddProject = { fileObject -> scope.launch { addProject(fileObject, true) } },
                         showPrivateFileWarning = { callback ->
-                            dialog(title = strings.attention.getString(), msg = strings.warning_private_dir.getString(), onOk = {
-                                callback.invoke()
-                            })
-                        }
+                            dialog(
+                                title = strings.attention.getString(),
+                                msg = strings.warning_private_dir.getString(),
+                                onOk = { callback.invoke() },
+                            )
+                        },
                     )
                 }
 
@@ -316,10 +290,8 @@ fun DrawerContent(
                         modifier = Modifier,
                         file = fileActionDialog!!,
                         root = currentProject!!,
-                        onDismissRequest = {
-                            fileActionDialog = null
-                        },
-                        fileTreeViewModel = fileTreeViewModel
+                        onDismissRequest = { fileActionDialog = null },
+                        fileTreeViewModel = fileTreeViewModel,
                     )
                 }
 
@@ -329,9 +301,8 @@ fun DrawerContent(
                         onConfirm = {
                             closeProjectDialog = false
                             currentProject?.let { removeProject(it) }
-                        }, onDismiss = {
-                            closeProjectDialog = false
-                        }
+                        },
+                        onDismiss = { closeProjectDialog = false },
                     )
                 }
             }
@@ -339,23 +310,20 @@ fun DrawerContent(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddProjectDialog(
     onDismiss: () -> Unit,
     onAddProject: (FileObject) -> Unit,
     openFolder: ManagedActivityResultLauncher<Uri?, Uri?>,
-    showPrivateFileWarning:(onOK:()-> Unit)-> Unit
+    showPrivateFileWarning: (onOK: () -> Unit) -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
     val lifecycleScope = remember { activity?.lifecycleScope ?: DefaultScope }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
-        ) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
             AddDialogItem(
                 icon = drawables.file_symlink,
                 title = stringResource(strings.open_directory),
@@ -363,22 +331,20 @@ private fun AddProjectDialog(
                 onClick = {
                     openFolder.launch(null)
                     onDismiss()
-                }
+                },
             )
 
             // Open Path option
             val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
             val isManager = is11Plus && Environment.isExternalStorageManager()
-            val legacyPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            ) != PackageManager.PERMISSION_GRANTED
+            val legacyPermission =
+                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) !=
+                    PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                        PackageManager.PERMISSION_GRANTED
 
             val storage = Environment.getExternalStorageDirectory()
-            if (((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead() ) {
+            if (((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()) {
                 AddDialogItem(
                     icon = drawables.android,
                     title = stringResource(strings.open_path),
@@ -386,7 +352,7 @@ private fun AddProjectDialog(
                     onClick = {
                         addProject(FileWrapper(storage))
                         onDismiss()
-                    }
+                    },
                 )
             }
 
@@ -399,17 +365,13 @@ private fun AddProjectDialog(
                         if (!Settings.has_shown_private_data_dir_warning) {
                             showPrivateFileWarning {
                                 Settings.has_shown_private_data_dir_warning = true
-                                lifecycleScope.launch {
-                                    onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
-                                }
+                                lifecycleScope.launch { onAddProject(FileWrapper(activity!!.filesDir.parentFile!!)) }
                             }
                         } else {
-                            lifecycleScope.launch {
-                                onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
-                            }
+                            lifecycleScope.launch { onAddProject(FileWrapper(activity!!.filesDir.parentFile!!)) }
                         }
                         onDismiss()
-                    }
+                    },
                 )
             }
 
@@ -422,23 +384,14 @@ private fun AddProjectDialog(
                     if (!Settings.has_shown_terminal_dir_warning) {
                         showPrivateFileWarning {
                             Settings.has_shown_terminal_dir_warning = true
-                            lifecycleScope.launch {
-                                onAddProject(FileWrapper(sandboxHomeDir()))
-                            }
+                            lifecycleScope.launch { onAddProject(FileWrapper(sandboxHomeDir())) }
                         }
                     } else {
-                        lifecycleScope.launch {
-                            onAddProject(FileWrapper(sandboxHomeDir()))
-                        }
+                        lifecycleScope.launch { onAddProject(FileWrapper(sandboxHomeDir())) }
                     }
                     onDismiss()
-                }
+                },
             )
         }
     }
 }
-
-
-
-
-
