@@ -481,4 +481,5 @@
     <string name="format_document_error">Nelze formátovat tento soubor.</string>
     <string name="can_execute">Je spustitelný</string>
     <string name="lsp_terminal_unavailable">Jazykové junkce LSP nebudou fungovat protože prostředí terminálu není dostupné nebo není funkční.</string>
+    <string name="type_command">Napište příkaz</string>
 </resources>

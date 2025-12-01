@@ -497,5 +497,5 @@
     <string name="process">Processus</string>
     <string name="theme_flipper">Rotation de thème</string>
     <string name="theme_flipper_desc">Change constamment le mode du thème toutes les 7 s</string>
-    <string name="lsp_terminal_unavailable">Les fonctionnalités de langage LSP ne fonctionneront pas, car l\'environnement du terminal est indisponible ou hors fonction.</string>
+    <string name="lsp_terminal_unavailable">Les fonctionnalités de langage LSP ne fonctionneront pas, car l\'environnement du terminal est indisponible ou ne fonctionne pas.</string>
 </resources>
