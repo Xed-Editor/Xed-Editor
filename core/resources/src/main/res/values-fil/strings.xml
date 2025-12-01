@@ -26,4 +26,5 @@
     <string name="search">Maghanap</string>
     <string name="go_next">Susunod</string>
     <string name="go_prev">Nakaraan</string>
+    <string name="close_search">Isara ang paghahanap</string>
 </resources>
