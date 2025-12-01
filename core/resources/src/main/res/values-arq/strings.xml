@@ -15,4 +15,11 @@
     <string name="new_file">ملف جديد</string>
     <string name="new_file_hint">الاسم (على سبيل المثال: Test)</string>
     <string name="mime">نوع ‎MIME (على سبيل المثال: ‎text/plain)</string>
+    <string name="wait">الرجاء الانتظار…</string>
+    <string name="report_issue">الإبلاغ عن مشكلة</string>
+    <string name="copy">نسخ</string>
+    <string name="save_all">حفظ الكل</string>
+    <string name="undo">تراجع</string>
+    <string name="settings">اعدادات</string>
+    <string name="print">طباعة</string>
 </resources>
