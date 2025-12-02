@@ -17,6 +17,7 @@ import com.rk.activities.main.MainViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
+import com.rk.filetree.projects
 import com.rk.icons.Edit_note
 import com.rk.icons.XedIcons
 import com.rk.lsp.formatDocument
@@ -25,6 +26,7 @@ import com.rk.lsp.goToDefinition
 import com.rk.lsp.goToReferences
 import com.rk.lsp.renameSymbol
 import com.rk.mutation.Engine
+import com.rk.mutation.MutatorAPI
 import com.rk.mutation.Mutators
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -33,13 +35,12 @@ import com.rk.runner.Runner
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.EditorTab
 import com.rk.utils.dialog
+import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import com.rk.mutation.MutatorAPI
-import com.rk.utils.errorDialog
-import kotlinx.coroutines.Dispatchers
 
 object CommandProvider {
     /** Get all registered commands */
@@ -55,9 +56,21 @@ object CommandProvider {
                 Command(
                     id = "global.terminal",
                     label = mutableStateOf(stringResource(strings.terminal)),
-                    action = { _, act ->
+                    action = { viewModel, act ->
                         showTerminalNotice(act!!) {
-                            act.startActivity(Intent(act, Terminal::class.java))
+                            val intent = Intent(act, Terminal::class.java)
+                                .apply {
+                                    val currentFile = viewModel.currentTab?.file ?: return@apply
+                                    val currentPath = currentFile.getAbsolutePath()
+                                    // Find the closest (longest matching) project path
+                                    val project = projects
+                                        .filter { currentPath.startsWith(it.fileObject.getAbsolutePath()) }
+                                        .maxByOrNull { it.fileObject.getAbsolutePath().length }
+                                        ?: return@apply
+                                    putExtra("cwd", project.fileObject.getAbsolutePath())
+                                }
+
+                            act.startActivity(intent)
                         }
                     },
                     isSupported = derivedStateOf { InbuiltFeatures.terminal.state.value },
