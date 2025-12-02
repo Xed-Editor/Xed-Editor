@@ -4,28 +4,22 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ktfmt)
 }
 
-val gitCommitHash: Provider<String> = providers.exec {
-    commandLine("git", "rev-parse", "--short=8", "HEAD")
-}.standardOutput.asText.map { it.trim() }
+val gitCommitHash: Provider<String> =
+    providers.exec { commandLine("git", "rev-parse", "--short=8", "HEAD") }.standardOutput.asText.map { it.trim() }
 
+val fullGitCommitHash: Provider<String> = providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
 
-val fullGitCommitHash: Provider<String> = providers.exec {
-    commandLine("git", "rev-parse", "HEAD")
-}.standardOutput.asText.map { it.trim() }
-
-val gitCommitDate: Provider<String> = providers.exec {
-    commandLine("git", "show", "-s", "--format=%cI", "HEAD")
-}.standardOutput.asText.map { it.trim() }
+val gitCommitDate: Provider<String> =
+    providers.exec { commandLine("git", "show", "-s", "--format=%cI", "HEAD") }.standardOutput.asText.map { it.trim() }
 
 android {
     namespace = "com.rk.xededitor"
     compileSdk = 36
 
-    buildFeatures {
-        buildConfig = true
-    }
+    buildFeatures { buildConfig = true }
 
     defaultConfig {
         minSdk = 26
@@ -42,9 +36,7 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
 
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
         debug {
@@ -58,32 +50,27 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlin {
-        jvmToolchain(21)
-    }
+    kotlin { jvmToolchain(21) }
 
     buildFeatures {
         viewBinding = true
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "2.2.20"
+    composeOptions { kotlinCompilerExtensionVersion = "2.2.20" }
+}
+
+val runPrecompileScript by
+    tasks.registering(GenerateSupportedLocales::class) {
+        group = "build setup"
+        description = "Update supported_locales.json in assets"
+
+        resDir.set(layout.projectDirectory.dir("../resources/src/main/res"))
+
+        outputFile.set(layout.projectDirectory.file("src/main/assets/supported_locales.json"))
     }
-}
 
-val runPrecompileScript by tasks.registering(GenerateSupportedLocales::class) {
-    group = "build setup"
-    description = "Update supported_locales.json in assets"
-
-    resDir.set(layout.projectDirectory.dir("../resources/src/main/res"))
-
-    outputFile.set(layout.projectDirectory.file("src/main/assets/supported_locales.json"))
-}
-
-tasks.named("preBuild") {
-    dependsOn(runPrecompileScript)
-}
+tasks.named("preBuild") { dependsOn(runPrecompileScript) }
 
 dependencies {
     implementation(libs.appcompat)
@@ -119,6 +106,8 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.androidx.documentfile)
     implementation(libs.compose.dnd)
+    implementation(libs.androidx.material.icons.core)
+    // implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // Modules
     implementation(project(":editor"))
@@ -126,36 +115,37 @@ dependencies {
     implementation(project(":language-textmate"))
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
-    //implementation(project(":core:extension"))
+    // implementation(project(":core:extension"))
     implementation(project(":core:terminal-view"))
     implementation(project(":core:terminal-emulator"))
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidsvg.aar)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {
-    @get:InputDirectory
-    abstract val resDir: DirectoryProperty
+    @get:InputDirectory abstract val resDir: DirectoryProperty
 
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:OutputFile abstract val outputFile: RegularFileProperty
 
     @TaskAction
     fun generate() {
         val locales = mutableListOf<String>()
 
-        resDir.get().asFile.listFiles { file ->
-            file.isDirectory && file.name.startsWith("values")
-        }?.forEach { dir ->
-            val folderName = dir.name
-            val locale = when {
-                folderName == "values" -> "en"
-                folderName.startsWith("values-") ->
-                    folderName.removePrefix("values-").replace("-r", "-")
+        resDir
+            .get()
+            .asFile
+            .listFiles { file -> file.isDirectory && file.name.startsWith("values") }
+            ?.forEach { dir ->
+                val folderName = dir.name
+                val locale =
+                    when {
+                        folderName == "values" -> "en"
+                        folderName.startsWith("values-") -> folderName.removePrefix("values-").replace("-r", "-")
 
-                else -> null
+                        else -> null
+                    }
+                locale?.let { locales.add(it) }
             }
-            locale?.let { locales.add(it) }
-        }
 
         locales.sort()
 
@@ -166,4 +156,3 @@ abstract class GenerateSupportedLocales : DefaultTask() {
         logger.lifecycle("✅ Generated ${outFile.path}")
     }
 }
-
