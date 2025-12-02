@@ -8,13 +8,15 @@ import java.net.URI
 import kotlin.String
 import kotlin.random.Random
 
-
-//DO not put this in lsp registry
-class ExternalProcessServer(override val languageName: String, val command: String, override val supportedExtensions: List<String>) : BaseLspServer() {
+// DO not put this in lsp registry
+class ExternalProcessServer(
+    override val languageName: String,
+    val command: String,
+    override val supportedExtensions: List<String>,
+) : BaseLspServer() {
 
     override val id: String = "${languageName}_${Random.nextInt()}"
     override val serverName: String = command
-
 
     override fun isInstalled(context: Context): Boolean {
         return true
@@ -23,7 +25,7 @@ class ExternalProcessServer(override val languageName: String, val command: Stri
     override fun install(context: Context) {}
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("bash","-c",command))
+        return LspConnectionConfig.Process(arrayOf("bash", "-c", command))
     }
 
     override fun isSupported(file: FileObject): Boolean {
@@ -39,9 +41,8 @@ class ExternalProcessServer(override val languageName: String, val command: Stri
         return serverName
     }
 
-
     override fun equals(other: Any?): Boolean {
-        if (other !is ExternalProcessServer){
+        if (other !is ExternalProcessServer) {
             return false
         }
         return other.command == command && supportedExtensions.containsAll(other.supportedExtensions)
@@ -55,6 +56,4 @@ class ExternalProcessServer(override val languageName: String, val command: Stri
         result = 31 * result + serverName.hashCode()
         return result
     }
-
-
 }

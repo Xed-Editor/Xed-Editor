@@ -1,11 +1,11 @@
 package com.rk.terminal
 
-import com.rk.file.sandboxDir
-import com.rk.utils.application
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localBinDir
 import com.rk.file.localDir
+import com.rk.file.sandboxDir
+import com.rk.utils.application
 
 fun setupTerminalFiles() {
     if (sandboxDir().exists().not() || localBinDir().exists().not()) return
@@ -24,26 +24,17 @@ fun setupTerminalFiles() {
         }
     }
 
-
     with(localBinDir().child("termux-x11")) {
         if (exists().not()) {
             createFileIfNot()
-            writeText(
-                application!!.assets
-                    .open("terminal/termux-x11.sh")
-                    .bufferedReader()
-                    .use { it.readText() }
-            )
+            writeText(application!!.assets.open("terminal/termux-x11.sh").bufferedReader().use { it.readText() })
         }
     }
-
 
     val internalFiles = listOf("init", "sandbox", "setup", "utils")
     internalFiles.forEach { setupAssetFile(it) }
 
-    application!!.assets.list("terminal/lsp")?.forEach {
-        setupLspFile(it.removeSuffix(".sh"))
-    }
+    application!!.assets.list("terminal/lsp")?.forEach { setupLspFile(it.removeSuffix(".sh")) }
 }
 
 fun setupLspFile(fileName: String) = setupAssetFile("lsp/$fileName")
@@ -53,12 +44,7 @@ fun setupAssetFile(fileName: String) {
         parentFile?.mkdir()
         if (exists().not()) {
             createFileIfNot()
-            writeText(
-                application!!.assets
-                    .open("terminal/$fileName.sh")
-                    .bufferedReader()
-                    .use { it.readText() }
-            )
+            writeText(application!!.assets.open("terminal/$fileName.sh").bufferedReader().use { it.readText() })
         }
     }
 }

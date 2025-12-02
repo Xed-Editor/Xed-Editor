@@ -24,15 +24,13 @@ fun BasicToggle(
     label: String,
     description: String? = null,
     checked: Boolean,
-    onSwitch: (Boolean) -> Unit
+    onSwitch: (Boolean) -> Unit,
 ) {
     PreferenceSwitch(
         checked = checked,
         description = description,
-        onCheckedChange = {
-            onSwitch.invoke(it)
-        },
-        label = label
+        onCheckedChange = { onSwitch.invoke(it) },
+        label = label,
     )
 }
 
@@ -75,28 +73,26 @@ fun SettingsToggle(
             label = label,
             modifier = modifier,
             description = description,
-            enabled = isEnabled
+            enabled = isEnabled,
         )
     } else {
         val interactionSource = remember { MutableInteractionSource() }
         PreferenceTemplate(
-            modifier = modifier.combinedClickable(
-                enabled = isEnabled,
-                indication = ripple(),
-                interactionSource = interactionSource,
-                onLongClick = onLongClick,
-                onClick = { sideEffect?.invoke(false) }
-            ),
-            contentModifier = Modifier
-                .fillMaxHeight()
-                .padding(vertical = 16.dp)
-                .padding(start = 16.dp),
+            modifier =
+                modifier.combinedClickable(
+                    enabled = isEnabled,
+                    indication = ripple(),
+                    interactionSource = interactionSource,
+                    onLongClick = onLongClick,
+                    onClick = { sideEffect?.invoke(false) },
+                ),
+            contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
             title = { Text(fontWeight = FontWeight.Bold, text = label) },
             description = { description?.let { Text(text = it) } },
             enabled = isEnabled,
             applyPaddings = false,
             endWidget = endWidget,
-            startWidget = startWidget
+            startWidget = startWidget,
         )
     }
 }

@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.rk.DefaultScope
+import com.rk.activities.main.MainActivity
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
-import com.rk.activities.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

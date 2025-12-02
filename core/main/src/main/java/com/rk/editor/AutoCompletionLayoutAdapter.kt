@@ -19,7 +19,7 @@ class AutoCompletionLayoutAdapter(private val density: Density) : EditorCompleti
         position: Int,
         convertView: View?,
         parent: ViewGroup?,
-        isCurrentCursorPosition: Boolean
+        isCurrentCursorPosition: Boolean,
     ): View {
         val item = getItem(position)
         val view = LayoutInflater.from(context).inflate(R.layout.completion, parent, false)
@@ -46,5 +46,4 @@ class AutoCompletionLayoutAdapter(private val density: Density) : EditorCompleti
 
         return view
     }
-
 }

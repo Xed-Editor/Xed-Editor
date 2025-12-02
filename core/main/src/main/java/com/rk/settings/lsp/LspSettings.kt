@@ -51,7 +51,10 @@ fun LspSettings(modifier: Modifier = Modifier) {
             }
         },
     ) {
-        InfoBlock(icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) }, text = stringResource(strings.info_lsp))
+        InfoBlock(
+            icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
+            text = stringResource(strings.info_lsp),
+        )
 
         InfoBlock(
             icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
@@ -86,7 +89,9 @@ fun LspSettings(modifier: Modifier = Modifier) {
                         description = server.supportedExtensions.joinToString(", ") { ".$it" },
                         showSwitch = false,
                         endWidget = {
-                            IconButton(onClick = { externalServers.remove(server) }) { Icon(imageVector = Icons.Outlined.Delete, null) }
+                            IconButton(onClick = { externalServers.remove(server) }) {
+                                Icon(imageVector = Icons.Outlined.Delete, null)
+                            }
                         },
                     )
                 }
@@ -121,7 +126,8 @@ private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Uni
                             selected = selected == option,
                             onClick = { selected = option },
                             label = { Text(option) },
-                            shape = SegmentedButtonDefaults.itemShape(index = options.indexOf(option), count = options.size),
+                            shape =
+                                SegmentedButtonDefaults.itemShape(index = options.indexOf(option), count = options.size),
                         )
                     }
                 }

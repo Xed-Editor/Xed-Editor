@@ -52,6 +52,11 @@ import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
+import java.io.File
+import java.lang.ref.WeakReference
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -59,30 +64,25 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.File
-import java.lang.ref.WeakReference
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
-import java.util.concurrent.TimeUnit
 
 class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
 
+    private val serviceConnection =
+        object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                val binder = service as SessionService.SessionBinder
+                sessionBinder = WeakReference(binder)
+                // sessionBinder = WeakReference(binder)
+                isBound = true
+            }
 
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as SessionService.SessionBinder
-            sessionBinder = WeakReference(binder)
-            //sessionBinder = WeakReference(binder)
-            isBound = true
+            override fun onServiceDisconnected(name: ComponentName?) {
+                isBound = false
+                sessionBinder = null
+            }
         }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            isBound = false
-            sessionBinder = null
-        }
-    }
 
     override fun onStart() {
         super.onStart()
@@ -104,11 +104,7 @@ class Terminal : AppCompatActivity() {
             val client = TerminalBackEnd(terminalView, this@Terminal)
             val sessionId = File(pwd).name
 
-            val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(
-                sessionId,
-                client,
-                this@Terminal
-            )
+            val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)
         }
@@ -133,7 +129,7 @@ class Terminal : AppCompatActivity() {
                     if (sessionBinder != null) {
                         TerminalScreenHost(this)
                     } else {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text("No service connection")
                         }
                     }
@@ -163,54 +159,59 @@ class Terminal : AppCompatActivity() {
             try {
                 val abi = Build.SUPPORTED_ABIS
 
-                val filesToDownload = listOf(
-                    DownloadFile(
-                        url = if (abi.contains("x86_64")) {
-                            talloc_x86_64
-                        } else if (abi.contains("arm64-v8a")) {
-                            talloc_aarch64
-                        } else if (abi.contains("armeabi-v7a")) {
-                            talloc_arm
-                        } else {
-                            throw RuntimeException("Unsupported CPU")
-                        }, outputFile = localLibDir().child("libtalloc.so.2")
-                    ),
-
-                    DownloadFile(
-                        url = if (abi.contains("x86_64")) {
-                            proot_x86_64
-                        } else if (abi.contains("arm64-v8a")) {
-                            proot_aarch64
-                        } else if (abi.contains("armeabi-v7a")) {
-                            proot_arm
-                        } else {
-                            throw RuntimeException("Unsupported CPU")
-                        }, outputFile = localBinDir().child("proot")
-                    ),
-                ).toMutableList()
-
+                val filesToDownload =
+                    listOf(
+                            DownloadFile(
+                                url =
+                                    if (abi.contains("x86_64")) {
+                                        talloc_x86_64
+                                    } else if (abi.contains("arm64-v8a")) {
+                                        talloc_aarch64
+                                    } else if (abi.contains("armeabi-v7a")) {
+                                        talloc_arm
+                                    } else {
+                                        throw RuntimeException("Unsupported CPU")
+                                    },
+                                outputFile = localLibDir().child("libtalloc.so.2"),
+                            ),
+                            DownloadFile(
+                                url =
+                                    if (abi.contains("x86_64")) {
+                                        proot_x86_64
+                                    } else if (abi.contains("arm64-v8a")) {
+                                        proot_aarch64
+                                    } else if (abi.contains("armeabi-v7a")) {
+                                        proot_arm
+                                    } else {
+                                        throw RuntimeException("Unsupported CPU")
+                                    },
+                                outputFile = localBinDir().child("proot"),
+                            ),
+                        )
+                        .toMutableList()
 
                 if (isTerminalInstalled().not()) {
                     filesToDownload.add(
                         DownloadFile(
-                            url = if (abi.contains("x86_64")) {
-                                sandbox_x86_64
-                            } else if (abi.contains("arm64-v8a")) {
-                                sandbox_aarch64
-                            } else if (abi.contains("armeabi-v7a")) {
-                                sandbox_arm
-                            } else {
-                                throw RuntimeException("Unsupported CPU")
-                            }, outputFile = getTempDir().child("sandbox.tar.gz")
+                            url =
+                                if (abi.contains("x86_64")) {
+                                    sandbox_x86_64
+                                } else if (abi.contains("arm64-v8a")) {
+                                    sandbox_aarch64
+                                } else if (abi.contains("armeabi-v7a")) {
+                                    sandbox_arm
+                                } else {
+                                    throw RuntimeException("Unsupported CPU")
+                                },
+                            outputFile = getTempDir().child("sandbox.tar.gz"),
                         )
                     )
                 }
 
-                needsDownload = filesToDownload.any { file ->
-                    file.outputFile.exists().not()
-                }
+                needsDownload = filesToDownload.any { file -> file.outputFile.exists().not() }
 
-                setupEnvironment(context = context,
+                setupEnvironment(
+                    context = context,
                     filesToDownload = filesToDownload,
                     onProgress = { fileName, downloaded, total ->
                         downloadedBytes = downloaded
@@ -220,25 +221,24 @@ class Terminal : AppCompatActivity() {
                         if (total > 0) {
                             val downloadedMB = formatBytesToMB(downloaded)
                             val totalMB = formatBytesToMB(total)
-                            progressText = "${strings.downloading.getString()} ${fileName.removeSuffix(".so").removePrefix("lib")} ($downloadedMB/$totalMB MB)"
+                            progressText =
+                                "${strings.downloading.getString()} ${fileName.removeSuffix(".so").removePrefix("lib")} ($downloadedMB/$totalMB MB)"
                         }
                     },
-                    onComplete = {
-                        installNextStage = it
-                    },
-                    onError = { error,file ->
+                    onComplete = { installNextStage = it },
+                    onError = { error, file ->
                         if (error is UnknownHostException) {
                             toast(strings.network_err.getString())
-                        }else if (error is SocketTimeoutException){
+                        } else if (error is SocketTimeoutException) {
                             errorDialog(strings.timeout)
                         } else {
                             error.printStackTrace()
-                            GlobalScope.launch(Dispatchers.IO){
-                                if (file?.absolutePath?.contains(localBinDir().absolutePath) == true){
+                            GlobalScope.launch(Dispatchers.IO) {
+                                if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
                                     localBinDir().deleteRecursively()
                                 }
 
-                                if (file?.name == "sandbox.tar.gz"){
+                                if (file?.name == "sandbox.tar.gz") {
                                     sandboxDir().deleteRecursively()
                                     File(getTempDir(), "sandbox.tar.gz").delete()
                                 }
@@ -246,13 +246,12 @@ class Terminal : AppCompatActivity() {
                             errorDialog("Setup Failed: ${error.message}")
                         }
                         finish()
-
-
-                    })
+                    },
+                )
             } catch (e: Exception) {
                 if (e is UnknownHostException) {
                     toast(strings.network_err.getString())
-                }else if (e is SocketTimeoutException){
+                } else if (e is SocketTimeoutException) {
                     errorDialog(strings.timeout)
                 } else {
                     e.printStackTrace()
@@ -262,35 +261,23 @@ class Terminal : AppCompatActivity() {
             }
         }
 
-        Box(
-            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (installNextStage == null) {
                 if (needsDownload) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = progressText,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = progressText, style = MaterialTheme.typography.bodyLarge)
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        LinearProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier.fillMaxWidth(0.8f),
-                        )
+                        LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(0.8f))
                         if (totalBytes > 0) {
                             val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
                             progress = (downloadedBytes.toFloat() / totalBytes * 1)
                             Text(
                                 text = "${percent}%",
                                 style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(top = 8.dp)
+                                modifier = Modifier.padding(top = 8.dp),
                             )
                         }
-
-
                     }
                 }
             } else {
@@ -299,10 +286,7 @@ class Terminal : AppCompatActivity() {
         }
     }
 
-
-    data class DownloadFile(
-        val url: String, val outputFile: File
-    )
+    data class DownloadFile(val url: String, val outputFile: File)
 
     @OptIn(DelicateCoroutinesApi::class)
     private suspend fun setupEnvironment(
@@ -310,7 +294,7 @@ class Terminal : AppCompatActivity() {
         filesToDownload: List<DownloadFile>,
         onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
         onComplete: (NEXT_STAGE) -> Unit,
-        onError: (Exception, File?) -> Unit
+        onError: (Exception, File?) -> Unit,
     ) {
         var currentFile: File? = null
 
@@ -328,9 +312,7 @@ class Terminal : AppCompatActivity() {
                         downloadFile(
                             url = file.url,
                             outputFile = outputFile,
-                            onProgress = { downloaded, total ->
-                                onProgress(file.outputFile.name, downloaded, total)
-                            }
+                            onProgress = { downloaded, total -> onProgress(file.outputFile.name, downloaded, total) },
                         )
                     } else {
                         // Report existing file as already downloaded
@@ -338,20 +320,15 @@ class Terminal : AppCompatActivity() {
                     }
                     completedFiles++
 
-                    runCatching {
-                        outputFile.setExecutable(true)
-                    }.onFailure { it.printStackTrace() }
+                    runCatching { outputFile.setExecutable(true) }.onFailure { it.printStackTrace() }
                 }
 
                 val stage = getNextStage(this@Terminal)
                 onComplete(stage)
-
             } catch (e: Exception) {
                 e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    onError(e,currentFile)
-                }
-                if (currentFile?.exists() == true){
+                withContext(Dispatchers.Main) { onError(e, currentFile) }
+                if (currentFile?.exists() == true) {
                     currentFile.delete()
                 }
             }
@@ -359,14 +336,18 @@ class Terminal : AppCompatActivity() {
     }
 
     private suspend fun downloadFile(
-        url: String, outputFile: File, onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit
+        url: String,
+        outputFile: File,
+        onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit,
     ) {
         withContext(Dispatchers.IO) {
-            val client = OkHttpClient.Builder()
-                .connectTimeout(1, TimeUnit.MINUTES)
-                .readTimeout(1, TimeUnit.MINUTES)
-                .writeTimeout(1, TimeUnit.MINUTES)
-                .callTimeout(10, TimeUnit.MINUTES).build()
+            val client =
+                OkHttpClient.Builder()
+                    .connectTimeout(1, TimeUnit.MINUTES)
+                    .readTimeout(1, TimeUnit.MINUTES)
+                    .writeTimeout(1, TimeUnit.MINUTES)
+                    .callTimeout(10, TimeUnit.MINUTES)
+                    .build()
             val request = Request.Builder().url(url).build()
 
             client.newCall(request).execute().use { response ->
@@ -387,9 +368,7 @@ class Terminal : AppCompatActivity() {
                         while (input.read(buffer).also { bytesRead = it } != -1) {
                             output.write(buffer, 0, bytesRead)
                             downloadedBytes += bytesRead
-                            withContext(Dispatchers.Main) {
-                                onProgress(downloadedBytes, totalBytes)
-                            }
+                            withContext(Dispatchers.Main) { onProgress(downloadedBytes, totalBytes) }
                         }
                     }
                 }
@@ -398,19 +377,14 @@ class Terminal : AppCompatActivity() {
     }
 }
 
-
-private const val talloc_arm =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/libtalloc.so.2"
+private const val talloc_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/libtalloc.so.2"
 private const val talloc_aarch64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/libtalloc.so.2"
 private const val talloc_x86_64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/libtalloc.so.2"
-private const val proot_arm =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/proot"
-private const val proot_aarch64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
-private const val proot_x86_64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
+private const val proot_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/proot"
+private const val proot_aarch64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
+private const val proot_x86_64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
 
 private const val sandbox_arm =
     "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-armhf.tar.gz"

@@ -39,15 +39,15 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
-import com.rk.filetree.currentProject
+import com.rk.components.FileActionDialog
 import com.rk.file.FileObject
-import com.rk.utils.dialog
+import com.rk.filetree.FileTreeViewModel
+import com.rk.filetree.currentProject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
-import com.rk.components.FileActionDialog
-import com.rk.filetree.FileTreeViewModel
+import com.rk.utils.dialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -57,16 +57,12 @@ fun MainContent(
     innerPadding: PaddingValues,
     mainViewModel: MainViewModel,
     fileTreeViewModel: FileTreeViewModel,
-    drawerState: DrawerState
+    drawerState: DrawerState,
 ) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-    ) {
+    Column(Modifier.fillMaxSize().padding(innerPadding)) {
         if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
             val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, mainViewModel.commands)
 
@@ -80,36 +76,26 @@ fun MainContent(
                     mainViewModel.showCommandPalette = false
 
                     scope.launch {
-                        mainViewModel.draggingPaletteProgress.animateTo(
-                            0f,
-                            animationSpec = spring(stiffness = 800f)
-                        )
+                        mainViewModel.draggingPaletteProgress.animateTo(0f, animationSpec = spring(stiffness = 800f))
                     }
-                }
+                },
             )
         }
 
         if (mainViewModel.tabs.isEmpty()) {
-            Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                TextButton(
-                    onClick = { scope.launch { drawerState.open() } }
-                ) {
-                    Text(
-                        text = stringResource(strings.click_open),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                TextButton(onClick = { scope.launch { drawerState.open() } }) {
+                    Text(text = stringResource(strings.click_open), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         } else {
             val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
 
             LaunchedEffect(mainViewModel.currentTabIndex) {
-                if (mainViewModel.tabs.isNotEmpty() &&
-                    mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
-                    pagerState.currentPage != mainViewModel.currentTabIndex
+                if (
+                    mainViewModel.tabs.isNotEmpty() &&
+                        mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
+                        pagerState.currentPage != mainViewModel.currentTabIndex
                 ) {
                     if (Settings.smooth_tabs) {
                         pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
@@ -132,32 +118,38 @@ fun MainContent(
             LaunchedEffect(pagerState) {
                 snapshotFlow { pagerState.settledPage }
                     .collect { settledPage ->
-                        if (mainViewModel.tabs.isNotEmpty() &&
-                            settledPage < mainViewModel.tabs.size &&
-                            mainViewModel.currentTabIndex != settledPage
+                        if (
+                            mainViewModel.tabs.isNotEmpty() &&
+                                settledPage < mainViewModel.tabs.size &&
+                                mainViewModel.currentTabIndex != settledPage
                         ) {
                             mainViewModel.currentTabIndex = settledPage
                         }
                     }
             }
 
-            //HorizontalDivider()
+            // HorizontalDivider()
 
             PrimaryScrollableTabRow(
-                selectedTabIndex = if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex else 0,
+                selectedTabIndex =
+                    if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex else 0,
                 modifier = Modifier.fillMaxWidth(),
                 edgePadding = 0.dp,
-                divider = {}
+                divider = {},
             ) {
                 mainViewModel.tabs.forEachIndexed { index, tabState ->
                     key(tabState) {
                         var showTabMenu by remember { mutableStateOf(false) }
                         Tab(
-                            modifier = Modifier.combinedClickable(onLongClick = {
-                                if (mainViewModel.currentTabIndex == index) {
-                                    showTabMenu = true
-                                }
-                            }, onClick = {}),
+                            modifier =
+                                Modifier.combinedClickable(
+                                    onLongClick = {
+                                        if (mainViewModel.currentTabIndex == index) {
+                                            showTabMenu = true
+                                        }
+                                    },
+                                    onClick = {},
+                                ),
                             selected = mainViewModel.currentTabIndex == index,
                             onClick = {
                                 if (mainViewModel.currentTabIndex == index) {
@@ -168,19 +160,20 @@ fun MainContent(
                             },
                             text = {
                                 Text(
-                                    text = if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                        "*${tabState.tabTitle.value}"
-                                    } else {
-                                        tabState.tabTitle.value
-                                    },
+                                    text =
+                                        if (tabState is EditorTab && tabState.editorState.isDirty) {
+                                            "*${tabState.tabTitle.value}"
+                                        } else {
+                                            tabState.tabTitle.value
+                                        },
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 DropdownMenu(
                                     expanded = showTabMenu,
-                                    offset = DpOffset((-22).dp,15.dp),
+                                    offset = DpOffset((-22).dp, 15.dp),
                                     onDismissRequest = { showTabMenu = false },
-                                    modifier = Modifier
+                                    modifier = Modifier,
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(strings.close_this)) },
@@ -190,19 +183,19 @@ fun MainContent(
                                             val tabIndex = mainViewModel.tabs.indexOf(tabToClose)
 
                                             if (tabIndex != -1) {
-                                                if (tabToClose is EditorTab && tabToClose.editorState.isDirty){
+                                                if (tabToClose is EditorTab && tabToClose.editorState.isDirty) {
                                                     dialog(
                                                         title = strings.file_unsaved.getString(),
                                                         msg = strings.ask_unsaved.getString(),
                                                         onOk = { mainViewModel.removeTab(tabIndex) },
                                                         onCancel = {},
-                                                        okString = strings.discard
+                                                        okString = strings.discard,
                                                     )
                                                 } else {
                                                     mainViewModel.removeTab(tabIndex)
                                                 }
                                             }
-                                        }
+                                        },
                                     )
 
                                     DropdownMenuItem(
@@ -211,7 +204,7 @@ fun MainContent(
                                             showTabMenu = false
                                             mainViewModel.setCurrentTabIndex(index)
                                             mainViewModel.removeOtherTabs()
-                                        }
+                                        },
                                     )
 
                                     DropdownMenuItem(
@@ -219,7 +212,7 @@ fun MainContent(
                                         onClick = {
                                             showTabMenu = false
                                             mainViewModel.closeAllTabs()
-                                        }
+                                        },
                                     )
 
                                     tabState.file?.let {
@@ -228,18 +221,17 @@ fun MainContent(
                                             onClick = {
                                                 showTabMenu = false
                                                 fileActionDialog = it
-                                            }
+                                            },
                                         )
                                     }
                                 }
-                            }
+                            },
                         )
                     }
                 }
             }
 
             HorizontalDivider()
-
 
             HorizontalPager(
                 state = pagerState,
@@ -252,16 +244,14 @@ fun MainContent(
                 }
             }
 
-            if (fileActionDialog != null){
+            if (fileActionDialog != null) {
                 FileActionDialog(
                     modifier = Modifier,
                     file = fileActionDialog!!,
                     root = currentProject,
-                    onDismissRequest = {
-                        fileActionDialog = null
-                    },
+                    onDismissRequest = { fileActionDialog = null },
                     fileTreeContext = false,
-                    fileTreeViewModel = fileTreeViewModel
+                    fileTreeViewModel = fileTreeViewModel,
                 )
             }
         }

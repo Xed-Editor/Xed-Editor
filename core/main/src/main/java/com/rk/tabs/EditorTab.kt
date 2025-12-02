@@ -60,10 +60,10 @@ import com.rk.exec.isTerminalWorking
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
-import com.rk.lsp.createLspTextActions
-import com.rk.lsp.formatDocumentSuspend
 import com.rk.lsp.builtInServer
+import com.rk.lsp.createLspTextActions
 import com.rk.lsp.externalServers
+import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -82,6 +82,8 @@ import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
+import java.lang.ref.WeakReference
+import java.nio.charset.Charset
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -93,12 +95,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
-import java.nio.charset.Charset
 
-data class CodeEditorState(
-    val initialContent: Content? = null,
-) {
+data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
     var arrowKeys: WeakReference<HorizontalScrollView?> = WeakReference(null)
     var rootView: WeakReference<ConstraintLayout?> = WeakReference(null)
@@ -149,10 +147,7 @@ data class CodeEditorState(
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-class EditorTab(
-    override var file: FileObject,
-    val viewModel: MainViewModel,
-) : Tab() {
+class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : Tab() {
 
     private val charset = Charset.forName(Settings.encoding)
     var baseLspConnector: BaseLspConnector? = null
@@ -165,19 +160,20 @@ class EditorTab(
 
     val scope = CoroutineScope(Dispatchers.Default)
 
-    override var tabTitle: MutableState<String> = mutableStateOf(file.getName()).also {
-        scope.launch(Dispatchers.IO) {
-            delay(100)
-            val parent = file.getParentFile()
-            if (viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null) {
+    override var tabTitle: MutableState<String> =
+        mutableStateOf(file.getName()).also {
+            scope.launch(Dispatchers.IO) {
+                delay(100)
+                val parent = file.getParentFile()
+                if (
+                    viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null
+                ) {
 
-                val title = "${parent.getName()}/${tabTitle.value}"
-                withContext(Dispatchers.Main) {
-                    tabTitle.value = title
+                    val title = "${parent.getName()}/${tabTitle.value}"
+                    withContext(Dispatchers.Main) { tabTitle.value = title }
                 }
             }
         }
-    }
 
     val editorState by mutableStateOf(CodeEditorState())
 
@@ -187,29 +183,25 @@ class EditorTab(
         editorState.arrowKeys = WeakReference(null)
         editorState.editor.get()?.setText("")
         editorState.editor.get()?.release()
-        GlobalScope.launch(Dispatchers.IO) {
-            baseLspConnector?.disconnect()
-        }
+        GlobalScope.launch(Dispatchers.IO) { baseLspConnector?.disconnect() }
     }
 
     init {
         editorState.editable = Settings.read_only_default.not() && file.canWrite()
         if (editorState.textmateScope == null) {
-            editorState.textmateScope = file.let {
-                val ext = it.getName().substringAfterLast('.', "")
-                FileType.fromExtension(ext).textmateScope
-            }
+            editorState.textmateScope =
+                file.let {
+                    val ext = it.getName().substringAfterLast('.', "")
+                    FileType.fromExtension(ext).textmateScope
+                }
         }
         if (editorState.content == null) {
             scope.launch(Dispatchers.IO) {
                 runCatching {
-                    editorState.content = file.getInputStream().use {
-                        ContentIO.createFrom(it, charset)
+                        editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+                        editorState.contentLoaded.complete(Unit)
                     }
-                    editorState.contentLoaded.complete(Unit)
-                }.onFailure {
-                    errorDialog(it)
-                }
+                    .onFailure { errorDialog(it) }
             }
         }
     }
@@ -217,26 +209,26 @@ class EditorTab(
     private val saveMutex = Mutex()
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun save() = withContext(Dispatchers.IO) {
-        saveMutex.withLock {
-            if (Settings.format_on_save && baseLspConnector?.isFormattingSupported() == true) {
-                formatDocumentSuspend(this@EditorTab)
-            }
-
-            runCatching {
-                if (file.canWrite().not()) {
-                    errorDialog(strings.cant_write)
-                    return@withContext
+    suspend fun save() =
+        withContext(Dispatchers.IO) {
+            saveMutex.withLock {
+                if (Settings.format_on_save && baseLspConnector?.isFormattingSupported() == true) {
+                    formatDocumentSuspend(this@EditorTab)
                 }
-                editorState.isDirty = false
-                file.writeText(editorState.content.toString(), charset)
-                editorState.isDirty = false
-                baseLspConnector?.notifySave(charset)
-            }.onFailure {
-                errorDialog(it)
+
+                runCatching {
+                        if (file.canWrite().not()) {
+                            errorDialog(strings.cant_write)
+                            return@withContext
+                        }
+                        editorState.isDirty = false
+                        file.writeText(editorState.content.toString(), charset)
+                        editorState.isDirty = false
+                        baseLspConnector?.notifySave(charset)
+                    }
+                    .onFailure { errorDialog(it) }
             }
         }
-    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -244,9 +236,7 @@ class EditorTab(
         val context = LocalContext.current
 
         key(refreshKey) {
-            LaunchedEffect(editorState.editable) {
-                editorState.editor.get()?.editable = editorState.editable
-            }
+            LaunchedEffect(editorState.editable) { editorState.editor.get()?.editable = editorState.editable }
 
             Column {
                 if (editorState.showRunnerDialog) {
@@ -254,21 +244,11 @@ class EditorTab(
                         onDismissRequest = {
                             editorState.showRunnerDialog = false
                             editorState.runnersToShow = emptyList()
-                        },
+                        }
                     ) {
-                        Column(
-                            modifier = Modifier.padding(
-                                start = 16.dp,
-                                end = 16.dp,
-                                bottom = 16.dp,
-                                top = 0.dp
-                            )
-                        ) {
+                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
                             editorState.runnersToShow.forEach { runner ->
-                                AddDialogItem(
-                                    icon = drawables.run,
-                                    title = runner.getName()
-                                ) {
+                                AddDialogItem(icon = drawables.run, title = runner.getName()) {
                                     DefaultScope.launch {
                                         currentRunner = WeakReference(runner)
                                         runner.run(context, file)
@@ -282,10 +262,7 @@ class EditorTab(
                 }
 
                 if (editorState.showSyntaxPanel) {
-                    SyntaxPanel(
-                        onDismissRequest = { editorState.showSyntaxPanel = false },
-                        editorState = editorState
-                    )
+                    SyntaxPanel(onDismissRequest = { editorState.showSyntaxPanel = false }, editorState = editorState)
                 }
 
                 if (editorState.showFindingsDialog) {
@@ -293,9 +270,7 @@ class EditorTab(
                         title = editorState.findingsTitle,
                         codeItems = editorState.findingsItems,
                         description = editorState.findingsDescription,
-                        onFinish = {
-                            editorState.showFindingsDialog = false
-                        }
+                        onFinish = { editorState.showFindingsDialog = false },
                     )
                 }
 
@@ -313,15 +288,13 @@ class EditorTab(
                                 editorState.renameError = strings.name_empty_err.getString()
                             }
                         },
-                        onConfirm = {
-                            editorState.renameConfirm?.let { it(editorState.renameValue) }
-                        },
+                        onConfirm = { editorState.renameConfirm?.let { it(editorState.renameValue) } },
                         onFinish = {
                             editorState.renameValue = ""
                             editorState.renameError = null
                             editorState.renameConfirm = null
                             editorState.showRenameDialog = false
-                        }
+                        },
                     )
                 }
 
@@ -330,11 +303,8 @@ class EditorTab(
                     HorizontalDivider()
                 }
 
-                if (editorState.isWrapping){
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
-                        strokeCap = StrokeCap.Butt
-                    )
+                if (editorState.isWrapping) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
                 }
 
                 CodeEditor(
@@ -353,11 +323,9 @@ class EditorTab(
                     },
                     onKeyEvent = { event ->
                         if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                            scope.launch(Dispatchers.IO) {
-                                save()
-                            }
+                            scope.launch(Dispatchers.IO) { save() }
                         }
-                    }
+                    },
                 )
 
                 LaunchedEffect(
@@ -365,11 +333,10 @@ class EditorTab(
                     refreshKey,
                     LocalConfiguration.current,
                     LocalContext.current,
-                    MaterialTheme.colorScheme
+                    MaterialTheme.colorScheme,
                 ) {
                     applyHighlighting()
                 }
-
             }
         }
     }
@@ -378,33 +345,29 @@ class EditorTab(
         val editor = editorState.editor.get() ?: return null
         return EditorTabState(
             fileObject = file,
-            cursor = EditorCursorState(
-                lineLeft = editor.cursor.leftLine,
-                columnLeft = editor.cursor.leftColumn,
-                lineRight = editor.cursor.rightLine,
-                columnRight = editor.cursor.rightColumn
-            ),
+            cursor =
+                EditorCursorState(
+                    lineLeft = editor.cursor.leftLine,
+                    columnLeft = editor.cursor.leftColumn,
+                    lineRight = editor.cursor.rightLine,
+                    columnRight = editor.cursor.rightColumn,
+                ),
             scrollX = editor.scrollX,
             scrollY = editor.scrollY,
-            unsavedContent = if (editorState.isDirty) editor.text.toString() else null
+            unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
         )
     }
 
     @Composable
     override fun RowScope.Actions() {
-        EditorActions(
-            modifier = Modifier,
-            viewModel = viewModel
-        )
+        EditorActions(modifier = Modifier, viewModel = viewModel)
     }
 
     override val showGlobalActions: Boolean = false
 
     fun refresh() {
         scope.launch(Dispatchers.IO) {
-            val content = file.getInputStream().use {
-                ContentIO.createFrom(it)
-            }
+            val content = file.getInputStream().use { ContentIO.createFrom(it) }
             editorState.content = content
             withContext(Dispatchers.Main) {
                 editorState.updateLock.withLock {
@@ -423,13 +386,14 @@ private fun EditorTab.CodeEditor(
     state: CodeEditorState,
     parentTab: EditorTab,
     onKeyEvent: (EditorKeyEvent) -> Unit,
-    onTextChange: () -> Unit
+    onTextChange: () -> Unit,
 ) {
-    val surfaceColor = if (isSystemInDarkTheme()) {
-        MaterialTheme.colorScheme.surfaceDim
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    val surfaceColor =
+        if (isSystemInDarkTheme()) {
+            MaterialTheme.colorScheme.surfaceDim
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
     val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
     val selectionColors = LocalTextSelectionColors.current
@@ -453,128 +417,112 @@ private fun EditorTab.CodeEditor(
 
     AndroidView(
         modifier = modifier.fillMaxSize(),
-        onRelease = {
-            it.children.filterIsInstance<Editor>().firstOrNull()?.release()
-        },
-        update = {
-            info("Editor view update")
-        },
+        onRelease = { it.children.filterIsInstance<Editor>().firstOrNull()?.release() },
+        update = { info("Editor view update") },
         factory = { ctx ->
             ConstraintLayout(ctx).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
+                layoutParams =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
                 val horizontalScrollViewId = View.generateViewId()
                 val dividerId = View.generateViewId()
 
-                val editor = Editor(ctx).apply {
-                    info("New Editor instance")
+                val editor =
+                    Editor(ctx).apply {
+                        info("New Editor instance")
 
-                    editable = state.editable
-                    if (Settings.word_wrap_for_text && !isWordwrap) {
-                        isWordwrap = file.getName().endsWith(".txt")
-                    }
-                    id = View.generateViewId()
-                    layoutParams = ConstraintLayout.LayoutParams(
-                        ConstraintLayout.LayoutParams.MATCH_PARENT,
-                        0
-                    )
+                        editable = state.editable
+                        if (Settings.word_wrap_for_text && !isWordwrap) {
+                            isWordwrap = file.getName().endsWith(".txt")
+                        }
+                        id = View.generateViewId()
+                        layoutParams = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 0)
 
-                    setThemeColors(
-                        isDarkMode = isDarkMode,
-                        editorSurface = surfaceColor.toArgb(),
-                        surfaceContainer = surfaceContainer.toArgb(),
-                        highSurfaceContainer = highSurfaceContainer.toArgb(),
-                        surface = realSurface.toArgb(),
-                        onSurface = onSurfaceColor.toArgb(),
-                        colorPrimary = colorPrimary.toArgb(),
-                        colorPrimaryContainer = colorPrimaryContainer.toArgb(),
-                        colorSecondary = colorSecondary.toArgb(),
-                        secondaryContainer = secondaryContainer.toArgb(),
-                        selectionBg = selectionBackground.toArgb(),
-                        handleColor = handleColor.toArgb(),
-                        gutterColor = gutterColor.toArgb(),
-                        currentLine = currentLineColor.toArgb(),
-                        dividerColor = divider.toArgb()
-                    )
+                        setThemeColors(
+                            isDarkMode = isDarkMode,
+                            editorSurface = surfaceColor.toArgb(),
+                            surfaceContainer = surfaceContainer.toArgb(),
+                            highSurfaceContainer = highSurfaceContainer.toArgb(),
+                            surface = realSurface.toArgb(),
+                            onSurface = onSurfaceColor.toArgb(),
+                            colorPrimary = colorPrimary.toArgb(),
+                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
+                            colorSecondary = colorSecondary.toArgb(),
+                            secondaryContainer = secondaryContainer.toArgb(),
+                            selectionBg = selectionBackground.toArgb(),
+                            handleColor = handleColor.toArgb(),
+                            gutterColor = gutterColor.toArgb(),
+                            currentLine = currentLineColor.toArgb(),
+                            dividerColor = divider.toArgb(),
+                        )
 
-                    state.editor = WeakReference(this)
+                        state.editor = WeakReference(this)
 
-                    val lspActions = createLspTextActions(scope, context, viewModel, parentTab)
-                    lspActions.forEach { registerTextAction(it) }
+                        val lspActions = createLspTextActions(scope, context, viewModel, parentTab)
+                        lspActions.forEach { registerTextAction(it) }
 
-                    scope.launch(Dispatchers.IO) {
-                        state.contentLoaded.await()
-                        state.updateLock.withLock {
-                            withContext(Dispatchers.Main) {
-                                setText(state.content)
-                                state.contentRendered.complete(Unit)
+                        scope.launch(Dispatchers.IO) {
+                            state.contentLoaded.await()
+                            state.updateLock.withLock {
+                                withContext(Dispatchers.Main) {
+                                    setText(state.content)
+                                    state.contentRendered.complete(Unit)
+                                }
                             }
                         }
-                    }
 
-                    subscribeAlways(ContentChangeEvent::class.java) {
-                        if (!state.updateLock.isLocked) {
-                            state.isDirty = true
-                            editorState.updateUndoRedo()
-                            onTextChange.invoke()
+                        subscribeAlways(ContentChangeEvent::class.java) {
+                            if (!state.updateLock.isLocked) {
+                                state.isDirty = true
+                                editorState.updateUndoRedo()
+                                onTextChange.invoke()
+                            }
                         }
+
+                        subscribeAlways(EditorKeyEvent::class.java) { event -> onKeyEvent.invoke(event) }
+
+                        subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
+                            editorState.isWrapping = event.isLayoutBusy
+                        }
+
+                        applyHighlighting()
                     }
 
-                    subscribeAlways(EditorKeyEvent::class.java) { event ->
-                        onKeyEvent.invoke(event)
+                val keyPanel =
+                    HorizontalScrollView(ctx).apply {
+                        state.arrowKeys = WeakReference(this)
+                        id = horizontalScrollViewId
+
+                        visibility =
+                            if (Settings.show_extra_keys) {
+                                View.VISIBLE
+                            } else {
+                                View.GONE
+                            }
+
+                        layoutParams =
+                            ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT,
+                            )
+                        isHorizontalScrollBarEnabled = false
+                        isSaveEnabled = false
+                        addView(getInputView(editor, realSurface.toArgb(), onSurfaceColor.toArgb(), viewModel))
                     }
 
-
-                    subscribeAlways(LayoutStateChangeEvent::class.java){ event ->
-                        editorState.isWrapping = event.isLayoutBusy
+                val divider =
+                    View(ctx).apply {
+                        id = dividerId
+                        visibility =
+                            if (Settings.show_extra_keys) {
+                                View.VISIBLE
+                            } else {
+                                View.GONE
+                            }
+                        layoutParams =
+                            ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, dpToPx(1f, ctx))
+                                .apply { setBackgroundColor(divider.toArgb()) }
                     }
-
-                    applyHighlighting()
-                }
-
-                val keyPanel = HorizontalScrollView(ctx).apply {
-                    state.arrowKeys = WeakReference(this)
-                    id = horizontalScrollViewId
-
-                    visibility = if (Settings.show_extra_keys) {
-                        View.VISIBLE
-                    } else {
-                        View.GONE
-                    }
-
-                    layoutParams = ConstraintLayout.LayoutParams(
-                        ConstraintLayout.LayoutParams.MATCH_PARENT,
-                        ConstraintLayout.LayoutParams.WRAP_CONTENT
-                    )
-                    isHorizontalScrollBarEnabled = false
-                    isSaveEnabled = false
-                    addView(
-                        getInputView(
-                            editor,
-                            realSurface.toArgb(),
-                            onSurfaceColor.toArgb(),
-                            viewModel
-                        )
-                    )
-                }
-
-                val divider = View(ctx).apply {
-                    id = dividerId
-                    visibility = if (Settings.show_extra_keys) {
-                        View.VISIBLE
-                    } else {
-                        View.GONE
-                    }
-                    layoutParams = ConstraintLayout.LayoutParams(
-                        ConstraintLayout.LayoutParams.MATCH_PARENT,
-                        dpToPx(1f, ctx)
-                    ).apply {
-                        setBackgroundColor(divider.toArgb())
-                    }
-                }
 
                 addView(editor)
                 addView(divider)
@@ -583,85 +531,28 @@ private fun EditorTab.CodeEditor(
                 with(constraintSet) {
                     clone(this@apply)
 
-                    connect(
-                        editor.id,
-                        ConstraintSet.TOP,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.TOP
-                    )
-                    connect(
-                        editor.id,
-                        ConstraintSet.BOTTOM,
-                        dividerId,
-                        ConstraintSet.TOP
-                    ) // Connect to divider top
+                    connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    connect(editor.id, ConstraintSet.BOTTOM, dividerId, ConstraintSet.TOP) // Connect to divider top
 
                     connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                    connect(
-                        dividerId,
-                        ConstraintSet.BOTTOM,
-                        horizontalScrollViewId,
-                        ConstraintSet.TOP
-                    )
-                    connect(
-                        dividerId,
-                        ConstraintSet.START,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.START
-                    )
-                    connect(
-                        dividerId,
-                        ConstraintSet.END,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.END
-                    )
+                    connect(dividerId, ConstraintSet.BOTTOM, horizontalScrollViewId, ConstraintSet.TOP)
+                    connect(dividerId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                    connect(dividerId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
 
-                    connect(
-                        horizontalScrollViewId,
-                        ConstraintSet.TOP,
-                        dividerId,
-                        ConstraintSet.BOTTOM
-                    )
-                    connect(
-                        horizontalScrollViewId,
-                        ConstraintSet.BOTTOM,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.BOTTOM
-                    )
+                    connect(horizontalScrollViewId, ConstraintSet.TOP, dividerId, ConstraintSet.BOTTOM)
+                    connect(horizontalScrollViewId, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
 
-                    connect(
-                        editor.id,
-                        ConstraintSet.START,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.START
-                    )
-                    connect(
-                        editor.id,
-                        ConstraintSet.END,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.END
-                    )
-                    connect(
-                        horizontalScrollViewId,
-                        ConstraintSet.START,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.START
-                    )
-                    connect(
-                        horizontalScrollViewId,
-                        ConstraintSet.END,
-                        ConstraintSet.PARENT_ID,
-                        ConstraintSet.END
-                    )
+                    connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                    connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                    connect(horizontalScrollViewId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                    connect(horizontalScrollViewId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
 
                     applyTo(this@apply)
                 }
                 editorState.rootView = WeakReference(this)
-
             }
         },
     )
-
 }
 
 fun EditorTab.applyHighlighting() {
@@ -699,40 +590,36 @@ fun EditorTab.applyHighlighting() {
                     info("No builtin server connection")
                 }
             }
-
         }
     }
 }
 
-private suspend fun EditorTab.tryConnectBuiltinLsp(
-    ext: String,
-    editor: Editor,
-): Boolean {
-    val server = builtInServer.find {
-        it.supportedExtensions.map { e -> e.lowercase() }
-            .contains(ext.lowercase())
-    }
+private suspend fun EditorTab.tryConnectBuiltinLsp(ext: String, editor: Editor): Boolean {
+    val server = builtInServer.find { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
     if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
         // Connect with built-in language server
         if (server.isInstalled(editor.context)) {
             info("Server installed")
 
-            if (server.isSupported(file).not()){
+            if (server.isSupported(file).not()) {
                 info("This server: ${server.serverName} does not support this file")
                 return false
             }
 
-            val parentFile = file.getParentFile() ?: run {
-                info("File has no parent directory")
-                return false
-            }
+            val parentFile =
+                file.getParentFile()
+                    ?: run {
+                        info("File has no parent directory")
+                        return false
+                    }
 
-            baseLspConnector = BaseLspConnector(
-                parentFile,
-                fileObject = file,
-                codeEditor = editorState.editor.get()!!,
-                server = server
-            )
+            baseLspConnector =
+                BaseLspConnector(
+                    parentFile,
+                    fileObject = file,
+                    codeEditor = editorState.editor.get()!!,
+                    server = server,
+                )
 
             file.getParentFile()?.let {
                 info("Trying to connect")
@@ -749,10 +636,7 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
             dialog(
                 context = editor.context as Activity,
                 title = strings.attention.getString(editor.context),
-                msg = strings.ask_lsp_install.getFilledString(
-                    editor.context,
-                    server.languageName
-                ),
+                msg = strings.ask_lsp_install.getFilledString(editor.context, server.languageName),
                 cancelString = strings.disable,
                 okString = strings.install,
                 onOk = {
@@ -765,11 +649,8 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(
                     if (editorState.lspDialogMutex.isLocked) {
                         editorState.lspDialogMutex.unlock()
                     }
-                    Preference.setBoolean(
-                        "lsp_${server.id}",
-                        false
-                    )
-                }
+                    Preference.setBoolean("lsp_${server.id}", false)
+                },
             )
         }
     }
@@ -780,17 +661,13 @@ private suspend fun EditorTab.tryConnectExternalLsp(): Boolean {
     val parent = file.getParentFile() ?: return false
 
     externalServers.forEach { server ->
-        if (server.isSupported(file)){
-            baseLspConnector = BaseLspConnector(
-                parent,
-                fileObject = file,
-                codeEditor = editorState.editor.get()!!,
-                server = server
-            )
+        if (server.isSupported(file)) {
+            baseLspConnector =
+                BaseLspConnector(parent, fileObject = file, codeEditor = editorState.editor.get()!!, server = server)
 
             baseLspConnector?.connect(editorState.textmateScope!!)
             return true
-        }else{
+        } else {
             info("Server \"${server.serverName}\" does not support this file")
         }
     }

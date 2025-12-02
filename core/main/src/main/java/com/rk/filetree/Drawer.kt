@@ -116,7 +116,9 @@ suspend fun restoreProjects() {
                     if (file.exists() && file.canRead()) {
                         ObjectInputStream(FileInputStream(file)).use { ois ->
                             val list = mutableStateListOf<FileObjectWrapper>()
-                            list.addAll((ois.readObject() as List<FileObject>).map { FileObjectWrapper(it, it.getName()) })
+                            list.addAll(
+                                (ois.readObject() as List<FileObject>).map { FileObjectWrapper(it, it.getName()) }
+                            )
                             withContext(Dispatchers.Main) { projects = list }
                         }
                     }
@@ -170,7 +172,11 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
 var isLoading by mutableStateOf(true)
 
 @Composable
-fun DrawerContent(modifier: Modifier = Modifier, onFileSelected: (FileObject) -> Unit, fileTreeViewModel: FileTreeViewModel) {
+fun DrawerContent(
+    modifier: Modifier = Modifier,
+    onFileSelected: (FileObject) -> Unit,
+    fileTreeViewModel: FileTreeViewModel,
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -226,7 +232,13 @@ fun DrawerContent(modifier: Modifier = Modifier, onFileSelected: (FileObject) ->
                                     scope.launch { currentProject = file.fileObject }
                                 }
                             },
-                            label = { Text(file.fileObject.getAppropriateName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                            label = {
+                                Text(
+                                    file.fileObject.getAppropriateName(),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
                         )
                     }
 
@@ -344,7 +356,9 @@ private fun AddProjectDialog(
                         PackageManager.PERMISSION_GRANTED
 
             val storage = Environment.getExternalStorageDirectory()
-            if (((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()) {
+            if (
+                ((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()
+            ) {
                 AddDialogItem(
                     icon = drawables.android,
                     title = stringResource(strings.open_path),
