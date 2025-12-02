@@ -1,5 +1,6 @@
 package com.rk.components
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import com.rk.activities.terminal.Terminal
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
+import com.rk.commands.CommandProvider
 import com.rk.file.persistentTempDir
 import com.rk.file.toFileObject
 import com.rk.icons.CreateNewFile
@@ -54,14 +56,9 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         IconButton(onClick = { addDialog = true }) { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) }
 
         if (InbuiltFeatures.terminal.state.value) {
-            IconButton(
-                onClick = {
-                    showTerminalNotice(MainActivity.instance!!) {
-                        val intent = Intent(context, Terminal::class.java)
-                        context.startActivity(intent)
-                    }
-                }
-            ) {
+            IconButton(onClick = {
+                CommandProvider.getForId("global.terminal", viewModel.commands)!!.action(viewModel, context as Activity)
+            }) {
                 Icon(painter = painterResource(drawables.terminal), contentDescription = null)
             }
         }

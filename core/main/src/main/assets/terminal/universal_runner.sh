@@ -26,7 +26,7 @@ install_package() {
   local packages="$1"
   info "Installing $packages..."
   apt update -y && apt upgrade -y
-  apt install -y "$packages"
+  apt install -y $packages
 }
 
 install_nodejs() {

@@ -86,7 +86,7 @@ fun LspSettings(modifier: Modifier = Modifier) {
                     SettingsToggle(
                         label = server.serverName,
                         default = true,
-                        description = server.supportedExtensions.toString(),
+                        description = server.supportedExtensions.joinToString(", ") { ".$it" },
                         showSwitch = false,
                         endWidget = {
                             IconButton(onClick = { externalServers.remove(server) }) {

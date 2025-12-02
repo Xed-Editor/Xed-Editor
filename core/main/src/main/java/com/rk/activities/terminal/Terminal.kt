@@ -98,7 +98,8 @@ class Terminal : AppCompatActivity() {
         val binder = sessionBinder?.get() ?: return
         val terminalView = terminalView.get() ?: return
 
-        lifecycleScope.launch {
+
+        lifecycleScope.launch(Dispatchers.Main) {
             val pwd = getPwd()
             val client = TerminalBackEnd(terminalView, this@Terminal)
             val sessionId = File(pwd).name

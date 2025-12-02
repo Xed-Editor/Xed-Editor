@@ -10,6 +10,7 @@ import com.rk.activities.main.SessionManager
 import com.rk.crashhandler.CrashHandler
 import com.rk.editor.Editor
 import com.rk.editor.FontCache
+import com.rk.lsp.MarkdownImageProvider
 import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
@@ -53,6 +54,7 @@ class App : Application() {
         Res.application = this
 
         updateThemes()
+        MarkdownImageProvider.register()
 
         val currentLocale = Locale.forLanguageTag(Settings.currentLang)
         val appLocale = LocaleListCompat.create(currentLocale)

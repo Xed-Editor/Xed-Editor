@@ -141,7 +141,9 @@ var currentProject by mutableStateOf<FileObject?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(fileObject: FileObject, save: Boolean = false) {
-    if (projects.find { it.fileObject == fileObject } != null) {
+    val alreadyExistingProject = projects.find { it.fileObject == fileObject }
+    if (alreadyExistingProject != null) {
+        currentProject = alreadyExistingProject.fileObject
         return
     }
     projects.add(FileObjectWrapper(fileObject = fileObject, name = fileObject.getName()))
