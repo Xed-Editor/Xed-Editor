@@ -21,7 +21,6 @@ import com.rk.settings.theme.themes
 import com.rk.utils.isDarkMode
 import com.rk.utils.toast
 
-
 val currentTheme = mutableStateOf<ThemeHolder?>(null)
 val dynamicTheme = mutableStateOf(Settings.monet)
 val amoled = mutableStateOf(Settings.amoled)
@@ -57,20 +56,13 @@ fun XedTheme(
             // Use default theme
             themeHolder = blueberry
 
-        baseColorScheme
-    } else {
-        if (currentTheme.value == null) {
-            themeHolder = themes.find { it.id == Settings.theme } ?: themeHolder
-            currentTheme.value  = themeHolder
-        } else {
-            themeHolder = currentTheme.value ?: themeHolder
-        }
-
             baseColorScheme
         } else {
             if (currentTheme.value == null) {
                 themeHolder = themes.find { it.id == Settings.theme } ?: themeHolder
                 currentTheme.value = themeHolder
+            } else {
+                themeHolder = currentTheme.value ?: themeHolder
             }
 
             val theme =
