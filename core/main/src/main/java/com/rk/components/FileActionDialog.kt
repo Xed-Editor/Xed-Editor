@@ -326,7 +326,11 @@ fun FileActionDialog(
                     val success = file.renameTo(newName)
                     if (success) {
                         if (parentFile != null) {
-                            fileTreeViewModel.updateCache(file.getParentFile()!!)
+                            val parentFile = file.getParentFile()
+                            if (parentFile != null) {
+                                fileTreeViewModel.updateCache(file.getParentFile()!!)
+                            }
+
                             MainActivity.instance?.apply {
                                 val targetTab = viewModel.tabs.find { it is EditorTab && it.file == file } as? EditorTab
 
@@ -358,7 +362,10 @@ fun FileActionDialog(
                 scope.launch {
                     val success = FileOperations.deleteFile(file)
                     if (success) {
-                        fileTreeViewModel.updateCache(file.getParentFile()!!)
+                        val parentFile = file.getParentFile()
+                        if (parentFile != null) {
+                            fileTreeViewModel.updateCache(file.getParentFile()!!)
+                        }
                         toast(context.getString(strings.success))
                     }
                 }
