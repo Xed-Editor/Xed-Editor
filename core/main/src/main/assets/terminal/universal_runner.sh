@@ -100,21 +100,35 @@ case "$file" in
     if ! command_exists node; then
       install_nodejs
     fi
+
     if ! command_exists tsc; then
       echo "Installing TypeScript compiler..."
       npm install -g typescript
     fi
-    tsc "$file" --outDir ./temp && node "./temp/$(basename "$file" .ts).js"
-    rm -rf ./temp
+
+    tempdir="/tmp/runner-ts"
+    rm -rf "$tempdir"
+    mkdir -p "$tempdir"
+
+    filename="$(basename "$file" .ts)"
+
+    # Compile with correct working directory
+    tsc "$file" --outDir "$tempdir"
+
+    node "$tempdir/$filename.js"
+
+    rm -rf "$tempdir"
     ;;
 
+
   *.java)
-    if ! command_exists javac; then
+    if ! command_exists java; then
       install_package "default-jdk"
     fi
-    javac "$file" && java "$(basename "$file" .java)"
-    rm -f "$(basename "$file" .java).class"
+
+    java "$file"
     ;;
+
 
   *.kt)
     if ! command_exists java; then
