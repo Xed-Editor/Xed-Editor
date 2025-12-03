@@ -14,7 +14,10 @@ import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
 import com.rk.filetree.saveProjects
+import com.rk.resources.getFilledString
+import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.errorDialog
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +70,11 @@ class MainActivity : AppCompatActivity() {
 
     suspend fun handleIntent(intent: Intent) {
         if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action) {
+            if (intent.data == null) {
+                errorDialog(strings.invalid_intent.getFilledString(intent.toString()))
+                return
+            }
+
             val uri = intent.data!!
             val file = uri.toFileObject(expectedIsFile = true)
             viewModel.newTab(file, switchToTab = true)
