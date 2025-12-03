@@ -9,9 +9,11 @@ import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxHomeDir
+import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 import java.net.URI
+import org.eclipse.lsp4j.DidChangeConfigurationParams
 
 class Python() : BaseLspServer() {
     override val id: String = "python-lsp"
@@ -46,31 +48,39 @@ class Python() : BaseLspServer() {
         return LspConnectionConfig.Process(arrayOf("/home/.local/share/pipx/venvs/python-lsp-server/bin/pylsp"))
     }
 
+    override suspend fun beforeConnect() {}
+
+    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {
+        val requestManager = lspConnector.lspEditor!!.requestManager!!
+
+        val params =
+            DidChangeConfigurationParams(
+                mapOf(
+                    "pylsp" to
+                        mapOf(
+                            "plugins" to
+                                mapOf(
+                                    "pycodestyle" to
+                                        mapOf(
+                                            "enabled" to true,
+                                            "ignore" to listOf("E501", "W291", "W293"),
+                                            "maxLineLength" to 999,
+                                        )
+                                )
+                        )
+                )
+            )
+
+        requestManager.didChangeConfiguration(params)
+    }
+
+    override suspend fun connectionFailure(msg: String?) {}
+
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
     }
 
     override fun getInitializationOptions(uri: URI?): Any? {
-        return mapOf(
-            "plugins" to
-                mapOf(
-                    "pycodestyle" to
-                        mapOf(
-                            "enabled" to true,
-                            "ignore" to
-                                listOf(
-                                    "E501", // line too long
-                                    "W291", // trailing whitespace
-                                    "W293", // blank line contains whitespace
-                                    "E301", // expected 1 blank line
-                                    "E302", // expected 2 blank lines
-                                    "E303", // too many blank lines
-                                    "E304", // blank line after function decorator
-                                    "W391", // blank line at end of file
-                                ),
-                            "maxLineLength" to 999,
-                        )
-                )
-        )
+        return null
     }
 }

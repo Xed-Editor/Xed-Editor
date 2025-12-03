@@ -2,6 +2,7 @@ package com.rk.lsp.servers
 
 import android.content.Context
 import com.rk.file.FileObject
+import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 import java.net.URI
@@ -23,6 +24,12 @@ class ExternalProcessServer(
     }
 
     override fun install(context: Context) {}
+
+    override suspend fun beforeConnect() {}
+
+    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
+
+    override suspend fun connectionFailure(msg: String?) {}
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("bash", "-c", command))
