@@ -6,11 +6,7 @@ import com.termux.terminal.TerminalSession
 
 class VirtualKeysListener(val session: TerminalSession) : VirtualKeysView.IVirtualKeysView {
 
-    override fun onVirtualKeyButtonClick(
-        view: View?,
-        buttonInfo: VirtualKeyButton?,
-        button: Button?,
-    ) {
+    override fun onVirtualKeyButtonClick(view: View?, buttonInfo: VirtualKeyButton?, button: Button?) {
 
         val key = buttonInfo?.key ?: return
         val writeable: String =

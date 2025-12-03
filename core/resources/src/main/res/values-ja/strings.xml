@@ -494,4 +494,5 @@
     <string name="project_restore_failed">プロジェクトの復元に失敗しました</string>
     <string name="theme_flipper">テーマフリッパー</string>
     <string name="theme_flipper_desc">7秒ごとにテーマモードを常に切り替える</string>
+    <string name="lsp_terminal_unavailable">LSP言語機能は、ターミナル環境が利用できないか正常に動作していないため機能しません。</string>
 </resources>

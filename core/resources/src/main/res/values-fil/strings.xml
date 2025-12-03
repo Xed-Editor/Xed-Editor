@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="open_drawer">Bukas</string>
+    <string name="close_drawer">Isara</string>
+    <string name="not_implemented">Ang tampok na ito ay hindi ipinatupad</string>
+    <string name="unsupported_content">Hindi sinusuportahang content</string>
+    <string name="null_content">Error: ang nilalaman ay null</string>
+    <string name="restart_required">Kailangang i-restart</string>
+    <string name="saved">Na-save ang file</string>
+    <string name="saved_all">Nai-save ang lahat ng mga file</string>
+    <string name="save">I-save</string>
+    <string name="word_wrap_wait">Pakihintay na makumpleto ang word wrap</string>
+    <string name="open_file_or_folder">Buksan ang file o folder</string>
+    <string name="open_directory">Magbukas ng direktoryo</string>
+    <string name="new_file">Bagong file</string>
+    <string name="new_file_hint">Pangalan (hal. test.txt)</string>
+    <string name="mime">Uri ng MIME (hal. text/plain)</string>
+    <string name="rep">Pagpapalit</string>
+    <string name="search_keyword">Paghahanap ng keyword</string>
+    <string name="wait">Mangyaring maghintay…</string>
+    <string name="report_issue">Iulat ang isyu</string>
+    <string name="copy">Kopyahin</string>
+    <string name="save_all">I-save ang lahat</string>
+    <string name="undo">I-undo</string>
+    <string name="settings">Mga setting</string>
+    <string name="search">Maghanap</string>
+    <string name="go_next">Susunod</string>
+    <string name="go_prev">Nakaraan</string>
+    <string name="close_search">Isara ang paghahanap</string>
+</resources>

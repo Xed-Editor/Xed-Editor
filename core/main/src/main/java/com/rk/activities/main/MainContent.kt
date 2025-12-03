@@ -47,9 +47,10 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
-import com.rk.filetree.currentProject
+import com.rk.components.FileActionDialog
 import com.rk.file.FileObject
-import com.rk.utils.dialog
+import com.rk.filetree.FileTreeViewModel
+import com.rk.filetree.currentProject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -58,6 +59,7 @@ import com.rk.components.FileActionDialog
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeViewModel
 import com.rk.tabs.Tab
+import com.rk.utils.dialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -67,16 +69,12 @@ fun MainContent(
     innerPadding: PaddingValues,
     mainViewModel: MainViewModel,
     fileTreeViewModel: FileTreeViewModel,
-    drawerState: DrawerState
+    drawerState: DrawerState,
 ) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-    ) {
+    Column(Modifier.fillMaxSize().padding(innerPadding)) {
         if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
             val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, mainViewModel.commands)
 
@@ -90,36 +88,26 @@ fun MainContent(
                     mainViewModel.showCommandPalette = false
 
                     scope.launch {
-                        mainViewModel.draggingPaletteProgress.animateTo(
-                            0f,
-                            animationSpec = spring(stiffness = 800f)
-                        )
+                        mainViewModel.draggingPaletteProgress.animateTo(0f, animationSpec = spring(stiffness = 800f))
                     }
-                }
+                },
             )
         }
 
         if (mainViewModel.tabs.isEmpty()) {
-            Box(
-                Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                TextButton(
-                    onClick = { scope.launch { drawerState.open() } }
-                ) {
-                    Text(
-                        text = stringResource(strings.click_open),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                TextButton(onClick = { scope.launch { drawerState.open() } }) {
+                    Text(text = stringResource(strings.click_open), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         } else {
             val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
 
             LaunchedEffect(mainViewModel.currentTabIndex) {
-                if (mainViewModel.tabs.isNotEmpty() &&
-                    mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
-                    pagerState.currentPage != mainViewModel.currentTabIndex
+                if (
+                    mainViewModel.tabs.isNotEmpty() &&
+                        mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
+                        pagerState.currentPage != mainViewModel.currentTabIndex
                 ) {
                     if (Settings.smooth_tabs) {
                         pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
@@ -142,9 +130,10 @@ fun MainContent(
             LaunchedEffect(pagerState) {
                 snapshotFlow { pagerState.settledPage }
                     .collect { settledPage ->
-                        if (mainViewModel.tabs.isNotEmpty() &&
-                            settledPage < mainViewModel.tabs.size &&
-                            mainViewModel.currentTabIndex != settledPage
+                        if (
+                            mainViewModel.tabs.isNotEmpty() &&
+                                settledPage < mainViewModel.tabs.size &&
+                                mainViewModel.currentTabIndex != settledPage
                         ) {
                             mainViewModel.currentTabIndex = settledPage
                         }
@@ -215,16 +204,14 @@ fun MainContent(
                 }
             }
 
-            if (fileActionDialog != null){
+            if (fileActionDialog != null) {
                 FileActionDialog(
                     modifier = Modifier,
                     file = fileActionDialog!!,
                     root = currentProject,
-                    onDismissRequest = {
-                        fileActionDialog = null
-                    },
+                    onDismissRequest = { fileActionDialog = null },
                     fileTreeContext = false,
-                    fileTreeViewModel = fileTreeViewModel
+                    fileTreeViewModel = fileTreeViewModel,
                 )
             }
         }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -36,22 +35,21 @@ fun FileIcon(file: FileObject, iconTint: Color? = null) {
         MaterialTheme.colorScheme.folderSurface
     } else MaterialTheme.colorScheme.secondary
 
-    Icon(
-        painter = painterResource(icon),
-        contentDescription = null,
-        tint = tint,
-        modifier = Modifier.size(20.dp)
-    )
+    Icon(painter = painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
 }
 
-private fun getFileIcon(file: FileObject): Int = when (file.getName()) {
-    "contract.sol", "LICENSE", "NOTICE" -> text
-    "gradlew", "gradlew.bat" -> gradle
-    "README.md" -> info
+private fun getFileIcon(file: FileObject): Int =
+    when (file.getName()) {
+        "contract.sol",
+        "LICENSE",
+        "NOTICE" -> text
+        "gradlew",
+        "gradlew.bat" -> gradle
+        "README.md" -> info
 
-    else -> {
-        val ext = file.getName().substringAfterLast('.', "")
-        val type = FileType.fromExtension(ext)
-        type.iconOverride?.get(ext) ?: type.icon ?: plain_file
+        else -> {
+            val ext = file.getName().substringAfterLast('.', "")
+            val type = FileType.fromExtension(ext)
+            type.iconOverride?.get(ext) ?: type.icon ?: plain_file
+        }
     }
-}

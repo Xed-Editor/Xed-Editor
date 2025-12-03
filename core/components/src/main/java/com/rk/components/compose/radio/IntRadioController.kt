@@ -1,6 +1,5 @@
 package com.rk.components.compose.radio
 
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,13 +27,10 @@ fun IntRadioController(
             .forEach { option ->
                 Row(
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .padding(vertical = 1.dp)
-                            .clickable {
-                                selectedChoice = option
-                                onChoiceSelected(option)
-                            },
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).padding(vertical = 1.dp).clickable {
+                            selectedChoice = option
+                            onChoiceSelected(option)
+                        },
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(text = labelFactory(option), modifier = Modifier.weight(1f))

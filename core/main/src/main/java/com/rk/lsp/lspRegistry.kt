@@ -8,13 +8,6 @@ import com.rk.lsp.servers.JSON
 import com.rk.lsp.servers.Python
 import com.rk.lsp.servers.TypeScript
 
-val builtInServer = listOf<BaseLspServer>(
-    Python(),
-    HTML(),
-    CSS(),
-    TypeScript(),
-    JSON(),
-    Bash(),
-)
+val builtInServer = listOf<BaseLspServer>(Python(), HTML(), CSS(), TypeScript(), JSON(), Bash())
 
 val externalServers = mutableStateListOf<BaseLspServer>()

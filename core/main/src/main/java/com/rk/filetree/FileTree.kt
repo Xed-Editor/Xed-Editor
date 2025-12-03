@@ -26,7 +26,7 @@ fun FileTree(
     modifier: Modifier = Modifier,
     onFileClick: FileTreeNode.(FileTreeNode) -> Unit,
     onFileLongClick: FileTreeNode.(FileTreeNode) -> Unit = {},
-    viewModel: FileTreeViewModel
+    viewModel: FileTreeViewModel,
 ) {
 
     // Auto-expand root node on first composition
@@ -47,33 +47,23 @@ fun FileTree(
 
     Surface(
         modifier = modifier,
-        color = if (isPermanentDrawer) {
-            MaterialTheme.colorScheme.surface
-        } else {
-            MaterialTheme.colorScheme.surfaceContainerLow
-        },
+        color =
+            if (isPermanentDrawer) {
+                MaterialTheme.colorScheme.surface
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerLow
+            },
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 8.dp)
-                .horizontalScroll(rememberScrollState())
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
+        Box(modifier = Modifier.fillMaxSize().padding(vertical = 8.dp).horizontalScroll(rememberScrollState())) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
                 item(key = rootNode.file.hashCode()) {
                     FileTreeNodeItem(
                         modifier = Modifier.fillMaxWidth(),
                         node = rootNode,
                         depth = 0,
-                        onFileClick = {
-                            rootNode.onFileClick(it)
-                        },
-                        onFileLongClick = {
-                            rootNode.onFileLongClick(it)
-                        },
-                        viewModel = viewModel
+                        onFileClick = { rootNode.onFileClick(it) },
+                        onFileLongClick = { rootNode.onFileLongClick(it) },
+                        viewModel = viewModel,
                     )
                 }
             }

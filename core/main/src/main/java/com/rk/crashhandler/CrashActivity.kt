@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.surfaceColorAtElevation
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -59,14 +58,14 @@ class CrashActivity : ComponentActivity() {
             val signatures =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     packageManager
-                        .getPackageInfo(
-                            packageName,
-                            android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES,
-                        ).signingInfo
+                        .getPackageInfo(packageName, android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES)
+                        .signingInfo
                         ?.apkContentsSigners
                 } else {
                     @Suppress("DEPRECATION")
-                    packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.GET_SIGNATURES).signatures
+                    packageManager
+                        .getPackageInfo(packageName, android.content.pm.PackageManager.GET_SIGNATURES)
+                        .signatures
                 }
 
             if (signatures == null) {
@@ -75,17 +74,12 @@ class CrashActivity : ComponentActivity() {
 
             for (signature in signatures) {
                 val cert =
-                    CertificateFactory
-                        .getInstance("X.509")
-                        .generateCertificate(signature.toByteArray().inputStream()) as X509Certificate
+                    CertificateFactory.getInstance("X.509").generateCertificate(signature.toByteArray().inputStream())
+                        as X509Certificate
                 val sha256 = MessageDigest.getInstance("SHA-256").digest(cert.encoded)
                 val hex = sha256.joinToString(":") { "%02X".format(it) }
 
-                if (hex.equals(
-                        assets.open("hash").bufferedReader().use { it.readText() },
-                        ignoreCase = true,
-                    )
-                ) {
+                if (hex.equals(assets.open("hash").bufferedReader().use { it.readText() }, ignoreCase = true)) {
                     return false
                 }
             }
@@ -98,127 +92,133 @@ class CrashActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         runCatching {
-            enableEdgeToEdge()
-            val crashText = buildCrashReport()
+                enableEdgeToEdge()
+                val crashText = buildCrashReport()
 
-            setContent {
-                val context = LocalContext.current
+                setContent {
+                    val context = LocalContext.current
 
-                XedTheme {
-                    Scaffold(
-                        topBar = {
-                            Column {
-                                TopAppBar(
-                                    navigationIcon = {
-                                        IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Back",
-                                            )
-                                        }
-                                    },
-                                    title = { Text(strings.error.getString()) },
-                                    actions = {
-                                        TextButton(onClick = {
-                                            runCatching {
-                                                copyToClipboard(context, crashText)
-                                                toast(strings.copied.getString())
-                                            }.onFailure { logErrorOrExit(it) }
-                                        }) {
-                                            Text(stringResource(strings.copy))
-                                        }
-
-                                        val showReport = remember { intent.getBooleanExtra("force_crash", false).not() }
-
-                                        if (showReport) {
-                                            TextButton(onClick = {
-                                                runCatching {
-                                                    val url =
-                                                        "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
-                                                            URLEncoder.encode(
-                                                                "``` \n$crashText\n ```",
-                                                                StandardCharsets.UTF_8.toString(),
-                                                            )
-                                                    val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
-                                                    context.startActivity(browserIntent)
-                                                }.onFailure { logErrorOrExit(it) }
-                                            }) {
-                                                Text(stringResource(strings.report_issue))
+                    XedTheme {
+                        Scaffold(
+                            topBar = {
+                                Column {
+                                    TopAppBar(
+                                        navigationIcon = {
+                                            IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                    contentDescription = "Back",
+                                                )
                                             }
-                                        }
-                                    },
-                                )
-                                HorizontalDivider()
-                            }
-                        },
-                    ) { paddingValues ->
-                        val surfaceColor =
-                            if (isSystemInDarkTheme()) {
-                                MaterialTheme.colorScheme.surfaceDim
-                            } else {
-                                MaterialTheme.colorScheme.surface
-                            }
-                        val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
-                        val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
-                        val selectionColors = LocalTextSelectionColors.current
-                        val realSurface = MaterialTheme.colorScheme.surface
-                        val selectionBackground = selectionColors.backgroundColor
-                        val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-                        val colorPrimary = MaterialTheme.colorScheme.primary
-                        val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
-                        val colorSecondary = MaterialTheme.colorScheme.secondary
-                        val handleColor = selectionColors.handleColor
-                        val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
+                                        },
+                                        title = { Text(strings.error.getString()) },
+                                        actions = {
+                                            TextButton(
+                                                onClick = {
+                                                    runCatching {
+                                                            copyToClipboard(context, crashText)
+                                                            toast(strings.copied.getString())
+                                                        }
+                                                        .onFailure { logErrorOrExit(it) }
+                                                }
+                                            ) {
+                                                Text(stringResource(strings.copy))
+                                            }
 
-                        val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-                        val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
+                                            val showReport = remember {
+                                                intent.getBooleanExtra("force_crash", false).not()
+                                            }
 
-                        val divider = MaterialTheme.colorScheme.outlineVariant
-                        val isDarkMode = isSystemInDarkTheme()
-
-                        AndroidView(
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(paddingValues),
-                            factory = { context ->
-                                Editor(context).apply {
-                                    setTextSize(10f)
-                                    setText(crashText)
-                                    editable = false
-                                    isWordwrap = false
-                                    setThemeColors(
-                                        isDarkMode = isDarkMode,
-                                        editorSurface = surfaceColor.toArgb(),
-                                        surfaceContainer = surfaceContainer.toArgb(),
-                                        highSurfaceContainer = highSurfaceContainer.toArgb(),
-                                        surface = realSurface.toArgb(),
-                                        onSurface = onSurfaceColor.toArgb(),
-                                        colorPrimary = colorPrimary.toArgb(),
-                                        colorPrimaryContainer = colorPrimaryContainer.toArgb(),
-                                        colorSecondary = colorSecondary.toArgb(),
-                                        secondaryContainer = secondaryContainer.toArgb(),
-                                        selectionBg = selectionBackground.toArgb(),
-                                        handleColor = handleColor.toArgb(),
-                                        gutterColor = gutterColor.toArgb(),
-                                        currentLine = currentLineColor.toArgb(),
-                                        dividerColor = divider.toArgb(),
+                                            if (showReport) {
+                                                TextButton(
+                                                    onClick = {
+                                                        runCatching {
+                                                                val url =
+                                                                    "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                                                                        URLEncoder.encode(
+                                                                            "``` \n$crashText\n ```",
+                                                                            StandardCharsets.UTF_8.toString(),
+                                                                        )
+                                                                val browserIntent =
+                                                                    Intent(Intent.ACTION_VIEW, url.toUri())
+                                                                context.startActivity(browserIntent)
+                                                            }
+                                                            .onFailure { logErrorOrExit(it) }
+                                                    }
+                                                ) {
+                                                    Text(stringResource(strings.report_issue))
+                                                }
+                                            }
+                                        },
                                     )
+                                    HorizontalDivider()
                                 }
-                            },
-                            update = { editor ->
-                                editor.setText(crashText)
-                            },
-                        )
+                            }
+                        ) { paddingValues ->
+                            val surfaceColor =
+                                if (isSystemInDarkTheme()) {
+                                    MaterialTheme.colorScheme.surfaceDim
+                                } else {
+                                    MaterialTheme.colorScheme.surface
+                                }
+                            val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+                            val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
+                            val selectionColors = LocalTextSelectionColors.current
+                            val realSurface = MaterialTheme.colorScheme.surface
+                            val selectionBackground = selectionColors.backgroundColor
+                            val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+                            val colorPrimary = MaterialTheme.colorScheme.primary
+                            val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
+                            val colorSecondary = MaterialTheme.colorScheme.secondary
+                            val handleColor = selectionColors.handleColor
+                            val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
+
+                            val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+                            val currentLineColor =
+                                MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
+
+                            val divider = MaterialTheme.colorScheme.outlineVariant
+                            val isDarkMode = isSystemInDarkTheme()
+
+                            AndroidView(
+                                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                                factory = { context ->
+                                    Editor(context).apply {
+                                        setTextSize(10f)
+                                        setText(crashText)
+                                        editable = false
+                                        isWordwrap = false
+                                        setThemeColors(
+                                            isDarkMode = isDarkMode,
+                                            editorSurface = surfaceColor.toArgb(),
+                                            surfaceContainer = surfaceContainer.toArgb(),
+                                            highSurfaceContainer = highSurfaceContainer.toArgb(),
+                                            surface = realSurface.toArgb(),
+                                            onSurface = onSurfaceColor.toArgb(),
+                                            colorPrimary = colorPrimary.toArgb(),
+                                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
+                                            colorSecondary = colorSecondary.toArgb(),
+                                            secondaryContainer = secondaryContainer.toArgb(),
+                                            selectionBg = selectionBackground.toArgb(),
+                                            handleColor = handleColor.toArgb(),
+                                            gutterColor = gutterColor.toArgb(),
+                                            currentLine = currentLineColor.toArgb(),
+                                            dividerColor = divider.toArgb(),
+                                        )
+                                    }
+                                },
+                                update = { editor -> editor.setText(crashText) },
+                            )
+                        }
                     }
                 }
             }
-        }.onFailure {
-            logErrorOrExit(it)
-            it.printStackTrace()
-            runCatching { finishAffinity() }
-            exitProcess(1)
-        }
+            .onFailure {
+                logErrorOrExit(it)
+                it.printStackTrace()
+                runCatching { finishAffinity() }
+                exitProcess(1)
+            }
     }
 
     private fun buildCrashReport(): String {
@@ -256,16 +256,11 @@ class CrashActivity : ComponentActivity() {
 
             append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
             append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
-            append("Error StackTrace : ")
-                .appendLine()
-                .append(intent.getStringExtra("stacktrace"))
+            append("Error StackTrace : ").appendLine().append(intent.getStringExtra("stacktrace"))
         }
     }
 
-    private fun copyToClipboard(
-        context: Context,
-        text: String,
-    ) {
+    private fun copyToClipboard(context: Context, text: String) {
         val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("crashInfo", text)
         clipboard.setPrimaryClip(clip)

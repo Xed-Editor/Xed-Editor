@@ -47,10 +47,9 @@ abstract class WebActivity : ComponentActivity() {
                 WebScreen(
                     title = "WebView",
                     onBackPressed = { handleBackPressed() },
-                    setupWebView = { setupWebView(it) }
+                    setupWebView = { setupWebView(it) },
                 )
             }
-
         }
     }
 
@@ -77,11 +76,7 @@ abstract class WebActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WebScreen(
-    title: String,
-    onBackPressed: () -> Unit,
-    setupWebView: (WebView) -> Unit
-) {
+fun WebScreen(title: String, onBackPressed: () -> Unit, setupWebView: (WebView) -> Unit) {
     var webView: WebView? by remember { mutableStateOf(null) }
 
     Scaffold(
@@ -92,7 +87,7 @@ fun WebScreen(
                     IconButton(onClick = onBackPressed) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
             )
         }
     ) { padding ->
@@ -104,7 +99,7 @@ fun WebScreen(
                 }
             },
             modifier = Modifier.fillMaxSize().padding(padding),
-            update = { }
+            update = {},
         )
     }
 }

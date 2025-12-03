@@ -33,10 +33,7 @@ private var flipperJob: Job? = null
 @Suppress("ktlint:standard:function-naming")
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun DeveloperOptions(
-    modifier: Modifier = Modifier,
-    navController: NavController,
-) {
+fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController) {
     val context = LocalContext.current
     val activity = LocalActivity.current
 
@@ -61,12 +58,13 @@ fun DeveloperOptions(
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    dialog(context = activity, title = strings.force_crash.getString(), msg = strings.force_crash_confirm.getString(), onCancel = {
-                    }, onOk = {
-                        Thread {
-                            throw HarmlessException("Force Crash")
-                        }.start()
-                    })
+                    dialog(
+                        context = activity,
+                        title = strings.force_crash.getString(),
+                        msg = strings.force_crash_confirm.getString(),
+                        onCancel = {},
+                        onOk = { Thread { throw HarmlessException("Force Crash") }.start() },
+                    )
                 },
             )
 
@@ -82,18 +80,14 @@ fun DeveloperOptions(
                 description = stringResource(strings.strict_mode_desc),
                 showSwitch = true,
                 default = Settings.strict_mode,
-                sideEffect = {
-                    Settings.strict_mode = it
-                },
+                sideEffect = { Settings.strict_mode = it },
             )
 
             SettingsToggle(
                 label = stringResource(strings.anr_watchdog),
                 description = stringResource(strings.anr_watchdog_desc),
                 default = Settings.anr_watchdog,
-                sideEffect = {
-                    Settings.anr_watchdog = it
-                },
+                sideEffect = { Settings.anr_watchdog = it },
             )
 
             SettingsToggle(
@@ -101,9 +95,7 @@ fun DeveloperOptions(
                 description = stringResource(strings.verbose_errors_desc),
                 showSwitch = true,
                 default = Settings.verbose_error,
-                sideEffect = {
-                    Settings.verbose_error = it
-                },
+                sideEffect = { Settings.verbose_error = it },
             )
 
             SettingsToggle(
@@ -111,9 +103,7 @@ fun DeveloperOptions(
                 description = stringResource(strings.desktop_mode_desc),
                 showSwitch = true,
                 default = Settings.desktopMode,
-                sideEffect = {
-                    Settings.desktopMode = it
-                },
+                sideEffect = { Settings.desktopMode = it },
             )
 
             SettingsToggle(
@@ -137,27 +127,24 @@ fun startThemeFlipperIfNotRunning() {
         flipperJob =
             GlobalScope.launch(Dispatchers.IO) {
                 runCatching {
-                    while (isActive && Settings.themeFlipper) {
-                        delay(7000)
+                        while (isActive && Settings.themeFlipper) {
+                            delay(7000)
 
-                        val mode =
-                            if (Settings.default_night_mode == AppCompatDelegate.MODE_NIGHT_NO) {
-                                AppCompatDelegate.MODE_NIGHT_YES
-                            } else {
-                                AppCompatDelegate.MODE_NIGHT_NO
-                            }
+                            val mode =
+                                if (Settings.default_night_mode == AppCompatDelegate.MODE_NIGHT_NO) {
+                                    AppCompatDelegate.MODE_NIGHT_YES
+                                } else {
+                                    AppCompatDelegate.MODE_NIGHT_NO
+                                }
 
-                        Settings.default_night_mode = mode
+                            Settings.default_night_mode = mode
 
-                        withContext(Dispatchers.Main) {
-                            AppCompatDelegate.setDefaultNightMode(mode)
+                            withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(mode) }
                         }
                     }
-                }.onFailure { it.printStackTrace() }
+                    .onFailure { it.printStackTrace() }
             }
     }
 }
 
-class HarmlessException(
-    msg: String,
-) : Exception(msg)
+class HarmlessException(msg: String) : Exception(msg)

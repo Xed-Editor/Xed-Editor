@@ -12,9 +12,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import com.rk.resources.strings
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
+import com.rk.resources.strings
 
 @Composable
 fun SingleInputDialog(
@@ -28,7 +28,7 @@ fun SingleInputDialog(
     singleLineMode: Boolean = true,
     confirmText: String = stringResource(strings.apply),
     confirmEnabled: Boolean = true,
-    errorMessage: String? = null
+    errorMessage: String? = null,
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -52,16 +52,14 @@ fun SingleInputDialog(
                         onInputValueChange(it.text)
                     },
                     label = { Text(inputLabel) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     isError = errorMessage != null,
                     supportingText = {
                         if (errorMessage != null) {
                             Text(
                                 text = errorMessage,
                                 color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
                             )
                         }
                     },
@@ -70,18 +68,11 @@ fun SingleInputDialog(
                             Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
                         }
                     },
-                    keyboardActions = KeyboardActions(
-                        onDone = { onConfirm() },
-                        onSearch = { onConfirm() }
-                    ),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    )
+                    keyboardActions = KeyboardActions(onDone = { onConfirm() }, onSearch = { onConfirm() }),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )
 
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
+                LaunchedEffect(Unit) { focusRequester.requestFocus() }
             }
         },
         confirmButton = {
@@ -90,7 +81,7 @@ fun SingleInputDialog(
                 onClick = {
                     onConfirm()
                     onFinish()
-                }
+                },
             ) {
                 Text(confirmText)
             }
