@@ -34,40 +34,39 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import com.rk.filetree.getAppropriateName
-import com.rk.filetree.removeProject
+import com.rk.DefaultScope
+import com.rk.activities.main.MainActivity
+import com.rk.activities.terminal.Terminal
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.openWith
 import com.rk.file.to_save_file
-import com.rk.utils.errorDialog
-import com.rk.utils.showTerminalNotice
-import com.rk.utils.toast
+import com.rk.filetree.FileTreeViewModel
+import com.rk.filetree.addProject
+import com.rk.filetree.getAppropriateName
+import com.rk.filetree.projects
+import com.rk.filetree.removeProject
+import com.rk.icons.CreateNewFile
+import com.rk.icons.CreateNewFolder
+import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.tabs.EditorTab
-import com.rk.activities.main.MainActivity
-import com.rk.activities.terminal.Terminal
-import com.rk.filetree.FileTreeViewModel
-import com.rk.filetree.addProject
-import com.rk.icons.CreateNewFile
-import com.rk.icons.CreateNewFolder
-import com.rk.icons.XedIcons
-import com.rk.resources.getString
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.tabs.EditorTab
+import com.rk.utils.errorDialog
+import com.rk.utils.showTerminalNotice
+import com.rk.utils.toast
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
-import androidx.compose.ui.text.font.FontStyle
-import com.rk.DefaultScope
-import com.rk.filetree.projects
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +76,7 @@ fun FileActionDialog(
     root: FileObject?,
     onDismissRequest: () -> Unit,
     fileTreeContext: Boolean = true,
-    fileTreeViewModel: FileTreeViewModel
+    fileTreeViewModel: FileTreeViewModel,
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -98,22 +97,21 @@ fun FileActionDialog(
     var showNewDialog by remember { mutableStateOf(false) }
     var showCloseProjectDialog by remember { mutableStateOf(false) }
 
-    if (showXedDialog){
+    if (showXedDialog) {
         ModalBottomSheet(onDismissRequest = onDismissRequest) {
             Column(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
-                    .verticalScroll(rememberScrollState())
+                modifier =
+                    Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+                        .verticalScroll(rememberScrollState())
             ) {
-
-                if(file == root){
+                if (file == root) {
                     AddDialogItem(
                         icon = Icons.Outlined.Close,
                         title = stringResource(strings.close),
                         onClick = {
                             showCloseProjectDialog = true
                             showXedDialog = true
-                        }
+                        },
                     )
                 }
 
@@ -121,12 +119,12 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = Icons.Outlined.Refresh,
                         title = stringResource(strings.refresh),
-                        //description = stringResource(strings.reload_file_tree),
+                        // description = stringResource(strings.reload_file_tree),
                         onClick = {
                             fileTreeViewModel.updateCache(file)
                             showXedDialog = true
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
@@ -134,7 +132,7 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = drawables.terminal,
                         title = stringResource(strings.open_in_terminal),
-                        //description = stringResource(strings.open_in_terminal),
+                        // description = stringResource(strings.open_in_terminal),
                         onClick = {
                             showTerminalNotice(activity = MainActivity.instance!!) {
                                 val intent = Intent(context, Terminal::class.java)
@@ -142,7 +140,7 @@ fun FileActionDialog(
                                 context.startActivity(intent)
                                 onDismissRequest()
                             }
-                        }
+                        },
                     )
                 }
 
@@ -150,50 +148,50 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = XedIcons.CreateNewFile,
                         title = stringResource(strings.new_file),
-                        //description = stringResource(strings.new_document_desc),
+                        // description = stringResource(strings.new_document_desc),
                         onClick = {
                             isNewFile = true
                             showXedDialog = false
                             showNewDialog = true
-                        }
+                        },
                     )
 
                     AddDialogItem(
                         icon = XedIcons.CreateNewFolder,
                         title = stringResource(strings.new_folder),
-                        //description = stringResource(strings.new_document_desc),
+                        // description = stringResource(strings.new_document_desc),
                         onClick = {
                             isNewFile = false
                             showXedDialog = false
                             showNewDialog = true
-                        }
+                        },
                     )
                 }
 
                 AddDialogItem(
                     icon = Icons.Outlined.Edit,
                     title = stringResource(strings.rename),
-                    //description = stringResource(strings.rename_desc),
+                    // description = stringResource(strings.rename_desc),
                     onClick = {
                         showXedDialog = false
                         showRenameDialog = true
-                    }
+                    },
                 )
 
                 AddDialogItem(
                     icon = Icons.Outlined.Delete,
                     title = stringResource(strings.delete),
-                    //description = stringResource(strings.delete_desc),
+                    // description = stringResource(strings.delete_desc),
                     onClick = {
                         showXedDialog = false
                         showDeleteDialog = true
-                    }
+                    },
                 )
 
                 AddDialogItem(
                     icon = if (file.isFile()) drawables.copy else drawables.paste,
                     title = stringResource(strings.copy),
-                    //description = stringResource(strings.copy_desc),
+                    // description = stringResource(strings.copy_desc),
                     onClick = {
                         scope.launch {
                             FileOperations.copyToClipboard(file)
@@ -201,13 +199,13 @@ fun FileActionDialog(
                             showXedDialog = true
                             onDismissRequest()
                         }
-                    }
+                    },
                 )
 
                 AddDialogItem(
                     icon = drawables.cut,
                     title = stringResource(strings.cut),
-                    //description = stringResource(strings.cut_desc),
+                    // description = stringResource(strings.cut_desc),
                     onClick = {
                         scope.launch {
                             FileOperations.copyToClipboard(file, isCut = true)
@@ -215,72 +213,64 @@ fun FileActionDialog(
                             showXedDialog = true
                             onDismissRequest()
                         }
-                    }
+                    },
                 )
 
                 if (fileTreeContext && FileOperations.clipboard != null && file.isDirectory()) {
                     AddDialogItem(
                         icon = drawables.paste,
                         title = stringResource(strings.paste),
-                        //description = stringResource(strings.paste_desc),
+                        // description = stringResource(strings.paste_desc),
                         onClick = {
                             scope.launch {
                                 val clipboardFile = FileOperations.clipboard!!
                                 val clipboardParentFile = clipboardFile.getParentFile()
-                                pasteFile(
-                                    context,
-                                    clipboardFile,
-                                    file,
-                                    isCut = FileOperations.isCut
-                                )
+                                pasteFile(context, clipboardFile, file, isCut = FileOperations.isCut)
                                 fileTreeViewModel.updateCache(file)
                                 fileTreeViewModel.updateCache(clipboardParentFile!!)
                                 fileTreeViewModel.unmarkNodeAsCut(clipboardFile)
-                                //showXedDialog = true
+                                // showXedDialog = true
                                 onDismissRequest()
                             }
-                        }
+                        },
                     )
-
                 }
 
                 AddDialogItem(
                     icon = Icons.AutoMirrored.Outlined.ExitToApp,
                     title = stringResource(strings.open_with),
-                    //description = stringResource(strings.open_with_other),
+                    // description = stringResource(strings.open_with_other),
                     onClick = {
-                        scope.launch {
-                            FileOperations.openWithExternalApp(context, file)
-                        }
+                        scope.launch { FileOperations.openWithExternalApp(context, file) }
 
-                        //showXedDialog = true
+                        // showXedDialog = true
                         onDismissRequest()
-                    }
+                    },
                 )
 
                 AddDialogItem(
                     icon = drawables.file_symlink,
                     title = stringResource(strings.save_as),
-                    //description = stringResource(strings.save_desc),
+                    // description = stringResource(strings.save_desc),
                     onClick = {
                         // This would typically open a file picker
                         FileOperations.saveAs(context, file)
-                        //showXedDialog = true
+                        // showXedDialog = true
                         onDismissRequest()
-                    }
+                    },
                 )
 
                 if (fileTreeContext && file.isDirectory()) {
                     AddDialogItem(
                         icon = drawables.arrow_downward,
                         title = stringResource(strings.add_file),
-                        //description = stringResource(strings.add_file_desc),
+                        // description = stringResource(strings.add_file_desc),
                         onClick = {
                             // This would typically open a file picker
                             FileOperations.addFile(file)
-                            //showXedDialog = true
+                            // showXedDialog = true
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
@@ -288,32 +278,28 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = drawables.folder_code,
                         title = stringResource(strings.open_as_project),
-                        //description = stringResource(strings.add_file_desc),
+                        // description = stringResource(strings.add_file_desc),
                         onClick = {
                             // This would typically open a file picker
-                            scope.launch {
-                                addProject(file, true)
-                            }
-                            //showXedDialog = true
+                            addProject(file, true)
+                            // showXedDialog = true
                             onDismissRequest()
-                        }
+                        },
                     )
                 }
 
                 AddDialogItem(
                     icon = Icons.Outlined.Info,
                     title = stringResource(strings.properties),
-                    //description = stringResource(strings.file_info),
+                    // description = stringResource(strings.file_info),
                     onClick = {
                         showXedDialog = false
                         showInfoDialog = true
-                        //onDismissRequest()
-                    }
+                        // onDismissRequest()
+                    },
                 )
             }
         }
-
-
     }
 
     // Rename dialog
@@ -339,8 +325,12 @@ fun FileActionDialog(
                     val parentFile = file.getParentFile()
                     val success = file.renameTo(newName)
                     if (success) {
-                        if (parentFile != null){
-                            fileTreeViewModel.updateCache(file.getParentFile()!!)
+                        if (parentFile != null) {
+                            val parentFile = file.getParentFile()
+                            if (parentFile != null) {
+                                fileTreeViewModel.updateCache(file.getParentFile()!!)
+                            }
+
                             MainActivity.instance?.apply {
                                 val targetTab = viewModel.tabs.find { it is EditorTab && it.file == file } as? EditorTab
 
@@ -348,7 +338,7 @@ fun FileActionDialog(
                                 targetTab?.file = parentFile.getChildForName(newName)
                             }
                         }
-                    }else{
+                    } else {
                         toast(strings.rename_failed)
                     }
                 }
@@ -360,7 +350,7 @@ fun FileActionDialog(
                 renameError = null
                 showXedDialog = true
                 showRenameDialog = false
-            }
+            },
         )
     }
 
@@ -372,18 +362,21 @@ fun FileActionDialog(
                 scope.launch {
                     val success = FileOperations.deleteFile(file)
                     if (success) {
-                        fileTreeViewModel.updateCache(file.getParentFile()!!)
+                        val parentFile = file.getParentFile()
+                        if (parentFile != null) {
+                            fileTreeViewModel.updateCache(file.getParentFile()!!)
+                        }
                         toast(context.getString(strings.success))
                     }
                 }
                 showDeleteDialog = false
-                //showXedDialog = true
+                // showXedDialog = true
                 onDismissRequest()
             },
             onDismiss = {
                 showXedDialog = true
                 showDeleteDialog = false
-            }
+            },
         )
     }
 
@@ -395,7 +388,7 @@ fun FileActionDialog(
                 showXedDialog = true
                 showInfoDialog = false
                 onDismissRequest()
-            }
+            },
         )
     }
 
@@ -403,7 +396,8 @@ fun FileActionDialog(
     if (showNewDialog) {
         SingleInputDialog(
             title = if (isNewFile) stringResource(strings.new_file) else stringResource(strings.new_folder),
-            inputLabel = if (isNewFile) stringResource(id = strings.file_name) else stringResource(id = strings.folder_name),
+            inputLabel =
+                if (isNewFile) stringResource(id = strings.file_name) else stringResource(id = strings.folder_name),
             inputValue = newNameValue,
             errorMessage = newNameError,
             confirmEnabled = newNameValue.isNotBlank(),
@@ -414,14 +408,14 @@ fun FileActionDialog(
 
                 if (
                     isNewFile && newNameValue.contains(Regex("""[\p{Cntrl}/\\<>:"|?*]""")) ||
-                    !isNewFile && newNameValue.contains(Regex("""[\p{Cntrl}\\<>:"|?*]|^/"""))
+                        !isNewFile && newNameValue.contains(Regex("""[\p{Cntrl}\\<>:"|?*]|^/"""))
                 ) {
                     newNameError = context.getString(strings.invalid_characters)
                 }
             },
             onConfirm = {
                 DefaultScope.launch {
-                    if (!file.hasChild(newNameValue)){
+                    if (!file.hasChild(newNameValue)) {
                         file.createChild(createFile = isNewFile, newNameValue)
                     }
 
@@ -435,10 +429,9 @@ fun FileActionDialog(
                 newNameError = null
                 showXedDialog = true
                 showNewDialog = false
-            }
+            },
         )
     }
-
 
     if (showCloseProjectDialog && root != null) {
         CloseConfirmationDialog(
@@ -447,13 +440,13 @@ fun FileActionDialog(
                 removeProject(root)
                 showCloseProjectDialog = false
                 onDismissRequest()
-            }, onDismiss = {
+            },
+            onDismiss = {
                 showCloseProjectDialog = false
                 onDismissRequest()
-            }
+            },
         )
     }
-
 }
 
 // File Operations utility class
@@ -461,7 +454,7 @@ object FileOperations {
     var clipboard: FileObject? = null
     var isCut: Boolean = false
 
-    suspend fun copyToClipboard(file: FileObject,isCut: Boolean = false) {
+    suspend fun copyToClipboard(file: FileObject, isCut: Boolean = false) {
         clipboard = file
         this.isCut = isCut
     }
@@ -476,7 +469,7 @@ object FileOperations {
     }
 
     suspend fun openWithExternalApp(context: Context, file: FileObject) {
-        openWith(context,file)
+        openWith(context, file)
     }
 
     fun saveAs(context: Context, file: FileObject) {
@@ -484,7 +477,7 @@ object FileOperations {
         MainActivity.instance?.fileManager?.requestOpenDirectoryToSaveFile(file)
     }
 
-    fun addFile(parentFile: FileObject){
+    fun addFile(parentFile: FileObject) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "*/*"
@@ -492,141 +485,74 @@ object FileOperations {
     }
 }
 
-
 @Composable
-fun CloseConfirmationDialog(
-    projectName: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
+fun CloseConfirmationDialog(projectName: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(stringResource(strings.close))
-        },
-        text = {
-            Column {
-                Text(
-                    text = stringResource(strings.close_current_project).fillPlaceholders(projectName)
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-            ) {
-                Text(
-                    stringResource(strings.close)
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss
-            ) {
-                Text(
-                    stringResource(strings.cancel)
-                )
-            }
-        },
+        title = { Text(stringResource(strings.close)) },
+        text = { Column { Text(text = stringResource(strings.close_current_project).fillPlaceholders(projectName)) } },
+        confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(strings.close)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
     )
 }
 
 // Delete Confirmation Dialog
 @Composable
-fun DeleteConfirmationDialog(
-    fileName: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
+fun DeleteConfirmationDialog(fileName: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(stringResource(strings.delete))
-        },
-        text = {
-            Column {
-                Text(
-                    text = stringResource(strings.ask_del).fillPlaceholders(fileName)
-                )
-            }
-        },
+        title = { Text(stringResource(strings.delete)) },
+        text = { Column { Text(text = stringResource(strings.ask_del).fillPlaceholders(fileName)) } },
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                )
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
             ) {
-                Text(
-                    stringResource(strings.delete)
-                )
+                Text(stringResource(strings.delete))
             }
         },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss
-            ) {
-                Text(
-                    stringResource(strings.cancel)
-                )
-            }
-        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
     )
 }
 
 // Properties Dialog
 @Composable
-fun PropertiesDialog(
-    file: FileObject,
-    onDismiss: () -> Unit
-) {
+fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
     var size by remember { mutableStateOf<Long?>(null) }
     val calculatingText = stringResource(strings.calculating)
 
-    LaunchedEffect(file) {
-        size = file.calcSize()
-    }
+    LaunchedEffect(file) { size = file.calcSize() }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(stringResource(strings.properties))
-        },
+        title = { Text(stringResource(strings.properties)) },
         text = {
             Column {
                 InfoRow(stringResource(strings.name), file.getName())
                 InfoRow(
                     label = stringResource(strings.size),
-                    value = size?.let { AnnotatedString(formatFileSize(it)) } ?: buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
-                            append(calculatingText)
-                        }
-                    }
+                    value =
+                        size?.let { AnnotatedString(formatFileSize(it)) }
+                            ?: buildAnnotatedString {
+                                withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) { append(calculatingText) }
+                            },
                 )
                 InfoRow(
                     label = stringResource(strings.type),
-                    value = if (file.isDirectory()) {
-                        stringResource(strings.folder)
-                    } else {
-                        stringResource(strings.file)
-                    }
+                    value =
+                        if (file.isDirectory()) {
+                            stringResource(strings.folder)
+                        } else {
+                            stringResource(strings.file)
+                        },
                 )
-                PermissionRow(
-                    canRead = file.canRead(),
-                    canWrite = file.canWrite(),
-                    canExecute = file.canExecute()
-                )
+                PermissionRow(canRead = file.canRead(), canWrite = file.canWrite(), canExecute = file.canExecute())
                 InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
                 InfoRow(stringResource(strings.path), file.getAbsolutePath())
             }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(strings.close))
-            }
-        },
-        confirmButton = {}
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.close)) } },
+        confirmButton = {},
     )
 }
 
@@ -638,20 +564,9 @@ fun InfoRow(label: String, value: String) {
 @Composable
 fun InfoRow(label: String, value: AnnotatedString) {
     SelectionContainer {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text(
-                text = "$label:",
-                fontWeight = FontWeight.Medium,
-            )
-            Text(
-                modifier = Modifier.padding(top = 2.dp),
-                text = value,
-                style = MaterialTheme.typography.bodyLarge
-            )
+        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            Text(text = "$label:", fontWeight = FontWeight.Medium)
+            Text(modifier = Modifier.padding(top = 2.dp), text = value, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
@@ -659,61 +574,37 @@ fun InfoRow(label: String, value: AnnotatedString) {
 @Composable
 fun PermissionRow(canRead: Boolean, canWrite: Boolean, canExecute: Boolean) {
     SelectionContainer {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        ) {
-            Text(
-                text = stringResource(strings.permissions),
-                fontWeight = FontWeight.Medium,
-            )
-            Column(
-                modifier = Modifier.padding(top = 2.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            Text(text = stringResource(strings.permissions), fontWeight = FontWeight.Medium)
+            Column(modifier = Modifier.padding(top = 2.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
                     Icon(
                         imageVector = ImageVector.vectorResource(if (canRead) drawables.check else drawables.close),
                         contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier.padding(end = 4.dp),
                     )
 
-                    Text(
-                        text = stringResource(strings.can_read),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Text(text = stringResource(strings.can_read), style = MaterialTheme.typography.bodyLarge)
                 }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
                     Icon(
                         imageVector = ImageVector.vectorResource(if (canWrite) drawables.check else drawables.close),
                         contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier.padding(end = 4.dp),
                     )
 
-                    Text(
-                        text = stringResource(strings.can_write),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Text(text = stringResource(strings.can_write), style = MaterialTheme.typography.bodyLarge)
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = ImageVector.vectorResource(if (canExecute) drawables.check else drawables.close),
                         contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier.padding(end = 4.dp),
                     )
 
-                    Text(
-                        text = stringResource(strings.can_execute),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    Text(text = stringResource(strings.can_execute), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
@@ -724,15 +615,16 @@ fun PermissionRow(canRead: Boolean, canWrite: Boolean, canExecute: Boolean) {
 private fun formatFileSize(bytes: Long): String {
     if (bytes < 1024) return "$bytes B"
     val kb = bytes / 1024.0
-    if (kb < 1024) return String.format(Locale.getDefault(),"%.1f KB", kb)
+    if (kb < 1024) return String.format(Locale.getDefault(), "%.1f KB", kb)
     val mb = kb / 1024.0
-    if (mb < 1024) return String.format(Locale.getDefault(),"%.1f MB", mb)
+    if (mb < 1024) return String.format(Locale.getDefault(), "%.1f MB", mb)
     val gb = mb / 1024.0
-    return String.format(Locale.getDefault(),"%.1f GB", gb)
+    return String.format(Locale.getDefault(), "%.1f GB", gb)
 }
 
 /**
  * Pastes a file or folder to the destination directory
+ *
  * @param context Android context for content resolver operations
  * @param sourceFile The file or folder to copy/move
  * @param destinationFolder The target directory
@@ -745,71 +637,69 @@ suspend fun pasteFile(
     sourceFile: FileObject,
     destinationFolder: FileObject,
     isCut: Boolean = false,
-    onProgress: ((String) -> Unit)? = null
-): Result<Unit> = withContext(Dispatchers.IO) {
+    onProgress: ((String) -> Unit)? = null,
+): Result<Unit> =
+    withContext(Dispatchers.IO) {
+        runCatching {
+            // Validation checks
+            if (!destinationFolder.isDirectory()) {
+                throw IllegalArgumentException("Destination must be a directory")
+            }
 
-    runCatching {
-        // Validation checks
-        if (!destinationFolder.isDirectory()) {
-            throw IllegalArgumentException("Destination must be a directory")
-        }
+            if (!destinationFolder.canWrite()) {
+                throw IllegalStateException("Destination directory is not writable")
+            }
 
-        if (!destinationFolder.canWrite()) {
-            throw IllegalStateException("Destination directory is not writable")
-        }
+            if (!sourceFile.exists()) {
+                throw IllegalArgumentException("Source file does not exist")
+            }
 
-        if (!sourceFile.exists()) {
-            throw IllegalArgumentException("Source file does not exist")
-        }
+            // Prevent copying a directory into itself
+            if (sourceFile.isDirectory() && isParentOf(sourceFile, destinationFolder)) {
+                throw IllegalArgumentException("Cannot copy a directory into itself")
+            }
 
-        // Prevent copying a directory into itself
-        if (sourceFile.isDirectory() && isParentOf(sourceFile, destinationFolder)) {
-            throw IllegalArgumentException("Cannot copy a directory into itself")
-        }
+            // Check if target already exists
+            val targetName = sourceFile.getName()
+            if (destinationFolder.hasChild(targetName)) {
+                throw IllegalStateException("A file or folder with name '$targetName' already exists in destination")
+            }
 
-        // Check if target already exists
-        val targetName = sourceFile.getName()
-        if (destinationFolder.hasChild(targetName)) {
-            throw IllegalStateException("A file or folder with name '$targetName' already exists in destination")
-        }
+            // Perform the copy operation
+            copyRecursive(context, sourceFile, destinationFolder, onProgress)
 
-        // Perform the copy operation
-        copyRecursive(context, sourceFile, destinationFolder, onProgress)
-
-        // If it's a cut operation, delete the source
-        if (isCut) {
-            val deleteSuccess = sourceFile.delete()
-            if (!deleteSuccess) {
-                throw IllegalStateException("Failed to delete source file after moving")
+            // If it's a cut operation, delete the source
+            if (isCut) {
+                val deleteSuccess = sourceFile.delete()
+                if (!deleteSuccess) {
+                    throw IllegalStateException("Failed to delete source file after moving")
+                }
             }
         }
     }
-}
 
-/**
- * Recursively copies a file or directory
- */
+/** Recursively copies a file or directory */
 private suspend fun copyRecursive(
     context: Context,
     sourceFile: FileObject,
     targetParent: FileObject,
-    onProgress: ((String) -> Unit)?
+    onProgress: ((String) -> Unit)?,
 ) {
     onProgress?.invoke("Processing: ${sourceFile.getName()}")
 
     if (sourceFile.isDirectory()) {
         // Create target directory
-        val targetDir = targetParent.createChild(false, sourceFile.getName())
-            ?: throw IllegalStateException("Failed to create directory: ${sourceFile.getName()}")
+        val targetDir =
+            targetParent.createChild(false, sourceFile.getName())
+                ?: throw IllegalStateException("Failed to create directory: ${sourceFile.getName()}")
 
         // Copy all children
-        sourceFile.listFiles().forEach { child ->
-            copyRecursive(context, child, targetDir, onProgress)
-        }
+        sourceFile.listFiles().forEach { child -> copyRecursive(context, child, targetDir, onProgress) }
     } else {
         // Copy file content
-        val targetFile = targetParent.createChild(true, sourceFile.getName())
-            ?: throw IllegalStateException("Failed to create file: ${sourceFile.getName()}")
+        val targetFile =
+            targetParent.createChild(true, sourceFile.getName())
+                ?: throw IllegalStateException("Failed to create file: ${sourceFile.getName()}")
 
         context.contentResolver.openInputStream(sourceFile.toUri())?.use { inputStream ->
             context.contentResolver.openOutputStream(targetFile.toUri())?.use { outputStream ->
@@ -819,9 +709,7 @@ private suspend fun copyRecursive(
     }
 }
 
-/**
- * Checks if parentDir is a parent of childDir (prevents copying directory into itself)
- */
+/** Checks if parentDir is a parent of childDir (prevents copying directory into itself) */
 private suspend fun isParentOf(parentDir: FileObject, childDir: FileObject): Boolean {
     var current: FileObject? = childDir
     while (current != null) {
@@ -833,22 +721,18 @@ private suspend fun isParentOf(parentDir: FileObject, childDir: FileObject): Boo
     return false
 }
 
-/**
- * Convenience function for copying files
- */
+/** Convenience function for copying files */
 suspend fun copyFile(
     context: Context,
     sourceFile: FileObject,
     destinationFolder: FileObject,
-    onProgress: ((String) -> Unit)? = null
+    onProgress: ((String) -> Unit)? = null,
 ): Result<Unit> = pasteFile(context, sourceFile, destinationFolder, isCut = false, onProgress)
 
-/**
- * Convenience function for moving files
- */
+/** Convenience function for moving files */
 suspend fun moveFile(
     context: Context,
     sourceFile: FileObject,
     destinationFolder: FileObject,
-    onProgress: ((String) -> Unit)? = null
+    onProgress: ((String) -> Unit)? = null,
 ): Result<Unit> = pasteFile(context, sourceFile, destinationFolder, isCut = true, onProgress)

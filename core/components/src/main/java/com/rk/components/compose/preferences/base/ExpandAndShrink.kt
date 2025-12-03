@@ -26,8 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * Animates the appearance and disappearance of [content] via an expanding and shrinking animation,
- * respectively.
+ * Animates the appearance and disappearance of [content] via an expanding and shrinking animation, respectively.
  *
  * @param visible Defines whether the content should be visible
  * @param content Content to appear or disappear based on the value of [visible]

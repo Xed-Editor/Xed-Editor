@@ -24,7 +24,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 
@@ -33,23 +32,16 @@ data class CodeItem(
     val fileName: String,
     val line: Int,
     val column: Int,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
 )
 
 @Composable
-fun FindingsDialog(
-    title: String,
-    description: String,
-    codeItems: List<CodeItem>,
-    onFinish: () -> Unit
-) {
+fun FindingsDialog(title: String, description: String, codeItems: List<CodeItem>, onFinish: () -> Unit) {
     val grouped = codeItems.groupBy { it.fileName }
 
     AlertDialog(
         onDismissRequest = onFinish,
-        title = {
-            Text(title)
-        },
+        title = { Text(title) },
         text = {
             Column {
                 Text(description.fillPlaceholders(codeItems.size))
@@ -62,15 +54,18 @@ fun FindingsDialog(
                                 text = fileName,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
                             )
                         }
 
                         items(codeItems) { item ->
-                            CodeItemRow(item = item, onClick = {
-                                item.onClick()
-                                onFinish()
-                            })
+                            CodeItemRow(
+                                item = item,
+                                onClick = {
+                                    item.onClick()
+                                    onFinish()
+                                },
+                            )
                         }
 
                         item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -79,42 +74,26 @@ fun FindingsDialog(
             }
         },
         confirmButton = {},
-        dismissButton = {
-            TextButton(
-                onClick = onFinish
-            ) {
-                Text(stringResource(id = strings.cancel))
-            }
-        }
+        dismissButton = { TextButton(onClick = onFinish) { Text(stringResource(id = strings.cancel)) } },
     )
 }
 
 @Composable
-fun CodeItemRow(
-    item: CodeItem,
-    onClick: () -> Unit
-) {
+fun CodeItemRow(item: CodeItem, onClick: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = item.snippet,
             fontFamily = FontFamily.Monospace,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Text(
-            text = "${item.line}:${item.column}",
-            style = MaterialTheme.typography.bodySmall
-        )
+        Text(text = "${item.line}:${item.column}", style = MaterialTheme.typography.bodySmall)
     }
 }

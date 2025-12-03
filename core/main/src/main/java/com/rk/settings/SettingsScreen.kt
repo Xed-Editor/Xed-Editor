@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
@@ -36,8 +37,6 @@ import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
-import com.rk.activities.settings.SettingsRoutes
 import com.rk.settings.app.InbuiltFeatures
 
 @Composable
@@ -98,18 +97,15 @@ private fun Categories(navController: NavController) {
         )
     }
 
-    PreferenceTemplate(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .clip(MaterialTheme.shapes.large)
-        .clickable { navController.navigate(SettingsRoutes.About.route) }
-        .background(Color.Transparent),
+    PreferenceTemplate(
+        modifier =
+            Modifier.padding(horizontal = 16.dp)
+                .clip(MaterialTheme.shapes.large)
+                .clickable { navController.navigate(SettingsRoutes.About.route) }
+                .background(Color.Transparent),
         verticalPadding = 14.dp,
-        title = {
-            Text(stringResource(id = strings.about))
-        },
-        description = {
-            Text(stringResource(id = strings.about_desc))
-        },
+        title = { Text(stringResource(id = strings.about)) },
+        description = { Text(stringResource(id = strings.about_desc)) },
         startWidget = {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
                 Icon(
@@ -119,55 +115,49 @@ private fun Categories(navController: NavController) {
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
-        }
+        },
     )
 
-    PreferenceTemplate(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .clip(MaterialTheme.shapes.large)
-        .clickable { navController.navigate(SettingsRoutes.Support.route)  }
-        .background(Color.Transparent),
+    PreferenceTemplate(
+        modifier =
+            Modifier.padding(horizontal = 16.dp)
+                .clip(MaterialTheme.shapes.large)
+                .clickable { navController.navigate(SettingsRoutes.Support.route) }
+                .background(Color.Transparent),
         verticalPadding = 14.dp,
-        title = {
-            Text(stringResource(strings.support))
-        },
-        description = {
-            Text(stringResource(id = strings.sponsor_desc))
-        },
-        startWidget = {
-            HeartbeatIcon()
-        }
+        title = { Text(stringResource(strings.support)) },
+        description = { Text(stringResource(id = strings.sponsor_desc)) },
+        startWidget = { HeartbeatIcon() },
     )
-
 }
-
 
 @Composable
 fun HeartbeatIcon() {
     val infiniteTransition = rememberInfiniteTransition(label = "heartbeat")
 
-    val scale = infiniteTransition.animateFloat(
-        initialValue = 0.9f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 500, easing = LinearOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scale"
-    )
+    val scale =
+        infiniteTransition.animateFloat(
+            initialValue = 0.9f,
+            targetValue = 1f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(durationMillis = 500, easing = LinearOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "scale",
+        )
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(32.dp)
-            .scale(scale.value)
-    ) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp).scale(scale.value)) {
         Icon(
-            imageVector = if (Settings.donated){Icons.Filled.Favorite}else{Icons.Outlined.FavoriteBorder},
+            imageVector =
+                if (Settings.donated) {
+                    Icons.Filled.Favorite
+                } else {
+                    Icons.Outlined.FavoriteBorder
+                },
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.primary,
         )
     }
 }
-

@@ -1,7 +1,6 @@
 package com.rk.components
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -22,10 +21,9 @@ import com.rk.tabs.CodeEditorState
 fun SyntaxPanel(onDismissRequest: () -> Unit, editorState: CodeEditorState) {
     XedDialog(onDismissRequest = onDismissRequest) {
         DividerColumn(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            FileType.entries.toTypedArray()
-                .filter {
-                    it.textmateScope != null
-                }
+            FileType.entries
+                .toTypedArray()
+                .filter { it.textmateScope != null }
                 .forEach { fileType ->
                     val scope = fileType.textmateScope!!
 
@@ -33,27 +31,22 @@ fun SyntaxPanel(onDismissRequest: () -> Unit, editorState: CodeEditorState) {
                         label = fileType.title,
                         description = scope,
                         default = false,
-                        sideEffect = {
-                            editorState.textmateScope = scope
-                        },
+                        sideEffect = { editorState.textmateScope = scope },
                         showSwitch = false,
                         startWidget = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 RadioButton(
                                     selected = editorState.textmateScope == scope,
-                                    onClick = {
-                                        editorState.textmateScope = scope
-                                    }
+                                    onClick = { editorState.textmateScope = scope },
                                 )
 
                                 Icon(
                                     imageVector = ImageVector.vectorResource(fileType.icon ?: drawables.file),
                                     contentDescription = null,
-                                    modifier = Modifier
-                                        .size(24.dp)
+                                    modifier = Modifier.size(24.dp),
                                 )
                             }
-                        }
+                        },
                     )
                 }
         }

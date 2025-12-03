@@ -7,7 +7,7 @@ import java.io.ObjectOutputStream
 import java.io.Serial
 import java.io.Serializable
 
-data class BaseColors (
+data class BaseColors(
     val primary: String? = null,
     val onPrimary: String? = null,
     val primaryContainer: String? = null,
@@ -43,7 +43,7 @@ data class BaseColors (
     val surfaceContainerLow: String? = null,
     val surfaceContainer: String? = null,
     val surfaceContainerHigh: String? = null,
-    val surfaceContainerHighest: String? = null
+    val surfaceContainerHighest: String? = null,
 ) : Serializable
 
 data class ThemePalette(
@@ -84,9 +84,8 @@ data class ThemePalette(
      *     ]
      * }
      * ```
-     * */
-    @Transient
-    var tokenColors: JsonElement? = null
+     */
+    @Transient var tokenColors: JsonElement? = null,
 ) : Serializable {
     @Serial
     private fun writeObject(out: ObjectOutputStream) {

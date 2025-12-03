@@ -10,7 +10,8 @@ plugins {
 val gitCommitHash: Provider<String> =
     providers.exec { commandLine("git", "rev-parse", "--short=8", "HEAD") }.standardOutput.asText.map { it.trim() }
 
-val fullGitCommitHash: Provider<String> = providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
+val fullGitCommitHash: Provider<String> =
+    providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
 
 val gitCommitDate: Provider<String> =
     providers.exec { commandLine("git", "show", "-s", "--format=%cI", "HEAD") }.standardOutput.asText.map { it.trim() }

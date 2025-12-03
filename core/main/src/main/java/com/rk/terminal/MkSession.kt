@@ -21,27 +21,30 @@ import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import kotlinx.coroutines.runBlocking
 import java.io.File
+import kotlinx.coroutines.runBlocking
 
 object MkSession {
 
     fun createSession(
-        activity: Terminal, sessionClient: TerminalSessionClient, sessionId: String
+        activity: Terminal,
+        sessionClient: TerminalSessionClient,
+        sessionId: String,
     ): Pair<TerminalSession, SessionPwd> {
         with(activity) {
-            val envVariables = mapOf(
-                "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
-                "ANDROID_DATA" to System.getenv("ANDROID_DATA"),
-                "ANDROID_I18N_ROOT" to System.getenv("ANDROID_I18N_ROOT"),
-                "ANDROID_ROOT" to System.getenv("ANDROID_ROOT"),
-                "ANDROID_RUNTIME_ROOT" to System.getenv("ANDROID_RUNTIME_ROOT"),
-                "ANDROID_TZDATA_ROOT" to System.getenv("ANDROID_TZDATA_ROOT"),
-                "BOOTCLASSPATH" to System.getenv("BOOTCLASSPATH"),
-                "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
-                "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE"),
-                "PATH" to "${System.getenv("PATH")}:${localBinDir().absolutePath}"
-            )
+            val envVariables =
+                mapOf(
+                    "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
+                    "ANDROID_DATA" to System.getenv("ANDROID_DATA"),
+                    "ANDROID_I18N_ROOT" to System.getenv("ANDROID_I18N_ROOT"),
+                    "ANDROID_ROOT" to System.getenv("ANDROID_ROOT"),
+                    "ANDROID_RUNTIME_ROOT" to System.getenv("ANDROID_RUNTIME_ROOT"),
+                    "ANDROID_TZDATA_ROOT" to System.getenv("ANDROID_TZDATA_ROOT"),
+                    "BOOTCLASSPATH" to System.getenv("BOOTCLASSPATH"),
+                    "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
+                    "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE"),
+                    "PATH" to "${System.getenv("PATH")}:${localBinDir().absolutePath}",
+                )
 
             val workingDir = runBlocking { getPwd() }
 
@@ -53,49 +56,51 @@ object MkSession {
 
             tmpDir.mkdirs()
 
-            val env = mutableListOf(
-                "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "WKDIR=${workingDir}",
-                "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
-                "COLORTERM=truecolor",
-                "TERM=xterm-256color",
-                "LANG=C.UTF-8",
-                "DEBUG=${BuildConfig.DEBUG}",
-                "LOCAL=${localDir().absolutePath}",
-                "PRIVATE_DIR=${filesDir.parentFile!!.absolutePath}",
-                "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
-                "EXT_HOME=${sandboxHomeDir()}",
-                "HOME=${if (Settings.sandbox){ "/home"} else{ sandboxHomeDir()}}",
-                "PROMPT_DIRTRIM=2",
-                "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
-                "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
-                "FDROID=${App.isFDroid}",
-                "SANDBOX=${Settings.sandbox}",
-                "TMP_DIR=${getTempDir()}",
-                "TMPDIR=${getTempDir()}",
-                "TZ=UTC",
-                "DOTNET_GCHeapHardLimit=1C0000000",
-                "SOURCE_DIR=${applicationInfo.sourceDir}",
-                "TERMUX_X11_SOURCE_DIR=${getSourceDirOfPackage(application!!,"com.termux.x11")}",
-                "DISPLAY=:0"
-            )
+            val env =
+                mutableListOf(
+                    "PROOT_TMP_DIR=${tmpDir.absolutePath}",
+                    "WKDIR=${workingDir}",
+                    "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
+                    "COLORTERM=truecolor",
+                    "TERM=xterm-256color",
+                    "LANG=C.UTF-8",
+                    "DEBUG=${BuildConfig.DEBUG}",
+                    "LOCAL=${localDir().absolutePath}",
+                    "PRIVATE_DIR=${filesDir.parentFile!!.absolutePath}",
+                    "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
+                    "EXT_HOME=${sandboxHomeDir()}",
+                    "HOME=${if (Settings.sandbox){ "/home"} else{ sandboxHomeDir()}}",
+                    "PROMPT_DIRTRIM=2",
+                    "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
+                    "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
+                    "FDROID=${App.isFDroid}",
+                    "SANDBOX=${Settings.sandbox}",
+                    "TMP_DIR=${getTempDir()}",
+                    "TMPDIR=${getTempDir()}",
+                    "TZ=UTC",
+                    "DOTNET_GCHeapHardLimit=1C0000000",
+                    "SOURCE_DIR=${applicationInfo.sourceDir}",
+                    "TERMUX_X11_SOURCE_DIR=${getSourceDirOfPackage(application!!,"com.termux.x11")}",
+                    "DISPLAY=:0",
+                )
 
-            if (!App.isFDroid){
+            if (!App.isFDroid) {
                 env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
-                if (Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() && File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
+                if (
+                    Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
+                        File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()
+                ) {
                     env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
                 }
             }
 
-            if (Settings.seccomp){
+            if (Settings.seccomp) {
                 env.add("SECCOMP=1")
             }
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
-            pendingCommand?.env?.let {
-                env.addAll(it)
-            }
+            pendingCommand?.env?.let { env.addAll(it) }
 
             setupTerminalFiles()
 
@@ -104,31 +109,35 @@ object MkSession {
 
             val args: Array<String>
 
-            val shell = if (pendingCommand == null) {
-                args = if (Settings.sandbox) {
-                    arrayOf(sandboxSH.absolutePath)
+            val shell =
+                if (pendingCommand == null) {
+                    args =
+                        if (Settings.sandbox) {
+                            arrayOf(sandboxSH.absolutePath)
+                        } else {
+                            arrayOf()
+                        }
+                    "/system/bin/sh"
+                } else if (pendingCommand!!.sandbox.not()) {
+                    args = pendingCommand!!.args
+                    pendingCommand!!.exe
                 } else {
-                    arrayOf()
-                }
-                "/system/bin/sh"
-            } else if (pendingCommand!!.sandbox.not()) {
-                args = pendingCommand!!.args
-                pendingCommand!!.exe
-            } else {
-                args = mutableListOf(sandboxSH.absolutePath, pendingCommand!!.exe,*pendingCommand!!.args
-                ).toTypedArray<String>()
+                    args =
+                        mutableListOf(sandboxSH.absolutePath, pendingCommand!!.exe, *pendingCommand!!.args)
+                            .toTypedArray<String>()
 
-                "/system/bin/sh"
-            }
+                    "/system/bin/sh"
+                }
 
             val actualShell: String
-            val actualArgs: Array<String> = if (installNextStage != null && installNextStage == NEXT_STAGE.EXTRACTION){
-                actualShell = "/system/bin/sh"
-                mutableListOf("-c", setupSH.absolutePath,*args).toTypedArray()
-            }else{
-                actualShell = shell
-                arrayOf("-c",*args)
-            }
+            val actualArgs: Array<String> =
+                if (installNextStage != null && installNextStage == NEXT_STAGE.EXTRACTION) {
+                    actualShell = "/system/bin/sh"
+                    mutableListOf("-c", setupSH.absolutePath, *args).toTypedArray()
+                } else {
+                    actualShell = shell
+                    arrayOf("-c", *args)
+                }
 
             pendingCommand = null
 
@@ -141,7 +150,6 @@ object MkSession {
                 sessionClient,
             ) to workingDir
         }
-
     }
 }
 

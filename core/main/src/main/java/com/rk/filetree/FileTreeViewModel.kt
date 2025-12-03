@@ -1,26 +1,19 @@
 package com.rk.filetree
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
+import kotlin.collections.set
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.collections.set
 
 fun FileObject.toFileTreeNode(): FileTreeNode {
-    return FileTreeNode(
-        file = this,
-        isFile = isFile(),
-        isDirectory = isDirectory(),
-        name = getAppropriateName()
-    )
+    return FileTreeNode(file = this, isFile = isFile(), isDirectory = isDirectory(), name = getAppropriateName())
 }
-
 
 class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
@@ -32,6 +25,7 @@ class FileTreeViewModel : ViewModel() {
     private val _loadingStates = mutableStateMapOf<FileObject, Boolean>()
 
     fun isNodeExpanded(fileObject: FileObject): Boolean = expandedNodes[fileObject] == true
+
     fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates[fileObject] == true
 
     fun isNodeCut(fileObject: FileObject): Boolean = cutNode.value == fileObject
@@ -41,7 +35,7 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun unmarkNodeAsCut(fileObject: FileObject) {
-        if (isNodeCut(fileObject)){
+        if (isNodeCut(fileObject)) {
             cutNode.value = null
         }
     }
@@ -61,21 +55,23 @@ class FileTreeViewModel : ViewModel() {
             throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
         }
         viewModelScope.launch(Dispatchers.IO) {
-            _loadingStates[file] = true  // Mark as loading
+            _loadingStates[file] = true // Mark as loading
 
             try {
                 // Safely access file listing
-                val fileList = try {
-                    file.listFiles()
-                } catch (e: Exception) {
-                    _loadingStates[file] = false
-                    return@launch
-                }
+                val fileList =
+                    try {
+                        file.listFiles()
+                    } catch (e: Exception) {
+                        _loadingStates[file] = false
+                        return@launch
+                    }
 
                 // Process files
-                val files = fileList
-                    .sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() }))
-                    .map { it.toFileTreeNode() }
+                val files =
+                    fileList.sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() })).map {
+                        it.toFileTreeNode()
+                    }
 
                 fileListCache[file] = files
 
@@ -94,11 +90,8 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    suspend fun refreshEverything() = withContext(Dispatchers.IO){
-        fileListCache.keys.toList().forEach {
-            updateCache(it)
-        }
-    }
+    suspend fun refreshEverything() =
+        withContext(Dispatchers.IO) { fileListCache.keys.toList().forEach { updateCache(it) } }
 
     fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> {
         return fileListCache[node.file] ?: emptyList()
@@ -110,10 +103,10 @@ class FileTreeViewModel : ViewModel() {
         if (fileListCache.containsKey(node.file)) {
             _loadingStates[node.file] = false
 
-//            //a bit unnecessary but it auto refresh files when loading from cache
-//            viewModelScope.launch(Dispatchers.IO) {
-//                updateCache(node.file)
-//            }
+            //            //a bit unnecessary but it auto refresh files when loading from cache
+            //            viewModelScope.launch(Dispatchers.IO) {
+            //                updateCache(node.file)
+            //            }
             return
         }
 
@@ -123,17 +116,17 @@ class FileTreeViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Safely access file listing
-                val fileList = try {
-                    node.file.listFiles()
-                } catch (e: Exception) {
-                    _loadingStates[node.file] = false
-                    return@launch
-                }
+                val fileList =
+                    try {
+                        node.file.listFiles()
+                    } catch (e: Exception) {
+                        _loadingStates[node.file] = false
+                        return@launch
+                    }
 
                 // Process files
-                val files = fileList
-                    .sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() }))
-                    .map {
+                val files =
+                    fileList.sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() })).map {
                         it.toFileTreeNode()
                     }
 
