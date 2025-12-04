@@ -39,7 +39,7 @@
     <string name="paste">Yapıştır</string>
     <string name="delete">Sil</string>
     <string name="close_this">Bunu kapat</string>
-    <string name="close_others">Ötekileri kapat</string>
+    <string name="close_others">Diğerlerini kapat</string>
     <string name="close_all">Hepsini kapat</string>
     <string name="insert_date">Tarihi ekle</string>
     <string name="close">Kapat</string>
@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Lütfen bir ad girin</string>
     <string name="already_exists">Bu isimde bir belge zaten mevcut</string>
     <string name="attention">Dikkat</string>
-    <string name="ask_del">Şu dosyayı kalıcı olarak silmek istediğinizden emin misiniz: \'%s\'?</string>
+    <string name="ask_del">Bunu dosyayı kalıcı olarak silmek istediğinizden emin misiniz: \'%s\'?</string>
     <string name="reselect_dir">Lütfen dizini yeniden seçin</string>
     <string name="cant_handle">Dosyayı işleyecek uygulama bulunamadı</string>
     <string name="terminal">Terminal</string>
@@ -81,7 +81,7 @@
     <string name="open_dir_in_terminal">Klasörü terminalde aç</string>
     <string name="file_open_denied">Bu dosyanın başka programlarla açılmasına izin verilmiyor</string>
     <string name="reload_file_tree">Dosyaları yenile</string>
-    <string name="close_current_project">Şu projeyi kapatmak istediğinizden emin misiniz: \'%s\'?</string>
+    <string name="close_current_project">Bunu projeyi kapatmak istediğinizden emin misiniz: \'%s\'?</string>
     <string name="rename_desc">Belgeyi yeniden isimlendir</string>
     <string name="open_with_other">Seçilen dosyayı diğer uygulamalarda aç</string>
     <string name="add_file_desc">Buraya eklenecek yeni bir dosya seçin</string>
@@ -120,7 +120,7 @@
     <string name="installed">Yüklendi</string>
     <string name="available">Mevcut</string>
     <string name="already_installed">Zaten yüklü</string>
-    <string name="download_sure">Şunu indirmek istediğinizden emin misiniz: \'%s\'?</string>
+    <string name="download_sure">Bunu indirmek istediğinizden emin misiniz: \'%s\'?</string>
     <string name="yes">Evet</string>
     <string name="fetch_failed">Getirme isteği null değer döndürdü</string>
     <string name="app">Uygulama</string>
@@ -270,7 +270,7 @@
     <string name="new_document">Yeni belge</string>
     <string name="new_document_desc">Yeni dosya veya klasör</string>
     <string name="file">Dosya</string>
-    <string name="ignore">Göz ardı et</string>
+    <string name="ignore">Yoksay</string>
     <string name="restore_sessions_desc">Önceki sekmeleri yeniden yükle</string>
     <string name="update_av">Yeni güncellemeler mevcut</string>
     <string name="update">Güncelle</string>
@@ -359,7 +359,7 @@
     <string name="uninstall_terminal">Terminali kaldır</string>
     <string name="project_as_wk">Proje’yi çalışma dizini olarak kullan</string>
     <string name="project_as_wk_desc">Terminalde proje dizinini çalışma dizini olarak kullan</string>
-    <string name="seccomp_desc">Bazı cihazlarda görülen \"function not implemented\" hatasını düzelt</string>
+    <string name="seccomp_desc">Bazı cihazlarda görülen \"function not implemented\" hatasını düzeltir</string>
     <string name="non_native_filetype">Bu konumda kod çalıştırma desteklenmiyor. Çalıştırmak için dosyanızı terminalin ana dizinine taşımayı düşünün.</string>
     <string name="sdcard_filetype">Bu konumda kod çalıştırmanız tavsiye edilmez. Dosyanızı terminalin ana dizinine taşımanız önerilir.</string>
     <string name="rename_file">Dosyayı yeniden adlandır</string>
@@ -425,7 +425,7 @@
     <string name="rename_folder">Klasörü yeniden adlandır</string>
     <string name="size">Boyut</string>
     <string name="wrapper_type">Sarmalayıcı tipi</string>
-    <string name="ignore_case">Harf duyarlılığını göz ardı et</string>
+    <string name="ignore_case">Harf duyarlılığını yoksay</string>
     <string name="regex">Düzenli ifade</string>
     <string name="whole_word">Tüm kelime</string>
     <string name="go_to_definition">Tanıma git</string>
