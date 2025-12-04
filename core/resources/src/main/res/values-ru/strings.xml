@@ -139,7 +139,7 @@
     <string name="show_line_number">Показывать номера строк</string>
     <string name="pin_line_number">Закрепить номера линий</string>
     <string name="extra_keys">Дополнительные клавиши</string>
-    <string name="extra_keys_desc">Показывать дополнительные клавиши в редакторе</string>
+    <string name="extra_keys_desc">Показывать дополнительные клавиши над клавиатурой</string>
     <string name="auto_save">Автоматическое сохранение</string>
     <string name="auto_save_desc">Сохранять файл автоматически</string>
     <string name="interval_in_ms">Интервал в миллисекундах</string>
@@ -149,7 +149,7 @@
     <string name="text_size">Размер текста</string>
     <string name="text_size_desc">Установить размер текста</string>
     <string name="tab_size">Размер табуляции</string>
-    <string name="tab_size_desc">Установить размер табуляции.</string>
+    <string name="tab_size_desc">Установить размер табуляции</string>
     <string name="monet">Динамические цвета</string>
     <string name="monet_desc">Использовать тему устройства в приложении</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение.</string>
@@ -432,8 +432,8 @@
     <string name="go_to_definition">Перейти к определению</string>
     <string name="go_to_references">Перейти к источникам</string>
     <string name="rename_symbol">Переименовать символ</string>
-    <string name="go_to_definition_desc">Выберите одно из определений %(count)d, чтобы перейти к их расположению.</string>
-    <string name="go_to_references_desc">Выберите один из источников %(count)d, чтобы перейти к его расположению.</string>
+    <string name="go_to_definition_desc">Выберите одно из определений %d, чтобы перейти к их расположению.</string>
+    <string name="go_to_references_desc">Выберите один из источников %d, чтобы перейти к его расположению.</string>
     <string name="no_definitions_found">Определения не найдены.</string>
     <string name="no_references_found">Ссылки не найдены.</string>
     <string name="find_definitions_error">Не удается найти определения.</string>
@@ -446,4 +446,27 @@
     <string name="enable_sticky_scroll_desc">Закрепять заголовки блоков кода при прокрутке</string>
     <string name="enable_quick_deletion">Включить быстрое удаление строк</string>
     <string name="enable_quick_deletion_desc">Автоматически удалять всю строку, если она пуста</string>
+    <string name="open_as_project">Открыть как проект</string>
+    <string name="can_execute">Доступен для выполнения</string>
+    <string name="language_server">Языковой сервер</string>
+    <string name="manage_language_servers">Управлять языковым сервером</string>
+    <string name="manage_language_servers_desc">Установить, подключить и настроить языковой сервер</string>
+    <string name="format_on_save">Форматировать при сохранении</string>
+    <string name="format_on_save_desc">Форматировать автоматически при сохранении</string>
+    <string name="format_document">Форматировать документ</string>
+    <string name="format_selection">Форматировать выделение</string>
+    <string name="format_document_error">Невозможно форматировать документ.</string>
+    <string name="format_selection_error">Невозможно форматировать выделение.</string>
+    <string name="type_command">Введите команду</string>
+    <string name="recently_used">(Недавно использованный)</string>
+    <string name="command_palette">Палитра команд</string>
+    <string name="rename_failed">Невозможно переименовтаь файл</string>
+    <string name="debug_mode_warn">Режим отладки отключает ограничения безопасности, которые могут привести к потере данных или другим проблемам. Включайте только если знаете, что делаете.</string>
+    <string name="external_lsp">Внешний LSP</string>
+    <string name="external">Внешний</string>
+    <string name="desktop_mode">Режим ПК (экспериментальный)</string>
+    <string name="desktop_mode_desc">Упрощает использование приложения на планшетах и больших экранах.</string>
+    <string name="built_in">Встроенный</string>
+    <string name="lsp_terminal_unavailable">Языковые функции LSP не будут работать, потому что среда терминала недоступна или не функционирует.</string>
+    <string name="invalid_intent">Получено неверное намерение:\n%s</string>
 </resources>
