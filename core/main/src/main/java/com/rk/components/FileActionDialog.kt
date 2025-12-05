@@ -322,24 +322,21 @@ fun FileActionDialog(
             onConfirm = {
                 val newName = renameValue
                 scope.launch {
-                    val parentFile = file.getParentFile()
                     val success = file.renameTo(newName)
-                    if (success) {
-                        if (parentFile != null) {
-                            val parentFile = file.getParentFile()
-                            if (parentFile != null) {
-                                fileTreeViewModel.updateCache(file.getParentFile()!!)
-                            }
 
-                            MainActivity.instance?.apply {
-                                val targetTab = viewModel.tabs.find { it is EditorTab && it.file == file } as? EditorTab
-
-                                targetTab?.tabTitle?.value = newName
-                                targetTab?.file = parentFile.getChildForName(newName)
-                            }
-                        }
-                    } else {
+                    if (!success) {
                         toast(strings.rename_failed)
+                        return@launch
+                    }
+
+                    val parentFile = file.getParentFile() ?: return@launch
+                    fileTreeViewModel.updateCache(parentFile)
+
+                    MainActivity.instance?.apply {
+                        val targetTab = viewModel.tabs.find { it is EditorTab && it.file == file } as? EditorTab
+
+                        targetTab?.tabTitle?.value = newName
+                        targetTab?.file = parentFile.getChildForName(newName)
                     }
                 }
 
@@ -361,12 +358,15 @@ fun FileActionDialog(
             onConfirm = {
                 scope.launch {
                     val success = FileOperations.deleteFile(file)
-                    if (success) {
-                        val parentFile = file.getParentFile()
-                        if (parentFile != null) {
-                            fileTreeViewModel.updateCache(file.getParentFile()!!)
-                        }
-                        toast(context.getString(strings.success))
+
+                    if (!success) {
+                        toast(strings.delete_failed)
+                        return@launch
+                    }
+
+                    val parentFile = file.getParentFile()
+                    if (parentFile != null) {
+                        fileTreeViewModel.updateCache(file.getParentFile()!!)
                     }
                 }
                 showDeleteDialog = false
