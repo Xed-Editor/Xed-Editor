@@ -460,6 +460,7 @@
     <string name="recently_used">(Recently used)</string>
     <string name="command_palette">Command palette</string>
     <string name="rename_failed">Unable to rename file</string>
+    <string name="delete_failed">Unable to delete file</string>
     <string name="debug_mode_warn">Debug mode disables safety restrictions, which could lead to data loss or other issues if misused. Only enable it if you know what you\'re doing.</string>
     <string name="external_lsp">External LSP</string>
     <string name="external">External</string>
