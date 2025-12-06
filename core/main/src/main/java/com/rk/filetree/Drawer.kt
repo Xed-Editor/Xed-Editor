@@ -1,7 +1,6 @@
 package com.rk.filetree
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -51,7 +50,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.components.AddDialogItem
@@ -72,7 +70,6 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.dialog
 import com.rk.utils.toast
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -87,11 +84,7 @@ import kotlinx.coroutines.withContext
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.SFTPClient
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serializable
 
 
 data class FileObjectWrapper(val fileObject: FileObject, val name: String) : Serializable {
@@ -136,15 +129,16 @@ suspend fun restoreProjects() {
                     ObjectInputStream(FileInputStream(file)).use { ois ->
                         val list = mutableStateListOf<FileObjectWrapper>()
                         list.addAll((ois.readObject() as List<FileObject>).map {
-                            if(it is SFTPFileObject){
+                            if (it is SFTPFileObject) {
                                 it.connect()
                             }
                             FileObjectWrapper(it, it.getName())
                         })
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             projects = list
                         }
                     }
+                }
                     projects.forEach {
                         if (it.fileObject.getAbsolutePath() == Settings.selectedProject) {
                             currentProject = it.fileObject
@@ -609,7 +603,7 @@ private fun AddProjectDialog(
                         lifecycleScope.launch {
                             runCatching {
                                 addProject(FileWrapper(storage))
-                            }.onFailure { it.printStackTrace();errorDialog(it) }
+                            }.onFailure { it.printStackTrace(); }
 //                            Do nothing on success, As user sees the result :upside_down:
                         }
                         onDismiss()
