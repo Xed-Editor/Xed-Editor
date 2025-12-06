@@ -58,15 +58,15 @@ object CommandProvider {
                     label = mutableStateOf(stringResource(strings.terminal)),
                     action = { viewModel, act ->
                         showTerminalNotice(act!!) {
-                            val intent = Intent(act, Terminal::class.java)
-                                .apply {
+                            val intent =
+                                Intent(act, Terminal::class.java).apply {
                                     val currentFile = viewModel.currentTab?.file ?: return@apply
                                     val currentPath = currentFile.getAbsolutePath()
                                     // Find the closest (longest matching) project path
-                                    val project = projects
-                                        .filter { currentPath.startsWith(it.fileObject.getAbsolutePath()) }
-                                        .maxByOrNull { it.fileObject.getAbsolutePath().length }
-                                        ?: return@apply
+                                    val project =
+                                        projects
+                                            .filter { currentPath.startsWith(it.fileObject.getAbsolutePath()) }
+                                            .maxByOrNull { it.fileObject.getAbsolutePath().length } ?: return@apply
                                     putExtra("cwd", project.fileObject.getAbsolutePath())
                                 }
 

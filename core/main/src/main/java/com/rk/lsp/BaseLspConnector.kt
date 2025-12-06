@@ -22,6 +22,7 @@ import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.DefinitionOptions
 import org.eclipse.lsp4j.DefinitionParams
@@ -58,9 +59,9 @@ class BaseLspConnector(
     private val codeEditor: Editor,
     private val server: BaseLspServer,
 ) {
-    private var project: LspProject? = null
-    private var serverDefinition: CustomLanguageServerDefinition? = null
-    private var lspEditor: LspEditor? = null
+    var project: LspProject? = null
+    var serverDefinition: CustomLanguageServerDefinition? = null
+    var lspEditor: LspEditor? = null
 
     companion object {
         private val projectCache = ConcurrentHashMap<String, LspProject>()
@@ -157,6 +158,8 @@ class BaseLspConnector(
                     if (isConnected()) {
                         info("LSP server already connected skipping...")
                         return@withContext
+                    } else {
+                        launch { server.beforeConnect() }
                     }
 
                     lspEditor!!.connectWithTimeout()
@@ -174,11 +177,13 @@ class BaseLspConnector(
                             }
                         )
                     lspEditor!!.openDocument()
+                    launch { server.connectionSuccess(this@BaseLspConnector) }
                 }
                 .onFailure {
                     codeEditor.setLanguage(textMateScope)
                     it.printStackTrace()
                     toast(it.message)
+                    launch { server.connectionFailure(it.message) }
                 }
         }
 

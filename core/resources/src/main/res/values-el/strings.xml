@@ -155,7 +155,7 @@
     <string name="restart_app">Παρακαλώ, επανεκκινήστε την εφαρμογή.</string>
     <string name="old_android">Μη υποστηριζόμενη έκδοση Android</string>
     <string name="app_desc">Γενικές ρυθμίσεις εφαρμογής</string>
-    <string name="editor_desc">Γενικές ρυθμίσεις επεξεργασίας</string>
+    <string name="editor_desc">Γενικές ρυθμίσεις επεξεργαστή</string>
     <string name="terminal_desc">Γενικές ρυθμίσεις τερματικού</string>
     <string name="terminal_text_size">Μέγεθος κειμένου τερματικού</string>
     <string name="terminal_text_size_desc">Ορισμός μεγέθους κειμένου τερματικού</string>
@@ -248,4 +248,26 @@
     <string name="feature_toggles">Εναλλαγές λειτουργιών</string>
     <string name="feature_toggles_desc">Ενεργοποίηση ή απενεργοποίηση συγκεκριμένων λειτουργιών</string>
     <string name="backup">Αντίγραφο ασφαλείας</string>
+    <string name="editor_font">Γραμματοσειρά επεξεργαστή</string>
+    <string name="editor_font_desc">Επιλογή γραμματοσειράς επεξεργαστή</string>
+    <string name="manage_editor_font">Διαχείριση γραμματοσειρών επεξεργαστή</string>
+    <string name="default_encoding_desc">Προεπιλεγμένη κωδικοποίηση επεξεργαστή</string>
+    <string name="line_spacing_desc">Πολλαπλασιαστής ύψους για κάθε γραμμή στον επεξεργαστή</string>
+    <string name="info_mutators">Οι μεταλλάκτες είναι μικρά σενάρια που χρησιμοποιούνται για την τροποποίηση του κειμένου στον επεξεργαστή. Δημιουργήστε έναν μεταλλάκτη και κάντε κλικ σε αυτό για άνοιγμα στον επεξεργαστή.</string>
+    <string name="auto_complete">Αυτόματη συμπλήρωση επεξεργαστή</string>
+    <string name="info_runners">Οι εκτελεστές είναι μικρά bash σενάρια που χρησιμοποιούνται για την εκτέλεση ενός αρχείου/έργου. Δημιουργήστε έναν εκτελεστή και κάντε κλικ σε αυτό για άνοιγμα στον επεξεργαστή.</string>
+    <string name="tab_memory_warning">Δεν υπάρχει αρκετή διαθέσιμη μνήμη για το άνοιγμα αυτής της καρτέλας. Με το άνοιγμα, το Xed-Editor ενδέχεται να καταρρεύσει. Θέλετε να συνεχίσετε ούτως ή άλλως;</string>
+    <string name="anr_watchdog_desc">Τερματισμός του Xed-Editor εάν δεν ανταποκρίνεται για περισσότερο από 5 δευτερόλεπτα</string>
+    <string name="editor">Επεξεργαστής</string>
+    <string name="installed">Εγκατεστημένο</string>
+    <string name="extra_keys_desc">Εμφάνιση επιπλέον πλήκτρων πάνω από το πληκτρολόγιο</string>
+    <string name="run">Εκτέλεση</string>
+    <string name="other">Άλλο</string>
+    <string name="content">Περιεχόμενο</string>
+    <string name="fonts">Γραμματοσειρές</string>
+    <string name="font_added">Η γραμματοσειρά προστέθηκε με επιτυχία</string>
+    <string name="delete_font">Διαγραφή γραμματοσειράς</string>
+    <string name="add_font">Προσθήκη νέας γραμματοσειράς</string>
+    <string name="add_font_desc">Επιλογή γραμματοσειράς TTF από χώρο αποθήκευσης</string>
+    <string name="file_not_saved">Ορισμένα αρχεία δεν έχουν αποθηκευτεί</string>
 </resources>

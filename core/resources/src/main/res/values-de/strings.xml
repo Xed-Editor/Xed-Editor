@@ -328,7 +328,7 @@
     <string name="force_normal">Normalmodus erzwingen</string>
     <string name="theme_mode">Thema-Modus</string>
     <string name="cannot_be_empty">Es darf nicht leer sein.</string>
-    <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi.</string>
+    <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi</string>
     <string name="read_only_file">Datei ist schreibgeschützt</string>
     <string name="expose_saf">Home-Verzeichnis freigeben</string>
     <string name="expose_saf_desc">Home-Verzeichnis über den System-Dateiauswahldialog (SAF) für externe Apps zugänglich machen</string>
@@ -495,4 +495,5 @@
     <string name="theme_flipper">Themen-Wechsler</string>
     <string name="theme_flipper_desc">Den Thema-Modus ständig alle 7s ändern</string>
     <string name="lsp_terminal_unavailable">Die LSP-Sprachfunktionen funktionieren nicht, da die Terminalumgebung nicht verfügbar oder nicht funktionsfähig ist.</string>
+    <string name="invalid_intent">Ungültiger Intent empfangen:\n%s</string>
 </resources>

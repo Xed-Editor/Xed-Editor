@@ -16,7 +16,8 @@ import io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer
  *
  * This class specifically handles Base64 encoded strings. It supports loading and rendering:
  * - **SVG Images:** Parsed using AndroidSVG, with automatic scaling to ensure a minimum visibility size.
- * - **Raster Images:** Decoded via `BitmapFactory` (e.g., PNG, JPEG), with automatic downscaling to fit within a maximum width.
+ * - **Raster Images:** Decoded via `BitmapFactory` (e.g., PNG, JPEG), with automatic downscaling to fit within a
+ *   maximum width.
  *
  * Implements [SimpleMarkdownRenderer.ImageProvider] to integrate with the sora-editor's Markdown rendering.
  */
@@ -91,7 +92,10 @@ class MarkdownImageProvider : SimpleMarkdownRenderer.ImageProvider {
         return BitmapDrawable(scaledBitmap)
     }
 
-    /** Scale down a bitmap to maxWidth preserving aspect ratio. If bitmap width is already <= maxWidth, the original bitmap is returned. */
+    /**
+     * Scale down a bitmap to maxWidth preserving aspect ratio. If bitmap width is already <= maxWidth, the original
+     * bitmap is returned.
+     */
     private fun scaleIfNeeded(bmp: Bitmap, maxWidth: Int): Bitmap {
         val currentWidth = bmp.width
         if (currentWidth <= maxWidth) return bmp

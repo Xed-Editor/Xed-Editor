@@ -8,28 +8,24 @@ import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
+import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 import java.net.URI
 
-class Bash() : BaseLspServer() {
-    override val id: String = "bash-lsp"
-    override val languageName: String = "Bash"
-    override val serverName = "bash-language-server"
-    override val supportedExtensions: List<String> = FileType.SHELL.extensions
-
+class XML() : BaseLspServer() {
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
-
-        return sandboxDir().child("/usr/bin/bash-language-server").exists()
+        return localDir().child("org.eclipse.lemminx.uber-jar_0.31.0.jar").exists() &&
+            sandboxDir().child("bin/java").exists()
     }
 
     override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/bash")
+        val installSH = localBinDir().child("lsp/xml")
 
         launchInternalTerminal(
             context = context,
@@ -37,9 +33,15 @@ class Bash() : BaseLspServer() {
                 TerminalCommand(
                     exe = "/bin/bash",
                     args = arrayOf(installSH.absolutePath),
-                    id = "bash-lsp-installer",
+                    id = "xml-lsp-installer",
                     env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
                 ),
+        )
+    }
+
+    override fun getConnectionConfig(): LspConnectionConfig {
+        return LspConnectionConfig.Process(
+            arrayOf("java", "-jar", localDir().child("org.eclipse.lemminx.uber-jar_0.31.0.jar").absolutePath)
         )
     }
 
@@ -49,10 +51,6 @@ class Bash() : BaseLspServer() {
 
     override suspend fun connectionFailure(msg: String?) {}
 
-    override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/bash-language-server", "start"))
-    }
-
     override fun getInitializationOptions(uri: URI?): Any? {
         return null
     }
@@ -60,4 +58,9 @@ class Bash() : BaseLspServer() {
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
     }
+
+    override val id: String = "xml-lsp"
+    override val languageName: String = "XML"
+    override val serverName = "lemminx"
+    override val supportedExtensions: List<String> = FileType.XML.extensions
 }
