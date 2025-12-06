@@ -71,9 +71,13 @@ fun MainContent(
                 commands = CommandProvider.globalCommands,
                 lastUsedCommand = lastUsedCommand,
                 viewModel = mainViewModel,
+                initialChildCommands = mainViewModel.commandPaletteInitialChildCommands,
+                initialPlaceholder = mainViewModel.commandPaletteInitialPlaceholder,
                 onDismissRequest = {
                     mainViewModel.isDraggingPalette = false
                     mainViewModel.showCommandPalette = false
+                    mainViewModel.commandPaletteInitialChildCommands = null
+                    mainViewModel.commandPaletteInitialPlaceholder = null
 
                     scope.launch {
                         mainViewModel.draggingPaletteProgress.animateTo(0f, animationSpec = spring(stiffness = 800f))

@@ -3,6 +3,7 @@ package com.rk.settings.editor
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -37,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
@@ -80,22 +82,70 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
     ) { paddingValues ->
         if (showCommandSelectionDialog) {
             val commands =
-                CommandProvider.globalCommands.map {
+                CommandProvider.globalCommands.map { command ->
+                    val patchedChildCommands =
+                        @Composable {
+                            val existingCommands = command.childCommands()
+
+                            buildList {
+                                if (existingCommands.isEmpty()) return@buildList
+
+                                add(
+                                    Command(
+                                        id = command.id,
+                                        label = mutableStateOf(stringResource(strings.add_parent_command)),
+                                        action = { _, _ ->
+                                            commandIds.add(command.id)
+
+                                            // Save order in settings
+                                            Settings.action_items = commandIds.joinToString("|")
+                                        },
+                                        sectionEndsBelow = true,
+                                        isEnabled = derivedStateOf { !commandIds.contains(command.id) },
+                                        isSupported = mutableStateOf(true),
+                                        icon = mutableStateOf(ImageVector.vectorResource(drawables.arrow_outward)),
+                                        keybinds = null,
+                                    )
+                                )
+                                addAll(
+                                    existingCommands.map {
+                                        Command(
+                                            id = it.id,
+                                            prefix = it.prefix,
+                                            label = it.label,
+                                            action = { _, _ ->
+                                                commandIds.add(it.id)
+
+                                                // Save order in settings
+                                                Settings.action_items = commandIds.joinToString("|")
+                                            },
+                                            isEnabled = derivedStateOf { !commandIds.contains(it.id) },
+                                            isSupported = mutableStateOf(true),
+                                            icon = it.icon,
+                                            keybinds = it.keybinds,
+                                        )
+                                    }
+                                )
+                            }
+                        }
+
+                    val hasChildCommands = patchedChildCommands().isNotEmpty()
                     Command(
-                        id = it.id,
-                        prefix = it.prefix,
-                        label = it.label,
-                        description = it.description,
+                        id = command.id,
+                        prefix = command.prefix,
+                        label = command.label,
                         action = { _, _ ->
-                            commandIds.add(it.id)
+                            commandIds.add(command.id)
 
                             // Save order in settings
                             Settings.action_items = commandIds.joinToString("|")
                         },
-                        isEnabled = derivedStateOf { !commandIds.contains(it.id) },
+                        childCommands = patchedChildCommands,
+                        childSearchPlaceholder = command.childSearchPlaceholder,
+                        isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
                         isSupported = mutableStateOf(true),
-                        icon = it.icon,
-                        keybinds = it.keybinds,
+                        icon = command.icon,
+                        keybinds = command.keybinds,
                     )
                 }
 
@@ -132,6 +182,8 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                             data = command.id,
                             onDrop = {},
                             onDragEnter = { state ->
+                                println(command)
+
                                 val index = commandIds.indexOf(command.id)
                                 if (index == -1) return@ReorderableItem
 
@@ -188,12 +240,22 @@ fun ActionItem(modifier: Modifier = Modifier, command: Command, onRemove: () -> 
                         modifier = Modifier.padding(end = 8.dp).size(20.dp),
                     )
 
-                    command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
-                    Text(text = command.label.value, style = MaterialTheme.typography.bodyLarge)
+                    Column {
+                        Row {
+                            command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
+                            Text(text = command.label.value, style = MaterialTheme.typography.bodyLarge)
+                        }
+                        CommandProvider.getParentCommand(command)?.label?.let {
+                            Text(
+                                text = it.value,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            )
+                        }
+                    }
                 }
-            },
-            description = {
-                command.description?.let { Text(text = it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
             },
             endWidget = { IconButton(onClick = { onRemove() }) { Icon(imageVector = Icons.Outlined.Delete, null) } },
         )

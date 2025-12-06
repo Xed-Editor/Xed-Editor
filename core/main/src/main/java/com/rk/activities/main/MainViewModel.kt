@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rk.commands.Command
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.resources.getString
@@ -94,6 +95,15 @@ class MainViewModel : ViewModel() {
     var showCommandPalette by mutableStateOf(false)
     var draggingPaletteProgress = Animatable(0f)
     var isDraggingPalette by mutableStateOf(false)
+
+    var commandPaletteInitialChildCommands by mutableStateOf<List<Command>?>(null)
+    var commandPaletteInitialPlaceholder by mutableStateOf<String?>(null)
+
+    fun showCommandPaletteWithChildren(placeholder: String? = null, childCommands: List<Command>) {
+        commandPaletteInitialChildCommands = childCommands
+        commandPaletteInitialPlaceholder = placeholder
+        showCommandPalette = true
+    }
 
     val currentTab: Tab?
         get() = tabs.getOrNull(currentTabIndex)

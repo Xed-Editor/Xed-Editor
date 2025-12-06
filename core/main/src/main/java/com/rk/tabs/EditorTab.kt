@@ -52,7 +52,6 @@ import com.rk.components.EditorActions
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
-import com.rk.components.SyntaxPanel
 import com.rk.editor.Editor
 import com.rk.editor.getInputView
 import com.rk.exec.isTerminalInstalled
@@ -116,8 +115,6 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var showOptionsMenu by mutableStateOf(false)
     var searchKeyword by mutableStateOf("")
     var replaceKeyword by mutableStateOf("")
-
-    var showSyntaxPanel by mutableStateOf(false)
 
     var showFindingsDialog by mutableStateOf(false)
     var findingsItems by mutableStateOf(listOf<CodeItem>())
@@ -259,10 +256,6 @@ class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : T
                             }
                         }
                     }
-                }
-
-                if (editorState.showSyntaxPanel) {
-                    SyntaxPanel(onDismissRequest = { editorState.showSyntaxPanel = false }, editorState = editorState)
                 }
 
                 if (editorState.showFindingsDialog) {

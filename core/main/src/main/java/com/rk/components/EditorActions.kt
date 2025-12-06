@@ -85,11 +85,19 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
 
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         dropdownActions.forEach { command ->
+                            val childCommands = command.childCommands()
                             DropdownMenuItem(
                                 enabled = command.isEnabled.value,
                                 text = { Text(command.label.value) },
                                 onClick = {
-                                    command.action(viewModel, activity)
+                                    if (childCommands.isNotEmpty()) {
+                                        viewModel.showCommandPaletteWithChildren(
+                                            command.childSearchPlaceholder,
+                                            childCommands,
+                                        )
+                                    } else {
+                                        command.action(viewModel, activity)
+                                    }
                                     expanded = false
                                 },
                                 leadingIcon = {

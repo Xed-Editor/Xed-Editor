@@ -18,6 +18,7 @@ import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.commands.CommandProvider.globalCommands
 import com.rk.components.addDialog
+import com.rk.file.FileType
 import com.rk.filetree.projects
 import com.rk.icons.Edit_note
 import com.rk.icons.XedIcons
@@ -38,6 +39,7 @@ import com.rk.tabs.EditorTab
 import com.rk.utils.dialog
 import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice
+import java.util.Locale.getDefault
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -459,12 +461,30 @@ object CommandProvider {
                 Command(
                     id = "editor.syntax_highlighting",
                     label = mutableStateOf(stringResource(strings.highlighting)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.showSyntaxPanel = true
-                        }
+                    action = { _, _ -> viewModel.showCommandPalette = true },
+                    childCommands = {
+                        FileType.entries
+                            .toTypedArray()
+                            .filter { it.textmateScope != null }
+                            .map { fileType ->
+                                val scope = fileType.textmateScope!!
+
+                                Command(
+                                    id = "editor.syntax_highlighting." + fileType.name.lowercase(getDefault()),
+                                    label = mutableStateOf(fileType.title),
+                                    action = { _, _ ->
+                                        val currentTab = viewModel.currentTab
+                                        val editorState = (currentTab as? EditorTab)?.editorState ?: return@Command
+
+                                        editorState.textmateScope = scope
+                                    },
+                                    isSupported = mutableStateOf(true),
+                                    isEnabled = mutableStateOf(true),
+                                    icon = mutableStateOf(ImageVector.vectorResource(fileType.icon ?: drawables.file)),
+                                )
+                            }
                     },
+                    childSearchPlaceholder = stringResource(strings.select_language),
                     isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                     isEnabled = mutableStateOf(true),
                     icon = mutableStateOf(XedIcons.Edit_note),
@@ -606,12 +626,30 @@ object CommandProvider {
      * @param id The ID of the command.
      * @param commands The list of commands to search in.
      */
-    fun getForId(id: String?, commands: List<Command>): Command? = commands.find { it.id == id }
+    @Composable fun getForId(id: String, commands: List<Command>): Command? = findRecursive(id, commands)
 
     /**
      * Get a registered command by ID from the global list of commands. Returns null if not found.
      *
      * @param id The ID of the command.
      */
-    fun getForId(id: String?): Command? = globalCommands.find { it.id == id }
+    @Composable fun getForId(id: String): Command? = findRecursive(id, globalCommands)
+
+    @Composable
+    fun getParentCommand(command: Command): Command? {
+        return getForId(command.id.substringBeforeLast("."))
+    }
+
+    @Composable
+    private fun findRecursive(id: String, commands: List<Command>): Command? {
+        for (command in commands) {
+            if (command.id == id) return command
+
+            // If this command has children, resolve them using its childCommands lambda
+            val children = command.childCommands()
+            val match = findRecursive(id, children)
+            if (match != null) return match
+        }
+        return null
+    }
 }
