@@ -169,6 +169,39 @@ class MainViewModel : ViewModel() {
             }
         }
 
+        val coroutineScope = this
+        if (expectOOM(fileObject.length())) {
+            dialog(
+                title = strings.attention.getString(),
+                msg = strings.tab_memory_warning.getString(),
+                okString = strings.continue_action,
+                onOk = {
+                    coroutineScope.launch {
+                        function.invoke()
+                    }
+                })
+        } else {
+            function.invoke()
+        }
+    }
+
+    fun moveTab(from: Int, to: Int) {
+        if (from == to || from !in tabs.indices || to !in tabs.indices) return
+
+        val item = tabs.removeAt(from)
+        tabs.add(to, item)
+
+        // Update current index
+        currentTabIndex = when (currentTabIndex) {
+            from -> to
+            in (minOf(from, to)..maxOf(from, to)) -> {
+                if (from < to) currentTabIndex - 1
+                else currentTabIndex + 1
+            }
+            else -> currentTabIndex
+        }
+    }
+
     /**
      * Checks if a tab for the given [file] is already open.
      *
