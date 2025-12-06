@@ -9,10 +9,8 @@ import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
 
 class Bash() : BaseLspServer() {
     override val id: String = "bash-lsp"
@@ -43,18 +41,8 @@ class Bash() : BaseLspServer() {
         )
     }
 
-    override suspend fun beforeConnect() {}
-
-    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    override suspend fun connectionFailure(msg: String?) {}
-
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/bash-language-server", "start"))
-    }
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 
     override fun isSupported(file: FileObject): Boolean {

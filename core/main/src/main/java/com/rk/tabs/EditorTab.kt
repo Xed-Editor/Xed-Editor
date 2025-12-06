@@ -1,6 +1,7 @@
 package com.rk.tabs
 
 import android.app.Activity
+import android.content.Context
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +61,7 @@ import com.rk.exec.isTerminalWorking
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
+import com.rk.lsp.BaseLspServer
 import com.rk.lsp.builtInServer
 import com.rk.lsp.createLspTextActions
 import com.rk.lsp.externalServers
@@ -577,100 +579,86 @@ fun EditorTab.applyHighlighting() {
                 }
                 val ext = file.getName().substringAfterLast(".").trim()
 
-                info("Attempting to connect to external server...")
-                if (tryConnectExternalLsp()) return@launch
-                info("No external server connection")
+                val builtin = getBuiltinServers(ext, context)
+                val external = getExternalServers()
 
-                info("Attempting to connect to built-in server...")
+                val parentFile =
+                    file.getParentFile()
+                        ?: run {
+                            info("File has no parent directory")
+                            return@launch
+                        }
 
-                if (tryConnectBuiltinLsp(ext, this@with)) {
-                    info("LSP Server connected")
-                    return@launch
-                } else {
-                    info("No builtin server connection")
+                baseLspConnector =
+                    BaseLspConnector(
+                        projectFile = parentFile,
+                        fileObject = file,
+                        codeEditor = editorState.editor.get()!!,
+                        servers = external + builtin,
+                    )
+
+                parentFile.let {
+                    info("Trying to connect...")
+                    baseLspConnector?.connect(FileType.fromExtension(ext).textmateScope!!)
+                    info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
                 }
             }
         }
     }
 }
 
-private suspend fun EditorTab.tryConnectBuiltinLsp(ext: String, editor: Editor): Boolean {
-    val server = builtInServer.find { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
-    if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
-        // Connect with built-in language server
-        if (server.isInstalled(editor.context)) {
-            info("Server installed")
+private suspend fun EditorTab.getBuiltinServers(ext: String, context: Context): List<BaseLspServer> {
+    val servers = builtInServer.filter { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
+    val supportedServers = mutableListOf<BaseLspServer>()
 
-            if (server.isSupported(file).not()) {
-                info("This server: ${server.serverName} does not support this file")
-                return false
-            }
-
-            val parentFile =
-                file.getParentFile()
-                    ?: run {
-                        info("File has no parent directory")
-                        return false
-                    }
-
-            baseLspConnector =
-                BaseLspConnector(
-                    parentFile,
-                    fileObject = file,
-                    codeEditor = editorState.editor.get()!!,
-                    server = server,
-                )
-
-            file.getParentFile()?.let {
-                info("Trying to connect")
-                baseLspConnector?.connect(FileType.fromExtension(ext).textmateScope!!)
-
-                info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
-            } ?: info("No parent")
-
-            return true
+    servers.forEach { server ->
+        if (!Preference.getBoolean("lsp_${server.id}", true)) {
+            return@forEach
         }
 
-        if (editorState.lspDialogMutex.isLocked.not()) {
-            editorState.lspDialogMutex.lock()
-            dialog(
-                context = editor.context as Activity,
-                title = strings.attention.getString(editor.context),
-                msg = strings.ask_lsp_install.getFilledString(editor.context, server.languageName),
-                cancelString = strings.disable,
-                okString = strings.install,
-                onOk = {
-                    if (editorState.lspDialogMutex.isLocked) {
-                        editorState.lspDialogMutex.unlock()
-                    }
-                    server.install(editor.context)
-                },
-                onCancel = {
-                    if (editorState.lspDialogMutex.isLocked) {
-                        editorState.lspDialogMutex.unlock()
-                    }
-                    Preference.setBoolean("lsp_${server.id}", false)
-                },
-            )
+        if (!server.isInstalled(context)) {
+            info("Server is not installed")
+            showServerInstallDialog(context, server)
+            return@forEach
         }
+
+        if (!server.isSupported(file)) {
+            info("This server: ${server.serverName} does not support this file")
+            return@forEach
+        }
+
+        supportedServers.add(server)
+        return@forEach
     }
-    return false
+
+    return supportedServers
 }
 
-private suspend fun EditorTab.tryConnectExternalLsp(): Boolean {
-    val parent = file.getParentFile() ?: return false
-
-    externalServers.forEach { server ->
-        if (server.isSupported(file)) {
-            baseLspConnector =
-                BaseLspConnector(parent, fileObject = file, codeEditor = editorState.editor.get()!!, server = server)
-
-            baseLspConnector?.connect(editorState.textmateScope!!)
-            return true
-        } else {
-            info("Server \"${server.serverName}\" does not support this file")
-        }
+private suspend fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspServer) {
+    if (!editorState.lspDialogMutex.isLocked) {
+        editorState.lspDialogMutex.lock()
+        dialog(
+            context = context as Activity,
+            title = strings.attention.getString(context),
+            msg = strings.ask_lsp_install.getFilledString(context, server.languageName),
+            cancelString = strings.disable,
+            okString = strings.install,
+            onOk = {
+                if (editorState.lspDialogMutex.isLocked) {
+                    editorState.lspDialogMutex.unlock()
+                }
+                server.install(context)
+            },
+            onCancel = {
+                if (editorState.lspDialogMutex.isLocked) {
+                    editorState.lspDialogMutex.unlock()
+                }
+                Preference.setBoolean("lsp_${server.id}", false)
+            },
+        )
     }
+}
 
-    return false
+private fun EditorTab.getExternalServers(): List<BaseLspServer> {
+    return externalServers.filter { server -> server.isSupported(file) }
 }
