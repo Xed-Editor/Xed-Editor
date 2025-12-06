@@ -48,6 +48,8 @@ runner = "1.7.0"
 benchmarkJunit4 = "1.4.1"
 lifecycleProcess = "2.10.0"
 composeDnd = "0.4.0"
+sshj = "0.40.0"
+bouncycastle = "1.82"
 androidsvgAar = "1.4"
 
 [libraries]
@@ -91,6 +93,9 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
 compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
+sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
+bouncycastle-bc = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 androidx-collection = { module = "androidx.collection:collection", version = "1.5.0" }
@@ -139,4 +144,3 @@ ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 publish = { id = "com.vanniktech.maven.publish.base", version = "0.34.0" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 benchmark = { id = "androidx.benchmark", version.ref = "benchmark" }
-
