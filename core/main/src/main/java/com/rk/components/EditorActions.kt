@@ -15,8 +15,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,7 +30,6 @@ import com.rk.settings.Settings
 import com.rk.terminal.isV
 import com.rk.utils.x
 import kotlin.math.min
-import kotlin.ranges.random
 
 @Composable
 fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
@@ -35,7 +38,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
 
     val selectedIds = Settings.action_items.split("|").toTypedArray()
 
-    val allCommands = CommandProvider.getAll(viewModel)
+    val allCommands = CommandProvider.buildCommands(viewModel)
     val allActions = selectedIds.mapNotNull { CommandProvider.getForId(it, allCommands) }
 
     BoxWithConstraints(modifier = modifier) {

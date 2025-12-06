@@ -63,7 +63,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
     val reorderState = rememberReorderState<String>(dragAfterLongPress = true)
     val lazyListState = rememberLazyListState()
 
-    val allCommands = MainActivity.instance!!.viewModel.commands
+    val allCommands = CommandProvider.globalCommands
     val commandIds = remember { mutableStateListOf(*Settings.action_items.split("|").toTypedArray()) }
     val commands = commandIds.mapNotNull { id -> CommandProvider.getForId(id, allCommands) }
 
@@ -80,7 +80,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
     ) { paddingValues ->
         if (showCommandSelectionDialog) {
             val commands =
-                MainActivity.instance!!.viewModel.commands.map {
+                CommandProvider.globalCommands.map {
                     Command(
                         id = it.id,
                         prefix = it.prefix,

@@ -16,6 +16,7 @@ import com.rk.DefaultScope
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
+import com.rk.commands.CommandProvider.globalCommands
 import com.rk.components.addDialog
 import com.rk.filetree.projects
 import com.rk.icons.Edit_note
@@ -43,14 +44,22 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 object CommandProvider {
-    /** Get all registered commands */
+    var globalCommands = listOf<Command>()
+
+    /**
+     * Builds and returns a list of available commands, including global actions, editor operations, LSP commands, and
+     * dynamically generated Mutator scripts. The result is cached in [globalCommands].
+     *
+     * @param viewModel The [MainViewModel] used to access app state and tabs.
+     * @return A list of registered [Command] objects.
+     */
     @Composable
     @OptIn(DelicateCoroutinesApi::class)
-    fun getAll(viewModel: MainViewModel): List<Command> {
+    fun buildCommands(viewModel: MainViewModel): List<Command> {
         val readModeText = stringResource(strings.read_mode)
         val editModeText = stringResource(strings.edit_mode)
 
-        return buildList {
+        val commandList = buildList {
             // Core application commands
             add(
                 Command(
@@ -586,8 +595,23 @@ object CommandProvider {
                 )
             }
         }
+
+        globalCommands = commandList
+        return commandList
     }
 
-    /** Get a registered command by ID, returns null if not found */
+    /**
+     * Get a registered command by ID from a provided list of commands. Returns null if not found.
+     *
+     * @param id The ID of the command.
+     * @param commands The list of commands to search in.
+     */
     fun getForId(id: String?, commands: List<Command>): Command? = commands.find { it.id == id }
+
+    /**
+     * Get a registered command by ID from the global list of commands. Returns null if not found.
+     *
+     * @param id The ID of the command.
+     */
+    fun getForId(id: String?): Command? = globalCommands.find { it.id == id }
 }

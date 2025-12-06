@@ -64,11 +64,11 @@ fun MainContent(
 
     Column(Modifier.fillMaxSize().padding(innerPadding)) {
         if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
-            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, mainViewModel.commands)
+            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)
 
             CommandPalette(
                 progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
-                commands = mainViewModel.commands,
+                commands = CommandProvider.globalCommands,
                 lastUsedCommand = lastUsedCommand,
                 viewModel = mainViewModel,
                 onDismissRequest = {

@@ -1,11 +1,13 @@
 package com.rk.activities.main
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.commands.Command
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.resources.getString
@@ -92,7 +94,6 @@ class MainViewModel : ViewModel() {
     var showCommandPalette by mutableStateOf(false)
     var draggingPaletteProgress = Animatable(0f)
     var isDraggingPalette by mutableStateOf(false)
-    var commands = emptyList<Command>()
 
     val currentTab: Tab?
         get() = tabs.getOrNull(currentTabIndex)
