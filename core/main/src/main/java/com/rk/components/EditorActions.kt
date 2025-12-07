@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.CommandProvider
@@ -37,9 +38,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
     val activity = LocalActivity.current
 
     val selectedIds = Settings.action_items.split("|").toTypedArray()
-
-    val allCommands = CommandProvider.buildCommands(viewModel)
-    val allActions = selectedIds.mapNotNull { CommandProvider.getForId(it, allCommands) }
+    val allActions = selectedIds.mapNotNull { CommandProvider.getForId(it) }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp
@@ -73,7 +72,8 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                     modifier = Modifier.size(48.dp),
                     enabled = command.isEnabled.value,
                 ) {
-                    Icon(imageVector = command.icon.value, contentDescription = command.label.value)
+                    val icon = command.icon.value
+                    Icon(painter = painterResource(id = icon), contentDescription = command.label.value)
                 }
             }
 
@@ -101,7 +101,8 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                                     expanded = false
                                 },
                                 leadingIcon = {
-                                    Icon(imageVector = command.icon.value, contentDescription = command.label.value)
+                                    val icon = command.icon.value
+                                    Icon(painter = painterResource(id = icon), contentDescription = command.label.value)
                                 },
                             )
                         }

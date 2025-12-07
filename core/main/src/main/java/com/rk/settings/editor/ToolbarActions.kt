@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,6 +53,7 @@ import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceScaffold
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import kotlinx.coroutines.coroutineScope
@@ -65,9 +67,8 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
     val reorderState = rememberReorderState<String>(dragAfterLongPress = true)
     val lazyListState = rememberLazyListState()
 
-    val allCommands = CommandProvider.globalCommands
     val commandIds = remember { mutableStateListOf(*Settings.action_items.split("|").toTypedArray()) }
-    val commands = commandIds.mapNotNull { id -> CommandProvider.getForId(id, allCommands) }
+    val commands = commandIds.mapNotNull { id -> CommandProvider.getForId(id) }
 
     PreferenceScaffold(
         label = stringResource(strings.toolbar_actions),
@@ -81,19 +82,18 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
         },
     ) { paddingValues ->
         if (showCommandSelectionDialog) {
-            val commands =
+            val dialogCommands =
                 CommandProvider.globalCommands.map { command ->
-                    val patchedChildCommands =
-                        @Composable {
-                            val existingCommands = command.childCommands()
-
+                    val existingCommands = command.childCommands()
+                    val patchedChildCommands = {
+                        if (existingCommands.isEmpty()) {
+                            emptyList()
+                        } else {
                             buildList {
-                                if (existingCommands.isEmpty()) return@buildList
-
                                 add(
                                     Command(
                                         id = command.id,
-                                        label = mutableStateOf(stringResource(strings.add_parent_command)),
+                                        label = mutableStateOf(strings.add_parent_command.getString()),
                                         action = { _, _ ->
                                             commandIds.add(command.id)
 
@@ -103,7 +103,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                                         sectionEndsBelow = true,
                                         isEnabled = derivedStateOf { !commandIds.contains(command.id) },
                                         isSupported = mutableStateOf(true),
-                                        icon = mutableStateOf(ImageVector.vectorResource(drawables.arrow_outward)),
+                                        icon = mutableStateOf(drawables.arrow_outward),
                                         keybinds = null,
                                     )
                                 )
@@ -128,6 +128,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                                 )
                             }
                         }
+                    }
 
                     val hasChildCommands = patchedChildCommands().isNotEmpty()
                     Command(
@@ -151,7 +152,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
 
             CommandPalette(
                 progress = 1f,
-                commands = commands,
+                commands = dialogCommands,
                 lastUsedCommand = null,
                 viewModel = MainActivity.instance!!.viewModel,
             ) {
@@ -234,8 +235,9 @@ fun ActionItem(modifier: Modifier = Modifier, command: Command, onRemove: () -> 
                         modifier = Modifier.padding(end = 12.dp).size(20.dp),
                     )
 
+                    val icon = command.icon.value
                     Icon(
-                        imageVector = command.icon.value,
+                        painter = painterResource(id = icon),
                         contentDescription = command.label.value,
                         modifier = Modifier.padding(end = 8.dp).size(20.dp),
                     )

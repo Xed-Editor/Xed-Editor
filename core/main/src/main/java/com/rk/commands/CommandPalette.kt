@@ -38,6 +38,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -139,7 +140,7 @@ fun CommandPalette(
                             slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
                     }
                 },
-            ) { _ ->
+            ) { isSubpage ->
                 LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
                     items(items = filteredCommands, key = { it.id }) { command ->
                         Box(modifier = Modifier.animateItem()) {
@@ -154,7 +155,7 @@ fun CommandPalette(
                                     placeholderOverride = placeholder
                                     searchQuery = ""
                                 },
-                                isSubpage = childCommands != null,
+                                isSubpage = isSubpage,
                             )
                         }
                     }
@@ -196,8 +197,9 @@ fun CommandItem(
             verticalPadding = 8.dp,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    val icon = command.icon.value
                     Icon(
-                        imageVector = command.icon.value,
+                        painter = painterResource(id = icon),
                         contentDescription = command.label.value,
                         modifier = Modifier.padding(end = 8.dp).size(16.dp),
                     )
