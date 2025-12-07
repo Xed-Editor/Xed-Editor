@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,7 +69,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
     val lazyListState = rememberLazyListState()
 
     val commandIds = remember { mutableStateListOf(*Settings.action_items.split("|").toTypedArray()) }
-    val commands = commandIds.mapNotNull { id -> CommandProvider.getForId(id) }
+    val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
 
     PreferenceScaffold(
         label = stringResource(strings.toolbar_actions),
@@ -103,7 +104,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                                         sectionEndsBelow = true,
                                         isEnabled = derivedStateOf { !commandIds.contains(command.id) },
                                         isSupported = mutableStateOf(true),
-                                        icon = mutableStateOf(drawables.arrow_outward),
+                                        icon = mutableIntStateOf(drawables.arrow_outward),
                                         keybinds = null,
                                     )
                                 )
@@ -179,7 +180,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                     items(commands, key = { it.id }) { command ->
                         ReorderableItem(
                             state = reorderState,
-                            key = command,
+                            key = command.id,
                             data = command.id,
                             onDrop = {},
                             onDragEnter = { state ->
@@ -220,6 +221,8 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
 
 @Composable
 fun ActionItem(modifier: Modifier = Modifier, command: Command, onRemove: () -> Unit) {
+    val parentLabelState = remember(command.id) { CommandProvider.getParentCommand(command)?.label }
+
     Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp, modifier = modifier) {
         PreferenceTemplate(
             modifier = Modifier.clickable {},
@@ -245,7 +248,7 @@ fun ActionItem(modifier: Modifier = Modifier, command: Command, onRemove: () -> 
                             command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
                             Text(text = command.label.value, style = MaterialTheme.typography.bodyLarge)
                         }
-                        CommandProvider.getParentCommand(command)?.label?.let {
+                        parentLabelState?.let {
                             Text(
                                 text = it.value,
                                 maxLines = 1,

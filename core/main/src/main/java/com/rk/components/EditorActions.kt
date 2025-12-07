@@ -37,8 +37,8 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val selectedIds = Settings.action_items.split("|").toTypedArray()
-    val allActions = selectedIds.mapNotNull { CommandProvider.getForId(it) }
+    val allActions =
+        remember(Settings.action_items) { Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) } }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp
