@@ -68,7 +68,7 @@ private fun Categories(navController: NavController) {
     PreferenceCategory(
         label = stringResource(id = strings.editor),
         description = stringResource(id = strings.editor_desc),
-        iconResource = drawables.edit,
+        iconResource = drawables.edit_note,
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
     )
 

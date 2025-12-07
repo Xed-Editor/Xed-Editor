@@ -10,7 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -67,7 +67,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             val softThreshold = with(density) { 50.dp.toPx() }
             val hardThreshold = with(density) { 100.dp.toPx() }
 
-            viewModel.commands = CommandProvider.getAll(viewModel)
+            CommandProvider.globalCommands = CommandProvider.buildCommands(viewModel)
 
             val mainContent: @Composable () -> Unit = {
                 Scaffold(

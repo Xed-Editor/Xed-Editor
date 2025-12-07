@@ -44,7 +44,6 @@ import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
 import io.github.rosemoe.sora.widget.component.TextActionItem
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
-import kotlin.text.substring
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -455,6 +455,7 @@
     <string name="enable_quick_deletion">Enable quick line deletion</string>
     <string name="enable_quick_deletion_desc">Automatically delete the entire line if it is empty</string>
     <string name="type_command">Type command</string>
+    <string name="select_language">Select language</string>
     <string name="recently_used">(Recently used)</string>
     <string name="command_palette">Command palette</string>
     <string name="rename_failed">Unable to rename file</string>
@@ -494,4 +495,5 @@
     <string name="theme_flipper_desc">Constantly change the theme mode every 7s</string>
     <string name="lsp_terminal_unavailable">LSP language features will not work because the terminal environment is unavailable or not functioning.</string>
     <string name="invalid_intent">Received invalid intent:\n%s</string>
+    <string name="add_parent_command">Add parent command</string>
 </resources>
