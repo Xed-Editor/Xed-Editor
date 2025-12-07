@@ -307,7 +307,7 @@ object CommandProvider {
                 id = "editor.syntax_highlighting",
                 label = mutableStateOf(strings.highlighting.getString()),
                 action = { _, _ -> viewModel.showCommandPalette = true },
-                childCommands = {
+                childCommands =
                     FileType.entries
                         .filter { it.textmateScope != null }
                         .map { fileType ->
@@ -321,8 +321,7 @@ object CommandProvider {
                                 isEnabled = mutableStateOf(true),
                                 icon = mutableIntStateOf(fileType.icon ?: drawables.file),
                             )
-                        }
-                },
+                        },
                 childSearchPlaceholder = strings.select_language.getString(),
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
@@ -431,7 +430,7 @@ object CommandProvider {
 
     private fun findParent(target: Command, commands: List<Command>): Command? {
         for (parent in commands) {
-            val children = parent.childCommands()
+            val children = parent.childCommands
             if (children.any { it.id == target.id }) return parent
 
             val match = findParent(target, children)
@@ -443,7 +442,7 @@ object CommandProvider {
     private fun findRecursive(id: String, commands: List<Command>): Command? {
         for (command in commands) {
             if (command.id == id) return command
-            val children = command.childCommands()
+            val children = command.childCommands
             val match = findRecursive(id, children)
             if (match != null) return match
         }

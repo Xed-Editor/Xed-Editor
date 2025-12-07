@@ -22,14 +22,13 @@ data class Command(
     val isEnabled: State<Boolean>,
     val isSupported: State<Boolean>,
     val icon: State<Int>,
-    val childCommands: () -> List<Command> = { emptyList() },
+    val childCommands: List<Command> = emptyList(),
     val childSearchPlaceholder: String? = null,
     val sectionEndsBelow: Boolean = false,
     val keybinds: String? = null,
 ) {
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
     fun performCommand(viewModel: MainViewModel, activity: Activity?) {
-        val childCommands = childCommands()
         if (childCommands.isNotEmpty()) {
             viewModel.showCommandPaletteWithChildren(childSearchPlaceholder, childCommands)
         } else {

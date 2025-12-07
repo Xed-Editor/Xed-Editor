@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -83,82 +84,7 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
         },
     ) { paddingValues ->
         if (showCommandSelectionDialog) {
-            val dialogCommands =
-                CommandProvider.globalCommands.map { command ->
-                    val existingCommands = command.childCommands()
-                    val patchedChildCommands = {
-                        if (existingCommands.isEmpty()) {
-                            emptyList()
-                        } else {
-                            buildList {
-                                add(
-                                    Command(
-                                        id = command.id,
-                                        label = mutableStateOf(strings.add_parent_command.getString()),
-                                        action = { _, _ ->
-                                            commandIds.add(command.id)
-
-                                            // Save order in settings
-                                            Settings.action_items = commandIds.joinToString("|")
-                                        },
-                                        sectionEndsBelow = true,
-                                        isEnabled = derivedStateOf { !commandIds.contains(command.id) },
-                                        isSupported = mutableStateOf(true),
-                                        icon = mutableIntStateOf(drawables.arrow_outward),
-                                        keybinds = null,
-                                    )
-                                )
-                                addAll(
-                                    existingCommands.map {
-                                        Command(
-                                            id = it.id,
-                                            prefix = it.prefix,
-                                            label = it.label,
-                                            action = { _, _ ->
-                                                commandIds.add(it.id)
-
-                                                // Save order in settings
-                                                Settings.action_items = commandIds.joinToString("|")
-                                            },
-                                            isEnabled = derivedStateOf { !commandIds.contains(it.id) },
-                                            isSupported = mutableStateOf(true),
-                                            icon = it.icon,
-                                            keybinds = it.keybinds,
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    val hasChildCommands = patchedChildCommands().isNotEmpty()
-                    Command(
-                        id = command.id,
-                        prefix = command.prefix,
-                        label = command.label,
-                        action = { _, _ ->
-                            commandIds.add(command.id)
-
-                            // Save order in settings
-                            Settings.action_items = commandIds.joinToString("|")
-                        },
-                        childCommands = patchedChildCommands,
-                        childSearchPlaceholder = command.childSearchPlaceholder,
-                        isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
-                        isSupported = mutableStateOf(true),
-                        icon = command.icon,
-                        keybinds = command.keybinds,
-                    )
-                }
-
-            CommandPalette(
-                progress = 1f,
-                commands = dialogCommands,
-                lastUsedCommand = null,
-                viewModel = MainActivity.instance!!.viewModel,
-            ) {
-                showCommandSelectionDialog = false
-            }
+            CommandSelectionDialog(commandIds, { showCommandSelectionDialog = false })
         }
 
         ReorderContainer(state = reorderState, modifier = modifier) {
@@ -217,6 +143,92 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@Composable
+private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDismiss: () -> Unit) {
+    val dialogCommands =
+        CommandProvider.globalCommands.map { command ->
+            val existingCommands = command.childCommands
+            val patchedChildCommands =
+                if (existingCommands.isEmpty()) {
+                    emptyList()
+                } else {
+                    patchChildCommands(command, commandIds, existingCommands)
+                }
+
+            val hasChildCommands = patchedChildCommands.isNotEmpty()
+            Command(
+                id = command.id,
+                prefix = command.prefix,
+                label = command.label,
+                action = { _, _ ->
+                    commandIds.add(command.id)
+
+                    // Save order in settings
+                    Settings.action_items = commandIds.joinToString("|")
+                },
+                childCommands = patchedChildCommands,
+                childSearchPlaceholder = command.childSearchPlaceholder,
+                isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
+                isSupported = mutableStateOf(true),
+                icon = command.icon,
+                keybinds = command.keybinds,
+            )
+        }
+
+    CommandPalette(
+        progress = 1f,
+        commands = dialogCommands,
+        lastUsedCommand = null,
+        viewModel = MainActivity.instance!!.viewModel,
+    ) {
+        onDismiss()
+    }
+}
+
+@Composable
+private fun patchChildCommands(
+    command: Command,
+    commandIds: SnapshotStateList<String>,
+    existingCommands: List<Command>,
+): List<Command> = buildList {
+    add(
+        Command(
+            id = command.id,
+            label = mutableStateOf(strings.add_parent_command.getString()),
+            action = { _, _ ->
+                commandIds.add(command.id)
+
+                // Save order in settings
+                Settings.action_items = commandIds.joinToString("|")
+            },
+            sectionEndsBelow = true,
+            isEnabled = derivedStateOf { !commandIds.contains(command.id) },
+            isSupported = mutableStateOf(true),
+            icon = mutableIntStateOf(drawables.arrow_outward),
+            keybinds = null,
+        )
+    )
+    addAll(
+        existingCommands.map {
+            Command(
+                id = it.id,
+                prefix = it.prefix,
+                label = it.label,
+                action = { _, _ ->
+                    commandIds.add(it.id)
+
+                    // Save order in settings
+                    Settings.action_items = commandIds.joinToString("|")
+                },
+                isEnabled = derivedStateOf { !commandIds.contains(it.id) },
+                isSupported = mutableStateOf(true),
+                icon = it.icon,
+                keybinds = it.keybinds,
+            )
+        }
+    )
 }
 
 @Composable

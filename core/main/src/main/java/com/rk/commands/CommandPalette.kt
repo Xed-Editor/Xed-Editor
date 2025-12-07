@@ -176,7 +176,7 @@ fun CommandItem(
 ) {
     val activity = LocalActivity.current
     val enabled = command.isSupported.value && command.isEnabled.value
-    val childCommands = command.childCommands()
+    val childCommands = command.childCommands
 
     Column {
         PreferenceTemplate(
