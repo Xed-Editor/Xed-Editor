@@ -498,4 +498,5 @@
     <string name="theme_flipper_desc">Zmieniaj motw co 7 sek.</string>
     <string name="lsp_terminal_unavailable">Funkcje serwerów językowych nie zadziałają ponieważ środowisko terminalu jest niedostępne lub nie działa.</string>
     <string name="invalid_intent">Otrzymano nieprawidłowy zamiar:\n%s</string>
+    <string name="delete_failed">Nie można usunąć pliku</string>
 </resources>
