@@ -183,8 +183,6 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                             data = command.id,
                             onDrop = {},
                             onDragEnter = { state ->
-                                println(command)
-
                                 val index = commandIds.indexOf(command.id)
                                 if (index == -1) return@ReorderableItem
 
