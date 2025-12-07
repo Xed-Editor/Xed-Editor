@@ -54,14 +54,9 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         IconButton(onClick = { addDialog = true }) { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) }
 
         if (InbuiltFeatures.terminal.state.value) {
-            IconButton(
-                onClick = {
-                    CommandProvider.getForId("global.terminal", viewModel.commands)!!.action(
-                        viewModel,
-                        context as Activity,
-                    )
-                }
-            ) {
+            val terminalAction = CommandProvider.getForId("global.terminal")
+
+            IconButton(onClick = { terminalAction!!.action(viewModel, context as Activity) }) {
                 Icon(painter = painterResource(drawables.terminal), contentDescription = null)
             }
         }

@@ -1,18 +1,26 @@
 package com.rk.commands
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +38,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -51,10 +60,15 @@ fun CommandPalette(
     commands: List<Command>,
     lastUsedCommand: Command?,
     viewModel: MainViewModel,
+    initialChildCommands: List<Command>? = null,
+    initialPlaceholder: String? = null,
     onDismissRequest: () -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+
+    var childCommands by remember { mutableStateOf(initialChildCommands) }
+    var placeholderOverride by remember { mutableStateOf(initialPlaceholder) }
 
     val sortedCommands by
         remember(commands, lastUsedCommand) {
@@ -66,12 +80,13 @@ fun CommandPalette(
             }
         }
 
+    val visibleCommands = childCommands ?: sortedCommands
+
     val filteredCommands by
-        remember(sortedCommands, searchQuery) {
+        remember(visibleCommands, searchQuery) {
             derivedStateOf {
-                sortedCommands.filter {
+                visibleCommands.filter {
                     it.label.value.contains(searchQuery, ignoreCase = true) ||
-                        it.description?.contains(searchQuery, ignoreCase = true) == true ||
                         it.prefix?.contains(searchQuery, ignoreCase = true) == true
                 }
             }
@@ -88,6 +103,12 @@ fun CommandPalette(
                 }
                 .imePadding(),
     ) {
+        BackHandler(enabled = childCommands != null && initialChildCommands == null) {
+            childCommands = null
+            placeholderOverride = null
+            searchQuery = ""
+        }
+
         Column(modifier = Modifier.animateContentSize()) {
             TextField(
                 value = searchQuery,
@@ -95,16 +116,48 @@ fun CommandPalette(
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                placeholder = { Text(stringResource(strings.type_command)) },
+                placeholder = {
+                    Text(
+                        if (childCommands != null && placeholderOverride != null) {
+                            placeholderOverride!!
+                        } else {
+                            stringResource(strings.type_command)
+                        }
+                    )
+                },
             )
 
             LaunchedEffect(progress) { if (progress == 1f) focusRequester.requestFocus() }
 
-            LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
-                items(items = filteredCommands, key = { it.id }) { command ->
-                    Box(modifier = Modifier.animateItem()) {
-                        val isRecentlyUsed = command == lastUsedCommand
-                        CommandItem(viewModel, command, isRecentlyUsed, onDismissRequest)
+            AnimatedContent(
+                targetState = childCommands != null,
+                transitionSpec = {
+                    if (targetState) {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
+                    } else {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
+                    }
+                },
+            ) { isSubpage ->
+                LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
+                    items(items = filteredCommands, key = { it.id }) { command ->
+                        Box(modifier = Modifier.animateItem()) {
+                            val isRecentlyUsed = command == lastUsedCommand
+                            CommandItem(
+                                viewModel,
+                                command,
+                                isRecentlyUsed,
+                                onDismissRequest,
+                                onNavigateToChildren = { placeholder, commands ->
+                                    childCommands = commands
+                                    placeholderOverride = placeholder
+                                    searchQuery = ""
+                                },
+                                isSubpage = isSubpage,
+                            )
+                        }
                     }
                 }
             }
@@ -113,53 +166,96 @@ fun CommandPalette(
 }
 
 @Composable
-fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolean, onDismissRequest: () -> Unit) {
+fun CommandItem(
+    viewModel: MainViewModel,
+    command: Command,
+    recentlyUsed: Boolean,
+    onDismissRequest: () -> Unit,
+    onNavigateToChildren: (String?, List<Command>) -> Unit,
+    isSubpage: Boolean,
+) {
     val activity = LocalActivity.current
     val enabled = command.isSupported.value && command.isEnabled.value
+    val childCommands = command.childCommands
 
-    PreferenceTemplate(
-        enabled = enabled,
-        modifier =
-            Modifier.clickable(
-                enabled = enabled,
-                onClick = {
-                    onDismissRequest()
-                    Settings.last_used_command = command.id
-                    command.action(viewModel, activity)
-                },
-            ),
-        verticalPadding = 8.dp,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = command.icon.value,
-                    contentDescription = command.label.value,
-                    modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                )
-
-                command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
-                Text(text = command.label.value)
-                if (recentlyUsed) {
-                    Text(
-                        text = stringResource(strings.recently_used),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 8.dp),
+    Column {
+        PreferenceTemplate(
+            enabled = enabled,
+            modifier =
+                Modifier.clickable(
+                    enabled = enabled,
+                    onClick = {
+                        Settings.last_used_command = command.id
+                        if (childCommands.isNotEmpty()) {
+                            onNavigateToChildren(command.childSearchPlaceholder, childCommands)
+                        } else {
+                            onDismissRequest()
+                            command.action(viewModel, activity)
+                        }
+                    },
+                ),
+            verticalPadding = 8.dp,
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val icon = command.icon.value
+                    Icon(
+                        painter = painterResource(id = icon),
+                        contentDescription = command.label.value,
+                        modifier = Modifier.padding(end = 8.dp).size(16.dp),
                     )
+
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
+                            Text(text = command.label.value)
+                            if (recentlyUsed) {
+                                Text(
+                                    text = stringResource(strings.recently_used),
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                )
+                            }
+                        }
+
+                        if (!isSubpage) {
+                            CommandProvider.getParentCommand(command)?.label?.let {
+                                Text(
+                                    text = it.value,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                                )
+                            }
+                        }
+                    }
                 }
-            }
-        },
-        description = { command.description?.let { Text(text = it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
-        endWidget = {
-            command.keybinds?.let {
-                Text(
-                    text = command.keybinds,
-                    fontFamily = FontFamily.Monospace,
-                    style = Typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
-    )
+            },
+            endWidget = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    command.keybinds?.let {
+                        Text(
+                            text = command.keybinds,
+                            fontFamily = FontFamily.Monospace,
+                            style = Typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    if (childCommands.isNotEmpty()) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.height(16.dp),
+                        )
+                    }
+                }
+            },
+        )
+
+        if (command.sectionEndsBelow) {
+            HorizontalDivider()
+        }
+    }
 }
