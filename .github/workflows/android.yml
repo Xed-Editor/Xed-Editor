@@ -77,7 +77,7 @@ jobs:
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
@@ -98,39 +98,24 @@ jobs:
           -F caption="$CAPTION" \
           -F document=@"app/xed-editor-${{ env.COMMIT_HASH }}.apk"
 
-
-      - name: Check Commit Message and Create Release
-        if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
+      - name: Generate Plugin Sdk
         run: |
-          APK_PATH="app/xed-editor-${{ env.COMMIT_HASH }}.apk"
+          echo $PWD
+          ls
+          
+          cp -r build plugin-sdk/xedBuild
+          bash plugin-sdk/generate-sdk.sh $PWD/xedBuild
+          cd plugin-sdk
+          rm -rf .gradle
+          chmod +x gradlew
+          ./gradlew shadowJar
+          ls
+          ls output
+          du -h output
+          mv output/* sdk.jar
 
-          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
-          CERT_HASH=$($BUILD_TOOLS/apksigner verify --print-certs "$APK_PATH" | grep 'SHA-256 digest' | awk '{print $4}')
-
-          TAG_NAME="v${{ env.VERSION_NAME }}"
-          RELEASE_NAME="Xed-Editor $TAG_NAME"
-          BRANCH_NAME="${{ github.ref_name }}"
-          COMPARE_URL="https://github.com/${{ github.repository }}/compare/${{ env.PREV_TAG }}...${{ github.sha }}"
-          
-          RELEASE_BODY="Automated release for commit: ${{ github.event.head_commit.message }}
-      
-          SHA-256 certificate fingerprint: $CERT_HASH
-          
-          [ Compare Changes ]($COMPARE_URL)"
-          
-          UPLOAD_URL=$(curl -s -X POST \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -d "{\"tag_name\":\"$TAG_NAME\",\"target_commitish\":\"$BRANCH_NAME\",\"name\":\"$RELEASE_NAME\",\"body\":\"$RELEASE_BODY\",\"draft\":false,\"prerelease\":false}" \
-          https://api.github.com/repos/${{ github.repository }}/releases | jq -r .upload_url | sed 's/{?name,label}//')
-          
-          if [[ -z "$UPLOAD_URL" || "$UPLOAD_URL" == "null" ]]; then
-          echo "Error: Failed to create release."
-          exit 1
-          fi
-          
-          curl -s -X POST \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Content-Type: application/vnd.android.package-archive" \
-          --data-binary @"$APK_PATH" \
-          "$UPLOAD_URL?name=xed-editor-v${{ env.VERSION_NAME }}.apk"
+      - name: Upload sdk.jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk
+          path: sdk.jar
