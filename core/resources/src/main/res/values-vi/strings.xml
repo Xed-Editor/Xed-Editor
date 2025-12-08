@@ -150,7 +150,7 @@
     <string name="saved">Đã lưu tệp</string>
     <string name="open_as_project">Mở dưới dạng project</string>
     <string name="delete_desc">Xóa vĩnh viễn tài liệu</string>
-    <string name="open_cant">Không thể mở nhiều hơn</string>
+    <string name="open_cant">Không thể mở hơn</string>
     <string name="editor_font_desc">Chọn phông chữ cho editor</string>
     <string name="version">Phiên bản</string>
     <string name="version_code">Mã phiên bản</string>
