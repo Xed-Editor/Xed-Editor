@@ -86,7 +86,7 @@ jobs:
           ls
           
           cd plugin-sdk
-          bash plugin-sdk/generate-sdk.sh ..
+          bash generate-sdk.sh ..
           rm -rf .gradle
           chmod +x gradlew
           ./gradlew shadowJar
