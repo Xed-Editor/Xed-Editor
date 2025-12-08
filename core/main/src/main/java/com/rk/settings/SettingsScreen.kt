@@ -88,6 +88,15 @@ private fun Categories(navController: NavController) {
         )
     }
 
+    if (InbuiltFeatures.extensions.state.value) {
+        PreferenceCategory(
+            label = stringResource(strings.ext),
+            description = stringResource(strings.ext_desc),
+            iconResource = drawables.extension,
+            onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
+        )
+    }
+
     if (InbuiltFeatures.debugMode.state.value) {
         PreferenceCategory(
             label = stringResource(strings.debug_options),
