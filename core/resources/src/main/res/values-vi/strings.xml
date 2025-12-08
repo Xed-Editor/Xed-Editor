@@ -114,7 +114,6 @@
     <string name="exists">Đã tồn tại!</string>
     <string name="private_files">Tệp riêng tư</string>
     <string name="private_files_desc">Tệp riêng tư của Xed-Editor</string>
-    <string name="cloning"></string>
     <string name="error">Lỗi</string>
     <string name="open_dir_desc">Mở một thư mục sử dụng trình duyệt tệp của hệ thống</string>
     <string name="open_file_desc">Chọn một tệp để chỉnh sửa nó trực tiếp</string>
