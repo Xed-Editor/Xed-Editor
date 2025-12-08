@@ -90,8 +90,6 @@ jobs:
           rm -rf .gradle
           chmod +x gradlew
           ./gradlew shadowJar
-          ls
-          ls output
           du -h output
           mv output/* sdk.jar
 
@@ -99,4 +97,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sdk
-          path: sdk.jar
+          path: plugin-sdk/sdk.jar

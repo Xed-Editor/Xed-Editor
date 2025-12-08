@@ -4,7 +4,7 @@ PROJECT_ROOT=$@
 CORE_DIR="$PROJECT_ROOT/core"
 OUTPUT_DIR="./libs"
 mkdir -p "$OUTPUT_DIR"
-MODULES=$(find "$CORE_DIR" -mindepth 1 -maxdepth 1 -type d)
+MODULES=$(find "$CORE_DIR" -mindepth 1 -maxdepth 10 -type d)
 for MODULE in $MODULES; do
     FULL_JAR_PATH="$MODULE/build/intermediates/full_jar/release/createFullJarRelease/full.jar"
     if [[ -f "$FULL_JAR_PATH" ]]; then
