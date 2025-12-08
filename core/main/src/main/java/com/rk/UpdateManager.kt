@@ -61,6 +61,14 @@ object UpdateManager {
                     }
                 }
 
+                if (lastVersionCode <= 73L) {
+                    sandboxDir().apply {
+                        if (exists()) {
+                            delete()
+                        }
+                    }
+                }
+
                 deleteCommonFiles()
             }
 

@@ -38,7 +38,6 @@ import com.rk.SessionService
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
-import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -158,36 +157,7 @@ class Terminal : AppCompatActivity() {
             try {
                 val abi = Build.SUPPORTED_ABIS
 
-                val filesToDownload =
-                    listOf(
-                            DownloadFile(
-                                url =
-                                    if (abi.contains("x86_64")) {
-                                        talloc_x86_64
-                                    } else if (abi.contains("arm64-v8a")) {
-                                        talloc_aarch64
-                                    } else if (abi.contains("armeabi-v7a")) {
-                                        talloc_arm
-                                    } else {
-                                        throw RuntimeException("Unsupported CPU")
-                                    },
-                                outputFile = localLibDir().child("libtalloc.so.2"),
-                            ),
-                            DownloadFile(
-                                url =
-                                    if (abi.contains("x86_64")) {
-                                        proot_x86_64
-                                    } else if (abi.contains("arm64-v8a")) {
-                                        proot_aarch64
-                                    } else if (abi.contains("armeabi-v7a")) {
-                                        proot_arm
-                                    } else {
-                                        throw RuntimeException("Unsupported CPU")
-                                    },
-                                outputFile = localBinDir().child("proot"),
-                            ),
-                        )
-                        .toMutableList()
+                val filesToDownload = listOf<DownloadFile>().toMutableList()
 
                 if (isTerminalInstalled().not()) {
                     filesToDownload.add(
@@ -202,7 +172,7 @@ class Terminal : AppCompatActivity() {
                                 } else {
                                     throw RuntimeException("Unsupported CPU")
                                 },
-                            outputFile = getTempDir().child("sandbox.tar.gz"),
+                            outputFile = getTempDir().child("sandbox.tar"),
                         )
                     )
                 }
@@ -226,35 +196,47 @@ class Terminal : AppCompatActivity() {
                     },
                     onComplete = { installNextStage = it },
                     onError = { error, file ->
-                        if (error is UnknownHostException) {
-                            toast(strings.network_err.getString())
-                        } else if (error is SocketTimeoutException) {
-                            errorDialog(strings.timeout)
-                        } else {
-                            error.printStackTrace()
-                            GlobalScope.launch(Dispatchers.IO) {
-                                if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
-                                    localBinDir().deleteRecursively()
-                                }
-
-                                if (file?.name == "sandbox.tar.gz") {
-                                    sandboxDir().deleteRecursively()
-                                    File(getTempDir(), "sandbox.tar.gz").delete()
-                                }
+                        when (error) {
+                            is UnknownHostException -> {
+                                toast(strings.network_err.getString())
                             }
-                            errorDialog("Setup Failed: ${error.message}")
+
+                            is SocketTimeoutException -> {
+                                errorDialog(strings.timeout)
+                            }
+
+                            else -> {
+                                error.printStackTrace()
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
+                                        localBinDir().deleteRecursively()
+                                    }
+
+                                    if (file?.name == "sandbox.tar") {
+                                        sandboxDir().deleteRecursively()
+                                        File(getTempDir(), "sandbox.tar").delete()
+                                    }
+                                }
+                                errorDialog("Setup Failed: ${error.message}")
+                            }
                         }
                         finish()
                     },
                 )
             } catch (e: Exception) {
-                if (e is UnknownHostException) {
-                    toast(strings.network_err.getString())
-                } else if (e is SocketTimeoutException) {
-                    errorDialog(strings.timeout)
-                } else {
-                    e.printStackTrace()
-                    toast("Setup Failed: ${e.message}")
+                when (e) {
+                    is UnknownHostException -> {
+                        toast(strings.network_err.getString())
+                    }
+
+                    is SocketTimeoutException -> {
+                        errorDialog(strings.timeout)
+                    }
+
+                    else -> {
+                        e.printStackTrace()
+                        toast("Setup Failed: ${e.message}")
+                    }
                 }
                 finish()
             }
@@ -354,7 +336,7 @@ class Terminal : AppCompatActivity() {
                     throw Exception("Failed to download file: ${response.code}")
                 }
 
-                val body = response.body ?: throw Exception("Empty response body")
+                val body = response.body
                 val totalBytes = body.contentLength()
 
                 var downloadedBytes = 0L
@@ -376,18 +358,7 @@ class Terminal : AppCompatActivity() {
     }
 }
 
-private const val talloc_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/libtalloc.so.2"
-private const val talloc_aarch64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/libtalloc.so.2"
-private const val talloc_x86_64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/libtalloc.so.2"
-private const val proot_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/proot"
-private const val proot_aarch64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
-private const val proot_x86_64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
-
-private const val sandbox_arm =
-    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-armhf.tar.gz"
+private const val sandbox_arm = ""
 private const val sandbox_aarch64 =
-    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-arm64.tar.gz"
-private const val sandbox_x86_64 =
-    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-amd64.tar.gz"
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/termux.tar"
+private const val sandbox_x86_64 = ""

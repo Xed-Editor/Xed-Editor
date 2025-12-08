@@ -65,7 +65,7 @@ android {
         }
 
         debug {
-            applicationIdSuffix = ".debug"
+            // applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
             resValue("string", "app_name", "Xed-Debug")
         }
@@ -86,7 +86,7 @@ android {
         targetSdk = 28
 
         // versioning
-        versionCode = 72
+        versionCode = 73
         versionName = "3.2.4"
         vectorDrawables { useSupportLibrary = true }
     }

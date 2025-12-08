@@ -19,7 +19,7 @@ suspend fun CoroutineScope.getNextStage(context: Context): NEXT_STAGE {
         throw RuntimeException("IO operation on the main thread")
     }
 
-    val sandboxFile = File(getTempDir(), "sandbox.tar.gz")
+    val sandboxFile = File(getTempDir(), "sandbox.tar")
     val rootfsFiles =
         sandboxDir().listFiles()?.filter {
             it.absolutePath != sandboxHomeDir().absolutePath &&
