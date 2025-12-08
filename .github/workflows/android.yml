@@ -85,8 +85,8 @@ jobs:
           echo $PWD
           ls
           
-          bash plugin-sdk/generate-sdk.sh $PWD
           cd plugin-sdk
+          bash plugin-sdk/generate-sdk.sh ..
           rm -rf .gradle
           chmod +x gradlew
           ./gradlew shadowJar
