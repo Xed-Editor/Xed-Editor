@@ -51,24 +51,6 @@ jobs:
         id: version_name
         run: echo "VERSION_NAME=$(grep -oP 'versionName\s*=\s*\"\K[^\"]+' app/build.gradle.kts)" >> $GITHUB_ENV
 
-      - name: Get Previous Tag
-        id: prev_tag
-        run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 HEAD)
-          echo "Previous tag: $PREV_TAG"
-          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
-
-      - name: Compare Version Codes
-        id: check_version_change
-        run: |
-          echo "Current versionCode: $VERSION_CODE"
-          echo "Previous versionCode: $PREV_VERSION_CODE"
-          if [ "$VERSION_CODE" -gt "$PREV_VERSION_CODE" ]; then
-            echo "VERSION_CHANGED=true" >> $GITHUB_ENV
-          else
-            echo "VERSION_CHANGED=false" >> $GITHUB_ENV
-          fi
-
       - name: Clone submodules
         run: git submodule update --init --recursive
 
@@ -103,8 +85,7 @@ jobs:
           echo $PWD
           ls
           
-          cp -r build plugin-sdk/xedBuild
-          bash plugin-sdk/generate-sdk.sh $PWD/xedBuild
+          bash plugin-sdk/generate-sdk.sh $PWD
           cd plugin-sdk
           rm -rf .gradle
           chmod +x gradlew
