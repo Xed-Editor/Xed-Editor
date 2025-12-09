@@ -42,9 +42,13 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     internal fun validateExtensionDir(dir: File): Result<PluginInfo> {
-        val pluginJson = dir.resolve("plugin.json")
+        var pluginJson = dir.resolve("plugin.json")
         if (!pluginJson.exists()) {
-            return Result.failure(Exception("Missing plugin.json"))
+            if (dir.resolve("manifest.json").exists()) {
+                pluginJson = dir.resolve("manifest.json")
+            } else {
+                return Result.failure(Exception("Missing manifest.json"))
+            }
         }
         val pluginInfo =
             runCatching { Gson().fromJson(pluginJson.readText(), PluginInfo::class.java) }
@@ -121,14 +125,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val extension =
                 LocalExtension(info = pluginInfo, installPath = targetDir.absolutePath, isDevExtension = isDev)
             localExtensions[pluginInfo.id] = extension
-
-            val apkPkgName = extension.getApkPackageInfo(context).packageName
-            if (apkPkgName != pluginInfo.id) {
-                uninstallExtension(pluginInfo.id)
-                return@withContext InstallResult.Error(
-                    "APK package name ($apkPkgName) does not match plugin ID (${pluginInfo.id})"
-                )
-            }
 
             InstallResult.Success(extension)
         }
