@@ -469,4 +469,15 @@
     <string name="built_in">Встроенный</string>
     <string name="lsp_terminal_unavailable">Языковые функции LSP не будут работать, потому что среда терминала недоступна или не функционирует.</string>
     <string name="invalid_intent">Получено неверное намерение:\n%s</string>
+    <string name="select_language">Выбрать язык</string>
+    <string name="delete_failed">Невозможно удалить файл</string>
+    <string name="invalid_address">Неверный адрес</string>
+    <string name="select_all">Выбрать всё</string>
+    <string name="select_word">Выбрать слово</string>
+    <string name="duplicate_line">Дублировать строку</string>
+    <string name="show_nav_extra_keys">Показать клавиши навигации</string>
+    <string name="show_nav_extra_keys_desc">Отображать кнопки навигации в виде дополнительных клавиш</string>
+    <string name="change_extra_keys">Редактировать дополнительные клавиши</string>
+    <string name="change_extra_keys_desc">Настроить дополнительные клавиши отображаемые над клавиатурой</string>
+    <string name="toolbar_actions">Действия на панели инструментов</string>
 </resources>
