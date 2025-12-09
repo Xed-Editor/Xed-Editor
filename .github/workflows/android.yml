@@ -27,12 +27,20 @@ jobs:
           java-version: "21"
           distribution: "temurin"
           cache: gradle
+      - name: Cache Gradle Build Files
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Decode and create xed.keystore
-        run: echo "${{ secrets.KEYSTORE }}" | base64 -d > /tmp/xed.keystore
-
-      - name: Decode and create signing.properties
-        run: echo "${{ secrets.PROP }}" | base64 -d > /tmp/signing.properties
+      - name: Decode and create secrets
+        run: |
+          echo "${{ secrets.KEYSTORE }}" | base64 -d > /tmp/xed.keystore
+          echo "${{ secrets.PROP }}" | base64 -d > /tmp/signing.properties
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -40,18 +48,6 @@ jobs:
       - name: Set Commit Hash
         id: commit_hash
         run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-      - name: Extract Current versionCode
-        id: version_code
-        run: echo "VERSION_CODE=$(grep -oP 'versionCode\s*=\s*\K\d+' app/build.gradle.kts)" >> $GITHUB_ENV
-
-      - name: Extract Previous versionCode
-        id: prev_version_code
-        run: echo "PREV_VERSION_CODE=$(git show HEAD~1:app/build.gradle.kts | grep -oP 'versionCode\s*=\s*\K\d+' || echo 0)" >> $GITHUB_ENV
-
-      - name: Extract versionName
-        id: version_name
-        run: echo "VERSION_NAME=$(grep -oP 'versionName\s*=\s*\"\K[^\"]+' app/build.gradle.kts)" >> $GITHUB_ENV
 
       - name: Clone submodules
         run: git submodule update --init --recursive
@@ -69,7 +65,7 @@ jobs:
           name: Xed-Editor-Release
           path: app/xed-editor-${{ env.COMMIT_HASH }}.apk
 
-      - name: Delete xed.keystore and signing.properties
+      - name: Delete secrets
         run: rm /tmp/xed.keystore /tmp/signing.properties
 
       - name: Send APK to Telegram
@@ -93,7 +89,7 @@ jobs:
           tag: "sdk-latest"
           allowUpdates: true
           replacesArtifacts: true
-          makeLatest: true
-          name: "Latest SDK Build"
+          makeLatest: false
+          name: "Latest Plugin SDK Build"
           body: "This release is automatically updated with the latest sdk.jar."
           token: ${{ secrets.GITHUB_TOKEN }}
