@@ -136,7 +136,7 @@
     <string name="diagonal_scroll_desc">Включить диагональную прокрутку в дереве файлов</string>
     <string name="cursor_anim">Анимация курсора</string>
     <string name="cursor_anim_desc">Включить плавную анимацию курсора</string>
-    <string name="show_line_number">Показывать номера строк</string>
+    <string name="show_line_number">Отоброжать номера строк</string>
     <string name="pin_line_number">Закрепить номера линий</string>
     <string name="extra_keys">Дополнительные клавиши</string>
     <string name="extra_keys_desc">Показывать дополнительные клавиши над клавиатурой</string>
@@ -150,7 +150,7 @@
     <string name="text_size_desc">Установить размер текста</string>
     <string name="tab_size">Размер табуляции</string>
     <string name="tab_size_desc">Установить размер табуляции</string>
-    <string name="monet">Динамические цвета</string>
+    <string name="monet">Динамическая тема</string>
     <string name="monet_desc">Использовать тему устройства в приложении</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение.</string>
     <string name="old_android">Неподдерживаемая версия Android</string>
@@ -199,7 +199,7 @@
     <string name="show_virtual_keyboard">Показывать виртуальную клавиатуру</string>
     <string name="show_virtual_keyboard_desc">Показывать виртуальную клавиатуру при подключенной физической</string>
     <string name="git_commit">Хеш коммита</string>
-    <string name="check_for_updates">Проверять наличие обновлений</string>
+    <string name="check_for_updates">Проверять обновления</string>
     <string name="check_for_updates_desc">Периодически проверять наличие обновлений</string>
     <string name="click_open">Нажмите здесь, чтобы открыть файл</string>
     <string name="no">Нет</string>
@@ -305,7 +305,7 @@
     <string name="cant_undo">Это действие необратимо</string>
     <string name="temp_file">Временный файл</string>
     <string name="lang">Язык</string>
-    <string name="lang_desc">Выбор языка</string>
+    <string name="lang_desc">Выбрать язык</string>
     <string name="indian">Индийский</string>
     <string name="invalid_runner_name">Разрешены только буквы, цифры, подчеркивания и тире</string>
     <string name="invalid_regex">Неверный шаблон регулярного выражения</string>
@@ -480,4 +480,21 @@
     <string name="change_extra_keys">Редактировать дополнительные клавиши</string>
     <string name="change_extra_keys_desc">Настроить дополнительные клавиши отображаемые над клавиатурой</string>
     <string name="toolbar_actions">Действия на панели инструментов</string>
+    <string name="socket">Сокет</string>
+    <string name="process">Процесс</string>
+    <string name="project_restore_failed">Не удалось восстановить проекты</string>
+    <string name="theme_flipper">Переключатель тем</string>
+    <string name="theme_flipper_desc">Постоянно менять тему каждые 7 секунд</string>
+    <string name="add_parent_command">Добавить родительскую команду</string>
+    <string name="change_lang_warn">Смена языка перезагрузит экран. На мгновение может появиться пустой экран, что может вызвать дискомфорт у людей с фотосенситивной эпилепсией.</string>
+    <string name="address">Адрес</string>
+    <string name="toolbar_actions_desc">Выберите действия для панели приложения</string>
+    <string name="add_command">Добавить команду</string>
+    <string name="info_toolbar_actions">Действия на панели инструментов определяют, какие команды отображаются в ней при открытом файле. Вы можете удерживать и перетаскивать их для изменения порядка, или добавить новую команду.</string>
+    <string name="disable">Отключить</string>
+    <string name="calculating">Вычисление…</string>
+    <string name="permissions">Разрешения</string>
+    <string name="lsp_process_desc">Скрипты инициализации терминала, такие как /initrc и .bashrc, не будут выполнены перед этой командой.</string>
+    <string name="command">Команда</string>
+    <string name="empty_command">Пустая команда</string>
 </resources>
