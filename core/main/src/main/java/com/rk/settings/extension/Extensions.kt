@@ -70,6 +70,15 @@ fun Extensions(modifier: Modifier = Modifier) {
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        launch(Dispatchers.IO) {
+            runCatching {
+                extensionManager.indexLocalExtensions()
+                extensionManager.indexStoreExtensions()
+            }
+        }
+    }
+
     val filePickerLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             var loading: LoadingPopup? = null
