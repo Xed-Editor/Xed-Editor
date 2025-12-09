@@ -95,7 +95,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val targetDir = context.extensionDir.resolve(pluginInfo.id)
 
             if (targetDir.exists()) {
-                return@withContext InstallResult.AlreadyInstalled(pluginInfo.id)
+                uninstallExtension(pluginInfo.id)
+                // return@withContext InstallResult.AlreadyInstalled(pluginInfo.id)
             }
 
             val pm = context.packageManager
