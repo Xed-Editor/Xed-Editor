@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.file.FileObject
 import com.rk.file.copyToTempDir
-import com.rk.settings.Preference
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isMainThread
@@ -14,9 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-internal val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI>()
+internal val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
 
-fun LocalExtension.load(application: Application, init: Boolean = false) = run {
+fun LocalExtension.load(application: Application) = run {
     val classLoader =
         try {
             classLoader(application.classLoader)
@@ -44,7 +43,6 @@ fun LocalExtension.load(application: Application, init: Boolean = false) = run {
         PackageInfoCompat.getLongVersionCode(application.packageManager.getPackageInfo(application.packageName, 0))
 
     if (!(minAppVersion <= xedVersionCode && maxAppVersion <= xedVersionCode)) {
-        Preference.setBoolean("ext_${info.id}", false)
         return@run Result.failure(
             RuntimeException(
                 "Extension '${info.name}' (${info.version}) is not compatible with this version of Xed-Editor (min: $minAppVersion, max: $maxAppVersion, Xed-Editor: $xedVersionCode)"
@@ -109,19 +107,17 @@ fun LocalExtension.load(application: Application, init: Boolean = false) = run {
     }
 }
 
-suspend fun ExtensionManager.installExtension(fileObject: FileObject, isDev: Boolean = false) = run {
+suspend fun ExtensionManager.installExtension(fileObject: FileObject) = run {
     val file = fileObject.copyToTempDir()
-    installExtension(file, isDev).also { file.delete() }
+    installExtension(file).also { file.delete() }
 }
 
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.IO) {
         for ((id, extension) in localExtensions) {
             launch(Dispatchers.IO) {
-                if (Preference.getBoolean("ext_$id", false)) {
-                    extension.load(application!!).onFailure {
-                        errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
-                    }
+                extension.load(application!!).onFailure {
+                    errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
                 }
             }
         }

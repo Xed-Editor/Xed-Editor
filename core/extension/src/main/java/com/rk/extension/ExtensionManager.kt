@@ -20,11 +20,7 @@ private val Context.localDir: File
 val Context.extensionDir: File
     get() = localDir.resolve("extensions").apply { if (!exists()) mkdirs() }
 
-val Context.devExtensionDir: File
-    get() = localDir.resolve("dev_extensions").apply { if (!exists()) mkdirs() }
-
-internal fun Context.compiledDexDir(forDevExtension: Boolean = false) =
-    if (forDevExtension) devExtensionDir.resolve("oat") else extensionDir.resolve("oat")
+internal fun Context.compiledDexDir() = extensionDir.resolve("oat")
 
 open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
 
@@ -64,7 +60,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return Result.success(pluginInfo)
     }
 
-    suspend fun installExtension(zipFile: File, isDev: Boolean = false): InstallResult =
+    suspend fun installExtension(zipFile: File): InstallResult =
         withContext(Dispatchers.IO) {
             // Extract to temp dir first
             val tempDir = File(context.cacheDir, "ext_temp_${System.currentTimeMillis()}")
@@ -82,13 +78,13 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                         }
                     }
                 }
-                installExtensionFromDir(tempDir, isDev)
+                installExtensionFromDir(tempDir)
             } finally {
                 tempDir.deleteRecursively()
             }
         }
 
-    suspend fun installExtensionFromDir(dir: File, isDev: Boolean = false): InstallResult =
+    suspend fun installExtensionFromDir(dir: File): InstallResult =
         withContext(Dispatchers.IO) {
             val validation = validateExtensionDir(dir)
             if (validation.isFailure) {
@@ -96,12 +92,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             }
 
             val pluginInfo = validation.getOrThrow()
-            val targetDir =
-                if (isDev) {
-                    context.devExtensionDir.resolve(pluginInfo.id)
-                } else {
-                    context.extensionDir.resolve(pluginInfo.id)
-                }
+            val targetDir = context.extensionDir.resolve(pluginInfo.id)
 
             if (targetDir.exists()) {
                 return@withContext InstallResult.AlreadyInstalled(pluginInfo.id)
@@ -122,8 +113,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             dir.copyRecursively(targetDir, overwrite = true)
 
-            val extension =
-                LocalExtension(info = pluginInfo, installPath = targetDir.absolutePath, isDevExtension = isDev)
+            val extension = LocalExtension(info = pluginInfo, installPath = targetDir.absolutePath)
             localExtensions[pluginInfo.id] = extension
 
             InstallResult.Success(extension)
@@ -142,7 +132,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
                 extensionDir.deleteRecursively()
                 localExtensions.remove(extensionId)
-                context.compiledDexDir(extension.isDevExtension).deleteWithPackageName(extension.info.id)
+                context.compiledDexDir().deleteWithPackageName(extension.info.id)
 
                 Result.success(Unit)
             } catch (err: Exception) {
@@ -153,24 +143,21 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     suspend fun indexLocalExtensions() =
         mutex.withLock {
             localExtensions.clear()
-            indexExtensionsInDir(context.extensionDir, false)
-            indexExtensionsInDir(context.devExtensionDir, true)
+            indexExtensionsInDir(context.extensionDir)
         }
 
-    private suspend fun indexExtensionsInDir(baseDir: File, isDev: Boolean) =
+    private suspend fun indexExtensionsInDir(baseDir: File) =
         withContext(Dispatchers.IO) {
             baseDir.listFiles()?.forEach { dir ->
                 if (dir.isDirectory) {
-                    val pluginJson = dir.resolve("plugin.json")
+                    var pluginJson = dir.resolve("plugin.json")
+                    if (pluginJson.exists().not()) {
+                        pluginJson = dir.resolve("manifest.json")
+                    }
                     if (pluginJson.exists()) {
                         runCatching {
                             val pluginInfo = Gson().fromJson(pluginJson.readText(), PluginInfo::class.java)
-                            val extension =
-                                LocalExtension(
-                                    info = pluginInfo,
-                                    installPath = dir.absolutePath,
-                                    isDevExtension = isDev,
-                                )
+                            val extension = LocalExtension(info = pluginInfo, installPath = dir.absolutePath)
                             localExtensions[pluginInfo.id] = extension
                         }
                     }
@@ -193,8 +180,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
-
-    fun isDevExtension(extensionId: ExtensionId) = localExtensions[extensionId]?.isDevExtension ?: false
 
     fun getExtensionInfo(extensionId: ExtensionId) =
         localExtensions[extensionId]?.info ?: storeExtension[extensionId]?.info

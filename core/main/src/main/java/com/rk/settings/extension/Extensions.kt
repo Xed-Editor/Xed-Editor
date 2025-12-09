@@ -50,7 +50,6 @@ import com.rk.extension.load
 import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Preference
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.errorDialog
@@ -98,7 +97,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                             loading = LoadingPopup(context as Activity, null).show()
                             loading.setMessage(strings.installing.getString())
                             DefaultScope.launch {
-                                val result = extensionManager.installExtension(fileObject, true)
+                                val result = extensionManager.installExtension(fileObject)
                                 handleInstallResult(result, activity)
                             }
 
@@ -204,8 +203,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                                             loadingPopup.setMessage(strings.installing.getString())
                                             loadingPopup.show()
 
-                                            val result =
-                                                extensionManager.installExtensionFromDir(dir = dir, isDev = false)
+                                            val result = extensionManager.installExtensionFromDir(dir = dir)
 
                                             handleInstallResult(result, activity) { ext ->
                                                 installState = InstallState.Installed
@@ -219,12 +217,6 @@ fun Extensions(modifier: Modifier = Modifier) {
                                                         .onFailure {
                                                             errorDialog(it.message ?: "Unexpected error", activity)
                                                         }
-
-                                                    // it maybe called on extension load success
-                                                    // I am calling here because extension load always
-                                                    // fails in latest version due to API change
-                                                    // (com.rk.pluginApi.PluginApi)
-                                                    Preference.setBoolean(key = "ext_" + plugin.id, true)
                                                 }
                                             }
 
@@ -239,10 +231,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                                 onUninstallClick = {
                                     extensionManager
                                         .uninstallExtension(plugin.id)
-                                        .onSuccess {
-                                            toast("Uninstalled")
-                                            Preference.setBoolean(key = "ext_" + plugin.id, false)
-                                        }
+                                        .onSuccess {}
                                         .onFailure { errorDialog(it, activity) }
                                     installState = InstallState.Idle
                                 },
