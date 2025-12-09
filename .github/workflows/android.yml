@@ -13,11 +13,13 @@ jobs:
   build-release:
     name: Build Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0 # Fetch all tags for comparison
+          fetch-depth: 0 
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -84,8 +86,14 @@ jobs:
         run: |
           bash plugin-sdk/build-auto.sh
 
-      - name: Upload sdk.jar
-        uses: actions/upload-artifact@v4
+      - name: Update Release
+        uses: ncipollo/release-action@v1
         with:
-          name: sdk
-          path: plugin-sdk/output/sdk.jar
+          artifacts: "plugin-sdk/output/sdk.jar"
+          tag: "sdk-latest"
+          allowUpdates: true
+          replacesArtifacts: true
+          makeLatest: true
+          name: "Latest SDK Build"
+          body: "This release is automatically updated with the latest sdk.jar."
+          token: ${{ secrets.GITHUB_TOKEN }}
