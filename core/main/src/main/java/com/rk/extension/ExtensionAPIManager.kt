@@ -15,100 +15,39 @@ object ExtensionAPIManager : ExtensionAPI(), CoroutineScope by DefaultScope {
         throw IllegalStateException("This function not be called from here")
     }
 
-    override fun onActivityCreated(
-        activity: Activity,
-        savedInstanceState: Bundle?
-    ) {
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         launch {
             mutex.withLock {
-                launch {
-                    loadedExtensions.values.forEach {
-                        it.onActivityCreated(activity, savedInstanceState)
-                    }
-                }
-
+                launch { loadedExtensions.values.forEach { it.onActivityCreated(activity, savedInstanceState) } }
             }
         }
     }
 
     override fun onActivityDestroyed(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch {
-                    loadedExtensions.values.forEach {
-                        it.onActivityDestroyed(activity)
-                    }
-                }
-
-            }
-        }
+        launch { mutex.withLock { launch { loadedExtensions.values.forEach { it.onActivityDestroyed(activity) } } } }
     }
 
     override fun onActivityPaused(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch {
-                    loadedExtensions.values.forEach {
-                        it.onActivityPaused(activity)
-                    }
-                }
-            }
-        }
+        launch { mutex.withLock { launch { loadedExtensions.values.forEach { it.onActivityPaused(activity) } } } }
     }
 
     override fun onActivityResumed(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch {
-
-                    loadedExtensions.values.forEach {
-                        it.onActivityResumed(activity)
-                    }
-                }
-            }
-        }
+        launch { mutex.withLock { launch { loadedExtensions.values.forEach { it.onActivityResumed(activity) } } } }
     }
 
-    override fun onActivitySaveInstanceState(
-        activity: Activity,
-        outState: Bundle
-    ) {
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
         launch {
             mutex.withLock {
-                launch {
-
-                    loadedExtensions.values.forEach {
-                        it.onActivitySaveInstanceState(
-                            activity, outState
-                        )
-                    }
-                }
+                launch { loadedExtensions.values.forEach { it.onActivitySaveInstanceState(activity, outState) } }
             }
         }
     }
 
     override fun onActivityStarted(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch {
-
-                    loadedExtensions.values.forEach {
-                        it.onActivityStarted(activity)
-                    }
-                }
-            }
-        }
+        launch { mutex.withLock { launch { loadedExtensions.values.forEach { it.onActivityStarted(activity) } } } }
     }
 
     override fun onActivityStopped(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch {
-                    loadedExtensions.values.forEach {
-                        it.onActivityStopped(activity)
-                    }
-                }
-            }
-        }
+        launch { mutex.withLock { launch { loadedExtensions.values.forEach { it.onActivityStopped(activity) } } } }
     }
 }

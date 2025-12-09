@@ -9,10 +9,10 @@ import com.rk.settings.Preference
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isMainThread
+import kotlin.collections.iterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.collections.iterator
 
 internal val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI>()
 
@@ -117,12 +117,12 @@ suspend fun ExtensionManager.installExtension(fileObject: FileObject, isDev: Boo
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.Default) {
         for ((id, extension) in localExtensions) {
-           launch(Dispatchers.IO) {
-               if (Preference.getBoolean("ext_$id", false)) {
-                   extension.load(application!!).onFailure {
-                       errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
-                   }
-               }
-           }
+            launch(Dispatchers.IO) {
+                if (Preference.getBoolean("ext_$id", false)) {
+                    extension.load(application!!).onFailure {
+                        errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
+                    }
+                }
+            }
         }
     }
