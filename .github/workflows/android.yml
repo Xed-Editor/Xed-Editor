@@ -82,19 +82,10 @@ jobs:
 
       - name: Generate Plugin Sdk
         run: |
-          echo $PWD
-          ls
-          
-          cd plugin-sdk
-          bash generate-sdk.sh ..
-          rm -rf .gradle
-          chmod +x gradlew
-          ./gradlew shadowJar
-          du -h output
-          mv output/* sdk.jar
+          bash plugin-sdk/build-auto.sh
 
       - name: Upload sdk.jar
         uses: actions/upload-artifact@v4
         with:
           name: sdk
-          path: plugin-sdk/sdk.jar
+          path: plugin-sdk/output/sdk.jar

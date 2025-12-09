@@ -1,1 +1,1 @@
-Donload the xed-editor-sdk.jar.zip from actions then extract it
+Download the xed-editor-sdk.jar.zip from actions then extract it

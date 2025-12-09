@@ -1,12 +1,15 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     kotlin("jvm") version "2.0.10"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.3.0"
 }
 
 group = "com.rk"
 version = "1.0"
 
-tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+tasks.named<ShadowJar>("shadowJar") {
+    archiveFileName.set("sdk.jar")
     isZip64 = true
     destinationDirectory.set(file("./output"))
 }
@@ -18,8 +21,4 @@ repositories {
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-}
-
-kotlin {
-    jvmToolchain(17)
 }
