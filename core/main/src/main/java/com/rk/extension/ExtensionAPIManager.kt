@@ -15,6 +15,10 @@ object ExtensionAPIManager : ExtensionAPI(), CoroutineScope by DefaultScope {
         throw IllegalStateException("This function not be called from here")
     }
 
+    override fun onUninstalled(extension: Extension) {
+        throw IllegalStateException("This function not be called from here")
+    }
+
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         launch {
             mutex.withLock {

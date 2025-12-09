@@ -126,6 +126,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 val extension =
                     localExtensions[extensionId] ?: return@withContext Result.failure(Exception("Extension not found"))
 
+                loadedExtensions[extension]?.onUninstalled(extension)
+
                 val extensionDir = File(extension.installPath)
                 if (!extensionDir.exists()) {
                     return@withContext Result.failure(Exception("Extension directory not found"))

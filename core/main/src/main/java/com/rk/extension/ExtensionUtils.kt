@@ -1,7 +1,6 @@
 package com.rk.extension
 
 import android.app.Application
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.file.FileObject
 import com.rk.file.copyToTempDir
@@ -12,8 +11,6 @@ import kotlin.collections.iterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-internal val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
 
 fun LocalExtension.load(application: Application) = run {
     val classLoader =

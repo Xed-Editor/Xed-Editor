@@ -2,8 +2,11 @@ package com.rk.extension
 
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.compose.runtime.mutableStateMapOf
 import dalvik.system.PathClassLoader
 import java.io.File
+
+val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
 
 sealed interface Extension {
     val id: ExtensionId
