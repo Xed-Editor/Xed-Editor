@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rk.App.Companion.extensionManager
 import com.rk.DefaultScope
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -44,6 +45,8 @@ import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.PluginRegistry
 import com.rk.extension.github.GitHubApiException
+import com.rk.extension.installExtension
+import com.rk.extension.load
 import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -63,7 +66,6 @@ var selectedPlugin: LocalExtension? = null
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Extensions(modifier: Modifier = Modifier) {
-    val extensionManager = LocalExtensionManager.current
     val context = LocalContext.current
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()

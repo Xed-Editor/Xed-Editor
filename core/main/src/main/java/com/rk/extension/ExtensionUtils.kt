@@ -1,11 +1,8 @@
-package com.rk.settings.extension
+package com.rk.extension
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
-import com.rk.extension.ExtensionManager
-import com.rk.extension.LocalExtension
-import com.rk.extension.classLoader
 import com.rk.file.FileObject
 import com.rk.file.copyToTempDir
 import com.rk.settings.Preference
@@ -13,7 +10,9 @@ import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isMainThread
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.collections.iterator
 
 internal val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI>()
 
@@ -76,7 +75,6 @@ fun LocalExtension.load(application: Application, init: Boolean = false) = run {
 
         try {
             instance.onPluginLoaded(this)
-            instance.onPluginLoaded(this, init)
         } catch (err: ClassNotFoundException) {
             return@run Result.failure(
                 RuntimeException(
@@ -119,10 +117,12 @@ suspend fun ExtensionManager.installExtension(fileObject: FileObject, isDev: Boo
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.Default) {
         for ((id, extension) in localExtensions) {
-            if (Preference.getBoolean("ext_$id", false)) {
-                extension.load(application!!).onFailure {
-                    errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
-                }
-            }
+           launch(Dispatchers.IO) {
+               if (Preference.getBoolean("ext_$id", false)) {
+                   extension.load(application!!).onFailure {
+                       errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
+                   }
+               }
+           }
         }
     }

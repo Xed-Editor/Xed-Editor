@@ -1,5 +1,6 @@
 package com.rk.extension
 
+import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
@@ -25,7 +26,7 @@ val Context.devExtensionDir: File
 internal fun Context.compiledDexDir(forDevExtension: Boolean = false) =
     if (forDevExtension) devExtensionDir.resolve("oat") else extensionDir.resolve("oat")
 
-open class ExtensionManager(private val context: Context) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
+open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
 
     private val mutex = Mutex()
     val localExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()

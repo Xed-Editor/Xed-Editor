@@ -28,9 +28,7 @@ import com.rk.filetree.restoreProjects
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.extension.LocalExtensionManager
-import com.rk.settings.extension.ProvideExtensionManager
-import com.rk.settings.extension.loadAllExtensions
+import com.rk.extension.loadAllExtensions
 import com.rk.theme.XedTheme
 import com.rk.utils.dialog
 import java.lang.ref.WeakReference
@@ -45,10 +43,6 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
     com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
 
     XedTheme {
-        ProvideExtensionManager {
-            val extensionManager = LocalExtensionManager.current
-
-            LaunchedEffect(Unit) { extensionManager.loadAllExtensions() }
             Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
@@ -142,6 +136,5 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
 
                 ResponsiveDrawer(drawerState = drawerState, mainContent = mainContent, sheetContent = sheetContent)
             }
-        }
     }
 }

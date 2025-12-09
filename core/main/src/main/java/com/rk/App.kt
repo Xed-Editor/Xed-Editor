@@ -10,6 +10,9 @@ import com.rk.activities.main.SessionManager
 import com.rk.crashhandler.CrashHandler
 import com.rk.editor.Editor
 import com.rk.editor.FontCache
+import com.rk.extension.ExtensionAPIManager
+import com.rk.extension.ExtensionManager
+import com.rk.extension.loadAllExtensions
 import com.rk.lsp.MarkdownImageProvider
 import com.rk.resources.Res
 import com.rk.settings.Preference
@@ -41,6 +44,18 @@ class App : Application() {
             val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
             targetSdkVersion == 28
         }
+
+        private var _extensionManager: ExtensionManager? = null
+        val extensionManager: ExtensionManager
+            get() {
+                if (_extensionManager == null){
+                    _extensionManager = ExtensionManager(application!!)
+                }
+
+                return _extensionManager!!
+            }
+
+
     }
 
     init {
@@ -61,6 +76,11 @@ class App : Application() {
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
+            launch {
+                extensionManager.loadAllExtensions()
+                registerActivityLifecycleCallbacks(ExtensionAPIManager)
+            }
+
             launch { Editor.initGrammarRegistry() }
 
             launch(Dispatchers.IO) { SessionManager.preloadSession() }
