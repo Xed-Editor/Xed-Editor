@@ -497,4 +497,6 @@
     <string name="lsp_terminal_unavailable">LSP dil özellikleri, terminal ortamı kullanılamadığı veya işlevsel olmadığı için çalışmayacaktır.</string>
     <string name="invalid_intent">Geçersiz istek alındı:\n%s</string>
     <string name="delete_failed">Dosya silinemiyor</string>
+    <string name="select_language">Dil seç</string>
+    <string name="add_parent_command">Üst komut ekle</string>
 </resources>
