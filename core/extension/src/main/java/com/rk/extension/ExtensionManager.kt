@@ -33,7 +33,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
 
     init {
-        launch {
+        launch(Dispatchers.IO) {
             runCatching {
                 indexLocalExtensions()
                 indexStoreExtensions()

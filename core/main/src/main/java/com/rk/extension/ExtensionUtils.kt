@@ -115,7 +115,7 @@ suspend fun ExtensionManager.installExtension(fileObject: FileObject, isDev: Boo
 }
 
 suspend fun ExtensionManager.loadAllExtensions() =
-    withContext(Dispatchers.Default) {
+    withContext(Dispatchers.IO) {
         for ((id, extension) in localExtensions) {
             launch(Dispatchers.IO) {
                 if (Preference.getBoolean("ext_$id", false)) {

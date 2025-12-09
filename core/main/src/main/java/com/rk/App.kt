@@ -77,7 +77,8 @@ class App : Application() {
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
-            launch {
+            launch(Dispatchers.IO) {
+                extensionManager.indexLocalExtensions()
                 extensionManager.loadAllExtensions()
                 registerActivityLifecycleCallbacks(ExtensionAPIManager)
             }
