@@ -43,9 +43,7 @@ class ImageTab(override val file: FileObject) : Tab() {
                         this.scaleType = ImageView.ScaleType.FIT_CENTER
                         scope.launch {
                             val drawable =
-                                withContext(Dispatchers.IO) {
-                                    Glide.with(context).load(file.toUri()).submit().get()
-                                }
+                                withContext(Dispatchers.IO) { Glide.with(context).load(file.toUri()).submit().get() }
 
                             Glide.with(context).load(drawable).into(this@apply)
                         }

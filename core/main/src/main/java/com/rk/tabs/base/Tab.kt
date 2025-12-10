@@ -23,11 +23,9 @@ abstract class Tab() {
 
     open fun onTabRemoved() {}
 
-    @Composable
-    abstract fun Content()
+    @Composable abstract fun Content()
 
-    @Composable
-    open fun RowScope.Actions() {}
+    @Composable open fun RowScope.Actions() {}
 
     open val showGlobalActions: Boolean = true
 }

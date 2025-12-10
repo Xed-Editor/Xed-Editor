@@ -34,19 +34,18 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.info
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
