@@ -63,7 +63,7 @@ object UpdateManager {
 
                 if (lastVersionCode <= 73) {
                     runCatching {
-                        val filesToCopy = application!!.cacheDir.listFiles { it.isFile && it.extension.isNotEmpty() }
+                        val filesToCopy = application!!.cacheDir.listFiles { it.isFile && it.extension.isEmpty() }
                         filesToCopy?.forEach { it.copyTo(application!!.filesDir.child(it.name), overwrite = true) }
                     }
                 }
