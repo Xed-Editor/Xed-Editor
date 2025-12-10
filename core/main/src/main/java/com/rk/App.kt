@@ -28,7 +28,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import top.canyie.pine.PineConfig
 
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
@@ -66,8 +65,6 @@ class App : Application() {
         super.onCreate()
         application = this
         Res.application = this
-        PineConfig.debug = false
-        PineConfig.debuggable = BuildConfig.DEBUG
 
         updateThemes()
         MarkdownImageProvider.register()
