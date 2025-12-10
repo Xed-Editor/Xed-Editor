@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-private const val BASE_URL = "https://api.github.com/repos/Xed-Editor/Xed-Editor-Plugins-Registry/contents"
+private const val BASE_URL = "https://api.github.com/repos/Xed-Editor/PluginsRegistry/contents"
 
 object GitHubApi {
     private val client = OkHttpClient()
