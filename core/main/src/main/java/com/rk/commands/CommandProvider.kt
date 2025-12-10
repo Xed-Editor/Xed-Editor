@@ -103,50 +103,6 @@ object CommandProvider {
                 icon = mutableIntStateOf(drawables.command_palette),
             ),
             Command(
-                id = "global.share",
-                label = mutableStateOf(strings.share.getString()),
-                action = { _, activity ->
-                    val file = viewModel.currentTab?.file
-
-                    if (file == null) {
-                        toast(strings.unsupported_content)
-                        return@Command
-                    }
-
-                    DefaultScope.launch {
-                        if (file.getAbsolutePath().contains(application!!.filesDir.parentFile!!.absolutePath)) {
-                            // Files in private directory cannot be shared
-                            toast(strings.permission_denied)
-                            return@launch
-                        }
-
-                        val fileUri =
-                            if (file is FileWrapper) {
-                                FileProvider.getUriForFile(
-                                    activity as Context,
-                                    "${activity.packageName}.fileprovider",
-                                    file.file,
-                                )
-                            } else {
-                                file.toUri()
-                            }
-
-                        val intent =
-                            Intent(Intent.ACTION_SEND).apply {
-                                type = activity!!.contentResolver.getType(fileUri) ?: "*/*"
-                                setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
-                                putExtra(Intent.EXTRA_STREAM, fileUri)
-                                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            }
-
-                        activity!!.startActivity(Intent.createChooser(intent, "Share file"))
-                    }
-                },
-                isSupported = mutableStateOf(true),
-                isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.send),
-            ),
-            Command(
                 id = "global.search_file_folder",
                 label = mutableStateOf(strings.search_file_folder.getString()),
                 action = { _, _ -> fileSearchDialog = true },
@@ -413,6 +369,50 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableIntStateOf(drawables.arrow_outward),
+            ),
+            Command(
+                id = "editor.share",
+                label = mutableStateOf(strings.share.getString()),
+                action = { _, activity ->
+                    val file = viewModel.currentTab?.file
+
+                    if (file == null) {
+                        toast(strings.unsupported_content)
+                        return@Command
+                    }
+
+                    DefaultScope.launch {
+                        if (file.getAbsolutePath().contains(application!!.filesDir.parentFile!!.absolutePath)) {
+                            // Files in private directory cannot be shared
+                            toast(strings.permission_denied)
+                            return@launch
+                        }
+
+                        val fileUri =
+                            if (file is FileWrapper) {
+                                FileProvider.getUriForFile(
+                                    activity as Context,
+                                    "${activity.packageName}.fileprovider",
+                                    file.file,
+                                )
+                            } else {
+                                file.toUri()
+                            }
+
+                        val intent =
+                            Intent(Intent.ACTION_SEND).apply {
+                                type = activity!!.contentResolver.getType(fileUri) ?: "*/*"
+                                setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
+                                putExtra(Intent.EXTRA_STREAM, fileUri)
+                                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            }
+
+                        activity!!.startActivity(Intent.createChooser(intent, "Share file"))
+                    }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.send),
             ),
         )
     }
