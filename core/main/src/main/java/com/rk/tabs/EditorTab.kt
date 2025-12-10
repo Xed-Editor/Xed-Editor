@@ -557,17 +557,6 @@ fun EditorTab.applyHighlighting() {
                 setLanguage(langScope)
                 applyMarkdownHighlighting()
 
-                if (!InbuiltFeatures.terminal.state.value || !isTerminalInstalled() || !isTerminalWorking()) {
-                    if (editorState.lspDialogMutex.isLocked) return@launch
-                    editorState.lspDialogMutex.lock()
-                    dialog(
-                        context = context as Activity,
-                        title = strings.warning.getString(context),
-                        msg = strings.lsp_terminal_unavailable.getString(context),
-                        okString = strings.ok,
-                    )
-                    return@launch
-                }
                 val ext = file.getName().substringAfterLast(".").trim()
 
                 info("Attempting to connect to external server...")
@@ -590,6 +579,19 @@ fun EditorTab.applyHighlighting() {
 private suspend fun EditorTab.tryConnectBuiltinLsp(ext: String, editor: Editor): Boolean {
     val server = builtInServer.find { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
     if (server != null && Preference.getBoolean("lsp_${server.id}", true)) {
+        if (!InbuiltFeatures.terminal.state.value || !isTerminalInstalled() || !isTerminalWorking()) {
+            if (editorState.lspDialogMutex.isLocked) {
+                return false
+            }
+            editorState.lspDialogMutex.lock()
+            dialog(
+                title = strings.warning.getString(),
+                msg = strings.lsp_terminal_unavailable.getString(),
+                okString = strings.ok,
+            )
+            return false
+        }
+
         // Connect with built-in language server
         if (server.isInstalled(editor.context)) {
             info("Server installed")
