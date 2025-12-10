@@ -55,6 +55,8 @@ object Settings {
     var themeFlipper by CachedPreference("theme_flipper", false)
     var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
     var format_on_save by CachedPreference("format_on_save", false)
+    var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
+    var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

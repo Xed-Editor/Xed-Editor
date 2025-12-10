@@ -1,15 +1,21 @@
 package com.rk.commands
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.FileProvider
 import com.rk.DefaultScope
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
+import com.rk.components.codeSearchDialog
+import com.rk.components.fileSearchDialog
 import com.rk.file.FileType
+import com.rk.file.FileWrapper
+import com.rk.filetree.currentProject
 import com.rk.filetree.projects
 import com.rk.lsp.formatDocument
 import com.rk.lsp.formatDocumentRange
@@ -25,10 +31,11 @@ import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.EditorTab
+import com.rk.utils.application
 import com.rk.utils.dialog
 import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice
-import java.util.Locale.getDefault
+import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -94,6 +101,66 @@ object CommandProvider {
                 isSupported = mutableStateOf(true),
                 isEnabled = mutableStateOf(true),
                 icon = mutableIntStateOf(drawables.command_palette),
+            ),
+            Command(
+                id = "global.share",
+                label = mutableStateOf(strings.share.getString()),
+                action = { _, activity ->
+                    val file = viewModel.currentTab?.file
+
+                    if (file == null) {
+                        toast(strings.unsupported_content)
+                        return@Command
+                    }
+
+                    DefaultScope.launch {
+                        if (file.getAbsolutePath().contains(application!!.filesDir.parentFile!!.absolutePath)) {
+                            // Files in private directory cannot be shared
+                            toast(strings.permission_denied)
+                            return@launch
+                        }
+
+                        val fileUri =
+                            if (file is FileWrapper) {
+                                FileProvider.getUriForFile(
+                                    activity as Context,
+                                    "${activity.packageName}.fileprovider",
+                                    file.file,
+                                )
+                            } else {
+                                file.toUri()
+                            }
+
+                        val intent =
+                            Intent(Intent.ACTION_SEND).apply {
+                                type = activity!!.contentResolver.getType(fileUri) ?: "*/*"
+                                setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
+                                putExtra(Intent.EXTRA_STREAM, fileUri)
+                                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            }
+
+                        activity!!.startActivity(Intent.createChooser(intent, "Share file"))
+                    }
+                },
+                isSupported = mutableStateOf(true),
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.send),
+            ),
+            Command(
+                id = "global.search_file_folder",
+                label = mutableStateOf(strings.search_file_folder.getString()),
+                action = { _, _ -> fileSearchDialog = true },
+                isSupported = mutableStateOf(true),
+                isEnabled = derivedStateOf { currentProject != null },
+                icon = mutableIntStateOf(drawables.search),
+            ),
+            Command(
+                id = "global.search_code",
+                label = mutableStateOf(strings.search_code.getString()),
+                action = { _, _ -> codeSearchDialog = true },
+                isSupported = mutableStateOf(true),
+                isEnabled = derivedStateOf { currentProject != null },
+                icon = mutableIntStateOf(drawables.search),
             ),
         )
     }
@@ -312,7 +379,7 @@ object CommandProvider {
                         .filter { it.textmateScope != null }
                         .map { fileType ->
                             Command(
-                                id = "editor.syntax_highlighting.${fileType.name.lowercase(getDefault())}",
+                                id = "editor.syntax_highlighting.${fileType.name.lowercase()}",
                                 label = mutableStateOf(fileType.title),
                                 action = { vm, _ ->
                                     (vm.currentTab as? EditorTab)?.editorState?.textmateScope = fileType.textmateScope!!
@@ -326,6 +393,26 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableIntStateOf(drawables.edit_note),
+            ),
+            Command(
+                id = "editor.toggle_word_wrap",
+                label = mutableStateOf(strings.toggle_word_wrap.getString()),
+                action = { vm, _ ->
+                    val currentTab = vm.currentTab as? EditorTab ?: return@Command
+                    currentTab.editorState.isWrapping = true
+                    currentTab.editorState.editor.get()?.apply { isWordwrap = !isWordwrap }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.edit_note),
+            ),
+            Command(
+                id = "editor.jump_to_line",
+                label = mutableStateOf(strings.jump_to_line.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.showJumpToLineDialog = true },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.arrow_outward),
             ),
         )
     }

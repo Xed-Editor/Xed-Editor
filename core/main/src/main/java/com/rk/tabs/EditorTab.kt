@@ -121,6 +121,10 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var findingsTitle by mutableStateOf("")
     var findingsDescription by mutableStateOf("")
 
+    var showJumpToLineDialog by mutableStateOf(false)
+    var jumpToLineValue by mutableStateOf("")
+    var jumpToLineError by mutableStateOf<String?>(null)
+
     var showRenameDialog by mutableStateOf(false)
     var renameValue by mutableStateOf("")
     var renameError by mutableStateOf<String?>(null)
@@ -287,6 +291,35 @@ class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : T
                             editorState.renameError = null
                             editorState.renameConfirm = null
                             editorState.showRenameDialog = false
+                        },
+                    )
+                }
+
+                if (editorState.showJumpToLineDialog) {
+                    SingleInputDialog(
+                        title = stringResource(strings.jump_to_line),
+                        inputLabel = stringResource(strings.line_number),
+                        inputValue = editorState.jumpToLineValue,
+                        errorMessage = editorState.jumpToLineError,
+                        confirmEnabled = editorState.jumpToLineValue.isNotBlank(),
+                        onInputValueChange = {
+                            val lastLine = editorState.editor.get()?.lineCount ?: 0
+
+                            editorState.jumpToLineValue = it
+                            editorState.jumpToLineError = null
+                            if (editorState.jumpToLineValue.toIntOrNull() == null) {
+                                editorState.jumpToLineError = strings.value_invalid.getString()
+                            } else if (it.toInt() > lastLine) {
+                                editorState.jumpToLineError = strings.value_large.getString()
+                            } else if (it.toInt() < 1) {
+                                editorState.jumpToLineError = strings.value_small.getString()
+                            }
+                        },
+                        onConfirm = { editorState.editor.get()!!.jumpToLine(editorState.jumpToLineValue.toInt() - 1) },
+                        onFinish = {
+                            editorState.jumpToLineValue = ""
+                            editorState.jumpToLineError = null
+                            editorState.showJumpToLineDialog = false
                         },
                     )
                 }

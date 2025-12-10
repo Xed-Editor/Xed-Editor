@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
-import kotlin.collections.set
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -88,6 +87,23 @@ class FileTreeViewModel : ViewModel() {
                 _loadingStates[file] = false
             }
         }
+    }
+
+    suspend fun goToFolder(projectFile: FileObject, fileObject: FileObject) {
+        selectedFile[projectFile] = fileObject
+
+        var currentFile: FileObject? = fileObject
+        while (currentFile != null && currentFile != projectFile) {
+            expandedNodes[currentFile] = true
+
+            // If we're expanding and haven't loaded yet, trigger a load
+            if (!fileListCache.containsKey(fileObject)) {
+                _loadingStates[currentFile] = true
+            }
+
+            currentFile = currentFile.getParentFile()
+        }
+        expandedNodes[projectFile] = true
     }
 
     suspend fun refreshEverything() =
