@@ -48,6 +48,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
 import com.rk.utils.dialog
+import com.rk.utils.preloadSelectionColor
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -61,6 +62,8 @@ fun MainContent(
 ) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
+
+    preloadSelectionColor()
 
     Column(Modifier.fillMaxSize().padding(innerPadding)) {
         if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {

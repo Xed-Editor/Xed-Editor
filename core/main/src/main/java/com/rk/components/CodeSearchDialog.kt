@@ -58,6 +58,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
 import com.rk.theme.currentTheme
+import com.rk.utils.getSelectionColor
 import com.rk.utils.isDarkMode
 import com.rk.utils.toAnnotatedString
 import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
@@ -210,7 +211,7 @@ suspend fun generateSnippet(
             }
         val selectionColor =
             editorColors?.find { it.key == EditorColorScheme.SELECTED_TEXT_BACKGROUND }?.color?.let { Color(it) }
-                ?: Color.Unspecified
+                ?: getSelectionColor()
 
         buildAnnotatedString {
             append(highlightedAnnotated)

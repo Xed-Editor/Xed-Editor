@@ -1,5 +1,6 @@
 package com.rk.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -17,6 +18,9 @@ import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -211,4 +215,18 @@ fun Spanned.toAnnotatedString(): AnnotatedString {
         }
     }
     return builder.toAnnotatedString()
+}
+
+private var selectionColor = Color.Unspecified
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun preloadSelectionColor() {
+    val selectionColors = LocalTextSelectionColors.current
+    val selectionBackground = selectionColors.backgroundColor
+    selectionColor = selectionBackground
+}
+
+fun getSelectionColor(): Color {
+    return selectionColor
 }

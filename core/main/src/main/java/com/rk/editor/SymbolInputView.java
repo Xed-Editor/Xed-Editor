@@ -35,8 +35,6 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import com.rk.xededitor.R;
-
 import java.util.List;
 
 import io.github.rosemoe.sora.widget.CodeEditor;

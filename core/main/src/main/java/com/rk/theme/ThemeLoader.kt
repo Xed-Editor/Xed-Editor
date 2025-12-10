@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.rk.activities.settings.SettingsActivity
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.themeDir
@@ -47,6 +48,7 @@ suspend fun ThemeConfig.installTheme() =
     withContext(Dispatchers.IO) {
         if (id == null) {
             dialog(
+                context = SettingsActivity.instance,
                 title = strings.theme_install_failed.getString(),
                 msg = strings.theme_id_missing.getString(),
                 cancelable = false,
@@ -56,6 +58,7 @@ suspend fun ThemeConfig.installTheme() =
 
         if (name == null) {
             dialog(
+                context = SettingsActivity.instance,
                 title = strings.theme_install_failed.getString(),
                 msg = strings.theme_name_missing.getString(),
                 cancelable = false,
@@ -65,6 +68,7 @@ suspend fun ThemeConfig.installTheme() =
 
         if (targetVersion == null) {
             dialog(
+                context = SettingsActivity.instance,
                 title = strings.theme_install_failed.getString(),
                 msg = strings.theme_version_missing.getString(),
                 cancelable = false,
@@ -77,6 +81,7 @@ suspend fun ThemeConfig.installTheme() =
         val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
         if (targetVersion.toLong() != currentVersionCode) {
             dialog(
+                context = SettingsActivity.instance,
                 title = strings.warning.getString(),
                 msg = strings.incompatible_theme_warning.getString(),
                 cancelString = strings.cancel,
