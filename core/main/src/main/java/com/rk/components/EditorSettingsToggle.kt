@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

@@ -13,11 +13,13 @@ jobs:
   build-release:
     name: Build Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0 # Fetch all tags for comparison
+          fetch-depth: 0 
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -25,12 +27,20 @@ jobs:
           java-version: "21"
           distribution: "temurin"
           cache: gradle
+      - name: Cache Gradle Build Files
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Decode and create xed.keystore
-        run: echo "${{ secrets.KEYSTORE }}" | base64 -d > /tmp/xed.keystore
-
-      - name: Decode and create signing.properties
-        run: echo "${{ secrets.PROP }}" | base64 -d > /tmp/signing.properties
+      - name: Decode and create secrets
+        run: |
+          echo "${{ secrets.KEYSTORE }}" | base64 -d > /tmp/xed.keystore
+          echo "${{ secrets.PROP }}" | base64 -d > /tmp/signing.properties
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -39,45 +49,15 @@ jobs:
         id: commit_hash
         run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Extract Current versionCode
-        id: version_code
-        run: echo "VERSION_CODE=$(grep -oP 'versionCode\s*=\s*\K\d+' app/build.gradle.kts)" >> $GITHUB_ENV
-
-      - name: Extract Previous versionCode
-        id: prev_version_code
-        run: echo "PREV_VERSION_CODE=$(git show HEAD~1:app/build.gradle.kts | grep -oP 'versionCode\s*=\s*\K\d+' || echo 0)" >> $GITHUB_ENV
-
-      - name: Extract versionName
-        id: version_name
-        run: echo "VERSION_NAME=$(grep -oP 'versionName\s*=\s*\"\K[^\"]+' app/build.gradle.kts)" >> $GITHUB_ENV
-
-      - name: Get Previous Tag
-        id: prev_tag
-        run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 HEAD)
-          echo "Previous tag: $PREV_TAG"
-          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
-
-      - name: Compare Version Codes
-        id: check_version_change
-        run: |
-          echo "Current versionCode: $VERSION_CODE"
-          echo "Previous versionCode: $PREV_VERSION_CODE"
-          if [ "$VERSION_CODE" -gt "$PREV_VERSION_CODE" ]; then
-            echo "VERSION_CHANGED=true" >> $GITHUB_ENV
-          else
-            echo "VERSION_CHANGED=false" >> $GITHUB_ENV
-          fi
-
       - name: Clone submodules
         run: git submodule update --init --recursive
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
+        run: ./gradlew assembleRelease --no-daemon && mv app/build/outputs/apk/release/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
@@ -85,7 +65,7 @@ jobs:
           name: Xed-Editor-Release
           path: app/xed-editor-${{ env.COMMIT_HASH }}.apk
 
-      - name: Delete xed.keystore and signing.properties
+      - name: Delete secrets
         run: rm /tmp/xed.keystore /tmp/signing.properties
 
       - name: Send APK to Telegram
@@ -98,39 +78,18 @@ jobs:
           -F caption="$CAPTION" \
           -F document=@"app/xed-editor-${{ env.COMMIT_HASH }}.apk"
 
-
-      - name: Check Commit Message and Create Release
-        if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
+      - name: Generate Plugin Sdk
         run: |
-          APK_PATH="app/xed-editor-${{ env.COMMIT_HASH }}.apk"
+          bash plugin-sdk/build-auto.sh
 
-          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
-          CERT_HASH=$($BUILD_TOOLS/apksigner verify --print-certs "$APK_PATH" | grep 'SHA-256 digest' | awk '{print $4}')
-
-          TAG_NAME="v${{ env.VERSION_NAME }}"
-          RELEASE_NAME="Xed-Editor $TAG_NAME"
-          BRANCH_NAME="${{ github.ref_name }}"
-          COMPARE_URL="https://github.com/${{ github.repository }}/compare/${{ env.PREV_TAG }}...${{ github.sha }}"
-          
-          RELEASE_BODY="Automated release for commit: ${{ github.event.head_commit.message }}
-      
-          SHA-256 certificate fingerprint: $CERT_HASH
-          
-          [ Compare Changes ]($COMPARE_URL)"
-          
-          UPLOAD_URL=$(curl -s -X POST \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -d "{\"tag_name\":\"$TAG_NAME\",\"target_commitish\":\"$BRANCH_NAME\",\"name\":\"$RELEASE_NAME\",\"body\":\"$RELEASE_BODY\",\"draft\":false,\"prerelease\":false}" \
-          https://api.github.com/repos/${{ github.repository }}/releases | jq -r .upload_url | sed 's/{?name,label}//')
-          
-          if [[ -z "$UPLOAD_URL" || "$UPLOAD_URL" == "null" ]]; then
-          echo "Error: Failed to create release."
-          exit 1
-          fi
-          
-          curl -s -X POST \
-          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Content-Type: application/vnd.android.package-archive" \
-          --data-binary @"$APK_PATH" \
-          "$UPLOAD_URL?name=xed-editor-v${{ env.VERSION_NAME }}.apk"
+      - name: Update Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "plugin-sdk/output/sdk.jar"
+          tag: "sdk-latest"
+          allowUpdates: true
+          replacesArtifacts: true
+          makeLatest: false
+          name: "Latest Plugin SDK Build"
+          body: "This release is automatically updated with the latest sdk.jar."
+          token: ${{ secrets.GITHUB_TOKEN }}

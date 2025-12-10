@@ -30,7 +30,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import java.io.File

@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import com.rk.App
 import com.rk.utils.PathUtils.toPath
+import com.rk.utils.getTempDir
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -75,7 +75,7 @@ interface FileObject : Serializable {
 }
 
 suspend fun FileObject.copyToTempDir() = run {
-    val file = File(App.getTempDir(), getName()).createFileIfNot()
+    val file = File(getTempDir(), getName()).createFileIfNot()
 
     getInputStream().use { input -> file.outputStream().use { output -> input.copyTo(output) } }
 

@@ -1,8 +1,6 @@
 package com.rk.terminal
 
 import android.os.Build
-import com.rk.App
-import com.rk.App.Companion.getTempDir
 import com.rk.SessionPwd
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
@@ -15,8 +13,10 @@ import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.currentProject
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.getSourceDirOfPackage
+import com.rk.utils.getTempDir
+import com.rk.utils.isFDroid
 import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -73,7 +73,7 @@ object MkSession {
                     "PROMPT_DIRTRIM=2",
                     "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                     "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
-                    "FDROID=${App.isFDroid}",
+                    "FDROID=${isFDroid}",
                     "SANDBOX=${Settings.sandbox}",
                     "TMP_DIR=${getTempDir()}",
                     "TMPDIR=${getTempDir()}",
@@ -84,7 +84,7 @@ object MkSession {
                     "DISPLAY=:0",
                 )
 
-            if (!App.isFDroid) {
+            if (!isFDroid) {
                 env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
                 if (
                     Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&

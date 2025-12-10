@@ -2,8 +2,11 @@ package com.rk.extension
 
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.compose.runtime.mutableStateMapOf
 import dalvik.system.PathClassLoader
 import java.io.File
+
+val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
 
 sealed interface Extension {
     val id: ExtensionId
@@ -42,12 +45,21 @@ data class LocalExtension(
     // Path where extension is installed
     val installPath: String,
 
-    // If it was installed as a dev extension (e.g. symlink or dev dir)
-    val isDevExtension: Boolean = false,
-
     // Whether it’s enabled / disabled by the user
     val enabled: Boolean = true,
 ) : Extension {
+    override fun equals(other: Any?): Boolean {
+        if (other !is LocalExtension) {
+            return false
+        }
+
+        return other.id == id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
     override val id
         get() = info.id
 

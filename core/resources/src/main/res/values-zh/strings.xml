@@ -498,4 +498,6 @@
     <string name="lsp_terminal_unavailable">由于终端环境不可用或无法正常运行，LSP 语言服务器功能将无法使用。</string>
     <string name="invalid_intent">接收到错误的 Intent 意图：\n%s</string>
     <string name="delete_failed">无法删除文件</string>
+    <string name="select_language">选择语言</string>
+    <string name="add_parent_command">添加父命令</string>
 </resources>

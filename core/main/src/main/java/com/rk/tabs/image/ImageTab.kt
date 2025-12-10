@@ -1,4 +1,4 @@
-package com.rk.tabs
+package com.rk.tabs.image
 
 import android.widget.ImageView
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import com.rk.activities.main.TabState
 import com.rk.file.FileObject
 import com.rk.icons.Photo
 import com.rk.icons.XedIcons
+import com.rk.tabs.base.Tab
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,7 +35,7 @@ class ImageTab(override val file: FileObject) : Tab() {
 
     @Composable
     override fun Content() {
-        Box(modifier = Modifier.fillMaxSize().clipToBounds()) {
+        Box(modifier = Modifier.Companion.fillMaxSize().clipToBounds()) {
             val scope = rememberCoroutineScope()
             AndroidView(
                 factory = { context ->

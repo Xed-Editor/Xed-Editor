@@ -58,7 +58,7 @@ import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice
 import com.rk.utils.toast
@@ -79,7 +79,6 @@ fun FileActionDialog(
     fileTreeViewModel: FileTreeViewModel,
 ) {
     val context = LocalContext.current
-    val activity = context as? MainActivity
     val scope = DefaultScope
 
     // State for various dialogs

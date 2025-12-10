@@ -18,10 +18,26 @@ data class PluginInfo(
     val screenshots: List<String> = emptyList(),
     val repository: String = "",
     val tags: List<String> = emptyList(),
-) : Serializable
+) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PluginInfo) return false
+        return id == other.id
+    }
+
+    override fun hashCode(): Int = id.hashCode()
+}
 
 data class CachedPlugin(
     val sha: String, // from GitHub
     val metadata: PluginInfo,
     val lastFetched: Long,
-) : Serializable
+) : Serializable {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CachedPlugin) return false
+        return sha == other.sha
+    }
+
+    override fun hashCode(): Int = sha.hashCode()
+}

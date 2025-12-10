@@ -43,6 +43,7 @@ object InbuiltFeatures {
     val terminal = Feature(nameRes = strings.terminal_feature, key = "feature_terminal", default = true)
     val mutators = Feature(nameRes = strings.mutators, key = "feature_mutators", default = true)
     val debugMode = Feature(nameRes = strings.debug_options, key = "expertMode", default = BuildConfig.DEBUG)
+    val extensions = Feature(nameRes = strings.ext, key = "enable_extension", default = false)
 }
 
 @Composable
@@ -125,6 +126,12 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 label = stringResource(InbuiltFeatures.mutators.nameRes),
                 default = InbuiltFeatures.mutators.state.value,
                 sideEffect = { InbuiltFeatures.mutators.setEnable(it) },
+            )
+
+            SettingsToggle(
+                label = stringResource(InbuiltFeatures.extensions.nameRes),
+                default = InbuiltFeatures.extensions.state.value,
+                sideEffect = { InbuiltFeatures.extensions.setEnable(it) },
             )
         }
     }

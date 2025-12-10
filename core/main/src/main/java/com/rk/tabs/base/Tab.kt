@@ -1,4 +1,4 @@
-package com.rk.tabs
+package com.rk.tabs.base
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
@@ -6,10 +6,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.activities.main.TabState
 import com.rk.file.FileObject
-import kotlin.random.Random.Default.nextInt
+import kotlin.random.Random
 
 abstract class Tab() {
-    var refreshKey: Int = nextInt()
+    var refreshKey: Int = Random.Default.nextInt()
     abstract val name: String
     abstract val icon: ImageVector
 

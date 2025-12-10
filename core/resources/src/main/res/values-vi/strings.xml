@@ -10,7 +10,7 @@
     <string name="open_directory">Mở thư mục</string>
     <string name="new_file">Tệp mới</string>
     <string name="new_file_hint">Tên tệp (vd: test.txt)</string>
-    <string name="mime">MIME type (vd: text/plain)</string>
+    <string name="mime">Kiểu MIME (vd: text/plain)</string>
     <string name="rep">Thay đổi</string>
     <string name="search_keyword">Tìm kiếm từ khóa</string>
     <string name="cs">Phân biệt chữ hoa chữ thường</string>
@@ -62,9 +62,9 @@
     <string name="warning_private_dir">Nội dung của thư mục này sẽ bị xóa nếu bạn xóa dữ liệu hoặc xóa Xed-Editor</string>
     <string name="toggle_word_wrap">Đóng/mở Word wrap</string>
     <string name="unrestricted_file">Mở tập tin kích thước bất kỳ</string>
-    <string name="unrestricted_file_desc">Cho phép mở tệp với bất kỳ kích thước nào. Có thể gây crash</string>
+    <string name="unrestricted_file_desc">Cho phép mở tệp với bất kỳ kích thước nào. Có thể gây crash.</string>
     <string name="suggest_clear_app_data">Nên xóa dữ liệu ứng dụng</string>
-    <string name="update_files_cleared">Ứng dụng đã cập nhật : Đã xóa dữ liệu</string>
+    <string name="update_files_cleared">Ứng dụng đã cập nhật: Dữ liệu đã bị xóa</string>
     <string name="close_drawer">Đóng</string>
     <string name="null_content">Lỗi: Content is null</string>
     <string name="restart_required">Yêu cầu khởi động lại</string>
@@ -114,7 +114,6 @@
     <string name="exists">Đã tồn tại!</string>
     <string name="private_files">Tệp riêng tư</string>
     <string name="private_files_desc">Tệp riêng tư của Xed-Editor</string>
-    <string name="cloning">Đang nhân bản kho lưu trữ…</string>
     <string name="error">Lỗi</string>
     <string name="open_dir_desc">Mở một thư mục sử dụng trình duyệt tệp của hệ thống</string>
     <string name="open_file_desc">Chọn một tệp để chỉnh sửa nó trực tiếp</string>
@@ -150,7 +149,7 @@
     <string name="saved">Đã lưu tệp</string>
     <string name="open_as_project">Mở dưới dạng project</string>
     <string name="delete_desc">Xóa vĩnh viễn tài liệu</string>
-    <string name="open_cant">Không thể mở nhiều hơn</string>
+    <string name="open_cant">Không thể mở hơn</string>
     <string name="editor_font_desc">Chọn phông chữ cho editor</string>
     <string name="version">Phiên bản</string>
     <string name="version_code">Mã phiên bản</string>
@@ -168,4 +167,6 @@
     <string name="launch">Khởi chạy</string>
     <string name="join">Tham gia</string>
     <string name="file_too_large">Tệp quá béo, không thể mở</string>
+    <string name="about">Về ứng dụng</string>
+    <string name="about_desc">Về Xed-Editor</string>
 </resources>

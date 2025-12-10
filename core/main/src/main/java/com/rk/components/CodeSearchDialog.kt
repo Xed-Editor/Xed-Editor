@@ -56,7 +56,7 @@ import com.rk.lsp.goToTabAndSelect
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.currentTheme
 import com.rk.utils.getSelectionColor
 import com.rk.utils.isDarkMode

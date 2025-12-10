@@ -270,4 +270,11 @@
     <string name="add_font">Προσθήκη νέας γραμματοσειράς</string>
     <string name="add_font_desc">Επιλογή γραμματοσειράς TTF από χώρο αποθήκευσης</string>
     <string name="file_not_saved">Ορισμένα αρχεία δεν έχουν αποθηκευτεί</string>
+    <string name="file_unsaved">Το αρχείο δεν αποθηκεύτηκε</string>
+    <string name="ask_unsaved">Είστε σίγουροι ότι θέλετε να απορρίψετε αυτό το μη αποθηκευμένο έγγραφο;</string>
+    <string name="keep_editing">Συνέχεια επεξεργασίας</string>
+    <string name="discard">Απόρριψη</string>
+    <string name="warning">Προειδοποίηση</string>
+    <string name="encoding_warning">Η αλλαγή της προεπιλεγμένης κωδικοποίησης δεν συνιστάται ιδιαίτερα, καθώς μπορεί να οδηγήσει σε καταστροφή αρχείων. Συνιστάται ανεπιφύλακτα η χρήση UTF-8, εκτός εάν κατανοείτε πλήρως τις συνέπειες και έχετε δημιουργήσει κατάλληλα αντίγραφα ασφαλείας.</string>
+    <string name="line_spacing">Απόσταση γραμμών</string>
 </resources>

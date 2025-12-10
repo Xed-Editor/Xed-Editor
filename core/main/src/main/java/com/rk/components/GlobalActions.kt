@@ -16,6 +16,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -31,10 +32,10 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.navigationDrawerState
 import com.rk.activities.settings.SettingsActivity
 import com.rk.commands.CommandProvider
+import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
-import com.rk.file.persistentTempDir
 import com.rk.file.toFileObject
 import com.rk.filetree.currentProject
 import com.rk.icons.CreateNewFile
@@ -44,8 +45,8 @@ import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.errorDialog
-import com.rk.utils.toast
-import kotlinx.coroutines.isActive
+import com.rk.utils.getTempDir
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 var addDialog by mutableStateOf(false)
@@ -57,6 +58,7 @@ var codeSearchDialog by mutableStateOf(false)
 fun RowScope.GlobalActions(viewModel: MainViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var tempFileNameDialog by remember { mutableStateOf(false) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         IconButton(onClick = { addDialog = true }) { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) }
@@ -104,27 +106,20 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         ModalBottomSheet(onDismissRequest = { addDialog = false }) {
             Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
                 AddDialogItem(icon = drawables.file, title = stringResource(strings.temp_file)) {
-                    DefaultScope.launch {
-                        var tempFile: FileWrapper? = null
-                        var index = 0
+                    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    intent.addCategory(Intent.CATEGORY_OPENABLE)
+                    intent.setType("application/octet-stream")
+                    intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
 
-                        while (tempFile == null && isActive && index < 10) {
-                            val candidate = FileWrapper(persistentTempDir().child("Temp$index"))
-                            if (!viewModel.isEditorTabOpened(candidate)) {
-                                tempFile = candidate
-                            } else {
-                                index++
-                            }
-                        }
+                    val activities =
+                        application!!.packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
 
-                        if (tempFile != null) {
-                            tempFile.createFileIfNot()
-
-                            viewModel.newTab(fileObject = tempFile, checkDuplicate = true, switchToTab = true)
-                        } else {
-                            toast("Temp file limit reached")
-                        }
+                    if (activities.isEmpty()) {
+                        errorDialog(strings.unsupported_feature)
+                    } else {
+                        tempFileNameDialog = true
                     }
+
                     addDialog = false
                 }
 
@@ -170,5 +165,62 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                 }
             }
         }
+    }
+
+    if (tempFileNameDialog) {
+        var fileName by remember { mutableStateOf("untitled.txt") }
+
+        fun getUniqueFileName(baseName: String): String {
+            val tempDir = getTempDir().child("temp_editor")
+            val extension = baseName.substringAfterLast('.', "")
+            val nameWithoutExt = baseName.substringBeforeLast('.', baseName)
+
+            // Check if base name is available
+            if (!tempDir.child(baseName).exists()) {
+                return baseName
+            }
+
+            // Find next available number
+            var counter = 1
+            var uniqueName: String
+            do {
+                uniqueName =
+                    if (extension.isNotEmpty()) {
+                        "${nameWithoutExt}${counter}.${extension}"
+                    } else {
+                        "${nameWithoutExt}${counter}"
+                    }
+                counter++
+            } while (tempDir.child(uniqueName).exists())
+
+            return uniqueName
+        }
+
+        fun getUniqueTempFile(): FileObject {
+            val uniqueName = getUniqueFileName(fileName)
+            fileName = uniqueName // Update the state with the unique name
+
+            // do not change getTempDir().child("temp_editor") it used for checking in editor tab
+            return FileWrapper(getTempDir().child("temp_editor").child(uniqueName))
+        }
+
+        val tempFile = getUniqueTempFile()
+
+        SingleInputDialog(
+            title = stringResource(strings.temp_file),
+            inputValue = fileName,
+            onInputValueChange = { fileName = it },
+            onConfirm = {
+                DefaultScope.launch(Dispatchers.IO) {
+                    tempFileNameDialog = false
+                    tempFile.createFileIfNot()
+                    viewModel.newTab(tempFile, switchToTab = true)
+                }
+            },
+            onDismiss = { tempFileNameDialog = false },
+            singleLineMode = true,
+            confirmText = stringResource(strings.ok),
+            inputLabel = stringResource(strings.file_name),
+        )
     }
 }

@@ -3,13 +3,14 @@ package com.rk.exec
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import com.rk.App
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
 import com.rk.utils.application
+import com.rk.utils.getTempDir
+import com.rk.utils.isFDroid
 import com.rk.xededitor.BuildConfig
 import java.io.File
 import java.io.IOException
@@ -64,7 +65,7 @@ fun getDefaultBindings(): List<Binding> {
         bind("/linkerconfig/com.android.art/ld.config.txt")
         bind("/plat_property_contexts", "/property_contexts")
         bind("/sys")
-        bind("${App.getTempDir().absolutePath}", "/dev/shm")
+        bind("${getTempDir().absolutePath}", "/dev/shm")
     }
 
     return list
@@ -80,7 +81,7 @@ suspend fun ubuntuProcess(
         if (!root.exists()) throw NoSuchFileException(root)
 
         val randomInt = Random.nextInt()
-        val tmpDir = App.getTempDir().child("$randomInt-sandbox")
+        val tmpDir = getTempDir().child("$randomInt-sandbox")
         if (!tmpDir.exists()) {
             tmpDir.mkdirs()
         }
@@ -125,7 +126,7 @@ suspend fun ubuntuProcess(
             env["PATH"] =
                 "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}:${System.getenv("PATH")}"
 
-            if (!App.isFDroid) {
+            if (!isFDroid) {
                 env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader.so"
                 if (
                     Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
