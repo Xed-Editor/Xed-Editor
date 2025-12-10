@@ -15,6 +15,7 @@ import com.blankj.utilcode.util.ThreadUtils
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import java.io.File
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -172,4 +173,17 @@ fun getSourceDirOfPackage(context: Context, packageName: String): String? {
     } catch (e: PackageManager.NameNotFoundException) {
         null // App not found
     }
+}
+
+fun getTempDir(): File {
+    val tmp = File(application!!.filesDir.parentFile, "tmp")
+    if (!tmp.exists()) {
+        tmp.mkdir()
+    }
+    return tmp
+}
+
+val isFDroid by lazy {
+    val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
+    targetSdkVersion == 28
 }

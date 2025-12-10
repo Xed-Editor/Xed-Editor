@@ -24,7 +24,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialog
 import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice

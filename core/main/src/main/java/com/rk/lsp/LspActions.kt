@@ -29,7 +29,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.currentTheme
 import com.rk.utils.isDarkMode
 import com.rk.utils.toast

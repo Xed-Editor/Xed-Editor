@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import com.rk.App.Companion.getTempDir
 import com.rk.SessionService
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
@@ -51,6 +50,7 @@ import com.rk.terminal.getPwd
 import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
+import com.rk.utils.getTempDir
 import com.rk.utils.toast
 import java.io.File
 import java.lang.ref.WeakReference

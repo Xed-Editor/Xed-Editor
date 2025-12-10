@@ -13,6 +13,8 @@ import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)
@@ -100,19 +102,20 @@ object Preference {
     private val floatCache = mutableMapOf<String, WeakReference<Float>>()
 
     // Preload all settings at startup
-    fun preloadAllSettings() {
-        // This will force all settings to be loaded into cache
-        // The weak references will allow GC if settings aren't used
-        Settings::class.members.forEach { member ->
-            if (member is KProperty<*>) {
-                try {
-                    member.getter.call(Settings)
-                } catch (e: Exception) {
-                    // Ignore - some properties might not be accessible
+    suspend fun preloadAllSettings() =
+        withContext(Dispatchers.IO) {
+            // This will force all settings to be loaded into cache
+            // The weak references will allow GC if settings aren't used
+            Settings::class.members.forEach { member ->
+                if (member is KProperty<*>) {
+                    try {
+                        member.getter.call(Settings)
+                    } catch (e: Exception) {
+                        // Ignore - some properties might not be accessible
+                    }
                 }
             }
         }
-    }
 
     @SuppressLint("ApplySharedPref")
     fun clearData() {

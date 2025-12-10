@@ -20,8 +20,8 @@ import com.rk.settings.Settings
 import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
 import com.rk.theme.updateThemes
 import com.rk.utils.application
+import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
-import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executors
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -32,19 +32,6 @@ import kotlinx.coroutines.launch
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
     companion object {
-        fun getTempDir(): File {
-            val tmp = File(application!!.cacheDir.parentFile, "tmp")
-            if (!tmp.exists()) {
-                tmp.mkdir()
-            }
-            return tmp
-        }
-
-        val isFDroid by lazy {
-            val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
-            targetSdkVersion == 28
-        }
-
         private var _extensionManager: ExtensionManager? = null
         val extensionManager: ExtensionManager
             get() {
@@ -93,9 +80,7 @@ class App : Application() {
                 }
             }
 
-            if (Settings.restore_sessions) {
-                launch(Dispatchers.IO) { Preference.preloadAllSettings() }
-            }
+            launch(Dispatchers.IO) { Preference.preloadAllSettings() }
 
             launch { DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir) }
 

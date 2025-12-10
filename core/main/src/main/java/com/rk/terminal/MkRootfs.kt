@@ -1,10 +1,10 @@
 package com.rk.terminal
 
 import android.content.Context
-import com.rk.App.Companion.getTempDir
 import com.rk.file.child
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
+import com.rk.utils.getTempDir
 import com.rk.utils.isMainThread
 import java.io.File
 import kotlinx.coroutines.CoroutineScope

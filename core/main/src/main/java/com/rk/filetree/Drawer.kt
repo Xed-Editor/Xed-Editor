@@ -101,7 +101,7 @@ suspend fun saveProjects() {
         withContext(Dispatchers.IO) {
             currentProject?.getAbsolutePath()?.let { Settings.selectedProject = it }
 
-            val file = application!!.cacheDir.child("projects")
+            val file = application!!.filesDir.child("projects")
 
             ObjectOutputStream(FileOutputStream(file)).use { oos -> oos.writeObject(projects.map { it.fileObject }) }
         }
@@ -112,7 +112,7 @@ suspend fun restoreProjects() {
     mutex.withLock {
         withContext(Dispatchers.IO) {
             runCatching {
-                    val file = application!!.cacheDir.child("projects")
+                    val file = application!!.filesDir.child("projects")
                     if (file.exists() && file.canRead()) {
                         ObjectInputStream(FileInputStream(file)).use { ois ->
                             val list = mutableStateListOf<FileObjectWrapper>()

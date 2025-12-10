@@ -11,7 +11,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.rk.App
 import com.rk.DocumentProvider
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
@@ -35,6 +34,7 @@ import com.rk.terminal.terminalView
 import com.rk.utils.LoadingPopup
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
+import com.rk.utils.getTempDir
 import com.rk.utils.toast
 import java.io.File
 import java.io.FileInputStream
@@ -100,7 +100,7 @@ fun SettingsTerminalScreen() {
                     GlobalScope.launch(Dispatchers.IO) {
                         val fileObject = uri.toFileObject(expectedIsFile = true)
 
-                        val tempFile = App.getTempDir().child("terminal-backup.tar.gz")
+                        val tempFile = getTempDir().child("terminal-backup.tar.gz")
 
                         fileObject.getInputStream().use { inputStream ->
                             FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
@@ -148,7 +148,7 @@ fun SettingsTerminalScreen() {
                     ) { fileObject ->
                         GlobalScope.launch(Dispatchers.IO) {
                             if (fileObject != null) {
-                                val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
+                                val targetFile = getTempDir().child("terminal-backup.tar.gz")
 
                                 fileObject.getInputStream().use { inputStream ->
                                     FileOutputStream(targetFile).use { outputStream ->
