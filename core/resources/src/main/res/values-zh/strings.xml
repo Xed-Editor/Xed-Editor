@@ -498,4 +498,24 @@
     <string name="lsp_terminal_unavailable">由于终端环境不可用或无法正常运行，LSP 语言服务器功能将无法使用。</string>
     <string name="invalid_intent">接收到错误的 Intent 意图：\n%s</string>
     <string name="delete_failed">无法删除文件</string>
+    <string name="select_language">选择语言</string>
+    <string name="add_parent_command">添加父命令</string>
+    <string name="jump_to_line">跳转到行</string>
+    <string name="line_number">行数</string>
+    <string name="search_file_folder">在项目中搜索文件</string>
+    <string name="search_code">在项目中搜索代码</string>
+    <string name="incompatible_theme_warning">此主题与当前版本的 Xed-Editor 不兼容。是否仍要继续？</string>
+    <string name="theme_install_failed">主题安装失败</string>
+    <string name="theme_id_missing">JSON 文件中未指定有效的主题 ID。请添加主题 ID 并重试。</string>
+    <string name="theme_name_missing">JSON 文件中未指定有效的主题名称。请添加主题名称后重试。</string>
+    <string name="theme_version_missing">JSON 文件未指定有效的目标版本。请添加目标版本并重试。</string>
+    <string name="enter_code_snippet">输入代码片段</string>
+    <string name="empty_code_results">输入搜索查询以在文件中查找</string>
+    <string name="no_results">未找到结果</string>
+    <string name="results">找到 %d 个结果</string>
+    <string name="enter_name">输入名称</string>
+    <string name="show_hidden_files_drawer">在侧滑栏中显示隐藏的文件</string>
+    <string name="show_hidden_files_drawer_desc">在侧滑栏中显示隐藏的文件或目录，例如 .git 文件夹</string>
+    <string name="show_hidden_files_search">在搜索中显示隐藏的文件</string>
+    <string name="show_hidden_files_search_desc">在搜索结果中显示隐藏的文件或目录</string>
 </resources>

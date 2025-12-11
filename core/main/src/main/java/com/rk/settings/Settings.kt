@@ -13,6 +13,8 @@ import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)
@@ -55,6 +57,8 @@ object Settings {
     var themeFlipper by CachedPreference("theme_flipper", false)
     var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
     var format_on_save by CachedPreference("format_on_save", false)
+    var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
+    var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
@@ -100,19 +104,20 @@ object Preference {
     private val floatCache = mutableMapOf<String, WeakReference<Float>>()
 
     // Preload all settings at startup
-    fun preloadAllSettings() {
-        // This will force all settings to be loaded into cache
-        // The weak references will allow GC if settings aren't used
-        Settings::class.members.forEach { member ->
-            if (member is KProperty<*>) {
-                try {
-                    member.getter.call(Settings)
-                } catch (e: Exception) {
-                    // Ignore - some properties might not be accessible
+    suspend fun preloadAllSettings() =
+        withContext(Dispatchers.IO) {
+            // This will force all settings to be loaded into cache
+            // The weak references will allow GC if settings aren't used
+            Settings::class.members.forEach { member ->
+                if (member is KProperty<*>) {
+                    try {
+                        member.getter.call(Settings)
+                    } catch (e: Exception) {
+                        // Ignore - some properties might not be accessible
+                    }
                 }
             }
         }
-    }
 
     @SuppressLint("ApplySharedPref")
     fun clearData() {

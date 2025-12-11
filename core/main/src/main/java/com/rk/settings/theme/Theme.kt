@@ -43,7 +43,7 @@ import com.rk.file.themeDir
 import com.rk.file.toFileObject
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.ThemeHolder
 import com.rk.theme.amoled
 import com.rk.theme.blueberry

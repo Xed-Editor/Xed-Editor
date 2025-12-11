@@ -96,4 +96,23 @@
     <string name="file_not_saved">برخی فایل ها ذخیره نشده اند</string>
     <string name="file_unsaved">فایل ذخیره نشده است</string>
     <string name="ignore">نادیده گرفتن</string>
+    <string name="insert_date">وارد کردن تاریخ</string>
+    <string name="restart">راه اندازی مجدد</string>
+    <string name="refresh">بارگیری مجدد</string>
+    <string name="terminal">ترمینال</string>
+    <string name="add_file">اضافه کردن فایل خارجی</string>
+    <string name="open_as_project">باز کردن به عنوان پروژه</string>
+    <string name="title">عنوان</string>
+    <string name="description">توضیحات</string>
+    <string name="apply">اعمال کردن</string>
+    <string name="open_in_terminal">باز کردن در ترمینال</string>
+    <string name="view_github_profile">مشاهده پروفایل گیت‌هاب</string>
+    <string name="name">نام</string>
+    <string name="type">نوع</string>
+    <string name="new_name">نام جدید</string>
+    <string name="rename_file">تغییر نام فایل</string>
+    <string name="uninstall_terminal">حذف ترمینال</string>
+    <string name="uninstall">حذف نصب</string>
+    <string name="install">نصب</string>
+    <string name="dont_ask_again">دوباره نپرس</string>
 </resources>

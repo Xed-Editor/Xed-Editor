@@ -14,9 +14,9 @@ import com.rk.file.child
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
-import com.rk.tabs.Tab
-import com.rk.tabs.TabRegistry
+import com.rk.tabs.base.Tab
+import com.rk.tabs.base.TabRegistry
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
 import com.rk.utils.dialog
 import com.rk.utils.expectOOM
@@ -56,7 +56,7 @@ data class SessionState(val tabStates: List<TabState>, val currentTabIndex: Int)
 object SessionManager {
     val mutex = Mutex()
     var preloadedSession: SessionState? = null
-    var tabCacheFile = application!!.cacheDir.child("session")
+    var tabCacheFile = application!!.filesDir.child("session")
 
     suspend fun preloadSession() =
         mutex.withLock {
@@ -119,11 +119,19 @@ class MainViewModel : ViewModel() {
      * restores each tab, and sets the active tab index.
      */
     private fun restoreTabs() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             SessionManager.mutex.withLock {
                 val session = SessionManager.preloadedSession ?: return@launch
 
-                val deferredRestoredTabs = session.tabStates.mapNotNull { tabState -> getTabFromState(tabState) }
+                val deferredRestoredTabs =
+                    session.tabStates
+                        .mapNotNull { tabState -> getTabFromState(tabState) }
+                        .filter {
+                            if (it is EditorTab) {
+                                return@filter it.file.exists() && it.file.canRead()
+                            }
+                            true
+                        }
 
                 tabs.addAll(deferredRestoredTabs)
 

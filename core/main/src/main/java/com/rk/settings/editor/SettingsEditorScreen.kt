@@ -20,7 +20,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 
@@ -255,6 +255,20 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.drawer_lock_desc),
                 default = Settings.keep_drawer_locked,
                 sideEffect = { Settings.keep_drawer_locked = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_drawer),
+                description = stringResource(id = strings.show_hidden_files_drawer_desc),
+                default = Settings.show_hidden_files_drawer,
+                sideEffect = { Settings.show_hidden_files_drawer = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_search),
+                description = stringResource(id = strings.show_hidden_files_search_desc),
+                default = Settings.show_hidden_files_search,
+                sideEffect = { Settings.show_hidden_files_search = it },
             )
 
             EditorSettingsToggle(

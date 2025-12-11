@@ -499,4 +499,24 @@
     <string name="lsp_terminal_unavailable">Funkcje serwerów językowych nie zadziałają ponieważ środowisko terminalu jest niedostępne lub nie działa.</string>
     <string name="invalid_intent">Otrzymano nieprawidłowy zamiar:\n%s</string>
     <string name="delete_failed">Nie można usunąć pliku</string>
+    <string name="select_language">Wybierz język</string>
+    <string name="add_parent_command">Dodaj polecenie nadrzędne</string>
+    <string name="jump_to_line">Idź do linijki</string>
+    <string name="line_number">Numer linijki</string>
+    <string name="search_file_folder">Szukaj plików w projekcie</string>
+    <string name="search_code">Szukaj kodu w projekcie</string>
+    <string name="incompatible_theme_warning">Motyw nie jest kompatybilny z zainstalowaną wersją aplikacji. Kontynuować?</string>
+    <string name="theme_install_failed">Instalacja motywu zakończona niepowodzeniem</string>
+    <string name="theme_id_missing">Plik JSON nie posiada prawidłowego ID motywu. Proszę, dodaj ID oraz spróbuj ponownie.</string>
+    <string name="theme_name_missing">Plik JSON nie posiada prawidłowej nazwy motywu. Proszę, dodaj nazwę oraz spróbuj ponownie.</string>
+    <string name="theme_version_missing">Plik JSON nie określa prawidłowej wersji. Proszę, określ wersję oraz spróbuj ponownie.</string>
+    <string name="enter_code_snippet">Wprowadź fragment kodu</string>
+    <string name="empty_code_results">Wprowadź zapytanie aby wyszukać w plikach</string>
+    <string name="no_results">Brak wyników</string>
+    <string name="results">Znaleziono: %d</string>
+    <string name="enter_name">Wprowadź nazwę</string>
+    <string name="show_hidden_files_drawer">Pokaż ukryte pliki w szufladzie</string>
+    <string name="show_hidden_files_drawer_desc">Pokaż ukryte pliki oraz foldery jak .git w szufladzie</string>
+    <string name="show_hidden_files_search">Pokaż ukryte pliki w wyszukiwarce</string>
+    <string name="show_hidden_files_search_desc">Pokaż ukryte pliki lub foldery jak .git w wyszukiwarce</string>
 </resources>

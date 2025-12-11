@@ -497,4 +497,24 @@
     <string name="lsp_terminal_unavailable">LSP dil özellikleri, terminal ortamı kullanılamadığı veya işlevsel olmadığı için çalışmayacaktır.</string>
     <string name="invalid_intent">Geçersiz istek alındı:\n%s</string>
     <string name="delete_failed">Dosya silinemiyor</string>
+    <string name="select_language">Dil seç</string>
+    <string name="add_parent_command">Üst komut ekle</string>
+    <string name="jump_to_line">Satıra atla</string>
+    <string name="line_number">Satır numarası</string>
+    <string name="search_file_folder">Projede dosya ara</string>
+    <string name="search_code">Projede kod ara</string>
+    <string name="incompatible_theme_warning">Bu tema, Xed-Editor\'ün mevcut sürümüyle uyumlu değil. Yine de devam etmek istiyor musunuz?</string>
+    <string name="theme_install_failed">Tema kurulumu başarısız oldu</string>
+    <string name="theme_id_missing">JSON dosyası geçerli bir tema kimliği belirtmiyor. Lütfen bir tane ekleyip tekrar deneyin.</string>
+    <string name="theme_name_missing">JSON dosyası geçerli bir tema adı belirtmiyor. Lütfen bir tane ekleyin ve tekrar deneyin.</string>
+    <string name="theme_version_missing">JSON dosyası geçerli bir hedef sürüm belirtmiyor. Lütfen bir tane ekleyin ve tekrar deneyin.</string>
+    <string name="enter_code_snippet">Kod parçacığı girin</string>
+    <string name="empty_code_results">Dosyalarda bulmak için bir arama sorgusu girin</string>
+    <string name="no_results">Sonuç bulunamadı</string>
+    <string name="results">%d sonuç bulundu</string>
+    <string name="enter_name">Ad giriniz</string>
+    <string name="show_hidden_files_drawer">Gizli dosyaları çekmecede göster</string>
+    <string name="show_hidden_files_drawer_desc">Gizli dosya veya klasörleri (.git gibi) çekmecede göster</string>
+    <string name="show_hidden_files_search">Arama sonuçlarında gizli dosyaları göster</string>
+    <string name="show_hidden_files_search_desc">Gizli dosyaları veya klasörleri arama sonuçlarında göster</string>
 </resources>

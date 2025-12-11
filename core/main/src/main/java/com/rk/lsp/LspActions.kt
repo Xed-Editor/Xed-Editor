@@ -4,18 +4,10 @@ import android.content.Context
 import android.graphics.Typeface
 import android.net.Uri
 import android.text.Spannable
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.text.style.StrikethroughSpan
-import android.text.style.StyleSpan
-import android.text.style.UnderlineSpan
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
 import com.rk.activities.main.MainViewModel
 import com.rk.components.CodeItem
@@ -29,9 +21,11 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.currentTheme
+import com.rk.utils.getSelectionColor
 import com.rk.utils.isDarkMode
+import com.rk.utils.toAnnotatedString
 import com.rk.utils.toast
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
@@ -74,34 +68,6 @@ fun fixHomeLocation(context: Context, uri: String): String {
     return fixedPath?.let { Uri.fromFile(it).toString() } ?: uri
 }
 
-/** Converts a [Spanned] text object to an [AnnotatedString]. */
-private fun Spanned.toAnnotatedString(): AnnotatedString {
-    val builder = AnnotatedString.Builder(this.toString())
-    val spans = getSpans(0, length, Any::class.java)
-    spans.forEach { span ->
-        val start = getSpanStart(span)
-        val end = getSpanEnd(span)
-        val style =
-            when (span) {
-                is ForegroundColorSpan -> SpanStyle(color = androidx.compose.ui.graphics.Color(span.foregroundColor))
-                is StyleSpan ->
-                    when (span.style) {
-                        Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
-                        Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
-                        Typeface.BOLD_ITALIC -> SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
-                        else -> null
-                    }
-                is UnderlineSpan -> SpanStyle(textDecoration = TextDecoration.Underline)
-                is StrikethroughSpan -> SpanStyle(textDecoration = TextDecoration.LineThrough)
-                else -> null
-            }
-        if (style != null) {
-            builder.addStyle(style, start, end)
-        }
-    }
-    return builder.toAnnotatedString()
-}
-
 /**
  * Generates a text portion of the line in the provided file that contains the range.
  *
@@ -124,7 +90,7 @@ suspend fun generateSnippet(
             if (openedTab != null) {
                 openedTab.editorState.editor.get()?.text.toString().lines()
             } else {
-                targetFile.getInputStream().bufferedReader().use { it.readLines() }
+                targetFile.readText()?.lines() ?: emptyList()
             }
 
         val targetLine = lines[range.start.line]
@@ -143,7 +109,7 @@ suspend fun generateSnippet(
                 codeTypeface = Typeface.MONOSPACE,
             )
 
-        val highlightedAnnotated = (highlightedSpanned as Spannable).toAnnotatedString()
+        val highlightedAnnotated = (highlightedSpanned as? Spannable)?.toAnnotatedString() ?: highlightedSpanned
 
         val editorColors =
             if (isDarkMode(context)) {
@@ -153,7 +119,7 @@ suspend fun generateSnippet(
             }
         val selectionColor =
             editorColors?.find { it.key == EditorColorScheme.SELECTED_TEXT_BACKGROUND }?.color?.let { Color(it) }
-                ?: Color.Unspecified
+                ?: getSelectionColor()
 
         buildAnnotatedString {
             append(highlightedAnnotated)

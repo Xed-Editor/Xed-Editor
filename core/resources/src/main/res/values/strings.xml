@@ -58,7 +58,6 @@
     <string name="refresh">Reload</string>
     <string name="dir_example">Name (e.g. Test)</string>
     <string name="create">Create</string>
-    <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
     <string name="ask_del">Are you sure you want to permanently delete \'%s\'?</string>
@@ -496,4 +495,22 @@
     <string name="lsp_terminal_unavailable">LSP language features will not work because the terminal environment is unavailable or not functioning.</string>
     <string name="invalid_intent">Received invalid intent:\n%s</string>
     <string name="add_parent_command">Add parent command</string>
+    <string name="jump_to_line">Jump to line</string>
+    <string name="line_number">Line number</string>
+    <string name="search_file_folder">Search files in project</string>
+    <string name="search_code">Search code in project</string>
+    <string name="incompatible_theme_warning">This theme is not compatible with your current version of Xed-Editor. Would you like to proceed anyway?</string>
+    <string name="theme_install_failed">Theme installation failed</string>
+    <string name="theme_id_missing">JSON file does not specify a valid theme ID. Please add one and try again.</string>
+    <string name="theme_name_missing">JSON file does not specify a valid theme name. Please add one and try again.</string>
+    <string name="theme_version_missing">JSON file does not specify a valid target version. Please add one and try again.</string>
+    <string name="enter_code_snippet">Enter a code snippet</string>
+    <string name="empty_code_results">Enter a search query to find in files</string>
+    <string name="no_results">No results found</string>
+    <string name="results">%d results found</string>
+    <string name="enter_name">Enter a name</string>
+    <string name="show_hidden_files_drawer">Show hidden files in drawer</string>
+    <string name="show_hidden_files_drawer_desc">Show hidden files or folders like .git in the drawer</string>
+    <string name="show_hidden_files_search">Show hidden files in search</string>
+    <string name="show_hidden_files_search_desc">Show hidden files or folders in the search results</string>
 </resources>

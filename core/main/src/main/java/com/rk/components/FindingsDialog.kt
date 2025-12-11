@@ -90,6 +90,7 @@ fun CodeItemRow(item: CodeItem, onClick: () -> Unit) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.width(8.dp))
