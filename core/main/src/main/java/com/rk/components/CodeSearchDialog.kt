@@ -288,9 +288,9 @@ fun CodeSearchDialog(viewModel: MainViewModel, projectFile: FileObject, onFinish
                             modifier =
                                 Modifier.addIf(isHidden) { Modifier.alpha(0.5f) }.padding(top = 8.dp, bottom = 4.dp),
                         ) {
-                            FileIcon(file = fileObject)
+                            FileIcon(file = fileObject, iconTint = MaterialTheme.colorScheme.primary)
 
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
 
                             Text(
                                 text = fileObject.getName(),
