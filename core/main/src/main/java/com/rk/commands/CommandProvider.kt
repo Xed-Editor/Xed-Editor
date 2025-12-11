@@ -240,6 +240,7 @@ object CommandProvider {
                 action = { vm, act ->
                     DefaultScope.launch {
                         val currentTab = vm.currentTab as? EditorTab ?: return@launch
+                        getForId("editor.save")?.action?.invoke(vm, act)
                         Runner.run(
                             context = act!!,
                             fileObject = currentTab.file,
@@ -356,7 +357,7 @@ object CommandProvider {
                 action = { vm, _ ->
                     val currentTab = vm.currentTab as? EditorTab ?: return@Command
                     currentTab.editorState.isWrapping = true
-                    currentTab.editorState.editor.get()?.apply { isWordwrap = !isWordwrap }
+                    currentTab.editorState.editor.get()?.apply { setWordwrap(!isWordwrap, true, true) }
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
