@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.resources.drawables
+import com.rk.settings.Settings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -49,6 +50,9 @@ fun FileTreeNodeItem(
     onFileLongClick: (FileTreeNode) -> Unit,
     viewModel: FileTreeViewModel,
 ) {
+    val isHidden = node.file.getName().startsWith(".")
+    if (isHidden && !Settings.show_hidden_files_drawer) return
+
     val isExpanded = viewModel.isNodeExpanded(node.file)
     val horizontalPadding = (depth * 16).dp
 
@@ -133,7 +137,7 @@ fun FileTreeNodeItem(
                 Spacer(modifier = Modifier.width(24.dp))
             }
 
-            FileIcon(node.file)
+            Box(modifier = Modifier.addIf(isHidden) { Modifier.alpha(0.5f) }) { FileIcon(node.file) }
 
             Spacer(modifier = Modifier.width(8.dp))
 

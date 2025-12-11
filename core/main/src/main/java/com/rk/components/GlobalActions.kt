@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +28,8 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.navigationDrawerState
 import com.rk.activities.settings.SettingsActivity
 import com.rk.commands.CommandProvider
 import com.rk.file.FileObject
@@ -34,6 +37,7 @@ import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.toFileObject
+import com.rk.filetree.currentProject
 import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
@@ -46,11 +50,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 var addDialog by mutableStateOf(false)
+var fileSearchDialog by mutableStateOf(false)
+var codeSearchDialog by mutableStateOf(false)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowScope.GlobalActions(viewModel: MainViewModel) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
@@ -72,6 +79,27 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         ) {
             Icon(imageVector = Icons.Outlined.Settings, contentDescription = null)
         }
+    }
+
+    if (fileSearchDialog) {
+        FileSearchDialog(
+            projectFile = currentProject!!,
+            onFinish = { fileSearchDialog = false },
+            onSelect = { projectFile, fileObject ->
+                scope.launch {
+                    if (fileObject.isFile()) {
+                        viewModel.newTab(fileObject = fileObject, checkDuplicate = true, switchToTab = true)
+                    } else {
+                        fileTreeViewModel.get()?.goToFolder(projectFile, fileObject)
+                        navigationDrawerState.get()!!.open()
+                    }
+                }
+            },
+        )
+    }
+
+    if (codeSearchDialog) {
+        CodeSearchDialog(viewModel = viewModel, projectFile = currentProject!!, onFinish = { codeSearchDialog = false })
     }
 
     if (addDialog) {

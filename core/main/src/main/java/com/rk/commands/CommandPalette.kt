@@ -196,7 +196,7 @@ fun CommandItem(
                 ),
             verticalPadding = 8.dp,
             title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     val icon = command.icon.value
                     Icon(
                         painter = painterResource(id = icon),
@@ -204,16 +204,22 @@ fun CommandItem(
                         modifier = Modifier.padding(end = 8.dp).size(16.dp),
                     )
 
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
-                            Text(text = command.label.value)
+                            Text(
+                                text = command.label.value,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f),
+                            )
                             if (recentlyUsed) {
                                 Text(
                                     text = stringResource(strings.recently_used),
                                     fontFamily = FontFamily.Monospace,
                                     fontSize = 10.sp,
                                     color = MaterialTheme.colorScheme.primary,
+                                    maxLines = 1,
                                     modifier = Modifier.padding(start = 8.dp),
                                 )
                             }

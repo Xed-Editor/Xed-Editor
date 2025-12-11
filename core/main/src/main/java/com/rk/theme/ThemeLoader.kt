@@ -4,15 +4,21 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.graphics.toColorInt
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.rk.activities.settings.SettingsActivity
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.themeDir
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.settings.theme.themes
+import com.rk.utils.application
+import com.rk.utils.dialog
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import java.io.FileInputStream
@@ -20,9 +26,6 @@ import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.Properties
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.iterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -44,23 +47,57 @@ suspend fun loadConfigFromJson(file: FileObject): ThemeConfig? =
 suspend fun ThemeConfig.installTheme() =
     withContext(Dispatchers.IO) {
         if (id == null) {
-            toast("Please specify a theme ID.")
+            dialog(
+                context = SettingsActivity.instance,
+                title = strings.theme_install_failed.getString(),
+                msg = strings.theme_id_missing.getString(),
+                cancelable = false,
+            )
             return@withContext
         }
 
         if (name == null) {
-            toast("Please specify a theme name.")
+            dialog(
+                context = SettingsActivity.instance,
+                title = strings.theme_install_failed.getString(),
+                msg = strings.theme_name_missing.getString(),
+                cancelable = false,
+            )
             return@withContext
         }
 
         if (targetVersion == null) {
-            toast("Please specify a valid targetVersion.")
+            dialog(
+                context = SettingsActivity.instance,
+                title = strings.theme_install_failed.getString(),
+                msg = strings.theme_version_missing.getString(),
+                cancelable = false,
+            )
             return@withContext
         }
 
-        val themeFile = themeDir().child(this@installTheme.name)
-        ObjectOutputStream(FileOutputStream(themeFile)).use { out -> out.writeObject(this@installTheme) }
+        val packageName = application!!.packageName
+        val packageManager = application!!.packageManager
+        val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
+        if (targetVersion.toLong() != currentVersionCode) {
+            dialog(
+                context = SettingsActivity.instance,
+                title = strings.warning.getString(),
+                msg = strings.incompatible_theme_warning.getString(),
+                cancelString = strings.cancel,
+                okString = strings.continue_action,
+                onOk = { finishThemeInstall(name) },
+            )
+            return@withContext
+        }
+
+        finishThemeInstall(name)
     }
+
+private fun ThemeConfig.finishThemeInstall(name: String) {
+    val themeFile = themeDir().child(name)
+    ObjectOutputStream(FileOutputStream(themeFile)).use { out -> out.writeObject(this) }
+}
 
 fun updateThemes() {
     themes.clear()

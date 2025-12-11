@@ -12,9 +12,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -64,7 +65,6 @@ import kotlinx.coroutines.withContext
 
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : Tab() {
-
     val isTemp: Boolean
         get() {
             return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
@@ -236,6 +236,35 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                             editorState.renameError = null
                             editorState.renameConfirm = null
                             editorState.showRenameDialog = false
+                        },
+                    )
+                }
+
+                if (editorState.showJumpToLineDialog) {
+                    SingleInputDialog(
+                        title = stringResource(strings.jump_to_line),
+                        inputLabel = stringResource(strings.line_number),
+                        inputValue = editorState.jumpToLineValue,
+                        errorMessage = editorState.jumpToLineError,
+                        confirmEnabled = editorState.jumpToLineValue.isNotBlank(),
+                        onInputValueChange = {
+                            val lastLine = editorState.editor.get()?.lineCount ?: 0
+
+                            editorState.jumpToLineValue = it
+                            editorState.jumpToLineError = null
+                            if (editorState.jumpToLineValue.toIntOrNull() == null) {
+                                editorState.jumpToLineError = strings.value_invalid.getString()
+                            } else if (it.toInt() > lastLine) {
+                                editorState.jumpToLineError = strings.value_large.getString()
+                            } else if (it.toInt() < 1) {
+                                editorState.jumpToLineError = strings.value_small.getString()
+                            }
+                        },
+                        onConfirm = { editorState.editor.get()!!.jumpToLine(editorState.jumpToLineValue.toInt() - 1) },
+                        onFinish = {
+                            editorState.jumpToLineValue = ""
+                            editorState.jumpToLineError = null
+                            editorState.showJumpToLineDialog = false
                         },
                     )
                 }

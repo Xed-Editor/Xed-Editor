@@ -1,7 +1,9 @@
 package com.rk.tabs.editor
 
 import android.widget.HorizontalScrollView
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.rk.components.CodeItem
 import com.rk.editor.Editor
@@ -37,6 +39,10 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var findingsItems by mutableStateOf(listOf<CodeItem>())
     var findingsTitle by mutableStateOf("")
     var findingsDescription by mutableStateOf("")
+
+    var showJumpToLineDialog by mutableStateOf(false)
+    var jumpToLineValue by mutableStateOf("")
+    var jumpToLineError by mutableStateOf<String?>(null)
 
     var showRenameDialog by mutableStateOf(false)
     var renameValue by mutableStateOf("")

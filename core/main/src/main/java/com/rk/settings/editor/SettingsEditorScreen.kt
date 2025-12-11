@@ -258,6 +258,20 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_drawer),
+                description = stringResource(id = strings.show_hidden_files_drawer_desc),
+                default = Settings.show_hidden_files_drawer,
+                sideEffect = { Settings.show_hidden_files_drawer = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_search),
+                description = stringResource(id = strings.show_hidden_files_search_desc),
+                default = Settings.show_hidden_files_search,
+                sideEffect = { Settings.show_hidden_files_search = it },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(id = strings.auto_save),
                 description = stringResource(id = strings.auto_save_desc),
                 default = Settings.auto_save,

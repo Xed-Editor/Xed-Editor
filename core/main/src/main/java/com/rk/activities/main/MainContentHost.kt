@@ -5,6 +5,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -36,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
+var navigationDrawerState = WeakReference<DrawerState?>(null)
 
 @Composable
 fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewModel: FileTreeViewModel = viewModel()) {
@@ -44,6 +46,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
     XedTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+            navigationDrawerState = WeakReference(drawerState)
             val scope = rememberCoroutineScope()
 
             BackHandler {

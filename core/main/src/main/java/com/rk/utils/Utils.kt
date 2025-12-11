@@ -1,16 +1,31 @@
 package com.rk.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Typeface
 import android.os.Build
 import android.telephony.TelephonyManager
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -186,4 +201,46 @@ fun getTempDir(): File {
 val isFDroid by lazy {
     val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
     targetSdkVersion == 28
+}
+
+/** Converts a [Spanned] text object to an [AnnotatedString]. */
+fun Spanned.toAnnotatedString(): AnnotatedString {
+    val builder = AnnotatedString.Builder(this.toString())
+    val spans = getSpans(0, length, Any::class.java)
+    spans.forEach { span ->
+        val start = getSpanStart(span)
+        val end = getSpanEnd(span)
+        val style =
+            when (span) {
+                is ForegroundColorSpan -> SpanStyle(color = androidx.compose.ui.graphics.Color(span.foregroundColor))
+                is StyleSpan ->
+                    when (span.style) {
+                        Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
+                        Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
+                        Typeface.BOLD_ITALIC -> SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
+                        else -> null
+                    }
+                is UnderlineSpan -> SpanStyle(textDecoration = TextDecoration.Underline)
+                is StrikethroughSpan -> SpanStyle(textDecoration = TextDecoration.LineThrough)
+                else -> null
+            }
+        if (style != null) {
+            builder.addStyle(style, start, end)
+        }
+    }
+    return builder.toAnnotatedString()
+}
+
+private var selectionColor = Color.Unspecified
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun preloadSelectionColor() {
+    val selectionColors = LocalTextSelectionColors.current
+    val selectionBackground = selectionColors.backgroundColor
+    selectionColor = selectionBackground
+}
+
+fun getSelectionColor(): Color {
+    return selectionColor
 }
