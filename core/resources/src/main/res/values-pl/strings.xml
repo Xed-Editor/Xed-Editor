@@ -501,4 +501,10 @@
     <string name="delete_failed">Nie można usunąć pliku</string>
     <string name="select_language">Wybierz język</string>
     <string name="add_parent_command">Dodaj polecenie nadrzędne</string>
+    <string name="jump_to_line">Idź do linijki</string>
+    <string name="line_number">Numer linijki</string>
+    <string name="search_file_folder">Szukaj plików w projekcie</string>
+    <string name="search_code">Szukaj kodu w projekcie</string>
+    <string name="incompatible_theme_warning">Motyw nie jest kompatybilny z zainstalowaną wersją aplikacji. Kontynyować?</string>
+    <string name="theme_install_failed">Niepowodzenie instalacji motywu</string>
 </resources>
