@@ -502,4 +502,22 @@
     <string name="select_language">Choisir la langue</string>
     <string name="delete_failed">Impossible de supprimer le fichier</string>
     <string name="add_parent_command">Ajouter une commande parent</string>
+    <string name="jump_to_line">Aller à la ligne</string>
+    <string name="line_number">Numéro de ligne</string>
+    <string name="search_file_folder">Chercher des fichiers dans le projet</string>
+    <string name="search_code">Chercher du code dans le projet</string>
+    <string name="incompatible_theme_warning">Ce thème n\'est pas compatible avec votre version actuelle de Xed-Editor. Voulez-vous tout de même continuer ?</string>
+    <string name="theme_install_failed">Échec d\'installation du thème</string>
+    <string name="theme_id_missing">Le fichier JSON ne contient pas d\'ID d\'un thème valide. Ajoutez-en une, s\'il vous plait, et réessayez.</string>
+    <string name="theme_name_missing">Le fichier JSON ne contient pas de nom d\'un thème valide. Ajoutez-en une, s\'il vous plait, et réessayez.</string>
+    <string name="theme_version_missing">Le fichier JSON ne contient pas de version de cible valide. Ajoutez-en une, s\'il vous plait, et réessayez.</string>
+    <string name="enter_code_snippet">Entrez un extrait de code</string>
+    <string name="empty_code_results">Entrez une requête à rechercher dans des fichiers</string>
+    <string name="no_results">Aucun résultat trouvé</string>
+    <string name="results">%d résultats trouvés</string>
+    <string name="enter_name">Entrez un nom</string>
+    <string name="show_hidden_files_drawer">Affiche les fichiers cachés du dossier</string>
+    <string name="show_hidden_files_drawer_desc">Affiche les fichiers ou répertoires cachés (comme .git) du dossier</string>
+    <string name="show_hidden_files_search">Affiche les fichiers cachés dans la recherche</string>
+    <string name="show_hidden_files_search_desc">Affiche les fichiers ou répertoires cachés dans les résultats de recherche</string>
 </resources>
