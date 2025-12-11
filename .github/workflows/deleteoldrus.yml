@@ -1,6 +1,8 @@
 name: Delete old runs
 
 on:
+  schedule:
+    - cron: "0 */24 * * *"
   workflow_dispatch:
     inputs:
       days:

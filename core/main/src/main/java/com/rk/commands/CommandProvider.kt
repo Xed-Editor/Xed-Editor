@@ -1,567 +1,538 @@
 package com.rk.commands
 
+import android.content.Context
 import android.content.Intent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
+import androidx.core.content.FileProvider
 import com.rk.DefaultScope
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
-import com.rk.icons.Edit_note
-import com.rk.icons.XedIcons
+import com.rk.components.codeSearchDialog
+import com.rk.components.fileSearchDialog
+import com.rk.file.FileType
+import com.rk.file.FileWrapper
+import com.rk.filetree.currentProject
+import com.rk.filetree.projects
 import com.rk.lsp.formatDocument
 import com.rk.lsp.formatDocumentRange
 import com.rk.lsp.goToDefinition
 import com.rk.lsp.goToReferences
 import com.rk.lsp.renameSymbol
 import com.rk.mutation.Engine
+import com.rk.mutation.MutatorAPI
 import com.rk.mutation.Mutators
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
+import com.rk.utils.application
 import com.rk.utils.dialog
+import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice
+import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import com.rk.mutation.MutatorAPI
-import com.rk.utils.errorDialog
-import kotlinx.coroutines.Dispatchers
 
 object CommandProvider {
-    /** Get all registered commands */
-    @Composable
-    @OptIn(DelicateCoroutinesApi::class)
-    fun getAll(viewModel: MainViewModel): List<Command> {
-        val readModeText = stringResource(strings.read_mode)
-        val editModeText = stringResource(strings.edit_mode)
+    var globalCommands = listOf<Command>()
 
+    fun buildCommands(viewModel: MainViewModel): List<Command> {
         return buildList {
-            // Core application commands
-            add(
-                Command(
-                    id = "global.terminal",
-                    label = mutableStateOf(stringResource(strings.terminal)),
-                    action = { _, act ->
-                        showTerminalNotice(act!!) {
-                            act.startActivity(Intent(act, Terminal::class.java))
-                        }
-                    },
-                    isSupported = derivedStateOf { InbuiltFeatures.terminal.state.value },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.terminal)),
-                )
-            )
+                addAll(getAppCommands(viewModel))
+                addAll(getEditorCommands(viewModel))
+                addAll(getLspCommands(viewModel))
+                addAll(getMutatorCommands(viewModel))
+            }
+            .also { globalCommands = it }
+    }
 
-            add(
-                Command(
-                    id = "global.settings",
-                    label = mutableStateOf(stringResource(strings.settings)),
-                    action = { _, act ->
-                        act!!.startActivity(Intent(act, SettingsActivity::class.java))
-                    },
-                    isSupported = mutableStateOf(true),
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(Icons.Outlined.Settings)
-                )
-            )
-
-            add(
-                Command(
-                    id = "global.new_file",
-                    label = mutableStateOf(stringResource(strings.new_file)),
-                    action = { _, _ ->
-                        addDialog = true
-                    },
-                    isSupported = mutableStateOf(true),
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(Icons.Outlined.Add)
-                )
-            )
-
-            add(
-                Command(
-                    id = "global.command_palette",
-                    label = mutableStateOf(stringResource(strings.command_palette)),
-                    action = { _, _ ->
-                        viewModel.showCommandPalette = true
-                    },
-                    isSupported = mutableStateOf(true),
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.command_palette))
-                )
-            )
-
-            // Core editor commands
-            add(
-                Command(
-                    id = "editor.cut",
-                    label = mutableStateOf(stringResource(strings.cut)),
-                    action = { vm, _ ->
-                        val currentTab = vm.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()!!.cutText()
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.editorState.editable
-                    },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.cut)),
-                    keybinds = "Ctrl + X"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.copy",
-                    label = mutableStateOf(stringResource(strings.copy)),
-                    action = { vm, _ ->
-                        val currentTab = vm.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()!!.copyText()
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.copy)),
-                    keybinds = "Ctrl + C"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.paste",
-                    label = mutableStateOf(stringResource(strings.paste)),
-                    action = { vm, _ ->
-                        val currentTab = vm.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()!!.pasteText()
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.editorState.editable
-                    },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.paste)),
-                    keybinds = "Ctrl + V"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.select_all",
-                    label = mutableStateOf(stringResource(strings.select_all)),
-                    action = { vm, _ ->
-                        val currentTab = vm.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()!!.selectAll()
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.select_all)),
-                    keybinds = "Ctrl + A"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.select_word",
-                    label = mutableStateOf(stringResource(strings.select_word)),
-                    action = { vm, _ ->
-                        val currentTab = vm.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()!!.selectCurrentWord()
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.select)),
-                    keybinds = "Ctrl + W"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.duplicate_line",
-                    label = mutableStateOf(stringResource(strings.duplicate_line)),
-                    action = { vm, _ ->
-                        val currentTab = vm.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()!!.duplicateLine()
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.editorState.editable
-                    },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.duplicate_line)),
-                    keybinds = "Ctrl + D"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.save",
-                    label = mutableStateOf(stringResource(strings.save)),
-                    action = { vm, _ ->
-                        vm.currentTab?.let {
-                            if (it is EditorTab) {
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    it.save()
-                                }
+    private fun getAppCommands(viewModel: MainViewModel): List<Command> {
+        return listOf(
+            Command(
+                id = "global.terminal",
+                label = mutableStateOf(strings.terminal.getString()),
+                action = { _, act ->
+                    showTerminalNotice(act!!) {
+                        val intent =
+                            Intent(act, Terminal::class.java).apply {
+                                val currentFile = viewModel.currentTab?.file ?: return@apply
+                                val currentPath = currentFile.getAbsolutePath()
+                                val project =
+                                    projects
+                                        .filter { currentPath.startsWith(it.fileObject.getAbsolutePath()) }
+                                        .maxByOrNull { it.fileObject.getAbsolutePath().length } ?: return@apply
+                                putExtra("cwd", project.fileObject.getAbsolutePath())
                             }
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.file.canWrite()
-                    },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.save)),
-                    keybinds = "Ctrl + S"
-                )
-            )
+                        act.startActivity(intent)
+                    }
+                },
+                isSupported = derivedStateOf { InbuiltFeatures.terminal.state.value },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.terminal),
+            ),
+            Command(
+                id = "global.settings",
+                label = mutableStateOf(strings.settings.getString()),
+                action = { _, act -> act!!.startActivity(Intent(act, SettingsActivity::class.java)) },
+                isSupported = mutableStateOf(true),
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.settings),
+            ),
+            Command(
+                id = "global.new_file",
+                label = mutableStateOf(strings.new_file.getString()),
+                action = { _, _ -> addDialog = true },
+                isSupported = mutableStateOf(true),
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.add),
+            ),
+            Command(
+                id = "global.command_palette",
+                label = mutableStateOf(strings.command_palette.getString()),
+                action = { _, _ -> viewModel.showCommandPalette = true },
+                isSupported = mutableStateOf(true),
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.command_palette),
+            ),
+            Command(
+                id = "global.search_file_folder",
+                label = mutableStateOf(strings.search_file_folder.getString()),
+                action = { _, _ -> fileSearchDialog = true },
+                isSupported = mutableStateOf(true),
+                isEnabled = derivedStateOf { currentProject != null },
+                icon = mutableIntStateOf(drawables.search),
+            ),
+            Command(
+                id = "global.search_code",
+                label = mutableStateOf(strings.search_code.getString()),
+                action = { _, _ -> codeSearchDialog = true },
+                isSupported = mutableStateOf(true),
+                isEnabled = derivedStateOf { currentProject != null },
+                icon = mutableIntStateOf(drawables.search),
+            ),
+        )
+    }
 
-            add(
-                Command(
-                    id = "editor.save_all",
-                    label = mutableStateOf(stringResource(strings.save_all)),
-                    action = { vm, _ ->
-                        vm.tabs.forEach {
-                            if (it is EditorTab) {
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    it.save()
-                                }
-                            }
-                        }
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun getEditorCommands(viewModel: MainViewModel): List<Command> {
+        return listOf(
+            Command(
+                id = "editor.cut",
+                label = mutableStateOf(strings.cut.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.cutText() },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
+                icon = mutableIntStateOf(drawables.cut),
+                keybinds = "Ctrl + X",
+            ),
+            Command(
+                id = "editor.copy",
+                label = mutableStateOf(strings.copy.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.copyText() },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.copy),
+                keybinds = "Ctrl + C",
+            ),
+            Command(
+                id = "editor.paste",
+                label = mutableStateOf(strings.paste.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.pasteText() },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
+                icon = mutableIntStateOf(drawables.paste),
+                keybinds = "Ctrl + V",
+            ),
+            Command(
+                id = "editor.select_all",
+                label = mutableStateOf(strings.select_all.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.selectAll() },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.select_all),
+                keybinds = "Ctrl + A",
+            ),
+            Command(
+                id = "editor.select_word",
+                label = mutableStateOf(strings.select_word.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.selectCurrentWord() },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.select),
+                keybinds = "Ctrl + W",
+            ),
+            Command(
+                id = "editor.duplicate_line",
+                label = mutableStateOf(strings.duplicate_line.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.duplicateLine() },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
+                icon = mutableIntStateOf(drawables.duplicate_line),
+                keybinds = "Ctrl + D",
+            ),
+            Command(
+                id = "editor.save",
+                label = mutableStateOf(strings.save.getString()),
+                action = { vm, _ ->
+                    val currentTab = vm.currentTab as? EditorTab ?: return@Command
+                    GlobalScope.launch(Dispatchers.IO) { currentTab.save() }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.file?.canWrite() == true },
+                icon = mutableIntStateOf(drawables.save),
+                keybinds = "Ctrl + S",
+            ),
+            Command(
+                id = "editor.save_all",
+                label = mutableStateOf(strings.save_all.getString()),
+                action = { vm, _ ->
+                    vm.tabs.filterIsInstance<EditorTab>().forEach { GlobalScope.launch(Dispatchers.IO) { it.save() } }
+                },
+                isSupported = derivedStateOf { viewModel.tabs.isNotEmpty() },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.save),
+            ),
+            Command(
+                id = "editor.undo",
+                label = mutableStateOf(strings.undo.getString()),
+                action = { vm, _ ->
+                    val currentTab = vm.currentTab as? EditorTab ?: return@Command
+                    currentTab.editorState.editor.get()?.apply { if (canUndo()) undo() }
+                    currentTab.editorState.updateUndoRedo()
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled =
+                    derivedStateOf {
+                        val tab = viewModel.currentTab as? EditorTab
+                        tab != null && tab.editorState.editable && tab.editorState.canUndo
                     },
-                    isSupported = derivedStateOf { viewModel.tabs.isNotEmpty() },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.save))
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.undo",
-                    label = mutableStateOf(stringResource(strings.undo)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()?.apply {
-                                if (canUndo()) {
-                                    undo()
-                                }
-                            }
-                            currentTab.editorState.updateUndoRedo()
-                        }
+                icon = mutableIntStateOf(drawables.undo),
+                keybinds = "Ctrl + Z",
+            ),
+            Command(
+                id = "editor.redo",
+                label = mutableStateOf(strings.redo.getString()),
+                action = { vm, _ ->
+                    val currentTab = vm.currentTab as? EditorTab ?: return@Command
+                    currentTab.editorState.editor.get()?.apply { if (canRedo()) redo() }
+                    currentTab.editorState.updateUndoRedo()
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled =
+                    derivedStateOf {
+                        val tab = viewModel.currentTab as? EditorTab
+                        tab != null && tab.editorState.editable && tab.editorState.canRedo
                     },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.editorState.editable && currentTab.editorState.canUndo
-                    },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.undo)),
-                    keybinds = "Ctrl + Z"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.redo",
-                    label = mutableStateOf(stringResource(strings.redo)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.editor.get()?.apply {
-                                if (canRedo()) {
-                                    redo()
-                                }
-                            }
-                            currentTab.editorState.updateUndoRedo()
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.editorState.editable && currentTab.editorState.canRedo
-                    },
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.redo)),
-                    keybinds = "Ctrl + Y"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.run",
-                    label = mutableStateOf(stringResource(strings.run)),
-                    action = { _, act ->
-                        DefaultScope.launch {
-                            val currentTab = viewModel.currentTab
-                            if (currentTab is EditorTab) {
-                                Runner.run(
-                                    context = act!!,
-                                    fileObject = currentTab.file,
-                                    onMultipleRunners = {
-                                        currentTab.editorState.showRunnerDialog = true
-                                        currentTab.editorState.runnersToShow = it
-                                    }
-                                )
-                            }
-                        }
-                    },
-                    isSupported = derivedStateOf {
+                icon = mutableIntStateOf(drawables.redo),
+                keybinds = "Ctrl + Y",
+            ),
+            Command(
+                id = "editor.run",
+                label = mutableStateOf(strings.run.getString()),
+                action = { vm, act ->
+                    DefaultScope.launch {
+                        val currentTab = vm.currentTab as? EditorTab ?: return@launch
+                        Runner.run(
+                            context = act!!,
+                            fileObject = currentTab.file,
+                            onMultipleRunners = {
+                                currentTab.editorState.showRunnerDialog = true
+                                currentTab.editorState.runnersToShow = it
+                            },
+                        )
+                    }
+                },
+                isSupported =
+                    derivedStateOf {
                         val currentTab = viewModel.currentTab
                         currentTab is EditorTab && Runner.isRunnable(currentTab.file)
                     },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.run))
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.editable",
-                    label = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab && currentTab.editorState.editable) {
-                            readModeText
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.run),
+            ),
+            Command(
+                id = "editor.editable",
+                label =
+                    derivedStateOf {
+                        if ((viewModel.currentTab as? EditorTab)?.editorState?.editable == true) {
+                            strings.read_mode.getString()
                         } else {
-                            editModeText
+                            strings.edit_mode.getString()
                         }
                     },
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            val editable = currentTab.editorState.editable
-                            currentTab.editorState.editable = !editable
-                        }
+                action = { vm, _ ->
+                    val currentTab = vm.currentTab as? EditorTab
+                    currentTab?.editorState?.let { it.editable = !it.editable }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.file?.canWrite() == true },
+                icon =
+                    derivedStateOf {
+                        if ((viewModel.currentTab as? EditorTab)?.editorState?.editable == true) drawables.lock
+                        else drawables.edit
                     },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        currentTab is EditorTab && currentTab.file.canWrite()
-                    },
-                    icon = derivedStateOf {
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab && currentTab.editorState.editable) {
-                            Icons.Outlined.Lock
-                        } else {
-                            Icons.Outlined.Edit
-                        }
+            ),
+            Command(
+                id = "editor.search",
+                label = mutableStateOf(strings.search.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.isSearching = true },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.search),
+                keybinds = "Ctrl + F",
+            ),
+            Command(
+                id = "editor.replace",
+                label = mutableStateOf(strings.replace.getString()),
+                action = { vm, _ ->
+                    val currentTab = vm.currentTab as? EditorTab
+                    currentTab?.editorState?.apply {
+                        isSearching = true
+                        isReplaceShown = true
                     }
-                )
-            )
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.find_replace),
+                keybinds = "Ctrl + H",
+            ),
+            Command(
+                id = "editor.refresh",
+                label = mutableStateOf(strings.refresh.getString()),
+                action = { vm, act ->
+                    val currentTab = vm.currentTab as? EditorTab ?: return@Command
+                    if (currentTab.editorState.isDirty) {
+                        dialog(
+                            context = act,
+                            title = strings.attention.getString(),
+                            msg = strings.ask_refresh.getString(),
+                            okString = strings.refresh,
+                            onCancel = {},
+                            onOk = { currentTab.refresh() },
+                        )
+                    } else {
+                        currentTab.refresh()
+                    }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.refresh),
+            ),
+            Command(
+                id = "editor.syntax_highlighting",
+                label = mutableStateOf(strings.highlighting.getString()),
+                action = { _, _ -> viewModel.showCommandPalette = true },
+                childCommands =
+                    FileType.entries
+                        .filter { it.textmateScope != null }
+                        .map { fileType ->
+                            Command(
+                                id = "editor.syntax_highlighting.${fileType.name.lowercase()}",
+                                label = mutableStateOf(fileType.title),
+                                action = { vm, _ ->
+                                    (vm.currentTab as? EditorTab)?.editorState?.textmateScope = fileType.textmateScope!!
+                                },
+                                isSupported = mutableStateOf(true),
+                                isEnabled = mutableStateOf(true),
+                                icon = mutableIntStateOf(fileType.icon ?: drawables.file),
+                            )
+                        },
+                childSearchPlaceholder = strings.select_language.getString(),
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.edit_note),
+            ),
+            Command(
+                id = "editor.toggle_word_wrap",
+                label = mutableStateOf(strings.toggle_word_wrap.getString()),
+                action = { vm, _ ->
+                    val currentTab = vm.currentTab as? EditorTab ?: return@Command
+                    currentTab.editorState.isWrapping = true
+                    currentTab.editorState.editor.get()?.apply { isWordwrap = !isWordwrap }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.edit_note),
+            ),
+            Command(
+                id = "editor.jump_to_line",
+                label = mutableStateOf(strings.jump_to_line.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.showJumpToLineDialog = true },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.arrow_outward),
+            ),
+            Command(
+                id = "editor.share",
+                label = mutableStateOf(strings.share.getString()),
+                action = { _, activity ->
+                    val file = viewModel.currentTab?.file
 
-            add(
-                Command(
-                    id = "editor.search",
-                    label = mutableStateOf(stringResource(strings.search)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.isSearching = true
+                    if (file == null) {
+                        toast(strings.unsupported_content)
+                        return@Command
+                    }
+
+                    DefaultScope.launch {
+                        if (file.getAbsolutePath().contains(application!!.filesDir.parentFile!!.absolutePath)) {
+                            // Files in private directory cannot be shared
+                            toast(strings.permission_denied)
+                            return@launch
                         }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.search)),
-                    keybinds = "Ctrl + F"
-                )
-            )
 
-            add(
-                Command(
-                    id = "editor.replace",
-                    label = mutableStateOf(stringResource(strings.replace)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.isSearching = true
-                            currentTab.editorState.isReplaceShown = true
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.find_replace)),
-                    keybinds = "Ctrl + H"
-                )
-            )
-
-            add(
-                Command(
-                    id = "editor.refresh",
-                    label = mutableStateOf(stringResource(strings.refresh)),
-                    action = { _, act ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            if (currentTab.editorState.isDirty) {
-                                dialog(
-                                    context = act,
-                                    title = strings.attention.getString(),
-                                    msg = strings.ask_refresh.getString(),
-                                    okString = strings.refresh,
-                                    onCancel = {},
-                                    onOk = { currentTab.refresh() }
+                        val fileUri =
+                            if (file is FileWrapper) {
+                                FileProvider.getUriForFile(
+                                    activity as Context,
+                                    "${activity.packageName}.fileprovider",
+                                    file.file,
                                 )
                             } else {
-                                currentTab.refresh()
+                                file.toUri()
                             }
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.refresh))
-                )
-            )
 
-            add(
-                Command(
-                    id = "editor.syntax_highlighting",
-                    label = mutableStateOf(stringResource(strings.highlighting)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            currentTab.editorState.showSyntaxPanel = true
-                        }
-                    },
-                    isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(XedIcons.Edit_note)
-                )
-            )
+                        val intent =
+                            Intent(Intent.ACTION_SEND).apply {
+                                type = activity!!.contentResolver.getType(fileUri) ?: "*/*"
+                                setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
+                                putExtra(Intent.EXTRA_STREAM, fileUri)
+                                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            }
 
-            add(
-                Command(
-                    id = "lsp.go_to_definition",
-                    label = mutableStateOf(stringResource(strings.go_to_definition)),
-                    action = { vm, act ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            goToDefinition(DefaultScope, act!!, vm, currentTab)
-                        }
-                    },
-                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToDefinitionSupported() == true },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.jump_to_element))
-                )
-            )
-
-            add(
-                Command(
-                    id = "lsp.go_to_references",
-                    label = mutableStateOf(stringResource(strings.go_to_references)),
-                    action = { vm, act ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            goToReferences(DefaultScope, act!!, vm, currentTab)
-                        }
-                    },
-                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
-                )
-            )
-
-            add(
-                Command(
-                    id = "lsp.rename_symbol",
-                    label = mutableStateOf(stringResource(strings.rename_symbol)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            renameSymbol(DefaultScope, currentTab)
-                        }
-                    },
-                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.manage_search))
-                )
-            )
-
-            add(
-                Command(
-                    id = "lsp.format_document",
-                    label = mutableStateOf(stringResource(strings.format_document)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            formatDocument(DefaultScope, currentTab)
-                        }
-                    },
-                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isFormattingSupported() == true },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.auto_fix))
-                )
-            )
-
-            add(
-                Command(
-                    id = "lsp.format_selection",
-                    label = mutableStateOf(stringResource(strings.format_selection)),
-                    action = { _, _ ->
-                        val currentTab = viewModel.currentTab
-                        if (currentTab is EditorTab) {
-                            formatDocumentRange(DefaultScope, currentTab)
-                        }
-                    },
-                    isSupported = derivedStateOf { (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isRangeFormattingSupported() == true },
-                    isEnabled = mutableStateOf(true),
-                    icon = mutableStateOf(ImageVector.vectorResource(drawables.auto_fix))
-                )
-            )
-
-            // Mutators
-            if (InbuiltFeatures.mutators.state.value) {
-                addAll(
-                    Mutators.mutators.map { mut ->
-                        Command(
-                            id = "mutators." + mut.name,
-                            prefix = stringResource(strings.mutators),
-                            label = mutableStateOf(mut.name),
-                            action = { vm, _ ->
-                                DefaultScope.launch {
-                                    Engine(mut.script, DefaultScope)
-                                        .start(
-                                            onResult = { engine, result ->
-                                                println(result)
-                                            },
-                                            onError = { t ->
-                                                t.printStackTrace()
-                                                errorDialog(t)
-                                            },
-                                            api = MutatorAPI::class.java
-                                        )
-                                }
-                            },
-                            isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
-                            isEnabled = mutableStateOf(true),
-                            icon = mutableStateOf(ImageVector.vectorResource(drawables.run))
-                        )
+                        activity!!.startActivity(Intent.createChooser(intent, "Share file"))
                     }
-                )
-            }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.send),
+            ),
+        )
+    }
+
+    private fun getLspCommands(viewModel: MainViewModel): List<Command> {
+        return listOf(
+            Command(
+                id = "lsp.go_to_definition",
+                label = mutableStateOf(strings.go_to_definition.getString()),
+                action = { vm, act ->
+                    (vm.currentTab as? EditorTab)?.let { goToDefinition(DefaultScope, act!!, vm, it) }
+                },
+                isSupported =
+                    derivedStateOf {
+                        (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToDefinitionSupported() == true
+                    },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.jump_to_element),
+            ),
+            Command(
+                id = "lsp.go_to_references",
+                label = mutableStateOf(strings.go_to_references.getString()),
+                action = { vm, act ->
+                    (vm.currentTab as? EditorTab)?.let { goToReferences(DefaultScope, act!!, vm, it) }
+                },
+                isSupported =
+                    derivedStateOf {
+                        (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true
+                    },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.manage_search),
+            ),
+            Command(
+                id = "lsp.rename_symbol",
+                label = mutableStateOf(strings.rename_symbol.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.let { renameSymbol(DefaultScope, it) } },
+                isSupported =
+                    derivedStateOf {
+                        (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true
+                    },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.manage_search),
+            ),
+            Command(
+                id = "lsp.format_document",
+                label = mutableStateOf(strings.format_document.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.let { formatDocument(DefaultScope, it) } },
+                isSupported =
+                    derivedStateOf {
+                        (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isFormattingSupported() == true
+                    },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.auto_fix),
+            ),
+            Command(
+                id = "lsp.format_selection",
+                label = mutableStateOf(strings.format_selection.getString()),
+                action = { vm, _ -> (vm.currentTab as? EditorTab)?.let { formatDocumentRange(DefaultScope, it) } },
+                isSupported =
+                    derivedStateOf {
+                        (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isRangeFormattingSupported() == true
+                    },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.auto_fix),
+            ),
+        )
+    }
+
+    private fun getMutatorCommands(viewModel: MainViewModel): List<Command> {
+        if (!InbuiltFeatures.mutators.state.value) return emptyList()
+
+        return Mutators.mutators.map { mut ->
+            Command(
+                id = "mutators.${mut.name}",
+                prefix = strings.mutators.getString(),
+                label = mutableStateOf(mut.name),
+                action = { _, _ ->
+                    DefaultScope.launch {
+                        Engine(mut.script, DefaultScope)
+                            .start(
+                                onResult = { _, result -> println(result) },
+                                onError = { t ->
+                                    t.printStackTrace()
+                                    errorDialog(t)
+                                },
+                                api = MutatorAPI::class.java,
+                            )
+                    }
+                },
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableIntStateOf(drawables.run),
+            )
         }
     }
 
-    /** Get a registered command by ID, returns null if not found */
-    fun getForId(id: String?, commands: List<Command>): Command? = commands.find { it.id == id }
+    fun getForId(id: String, commands: List<Command>): Command? = findRecursive(id, commands)
+
+    fun getForId(id: String): Command? = findRecursive(id, globalCommands)
+
+    fun getParentCommand(command: Command): Command? = findParent(command, globalCommands)
+
+    private fun findParent(target: Command, commands: List<Command>): Command? {
+        for (parent in commands) {
+            val children = parent.childCommands
+            if (children.any { it.id == target.id }) return parent
+
+            val match = findParent(target, children)
+            if (match != null) return match
+        }
+        return null
+    }
+
+    private fun findRecursive(id: String, commands: List<Command>): Command? {
+        for (command in commands) {
+            if (command.id == id) return command
+            val children = command.childCommands
+            val match = findRecursive(id, children)
+            if (match != null) return match
+        }
+        return null
+    }
 }

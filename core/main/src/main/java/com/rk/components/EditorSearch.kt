@@ -41,17 +41,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rk.resources.strings
-import com.rk.tabs.CodeEditorState
+import com.rk.tabs.editor.CodeEditorState
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.widget.EditorSearcher
 import java.util.regex.PatternSyntaxException
 
 @Composable
-fun SearchPanel(
-    editorState: CodeEditorState,
-    modifier: Modifier = Modifier,
-) {
+fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
     val editor = editorState.editor
     val focusRequester = remember { FocusRequester() }
 
@@ -66,7 +63,8 @@ fun SearchPanel(
         val query = editorState.searchKeyword
         if (query.isNotEmpty()) {
             try {
-                val searchOptions = getSearchOptions(editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord)
+                val searchOptions =
+                    getSearchOptions(editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord)
                 editor.get()?.searcher?.search(query, searchOptions)
                 hasSearchError = false
                 isSearchingInternal = true
@@ -87,13 +85,20 @@ fun SearchPanel(
         }
 
         editor.get()?.subscribeAlways(SelectionChangeEvent::class.java) {
-            searchCurrentIndex = runCatching { editor.get()?.searcher?.currentMatchedPositionIndex?.plus(1) ?: 0 }.getOrDefault(0)
+            searchCurrentIndex =
+                runCatching { editor.get()?.searcher?.currentMatchedPositionIndex?.plus(1) ?: 0 }.getOrDefault(0)
         }
     }
 
     // Execute search when keyword changes
-    LaunchedEffect(editorState.isSearching,editorState.searchKeyword, editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord) {
-        if (editorState.isSearching){
+    LaunchedEffect(
+        editorState.isSearching,
+        editorState.searchKeyword,
+        editorState.ignoreCase,
+        editorState.searchRegex,
+        editorState.searchWholeWord,
+    ) {
+        if (editorState.isSearching) {
             tryCommitSearch()
         }
     }
@@ -105,72 +110,63 @@ fun SearchPanel(
     }
 
     if (editorState.isSearching) {
-        Column(
-            modifier
-                .padding(vertical = 8.dp)
-                .fillMaxWidth()
-        ) {
+        Column(modifier.padding(vertical = 8.dp).fillMaxWidth()) {
             Row(
-                Modifier
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth(),
+                Modifier.padding(horizontal = 8.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-
-                Column(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
-
+                Column(Modifier.weight(1f).fillMaxWidth()) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         IconButton(
                             modifier = Modifier,
-                            onClick = {
-                                editorState.isReplaceShown = !editorState.isReplaceShown
-                            }
+                            onClick = { editorState.isReplaceShown = !editorState.isReplaceShown },
                         ) {
                             Icon(
-                                imageVector = if (editorState.isReplaceShown) {
-                                    Icons.Outlined.KeyboardArrowUp
-                                } else {
-                                    Icons.Outlined.KeyboardArrowDown
-                                }, null
+                                imageVector =
+                                    if (editorState.isReplaceShown) {
+                                        Icons.Outlined.KeyboardArrowUp
+                                    } else {
+                                        Icons.Outlined.KeyboardArrowDown
+                                    },
+                                null,
                             )
                         }
 
                         StyledTextField(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(42.dp)
-                                .padding(horizontal = 8.dp)
-                                .focusRequester(focusRequester),
+                            modifier =
+                                Modifier.weight(1f)
+                                    .height(42.dp)
+                                    .padding(horizontal = 8.dp)
+                                    .focusRequester(focusRequester),
                             shape = RoundedCornerShape(8.dp),
                             maxLines = 1,
                             // Show error state with red text color
-                            textStyle = LocalTextStyle.current.copy(
-                                color = if (hasSearchError) MaterialTheme.colorScheme.error else LocalContentColor.current
-                            ),
+                            textStyle =
+                                LocalTextStyle.current.copy(
+                                    color =
+                                        if (hasSearchError) MaterialTheme.colorScheme.error
+                                        else LocalContentColor.current
+                                ),
                             trailingIcon = {
                                 Box {
                                     IconButton(
                                         modifier = Modifier.height(24.dp),
-                                        onClick = { editorState.showOptionsMenu = true }
+                                        onClick = { editorState.showOptionsMenu = true },
                                     ) {
                                         Icon(imageVector = Icons.Outlined.MoreVert, null)
                                     }
 
                                     DropdownMenu(
                                         expanded = editorState.showOptionsMenu,
-                                        onDismissRequest = { editorState.showOptionsMenu = false }
+                                        onDismissRequest = { editorState.showOptionsMenu = false },
                                     ) {
                                         DropdownMenuItem(
                                             text = {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                                     Checkbox(
                                                         checked = editorState.ignoreCase,
-                                                        onCheckedChange = { editorState.ignoreCase = it }
+                                                        onCheckedChange = { editorState.ignoreCase = it },
                                                     )
                                                     Text(stringResource(strings.ignore_case))
                                                     Spacer(Modifier.width(8.dp))
@@ -179,7 +175,7 @@ fun SearchPanel(
                                             onClick = {
                                                 editorState.ignoreCase = !editorState.ignoreCase
                                                 editorState.showOptionsMenu = false
-                                            }
+                                            },
                                         )
 
                                         DropdownMenuItem(
@@ -192,7 +188,7 @@ fun SearchPanel(
                                                             if (it) {
                                                                 editorState.searchWholeWord = false
                                                             }
-                                                        }
+                                                        },
                                                     )
                                                     Text(stringResource(strings.regex))
                                                     Spacer(Modifier.width(8.dp))
@@ -205,7 +201,7 @@ fun SearchPanel(
                                                 if (newValue) {
                                                     editorState.searchWholeWord = false
                                                 }
-                                            }
+                                            },
                                         )
 
                                         DropdownMenuItem(
@@ -218,20 +214,20 @@ fun SearchPanel(
                                                             if (it) {
                                                                 editorState.searchRegex = false
                                                             }
-                                                        }
+                                                        },
                                                     )
                                                     Text(stringResource(strings.whole_word))
                                                     Spacer(Modifier.width(8.dp))
                                                 }
                                             },
                                             onClick = {
-                                                val newValue = !editorState.searchWholeWord;
+                                                val newValue = !editorState.searchWholeWord
                                                 editorState.searchWholeWord = newValue
                                                 editorState.showOptionsMenu = false
                                                 if (newValue) {
                                                     editorState.searchRegex = false
                                                 }
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -242,23 +238,25 @@ fun SearchPanel(
                                 tryCommitSearch()
                             },
                             placeholder = { Text(stringResource(strings.search)) },
-                            keyboardOptions = KeyboardOptions(
-                                imeAction = if (editorState.isReplaceShown) {
-                                    ImeAction.Next
-                                } else {
-                                    ImeAction.Search
-                                }
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onSearch = { tryCommitSearch() },
-                                onNext = { tryCommitSearch() }
-                            )
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    imeAction =
+                                        if (editorState.isReplaceShown) {
+                                            ImeAction.Next
+                                        } else {
+                                            ImeAction.Search
+                                        }
+                                ),
+                            keyboardActions =
+                                KeyboardActions(onSearch = { tryCommitSearch() }, onNext = { tryCommitSearch() }),
                         )
 
-                        IconButton(onClick = {
-                            editorState.isSearching = false
-                            editor.get()?.searcher?.stopSearch()
-                        }) {
+                        IconButton(
+                            onClick = {
+                                editorState.isSearching = false
+                                editor.get()?.searcher?.stopSearch()
+                            }
+                        ) {
                             Icon(imageVector = Icons.Outlined.Close, null)
                         }
                     }
@@ -270,17 +268,12 @@ fun SearchPanel(
                             Spacer(Modifier.width(48.dp))
 
                             StyledTextField(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 8.dp)
-                                    .height(42.dp),
+                                modifier = Modifier.weight(1f).padding(horizontal = 8.dp).height(42.dp),
                                 value = editorState.replaceKeyword,
                                 onValueChange = { editorState.replaceKeyword = it },
                                 shape = RoundedCornerShape(8.dp),
                                 placeholder = { Text(stringResource(strings.replace)) },
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Default
-                                ),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
                             )
 
                             Spacer(Modifier.width(48.dp))
@@ -291,45 +284,33 @@ fun SearchPanel(
 
             Spacer(Modifier.height(2.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Row(
                     horizontalArrangement = Arrangement.Start,
-                    modifier = Modifier
-                        .weight(1f)
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 8.dp)
+                    modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp),
                 ) {
-                    TextButton(enabled = isSearchingInternal, onClick = {
-                        editor.get()?.searcher?.gotoPrevious()
-                    }) {
+                    TextButton(enabled = isSearchingInternal, onClick = { editor.get()?.searcher?.gotoPrevious() }) {
                         Text(stringResource(strings.go_prev).uppercase())
                     }
 
                     Spacer(Modifier.height(10.dp))
 
-                    TextButton(enabled = isSearchingInternal, onClick = {
-                        editor.get()?.searcher?.gotoNext()
-                    }) {
+                    TextButton(enabled = isSearchingInternal, onClick = { editor.get()?.searcher?.gotoNext() }) {
                         Text(stringResource(strings.go_next).uppercase())
                     }
 
                     if (editorState.isReplaceShown) {
                         TextButton(
                             enabled = isSearchingInternal,
-                            onClick = {
-                                editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword)
-                            }) {
+                            onClick = { editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword) },
+                        ) {
                             Text(stringResource(strings.replace).uppercase())
                         }
 
                         TextButton(
                             enabled = isSearchingInternal,
-                            onClick = {
-                                editor.get()?.searcher?.replaceAll(editorState.replaceKeyword)
-                            }) {
+                            onClick = { editor.get()?.searcher?.replaceAll(editorState.replaceKeyword) },
+                        ) {
                             Text(stringResource(strings.replace_all).uppercase())
                         }
                     }
@@ -337,7 +318,7 @@ fun SearchPanel(
 
                 Text(
                     text = "$searchCurrentIndex/$searchMatchesCount",
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                 )
             }
         }
@@ -353,7 +334,7 @@ fun SearchPanel(
 private fun getSearchOptions(
     ignoreCase: Boolean,
     searchRegex: Boolean,
-    searchWholeWord: Boolean
+    searchWholeWord: Boolean,
 ): EditorSearcher.SearchOptions {
     val caseInsensitive = ignoreCase
     var type = EditorSearcher.SearchOptions.TYPE_NORMAL

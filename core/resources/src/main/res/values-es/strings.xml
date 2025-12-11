@@ -489,4 +489,27 @@
     <string name="project_restore_failed">Incorrecto al restaurar proyecto</string>
     <string name="theme_flipper">Tema aleta</string>
     <string name="theme_flipper_desc">Cambiar constantemente el modo de tema cada 7s</string>
+    <string name="select_language">Seleccionar idioma</string>
+    <string name="delete_failed">No es posible borrar archivo</string>
+    <string name="lsp_terminal_unavailable">Las características del idioma LSP no funcionarán porque el entorno del terminar no está disponible o no funciona.</string>
+    <string name="add_parent_command">Añadir comando antecesor</string>
+    <string name="jump_to_line">Ir a línea</string>
+    <string name="line_number">Número de línea</string>
+    <string name="search_file_folder">Búsqueda de archivos en el proyecto</string>
+    <string name="search_code">Búsqueda de código en el proyecto</string>
+    <string name="incompatible_theme_warning">Este tema no es compatible con tu versión actual de Xed-Editor. ¿Te gustaría proceder a pesar de todo?</string>
+    <string name="theme_install_failed">Instalación incorrecta del tema</string>
+    <string name="theme_id_missing">El archivo JSON no especifica un ID de tema válido. Añada uno e inténtelo de nuevo.</string>
+    <string name="theme_name_missing">El archivo JSON no especifica un nombre de tema válido. Añada uno pruebe de nuevo.</string>
+    <string name="theme_version_missing">El archivo JSON no especifica una versión destino válida. Añada uno e inténtelo de nuevo.</string>
+    <string name="enter_code_snippet">Introduzca un retal de código</string>
+    <string name="empty_code_results">Introduzca una solicitud de búsqueda para encontrar en archivos</string>
+    <string name="no_results">Ningún resultado encontrado</string>
+    <string name="results">%d resultados encontrados</string>
+    <string name="enter_name">Introduzca un nombre</string>
+    <string name="show_hidden_files_drawer">Muestra archivos ocultos dentro del cajón</string>
+    <string name="show_hidden_files_drawer_desc">Muestra archivos ocultos o carpetas como .git en el cajón</string>
+    <string name="show_hidden_files_search">Muestra archivos ocultos en la búsqueda</string>
+    <string name="show_hidden_files_search_desc">Muestra archivos ocultos o carpetas en los resultados de la búsqueda</string>
+    <string name="invalid_intent">Recibió un intento no válido:\n%s</string>
 </resources>

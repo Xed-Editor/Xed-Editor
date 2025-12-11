@@ -6,4 +6,14 @@ plugins {
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.kotlinParcelize) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.ktfmt) apply false
+}
+
+subprojects {
+    plugins.withId(rootProject.libs.plugins.ktfmt.get().pluginId) {
+        configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
+            kotlinLangStyle()
+            maxWidth.set(120)
+        }
+    }
 }

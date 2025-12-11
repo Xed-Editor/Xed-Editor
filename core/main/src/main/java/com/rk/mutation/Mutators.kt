@@ -12,8 +12,9 @@ object Mutators {
     data class Mutator(val file: File) {
         val name: String
             get() = file.nameWithoutExtension
+
         var script: String
-            get(){
+            get() {
                 return file.readText()
             }
             set(value) {
@@ -40,19 +41,18 @@ object Mutators {
         return dir
     }
 
-
     fun updateMutators() {
         val dir = getMutatorDirectory()
         mutators.clear()
 
         dir.listFiles()?.forEach {
-            if (it.extension == "mut"){
+            if (it.extension == "mut") {
                 mutators.add(Mutator(it))
             }
         }
     }
 
-    fun createMutator(name: String,script: String) {
+    fun createMutator(name: String, script: String) {
         val file = getMutatorDirectory().child("$name.mut").createFileIfNot()
         file.writeText(script)
         val mutator = Mutator(file)
@@ -66,5 +66,4 @@ object Mutators {
             file.delete()
         }
     }
-
 }

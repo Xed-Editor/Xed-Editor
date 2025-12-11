@@ -7,61 +7,56 @@ import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.settings.debugOptions.HarmlessException
 import com.rk.utils.application
-import kotlinx.coroutines.runBlocking
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
 
 object CrashHandler : Thread.UncaughtExceptionHandler {
-    override fun uncaughtException(
-        thread: Thread,
-        ex: Throwable,
-    ) {
+    override fun uncaughtException(thread: Thread, ex: Throwable) {
         runCatching {
-            if (ex.message.toString().contains("android.view.View${"$"}BaseSavedState") ||
-                ex.message
-                    .toString()
-                    .contains("android.widget.HorizontalScrollView${"$"}SavedState")
-            ) {
-                Log.w("CrashHandler", "Ignoring crash")
-                // return@runCatching
+                if (
+                    ex.message.toString().contains("android.view.View${"$"}BaseSavedState") ||
+                        ex.message.toString().contains("android.widget.HorizontalScrollView${"$"}SavedState")
+                ) {
+                    Log.w("CrashHandler", "Ignoring crash")
+                    // return@runCatching
+                }
+
+                if (
+                    ex.stackTrace.toString().contains("android.view.View${"$"}BaseSavedState") ||
+                        ex.stackTrace.toString().contains("android.widget.HorizontalScrollView${"$"}SavedState")
+                ) {
+                    Log.w("CrashHandler", "Ignoring crash")
+                    // return@runCatching
+                }
+
+                val intent = Intent(application!!, CrashActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+                var cause = ex.cause.toString()
+                val prefix = "java.lang.Throwable:"
+                if (cause.startsWith(prefix)) {
+                    cause = cause.removePrefix(prefix)
+                }
+
+                intent.putExtra("force_crash", ex is HarmlessException)
+                intent.putExtra("error_cause", cause)
+                intent.putExtra("msg", ex.message)
+
+                val stringWriter = StringWriter()
+                val printWriter = PrintWriter(stringWriter)
+                ex.printStackTrace(printWriter)
+                val stackTraceString = stringWriter.toString()
+
+                intent.putExtra("stacktrace", stackTraceString)
+                intent.putExtra("thread", thread.name)
+
+                application!!.startActivity(intent)
             }
-
-            if (ex.stackTrace.toString().contains("android.view.View${"$"}BaseSavedState") ||
-                ex.stackTrace
-                    .toString()
-                    .contains("android.widget.HorizontalScrollView${"$"}SavedState")
-            ) {
-                Log.w("CrashHandler", "Ignoring crash")
-                // return@runCatching
+            .onFailure {
+                it.printStackTrace()
+                exitProcess(1)
             }
-
-            val intent = Intent(application!!, CrashActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-
-            var cause = ex.cause.toString()
-            val prefix = "java.lang.Throwable:"
-            if (cause.startsWith(prefix)) {
-                cause = cause.removePrefix(prefix)
-            }
-
-            intent.putExtra("force_crash", ex is HarmlessException)
-            intent.putExtra("error_cause", cause)
-            intent.putExtra("msg", ex.message)
-
-            val stringWriter = StringWriter()
-            val printWriter = PrintWriter(stringWriter)
-            ex.printStackTrace(printWriter)
-            val stackTraceString = stringWriter.toString()
-
-            intent.putExtra("stacktrace", stackTraceString)
-            intent.putExtra("thread", thread.name)
-
-            application!!.startActivity(intent)
-        }.onFailure {
-            it.printStackTrace()
-            exitProcess(1)
-        }
 
         if (Looper.myLooper() != null) {
             while (true) {
@@ -70,24 +65,20 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
                     return
                 } catch (t: Throwable) {
                     Thread {
-                        t.printStackTrace()
-                        logErrorOrExit(t)
-                    }.start()
+                            t.printStackTrace()
+                            logErrorOrExit(t)
+                        }
+                        .start()
                 }
             }
         }
     }
 
     fun logErrorOrExit(throwable: Throwable) {
-        runCatching {
-            application!!
-                .filesDir
-                .child("crash.log")
-                .createFileIfNot()
-                .appendText(throwable.toString())
-        }.onFailure {
-            it.printStackTrace()
-            exitProcess(-1)
-        }
+        runCatching { application!!.filesDir.child("crash.log").createFileIfNot().appendText(throwable.toString()) }
+            .onFailure {
+                it.printStackTrace()
+                exitProcess(-1)
+            }
     }
 }

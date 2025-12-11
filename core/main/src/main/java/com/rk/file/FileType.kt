@@ -66,11 +66,14 @@ private val git = drawables.git
  * - Alternative names used in Markdown code blocks.
  *
  * @property extensions A list of file extensions associated with this file type (without the leading dot).
- * @property textmateScope The TextMate scope string used for syntax highlighting (e.g., "source.kt"). Null if not applicable.
+ * @property textmateScope The TextMate scope string used for syntax highlighting (e.g., "source.kt"). Null if not
+ *   applicable.
  * @property icon The resource ID of the default icon for this file type. Null if no icon is available.
- * @property iconOverride A map of specific extensions to specific icon resource IDs. Useful when a single file type encompasses different formats that need distinct icons (e.g., Gradle vs Groovy).
+ * @property iconOverride A map of specific extensions to specific icon resource IDs. Useful when a single file type
+ *   encompasses different formats that need distinct icons (e.g., Gradle vs Groovy).
  * @property title A human-readable title for the file type.
- * @property markdownNames A list of additional language identifiers often used in Markdown code blocks (e.g., ```javascript).
+ * @property markdownNames A list of additional language identifiers often used in Markdown code blocks
+ *   (e.g., ```javascript).
  */
 enum class FileType(
     val extensions: List<String>,
@@ -79,10 +82,10 @@ enum class FileType(
     val iconOverride: Map<String, Int>? = null,
     val title: String,
     /**
-     * Language identifiers used in Markdown code blocks.
-     * Should only include additional names that are not included in the extensions list.
-     * */
-    val markdownNames: List<String> = emptyList()
+     * Language identifiers used in Markdown code blocks. Should only include additional names that are not included in
+     * the extensions list.
+     */
+    val markdownNames: List<String> = emptyList(),
 ) {
     // Web languages
     JAVASCRIPT(
@@ -90,80 +93,45 @@ enum class FileType(
         textmateScope = "source.js",
         icon = js,
         title = "JavaScript",
-        markdownNames = listOf("javascript")
+        markdownNames = listOf("javascript"),
     ),
     TYPESCRIPT(
         extensions = listOf("ts", "mts", "cts"),
         textmateScope = "source.ts",
         icon = ts,
         title = "TypeScript",
-        markdownNames = listOf("typescript")
+        markdownNames = listOf("typescript"),
     ),
-    JSX(
-        extensions = listOf("jsx"),
-        textmateScope = "source.js.jsx",
-        icon = react,
-        title = "JavaScript JSX"
-    ),
-    TSX(
-        extensions = listOf("tsx"),
-        textmateScope = "source.tsx",
-        icon = react,
-        title = "TypeScript JSX"
-    ),
+    JSX(extensions = listOf("jsx"), textmateScope = "source.js.jsx", icon = react, title = "JavaScript JSX"),
+    TSX(extensions = listOf("tsx"), textmateScope = "source.tsx", icon = react, title = "TypeScript JSX"),
     HTML(
         extensions = listOf("html", "htm", "xhtml", "xht"),
         textmateScope = "text.html.basic",
         icon = html,
-        title = "HTML"
+        title = "HTML",
     ),
-    HTMX(
-        extensions = listOf("htmx"),
-        textmateScope = "text.html.htmx",
-        icon = html,
-        title = "HTMX"
-    ),
-    CSS(
-        extensions = listOf("css"),
-        textmateScope = "source.css",
-        icon = css,
-        title = "CSS"
-    ),
-    SCSS(
-        extensions = listOf("scss", "sass"),
-        textmateScope = "source.css.scss",
-        icon = sass,
-        title = "SCSS"
-    ),
-    LESS(
-        extensions = listOf("less"),
-        textmateScope = "source.css.less",
-        icon = less,
-        title = "Less"
-    ),
-    JSON(
-        extensions = listOf("json", "jsonl", "jsonc"),
-        textmateScope = "source.json",
-        icon = json,
-        title = "JSON"
-    ),
+    HTMX(extensions = listOf("htmx"), textmateScope = "text.html.htmx", icon = html, title = "HTMX"),
+    CSS(extensions = listOf("css"), textmateScope = "source.css", icon = css, title = "CSS"),
+    SCSS(extensions = listOf("scss", "sass"), textmateScope = "source.css.scss", icon = sass, title = "SCSS"),
+    LESS(extensions = listOf("less"), textmateScope = "source.css.less", icon = less, title = "Less"),
+    JSON(extensions = listOf("json", "jsonl", "jsonc"), textmateScope = "source.json", icon = json, title = "JSON"),
     MARKDOWN(
         extensions = listOf("md", "markdown", "mdown", "mkd", "mkdn", "mdoc", "mdtext", "mdtxt", "mdwn"),
         textmateScope = "text.html.markdown",
         icon = markdown,
-        title = "Markdown"
+        title = "Markdown",
     ),
     XML(
         extensions = listOf("xml", "xaml", "dtd", "plist", "ascx", "csproj", "wxi", "wxl", "wxs", "svg"),
         textmateScope = "text.xml",
         icon = xml,
-        title = "XML"
+        title = "XML",
     ),
     YAML(
         extensions = listOf("yaml", "yml", "eyaml", "eyml", "cff"),
         textmateScope = "source.yaml",
         icon = yaml,
-        title = "YAML"
+        title = "YAML",
     ),
 
     // Programming Languages
@@ -172,190 +140,121 @@ enum class FileType(
         textmateScope = "source.python",
         icon = python,
         title = "Python",
-        markdownNames = listOf("python")
+        markdownNames = listOf("python"),
     ),
-    JAVA(
-        extensions = listOf("java", "jav", "bsh"),
-        textmateScope = "source.java",
-        icon = java,
-        title = "Java"
-    ),
+    JAVA(extensions = listOf("java", "jav", "bsh"), textmateScope = "source.java", icon = java, title = "Java"),
     GROOVY(
         extensions = listOf("gsh", "groovy", "gradle", "gvy", "gy"),
         textmateScope = "source.groovy",
         icon = groovy,
         iconOverride = mapOf("gradle" to gradle),
-        title = "Groovy"
+        title = "Groovy",
     ),
-    C(
-        extensions = listOf("c"),
-        textmateScope = "source.c",
-        icon = c,
-        title = "C"
-    ),
+    C(extensions = listOf("c"), textmateScope = "source.c", icon = c, title = "C"),
     CPP(
         extensions = listOf("cpp", "cxx", "cc", "c++", "h", "hpp", "hh", "hxx", "h++"),
         textmateScope = "source.cpp",
         icon = cpp,
-        title = "C++"
+        title = "C++",
     ),
     CSHARP(
         extensions = listOf("cs", "csx"),
         textmateScope = "source.cs",
         icon = csharp,
         title = "C#",
-        markdownNames = listOf("csharp")
+        markdownNames = listOf("csharp"),
     ),
     RUBY(
         extensions = listOf("rb", "erb", "gemspec"),
         textmateScope = "source.ruby",
         icon = ruby,
         title = "Ruby",
-        markdownNames = listOf("ruby")
+        markdownNames = listOf("ruby"),
     ),
-    LUA(
-        extensions = listOf("lua"),
-        textmateScope = "source.lua",
-        icon = lua,
-        title = "Lua"
-    ),
-    GO(
-        extensions = listOf("go"),
-        textmateScope = "source.go",
-        icon = go,
-        title = "Go"
-    ),
-    PHP(
-        extensions = listOf("php"),
-        textmateScope = "source.php",
-        icon = php,
-        title = "PHP"
-    ),
+    LUA(extensions = listOf("lua"), textmateScope = "source.lua", icon = lua, title = "Lua"),
+    GO(extensions = listOf("go"), textmateScope = "source.go", icon = go, title = "Go"),
+    PHP(extensions = listOf("php"), textmateScope = "source.php", icon = php, title = "PHP"),
     RUST(
         extensions = listOf("rs"),
         textmateScope = "source.rust",
         icon = rust,
         title = "Rust",
-        markdownNames = listOf("rust")
+        markdownNames = listOf("rust"),
     ),
     PASCAL(
         extensions = listOf("p", "pas"),
         textmateScope = "source.pascal",
         icon = null,
         title = "Pascal",
-        markdownNames = listOf("pascal")
+        markdownNames = listOf("pascal"),
     ),
-    ZIG(
-        extensions = listOf("zig"),
-        textmateScope = "source.zig",
-        icon = zig,
-        title = "Zig"
-    ),
-    NIM(
-        extensions = listOf("nim"),
-        textmateScope = "source.nim",
-        icon = nim,
-        title = "Nim"
-    ),
-    SWIFT(
-        extensions = listOf("swift"),
-        textmateScope = "source.swift",
-        icon = swift,
-        title = "Swift"
-    ),
-    DART(
-        extensions = listOf("dart"),
-        textmateScope = "source.dart",
-        icon = dart,
-        title = "Dart"
-    ),
-    ROCQ(
-        extensions = listOf("v", "coq"),
-        textmateScope = "source.coq",
-        icon = null,
-        title = "Rocq (Coq)"
-    ),
+    ZIG(extensions = listOf("zig"), textmateScope = "source.zig", icon = zig, title = "Zig"),
+    NIM(extensions = listOf("nim"), textmateScope = "source.nim", icon = nim, title = "Nim"),
+    SWIFT(extensions = listOf("swift"), textmateScope = "source.swift", icon = swift, title = "Swift"),
+    DART(extensions = listOf("dart"), textmateScope = "source.dart", icon = dart, title = "Dart"),
+    ROCQ(extensions = listOf("v", "coq"), textmateScope = "source.coq", icon = null, title = "Rocq (Coq)"),
     KOTLIN(
         extensions = listOf("kt", "kts"),
         textmateScope = "source.kotlin",
         icon = kotlin,
         title = "Kotlin",
-        markdownNames = listOf("kotlin")
+        markdownNames = listOf("kotlin"),
     ),
-    LISP(
-        extensions = listOf("lisp", "clisp"),
-        textmateScope = "source.lisp",
-        icon = lisp,
-        title = "Lisp"
-    ),
+    LISP(extensions = listOf("lisp", "clisp"), textmateScope = "source.lisp", icon = lisp, title = "Lisp"),
     SHELL(
-        extensions = listOf("sh", "bash", "bash_login", "bash_logout", "bash_profile", "bashrc", "profile", "rhistory", "rprofile", "zsh", "zlogin", "zlogout", "zprofile", "zshenv", "zshrc", "fish", "ksh"),
+        extensions =
+            listOf(
+                "sh",
+                "bash",
+                "bash_login",
+                "bash_logout",
+                "bash_profile",
+                "bashrc",
+                "profile",
+                "rhistory",
+                "rprofile",
+                "zsh",
+                "zlogin",
+                "zlogout",
+                "zprofile",
+                "zshenv",
+                "zshrc",
+                "fish",
+                "ksh",
+            ),
         textmateScope = "source.shell",
         icon = shell,
         title = "Shell script",
-        markdownNames = listOf("shell", "console")
+        markdownNames = listOf("shell", "console"),
     ),
-    WINDOWS_SHELL(
-        extensions = listOf("cmd", "bat"),
-        textmateScope = "source.batchfile",
-        icon = shell,
-        title = "Batch"
-    ),
+    WINDOWS_SHELL(extensions = listOf("cmd", "bat"), textmateScope = "source.batchfile", icon = shell, title = "Batch"),
     POWERSHELL(
         extensions = listOf("ps1", "psm1", "psd1"),
         textmateScope = "source.powershell",
         icon = null,
         title = "PowerShell",
-        markdownNames = listOf("powershell", "ps")
+        markdownNames = listOf("powershell", "ps"),
     ),
-    SMALI(
-        extensions = listOf("smali"),
-        textmateScope = "source.smali",
-        icon = null,
-        title = "Smali"
-    ),
-    ASSEMBLY(
-        extensions = listOf("asm"),
-        textmateScope = "source.asm",
-        icon = null,
-        title = "Assembly"
-    ),
+    SMALI(extensions = listOf("smali"), textmateScope = "source.smali", icon = null, title = "Smali"),
+    ASSEMBLY(extensions = listOf("asm"), textmateScope = "source.asm", icon = null, title = "Assembly"),
 
     // Data Files
-    SQL(
-        extensions = listOf("sql", "dsql", "sqllite"),
-        textmateScope = "source.sql",
-        icon = sql,
-        title = "SQL"
-    ),
-    TOML(
-        extensions = listOf("toml"),
-        textmateScope = "source.toml",
-        icon = toml,
-        title = "TOML"
-    ),
-    INI(
-        extensions = listOf("ini"),
-        textmateScope = "source.ini",
-        icon = prop,
-        title = "INI"
-    ),
+    SQL(extensions = listOf("sql", "dsql", "sqllite"), textmateScope = "source.sql", icon = sql, title = "SQL"),
+    TOML(extensions = listOf("toml"), textmateScope = "source.toml", icon = toml, title = "TOML"),
+    INI(extensions = listOf("ini"), textmateScope = "source.ini", icon = prop, title = "INI"),
     PROPERTIES(
-        extensions = listOf("properties", "cfg", "conf", "config", "editorconfig", "gitconfig", "gitmodules", "gitattributes"),
+        extensions =
+            listOf("properties", "cfg", "conf", "config", "editorconfig", "gitconfig", "gitmodules", "gitattributes"),
         textmateScope = "source.properties",
         icon = prop,
-        iconOverride = mapOf(
-            "gitmodules" to git,
-            "gitattributes" to git,
-            "gitconfig" to git,
-        ),
-        title = "Properties"
+        iconOverride = mapOf("gitmodules" to git, "gitattributes" to git, "gitconfig" to git),
+        title = "Properties",
     ),
     IGNORE(
         extensions = listOf("gitignore", "gitignore_global", "gitkeep", "git-blame-ignore-revs"),
         textmateScope = "source.ignore",
         icon = git,
-        title = "Ignore"
+        title = "Ignore",
     ),
 
     // Documents
@@ -364,62 +263,37 @@ enum class FileType(
         textmateScope = null,
         icon = text,
         title = "Plain text",
-        markdownNames = listOf("plaintext", "text")
+        markdownNames = listOf("plaintext", "text"),
     ),
-    LOG(
-        extensions = listOf("log"),
-        textmateScope = "text.log",
-        icon = null,
-        title = "Log"
-    ),
-    LATEX(
-        extensions = listOf("latex", "tex", "ltx"),
-        textmateScope = "text.tex.latex",
-        icon = latex,
-        title = "LaTeX"
-    ),
+    LOG(extensions = listOf("log"), textmateScope = "text.log", icon = null, title = "Log"),
+    LATEX(extensions = listOf("latex", "tex", "ltx"), textmateScope = "text.tex.latex", icon = latex, title = "LaTeX"),
     IMAGE(
         extensions = listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "heic", "heif", "avif"),
         textmateScope = null,
         icon = image,
-        title = "Image"
+        title = "Image",
     ),
     AUDIO(
         extensions = listOf("mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"),
         textmateScope = null,
         icon = audio,
-        title = "Audio"
+        title = "Audio",
     ),
-    VIDEO(
-        extensions = listOf("mp4", "avi", "mov", "mkv", "webm"),
-        textmateScope = null,
-        icon = video,
-        title = "Video"
-    ),
+    VIDEO(extensions = listOf("mp4", "avi", "mov", "mkv", "webm"), textmateScope = null, icon = video, title = "Video"),
     ARCHIVE(
         extensions = listOf("zip", "rar", "7z", "tar", "gz", "bz2", "xy"),
         textmateScope = null,
         icon = archive,
-        title = "Archive"
+        title = "Archive",
     ),
     EXECUTABLE(
         extensions = listOf("exe", "dll", "so", "dylib", "bin"),
         textmateScope = null,
         icon = null,
-        title = "Executable"
+        title = "Executable",
     ),
-    APK(
-        extensions = listOf("apk", "xapk", "apks"),
-        textmateScope = null,
-        icon = apk,
-        title = "APK"
-    ),
-    UNKNOWN(
-        extensions = emptyList(),
-        textmateScope = null,
-        icon = null,
-        title = strings.unknown.getString()
-    );
+    APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = apk, title = "APK"),
+    UNKNOWN(extensions = emptyList(), textmateScope = null, icon = null, title = strings.unknown.getString());
 
     companion object {
         fun fromExtension(ext: String): FileType {

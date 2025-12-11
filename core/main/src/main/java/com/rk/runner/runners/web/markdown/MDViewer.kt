@@ -14,13 +14,13 @@ import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.theme.XedTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
+import java.lang.ref.WeakReference
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
-import java.net.HttpURLConnection
-import java.net.URL
 
 private const val PORT = 8357
 
@@ -38,24 +38,22 @@ class MDViewer : WebActivity() {
             (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
         // kill any existing HtmlRunner server
-        HtmlRunner.httpServer?.let {
-            if (it.isAlive) it.stop()
-        }
-
+        HtmlRunner.httpServer?.let { if (it.isAlive) it.stop() }
 
         lifecycleScope.launch {
             // start markdown-serving server
-            httpServer = HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
-                return@HttpServer runBlocking {
+            httpServer =
+                HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
+                    return@HttpServer runBlocking {
+                        val parameters = session.parameters
+                        val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
+                        if (parameters.containsKey("textmd")) {
+                            return@runBlocking null
+                        }
 
-                    val parameters = session.parameters
-                    val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
-                    if (parameters.containsKey("textmd")) {
-                        return@runBlocking null
-                    }
-
-                    if (md.exists() && md.isFile() && md.getName().endsWith(".md")) {
-                        val htmlString = """
+                        if (md.exists() && md.isFile() && md.getName().endsWith(".md")) {
+                            val htmlString =
+                                """
                     <!DOCTYPE html>
                     <html>
                     <head>
@@ -67,15 +65,18 @@ class MDViewer : WebActivity() {
                          <zero-md src="/$pathAfterSlash?textmd"></zero-md>
                     </body>
                     </html>
-                """.trimIndent()
+                """
+                                    .trimIndent()
 
-                        return@runBlocking newFixedLengthResponse(
-                            NanoHTTPD.Response.Status.OK, "text/html", htmlString
-                        )
+                            return@runBlocking newFixedLengthResponse(
+                                NanoHTTPD.Response.Status.OK,
+                                "text/html",
+                                htmlString,
+                            )
+                        }
+                        return@runBlocking null
                     }
-                    return@runBlocking null
                 }
-            }
 
             // now load WebView inside Compose
             setContent {
@@ -96,19 +97,15 @@ class MDViewer : WebActivity() {
                                         html,
                                         "text/html",
                                         "utf-8",
-                                        null
+                                        null,
                                     )
                                 }
                             }
-                        }
+                        },
                     )
                 }
-
             }
         }
-
-
-
     }
 
     private suspend fun fetchMarkdownFile(url: String): String {

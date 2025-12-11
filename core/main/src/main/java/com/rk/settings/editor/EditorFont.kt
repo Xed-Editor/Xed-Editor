@@ -2,9 +2,8 @@ package com.rk.settings.editor
 
 import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.GsonBuilder
-import com.rk.utils.application
 import com.rk.settings.Settings
-
+import com.rk.utils.application
 
 object EditorFont {
     val fonts = mutableStateListOf<Font>()
@@ -14,13 +13,7 @@ object EditorFont {
     init {
         application!!.assets.list("fonts")?.forEach { asset ->
             if (asset.endsWith(".ttf")) {
-                fonts.add(
-                    Font(
-                        name = asset.removeSuffix(".ttf"),
-                        isAsset = true,
-                        pathOrAsset = "fonts/$asset"
-                    )
-                )
+                fonts.add(Font(name = asset.removeSuffix(".ttf"), isAsset = true, pathOrAsset = "fonts/$asset"))
             }
         }
         restoreFonts()
@@ -38,7 +31,6 @@ object EditorFont {
                     fonts.add(font)
                 }
             }
-
         } catch (e: Exception) {
             error("Clear data recommended \n\n $e")
         }

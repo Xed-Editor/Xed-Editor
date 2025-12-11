@@ -19,25 +19,21 @@ import androidx.compose.ui.window.DialogProperties
 fun XedDialog(
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
-    dialogProperties: DialogProperties = DialogProperties(
-        usePlatformDefaultWidth = false,
-        decorFitsSystemWindows = false
-    ),
-    content: @Composable () -> Unit
+    dialogProperties: DialogProperties =
+        DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+    content: @Composable () -> Unit,
 ) {
     val config = LocalConfiguration.current
 
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = dialogProperties
-    ) {
+    Dialog(onDismissRequest = onDismissRequest, properties = dialogProperties) {
         Box(
-            modifier = modifier
-                .padding(horizontal = 16.dp, vertical = 32.dp)
-                .clip(shape = RoundedCornerShape(16.dp))
-                .width((config.screenWidthDp / 1.25).dp)
-                .background(MaterialTheme.colorScheme.surfaceContainer),
-            contentAlignment = Alignment.Center
+            modifier =
+                modifier
+                    .padding(horizontal = 16.dp, vertical = 32.dp)
+                    .clip(shape = RoundedCornerShape(16.dp))
+                    .width((config.screenWidthDp / 1.25).dp)
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
+            contentAlignment = Alignment.Center,
         ) {
             content()
         }

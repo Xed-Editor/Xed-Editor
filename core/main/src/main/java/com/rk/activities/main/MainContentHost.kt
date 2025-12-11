@@ -5,12 +5,13 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -30,39 +31,34 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 import com.rk.utils.dialog
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
+var navigationDrawerState = WeakReference<DrawerState?>(null)
 
 @Composable
-fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel: FileTreeViewModel = viewModel()) {
+fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewModel: FileTreeViewModel = viewModel()) {
     com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
 
     XedTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.surface
-        ) {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+            navigationDrawerState = WeakReference(drawerState)
             val scope = rememberCoroutineScope()
 
             BackHandler {
                 if (drawerState.isOpen) {
-                    scope.launch {
-                        drawerState.close()
-                    }
+                    scope.launch { drawerState.close() }
                 } else if (viewModel.tabs.isNotEmpty()) {
                     dialog(
                         title = strings.attention.getString(),
                         msg = strings.confirm_exit.getString(),
                         onCancel = {},
-                        onOk = {
-                            finish()
-                        },
-                        okString = strings.exit
+                        onOk = { finish() },
+                        okString = strings.exit,
                     )
                 } else {
                     finish()
@@ -71,16 +67,14 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel
 
             val density = LocalDensity.current
             var accumulator = 0f
-            val softThreshold = with (density) { 50.dp.toPx() }
-            val hardThreshold = with (density) { 100.dp.toPx() }
+            val softThreshold = with(density) { 50.dp.toPx() }
+            val hardThreshold = with(density) { 100.dp.toPx() }
 
-            viewModel.commands = CommandProvider.getAll(viewModel)
+            CommandProvider.globalCommands = CommandProvider.buildCommands(viewModel)
 
-            val mainContent: @Composable ()-> Unit = {
+            val mainContent: @Composable () -> Unit = {
                 Scaffold(
-                    modifier = Modifier.nestedScroll(
-                        rememberNestedScrollInteropConnection()
-                    ),
+                    modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
                     topBar = {
                         XedTopBar(
                             drawerState = drawerState,
@@ -101,33 +95,31 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel
                                     viewModel.isDraggingPalette = shouldOpen
                                     viewModel.draggingPaletteProgress.animateTo(
                                         if (shouldOpen) 1f else 0f,
-                                        animationSpec = spring(stiffness = 800f)
+                                        animationSpec = spring(stiffness = 800f),
                                     )
                                 }
                                 accumulator = 0f
-                            }
+                            },
                         )
-                    }
+                    },
                 ) { innerPadding ->
                     MainContent(
                         innerPadding = innerPadding,
                         drawerState = drawerState,
                         mainViewModel = viewModel,
-                        fileTreeViewModel = fileTreeViewModel
+                        fileTreeViewModel = fileTreeViewModel,
                     )
                 }
             }
 
-            val sheetContent: @Composable ColumnScope.()-> Unit = {
+            val sheetContent: @Composable ColumnScope.() -> Unit = {
                 LaunchedEffect(Unit) {
                     isLoading = true
                     restoreProjects()
                     isLoading = false
                 }
                 DrawerContent(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 8.dp),
+                    modifier = Modifier.fillMaxSize().padding(top = 8.dp),
                     fileTreeViewModel = fileTreeViewModel,
                     onFileSelected = { file ->
                         scope.launch(Dispatchers.IO) {
@@ -136,20 +128,15 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier,fileTreeViewModel
                             }
 
                             delay(60)
-                            if (Settings.keep_drawer_locked.not()){
+                            if (Settings.keep_drawer_locked.not()) {
                                 drawerState.close()
                             }
-
                         }
-                    }
+                    },
                 )
             }
 
-            ResponsiveDrawer(
-                drawerState = drawerState,
-                mainContent = mainContent,
-                sheetContent = sheetContent
-            )
+            ResponsiveDrawer(drawerState = drawerState, mainContent = mainContent, sheetContent = sheetContent)
         }
     }
 }

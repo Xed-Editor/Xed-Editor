@@ -4,16 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.edit
+import com.rk.theme.blueberry
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
-import com.rk.theme.blueberry
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
-import androidx.core.content.edit
-import kotlin.collections.emptyList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)
@@ -53,18 +54,17 @@ object Settings {
     var textmate_suggestion by CachedPreference("textMateSuggestion", true)
     var seccomp by CachedPreference("seccomp", false)
     var desktopMode by CachedPreference("desktopMode", false)
-    var themeFlipper by CachedPreference("theme_flipper",false)
+    var themeFlipper by CachedPreference("theme_flipper", false)
     var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
     var format_on_save by CachedPreference("format_on_save", false)
+    var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
+    var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
     var show_tab_icons by CachedPreference("show_tab_icons", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
     var editor_text_size by CachedPreference("textsize", 14)
-    var default_night_mode by CachedPreference(
-        "default_night_mode",
-        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-    )
+    var default_night_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
     var visits by CachedPreference("visits", 0)
 
@@ -74,7 +74,8 @@ object Settings {
     var theme by CachedPreference("theme", blueberry.id)
     var selected_font_path by CachedPreference("selected_font_path", "")
     var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
-    var currentLang: String? by CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
+    var currentLang: String? by
+        CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
     var extra_keys by CachedPreference("extra_keys", "()\"{}[];")
 
     // Long settings
@@ -85,7 +86,11 @@ object Settings {
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
-    var action_items by CachedPreference("action_items", "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings")
+    var action_items by
+        CachedPreference(
+            "action_items",
+            "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings",
+        )
 }
 
 object Preference {
@@ -100,19 +105,20 @@ object Preference {
     private val floatCache = mutableMapOf<String, WeakReference<Float>>()
 
     // Preload all settings at startup
-    fun preloadAllSettings() {
-        // This will force all settings to be loaded into cache
-        // The weak references will allow GC if settings aren't used
-        Settings::class.members.forEach { member ->
-            if (member is KProperty<*>) {
-                try {
-                    member.getter.call(Settings)
-                } catch (e: Exception) {
-                    // Ignore - some properties might not be accessible
+    suspend fun preloadAllSettings() =
+        withContext(Dispatchers.IO) {
+            // This will force all settings to be loaded into cache
+            // The weak references will allow GC if settings aren't used
+            Settings::class.members.forEach { member ->
+                if (member is KProperty<*>) {
+                    try {
+                        member.getter.call(Settings)
+                    } catch (e: Exception) {
+                        // Ignore - some properties might not be accessible
+                    }
                 }
             }
         }
-    }
 
     @SuppressLint("ApplySharedPref")
     fun clearData() {
@@ -146,108 +152,108 @@ object Preference {
     }
 
     fun getBoolean(key: String, default: Boolean): Boolean {
-        return boolCache[key]?.get() ?: run {
-            val value = try {
-                sharedPreferences.getBoolean(key, default)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                setBoolean(key, default)
-                default
+        return boolCache[key]?.get()
+            ?: run {
+                val value =
+                    try {
+                        sharedPreferences.getBoolean(key, default)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        setBoolean(key, default)
+                        default
+                    }
+                boolCache[key] = WeakReference(value)
+                value
             }
-            boolCache[key] = WeakReference(value)
-            value
-        }
     }
 
     fun setBoolean(key: String, value: Boolean) {
         boolCache[key] = WeakReference(value)
-        runCatching {
-            sharedPreferences.edit { putBoolean(key, value) }
-        }.onFailure { it.printStackTrace() }
+        runCatching { sharedPreferences.edit { putBoolean(key, value) } }.onFailure { it.printStackTrace() }
     }
 
     fun getString(key: String, default: String): String {
-        return stringCache[key]?.get() ?: run {
-            val value = try {
-                sharedPreferences.getString(key, default) ?: default
-            } catch (e: Exception) {
-                e.printStackTrace()
-                setString(key, default)
-                default
+        return stringCache[key]?.get()
+            ?: run {
+                val value =
+                    try {
+                        sharedPreferences.getString(key, default) ?: default
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        setString(key, default)
+                        default
+                    }
+                stringCache[key] = WeakReference(value)
+                value
             }
-            stringCache[key] = WeakReference(value)
-            value
-        }
     }
 
     fun setString(key: String, value: String?) {
         stringCache[key] = WeakReference(value)
-        runCatching {
-            sharedPreferences.edit { putString(key, value) }
-        }.onFailure { it.printStackTrace() }
+        runCatching { sharedPreferences.edit { putString(key, value) } }.onFailure { it.printStackTrace() }
     }
 
     fun getInt(key: String, default: Int): Int {
-        return intCache[key]?.get() ?: run {
-            val value = try {
-                sharedPreferences.getInt(key, default)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                setInt(key, default)
-                default
+        return intCache[key]?.get()
+            ?: run {
+                val value =
+                    try {
+                        sharedPreferences.getInt(key, default)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        setInt(key, default)
+                        default
+                    }
+                intCache[key] = WeakReference(value)
+                value
             }
-            intCache[key] = WeakReference(value)
-            value
-        }
     }
 
     fun setInt(key: String, value: Int) {
         intCache[key] = WeakReference(value)
-        runCatching {
-            sharedPreferences.edit { putInt(key, value) }
-        }.onFailure { it.printStackTrace() }
+        runCatching { sharedPreferences.edit { putInt(key, value) } }.onFailure { it.printStackTrace() }
     }
 
     fun getLong(key: String, default: Long): Long {
-        return longCache[key]?.get() ?: run {
-            val value = try {
-                sharedPreferences.getLong(key, default)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                setLong(key, default)
-                default
+        return longCache[key]?.get()
+            ?: run {
+                val value =
+                    try {
+                        sharedPreferences.getLong(key, default)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        setLong(key, default)
+                        default
+                    }
+                longCache[key] = WeakReference(value)
+                value
             }
-            longCache[key] = WeakReference(value)
-            value
-        }
     }
 
     fun setLong(key: String, value: Long) {
         longCache[key] = WeakReference(value)
-        runCatching {
-            sharedPreferences.edit { putLong(key, value) }
-        }.onFailure { it.printStackTrace() }
+        runCatching { sharedPreferences.edit { putLong(key, value) } }.onFailure { it.printStackTrace() }
     }
 
     fun getFloat(key: String, default: Float): Float {
-        return floatCache[key]?.get() ?: run {
-            val value = try {
-                sharedPreferences.getFloat(key, default)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                setFloat(key, default)
-                default
+        return floatCache[key]?.get()
+            ?: run {
+                val value =
+                    try {
+                        sharedPreferences.getFloat(key, default)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        setFloat(key, default)
+                        default
+                    }
+                floatCache[key] = WeakReference(value)
+                value
             }
-            floatCache[key] = WeakReference(value)
-            value
-        }
     }
 
     fun setFloat(key: String, value: Float) {
         floatCache[key] = WeakReference(value)
-        runCatching {
-            sharedPreferences.edit { putFloat(key, value) }
-        }.onFailure { it.printStackTrace() }
+        runCatching { sharedPreferences.edit { putFloat(key, value) } }.onFailure { it.printStackTrace() }
     }
 }
 

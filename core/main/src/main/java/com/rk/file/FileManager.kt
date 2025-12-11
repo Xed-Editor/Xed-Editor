@@ -13,32 +13,34 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.activities.main.fileTreeViewModel
-import com.rk.filetree.FileTreeViewModel
+import com.rk.resources.getString
 import com.rk.utils.application
 import com.rk.utils.toast
-import com.rk.resources.getString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 
 var to_save_file: FileObject? = null
+
 class FileManager(private val activity: ComponentActivity) {
 
     private fun getString(@StringRes id: Int): String = id.getString()
 
     // Generic activity result handler
-    private val activityResultLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        activityResultCallback?.invoke(result)
-        activityResultCallback = null
-    }
+    private val activityResultLauncher =
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            activityResultCallback?.invoke(result)
+            activityResultCallback = null
+        }
     private var activityResultCallback: ((ActivityResult) -> Unit)? = null
 
     // Generic directory picker
-    private val directoryPickerLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-        directoryPickerCallback?.invoke(uri)
-        directoryPickerCallback = null
-    }
+    private val directoryPickerLauncher =
+        activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            directoryPickerCallback?.invoke(uri)
+            directoryPickerCallback = null
+        }
     private var directoryPickerCallback: ((Uri?) -> Unit)? = null
 
     private fun launchActivityForResult(intent: Intent, callback: (ActivityResult) -> Unit) {
@@ -69,23 +71,22 @@ class FileManager(private val activity: ComponentActivity) {
         launchDirectoryPicker { uri ->
             uri?.let {
                 runCatching {
-                    val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    activity.contentResolver.takePersistableUriPermission(it, takeFlags)
-                }.onFailure { e -> e.printStackTrace() }
+                        val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        activity.contentResolver.takePersistableUriPermission(it, takeFlags)
+                    }
+                    .onFailure { e -> e.printStackTrace() }
             }
             callback(uri)
         }
     }
 
-
-
-
-    fun createNewFile(mimeType:String, title: String, callback: (FileObject?) -> Unit = {}) {
-        launchActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-            type = mimeType
-            putExtra(Intent.EXTRA_TITLE, title)
-        }) { result ->
+    fun createNewFile(mimeType: String, title: String, callback: (FileObject?) -> Unit = {}) {
+        launchActivityForResult(
+            Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                type = mimeType
+                putExtra(Intent.EXTRA_TITLE, title)
+            }
+        ) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 this.activity.lifecycleScope.launch {
                     val uri = result.data?.data
@@ -99,25 +100,29 @@ class FileManager(private val activity: ComponentActivity) {
         }
     }
 
-
     var parentFile: FileObject? = null
+
     fun requestAddFile(parent: FileObject, callback: (FileObject?) -> Unit = {}) {
         parentFile = parent
-        launchActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*"
-        }) { result ->
+        launchActivityForResult(
+            Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+            }
+        ) { result ->
             if (result.resultCode != Activity.RESULT_OK) {
                 callback(null)
                 parentFile = null
                 return@launchActivityForResult
             }
 
-            val sourceUri = result.data?.data ?: run {
-                callback(null)
-                parentFile = null
-                return@launchActivityForResult
-            }
+            val sourceUri =
+                result.data?.data
+                    ?: run {
+                        callback(null)
+                        parentFile = null
+                        return@launchActivityForResult
+                    }
 
             DefaultScope.launch(Dispatchers.IO) {
                 try {
@@ -130,16 +135,10 @@ class FileManager(private val activity: ComponentActivity) {
                             fileTreeViewModel?.get()?.updateCache(parentFile!!)
                             callback(file)
                         }
-                    } ?: run {
-                        withContext(Dispatchers.Main) {
-                            callback(null)
-                        }
-                    }
+                    } ?: run { withContext(Dispatchers.Main) { callback(null) } }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    withContext(Dispatchers.Main) {
-                        callback(null)
-                    }
+                    withContext(Dispatchers.Main) { callback(null) }
                 } finally {
                     parentFile = null
                 }
@@ -155,7 +154,7 @@ class FileManager(private val activity: ComponentActivity) {
             }
 
             try {
-                this.activity.lifecycleScope.launch(Dispatchers.IO){
+                this.activity.lifecycleScope.launch(Dispatchers.IO) {
                     val fileObject = uri.toFileObject(expectedIsFile = true)
                     if (fileObject.hasChild(fileName)) {
                         toast("File with name $fileName already exists")
@@ -165,7 +164,6 @@ class FileManager(private val activity: ComponentActivity) {
                         callback(newFile)
                     }
                 }
-
             } catch (e: Exception) {
                 e.printStackTrace()
                 callback(null)
@@ -185,14 +183,12 @@ class FileManager(private val activity: ComponentActivity) {
                     if (uri != null) {
                         DefaultScope.launch(Dispatchers.IO) {
                             try {
-                                activity.contentResolver.openInputStream(file.toUri())
-                                    .use { inputStream ->
-                                        activity.contentResolver.openOutputStream(uri)
-                                            ?.use { outputStream ->
-                                                inputStream?.copyTo(outputStream)
-                                                callback(true)
-                                            } ?: callback(false)
-                                    }
+                                activity.contentResolver.openInputStream(file.toUri()).use { inputStream ->
+                                    activity.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                                        inputStream?.copyTo(outputStream)
+                                        callback(true)
+                                    } ?: callback(false)
+                                }
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 callback(false)
@@ -214,14 +210,12 @@ class FileManager(private val activity: ComponentActivity) {
 
                 DefaultScope.launch(Dispatchers.IO) {
                     try {
-                        activity.contentResolver.openInputStream(file.toUri())
-                            .use { inputStream ->
-                                activity.contentResolver.openOutputStream(uri)
-                                    ?.use { outputStream ->
-                                        inputStream?.copyTo(outputStream)
-                                        callback(true)
-                                    } ?: callback(false)
-                            }
+                        activity.contentResolver.openInputStream(file.toUri()).use { inputStream ->
+                            activity.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                                inputStream?.copyTo(outputStream)
+                                callback(true)
+                            } ?: callback(false)
+                        }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         callback(false)
@@ -242,11 +236,7 @@ class FileManager(private val activity: ComponentActivity) {
         return name
     }
 
-    private fun copyUriData(
-        contentResolver: ContentResolver,
-        sourceUri: Uri,
-        destinationUri: Uri
-    ) {
+    private fun copyUriData(contentResolver: ContentResolver, sourceUri: Uri, destinationUri: Uri) {
         contentResolver.openInputStream(sourceUri)?.use { inputStream ->
             contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
                 copyStream(inputStream, outputStream)

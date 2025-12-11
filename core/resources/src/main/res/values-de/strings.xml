@@ -328,7 +328,7 @@
     <string name="force_normal">Normalmodus erzwingen</string>
     <string name="theme_mode">Thema-Modus</string>
     <string name="cannot_be_empty">Es darf nicht leer sein.</string>
-    <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi.</string>
+    <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi</string>
     <string name="read_only_file">Datei ist schreibgeschützt</string>
     <string name="expose_saf">Home-Verzeichnis freigeben</string>
     <string name="expose_saf_desc">Home-Verzeichnis über den System-Dateiauswahldialog (SAF) für externe Apps zugänglich machen</string>
@@ -446,7 +446,7 @@
     <string name="enable_sticky_scroll_desc">Die aktuelle Codeblock-Überschrift beim Scrollen sichtbar halten</string>
     <string name="enable_quick_deletion">Schnelllöschung aktivieren</string>
     <string name="enable_quick_deletion_desc">Die gesamten Zeile automatisch löschen, wenn diese leer ist</string>
-    <string name="rename_failed">Symbol konnte nicht umbenannt werden</string>
+    <string name="rename_failed">Datei konnte nicht umbenannt werden</string>
     <string name="expert_mode">Experten-Modus</string>
     <string name="expert_mode_warn">Der Experten-Modus deaktiviert Sicherheitsbeschränkungen, die bei Missbrauch zu Datenverlust oder anderen Problemen führen können. Aktiviere ihn nur, wenn du weißt, was du tust.</string>
     <string name="external_lsp">Externer LSP</string>
@@ -494,4 +494,9 @@
     <string name="project_restore_failed">Projekte konnten nicht wiederhergestellt werden</string>
     <string name="theme_flipper">Themen-Wechsler</string>
     <string name="theme_flipper_desc">Den Thema-Modus ständig alle 7s ändern</string>
+    <string name="lsp_terminal_unavailable">Die LSP-Sprachfunktionen funktionieren nicht, da die Terminalumgebung nicht verfügbar oder nicht funktionsfähig ist.</string>
+    <string name="invalid_intent">Ungültiger Intent empfangen:\n%s</string>
+    <string name="select_language">Sprache auswählen</string>
+    <string name="delete_failed">Datei konnte nicht gelöscht werden</string>
+    <string name="add_parent_command">Übergeordneten Befehl hinzufügen</string>
 </resources>
