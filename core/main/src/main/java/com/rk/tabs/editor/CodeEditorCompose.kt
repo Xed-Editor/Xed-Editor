@@ -101,7 +101,8 @@ fun EditorTab.CodeEditor(
 
                         editable = state.editable
                         if (Settings.word_wrap_for_text && !isWordwrap) {
-                            isWordwrap = file.getName().endsWith(".txt")
+                            val isTextFile = file.getName().endsWith(".txt")
+                            setWordwrap(isTextFile, true, true)
                         }
                         id = View.generateViewId()
                         layoutParams = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 0)
