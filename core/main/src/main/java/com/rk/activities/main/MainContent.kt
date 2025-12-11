@@ -2,6 +2,7 @@ package com.rk.activities.main
 
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -35,7 +36,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -256,7 +256,6 @@ private fun TabItem(
                 mainViewModel = mainViewModel,
                 index = index,
                 calculatedTabWidth = calculatedTabWidth,
-                reorderState = reorderState,
                 tabState = tabState,
                 onCloseThis = onCloseThis,
                 onCloseOthers = onCloseOthers,
@@ -290,7 +289,6 @@ private fun TabItem(
             mainViewModel = mainViewModel,
             index = index,
             calculatedTabWidth = calculatedTabWidth,
-            reorderState = reorderState,
             tabState = tabState,
             onCloseThis = onCloseThis,
             onCloseOthers = onCloseOthers,
@@ -306,7 +304,6 @@ private fun TabItemContent(
     mainViewModel: MainViewModel,
     index: Int,
     calculatedTabWidth: Int?,
-    reorderState: ReorderState<Tab>,
     tabState: Tab,
     onCloseThis: (Int) -> Unit,
     onCloseOthers: (Int) -> Unit,
@@ -318,17 +315,14 @@ private fun TabItemContent(
     var showTabMenu by remember { mutableStateOf(false) }
 
     val isSelected = mainViewModel.currentTabIndex == index
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
 
     val tabModifier =
         Modifier.let { modifier ->
                 calculatedTabWidth?.let { width -> modifier.width(with(LocalDensity.current) { width.toDp() }) }
                     ?: modifier
             }
-            .graphicsLayer {
-                if (reorderState.draggedItem?.data != tabState) return@graphicsLayer
-                alpha = if (isDraggableContent) 1f else 0.4f
-                shadowElevation = if (isDraggableContent) 16.dp.toPx() else 0f
-            }
+            .let { if (isDraggableContent) it.background(backgroundColor.copy(alpha = 0.4f)) else it }
 
     val onClick = {
         if (isSelected) {
