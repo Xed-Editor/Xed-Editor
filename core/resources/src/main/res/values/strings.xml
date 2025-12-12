@@ -497,6 +497,8 @@
     <string name="project_restore_failed">Failed to restore projects</string>
     <string name="theme_flipper">Theme flipper</string>
     <string name="theme_flipper_desc">Constantly change the theme mode every 7s</string>
+    <string name="show_tab_icons">Show tab icons</string>
+    <string name="show_tab_icons_desc">Show file icons beside tab titles</string>
     <string name="lsp_terminal_unavailable">LSP language features will not work because the terminal environment is unavailable or not functioning.</string>
     <string name="invalid_intent">Received invalid intent:\n%s</string>
     <string name="add_parent_command">Add parent command</string>

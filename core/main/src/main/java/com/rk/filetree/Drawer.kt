@@ -18,23 +18,28 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material3.*
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,18 +47,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.components.AddDialogItem
 import com.rk.components.CloseConfirmationDialog
-import com.rk.components.FileActionDialog
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
+import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -61,12 +64,9 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.dialog
+import com.rk.utils.readObject
 import com.rk.utils.toast
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serializable
+import com.rk.utils.writeObject
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -75,79 +75,76 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-data class FileObjectWrapper(val fileObject: FileObject, val name: String) : Serializable {
-    override fun equals(other: Any?): Boolean {
-        if (other is FileObject) {
-            return other == fileObject
-        }
-        if (other !is FileObjectWrapper) {
-            return false
-        }
-        return other.fileObject == fileObject
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + fileObject.hashCode()
-        result = 31 * result + name.hashCode()
-        return result
-    }
-}
-
 private val mutex = Mutex()
 
 suspend fun saveProjects() {
     mutex.withLock {
-        withContext(Dispatchers.IO) {
-            currentProject?.getAbsolutePath()?.let { Settings.selectedProject = it }
+        val file = FileWrapper(application!!.filesDir.child("projects"))
+        val serializableList = ArrayList(tabs)
+        file.writeObject(serializableList)
 
-            val file = application!!.filesDir.child("projects")
-
-            ObjectOutputStream(FileOutputStream(file)).use { oos -> oos.writeObject(projects.map { it.fileObject }) }
+        val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
+        if (currentTab != null) {
+            currentTabFile.writeObject(currentTab!!)
+        } else {
+            currentTabFile.delete()
         }
     }
 }
 
 suspend fun restoreProjects() {
     mutex.withLock {
-        withContext(Dispatchers.IO) {
-            runCatching {
-                    val file = application!!.filesDir.child("projects")
-                    if (file.exists() && file.canRead()) {
-                        ObjectInputStream(FileInputStream(file)).use { ois ->
-                            val list = mutableStateListOf<FileObjectWrapper>()
-                            list.addAll(
-                                (ois.readObject() as List<FileObject>).map { FileObjectWrapper(it, it.getName()) }
-                            )
-                            withContext(Dispatchers.Main) { projects = list }
+        runCatching {
+                val loadedTabs =
+                    withContext(Dispatchers.IO) {
+                        val file = FileWrapper(application!!.filesDir.child("projects"))
+
+                        if (file.exists() && file.canRead()) {
+                            file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
+                        } else {
+                            emptyList()
                         }
                     }
-                    projects.forEach {
-                        if (it.fileObject.getAbsolutePath() == Settings.selectedProject) {
-                            currentProject = it.fileObject
-                        }
-                    }
+
+                // Update the existing state list on Main thread
+                withContext(Dispatchers.Main) {
+                    tabs.clear()
+                    tabs.addAll(loadedTabs)
                 }
-                .onFailure {
-                    it.printStackTrace()
-                    toast(strings.project_restore_failed)
+
+                val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
+                if (currentTabFile.exists() && currentTabFile.canRead()) {
+                    currentTab = currentTabFile.readObject() as DrawerTab
                 }
-        }
+            }
+            .onFailure {
+                it.printStackTrace()
+                toast(strings.project_restore_failed)
+            }
     }
 }
 
-var projects = mutableStateListOf<FileObjectWrapper>()
-var currentProject by mutableStateOf<FileObject?>(null)
+var tabs = mutableStateListOf<DrawerTab>()
+var currentTab by mutableStateOf<DrawerTab?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(fileObject: FileObject, save: Boolean = false) {
-    val alreadyExistingProject = projects.find { it.fileObject == fileObject }
+    val alreadyExistingProject = tabs.find { it is FileTreeTab && it.root == fileObject }
     if (alreadyExistingProject != null) {
-        currentProject = alreadyExistingProject.fileObject
+        currentTab = alreadyExistingProject
         return
     }
-    projects.add(FileObjectWrapper(fileObject = fileObject, name = fileObject.getName()))
-    currentProject = fileObject
+    val tab = FileTreeTab(fileObject)
+    tabs.add(tab)
+    currentTab = tab
+    if (save) {
+        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+    }
+}
+
+fun addProject(tab: DrawerTab, save: Boolean = false) {
+    tabs.add(tab)
+    currentTab = tab
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
@@ -155,14 +152,19 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun removeProject(fileObject: FileObject, save: Boolean = false) {
-    projects.remove(projects.find { it.fileObject == fileObject })
-    if (currentProject == fileObject) {
-        currentProject =
-            if (projects.size - 1 >= 0) {
-                projects[projects.size - 1].fileObject
-            } else {
-                null
-            }
+    tabs.remove(tabs.find { it is FileTreeTab && it.root == fileObject })
+    if (currentTab is FileTreeTab && (currentTab as FileTreeTab).root == fileObject) {
+        currentTab = tabs.last()
+    }
+    if (save) {
+        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+    }
+}
+
+fun removeProject(tab: DrawerTab, save: Boolean = false) {
+    tabs.remove(tab)
+    if (currentTab is FileTreeTab && currentTab == tab) {
+        currentTab = tabs.last()
     }
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
@@ -172,11 +174,7 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
 var isLoading by mutableStateOf(true)
 
 @Composable
-fun DrawerContent(
-    modifier: Modifier = Modifier,
-    onFileSelected: (FileObject) -> Unit,
-    fileTreeViewModel: FileTreeViewModel,
-) {
+fun DrawerContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -206,39 +204,31 @@ fun DrawerContent(
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
                 val scope = rememberCoroutineScope()
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
-                var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
+
                 var closeProjectDialog by remember { mutableStateOf(false) }
 
                 NavigationRail(modifier = Modifier.width(61.dp)) {
-                    projects.forEach { file ->
+                    tabs.forEach { tab ->
                         NavigationRailItem(
-                            selected = file.fileObject == currentProject,
+                            selected = currentTab == tab,
                             icon = {
-                                val iconId =
-                                    if (
-                                        (file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) ||
-                                            (file.fileObject is FileWrapper && file.fileObject.file == sandboxHomeDir())
-                                    ) {
-                                        drawables.terminal
-                                    } else {
-                                        drawables.outline_folder
+                                when (val icon = tab.getIcon()) {
+                                    is Icon.DrawableRes -> {
+                                        Icon(painter = painterResource(icon.drawableRes), contentDescription = null)
                                     }
-                                Icon(painter = painterResource(iconId), contentDescription = null)
-                            },
-                            onClick = {
-                                if (file.fileObject == currentProject) {
-                                    closeProjectDialog = true
-                                } else {
-                                    scope.launch { currentProject = file.fileObject }
+                                    is Icon.VectorIcon -> {
+                                        Icon(imageVector = icon.vector, contentDescription = null)
+                                    }
                                 }
                             },
-                            label = {
-                                Text(
-                                    file.fileObject.getAppropriateName(),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
+                            onClick = {
+                                if (currentTab == tab) {
+                                    closeProjectDialog = true
+                                } else {
+                                    currentTab = tab
+                                }
                             },
+                            label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                         )
                     }
 
@@ -252,19 +242,9 @@ fun DrawerContent(
 
                 VerticalDivider()
 
-                Crossfade(targetState = currentProject, label = "file tree") { project ->
-                    if (project != null) {
-                        FileTree(
-                            modifier = Modifier.fillMaxSize().weight(1f).systemBarsPadding(),
-                            rootNode = project.toFileTreeNode(),
-                            viewModel = fileTreeViewModel,
-                            onFileClick = {
-                                if (it.isFile) {
-                                    onFileSelected.invoke(it.file)
-                                }
-                            },
-                            onFileLongClick = { fileActionDialog = it.file },
-                        )
+                Crossfade(targetState = currentTab, label = "file tree") { tab ->
+                    if (tab != null) {
+                        tab.Content(modifier = Modifier.weight(1f))
                     } else {
                         Column(
                             modifier = Modifier.fillMaxSize().weight(1f),
@@ -297,22 +277,13 @@ fun DrawerContent(
                     )
                 }
 
-                if (fileActionDialog != null && currentProject != null) {
-                    FileActionDialog(
-                        modifier = Modifier,
-                        file = fileActionDialog!!,
-                        root = currentProject!!,
-                        onDismissRequest = { fileActionDialog = null },
-                        fileTreeViewModel = fileTreeViewModel,
-                    )
-                }
-
-                if (closeProjectDialog) {
+                if (closeProjectDialog && currentTab != null) {
                     CloseConfirmationDialog(
-                        projectName = currentProject!!.getAppropriateName(),
+                        projectName = currentTab!!.getName(),
                         onConfirm = {
                             closeProjectDialog = false
-                            currentProject?.let { removeProject(it) }
+                            tabs.remove(currentTab)
+                            currentTab = null
                         },
                         onDismiss = { closeProjectDialog = false },
                     )
@@ -337,7 +308,7 @@ private fun AddProjectDialog(
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
             AddDialogItem(
-                icon = drawables.file_symlink,
+                icon = Icon.DrawableRes(drawables.file_symlink),
                 title = stringResource(strings.open_directory),
                 description = stringResource(strings.open_dir_desc),
                 onClick = {
@@ -360,7 +331,7 @@ private fun AddProjectDialog(
                 ((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()
             ) {
                 AddDialogItem(
-                    icon = drawables.android,
+                    icon = Icon.DrawableRes(drawables.android),
                     title = stringResource(strings.open_path),
                     description = stringResource(strings.open_path_desc),
                     onClick = {
@@ -372,7 +343,7 @@ private fun AddProjectDialog(
 
             if (InbuiltFeatures.debugMode.state.value) {
                 AddDialogItem(
-                    icon = drawables.build,
+                    icon = Icon.DrawableRes(drawables.build),
                     title = stringResource(strings.private_files),
                     description = stringResource(strings.private_files_desc),
                     onClick = {
@@ -391,7 +362,7 @@ private fun AddProjectDialog(
 
             // Terminal Home option
             AddDialogItem(
-                icon = drawables.terminal,
+                icon = Icon.DrawableRes(drawables.terminal),
                 title = stringResource(strings.terminal_home),
                 description = stringResource(strings.terminal_home_desc),
                 onClick = {

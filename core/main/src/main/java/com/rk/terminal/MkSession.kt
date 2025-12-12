@@ -11,7 +11,7 @@ import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
-import com.rk.filetree.currentProject
+import com.rk.filetree.currentTab
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.getSourceDirOfPackage
@@ -164,12 +164,25 @@ suspend fun Terminal.getPwd(): String {
     }
 
     if (Settings.project_as_pwd) {
-        if (currentProject != null && currentProject is FileWrapper) {
-            val absolutePath = currentProject!!.getAbsolutePath()
-            return if (Settings.sandbox) {
-                absolutePath.removePrefix(localDir().absolutePath)
-            } else {
-                absolutePath
+        //        if (currentProject != null && currentProject is FileWrapper) {
+        //            val absolutePath = currentProject!!.getAbsolutePath()
+        //            return if (Settings.sandbox) {
+        //                absolutePath.removePrefix(localDir().absolutePath)
+        //            } else {
+        //                absolutePath
+        //            }
+        //        }
+
+        MainActivity.instance?.viewModel?.currentTab?.let {
+            if (it is EditorTab && it.file is FileWrapper) {
+                val parent = it.file.getParentFile()
+                if (parent != null && parent is FileWrapper) {
+                    return if (Settings.sandbox) {
+                        parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
+                    } else {
+                        parent.getAbsolutePath()
+                    }
+                }
             }
         }
     } else {

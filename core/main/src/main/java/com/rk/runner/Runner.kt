@@ -1,8 +1,8 @@
 package com.rk.runner
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import com.rk.file.FileObject
+import com.rk.icons.Icon
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
@@ -11,11 +11,12 @@ import java.lang.ref.WeakReference
 import kotlin.text.Regex
 
 abstract class RunnerImpl() {
+
     abstract suspend fun run(context: Context, fileObject: FileObject)
 
     abstract fun getName(): String
 
-    abstract fun getIcon(context: Context): Drawable?
+    abstract fun getIcon(context: Context): Icon?
 
     abstract suspend fun isRunning(): Boolean
 

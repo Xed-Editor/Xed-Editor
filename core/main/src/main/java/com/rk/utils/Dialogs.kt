@@ -136,6 +136,12 @@ fun dialog(
                     }
                 }
             )
+
+            if (context.isFinishing || context.isDestroyed) {
+                toast(msg)
+                return@runOnUiThread
+            }
+
             alertDialog = show()
         }
     }

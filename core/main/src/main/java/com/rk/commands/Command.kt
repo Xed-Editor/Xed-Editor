@@ -3,6 +3,7 @@ package com.rk.commands
 import android.app.Activity
 import androidx.compose.runtime.State
 import com.rk.activities.main.MainViewModel
+import com.rk.icons.Icon
 
 /**
  * Represents an executable command or a submenu within the command palette.
@@ -21,7 +22,7 @@ data class Command(
     val action: (MainViewModel, Activity?) -> Unit,
     val isEnabled: State<Boolean>,
     val isSupported: State<Boolean>,
-    val icon: State<Int>,
+    val icon: State<Icon>,
     val childCommands: List<Command> = emptyList(),
     val childSearchPlaceholder: String? = null,
     val sectionEndsBelow: Boolean = false,

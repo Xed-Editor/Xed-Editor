@@ -1,12 +1,11 @@
 package com.rk.runner.runners.web.html
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
 import com.rk.file.FileObject
+import com.rk.icons.Icon
 import com.rk.resources.drawables
-import com.rk.resources.getDrawable
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
 import com.rk.utils.toast
@@ -62,7 +61,9 @@ class HtmlRunner() : RunnerImpl() {
         return "Html"
     }
 
-    override fun getIcon(context: Context): Drawable? = drawables.ic_language_html.getDrawable(context)
+    override fun getIcon(context: Context): Icon {
+        return Icon.DrawableRes(drawables.ic_language_html)
+    }
 
     override suspend fun isRunning(): Boolean = httpServer?.isAlive == true
 

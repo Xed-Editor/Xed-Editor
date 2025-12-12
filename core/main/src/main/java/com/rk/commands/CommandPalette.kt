@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.icons.Icon
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.Typography
@@ -198,11 +199,24 @@ fun CommandItem(
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     val icon = command.icon.value
-                    Icon(
-                        painter = painterResource(id = icon),
-                        contentDescription = command.label.value,
-                        modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                    )
+
+                    when (icon) {
+                        is Icon.DrawableRes -> {
+                            Icon(
+                                painter = painterResource(id = icon.drawableRes),
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(16.dp),
+                            )
+                        }
+
+                        is Icon.VectorIcon -> {
+                            Icon(
+                                imageVector = icon.vector,
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(16.dp),
+                            )
+                        }
+                    }
 
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {

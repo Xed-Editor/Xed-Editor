@@ -1,6 +1,9 @@
 package com.rk.settings.editor
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +27,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
@@ -37,6 +40,7 @@ import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceScaffold
+import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -73,10 +77,18 @@ fun EditToolbarActions(modifier: Modifier = Modifier) {
         ReorderContainer(state = reorderState, modifier = modifier) {
             NestedScrollStretch(modifier = modifier) {
                 LazyColumn(
-                    contentPadding = paddingValues,
+                    contentPadding =
+                        PaddingValues(
+                            top = paddingValues.calculateTopPadding(),
+                            bottom =
+                                paddingValues.calculateBottomPadding() +
+                                    88.dp, // Add extra space so that FAB doesn't cover content
+                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                        ),
                     state = lazyListState,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxHeight().padding(bottom = 8.dp),
+                    modifier = Modifier.fillMaxHeight(),
                 ) {
                     item {
                         InfoBlock(
@@ -91,7 +103,6 @@ fun EditToolbarActions(modifier: Modifier = Modifier) {
                             state = reorderState,
                             key = command.id,
                             data = command.id,
-                            onDrop = {},
                             onDragEnter = { state ->
                                 val index = commandIds.indexOf(command.id)
                                 if (index == -1) return@ReorderableItem
@@ -189,7 +200,7 @@ private fun patchChildCommands(
             sectionEndsBelow = true,
             isEnabled = derivedStateOf { !commandIds.contains(command.id) },
             isSupported = mutableStateOf(true),
-            icon = mutableIntStateOf(drawables.arrow_outward),
+            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
             keybinds = null,
         )
     )

@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +39,7 @@ import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceScaffold
+import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -227,7 +227,7 @@ private fun patchChildCommands(
             sectionEndsBelow = true,
             isEnabled = derivedStateOf { !commandIds.contains(command.id) },
             isSupported = mutableStateOf(true),
-            icon = mutableIntStateOf(drawables.arrow_outward),
+            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
             keybinds = null,
         )
     )

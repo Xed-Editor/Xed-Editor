@@ -29,10 +29,13 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
+import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import java.io.File
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -40,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -49,6 +53,16 @@ inline fun runOnUiThread(runnable: Runnable) {
 inline fun toast(@StringRes resId: Int) {
     toast(resId.getString())
 }
+
+suspend fun FileObject.writeObject(obj: Any) =
+    withContext(Dispatchers.IO) { ObjectOutputStream(getOutPutStream(false)).use { oos -> oos.writeObject(obj) } }
+
+suspend fun FileObject.readObject(): Any? =
+    withContext(Dispatchers.IO) {
+        ObjectInputStream(getInputStream()).use { ois ->
+            return@withContext ois.readObject()
+        }
+    }
 
 fun toast(message: String?) {
     if (message.isNullOrBlank()) {

@@ -1,7 +1,6 @@
 package com.rk.runner
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -13,8 +12,8 @@ import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.file.runnerDir
+import com.rk.icons.Icon
 import com.rk.resources.drawables
-import com.rk.resources.getDrawable
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -88,8 +87,8 @@ data class ShellBasedRunner(private val name: String, val regex: String) : Runne
         return runnerDir().child("${getName()}.sh").createFileIfNot()
     }
 
-    override fun getIcon(context: Context): Drawable? {
-        return drawables.bash.getDrawable(context)
+    override fun getIcon(context: Context): Icon {
+        return Icon.DrawableRes(drawables.bash)
     }
 
     override suspend fun isRunning(): Boolean {

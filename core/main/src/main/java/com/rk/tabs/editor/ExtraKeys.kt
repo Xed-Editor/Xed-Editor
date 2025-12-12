@@ -22,22 +22,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
 import com.rk.commands.CommandProvider
+import com.rk.icons.Icon
 import com.rk.settings.Settings
 
-private data class ExtraKey(
-    val label: String,
-    val icon: ImageVector? = null,
-    val enabled: Boolean,
-    val onClick: () -> Unit,
-)
+private data class ExtraKey(val label: String, val icon: Icon? = null, val enabled: Boolean, val onClick: () -> Unit)
 
 @Composable
 fun ExtraKeys(editorTab: EditorTab) {
@@ -47,7 +42,7 @@ fun ExtraKeys(editorTab: EditorTab) {
         commands.map {
             ExtraKey(
                 label = it.label.value,
-                icon = ImageVector.vectorResource(it.icon.value),
+                icon = it.icon.value,
                 enabled = it.isEnabled.value && it.isSupported.value,
                 onClick = { it.performCommand(editorTab.viewModel, MainActivity.instance) },
             )
@@ -114,27 +109,41 @@ private fun KeyButton(key: ExtraKey) {
                     },
                 ),
     ) {
-        if (key.icon != null) {
-            Icon(
-                imageVector = key.icon,
-                contentDescription = key.label,
-                modifier = Modifier.size(16.dp),
-                tint =
-                    if (key.enabled) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            )
-        } else {
-            Text(
-                text = key.label,
-                fontFamily = FontFamily.Monospace,
-                color =
-                    if (key.enabled) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    },
-                maxLines = 1,
-            )
+        when (val icon = key.icon) {
+            is Icon.DrawableRes -> {
+                Icon(
+                    painter = painterResource(id = icon.drawableRes),
+                    contentDescription = key.label,
+                    modifier = Modifier.size(16.dp),
+                    tint =
+                        if (key.enabled) MaterialTheme.colorScheme.onSurface
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                )
+            }
+
+            is Icon.VectorIcon -> {
+                Icon(
+                    imageVector = icon.vector,
+                    contentDescription = key.label,
+                    modifier = Modifier.size(16.dp),
+                    tint =
+                        if (key.enabled) MaterialTheme.colorScheme.onSurface
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                )
+            }
+            else -> {
+                Text(
+                    text = key.label,
+                    fontFamily = FontFamily.Monospace,
+                    color =
+                        if (key.enabled) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        },
+                    maxLines = 1,
+                )
+            }
         }
     }
 }

@@ -92,10 +92,10 @@ fun FileTreeNodeItem(
                                     onFileClick(node)
                                 }
                             }
-                            viewModel.selectedFile[currentProject!!] = node.file
+                            viewModel.selectedFile[(currentTab as FileTreeTab).root!!] = node.file
                         },
                         onLongClick = {
-                            viewModel.selectedFile[currentProject!!] = node.file
+                            viewModel.selectedFile[(currentTab as FileTreeTab).root!!] = node.file
                             scope.launch {
                                 delay(50)
                                 onFileLongClick(node)
@@ -103,7 +103,7 @@ fun FileTreeNodeItem(
                         },
                     )
                     .then(
-                        if (viewModel.selectedFile[currentProject] == node.file && !isCut) {
+                        if (viewModel.selectedFile[(currentTab as FileTreeTab).root!!] == node.file && !isCut) {
                             Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
                         } else {
                             Modifier

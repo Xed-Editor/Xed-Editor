@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.rk.commands.Command
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.icons.Icon
 import com.rk.resources.drawables
 
 @Composable
@@ -44,12 +45,23 @@ fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: 
                         modifier = Modifier.padding(end = 12.dp).size(20.dp),
                     )
 
-                    val icon = command.icon.value
-                    Icon(
-                        painter = painterResource(id = icon),
-                        contentDescription = command.label.value,
-                        modifier = Modifier.padding(end = 8.dp).size(20.dp),
-                    )
+                    when (val icon = command.icon.value) {
+                        is Icon.DrawableRes -> {
+                            Icon(
+                                painter = painterResource(id = icon.drawableRes),
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                            )
+                        }
+
+                        is Icon.VectorIcon -> {
+                            Icon(
+                                imageVector = icon.vector,
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                            )
+                        }
+                    }
 
                     Column {
                         Row {

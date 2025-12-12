@@ -519,4 +519,6 @@
     <string name="show_hidden_files_drawer_desc">Pokaż ukryte pliki oraz foldery jak .git w szufladzie</string>
     <string name="show_hidden_files_search">Pokaż ukryte pliki w wyszukiwarce</string>
     <string name="show_hidden_files_search_desc">Pokaż ukryte pliki lub foldery jak .git w wyszukiwarce</string>
+    <string name="show_tab_icons">Pokaż ikony kart</string>
+    <string name="show_tab_icons_desc">Pokaż ikony pliku obok nazw kart</string>
 </resources>
