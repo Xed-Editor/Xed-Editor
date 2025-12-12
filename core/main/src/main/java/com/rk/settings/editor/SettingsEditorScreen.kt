@@ -206,6 +206,20 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.restore_sessions = it },
             )
 
+            EditorSettingsToggle(
+                label = stringResource(id = strings.smooth_tabs),
+                description = stringResource(id = strings.smooth_tab_desc),
+                default = Settings.smooth_tabs,
+                sideEffect = { Settings.smooth_tabs = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_tab_icons),
+                description = stringResource(id = strings.show_tab_icons_desc),
+                default = Settings.show_tab_icons,
+                sideEffect = { Settings.show_tab_icons = it },
+            )
+
             NextScreenCard(
                 label = stringResource(strings.toolbar_actions),
                 description = stringResource(strings.toolbar_actions_desc),

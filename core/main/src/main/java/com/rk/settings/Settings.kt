@@ -59,6 +59,7 @@ object Settings {
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
+    var show_tab_icons by CachedPreference("show_tab_icons", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
