@@ -136,9 +136,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
 
                                 commandIds.removeAt(oldIndex)
                                 commandIds.add(index, state.data)
-
-                                // Save order in settings
-                                Settings.extra_keys_commands = commandIds.joinToString("|")
+                                saveOrder(commandIds)
 
                                 scope.launch { handleLazyListScroll(lazyListState = lazyListState, dropIndex = index) }
                             },
@@ -152,10 +150,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
                                 command = command,
                             ) {
                                 commandIds.remove(command.id)
-
-                                // TODO: Reduce duplicate code
-                                // Save order in settings
-                                Settings.extra_keys_commands = commandIds.joinToString("|")
+                                saveOrder(commandIds)
                             }
                         }
                     }
@@ -197,9 +192,7 @@ private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDism
                 label = command.label,
                 action = { _, _ ->
                     commandIds.add(command.id)
-
-                    // Save order in settings
-                    Settings.extra_keys_commands = commandIds.joinToString("|")
+                    saveOrder(commandIds)
                 },
                 childCommands = patchedChildCommands,
                 childSearchPlaceholder = command.childSearchPlaceholder,
@@ -232,9 +225,7 @@ private fun patchChildCommands(
             label = mutableStateOf(strings.add_parent_command.getString()),
             action = { _, _ ->
                 commandIds.add(command.id)
-
-                // Save order in settings
-                Settings.extra_keys_commands = commandIds.joinToString("|")
+                saveOrder(commandIds)
             },
             sectionEndsBelow = true,
             isEnabled = derivedStateOf { !commandIds.contains(command.id) },
@@ -251,9 +242,7 @@ private fun patchChildCommands(
                 label = it.label,
                 action = { _, _ ->
                     commandIds.add(it.id)
-
-                    // Save order in settings
-                    Settings.extra_keys_commands = commandIds.joinToString("|")
+                    saveOrder(commandIds)
                 },
                 isEnabled = derivedStateOf { !commandIds.contains(it.id) },
                 isSupported = mutableStateOf(true),
@@ -262,4 +251,9 @@ private fun patchChildCommands(
             )
         }
     )
+}
+
+/** Save order of commands in settings */
+private fun saveOrder(commandIds: SnapshotStateList<String>) {
+    Settings.extra_keys_commands = commandIds.joinToString("|")
 }
