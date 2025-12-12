@@ -3,7 +3,6 @@ package com.rk.tabs.editor
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.HorizontalScrollView
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -20,7 +19,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.editor.Editor
-import com.rk.editor.getInputView
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.isTerminalWorking
 import com.rk.file.FileType
@@ -91,8 +89,6 @@ fun EditorTab.CodeEditor(
             ConstraintLayout(ctx).apply {
                 layoutParams =
                     ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-
-                val horizontalScrollViewId = View.generateViewId()
                 val dividerId = View.generateViewId()
 
                 val editor =
@@ -157,28 +153,6 @@ fun EditorTab.CodeEditor(
                         applyHighlightingAndConnectLSP()
                     }
 
-                val keyPanel =
-                    HorizontalScrollView(ctx).apply {
-                        state.arrowKeys = WeakReference(this)
-                        id = horizontalScrollViewId
-
-                        visibility =
-                            if (Settings.show_extra_keys) {
-                                View.VISIBLE
-                            } else {
-                                View.GONE
-                            }
-
-                        layoutParams =
-                            ConstraintLayout.LayoutParams(
-                                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                                ConstraintLayout.LayoutParams.WRAP_CONTENT,
-                            )
-                        isHorizontalScrollBarEnabled = false
-                        isSaveEnabled = false
-                        addView(getInputView(editor, realSurface.toArgb(), onSurfaceColor.toArgb(), viewModel))
-                    }
-
                 val divider =
                     View(ctx).apply {
                         id = dividerId
@@ -195,26 +169,19 @@ fun EditorTab.CodeEditor(
 
                 addView(editor)
                 addView(divider)
-                addView(keyPanel)
 
                 with(constraintSet) {
                     clone(this@apply)
 
                     connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
                     connect(editor.id, ConstraintSet.BOTTOM, dividerId, ConstraintSet.TOP) // Connect to divider top
-
-                    connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                    connect(dividerId, ConstraintSet.BOTTOM, horizontalScrollViewId, ConstraintSet.TOP)
-                    connect(dividerId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                    connect(dividerId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-
-                    connect(horizontalScrollViewId, ConstraintSet.TOP, dividerId, ConstraintSet.BOTTOM)
-                    connect(horizontalScrollViewId, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-
                     connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                     connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                    connect(horizontalScrollViewId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                    connect(horizontalScrollViewId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+
+                    connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
+                    connect(dividerId, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                    connect(dividerId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                    connect(dividerId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
 
                     applyTo(this@apply)
                 }

@@ -107,7 +107,7 @@ fun getInputView(
 
         if (Settings.show_nav_extra_keys) addSymbols(keys.toTypedArray())
 
-        val customExtraKeys = Settings.extra_keys.toCharArray().map { it.toString() }.toTypedArray()
+        val customExtraKeys = Settings.extra_keys_symbols.toCharArray().map { it.toString() }.toTypedArray()
         addSymbols(customExtraKeys, customExtraKeys)
 
         bindEditor(editor)

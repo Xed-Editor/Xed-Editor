@@ -59,6 +59,7 @@ object Settings {
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
+    var split_extra_keys by CachedPreference("split_extra_keys", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
@@ -75,7 +76,12 @@ object Settings {
     var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
     var currentLang: String? by
         CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
-    var extra_keys by CachedPreference("extra_keys", "()\"{}[];")
+    var extra_keys_symbols by CachedPreference("extra_keys", "()\"{}[];")
+    var extra_keys_commands by
+        CachedPreference(
+            "extra_keys_commands",
+            "global.command_palette|editor.emulate_key.tab|editor.emulate_key.dpad_left|editor.emulate_key.dpad_up|editor.emulate_key.dpad_right|editor.emulate_key.dpad_down",
+        )
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)

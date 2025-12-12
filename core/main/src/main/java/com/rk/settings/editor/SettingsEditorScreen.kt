@@ -16,7 +16,6 @@ import com.rk.components.SettingsToggle
 import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
@@ -40,10 +39,6 @@ fun SettingsEditorScreen(navController: NavController) {
         var showLineSpacingDialog by remember { mutableStateOf(false) }
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
-
-        var showExtraKeysDialog by remember { mutableStateOf(false) }
-        var extraKeysValue by remember { mutableStateOf(Settings.extra_keys) }
-        var extraKeysError by remember { mutableStateOf<String?>(null) }
 
         if (InbuiltFeatures.terminal.state.value) {
             PreferenceGroup(heading = stringResource(strings.language_server)) {
@@ -225,23 +220,21 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.show_nav_extra_keys),
-                description = stringResource(id = strings.show_nav_extra_keys_desc),
+                label = stringResource(id = strings.split_extra_keys),
+                description = stringResource(id = strings.split_extra_keys_desc),
                 isEnabled = extraKeysEnabled,
-                default = Settings.show_nav_extra_keys,
+                default = Settings.split_extra_keys,
                 sideEffect = {
-                    Settings.show_nav_extra_keys = it
+                    Settings.split_extra_keys = it
                     toast(strings.restart_required)
                 },
             )
 
-            EditorSettingsToggle(
-                label = stringResource(id = strings.change_extra_keys),
-                description = stringResource(id = strings.change_extra_keys_desc),
+            NextScreenCard(
+                label = stringResource(strings.change_extra_keys),
+                description = stringResource(strings.change_extra_keys_desc),
+                route = SettingsRoutes.ExtraKeys,
                 isEnabled = extraKeysEnabled,
-                showSwitch = false,
-                default = false,
-                sideEffect = { showExtraKeysDialog = true },
             )
 
             NextScreenCard(
@@ -392,31 +385,6 @@ fun SettingsEditorScreen(navController: NavController) {
                     tabSizeValue = Settings.tab_size.toString()
                     tabSizeError = null
                     showTabSizeDialog = false
-                },
-            )
-        }
-
-        if (showExtraKeysDialog) {
-            SingleInputDialog(
-                title = stringResource(id = strings.extra_keys),
-                inputLabel = stringResource(id = strings.extra_keys),
-                inputValue = extraKeysValue,
-                errorMessage = extraKeysError,
-                onInputValueChange = {
-                    extraKeysValue = it
-                    extraKeysError = null
-                    if (extraKeysValue.isEmpty()) {
-                        extraKeysError = strings.name_empty_err.getString()
-                    }
-                },
-                onConfirm = {
-                    Settings.extra_keys = extraKeysValue
-                    toast(strings.restart_required)
-                },
-                onFinish = {
-                    extraKeysValue = Settings.extra_keys
-                    extraKeysError = null
-                    showExtraKeysDialog = false
                 },
             )
         }
