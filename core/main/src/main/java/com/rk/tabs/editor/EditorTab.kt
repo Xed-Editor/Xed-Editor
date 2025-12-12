@@ -39,6 +39,7 @@ import com.rk.components.SingleInputDialog
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.child
+import com.rk.icons.Icon
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
@@ -194,7 +195,10 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                                 Modifier.Companion.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
                         ) {
                             editorState.runnersToShow.forEach { runner ->
-                                AddDialogItem(icon = drawables.run, title = runner.getName()) {
+                                AddDialogItem(
+                                    icon = runner.getIcon(context) ?: Icon.DrawableRes(drawableRes = drawables.run),
+                                    title = runner.getName(),
+                                ) {
                                     DefaultScope.launch {
                                         currentRunner = WeakReference(runner)
                                         runner.run(context, file)

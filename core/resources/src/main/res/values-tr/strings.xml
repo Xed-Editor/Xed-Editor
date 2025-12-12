@@ -517,4 +517,6 @@
     <string name="show_hidden_files_drawer_desc">Gizli dosya veya klasörleri (.git gibi) çekmecede göster</string>
     <string name="show_hidden_files_search">Arama sonuçlarında gizli dosyaları göster</string>
     <string name="show_hidden_files_search_desc">Gizli dosyaları veya klasörleri arama sonuçlarında göster</string>
+    <string name="show_tab_icons">Sekme simgelerini göster</string>
+    <string name="show_tab_icons_desc">Sekme başlıklarının yanında dosya simgelerini göster</string>
 </resources>

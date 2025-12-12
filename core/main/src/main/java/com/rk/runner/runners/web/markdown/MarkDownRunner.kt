@@ -2,12 +2,11 @@ package com.rk.runner.runners.web.markdown
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
 import com.rk.file.FileObject
+import com.rk.icons.Icon
+import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.html.HtmlRunner
-import com.rk.xededitor.R
 import java.lang.ref.WeakReference
 
 var mdViewerRef = WeakReference<MDViewer?>(null)
@@ -24,8 +23,8 @@ class MarkDownRunner : RunnerImpl() {
         return "MarkDown"
     }
 
-    override fun getIcon(context: Context): Drawable? {
-        return ContextCompat.getDrawable(context, R.drawable.markdown)
+    override fun getIcon(context: Context): Icon {
+        return Icon.DrawableRes(drawables.markdown)
     }
 
     override suspend fun isRunning(): Boolean {

@@ -520,4 +520,6 @@
     <string name="show_hidden_files_drawer_desc">Affiche les fichiers ou répertoires cachés (comme .git) du dossier</string>
     <string name="show_hidden_files_search">Affiche les fichiers cachés dans la recherche</string>
     <string name="show_hidden_files_search_desc">Affiche les fichiers ou répertoires cachés dans les résultats de recherche</string>
+    <string name="show_tab_icons">Afficher les icônes avec les onglets</string>
+    <string name="show_tab_icons_desc">Afficher les icônes des fichiers à côté des titres d\'onglet</string>
 </resources>

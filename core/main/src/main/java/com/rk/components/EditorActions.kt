@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.CommandProvider
+import com.rk.icons.Icon
 import com.rk.settings.Settings
 import com.rk.terminal.isV
 import com.rk.utils.x
@@ -73,7 +74,18 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                     enabled = command.isEnabled.value,
                 ) {
                     val icon = command.icon.value
-                    Icon(painter = painterResource(id = icon), contentDescription = command.label.value)
+                    when (icon) {
+                        is Icon.DrawableRes -> {
+                            Icon(
+                                painter = painterResource(id = icon.drawableRes),
+                                contentDescription = command.label.value,
+                            )
+                        }
+
+                        is Icon.VectorIcon -> {
+                            Icon(imageVector = icon.vector, contentDescription = command.label.value)
+                        }
+                    }
                 }
             }
 
@@ -94,7 +106,18 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                                 },
                                 leadingIcon = {
                                     val icon = command.icon.value
-                                    Icon(painter = painterResource(id = icon), contentDescription = command.label.value)
+                                    when (icon) {
+                                        is Icon.DrawableRes -> {
+                                            Icon(
+                                                painter = painterResource(id = icon.drawableRes),
+                                                contentDescription = command.label.value,
+                                            )
+                                        }
+
+                                        is Icon.VectorIcon -> {
+                                            Icon(imageVector = icon.vector, contentDescription = command.label.value)
+                                        }
+                                    }
                                 },
                             )
                         }

@@ -4,7 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,10 +25,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
@@ -54,6 +57,7 @@ import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceScaffold
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -90,10 +94,18 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
         ReorderContainer(state = reorderState, modifier = modifier) {
             NestedScrollStretch(modifier = modifier) {
                 LazyColumn(
-                    contentPadding = paddingValues,
+                    contentPadding =
+                        PaddingValues(
+                            top = paddingValues.calculateTopPadding(),
+                            bottom =
+                                paddingValues.calculateBottomPadding() +
+                                    88.dp, // Add extra space so that FAB doesn't cover content
+                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                        ),
                     state = lazyListState,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxHeight().padding(bottom = 8.dp),
+                    modifier = Modifier.fillMaxHeight(),
                 ) {
                     item {
                         InfoBlock(
@@ -108,7 +120,6 @@ fun ToolbarActions(modifier: Modifier = Modifier) {
                             state = reorderState,
                             key = command.id,
                             data = command.id,
-                            onDrop = {},
                             onDragEnter = { state ->
                                 val index = commandIds.indexOf(command.id)
                                 if (index == -1) return@ReorderableItem
@@ -206,7 +217,7 @@ private fun patchChildCommands(
             sectionEndsBelow = true,
             isEnabled = derivedStateOf { !commandIds.contains(command.id) },
             isSupported = mutableStateOf(true),
-            icon = mutableIntStateOf(drawables.arrow_outward),
+            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
             keybinds = null,
         )
     )
@@ -249,11 +260,23 @@ fun ActionItem(modifier: Modifier = Modifier, command: Command, onRemove: () -> 
                     )
 
                     val icon = command.icon.value
-                    Icon(
-                        painter = painterResource(id = icon),
-                        contentDescription = command.label.value,
-                        modifier = Modifier.padding(end = 8.dp).size(20.dp),
-                    )
+                    when (icon) {
+                        is Icon.DrawableRes -> {
+                            Icon(
+                                painter = painterResource(id = icon.drawableRes),
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                            )
+                        }
+
+                        is Icon.VectorIcon -> {
+                            Icon(
+                                imageVector = icon.vector,
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                            )
+                        }
+                    }
 
                     Column {
                         Row {

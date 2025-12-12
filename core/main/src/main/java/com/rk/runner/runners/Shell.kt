@@ -1,13 +1,12 @@
 package com.rk.runner.runners
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import com.rk.exec.TerminalCommand
 import com.rk.exec.launchInternalTerminal
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
+import com.rk.icons.Icon
 import com.rk.resources.drawables
-import com.rk.resources.getDrawable
 import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.utils.errorDialog
@@ -37,8 +36,8 @@ class Shell : RunnerImpl() {
         return "Shell Runner"
     }
 
-    override fun getIcon(context: Context): Drawable? {
-        return drawables.bash.getDrawable(context)
+    override fun getIcon(context: Context): Icon {
+        return Icon.DrawableRes(drawables.bash)
     }
 
     override suspend fun isRunning(): Boolean {
