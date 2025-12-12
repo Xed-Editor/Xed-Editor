@@ -53,9 +53,8 @@ class FileTreeViewModel : ViewModel() {
         if (file.isFile()) {
             throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
         }
+        _loadingStates[file] = true // Mark as loading
         viewModelScope.launch(Dispatchers.IO) {
-            _loadingStates[file] = true // Mark as loading
-
             try {
                 // Safely access file listing
                 val fileList =
