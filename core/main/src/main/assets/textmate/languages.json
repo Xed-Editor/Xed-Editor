@@ -13,6 +13,12 @@
       "languageConfiguration": "textmate/asm/language-configuration.json"
     },
     {
+      "grammar": "textmate/cmake/syntaxes/cmake.tmLanguage.json",
+      "name": "CMake",
+      "scopeName": "source.cmake",
+      "languageConfiguration": "textmate/cmake/language-configuration.json"
+    },
+    {
       "grammar": "textmate/pascal/Pascal.tmLanguage.json",
       "name": "Pascal",
       "scopeName": "source.pascal",
