@@ -25,10 +25,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +57,7 @@ import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceScaffold
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -217,7 +217,7 @@ private fun patchChildCommands(
             sectionEndsBelow = true,
             isEnabled = derivedStateOf { !commandIds.contains(command.id) },
             isSupported = mutableStateOf(true),
-            icon = mutableIntStateOf(drawables.arrow_outward),
+            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
             keybinds = null,
         )
     )
@@ -260,11 +260,23 @@ fun ActionItem(modifier: Modifier = Modifier, command: Command, onRemove: () -> 
                     )
 
                     val icon = command.icon.value
-                    Icon(
-                        painter = painterResource(id = icon),
-                        contentDescription = command.label.value,
-                        modifier = Modifier.padding(end = 8.dp).size(20.dp),
-                    )
+                    when (icon) {
+                        is Icon.DrawableRes -> {
+                            Icon(
+                                painter = painterResource(id = icon.drawableRes),
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                            )
+                        }
+
+                        is Icon.VectorIcon -> {
+                            Icon(
+                                imageVector = icon.vector,
+                                contentDescription = command.label.value,
+                                modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                            )
+                        }
+                    }
 
                     Column {
                         Row {
