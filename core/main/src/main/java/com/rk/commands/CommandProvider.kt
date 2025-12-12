@@ -15,8 +15,8 @@ import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog
 import com.rk.file.FileType
 import com.rk.file.FileWrapper
-import com.rk.filetree.currentProject
-import com.rk.filetree.projects
+import com.rk.filetree.FileTreeTab
+import com.rk.filetree.currentTab
 import com.rk.lsp.formatDocument
 import com.rk.lsp.formatDocumentRange
 import com.rk.lsp.goToDefinition
@@ -63,13 +63,17 @@ object CommandProvider {
                     showTerminalNotice(act!!) {
                         val intent =
                             Intent(act, Terminal::class.java).apply {
-                                val currentFile = viewModel.currentTab?.file ?: return@apply
-                                val currentPath = currentFile.getAbsolutePath()
-                                val project =
-                                    projects
-                                        .filter { currentPath.startsWith(it.fileObject.getAbsolutePath()) }
-                                        .maxByOrNull { it.fileObject.getAbsolutePath().length } ?: return@apply
-                                putExtra("cwd", project.fileObject.getAbsolutePath())
+                                //                                val currentFile = viewModel.currentTab?.file ?:
+                                // return@apply
+                                //                                val currentPath = currentFile.getAbsolutePath()
+                                //                                val project =
+                                //                                    tabs
+                                //                                        .filter {
+                                // currentPath.startsWith(it.fileObject.getAbsolutePath()) }
+                                //                                        .maxByOrNull {
+                                // it.fileObject.getAbsolutePath().length } ?: return@apply
+                                //                                putExtra("cwd", project.fileObject.getAbsolutePath())
+                                // TODO fix this
                             }
                         act.startActivity(intent)
                     }
@@ -107,7 +111,7 @@ object CommandProvider {
                 label = mutableStateOf(strings.search_file_folder.getString()),
                 action = { _, _ -> fileSearchDialog = true },
                 isSupported = mutableStateOf(true),
-                isEnabled = derivedStateOf { currentProject != null },
+                isEnabled = derivedStateOf { currentTab != null && currentTab is FileTreeTab },
                 icon = mutableIntStateOf(drawables.search),
             ),
             Command(
@@ -115,7 +119,7 @@ object CommandProvider {
                 label = mutableStateOf(strings.search_code.getString()),
                 action = { _, _ -> codeSearchDialog = true },
                 isSupported = mutableStateOf(true),
-                isEnabled = derivedStateOf { currentProject != null },
+                isEnabled = derivedStateOf { currentTab != null },
                 icon = mutableIntStateOf(drawables.search),
             ),
         )

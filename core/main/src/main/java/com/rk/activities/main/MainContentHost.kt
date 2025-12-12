@@ -28,16 +28,15 @@ import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 import com.rk.utils.dialog
 import java.lang.ref.WeakReference
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
 var navigationDrawerState = WeakReference<DrawerState?>(null)
+
+var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 
 @Composable
 fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewModel: FileTreeViewModel = viewModel()) {
@@ -46,6 +45,9 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
     XedTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+            LaunchedEffect(drawerState) { drawerStateRef = WeakReference(drawerState) }
+
             navigationDrawerState = WeakReference(drawerState)
             val scope = rememberCoroutineScope()
 
@@ -118,22 +120,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
                     restoreProjects()
                     isLoading = false
                 }
-                DrawerContent(
-                    modifier = Modifier.fillMaxSize().padding(top = 8.dp),
-                    fileTreeViewModel = fileTreeViewModel,
-                    onFileSelected = { file ->
-                        scope.launch(Dispatchers.IO) {
-                            if (file.isFile()) {
-                                viewModel.newTab(file, switchToTab = true)
-                            }
-
-                            delay(60)
-                            if (Settings.keep_drawer_locked.not()) {
-                                drawerState.close()
-                            }
-                        }
-                    },
-                )
+                DrawerContent(modifier = Modifier.fillMaxSize().padding(top = 8.dp))
             }
 
             ResponsiveDrawer(drawerState = drawerState, mainContent = mainContent, sheetContent = sheetContent)
