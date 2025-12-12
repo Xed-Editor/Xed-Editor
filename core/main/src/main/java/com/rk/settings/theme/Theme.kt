@@ -72,7 +72,6 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                         DefaultScope.launch {
                             if (it != null) {
                                 installFromFile(it.toFileObject(expectedIsFile = true))
-                                updateThemes()
                             }
                         }
                     }
