@@ -1,5 +1,8 @@
 package com.rk.settings.editor
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +26,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
@@ -97,7 +101,15 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
         ReorderContainer(state = reorderState, modifier = modifier) {
             NestedScrollStretch(modifier = modifier) {
                 LazyColumn(
-                    contentPadding = paddingValues,
+                    contentPadding =
+                        PaddingValues(
+                            top = paddingValues.calculateTopPadding(),
+                            bottom =
+                                paddingValues.calculateBottomPadding() +
+                                    88.dp, // Add extra space so that FAB doesn't cover content
+                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                        ),
                     state = lazyListState,
                     modifier = Modifier.fillMaxHeight().padding(bottom = 8.dp),
                 ) {
