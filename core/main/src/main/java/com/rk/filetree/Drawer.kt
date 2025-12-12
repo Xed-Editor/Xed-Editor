@@ -64,11 +64,9 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.dialog
+import com.rk.utils.readObject
 import com.rk.utils.toast
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import com.rk.utils.writeObject
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -81,12 +79,15 @@ private val mutex = Mutex()
 
 suspend fun saveProjects() {
     mutex.withLock {
-        withContext(Dispatchers.IO) {
-            val file = application!!.filesDir.child("projects")
-            // Convert to ArrayList which is serializable
-            val serializableList = ArrayList(tabs)
+        val file = FileWrapper(application!!.filesDir.child("projects"))
+        val serializableList = ArrayList(tabs)
+        file.writeObject(serializableList)
 
-            ObjectOutputStream(FileOutputStream(file)).use { oos -> oos.writeObject(serializableList) }
+        val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
+        if (currentTab != null) {
+            currentTabFile.writeObject(currentTab!!)
+        } else {
+            currentTabFile.delete()
         }
     }
 }
@@ -96,11 +97,10 @@ suspend fun restoreProjects() {
         runCatching {
                 val loadedTabs =
                     withContext(Dispatchers.IO) {
-                        val file = application!!.filesDir.child("projects")
+                        val file = FileWrapper(application!!.filesDir.child("projects"))
+
                         if (file.exists() && file.canRead()) {
-                            ObjectInputStream(FileInputStream(file)).use { ois ->
-                                ois.readObject() as? ArrayList<DrawerTab> ?: emptyList()
-                            }
+                            file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
                         } else {
                             emptyList()
                         }
@@ -110,6 +110,11 @@ suspend fun restoreProjects() {
                 withContext(Dispatchers.Main) {
                     tabs.clear()
                     tabs.addAll(loadedTabs)
+                }
+
+                val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
+                if (currentTabFile.exists() && currentTabFile.canRead()) {
+                    currentTab = currentTabFile.readObject() as DrawerTab
                 }
             }
             .onFailure {

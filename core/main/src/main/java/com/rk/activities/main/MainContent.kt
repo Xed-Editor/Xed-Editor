@@ -47,9 +47,12 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
+import com.rk.components.FileActionDialog
 import com.rk.file.FileObject
 import com.rk.filetree.FileIcon
+import com.rk.filetree.FileTreeTab
 import com.rk.filetree.FileTreeViewModel
+import com.rk.filetree.currentTab
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -204,14 +207,14 @@ fun MainContent(
             }
 
             if (fileActionDialog != null) {
-                //                FileActionDialog(
-                //                    modifier = Modifier,
-                //                    file = fileActionDialog!!,
-                //                    root = currentProject,
-                //                    onDismissRequest = { fileActionDialog = null },
-                //                    fileTreeContext = false,
-                //                    fileTreeViewModel = fileTreeViewModel,
-                //                )
+                FileActionDialog(
+                    modifier = Modifier,
+                    file = fileActionDialog!!,
+                    root = (currentTab as? FileTreeTab)?.root,
+                    onDismissRequest = { fileActionDialog = null },
+                    fileTreeContext = false,
+                    fileTreeViewModel = fileTreeViewModel,
+                )
             }
         }
     }
