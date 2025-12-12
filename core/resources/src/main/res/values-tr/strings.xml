@@ -483,7 +483,7 @@
     <string name="format_selection">Biçimlendirme seçimi</string>
     <string name="format_document_error">Belge biçimlendirilemiyor.</string>
     <string name="format_selection_error">Belge aralığı biçimlendirilemiyor.</string>
-    <string name="can_execute">Uygulayabilir</string>
+    <string name="can_execute">Yürütebilir</string>
     <string name="calculating">Hesaplanıyor…</string>
     <string name="permissions">İzinler</string>
     <string name="lsp_process_desc">Terminalin başlangıç betikleri, örneğin /initrc ve .bashrc, bu komuttan önce çalışmaz.</string>
