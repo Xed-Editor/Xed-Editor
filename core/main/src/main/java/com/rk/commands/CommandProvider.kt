@@ -17,6 +17,7 @@ import com.rk.file.FileType
 import com.rk.file.FileWrapper
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.currentTab
+import com.rk.icons.Icon
 import com.rk.lsp.formatDocument
 import com.rk.lsp.formatDocumentRange
 import com.rk.lsp.goToDefinition
@@ -80,7 +81,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { InbuiltFeatures.terminal.state.value },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.terminal),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.terminal)),
             ),
             Command(
                 id = "global.settings",
@@ -88,7 +89,7 @@ object CommandProvider {
                 action = { _, act -> act!!.startActivity(Intent(act, SettingsActivity::class.java)) },
                 isSupported = mutableStateOf(true),
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.settings),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.settings)),
             ),
             Command(
                 id = "global.new_file",
@@ -96,7 +97,7 @@ object CommandProvider {
                 action = { _, _ -> addDialog = true },
                 isSupported = mutableStateOf(true),
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.add),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.add)),
             ),
             Command(
                 id = "global.command_palette",
@@ -104,7 +105,7 @@ object CommandProvider {
                 action = { _, _ -> viewModel.showCommandPalette = true },
                 isSupported = mutableStateOf(true),
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.command_palette),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.command_palette)),
             ),
             Command(
                 id = "global.search_file_folder",
@@ -112,7 +113,7 @@ object CommandProvider {
                 action = { _, _ -> fileSearchDialog = true },
                 isSupported = mutableStateOf(true),
                 isEnabled = derivedStateOf { currentTab != null && currentTab is FileTreeTab },
-                icon = mutableIntStateOf(drawables.search),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.search)),
             ),
             Command(
                 id = "global.search_code",
@@ -120,7 +121,7 @@ object CommandProvider {
                 action = { _, _ -> codeSearchDialog = true },
                 isSupported = mutableStateOf(true),
                 isEnabled = derivedStateOf { currentTab != null },
-                icon = mutableIntStateOf(drawables.search),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.search)),
             ),
         )
     }
@@ -134,7 +135,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.cutText() },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
-                icon = mutableIntStateOf(drawables.cut),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.cut)),
                 keybinds = "Ctrl + X",
             ),
             Command(
@@ -143,7 +144,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.copyText() },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.copy),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.copy)),
                 keybinds = "Ctrl + C",
             ),
             Command(
@@ -152,7 +153,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.pasteText() },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
-                icon = mutableIntStateOf(drawables.paste),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.paste)),
                 keybinds = "Ctrl + V",
             ),
             Command(
@@ -161,7 +162,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.selectAll() },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.select_all),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.select_all)),
                 keybinds = "Ctrl + A",
             ),
             Command(
@@ -170,7 +171,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.selectCurrentWord() },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.select),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.select)),
                 keybinds = "Ctrl + W",
             ),
             Command(
@@ -179,7 +180,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.editor?.get()?.duplicateLine() },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
-                icon = mutableIntStateOf(drawables.duplicate_line),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.duplicate_line)),
                 keybinds = "Ctrl + D",
             ),
             Command(
@@ -191,7 +192,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.file?.canWrite() == true },
-                icon = mutableIntStateOf(drawables.save),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.save)),
                 keybinds = "Ctrl + S",
             ),
             Command(
@@ -202,7 +203,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { viewModel.tabs.isNotEmpty() },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.save),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.save)),
             ),
             Command(
                 id = "editor.undo",
@@ -218,7 +219,7 @@ object CommandProvider {
                         val tab = viewModel.currentTab as? EditorTab
                         tab != null && tab.editorState.editable && tab.editorState.canUndo
                     },
-                icon = mutableIntStateOf(drawables.undo),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.undo)),
                 keybinds = "Ctrl + Z",
             ),
             Command(
@@ -235,7 +236,7 @@ object CommandProvider {
                         val tab = viewModel.currentTab as? EditorTab
                         tab != null && tab.editorState.editable && tab.editorState.canRedo
                     },
-                icon = mutableIntStateOf(drawables.redo),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.redo)),
                 keybinds = "Ctrl + Y",
             ),
             Command(
@@ -260,7 +261,7 @@ object CommandProvider {
                         currentTab is EditorTab && Runner.isRunnable(currentTab.file)
                     },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.run),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.run)),
             ),
             Command(
                 id = "editor.editable",
@@ -290,7 +291,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.isSearching = true },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.search),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.search)),
                 keybinds = "Ctrl + F",
             ),
             Command(
@@ -305,7 +306,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.find_replace),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.find_replace)),
                 keybinds = "Ctrl + H",
             ),
             Command(
@@ -328,7 +329,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.refresh),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.refresh)),
             ),
             Command(
                 id = "editor.syntax_highlighting",
@@ -346,13 +347,13 @@ object CommandProvider {
                                 },
                                 isSupported = mutableStateOf(true),
                                 isEnabled = mutableStateOf(true),
-                                icon = mutableIntStateOf(fileType.icon ?: drawables.file),
+                                icon = mutableIntStateOf(Icon.DrawableRes(fileType.icon ?: drawables.file)),
                             )
                         },
                 childSearchPlaceholder = strings.select_language.getString(),
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.edit_note),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.edit_note)),
             ),
             Command(
                 id = "editor.toggle_word_wrap",
@@ -364,7 +365,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.edit_note),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.edit_note)),
             ),
             Command(
                 id = "editor.jump_to_line",
@@ -372,7 +373,7 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.editorState?.showJumpToLineDialog = true },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.arrow_outward),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.arrow_outward)),
             ),
             Command(
                 id = "editor.share",
@@ -416,7 +417,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.send),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.send)),
             ),
         )
     }
@@ -434,7 +435,7 @@ object CommandProvider {
                         (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToDefinitionSupported() == true
                     },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.jump_to_element),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.jump_to_element)),
             ),
             Command(
                 id = "lsp.go_to_references",
@@ -447,7 +448,7 @@ object CommandProvider {
                         (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true
                     },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.manage_search),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.manage_search)),
             ),
             Command(
                 id = "lsp.rename_symbol",
@@ -458,7 +459,7 @@ object CommandProvider {
                         (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true
                     },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.manage_search),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.manage_search)),
             ),
             Command(
                 id = "lsp.format_document",
@@ -469,7 +470,7 @@ object CommandProvider {
                         (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isFormattingSupported() == true
                     },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.auto_fix),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.auto_fix)),
             ),
             Command(
                 id = "lsp.format_selection",
@@ -480,7 +481,7 @@ object CommandProvider {
                         (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isRangeFormattingSupported() == true
                     },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.auto_fix),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.auto_fix)),
             ),
         )
     }
@@ -508,7 +509,7 @@ object CommandProvider {
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
-                icon = mutableIntStateOf(drawables.run),
+                icon = mutableIntStateOf(Icon.DrawableRes(drawables.run)),
             )
         }
     }
