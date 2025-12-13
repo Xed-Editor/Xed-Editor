@@ -426,8 +426,8 @@
     <string name="lsp_header">Zadejte port a rozšíření</string>
     <string name="script_show_input_dialog">Zobrazit vstupní dialog</string>
     <string name="anr_watchdog">ANR Watchdog</string>
-    <string name="debugger">Debugger</string>
-    <string name="debugger_not_allowed">Debugger není povolen v release sestaveních</string>
+    <string name="debugger">Ladič</string>
+    <string name="debugger_not_allowed">Ladič není povolen v release sestaveních</string>
     <string name="capturing_logcat">Zachytávání logcat…</string>
     <string name="enable_quick_deletion">Zapnout rychlé vymazání řádků</string>
     <string name="enable_quick_deletion_desc">Automaticky vymaže celý řádek jestli je prázdný</string>
@@ -497,4 +497,15 @@
     <string name="enter_code_snippet">Zadejte úryvek zdrojového kódu</string>
     <string name="empty_code_results">Zadejte dotaz ke hledání v souborech</string>
     <string name="no_results">Žádné výsledky nenalezeny</string>
+    <string name="results">%d výsledků nalezeno/ných</string>
+    <string name="enter_name">Zadejte jméno</string>
+    <string name="show_hidden_files_drawer">Zobrazovat skryté soubory ve postranním panelu</string>
+    <string name="show_hidden_files_drawer_desc">Zobrazovat skryté soubory nebo složky jako .git ve postranním panelu</string>
+    <string name="show_hidden_files_search">Zobrazovat skryté soubory v hledání</string>
+    <string name="show_hidden_files_search_desc">Zobrazovat skryté soubory nebo složky ve výsledcích hledání</string>
+    <string name="show_tab_icons">Zobrazovat ikony karet</string>
+    <string name="show_tab_icons_desc">Zobrazovat ikony souborů vedle názvů karet</string>
+    <string name="change_extra_symbols">Upravovat extra symboly</string>
+    <string name="change_extra_symbols_desc">Přizpůsobit znaky zobrazeny v panelu extra kláves</string>
+    <string name="info_extra_keys">Extra klávesy jsou příkazy a symboly zobrazeny v panelu nad klávesnicí. Můžete dlouhým klepnutím a přetáhnutím změnit pořadí příkazů nebo klepnutím na tlačítko pro přidání nového příkazu. Můžete taky přizpůsobit ty symboly pomocí té poslední možnosti.</string>
 </resources>
