@@ -466,7 +466,7 @@
     <string name="select_word">Sélectionner le mot</string>
     <string name="duplicate_line">Dupliquer la ligne</string>
     <string name="show_nav_extra_keys">Touches de navigation</string>
-    <string name="show_nav_extra_keys_desc">Affiche des boutons supplémentaires pour la navigation</string>
+    <string name="show_nav_extra_keys_desc">Affiche des boutons de navigation comme touches additionnelles</string>
     <string name="change_extra_keys">Modifier touches additionnelles</string>
     <string name="change_extra_keys_desc">Permet de personnaliser les touches additionnelles au-dessus du clavier</string>
     <string name="toolbar_actions">Barre de menu</string>
@@ -522,4 +522,13 @@
     <string name="show_hidden_files_search_desc">Affiche les fichiers ou répertoires cachés dans les résultats de recherche</string>
     <string name="show_tab_icons">Afficher les icônes avec les onglets</string>
     <string name="show_tab_icons_desc">Afficher les icônes des fichiers à côté des titres d\'onglet</string>
+    <string name="change_extra_symbols">Modifier les symboles supplémentaires</string>
+    <string name="symbols">Symboles</string>
+    <string name="commands">Commandes</string>
+    <string name="split_extra_keys_desc">Diviser le panneau des touches additionnelles en deux lignes séparant commandes et symboles</string>
+    <string name="change_extra_symbols_desc">Personnaliser les caractères affichés dans le panneau des touches additionnelles</string>
+    <string name="split_extra_keys">Diviser les touches additionnelles</string>
+    <string name="info_extra_keys">Les touches additionnelles sont des commandes et des symboles affichés dans le panneau au-dessus du clavier. Vous pouvez faire un appui long et déplacer pour modifier l\'ordre des commandes, ou appuyer sur le bouton pour ajouter une nouvelle commande. Vous pouvez aussi personnaliser les symboles en utilisant l\'option finale.</string>
+    <string name="emulate_editor_key">Émule l\'appui de touches de l\'éditeur</string>
+    <string name="select_key">Sélectionner le code de la touche</string>
 </resources>
