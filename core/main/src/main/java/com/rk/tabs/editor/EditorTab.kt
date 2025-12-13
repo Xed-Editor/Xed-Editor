@@ -279,14 +279,11 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 }
 
                 if (editorState.isWrapping) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.Companion.fillMaxWidth(),
-                        strokeCap = StrokeCap.Companion.Butt,
-                    )
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
                 }
 
                 CodeEditor(
-                    modifier = Modifier.Companion,
+                    modifier = Modifier.weight(1f),
                     state = editorState,
                     parentTab = this@EditorTab,
                     onTextChange = {
@@ -305,6 +302,10 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                         }
                     },
                 )
+
+                if (Settings.show_extra_keys) {
+                    ExtraKeys(editorTab = this@EditorTab)
+                }
 
                 LaunchedEffect(
                     editorState.textmateScope,

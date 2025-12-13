@@ -2,6 +2,7 @@ package com.rk.commands
 
 import android.content.Context
 import android.content.Intent
+import android.view.KeyEvent
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.FileProvider
@@ -244,6 +245,7 @@ object CommandProvider {
                 action = { vm, act ->
                     DefaultScope.launch {
                         val currentTab = vm.currentTab as? EditorTab ?: return@launch
+                        getForId("editor.save")?.action?.invoke(vm, act)
                         Runner.run(
                             context = act!!,
                             fileObject = currentTab.file,
@@ -334,7 +336,7 @@ object CommandProvider {
             Command(
                 id = "editor.syntax_highlighting",
                 label = mutableStateOf(strings.highlighting.getString()),
-                action = { _, _ -> viewModel.showCommandPalette = true },
+                action = { _, _ -> },
                 childCommands =
                     FileType.entries
                         .filter { it.textmateScope != null }
@@ -361,7 +363,7 @@ object CommandProvider {
                 action = { vm, _ ->
                     val currentTab = vm.currentTab as? EditorTab ?: return@Command
                     currentTab.editorState.isWrapping = true
-                    currentTab.editorState.editor.get()?.apply { isWordwrap = !isWordwrap }
+                    currentTab.editorState.editor.get()?.apply { setWordwrap(!isWordwrap, true, true) }
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
@@ -419,7 +421,63 @@ object CommandProvider {
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.send)),
             ),
+            Command(
+                id = "editor.emulate_key",
+                label = mutableStateOf(strings.emulate_editor_key.getString()),
+                action = { _, _ -> },
+                childCommands =
+                    KeyEvent::class.java.fields.mapNotNull {
+                        if (!it.name.startsWith("KEYCODE_")) return@mapNotNull null
+
+                        val keyCode = it.getInt(null)
+                        val keyName = it.name.removePrefix("KEYCODE_")
+                        Command(
+                            id = "editor.emulate_key.${keyName.lowercase()}",
+                            label = mutableStateOf(getKeyDisplayName(keyCode, keyName)),
+                            action = { vm, _ ->
+                                (vm.currentTab as? EditorTab)
+                                    ?.editorState
+                                    ?.editor
+                                    ?.get()
+                                    ?.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+                            },
+                            isSupported = mutableStateOf(true),
+                            isEnabled = mutableStateOf(true),
+                            icon = mutableStateOf(Icon.DrawableRes(getKeyIcon(keyCode))),
+                        )
+                    },
+                childSearchPlaceholder = strings.select_key.getString(),
+                isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
+                isEnabled = mutableStateOf(true),
+                icon = mutableStateOf(Icon.DrawableRes(drawables.keyboard)),
+            ),
         )
+    }
+
+    private fun getKeyDisplayName(keyCode: Int, keyName: String): String {
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_DOWN -> return "Arrow Down"
+            KeyEvent.KEYCODE_DPAD_UP -> return "Arrow Up"
+            KeyEvent.KEYCODE_DPAD_LEFT -> return "Arrow Left"
+            KeyEvent.KEYCODE_DPAD_RIGHT -> return "Arrow Right"
+            KeyEvent.KEYCODE_DEL -> return "Backspace"
+            KeyEvent.KEYCODE_FORWARD_DEL -> return "Delete"
+        }
+
+        return keyName.lowercase().split("_").joinToString(" ") { it[0].uppercase() + it.substring(1) }
+    }
+
+    private fun getKeyIcon(keyCode: Int): Int {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_DOWN -> drawables.kbd_arrow_down
+            KeyEvent.KEYCODE_DPAD_UP -> drawables.kbd_arrow_up
+            KeyEvent.KEYCODE_DPAD_LEFT -> drawables.kbd_arrow_left
+            KeyEvent.KEYCODE_DPAD_RIGHT -> drawables.kbd_arrow_right
+            KeyEvent.KEYCODE_DEL -> drawables.backspace
+            KeyEvent.KEYCODE_FORWARD_DEL -> drawables.backspace_mirrored
+            KeyEvent.KEYCODE_TAB -> drawables.kbd_tab
+            else -> drawables.keyboard
+        }
     }
 
     private fun getLspCommands(viewModel: MainViewModel): List<Command> {
@@ -456,9 +514,9 @@ object CommandProvider {
                 action = { vm, _ -> (vm.currentTab as? EditorTab)?.let { renameSymbol(DefaultScope, it) } },
                 isSupported =
                     derivedStateOf {
-                        (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isGoToReferencesSupported() == true
+                        (viewModel.currentTab as? EditorTab)?.baseLspConnector?.isRenameSymbolSupported() == true
                     },
-                isEnabled = mutableStateOf(true),
+                isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.manage_search)),
             ),
             Command(

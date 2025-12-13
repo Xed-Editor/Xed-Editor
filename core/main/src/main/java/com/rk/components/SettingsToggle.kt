@@ -1,6 +1,5 @@
 package com.rk.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,7 +41,6 @@ fun SettingsToggle(
     default: Boolean,
     state: MutableState<Boolean> = remember { mutableStateOf(default) },
     description: String? = null,
-    @DrawableRes iconRes: Int? = null,
     reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,

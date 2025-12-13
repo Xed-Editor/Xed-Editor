@@ -301,7 +301,7 @@ class Editor : CodeEditor {
         isLineNumberEnabled = showLineNumber
         isCursorAnimationEnabled = cursorAnimation
         setTextSize(textSize.toFloat())
-        isWordwrap = wordWrap
+        setWordwrap(wordWrap, true, true)
         lineSpacingMultiplier = lineSpacing
         isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
         showSuggestions(keyboardSuggestion)
