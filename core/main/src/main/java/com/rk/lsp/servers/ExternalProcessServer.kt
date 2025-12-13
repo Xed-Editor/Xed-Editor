@@ -2,10 +2,8 @@ package com.rk.lsp.servers
 
 import android.content.Context
 import com.rk.file.FileObject
-import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
 import kotlin.String
 import kotlin.random.Random
 
@@ -25,12 +23,6 @@ class ExternalProcessServer(
 
     override fun install(context: Context) {}
 
-    override suspend fun beforeConnect() {}
-
-    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    override suspend fun connectionFailure(msg: String?) {}
-
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("bash", "-c", command))
     }
@@ -38,10 +30,6 @@ class ExternalProcessServer(
     override fun isSupported(file: FileObject): Boolean {
         val fileExt = file.getName().substringAfterLast(".")
         return supportedExtensions.contains(fileExt)
-    }
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 
     override fun toString(): String {

@@ -12,22 +12,22 @@ import com.rk.file.sandboxDir
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
-class JSON() : BaseLspServer() {
-    override val id: String = "json-lsp"
-    override val languageName: String = "JSON"
-    override val serverName = "vscode-json-language-server"
-    override val supportedExtensions: List<String> = FileType.JSON.extensions
+class Emmet() : BaseLspServer() {
+    override val id: String = "emmet-lsp"
+    override val languageName: String = "Emmet"
+    override val serverName = "emmet-language-server"
+    override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
 
-        return sandboxDir().child("/usr/bin/vscode-json-language-server").exists()
+        return sandboxDir().child("/usr/bin/emmet-language-server").exists()
     }
 
     override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/json")
+        val installSH = localBinDir().child("lsp/emmet")
 
         launchInternalTerminal(
             context = context,
@@ -35,14 +35,14 @@ class JSON() : BaseLspServer() {
                 TerminalCommand(
                     exe = "/bin/bash",
                     args = arrayOf(installSH.absolutePath),
-                    id = "json-lsp-installer",
+                    id = "emmet-lsp-installer",
                     env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
                 ),
         )
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/vscode-json-language-server", "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/emmet-language-server", "--stdio"))
     }
 
     override fun isSupported(file: FileObject): Boolean {
