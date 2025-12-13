@@ -482,4 +482,19 @@
     <string name="can_execute">Je spustitelný</string>
     <string name="lsp_terminal_unavailable">Jazykové junkce LSP nebudou fungovat protože prostředí terminálu není dostupné nebo není funkční.</string>
     <string name="type_command">Napište příkaz</string>
+    <string name="delete_failed">Selhalo odstranění souboru</string>
+    <string name="select_language">Vyberte jazyk</string>
+    <string name="add_parent_command">Přidat mateřský příkaz</string>
+    <string name="jump_to_line">Jít na řádek</string>
+    <string name="line_number">Číslo řádku</string>
+    <string name="search_file_folder">Hledat soubory v projektu</string>
+    <string name="search_code">Hledat zdrojový kód v projektu</string>
+    <string name="incompatible_theme_warning">Toto téma není kompatibilní s vaší verzí Xed-Editoru. Chcete i tak pokračovat?</string>
+    <string name="theme_install_failed">Instalace tématu selhalo</string>
+    <string name="theme_id_missing">Soubor JSON neudává platnou ID téma. Prosím přidejte platné ID a zkuste to znovu.</string>
+    <string name="theme_name_missing">Soubor JSON neudává platné jméno téma. Prosím přidejte platné jméno a zkuste to znovu.</string>
+    <string name="theme_version_missing">Soubor JSON neudává platnou cílovou verzi. Prosím přidejte platnou cílovou verzi a zkuste to znovu.</string>
+    <string name="enter_code_snippet">Zadejte úryvek zdrojového kódu</string>
+    <string name="empty_code_results">Zadejte dotaz ke hledání v souborech</string>
+    <string name="no_results">Žádné výsledky nenalezeny</string>
 </resources>
