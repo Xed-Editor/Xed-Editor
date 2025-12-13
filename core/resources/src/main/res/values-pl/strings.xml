@@ -521,4 +521,13 @@
     <string name="show_hidden_files_search_desc">Pokaż ukryte pliki lub foldery jak .git w wyszukiwarce</string>
     <string name="show_tab_icons">Pokaż ikony kart</string>
     <string name="show_tab_icons_desc">Pokaż ikony pliku obok nazw kart</string>
+    <string name="change_extra_symbols">Edytuj dodatkowe symbole</string>
+    <string name="change_extra_symbols_desc">Dostosuj symbole wyświetlane w panelu dodatkowych klawiszy</string>
+    <string name="commands">Polecenia</string>
+    <string name="emulate_editor_key">Emuluj kliknięcie klawisza edytora</string>
+    <string name="select_key">Wybierz kod znaku</string>
+    <string name="split_extra_keys">Rozdziel dodatkowe klawisze</string>
+    <string name="split_extra_keys_desc">Rozdziel panel dodatkowych klawiszy na dwa rzędy, aby oddzielić polecenia od symboli</string>
+    <string name="symbols">Symbole</string>
+    <string name="info_extra_keys">Dodatkowe klawisze to polecenia oraz symbole w panelu wyświetlanym nad klawiaturą. Zmień kolejność przez przytrzymanie i przeciągnięcie, dodaj nowe polecenie klikając przycisk. Dostosuj symbole używając ostatniej opcji.</string>
 </resources>
