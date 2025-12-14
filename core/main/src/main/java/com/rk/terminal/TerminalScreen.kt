@@ -271,12 +271,21 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
 
                                     val session =
                                         if (pendingCommand != null) {
+                                            val command = pendingCommand!!
+                                            val sessionId = command.id
+                                            
+                                            // Terminate previous session if requested
+                                            if (command.terminatePreviousSession && 
+                                                terminalActivity.sessionBinder?.get()!!.getSession(sessionId) != null) {
+                                                terminalActivity.sessionBinder?.get()!!.terminateSession(sessionId)
+                                            }
+                                            
                                             terminalActivity.sessionBinder?.get()!!.getService().currentSession.value =
-                                                pendingCommand!!.id
-                                            terminalActivity.sessionBinder?.get()!!.getSession(pendingCommand!!.id)
+                                                sessionId
+                                            terminalActivity.sessionBinder?.get()!!.getSession(sessionId)
                                                 ?: terminalActivity.sessionBinder
                                                     ?.get()!!
-                                                    .createSession(pendingCommand!!.id, client, terminalActivity)
+                                                    .createSession(sessionId, client, terminalActivity)
                                                     .session
                                         } else {
                                             terminalActivity.sessionBinder
