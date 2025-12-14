@@ -68,7 +68,7 @@ object UpdateManager {
                     }
                 }
 
-                if (lastVersionCode <= 74) {
+                if (lastVersionCode <= 76) {
                     runCatching {
                         val filesToCopy = application!!.filesDir.listFiles { it.isFile && it.extension.isEmpty() }
                         filesToCopy?.forEach { it.delete() }
