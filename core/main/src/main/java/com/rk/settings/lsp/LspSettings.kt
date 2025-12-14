@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.components.InfoBlock
@@ -33,10 +35,12 @@ import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.lsp.BaseLspServer
+import com.rk.lsp.LspPersistence
 import com.rk.lsp.builtInServer
 import com.rk.lsp.externalServers
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.utils.toast
 
 @Composable
 fun LspSettings(modifier: Modifier = Modifier) {
@@ -70,6 +74,17 @@ fun LspSettings(modifier: Modifier = Modifier) {
                         default = Preference.getBoolean("lsp_${server.id}", false),
                         description = server.serverName,
                         showSwitch = true,
+                        onClick = { toast("yayy!") },
+                        startWidget =
+                            server.icon?.let {
+                                {
+                                    Icon(
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        painter = painterResource(it),
+                                        contentDescription = null,
+                                    )
+                                }
+                            },
                         sideEffect = { Preference.setBoolean("lsp_${server.id}", it) },
                     )
                 }
@@ -84,12 +99,28 @@ fun LspSettings(modifier: Modifier = Modifier) {
             PreferenceGroup(heading = stringResource(strings.external)) {
                 externalServers.forEach { server ->
                     SettingsToggle(
-                        label = server.serverName,
+                        label = server.languageName,
                         default = true,
-                        description = server.supportedExtensions.joinToString(", ") { ".$it" },
+                        description = server.serverName,
                         showSwitch = false,
+                        onClick = { toast("yayy!") },
+                        startWidget =
+                            server.icon?.let {
+                                {
+                                    Icon(
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        painter = painterResource(it),
+                                        contentDescription = null,
+                                    )
+                                }
+                            },
                         endWidget = {
-                            IconButton(onClick = { externalServers.remove(server) }) {
+                            IconButton(
+                                onClick = {
+                                    externalServers.remove(server)
+                                    LspPersistence.saveServers()
+                                }
+                            ) {
                                 Icon(imageVector = Icons.Outlined.Delete, null)
                             }
                         },
@@ -101,7 +132,13 @@ fun LspSettings(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(60.dp))
 
         if (showDialog) {
-            ExternalLSP(onDismiss = { showDialog = false }, onConfirm = { server -> externalServers.add(server) })
+            ExternalLSP(
+                onDismiss = { showDialog = false },
+                onConfirm = { server ->
+                    externalServers.add(server)
+                    LspPersistence.saveServers()
+                },
+            )
         }
     }
 }
@@ -136,7 +173,6 @@ private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Uni
 
                 when (selected) {
                     socketLabel -> ExternalSocketServer(onConfirm = onConfirm, onDismiss = { onDismiss() })
-
                     processLabel -> ExternalProcessServer(onConfirm = onConfirm, onDismiss = { onDismiss() })
                 }
             }

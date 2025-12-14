@@ -25,4 +25,5 @@ abstract class BaseLspServer {
     abstract val languageName: String
     abstract val serverName: String
     abstract val supportedExtensions: List<String>
+    abstract val icon: Int?
 }

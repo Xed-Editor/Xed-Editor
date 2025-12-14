@@ -16,6 +16,12 @@ import com.rk.lsp.LspConnectionConfig
 import java.net.URI
 
 class XML() : BaseLspServer() {
+    override val id: String = "xml-lsp"
+    override val languageName: String = "XML"
+    override val serverName = "lemminx"
+    override val supportedExtensions: List<String> = FileType.XML.extensions
+    override val icon = FileType.XML.icon
+
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
@@ -58,9 +64,4 @@ class XML() : BaseLspServer() {
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
     }
-
-    override val id: String = "xml-lsp"
-    override val languageName: String = "XML"
-    override val serverName = "lemminx"
-    override val supportedExtensions: List<String> = FileType.XML.extensions
 }

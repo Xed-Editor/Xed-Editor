@@ -19,6 +19,7 @@ class Bash() : BaseLspServer() {
     override val languageName: String = "Bash"
     override val serverName = "bash-language-server"
     override val supportedExtensions: List<String> = FileType.SHELL.extensions
+    override val icon = FileType.SHELL.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

@@ -122,11 +122,7 @@ fun ExternalProcessServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServ
             onClick = {
                 runCatching {
                         val server =
-                            ExternalProcessServer(
-                                languageName = parseExtensions(extensions).first(),
-                                command = command,
-                                supportedExtensions = parseExtensions(extensions),
-                            )
+                            ExternalProcessServer(command = command, supportedExtensions = parseExtensions(extensions))
                         onConfirm(server)
                     }
                     .onFailure { toast(it.message) }

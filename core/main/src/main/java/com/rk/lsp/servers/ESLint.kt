@@ -23,6 +23,7 @@ class ESLint() : BaseLspServer() {
             FileType.TYPESCRIPT.extensions +
             FileType.JSX.extensions +
             FileType.TSX.extensions
+    override val icon = FileType.TYPESCRIPT.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

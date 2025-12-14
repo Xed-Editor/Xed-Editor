@@ -155,7 +155,6 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
                 runCatching {
                         val server =
                             ExternalSocketServer(
-                                languageName = parseExtensions(extensions).first(),
                                 host = host,
                                 port = port.toInt(),
                                 supportedExtensions = parseExtensions(extensions),
