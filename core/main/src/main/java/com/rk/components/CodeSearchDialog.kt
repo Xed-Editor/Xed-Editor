@@ -141,7 +141,7 @@ private suspend fun findCodeRecursive(
 
         lines.forEachIndexed { lineIndex, line ->
             if (line.lowercase().contains(query.lowercase())) {
-                val charIndex = line.indexOf(query)
+                val charIndex = line.lowercase().indexOf(query.lowercase())
                 val fileExt = file.getName().substringAfterLast(".")
 
                 val codeItem =

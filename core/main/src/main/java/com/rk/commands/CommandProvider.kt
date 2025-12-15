@@ -13,6 +13,8 @@ import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
 import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog
+import com.rk.components.projectReplaceDialog
+import com.rk.components.projectSearchReplaceDialog
 import com.rk.file.FileType
 import com.rk.file.FileWrapper
 import com.rk.filetree.FileTreeTab
@@ -30,6 +32,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
+import com.rk.searchreplace.ProjectReplaceManager
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
@@ -122,6 +125,63 @@ object CommandProvider {
                 isSupported = mutableStateOf(true),
                 isEnabled = derivedStateOf { currentTab != null },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.search)),
+            ),
+            Command(
+                id = "project.root",
+                label = mutableStateOf("Project"),
+                action = { _, _ -> },
+                isSupported = derivedStateOf { currentTab is FileTreeTab },
+                isEnabled = derivedStateOf { currentTab is FileTreeTab },
+                icon = mutableStateOf(Icon.DrawableRes(drawables.folder_code)),
+                childSearchPlaceholder = "Project commands",
+                childCommands =
+                    listOf(
+                        Command(
+                            id = "project.search_in_files",
+                            label = mutableStateOf("Search in files"),
+                            action = { _, _ -> codeSearchDialog = true },
+                            isSupported = derivedStateOf { currentTab is FileTreeTab },
+                            isEnabled = derivedStateOf { currentTab is FileTreeTab },
+                            icon = mutableStateOf(Icon.DrawableRes(drawables.search)),
+                        ),
+                        Command(
+                            id = "project.search_and_replace",
+                            label = mutableStateOf("Search and Replace"),
+                            action = { _, _ -> projectSearchReplaceDialog = true },
+                            isSupported = derivedStateOf { currentTab is FileTreeTab },
+                            isEnabled = derivedStateOf { currentTab is FileTreeTab },
+                            icon = mutableStateOf(Icon.DrawableRes(drawables.find_replace)),
+                        ),
+                        Command(
+                            id = "project.replace_in_files",
+                            label = mutableStateOf("Replace in files"),
+                            action = { _, _ -> projectReplaceDialog = true },
+                            isSupported = derivedStateOf { currentTab is FileTreeTab },
+                            isEnabled = derivedStateOf { currentTab is FileTreeTab },
+                            icon = mutableStateOf(Icon.DrawableRes(drawables.find_replace)),
+                            sectionEndsBelow = true,
+                        ),
+                        Command(
+                            id = "project.undo_replace",
+                            label = mutableStateOf("Undo project replace"),
+                            action = { _, _ ->
+                                DefaultScope.launch(Dispatchers.IO) { ProjectReplaceManager.undoLastReplace() }
+                            },
+                            isSupported = derivedStateOf { currentTab is FileTreeTab },
+                            isEnabled = derivedStateOf { ProjectReplaceManager.canUndo.value },
+                            icon = mutableStateOf(Icon.DrawableRes(drawables.undo)),
+                        ),
+                        Command(
+                            id = "project.redo_replace",
+                            label = mutableStateOf("Redo project replace"),
+                            action = { _, _ ->
+                                DefaultScope.launch(Dispatchers.IO) { ProjectReplaceManager.redoLastReplace() }
+                            },
+                            isSupported = derivedStateOf { currentTab is FileTreeTab },
+                            isEnabled = derivedStateOf { ProjectReplaceManager.canRedo.value },
+                            icon = mutableStateOf(Icon.DrawableRes(drawables.redo)),
+                        ),
+                    ),
             ),
         )
     }
