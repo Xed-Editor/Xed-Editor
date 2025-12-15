@@ -524,4 +524,6 @@
     <string name="select_key">Select key code</string>
     <string name="split_extra_keys">Split extra keys</string>
     <string name="split_extra_keys_desc">Split extra key panel into two rows to separate commands and symbols</string>
+    <string name="search_and_replace">Search and Replace</string>
+    <string name="matches_in_files">%d matches in %d files</string>
 </resources>
