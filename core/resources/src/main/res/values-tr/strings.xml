@@ -528,4 +528,6 @@
     <string name="select_key">Anahtar kodunu seç</string>
     <string name="split_extra_keys">Ekstra tuşları ayır</string>
     <string name="split_extra_keys_desc">Ek tuş panelini komut ve sembolleri ayırmak üzere iki sıraya böl</string>
+    <string name="search_and_replace">Metin Arama ve Değiştirme</string>
+    <string name="matches_in_files">%d eşleşme, %d dosyada</string>
 </resources>
