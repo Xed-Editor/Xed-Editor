@@ -104,12 +104,18 @@ private suspend fun searchInProject(
     scope: CoroutineScope,
     parent: FileObject,
     query: String,
+    options: ProjectReplaceManager.SearchOptions,
     results: SnapshotStateMap<FileObject, MutableList<SearchMatch>>,
 ) {
     val childFiles = parent.listFiles()
     val context = currentCoroutineContext()
     val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
     if (!context.isActive) return
+
+    // Build regex from options
+    val searchRegex = runCatching { 
+        ProjectReplaceManager.buildSearchRegex(query, options) 
+    }.getOrNull() ?: return
 
     for (file in childFiles) {
         if (!context.isActive) return
@@ -118,7 +124,7 @@ private suspend fun searchInProject(
         if (isHidden && !Settings.show_hidden_files_search) continue
 
         if (file.isDirectory()) {
-            searchInProject(mainViewModel, scope, file, query, results)
+            searchInProject(mainViewModel, scope, file, query, options, results)
             continue
         }
 
@@ -139,8 +145,10 @@ private suspend fun searchInProject(
         val fileMatches = mutableListOf<SearchMatch>()
 
         lines.forEachIndexed { lineIndex, line ->
-            if (line.lowercase().contains(query.lowercase())) {
-                val charIndex = line.lowercase().indexOf(query.lowercase())
+            val matchResult = searchRegex.find(line)
+            if (matchResult != null) {
+                val charIndex = matchResult.range.first
+                val matchLength = matchResult.value.length
                 val fileExt = file.getName().substringAfterLast(".")
 
                 val snippet = runCatching {
@@ -149,7 +157,7 @@ private suspend fun searchInProject(
                         targetLine = line,
                         fileExt = fileExt,
                         start = charIndex,
-                        end = charIndex + query.length,
+                        end = charIndex + matchLength,
                     )
                 }.getOrNull()
 
@@ -157,7 +165,7 @@ private suspend fun searchInProject(
                     SearchMatch(
                         lineNumber = lineIndex + 1,
                         columnStart = charIndex + 1,
-                        columnEnd = charIndex + query.length + 1,
+                        columnEnd = charIndex + matchLength + 1,
                         lineContent = line,
                         snippet = snippet,
                     )
@@ -180,6 +188,10 @@ fun ProjectSearchReplaceDialog(
     var searchQuery by remember { mutableStateOf("") }
     var replaceQuery by remember { mutableStateOf("") }
     var showReplace by remember { mutableStateOf(true) }
+    // Search options
+    var caseSensitive by remember { mutableStateOf(false) }
+    var wholeWord by remember { mutableStateOf(false) }
+    var useRegex by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
@@ -189,8 +201,8 @@ fun ProjectSearchReplaceDialog(
     var isReplacing by remember { mutableStateOf(false) }
     val expandedFiles = remember { mutableStateListOf<FileObject>() }
 
-    // Debounced search
-    LaunchedEffect(searchQuery) {
+    // Debounced search - re-trigger when query or options change
+    LaunchedEffect(searchQuery, caseSensitive, wholeWord, useRegex) {
         if (searchQuery.isEmpty()) {
             searchResults.clear()
             return@LaunchedEffect
@@ -199,7 +211,8 @@ fun ProjectSearchReplaceDialog(
         delay(300)
         isSearching = true
         searchResults.clear()
-        searchInProject(viewModel, scope, projectFile, searchQuery, searchResults)
+        val options = ProjectReplaceManager.SearchOptions(caseSensitive, wholeWord, useRegex)
+        searchInProject(viewModel, scope, projectFile, searchQuery, options, searchResults)
         isSearching = false
         listState.scrollToItem(0)
     }
@@ -228,6 +241,48 @@ fun ProjectSearchReplaceDialog(
                     }
                 }
             )
+
+            // Search options row
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                // Case Sensitive toggle
+                OutlinedButton(
+                    onClick = { caseSensitive = !caseSensitive },
+                    modifier = Modifier.height(32.dp),
+                    contentPadding = ButtonDefaults.ContentPadding,
+                    colors = if (caseSensitive) ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ) else ButtonDefaults.outlinedButtonColors()
+                ) {
+                    Text("Aa", fontSize = 12.sp)
+                }
+                
+                // Whole Word toggle
+                OutlinedButton(
+                    onClick = { wholeWord = !wholeWord },
+                    modifier = Modifier.height(32.dp),
+                    contentPadding = ButtonDefaults.ContentPadding,
+                    colors = if (wholeWord) ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ) else ButtonDefaults.outlinedButtonColors()
+                ) {
+                    Text("[W]", fontSize = 12.sp)
+                }
+                
+                // Regex toggle
+                OutlinedButton(
+                    onClick = { useRegex = !useRegex },
+                    modifier = Modifier.height(32.dp),
+                    contentPadding = ButtonDefaults.ContentPadding,
+                    colors = if (useRegex) ButtonDefaults.outlinedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ) else ButtonDefaults.outlinedButtonColors()
+                ) {
+                    Text(".*", fontSize = 12.sp)
+                }
+            }
 
             // Replace input (collapsible)
             AnimatedVisibility(
@@ -278,15 +333,17 @@ fun ProjectSearchReplaceDialog(
                                 return@Button
                             }
                             isReplacing = true
+                            val options = ProjectReplaceManager.SearchOptions(caseSensitive, wholeWord, useRegex)
                             scope.launch(Dispatchers.IO) {
                                 ProjectReplaceManager.replaceAllInProject(
                                     projectRoot = projectFile,
                                     query = searchQuery,
                                     replacement = replaceQuery,
+                                    options = options,
                                 )
                                 // Re-search after replace
                                 searchResults.clear()
-                                searchInProject(viewModel, scope, projectFile, searchQuery, searchResults)
+                                searchInProject(viewModel, scope, projectFile, searchQuery, options, searchResults)
                                 isReplacing = false
                             }
                         },
@@ -357,9 +414,15 @@ fun ProjectSearchReplaceDialog(
                             if (showReplace) {
                                 OutlinedButton(
                                     onClick = {
+                                        val options = ProjectReplaceManager.SearchOptions(caseSensitive, wholeWord, useRegex)
                                         scope.launch(Dispatchers.IO) {
                                             val content = fileObject.readText() ?: return@launch
-                                            val regex = Regex.escape(searchQuery).toRegex(RegexOption.IGNORE_CASE)
+                                            val regex = runCatching { 
+                                                ProjectReplaceManager.buildSearchRegex(searchQuery, options) 
+                                            }.getOrElse { 
+                                                toast("Invalid regex pattern")
+                                                return@launch 
+                                            }
                                             val newContent = content.replace(regex, replaceQuery)
                                             if (newContent != content) {
                                                 fileObject.writeText(newContent)
