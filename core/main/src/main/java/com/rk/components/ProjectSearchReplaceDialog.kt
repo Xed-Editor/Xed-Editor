@@ -423,7 +423,8 @@ fun ProjectSearchReplaceDialog(
                                                 toast("Invalid regex pattern")
                                                 return@launch 
                                             }
-                                            val newContent = content.replace(regex, replaceQuery)
+                                            val escapedReplace = ProjectReplaceManager.escapeReplacement(replaceQuery, options.useRegex)
+                                            val newContent = content.replace(regex, escapedReplace)
                                             if (newContent != content) {
                                                 fileObject.writeText(newContent)
                                                 toast("Replaced in ${fileObject.getName()}")
