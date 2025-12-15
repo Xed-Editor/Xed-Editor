@@ -61,6 +61,19 @@ object ProjectReplaceManager {
         return pattern.toRegex(regexOptions)
     }
 
+    /**
+     * Escape replacement string for non-regex mode.
+     * In regex mode, allows backreferences ($1, $2) and escape sequences.
+     * In non-regex mode, treats $ and \ as literal characters.
+     */
+    fun escapeReplacement(replacement: String, useRegex: Boolean): String {
+        return if (useRegex) {
+            replacement // Allow $1, $2 backreferences in regex mode
+        } else {
+            Regex.escapeReplacement(replacement) // Escape $ and \ for literal replacement
+        }
+    }
+
     suspend fun replaceAllInProject(
         projectRoot: FileObject,
         query: String,
@@ -77,6 +90,8 @@ object ProjectReplaceManager {
                 return@withContext null
             }
             
+            val escapedReplacement = escapeReplacement(replacement, options.useRegex)
+            
             val files = collectTextFiles(projectRoot, maxFileBytes)
             val changes = ArrayList<FileChange>()
 
@@ -84,7 +99,7 @@ object ProjectReplaceManager {
                 val before = runCatching { file.readText(charset) }.getOrNull() ?: continue
                 if (!before.contains(regex)) continue
 
-                val after = before.replace(regex, replacement)
+                val after = before.replace(regex, escapedReplacement)
                 if (after == before) continue
 
                 val wrote = runCatching {
