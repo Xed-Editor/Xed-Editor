@@ -32,74 +32,25 @@ object ProjectReplaceManager {
         val changes: List<FileChange>,
     )
 
-    /**
-     * Search options for controlling how matching is performed
-     */
-    data class SearchOptions(
-        val caseSensitive: Boolean = false,
-        val wholeWord: Boolean = false,
-        val useRegex: Boolean = false,
-    )
-
-    /**
-     * Build a Regex pattern based on the search options
-     */
-    fun buildSearchRegex(query: String, options: SearchOptions): Regex {
-        val pattern = if (options.useRegex) {
-            if (options.wholeWord) "\\b$query\\b" else query
-        } else {
-            val escaped = Regex.escape(query)
-            if (options.wholeWord) "\\b$escaped\\b" else escaped
-        }
-        
-        val regexOptions = if (options.caseSensitive) {
-            emptySet()
-        } else {
-            setOf(RegexOption.IGNORE_CASE)
-        }
-        
-        return pattern.toRegex(regexOptions)
-    }
-
-    /**
-     * Escape replacement string for non-regex mode.
-     * In regex mode, allows backreferences ($1, $2) and escape sequences.
-     * In non-regex mode, treats $ and \ as literal characters.
-     */
-    fun escapeReplacement(replacement: String, useRegex: Boolean): String {
-        return if (useRegex) {
-            replacement // Allow $1, $2 backreferences in regex mode
-        } else {
-            Regex.escapeReplacement(replacement) // Escape $ and \ for literal replacement
-        }
-    }
-
     suspend fun replaceAllInProject(
         projectRoot: FileObject,
         query: String,
         replacement: String,
-        options: SearchOptions = SearchOptions(),
         charset: Charset = Charsets.UTF_8,
         maxFileBytes: Long = 5L * 1024L * 1024L,
     ): ReplaceOperation? =
         withContext(Dispatchers.IO) {
             if (query.isBlank()) return@withContext null
 
-            val regex = runCatching { buildSearchRegex(query, options) }.getOrElse {
-                toast("Invalid regex pattern")
-                return@withContext null
-            }
-            
-            val escapedReplacement = escapeReplacement(replacement, options.useRegex)
-            
             val files = collectTextFiles(projectRoot, maxFileBytes)
             val changes = ArrayList<FileChange>()
 
             for (file in files) {
                 val before = runCatching { file.readText(charset) }.getOrNull() ?: continue
+                val regex = Regex.escape(query).toRegex(RegexOption.IGNORE_CASE)
                 if (!before.contains(regex)) continue
 
-                val after = before.replace(regex, escapedReplacement)
+                val after = before.replace(regex, replacement)
                 if (after == before) continue
 
                 val wrote = runCatching {
