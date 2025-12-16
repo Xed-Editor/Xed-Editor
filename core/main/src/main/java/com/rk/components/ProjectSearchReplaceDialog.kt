@@ -498,14 +498,67 @@ fun ProjectSearchReplaceDialog(
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
 
-            // Bottom actions
+            // Bottom actions with Undo/Redo
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = onFinish) {
-                    Text("Close")
+                // Undo button
+                val canUndoState by ProjectReplaceManager.canUndo
+                OutlinedButton(
+                    onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            ProjectReplaceManager.undoLastReplace()
+                            // Refresh search results
+                            val options = ProjectReplaceManager.SearchOptions(caseSensitive, wholeWord, useRegex)
+                            searchResults.clear()
+                            if (searchQuery.isNotEmpty()) {
+                                searchInProject(viewModel, scope, projectFile, searchQuery, options, searchResults)
+                            }
+                        }
+                    },
+                    enabled = canUndoState,
+                    modifier = Modifier.height(36.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(drawables.undo),
+                        contentDescription = "Undo",
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Undo", fontSize = 12.sp)
                 }
+
+                // Redo button
+                val canRedoState by ProjectReplaceManager.canRedo
+                OutlinedButton(
+                    onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            ProjectReplaceManager.redoLastReplace()
+                            // Refresh search results
+                            val options = ProjectReplaceManager.SearchOptions(caseSensitive, wholeWord, useRegex)
+                            searchResults.clear()
+                            if (searchQuery.isNotEmpty()) {
+                                searchInProject(viewModel, scope, projectFile, searchQuery, options, searchResults)
+                            }
+                        }
+                    },
+                    enabled = canRedoState,
+                    modifier = Modifier.height(36.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(drawables.redo),
+                        contentDescription = "Redo",
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Redo", fontSize = 12.sp)
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                TextButton(onClick = onFinish) { Text("Close") }
             }
         }
     }

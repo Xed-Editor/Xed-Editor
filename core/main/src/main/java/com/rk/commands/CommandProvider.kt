@@ -13,7 +13,6 @@ import com.rk.activities.terminal.Terminal
 import com.rk.components.addDialog
 import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog
-import com.rk.components.projectReplaceDialog
 import com.rk.components.projectSearchReplaceDialog
 import com.rk.file.FileType
 import com.rk.file.FileWrapper
@@ -148,14 +147,6 @@ object CommandProvider {
                             id = "project.search_and_replace",
                             label = mutableStateOf("Search and Replace"),
                             action = { _, _ -> projectSearchReplaceDialog = true },
-                            isSupported = derivedStateOf { currentTab is FileTreeTab },
-                            isEnabled = derivedStateOf { currentTab is FileTreeTab },
-                            icon = mutableStateOf(Icon.DrawableRes(drawables.find_replace)),
-                        ),
-                        Command(
-                            id = "project.replace_in_files",
-                            label = mutableStateOf("Replace in files"),
-                            action = { _, _ -> projectReplaceDialog = true },
                             isSupported = derivedStateOf { currentTab is FileTreeTab },
                             isEnabled = derivedStateOf { currentTab is FileTreeTab },
                             icon = mutableStateOf(Icon.DrawableRes(drawables.find_replace)),

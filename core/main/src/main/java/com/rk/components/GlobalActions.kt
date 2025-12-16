@@ -53,7 +53,6 @@ import kotlinx.coroutines.launch
 var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
 var codeSearchDialog by mutableStateOf(false)
-var projectReplaceDialog by mutableStateOf(false)
 var projectSearchReplaceDialog by mutableStateOf(false)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,13 +105,6 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
             viewModel = viewModel,
             projectFile = (currentTab as FileTreeTab).root,
             onFinish = { codeSearchDialog = false },
-        )
-    }
-
-    if (projectReplaceDialog && currentTab is FileTreeTab) {
-        ProjectReplaceDialog(
-            projectRoot = (currentTab as FileTreeTab).root,
-            onFinish = { projectReplaceDialog = false },
         )
     }
 

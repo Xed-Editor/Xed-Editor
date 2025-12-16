@@ -121,6 +121,9 @@ dependencies {
     implementation(project(":core:extension"))
     implementation(project(":core:terminal-view"))
     implementation(project(":core:terminal-emulator"))
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {
