@@ -518,4 +518,15 @@
     <string name="show_hidden_files_drawer_desc">在侧滑栏中显示隐藏的文件或目录，例如 .git 文件夹</string>
     <string name="show_hidden_files_search">在搜索中显示隐藏的文件</string>
     <string name="show_hidden_files_search_desc">在搜索结果中显示隐藏的文件或目录</string>
+    <string name="change_extra_symbols">编辑额外符号栏</string>
+    <string name="change_extra_symbols_desc">自定义符号栏中的额外符号</string>
+    <string name="info_extra_keys">符号栏是指键盘上方面板中显示的命令和符号。您可以长按并拖动来更改命令顺序，或者点击按钮添加新命令。还可以使用最下边的选项自定义符号。</string>
+    <string name="symbols">符号</string>
+    <string name="commands">命令</string>
+    <string name="show_tab_icons">显示 Tab 图标</string>
+    <string name="show_tab_icons_desc">在 Tab 标题旁显示文件图标</string>
+    <string name="emulate_editor_key">模拟编辑器按键</string>
+    <string name="select_key">选择键值（keyCode）</string>
+    <string name="split_extra_keys">拆分符号栏</string>
+    <string name="split_extra_keys_desc">将符号栏拆分成两行以分隔命令和符号</string>
 </resources>
