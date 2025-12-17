@@ -133,6 +133,21 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
         }
     }
 
+    fun refresh() {
+        scope.launch(Dispatchers.IO) {
+            val newContent = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+
+            withContext(Dispatchers.Main) {
+                editorState.updateLock.withLock {
+                    editorState.content = newContent
+                    editorState.editor.get()?.setText(newContent)
+                    editorState.updateUndoRedo()
+                    editorState.isDirty = false
+                }
+            }
+        }
+    }
+
     private val saveMutex = Mutex()
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -144,16 +159,19 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 }
 
                 suspend fun write() {
-                    runCatching {
-                            if (file.canWrite().not()) {
-                                errorDialog(strings.cant_write)
-                                return
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                                if (file.canWrite().not()) {
+                                    errorDialog(strings.cant_write)
+                                    return@withContext
+                                }
+                                file.writeText(editorState.content.toString(), charset)
+
+                                editorState.isDirty = false
+                                baseLspConnector?.notifySave(charset)
                             }
-                            file.writeText(editorState.content.toString(), charset)
-                            editorState.isDirty = false
-                            baseLspConnector?.notifySave(charset)
-                        }
-                        .onFailure { errorDialog(it) }
+                            .onFailure { errorDialog(it) }
+                    }
                 }
 
                 if (isTemp) {
@@ -341,16 +359,4 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     }
 
     override val showGlobalActions: Boolean = false
-
-    fun refresh() {
-        scope.launch(Dispatchers.IO) {
-            val content = file.getInputStream().use { ContentIO.createFrom(it) }
-            withContext(Dispatchers.Main) {
-                editorState.updateLock.withLock {
-                    editorState.editor.get()?.setText(content)
-                    editorState.updateUndoRedo()
-                }
-            }
-        }
-    }
 }
