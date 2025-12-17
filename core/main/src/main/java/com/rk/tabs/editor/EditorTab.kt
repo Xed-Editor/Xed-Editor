@@ -32,7 +32,6 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.components.AddDialogItem
-import com.rk.components.EditorActions
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
@@ -150,7 +149,6 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                                 errorDialog(strings.cant_write)
                                 return
                             }
-                            editorState.isDirty = false
                             file.writeText(editorState.content.toString(), charset)
                             editorState.isDirty = false
                             baseLspConnector?.notifySave(charset)
@@ -347,7 +345,6 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     fun refresh() {
         scope.launch(Dispatchers.IO) {
             val content = file.getInputStream().use { ContentIO.createFrom(it) }
-            editorState.content = content
             withContext(Dispatchers.Main) {
                 editorState.updateLock.withLock {
                     editorState.editor.get()?.setText(content)

@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)
+    var shownDisclaimer by CachedPreference("shownDisclaimer", false)
     var amoled by CachedPreference("oled", false)
     var monet by CachedPreference("monet", false)
     var pin_line_number by CachedPreference("pinline", false)

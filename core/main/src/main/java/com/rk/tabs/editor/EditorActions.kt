@@ -1,4 +1,4 @@
-package com.rk.components
+package com.rk.tabs.editor
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
