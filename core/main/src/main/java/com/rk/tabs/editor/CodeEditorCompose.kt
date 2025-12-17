@@ -202,17 +202,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 setLanguage(langScope)
                 applyMarkdownHighlighting()
 
-                if (!InbuiltFeatures.terminal.state.value || !isTerminalInstalled() || !isTerminalWorking()) {
-                    if (editorState.lspDialogMutex.isLocked) return@launch
-                    editorState.lspDialogMutex.lock()
-                    dialog(
-                        context = context as Activity,
-                        title = strings.warning.getString(context),
-                        msg = strings.lsp_terminal_unavailable.getString(context),
-                        okString = strings.ok,
-                    )
-                    return@launch
-                }
+                
                 val ext = file.getName().substringAfterLast(".").trim()
 
                 val builtin = getBuiltinServers(ext, context)
