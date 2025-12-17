@@ -86,12 +86,16 @@ suspend fun ThemeConfig.installTheme() =
                 msg = strings.incompatible_theme_warning.getString(),
                 cancelString = strings.cancel,
                 okString = strings.continue_action,
-                onOk = { finishThemeInstall(name) },
+                onOk = {
+                    finishThemeInstall(name)
+                    updateThemes()
+                },
             )
             return@withContext
         }
 
         finishThemeInstall(name)
+        updateThemes()
     }
 
 private fun ThemeConfig.finishThemeInstall(name: String) {

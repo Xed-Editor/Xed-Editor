@@ -477,6 +477,11 @@
     <string name="show_nav_extra_keys_desc">Display navigation buttons as extra keys</string>
     <string name="change_extra_keys">Edit extra keys</string>
     <string name="change_extra_keys_desc">Customize the extra keys shown above the keyboard</string>
+    <string name="change_extra_symbols">Edit extra symbols</string>
+    <string name="change_extra_symbols_desc">Customize the characters shown in the extra keys panel</string>
+    <string name="info_extra_keys">Extra keys are commands and symbols shown in a panel above the keyboard. You can long-press and drag to change the order of commands, or tap the button to add a new command. You can also customize the symbols using the final option.</string>
+    <string name="symbols">Symbols</string>
+    <string name="commands">Commands</string>
     <string name="toolbar_actions">Toolbar actions</string>
     <string name="toolbar_actions_desc">Choose which actions appear in the app bar</string>
     <string name="add_command">Add command</string>
@@ -515,4 +520,8 @@
     <string name="show_hidden_files_drawer_desc">Show hidden files or folders like .git in the drawer</string>
     <string name="show_hidden_files_search">Show hidden files in search</string>
     <string name="show_hidden_files_search_desc">Show hidden files or folders in the search results</string>
+    <string name="emulate_editor_key">Emulate editor key press</string>
+    <string name="select_key">Select key code</string>
+    <string name="split_extra_keys">Split extra keys</string>
+    <string name="split_extra_keys_desc">Split extra key panel into two rows to separate commands and symbols</string>
 </resources>

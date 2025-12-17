@@ -277,4 +277,19 @@
     <string name="warning">Προειδοποίηση</string>
     <string name="encoding_warning">Η αλλαγή της προεπιλεγμένης κωδικοποίησης δεν συνιστάται ιδιαίτερα, καθώς μπορεί να οδηγήσει σε καταστροφή αρχείων. Συνιστάται ανεπιφύλακτα η χρήση UTF-8, εκτός εάν κατανοείτε πλήρως τις συνέπειες και έχετε δημιουργήσει κατάλληλα αντίγραφα ασφαλείας.</string>
     <string name="line_spacing">Απόσταση γραμμών</string>
+    <string name="mutators">Μεταλλάκτες</string>
+    <string name="no_mutators">Όχι μεταλλάκτες</string>
+    <string name="update">Ενημέρωση</string>
+    <string name="ignore">Αγνόησε</string>
+    <string name="launch">Εκκίνηση</string>
+    <string name="mutator_desc">Δημιουργία σεναρίων χρήστη</string>
+    <string name="restore_sessions">Επαναφορά συνεδριών</string>
+    <string name="restore_sessions_desc">Επαναφορά προηγούμενων καρτελών</string>
+    <string name="terminal_home_desc">Προεπιλεγμένος αρχικός κατάλογος του τερματικού</string>
+    <string name="terminal_home">Αρχική τερματικού</string>
+    <string name="sessions">Συνεδρίες</string>
+    <string name="add_session">Προσθήκη συνεδρίας</string>
+    <string name="terminal_runtime">Χρόνος εκτέλεσης τερματικού</string>
+    <string name="terminal_runtime_desc">Επιλογή χρόνου εκτέλεσης τερματικού</string>
+    <string name="ext">Επεκτάσεις</string>
 </resources>

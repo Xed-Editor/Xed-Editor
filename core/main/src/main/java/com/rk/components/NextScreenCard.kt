@@ -51,7 +51,7 @@ fun NextScreenCard(
         contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
         description = { description?.let { Text(text = it) } },
-        enabled = true,
+        enabled = isEnabled,
         applyPaddings = false,
         endWidget = {
             Icon(

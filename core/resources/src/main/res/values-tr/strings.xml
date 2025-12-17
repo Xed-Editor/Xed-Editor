@@ -483,7 +483,7 @@
     <string name="format_selection">Biçimlendirme seçimi</string>
     <string name="format_document_error">Belge biçimlendirilemiyor.</string>
     <string name="format_selection_error">Belge aralığı biçimlendirilemiyor.</string>
-    <string name="can_execute">Uygulayabilir</string>
+    <string name="can_execute">Yürütebilir</string>
     <string name="calculating">Hesaplanıyor…</string>
     <string name="permissions">İzinler</string>
     <string name="lsp_process_desc">Terminalin başlangıç betikleri, örneğin /initrc ve .bashrc, bu komuttan önce çalışmaz.</string>
@@ -519,4 +519,15 @@
     <string name="show_hidden_files_search_desc">Gizli dosyaları veya klasörleri arama sonuçlarında göster</string>
     <string name="show_tab_icons">Sekme simgelerini göster</string>
     <string name="show_tab_icons_desc">Sekme başlıklarının yanında dosya simgelerini göster</string>
+    <string name="change_extra_symbols">Ekstra sembolleri düzenle</string>
+    <string name="change_extra_symbols_desc">Ek tuşlar panelinde gösterilen karakterleri özelleştirin</string>
+    <string name="info_extra_keys">Ekstra tuşlar, klavye üzerindeki bir panelde gösterilen komutlar ve sembollerdir. Komutların sırasını değiştirmek için uzun basılı tutup sürükleyebilir veya yeni bir komut eklemek için düğmeye dokunabilirsiniz. Son seçeneği kullanarak sembolleri de özelleştirebilirsiniz.</string>
+    <string name="symbols">Semboller</string>
+    <string name="commands">Komutlar</string>
+    <string name="emulate_editor_key">Editör tuş basımını taklit et</string>
+    <string name="select_key">Anahtar kodunu seç</string>
+    <string name="split_extra_keys">Ekstra tuşları ayır</string>
+    <string name="split_extra_keys_desc">Ek tuş panelini komut ve sembolleri ayırmak üzere iki sıraya böl</string>
+    <string name="search_and_replace">Metin Arama ve Değiştirme</string>
+    <string name="matches_in_files">%d eşleşme, %d dosyada</string>
 </resources>
