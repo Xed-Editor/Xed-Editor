@@ -10,10 +10,8 @@ import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
 
 class XML() : BaseLspServer() {
     override fun isInstalled(context: Context): Boolean {
@@ -43,16 +41,6 @@ class XML() : BaseLspServer() {
         return LspConnectionConfig.Process(
             arrayOf("java", "-jar", localDir().child("org.eclipse.lemminx.uber-jar_0.31.0.jar").absolutePath)
         )
-    }
-
-    override suspend fun beforeConnect() {}
-
-    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    override suspend fun connectionFailure(msg: String?) {}
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 
     override fun isSupported(file: FileObject): Boolean {
