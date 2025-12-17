@@ -49,6 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.fileTreeViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.CloseConfirmationDialog
 import com.rk.file.FileObject
@@ -89,6 +90,9 @@ suspend fun saveProjects() {
         } else {
             currentTabFile.delete()
         }
+
+        val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
+        fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
     }
 }
 
@@ -115,6 +119,11 @@ suspend fun restoreProjects() {
                 val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
                 if (currentTabFile.exists() && currentTabFile.canRead()) {
                     currentTab = currentTabFile.readObject() as DrawerTab
+                }
+
+                val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
+                if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
+                    fileTreeViewModel.get()?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
                 }
             }
             .onFailure {

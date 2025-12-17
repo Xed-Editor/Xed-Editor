@@ -18,6 +18,15 @@ class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
+
+    fun getExpandedNodes(): Map<FileObject, Boolean> {
+        return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
+    }
+
+    fun setExpandedNodes(map: Map<FileObject, Boolean>) {
+        map.forEach { expandedNodes[it.key] = it.value }
+    }
+
     private val cutNode = mutableStateOf<FileObject?>(null)
 
     // Track loading states to avoid showing spinners incorrectly
