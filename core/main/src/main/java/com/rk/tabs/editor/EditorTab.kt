@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -102,7 +101,6 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     override fun onTabRemoved() {
         scope.cancel()
         editorState.content = null
-        editorState.arrowKeys = WeakReference(null)
         editorState.editor.get()?.setText("")
         editorState.editor.get()?.release()
         GlobalScope.launch(Dispatchers.IO) { baseLspConnector?.disconnect() }
@@ -278,8 +276,8 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     HorizontalDivider()
                 }
 
-                if (editorState.isWrapping) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
+                if (editorState.isWrapping || editorState.isConnectingLsp) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
 
                 CodeEditor(

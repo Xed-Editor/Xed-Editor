@@ -149,8 +149,6 @@ fun EditorTab.CodeEditor(
                         subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
                             editorState.isWrapping = event.isLayoutBusy
                         }
-
-                        applyHighlightingAndConnectLSP()
                     }
 
                 val divider =
@@ -247,6 +245,7 @@ private suspend fun EditorTab.tryConnectBuiltinLsp(ext: String, editor: Editor):
                     parentFile,
                     fileObject = file,
                     codeEditor = editorState.editor.get()!!,
+                    editorTab = this,
                     server = server,
                 )
 
@@ -292,7 +291,13 @@ private suspend fun EditorTab.tryConnectExternalLsp(): Boolean {
     externalServers.forEach { server ->
         if (server.isSupported(file)) {
             baseLspConnector =
-                BaseLspConnector(parent, fileObject = file, codeEditor = editorState.editor.get()!!, server = server)
+                BaseLspConnector(
+                    parent,
+                    fileObject = file,
+                    codeEditor = editorState.editor.get()!!,
+                    editorTab = this,
+                    server = server,
+                )
 
             baseLspConnector?.connect(editorState.textmateScope!!)
             return true

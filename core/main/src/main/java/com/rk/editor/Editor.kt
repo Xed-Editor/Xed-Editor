@@ -291,12 +291,14 @@ class Editor : CodeEditor {
         val keyboardSuggestion = Settings.show_suggestions
         val lineSpacing = Settings.line_spacing
         val renderWhitespace = Settings.render_whitespace
+        val completeOnEnter = Settings.complete_on_enter
 
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
         props.deleteEmptyLineFast = fastDelete
         props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
+        props.selectCompletionItemOnEnterForSoftKbd = completeOnEnter
         setPinLineNumber(pinLineNumber)
         isLineNumberEnabled = showLineNumber
         isCursorAnimationEnabled = cursorAnimation

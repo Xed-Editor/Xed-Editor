@@ -28,8 +28,8 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
-import com.rk.activities.main.navigationDrawerState
 import com.rk.activities.settings.SettingsActivity
 import com.rk.commands.CommandProvider
 import com.rk.file.FileObject
@@ -92,7 +92,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                         viewModel.newTab(fileObject = fileObject, checkDuplicate = true, switchToTab = true)
                     } else {
                         fileTreeViewModel.get()?.goToFolder(projectFile, fileObject)
-                        navigationDrawerState.get()!!.open()
+                        drawerStateRef.get()!!.open()
                     }
                 }
             },

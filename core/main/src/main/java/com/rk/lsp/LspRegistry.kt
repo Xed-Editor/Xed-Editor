@@ -10,3 +10,7 @@ import com.rk.lsp.servers.TypeScript
 
 val builtInServer = listOf(Python(), HTML(), CSS(), TypeScript(), JSON(), Bash())
 val externalServers = mutableStateListOf<BaseLspServer>()
+
+fun getServer(id: String): BaseLspServer? {
+    return builtInServer.find { it.id == id } ?: externalServers.find { it.id == id }
+}

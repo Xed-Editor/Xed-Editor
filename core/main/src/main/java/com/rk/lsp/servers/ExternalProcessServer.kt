@@ -12,7 +12,7 @@ import kotlin.random.Random
 // DO not put this in lsp registry
 class ExternalProcessServer(val command: String, override val supportedExtensions: List<String>) : BaseLspServer() {
     override val languageName = supportedExtensions.firstOrNull()?.let { FileType.fromExtension(it).title } ?: ""
-    override val id: String = "${languageName}_${Random.nextInt()}"
+    override val id: String = "${supportedExtensions.firstOrNull()}_${Random.nextInt()}"
     override val serverName: String = command
     override val icon = supportedExtensions.firstOrNull()?.let { FileType.fromExtension(it).icon }
 

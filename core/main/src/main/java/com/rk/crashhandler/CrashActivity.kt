@@ -1,7 +1,5 @@
 package com.rk.crashhandler
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -40,8 +38,8 @@ import com.rk.editor.Editor
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
+import com.rk.utils.copyToClipboard
 import com.rk.utils.origin
-import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -115,10 +113,7 @@ class CrashActivity : ComponentActivity() {
                                         actions = {
                                             TextButton(
                                                 onClick = {
-                                                    runCatching {
-                                                            copyToClipboard(context, crashText)
-                                                            toast(strings.copied.getString())
-                                                        }
+                                                    runCatching { copyToClipboard("crash_report", crashText, true) }
                                                         .onFailure { logErrorOrExit(it) }
                                                 }
                                             ) {
@@ -231,38 +226,32 @@ class CrashActivity : ComponentActivity() {
         val maxMem = runtime.maxMemory() / (1024 * 1024)
 
         return buildString {
-            append("Unexpected Crash occurred").appendLine().appendLine()
+            append("Unexpected crash occurred").appendLine().appendLine()
 
-            append("Thread : ").append(intent.getStringExtra("thread")).appendLine()
-            append("App Version : ").append(versionName).appendLine()
-            append("Version Code : ").append(versionCode).appendLine()
-            append("Modified : ").append(isModified()).appendLine()
-            append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8)).appendLine()
-            append("PackageName : ").append(application!!.packageName).appendLine()
-            append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
-            append("Origin : ").append(origin()).appendLine()
-            append("Unix Time : ").append(System.currentTimeMillis()).appendLine()
-            append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date())).appendLine()
-            append("Android Version : ").append(Build.VERSION.RELEASE).appendLine()
-            append("SDK Version : ").append(Build.VERSION.SDK_INT).appendLine()
-            append("Brand : ").append(Build.BRAND).appendLine()
-            append("Manufacturer : ").append(Build.MANUFACTURER).appendLine()
-            append("Target Sdk : ").append(application!!.applicationInfo.targetSdkVersion.toString()).appendLine()
-            append("Model : ").append(Build.MODEL).appendLine()
-            append("Used Memory: ").append(usedMem).append("MB").appendLine()
-            append("Max Memory: ").append(maxMem).append("MB").appendLine()
+            append("Thread: ").append(intent.getStringExtra("thread")).appendLine()
+            append("App version: ").append(versionName).appendLine()
+            append("Version code: ").append(versionCode).appendLine()
+            append("Modified: ").append(isModified()).appendLine()
+            append("Commit hash: ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8)).appendLine()
+            append("Package name: ").append(application!!.packageName).appendLine()
+            append("Commit date: ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
+            append("Origin: ").append(origin()).appendLine()
+            append("Unix Time: ").append(System.currentTimeMillis()).appendLine()
+            append("Local time: ").append(SimpleDateFormat.getDateTimeInstance().format(Date())).appendLine()
+            append("Android version: ").append(Build.VERSION.RELEASE).appendLine()
+            append("SDK version: ").append(Build.VERSION.SDK_INT).appendLine()
+            append("Brand: ").append(Build.BRAND).appendLine()
+            append("Manufacturer: ").append(Build.MANUFACTURER).appendLine()
+            append("Target SDK: ").append(application!!.applicationInfo.targetSdkVersion.toString()).appendLine()
+            append("Model: ").append(Build.MODEL).appendLine()
+            append("Used memory: ").append(usedMem).append("MB").appendLine()
+            append("Max memory: ").append(maxMem).append("MB").appendLine()
 
             appendLine()
 
-            append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
-            append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
-            append("Error StackTrace : ").appendLine().append(intent.getStringExtra("stacktrace"))
+            append("Error message: ").append(intent.getStringExtra("msg")).appendLine()
+            append("Error cause: ").append(intent.getStringExtra("error_cause")).appendLine()
+            append("Error stacktrace: ").appendLine().append(intent.getStringExtra("stacktrace"))
         }
-    }
-
-    private fun copyToClipboard(context: Context, text: String) {
-        val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("crashInfo", text)
-        clipboard.setPrimaryClip(clip)
     }
 }

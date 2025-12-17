@@ -63,7 +63,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                         title = strings.force_crash.getString(),
                         msg = strings.force_crash_confirm.getString(),
                         onCancel = {},
-                        onOk = { Thread { throw HarmlessException("Force Crash") }.start() },
+                        onOk = { Thread { throw HarmlessException("Force crash") }.start() },
                     )
                 },
             )

@@ -61,6 +61,7 @@ object Settings {
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
     var show_tab_icons by CachedPreference("show_tab_icons", true)
     var split_extra_keys by CachedPreference("split_extra_keys", false)
+    var complete_on_enter by CachedPreference("complete_on_enter", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

@@ -13,7 +13,7 @@ import kotlin.random.Random
 class ExternalSocketServer(val host: String, val port: Int, override val supportedExtensions: List<String>) :
     BaseLspServer() {
     override val languageName = supportedExtensions.firstOrNull()?.let { FileType.fromExtension(it).title } ?: ""
-    override val id: String = "${languageName}_${Random.nextInt()}"
+    override val id: String = "${supportedExtensions.firstOrNull()}_${Random.nextInt()}"
     override val serverName: String = "$host:$port"
     override val icon = supportedExtensions.firstOrNull()?.let { FileType.fromExtension(it).icon }
 
