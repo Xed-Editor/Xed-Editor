@@ -1,41 +1,39 @@
 package com.rk.runner
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.DefaultScope
+import com.rk.exec.TerminalCommand
+import com.rk.exec.launchInternalTerminal
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.file.runnerDir
-import com.rk.exec.TerminalCommand
+import com.rk.icons.Icon
 import com.rk.resources.drawables
-import com.rk.resources.getDrawable
-import com.rk.exec.launchInternalTerminal
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
-object ShellBasedRunners{
+object ShellBasedRunners {
     val runners = mutableStateListOf<ShellBasedRunner>()
 
     init {
-        DefaultScope.launch{
-            indexRunners()
-        }
+        DefaultScope.launch { indexRunners() }
     }
 
     suspend fun newRunner(runner: ShellBasedRunner): Boolean {
         return withContext(Dispatchers.IO) {
             if (runners.find { it.getName() == runner.getName() } == null) {
-                withContext(Dispatchers.Main) {
-                    runners.add(runner)
-                }
-                runnerDir().child("${runner.getName()}.sh").createFileIfNot().writeText("echo \"This runner has no implementation. Click the runner and add your own script.\"")
+                withContext(Dispatchers.Main) { runners.add(runner) }
+                runnerDir()
+                    .child("${runner.getName()}.sh")
+                    .createFileIfNot()
+                    .writeText("echo \"This runner has no implementation. Click the runner and add your own script.\"")
                 saveRunners()
                 true
             } else {
@@ -68,15 +66,16 @@ object ShellBasedRunners{
     }
 }
 
-data class ShellBasedRunner(private val name: String,val regex: String): RunnerImpl(){
+data class ShellBasedRunner(private val name: String, val regex: String) : RunnerImpl() {
     override suspend fun run(context: Context, fileObject: FileObject) {
         val script = runnerDir().child("${name}.sh").createFileIfNot()
         launchInternalTerminal(
-            context, TerminalCommand(
+            context,
+            TerminalCommand(
                 exe = "/bin/bash",
                 args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),
                 id = name,
-            )
+            ),
         )
     }
 
@@ -88,15 +87,13 @@ data class ShellBasedRunner(private val name: String,val regex: String): RunnerI
         return runnerDir().child("${getName()}.sh").createFileIfNot()
     }
 
-    override fun getIcon(context: Context): Drawable? {
-        return drawables.bash.getDrawable(context)
+    override fun getIcon(context: Context): Icon {
+        return Icon.DrawableRes(drawables.bash)
     }
 
     override suspend fun isRunning(): Boolean {
         return false
     }
 
-    override suspend fun stop() {
-
-    }
+    override suspend fun stop() {}
 }

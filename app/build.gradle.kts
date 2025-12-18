@@ -21,11 +21,12 @@ android {
         create("release") {
             val isGITHUB_ACTION = System.getenv("GITHUB_ACTIONS") == "true"
 
-            val propertiesFilePath = if (isGITHUB_ACTION) {
-                "/tmp/signing.properties"
-            } else {
-                "/home/rohit/Android/xed-signing/signing.properties"
-            }
+            val propertiesFilePath =
+                if (isGITHUB_ACTION) {
+                    "/tmp/signing.properties"
+                } else {
+                    "/home/rohit/Android/xed-signing/signing.properties"
+                }
 
             val propertiesFile = File(propertiesFilePath)
             if (propertiesFile.exists()) {
@@ -33,11 +34,12 @@ android {
                 properties.load(propertiesFile.inputStream())
                 keyAlias = properties["keyAlias"] as String?
                 keyPassword = properties["keyPassword"] as String?
-                storeFile = if (isGITHUB_ACTION) {
-                    File("/tmp/xed.keystore")
-                } else {
-                    (properties["storeFile"] as String?)?.let { File(it) }
-                }
+                storeFile =
+                    if (isGITHUB_ACTION) {
+                        File("/tmp/xed.keystore")
+                    } else {
+                        (properties["storeFile"] as String?)?.let { File(it) }
+                    }
 
                 storePassword = properties["storePassword"] as String?
             } else {
@@ -57,11 +59,8 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
 
-
             isCrunchPngs = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
 
@@ -78,7 +77,6 @@ android {
         }
     }
 
-
     // Values in this will be overridden by the flavours
     defaultConfig {
         applicationId = "com.rk.xededitor"
@@ -87,21 +85,17 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
 
-        //versioning
-        versionCode = 71
-        versionName = "3.2.4"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+        // versioning
+        versionCode = 76
+        versionName = "3.2.5"
+        vectorDrawables { useSupportLibrary = true }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlin {
-        jvmToolchain(21)
-    }
+    kotlin { jvmToolchain(21) }
 
     buildFeatures {
         viewBinding = true
@@ -109,17 +103,10 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
-    }
+    composeOptions { kotlinCompilerExtensionVersion = "1.5.15" }
 
-    packaging {
-        jniLibs {
-            useLegacyPackaging = true
-        }
-    }
+    packaging { jniLibs { useLegacyPackaging = true } }
 }
-
 
 dependencies {
     implementation(libs.androidx.profileinstaller)

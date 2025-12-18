@@ -37,11 +37,7 @@ class SessionService : Service() {
             return this@SessionService
         }
 
-        fun createSession(
-            id: SessionId,
-            client: TerminalSessionClient,
-            activity: Terminal
-        ): SessionInfo {
+        fun createSession(id: SessionId, client: TerminalSessionClient, activity: Terminal): SessionInfo {
             return MkSession.createSession(activity, client, id).let {
                 val (session, pwd) = it
                 sessions[id] = session
@@ -57,11 +53,9 @@ class SessionService : Service() {
         }
 
         fun getSessionInfoByPwd(pwd: SessionPwd): SessionInfo? {
-            return sessionWorkDirs.keys.find {
-                sessionWorkDirs[it] == pwd
-            }?.let {
-                SessionInfo(it, sessionWorkDirs[it]!!, sessions[it]!!)
-            }
+            return sessionWorkDirs.keys
+                .find { sessionWorkDirs[it] == pwd }
+                ?.let { SessionInfo(it, sessionWorkDirs[it]!!, sessions[it]!!) }
         }
 
         fun terminateSession(id: SessionId) {
@@ -86,9 +80,7 @@ class SessionService : Service() {
     }
 
     private val binder = SessionBinder()
-    private val notificationManager by lazy {
-        getSystemService(NotificationManager::class.java)
-    }
+    private val notificationManager by lazy { getSystemService(NotificationManager::class.java) }
 
     override fun onBind(intent: Intent?): IBinder {
         return binder
@@ -111,20 +103,17 @@ class SessionService : Service() {
         val notification = createNotification()
         startForeground(1, notification)
 
-
         if (deamonRunning.not()) {
-            GlobalScope.launch(Dispatchers.IO) {
-                deamonRunning = true
-            }
+            GlobalScope.launch(Dispatchers.IO) { deamonRunning = true }
         }
 
         if (wakeLock == null) {
-            wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
-                PowerManager.PARTIAL_WAKE_LOCK,
-                "${strings.app_name.getString()}::${this::class.java.simpleName}"
-            )
+            wakeLock =
+                (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK,
+                    "${strings.app_name.getString()}::${this::class.java.simpleName}",
+                )
         }
-
     }
 
     var wakeLock: PowerManager.WakeLock? = null
@@ -154,50 +143,49 @@ class SessionService : Service() {
 
     private fun createNotification(): Notification {
         val intent = Intent(this, Terminal::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val exitIntent = Intent(this, SessionService::class.java).apply {
-            action = "ACTION_EXIT"
-        }
-        val wakeLockIntent = Intent(this, SessionService::class.java).apply {
-            action = "ACTION_WAKE_LOCK"
-        }
+        val pendingIntent =
+            PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+        val exitIntent = Intent(this, SessionService::class.java).apply { action = "ACTION_EXIT" }
+        val wakeLockIntent = Intent(this, SessionService::class.java).apply { action = "ACTION_WAKE_LOCK" }
 
-        val exitPendingIntent = PendingIntent.getService(
-            this, 1, exitIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val wakelockPendingIntent = PendingIntent.getService(
-            this,
-            1,
-            wakeLockIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        val exitPendingIntent =
+            PendingIntent.getService(
+                this,
+                1,
+                exitIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+        val wakelockPendingIntent =
+            PendingIntent.getService(
+                this,
+                1,
+                wakeLockIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("${strings.app_name.getString()} ${strings.terminal.getString()}")
             .setContentText(getNotificationContentText(wakeLock?.isHeld == true))
             .setSmallIcon(drawables.terminal)
             .setContentIntent(pendingIntent)
+            .addAction(NotificationCompat.Action.Builder(null, strings.exit.getString(), exitPendingIntent).build())
             .addAction(
                 NotificationCompat.Action.Builder(
-                    null,
-                    strings.exit.getString(),
-                    exitPendingIntent
-                ).build()
+                        null,
+                        if (wakeLock?.isHeld == true) {
+                            strings.release_wakelock.getString()
+                        } else {
+                            strings.acquire_wakelock.getString()
+                        },
+                        wakelockPendingIntent,
+                    )
+                    .build()
             )
-            .addAction(
-                NotificationCompat.Action.Builder(
-                    null,
-                    if (wakeLock?.isHeld == true) {
-                        strings.release_wakelock.getString()
-                    } else {
-                        strings.acquire_wakelock.getString()
-                    },
-                    wakelockPendingIntent
-                ).build()
-            )
-
             .setOngoing(true)
             .build()
     }
@@ -205,21 +193,19 @@ class SessionService : Service() {
     private val CHANNEL_ID = "session_service_channel"
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            "Session Service",
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            description = "Notification for Terminal Service"
-        }
+        val channel =
+            NotificationChannel(CHANNEL_ID, "Session Service", NotificationManager.IMPORTANCE_LOW).apply {
+                description = "Notification for Terminal Service"
+            }
         notificationManager.createNotificationChannel(channel)
     }
 
     private fun updateNotification() {
         runCatching {
-            val notification = createNotification()
-            notificationManager.notify(1, notification)
-        }.onFailure { it.printStackTrace() }
+                val notification = createNotification()
+                notificationManager.notify(1, notification)
+            }
+            .onFailure { it.printStackTrace() }
     }
 
     private fun getNotificationContentText(wakelock: Boolean): String {
@@ -235,10 +221,7 @@ class SessionService : Service() {
 }
 
 typealias SessionId = String
+
 typealias SessionPwd = String
 
-data class SessionInfo(
-    val id: SessionId,
-    val pwd: SessionPwd,
-    val session: TerminalSession
-)
+data class SessionInfo(val id: SessionId, val pwd: SessionPwd, val session: TerminalSession)

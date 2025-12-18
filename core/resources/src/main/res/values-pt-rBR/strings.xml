@@ -383,4 +383,9 @@
     <string name="line_spacing_desc">Multiplicador de altura para cada linha no editor</string>
     <string name="size">Tamanho</string>
     <string name="wrapper_type">Tipo de contêiner</string>
+    <string name="can_execute">Pode executar</string>
+    <string name="anr_watchdog">Vigia ANR</string>
+    <string name="anr_watchdog_desc">Encerrar o Xed-Editor se ele ficar sem resposta por mais de 5 segundos</string>
+    <string name="verbose_errors">Erros detalhados</string>
+    <string name="verbose_errors_desc">Incluir rastreamento de pilha nas caixas de diálogo de erro</string>
 </resources>

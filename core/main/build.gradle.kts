@@ -10,7 +10,8 @@ plugins {
 val gitCommitHash: Provider<String> =
     providers.exec { commandLine("git", "rev-parse", "--short=8", "HEAD") }.standardOutput.asText.map { it.trim() }
 
-val fullGitCommitHash: Provider<String> = providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
+val fullGitCommitHash: Provider<String> =
+    providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
 
 val gitCommitDate: Provider<String> =
     providers.exec { commandLine("git", "show", "-s", "--format=%cI", "HEAD") }.standardOutput.asText.map { it.trim() }
@@ -107,6 +108,8 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(libs.compose.dnd)
     implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidsvg.aar)
     // implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // Modules
@@ -115,11 +118,9 @@ dependencies {
     implementation(project(":language-textmate"))
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
-    // implementation(project(":core:extension"))
+    implementation(project(":core:extension"))
     implementation(project(":core:terminal-view"))
     implementation(project(":core:terminal-emulator"))
-    implementation(libs.androidx.lifecycle.process)
-    implementation(libs.androidsvg.aar)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

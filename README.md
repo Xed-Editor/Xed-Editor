@@ -9,8 +9,6 @@
 
   <img src="https://img.shields.io/github/downloads/Xed-Editor/Xed-Editor/total?label=Downloads" alt="Download Count">
   <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI">
-
- <img src="https://tokei.rs/b1/github/Xed-Editor/Xed-Editor" alt="LOC">
  
 </div>
 
@@ -33,9 +31,6 @@ Join the Xed-Editor community to stay updated and engage with other users:
 ## Download
 
 <div>
-  <a href="https://github.com/Xed-Editor/Xed-Editor/releases">
-    <img src="https://img.shields.io/github/v/release/Rohitkushvaha01/Xed-Editor?include_prereleases&sort=date&display_name=tag">
-  </a>
   <a href="https://android.izzysoft.de/repo/apk/com.rk.xededitor">
     <img src="https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.rk.xededitor&label=IzzyOnDroid&cacheSeconds=33000">
   </a>

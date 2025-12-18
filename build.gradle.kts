@@ -13,7 +13,7 @@ subprojects {
     plugins.withId(rootProject.libs.plugins.ktfmt.get().pluginId) {
         configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
             kotlinLangStyle()
-            maxWidth.set(140)
+            maxWidth.set(120)
         }
     }
 }

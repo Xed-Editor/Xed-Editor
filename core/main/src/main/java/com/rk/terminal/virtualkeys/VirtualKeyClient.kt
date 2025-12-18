@@ -6,11 +6,7 @@ import com.rk.terminal.virtualkeys.VirtualKeysView.IVirtualKeysView
 import com.termux.terminal.TerminalSession
 
 class VirtualKeyClient(val session: TerminalSession) : IVirtualKeysView {
-    override fun onVirtualKeyButtonClick(
-        view: View?,
-        buttonInfo: VirtualKeyButton?,
-        button: Button?,
-    ) {
+    override fun onVirtualKeyButtonClick(view: View?, buttonInfo: VirtualKeyButton?, button: Button?) {
         val key = buttonInfo?.key
         if (key.isNullOrEmpty()) {
             return

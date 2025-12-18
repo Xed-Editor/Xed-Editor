@@ -18,10 +18,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,19 +32,19 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import com.rk.activities.main.MainActivity
+import com.rk.components.InfoBlock
+import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.file.FileWrapper
-import com.rk.utils.toast
+import com.rk.icons.Error
+import com.rk.icons.XedIcons
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
-import com.rk.activities.main.MainActivity
-import com.rk.components.InfoBlock
-import com.rk.components.SettingsToggle
-import com.rk.icons.Error
-import com.rk.icons.XedIcons
+import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 @Composable
@@ -60,36 +60,37 @@ fun Runners(modifier: Modifier = Modifier) {
     val regexFocusRequester = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
 
-    var regexFieldValue by remember {
-        mutableStateOf(TextFieldValue("", selection = TextRange(runnerName.length)))
-    }
+    var regexFieldValue by remember { mutableStateOf(TextFieldValue("", selection = TextRange(runnerName.length))) }
 
     // Validation functions
     fun validateName() {
-        nameError = when {
-            runnerName.isBlank() -> {
-                strings.name_empty_err.getString()
+        nameError =
+            when {
+                runnerName.isBlank() -> {
+                    strings.name_empty_err.getString()
+                }
+                !runnerName.matches("^[a-zA-Z0-9_-]+$".toRegex()) -> {
+                    strings.invalid_runner_name.getString()
+                }
+                else -> null
             }
-            !runnerName.matches("^[a-zA-Z0-9_-]+$".toRegex()) -> {
-                strings.invalid_runner_name.getString()
-            }
-            else -> null
-        }
     }
 
-    fun String.isValidRegex(): Boolean = try {
-        Regex(this)
-        true
-    } catch (_: Exception) {
-        false
-    }
+    fun String.isValidRegex(): Boolean =
+        try {
+            Regex(this)
+            true
+        } catch (_: Exception) {
+            false
+        }
 
     fun validateRegex() {
-        regexError = if (regexFieldValue.text.isValidRegex()) {
-            null
-        } else {
-            strings.invalid_regex.getString()
-        }
+        regexError =
+            if (regexFieldValue.text.isValidRegex()) {
+                null
+            } else {
+                strings.invalid_regex.getString()
+            }
     }
 
     fun resetDialogState() {
@@ -109,21 +110,18 @@ fun Runners(modifier: Modifier = Modifier) {
     PreferenceLayout(
         label = stringResource(strings.runners),
         fab = {
-            FloatingActionButton(onClick = {
-                resetDialogState()
-                showDialog = true
-            }) {
+            FloatingActionButton(
+                onClick = {
+                    resetDialogState()
+                    showDialog = true
+                }
+            ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
-        }
+        },
     ) {
-
         InfoBlock(
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Info, contentDescription = null
-                )
-            },
+            icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
             text = stringResource(strings.info_runners),
         )
 
@@ -136,7 +134,7 @@ fun Runners(modifier: Modifier = Modifier) {
                     default = false,
                     sideEffect = {},
                     showSwitch = false,
-                    startWidget = {}
+                    startWidget = {},
                 )
             } else {
                 if (ShellBasedRunners.runners.isEmpty()) {
@@ -146,7 +144,7 @@ fun Runners(modifier: Modifier = Modifier) {
                         default = false,
                         sideEffect = {},
                         showSwitch = false,
-                        startWidget = {}
+                        startWidget = {},
                     )
                 } else {
                     ShellBasedRunners.runners.forEach { runner ->
@@ -157,47 +155,48 @@ fun Runners(modifier: Modifier = Modifier) {
                             default = false,
                             sideEffect = { _ ->
                                 MainActivity.instance?.let {
-                                    it.lifecycleScope.launch{
+                                    it.lifecycleScope.launch {
                                         it.viewModel.newTab(FileWrapper(runner.getScript()))
                                         toast(strings.tab_opened)
                                     }
                                 }
-
                             },
                             showSwitch = false,
                             endWidget = {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
+                                    horizontalArrangement = Arrangement.Center,
                                 ) {
-                                    IconButton(onClick = {
-                                        isEditingExisting = runner
-                                        runnerName = runner.getName()
-                                        regexFieldValue = regexFieldValue.copy(text = runner.regex, selection = TextRange(runner.regex.length))
-                                        showDialog = true
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Edit,
-                                            contentDescription = null
-                                        )
+                                    IconButton(
+                                        onClick = {
+                                            isEditingExisting = runner
+                                            runnerName = runner.getName()
+                                            regexFieldValue =
+                                                regexFieldValue.copy(
+                                                    text = runner.regex,
+                                                    selection = TextRange(runner.regex.length),
+                                                )
+                                            showDialog = true
+                                        }
+                                    ) {
+                                        Icon(imageVector = Icons.Outlined.Edit, contentDescription = null)
                                     }
 
-                                    IconButton(onClick = {
-                                        scope.launch {
-                                            ShellBasedRunners.deleteRunner(runner)
-                                            // Refresh list
-                                            isLoading = true
-                                            ShellBasedRunners.indexRunners()
-                                            isLoading = false
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                ShellBasedRunners.deleteRunner(runner)
+                                                // Refresh list
+                                                isLoading = true
+                                                ShellBasedRunners.indexRunners()
+                                                isLoading = false
+                                            }
                                         }
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Delete,
-                                            contentDescription = null
-                                        )
+                                    ) {
+                                        Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
                                     }
                                 }
-                            }
+                            },
                         )
                     }
                 }
@@ -211,12 +210,7 @@ fun Runners(modifier: Modifier = Modifier) {
                     resetDialogState()
                 },
                 title = {
-                    Text(
-                        stringResource(
-                            if (isEditingExisting != null) strings.edit_runner
-                            else strings.new_runner
-                        )
-                    )
+                    Text(stringResource(if (isEditingExisting != null) strings.edit_runner else strings.new_runner))
                 },
                 text = {
                     Column {
@@ -234,9 +228,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                     Text(
                                         text = it,
                                         color = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 8.dp)
+                                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                     )
                                 }
                             },
@@ -246,7 +238,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                 }
                             },
                             enabled = isEditingExisting == null, // Disable name editing for existing runners
-                            readOnly = isEditingExisting != null
+                            readOnly = isEditingExisting != null,
                         )
 
                         OutlinedTextField(
@@ -263,7 +255,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                     Text(
                                         text = it,
                                         color = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth(),
                                     )
                                 }
                             },
@@ -298,10 +290,7 @@ fun Runners(modifier: Modifier = Modifier) {
                             scope.launch {
                                 if (isEditingExisting == null) {
                                     // Create new runner
-                                    val runner = ShellBasedRunner(
-                                        name = runnerName,
-                                        regex = regexFieldValue.text
-                                    )
+                                    val runner = ShellBasedRunner(name = runnerName, regex = regexFieldValue.text)
                                     val created = ShellBasedRunners.newRunner(runner)
                                     if (created) {
                                         // Refresh list
@@ -315,10 +304,11 @@ fun Runners(modifier: Modifier = Modifier) {
                                     }
                                 } else {
                                     // Update existing runner
-                                    val updatedRunner = ShellBasedRunner(
-                                        name = runnerName, // Name remains the same
-                                        regex = regexFieldValue.text
-                                    )
+                                    val updatedRunner =
+                                        ShellBasedRunner(
+                                            name = runnerName, // Name remains the same
+                                            regex = regexFieldValue.text,
+                                        )
                                     ShellBasedRunners.deleteRunner(isEditingExisting!!, deleteScript = false)
                                     val updated = ShellBasedRunners.newRunner(updatedRunner)
                                     if (updated) {
@@ -333,14 +323,9 @@ fun Runners(modifier: Modifier = Modifier) {
                                     }
                                 }
                             }
-                        }
+                        },
                     ) {
-                        Text(
-                            stringResource(
-                                if (isEditingExisting != null) strings.update
-                                else strings.create
-                            )
-                        )
+                        Text(stringResource(if (isEditingExisting != null) strings.update else strings.create))
                     }
                 },
                 dismissButton = {
@@ -352,7 +337,7 @@ fun Runners(modifier: Modifier = Modifier) {
                     ) {
                         Text(stringResource(strings.cancel))
                     }
-                }
+                },
             )
         }
     }

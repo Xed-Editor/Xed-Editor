@@ -1,0 +1,362 @@
+package com.rk.tabs.editor
+
+import android.view.KeyEvent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.rk.DefaultScope
+import com.rk.activities.main.EditorCursorState
+import com.rk.activities.main.EditorTabState
+import com.rk.activities.main.MainActivity
+import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.TabState
+import com.rk.components.AddDialogItem
+import com.rk.components.FindingsDialog
+import com.rk.components.SearchPanel
+import com.rk.components.SingleInputDialog
+import com.rk.file.FileObject
+import com.rk.file.FileType
+import com.rk.file.child
+import com.rk.icons.Icon
+import com.rk.lsp.BaseLspConnector
+import com.rk.lsp.formatDocumentSuspend
+import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.runner.currentRunner
+import com.rk.settings.Settings
+import com.rk.tabs.base.Tab
+import com.rk.utils.errorDialog
+import com.rk.utils.getTempDir
+import io.github.rosemoe.sora.text.ContentIO
+import java.lang.ref.WeakReference
+import java.nio.charset.Charset
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+
+@OptIn(DelicateCoroutinesApi::class)
+open class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : Tab() {
+    val isTemp: Boolean
+        get() {
+            return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
+        }
+
+    private val charset = Charset.forName(Settings.encoding)
+    var baseLspConnector: BaseLspConnector? = null
+
+    override val icon: ImageVector
+        get() = Icons.Outlined.Edit
+
+    override val name: String
+        get() = strings.editor.getString()
+
+    val scope = CoroutineScope(Dispatchers.Default)
+
+    override var tabTitle: MutableState<String> =
+        mutableStateOf(file.getName()).also {
+            scope.launch(Dispatchers.IO) {
+                delay(100)
+                val parent = file.getParentFile()
+                if (
+                    viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null
+                ) {
+
+                    val title = "${parent.getName()}/${tabTitle.value}"
+                    withContext(Dispatchers.Main) { tabTitle.value = title }
+                }
+            }
+        }
+
+    val editorState by mutableStateOf(CodeEditorState())
+
+    override fun onTabRemoved() {
+        scope.cancel()
+        editorState.content = null
+        editorState.arrowKeys = WeakReference(null)
+        editorState.editor.get()?.setText("")
+        editorState.editor.get()?.release()
+        GlobalScope.launch(Dispatchers.IO) { baseLspConnector?.disconnect() }
+    }
+
+    init {
+        scope.launch {
+            if (file.exists().not() || file.canRead().not()) {
+                return@launch
+            }
+
+            editorState.editable = Settings.read_only_default.not() && file.canWrite()
+            if (editorState.textmateScope == null) {
+                editorState.textmateScope =
+                    file.let {
+                        val ext = it.getName().substringAfterLast('.', "")
+                        FileType.Companion.fromExtension(ext).textmateScope
+                    }
+            }
+            if (editorState.content == null) {
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                            editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+                            editorState.contentLoaded.complete(Unit)
+                        }
+                        .onFailure { errorDialog(it) }
+                }
+            }
+        }
+    }
+
+    fun refresh() {
+        scope.launch(Dispatchers.IO) {
+            val newContent = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+
+            withContext(Dispatchers.Main) {
+                editorState.updateLock.withLock {
+                    editorState.content = newContent
+                    editorState.editor.get()?.setText(newContent)
+                    editorState.updateUndoRedo()
+                    editorState.isDirty = false
+                }
+            }
+        }
+    }
+
+    private val saveMutex = Mutex()
+
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun save() =
+        withContext(Dispatchers.IO) {
+            saveMutex.withLock {
+                if (Settings.format_on_save && baseLspConnector?.isFormattingSupported() == true) {
+                    formatDocumentSuspend(this@EditorTab)
+                }
+
+                suspend fun write() {
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                                if (file.canWrite().not()) {
+                                    errorDialog(strings.cant_write)
+                                    return@withContext
+                                }
+                                file.writeText(editorState.content.toString(), charset)
+
+                                editorState.isDirty = false
+                                baseLspConnector?.notifySave(charset)
+                            }
+                            .onFailure { errorDialog(it) }
+                    }
+                }
+
+                if (isTemp) {
+                    MainActivity.instance?.apply {
+                        fileManager.createNewFile(mimeType = "*/*", title = file.getName()) {
+                            if (it != null) {
+                                file = it
+                                tabTitle.value = it.getName()
+                                scope.launch { write() }
+                            }
+                        }
+                    }
+                } else {
+                    write()
+                }
+            }
+        }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    override fun Content() {
+        val context = LocalContext.current
+
+        key(refreshKey) {
+            LaunchedEffect(editorState.editable) { editorState.editor.get()?.editable = editorState.editable }
+
+            Column {
+                if (editorState.showRunnerDialog) {
+                    ModalBottomSheet(
+                        onDismissRequest = {
+                            editorState.showRunnerDialog = false
+                            editorState.runnersToShow = emptyList()
+                        }
+                    ) {
+                        Column(
+                            modifier =
+                                Modifier.Companion.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+                        ) {
+                            editorState.runnersToShow.forEach { runner ->
+                                AddDialogItem(
+                                    icon = runner.getIcon(context) ?: Icon.DrawableRes(drawableRes = drawables.run),
+                                    title = runner.getName(),
+                                ) {
+                                    DefaultScope.launch {
+                                        currentRunner = WeakReference(runner)
+                                        runner.run(context, file)
+                                        editorState.showRunnerDialog = false
+                                        editorState.runnersToShow = emptyList()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (editorState.showFindingsDialog) {
+                    FindingsDialog(
+                        title = editorState.findingsTitle,
+                        codeItems = editorState.findingsItems,
+                        description = editorState.findingsDescription,
+                        onFinish = { editorState.showFindingsDialog = false },
+                    )
+                }
+
+                if (editorState.showRenameDialog) {
+                    SingleInputDialog(
+                        title = stringResource(strings.rename_symbol),
+                        inputLabel = stringResource(strings.new_name),
+                        inputValue = editorState.renameValue,
+                        errorMessage = editorState.renameError,
+                        confirmEnabled = editorState.renameValue.isNotBlank(),
+                        onInputValueChange = {
+                            editorState.renameValue = it
+                            editorState.renameError = null
+                            if (editorState.renameValue.isBlank()) {
+                                editorState.renameError = strings.name_empty_err.getString()
+                            }
+                        },
+                        onConfirm = { editorState.renameConfirm?.let { it(editorState.renameValue) } },
+                        onFinish = {
+                            editorState.renameValue = ""
+                            editorState.renameError = null
+                            editorState.renameConfirm = null
+                            editorState.showRenameDialog = false
+                        },
+                    )
+                }
+
+                if (editorState.showJumpToLineDialog) {
+                    SingleInputDialog(
+                        title = stringResource(strings.jump_to_line),
+                        inputLabel = stringResource(strings.line_number),
+                        inputValue = editorState.jumpToLineValue,
+                        errorMessage = editorState.jumpToLineError,
+                        confirmEnabled = editorState.jumpToLineValue.isNotBlank(),
+                        onInputValueChange = {
+                            val lastLine = editorState.editor.get()?.lineCount ?: 0
+
+                            editorState.jumpToLineValue = it
+                            editorState.jumpToLineError = null
+                            if (editorState.jumpToLineValue.toIntOrNull() == null) {
+                                editorState.jumpToLineError = strings.value_invalid.getString()
+                            } else if (it.toInt() > lastLine) {
+                                editorState.jumpToLineError = strings.value_large.getString()
+                            } else if (it.toInt() < 1) {
+                                editorState.jumpToLineError = strings.value_small.getString()
+                            }
+                        },
+                        onConfirm = { editorState.editor.get()!!.jumpToLine(editorState.jumpToLineValue.toInt() - 1) },
+                        onFinish = {
+                            editorState.jumpToLineValue = ""
+                            editorState.jumpToLineError = null
+                            editorState.showJumpToLineDialog = false
+                        },
+                    )
+                }
+
+                SearchPanel(editorState = editorState)
+                if (editorState.isSearching) {
+                    HorizontalDivider()
+                }
+
+                if (editorState.isWrapping) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
+                }
+
+                CodeEditor(
+                    modifier = Modifier.weight(1f),
+                    state = editorState,
+                    parentTab = this@EditorTab,
+                    onTextChange = {
+                        if (Settings.auto_save) {
+                            scope.launch(Dispatchers.IO) {
+                                save()
+                                saveMutex.lock()
+                                delay(400)
+                                saveMutex.unlock()
+                            }
+                        }
+                    },
+                    onKeyEvent = { event ->
+                        if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
+                            scope.launch(Dispatchers.IO) { save() }
+                        }
+                    },
+                )
+
+                if (Settings.show_extra_keys) {
+                    ExtraKeys(editorTab = this@EditorTab)
+                }
+
+                LaunchedEffect(
+                    editorState.textmateScope,
+                    refreshKey,
+                    LocalConfiguration.current,
+                    LocalContext.current,
+                    MaterialTheme.colorScheme,
+                ) {
+                    applyHighlightingAndConnectLSP()
+                }
+            }
+        }
+    }
+
+    override fun getState(): TabState? {
+        val editor = editorState.editor.get() ?: return null
+        return EditorTabState(
+            fileObject = file,
+            cursor =
+                EditorCursorState(
+                    lineLeft = editor.cursor.leftLine,
+                    columnLeft = editor.cursor.leftColumn,
+                    lineRight = editor.cursor.rightLine,
+                    columnRight = editor.cursor.rightColumn,
+                ),
+            scrollX = editor.scrollX,
+            scrollY = editor.scrollY,
+            unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
+        )
+    }
+
+    @Composable
+    override fun RowScope.Actions() {
+        EditorActions(modifier = Modifier.Companion, viewModel = viewModel)
+    }
+
+    override val showGlobalActions: Boolean = false
+}

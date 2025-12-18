@@ -20,63 +20,47 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.rk.icons.Icon
 
 @Composable
-fun AddDialogItem(
-    @DrawableRes icon: Int,
-    title: String,
-    description: String? = null,
-    onClick: () -> Unit
-) {
+fun AddDialogItem(@DrawableRes icon: Int, title: String, description: String? = null, onClick: () -> Unit) {
     AddDialogItem(
         title = title,
         description = description,
         onClick = onClick,
-        icon = {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-            )
-        })
+        icon = { Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(24.dp)) },
+    )
 }
 
 @Composable
-fun AddDialogItem(
-    icon: ImageVector,
-    title: String,
-    description: String? = null,
-    onClick: () -> Unit
-) {
+fun AddDialogItem(icon: ImageVector, title: String, description: String? = null, onClick: () -> Unit) {
     AddDialogItem(
         title = title,
         description = description,
         onClick = onClick,
-        icon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-            )
-        })
+        icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp)) },
+    )
 }
 
 @Composable
-fun AddDialogItem(
-    icon: @Composable () -> Unit,
-    title: String,
-    description: String? = null,
-    onClick: () -> Unit
-) {
+fun AddDialogItem(icon: Icon, title: String, description: String? = null, onClick: () -> Unit) {
+    when (icon) {
+        is Icon.DrawableRes -> {
+            AddDialogItem(icon = icon.drawableRes, title = title, description = description, onClick = onClick)
+        }
+
+        is Icon.VectorIcon -> {
+            AddDialogItem(icon = icon.vector, title = title, description = description, onClick = onClick)
+        }
+    }
+}
+
+@Composable
+fun AddDialogItem(icon: @Composable () -> Unit, title: String, description: String? = null, onClick: () -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-
         icon()
 
         Spacer(Modifier.width(16.dp))
@@ -86,8 +70,6 @@ fun AddDialogItem(
             if (description != null) {
                 Text(description, style = MaterialTheme.typography.bodySmall)
             }
-
         }
     }
-
 }

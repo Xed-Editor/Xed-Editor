@@ -65,11 +65,7 @@ fun NestedScrollStretch(modifier: Modifier = Modifier, content: @Composable () -
                     invalidateTick.intValue
 
                     connection.topEdgeEffect.draw(tmpOut, StretchEdgeEffect.POSITION_TOP, this) {
-                        connection.bottomEdgeEffect.draw(
-                            tmpOut,
-                            StretchEdgeEffect.POSITION_BOTTOM,
-                            this,
-                        ) {
+                        connection.bottomEdgeEffect.draw(tmpOut, StretchEdgeEffect.POSITION_BOTTOM, this) {
                             drawContent()
                         }
                     }
@@ -99,21 +95,12 @@ private inline fun StretchEdgeEffect.draw(
     }
 }
 
-private class NestedScrollStretchConnection(context: Context, invalidate: Runnable) :
-    NestedScrollConnection {
+private class NestedScrollStretchConnection(context: Context, invalidate: Runnable) : NestedScrollConnection {
 
     var height = 0
 
-    val topEdgeEffect = StretchEdgeEffect(
-        context,
-        invalidate,
-        invalidate
-    )
-    val bottomEdgeEffect = StretchEdgeEffect(
-        context,
-        invalidate,
-        invalidate
-    )
+    val topEdgeEffect = StretchEdgeEffect(context, invalidate, invalidate)
+    val bottomEdgeEffect = StretchEdgeEffect(context, invalidate, invalidate)
 
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         val availableY = available.y
@@ -135,11 +122,7 @@ private class NestedScrollStretchConnection(context: Context, invalidate: Runnab
         return Offset.Zero
     }
 
-    override fun onPostScroll(
-        consumed: Offset,
-        available: Offset,
-        source: NestedScrollSource,
-    ): Offset {
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
         val availableY = available.y
         when {
             source != NestedScrollSource.UserInput || height == 0 -> return Offset.Zero

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.resources.drawables
+import com.rk.settings.Settings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -47,8 +48,11 @@ fun FileTreeNodeItem(
     depth: Int,
     onFileClick: (FileTreeNode) -> Unit,
     onFileLongClick: (FileTreeNode) -> Unit,
-    viewModel: FileTreeViewModel
+    viewModel: FileTreeViewModel,
 ) {
+    val isHidden = node.file.getName().startsWith(".")
+    if (isHidden && !Settings.show_hidden_files_drawer) return
+
     val isExpanded = viewModel.isNodeExpanded(node.file)
     val horizontalPadding = (depth * 16).dp
 
@@ -62,77 +66,68 @@ fun FileTreeNodeItem(
         }
     }
 
-    val children by remember(node.file, isExpanded) {
-        derivedStateOf {
-            if (node.isDirectory && isExpanded) {
-                viewModel.getNodeChildren(node)
-            } else {
-                emptyList()
+    val children by
+        remember(node.file, isExpanded) {
+            derivedStateOf {
+                if (node.isDirectory && isExpanded) {
+                    viewModel.getNodeChildren(node)
+                } else {
+                    emptyList()
+                }
             }
         }
-    }
 
     val scope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .addIf(isCut) {
-                    Modifier.alpha(0.5f)
-                }
-                .combinedClickable(
-                    onClick = {
-                        if (node.isDirectory) {
-                            viewModel.toggleNodeExpansion(node.file)
-                        } else {
-                            scope.launch {
-                                delay(100)
-                                onFileClick(node)
+            modifier =
+                Modifier.addIf(isCut) { Modifier.alpha(0.5f) }
+                    .combinedClickable(
+                        onClick = {
+                            if (node.isDirectory) {
+                                viewModel.toggleNodeExpansion(node.file)
+                            } else {
+                                scope.launch {
+                                    delay(100)
+                                    onFileClick(node)
+                                }
                             }
+                            viewModel.selectedFile[(currentTab as FileTreeTab).root!!] = node.file
+                        },
+                        onLongClick = {
+                            viewModel.selectedFile[(currentTab as FileTreeTab).root!!] = node.file
+                            scope.launch {
+                                delay(50)
+                                onFileLongClick(node)
+                            }
+                        },
+                    )
+                    .then(
+                        if (viewModel.selectedFile[(currentTab as FileTreeTab).root!!] == node.file && !isCut) {
+                            Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
+                        } else {
+                            Modifier
                         }
-                        viewModel.selectedFile[currentProject!!] = node.file
-                    },
-                    onLongClick = {
-                        viewModel.selectedFile[currentProject!!] = node.file
-                        scope.launch {
-                            delay(50)
-                            onFileLongClick(node)
-                        }
-
-                    }
-                )
-                .then(
-                    if (viewModel.selectedFile[currentProject] == node.file && !isCut) {
-                        Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
-                    } else {
-                        Modifier
-                    }
-                )
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+                    )
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.width(horizontalPadding))
 
             if (node.isDirectory) {
-                val rotationDegree by animateFloatAsState(
-                    targetValue = if (!isExpanded) 0f else 90f,
-                    label = "rotation"
-                )
+                val rotationDegree by
+                    animateFloatAsState(targetValue = if (!isExpanded) 0f else 90f, label = "rotation")
 
                 Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
                     if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(9.dp),
-                            strokeWidth = 2.dp,
-                        )
+                        CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
                     } else {
                         Icon(
                             painter = painterResource(drawables.chevron_right),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            modifier = Modifier
-                                .size(16.dp)
-                                .rotate(rotationDegree)
+                            modifier = Modifier.size(16.dp).rotate(rotationDegree),
                         )
                     }
                 }
@@ -142,7 +137,7 @@ fun FileTreeNodeItem(
                 Spacer(modifier = Modifier.width(24.dp))
             }
 
-            FileIcon(node.file)
+            Box(modifier = Modifier.addIf(isHidden) { Modifier.alpha(0.5f) }) { FileIcon(node.file) }
 
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -151,16 +146,12 @@ fun FileTreeNodeItem(
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.width((getDrawerWidth()-61.dp)),
-                color = MaterialTheme.colorScheme.onSurface
+                modifier = Modifier.width((getDrawerWidth() - 61.dp)),
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
 
-        AnimatedVisibility(
-            visible = isExpanded && node.isDirectory,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
+        AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
             Column {
                 children.forEach { childNode ->
                     key(childNode.file.hashCode()) {
@@ -170,7 +161,7 @@ fun FileTreeNodeItem(
                             depth = depth + 1,
                             onFileClick = onFileClick,
                             onFileLongClick = onFileLongClick,
-                            viewModel = viewModel
+                            viewModel = viewModel,
                         )
                     }
                 }

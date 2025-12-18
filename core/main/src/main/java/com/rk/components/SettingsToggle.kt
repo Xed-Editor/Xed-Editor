@@ -1,6 +1,5 @@
 package com.rk.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,15 +23,13 @@ fun BasicToggle(
     label: String,
     description: String? = null,
     checked: Boolean,
-    onSwitch: (Boolean) -> Unit
+    onSwitch: (Boolean) -> Unit,
 ) {
     PreferenceSwitch(
         checked = checked,
         description = description,
-        onCheckedChange = {
-            onSwitch.invoke(it)
-        },
-        label = label
+        onCheckedChange = { onSwitch.invoke(it) },
+        label = label,
     )
 }
 
@@ -44,7 +41,6 @@ fun SettingsToggle(
     default: Boolean,
     state: MutableState<Boolean> = remember { mutableStateOf(default) },
     description: String? = null,
-    @DrawableRes iconRes: Int? = null,
     reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
@@ -75,28 +71,26 @@ fun SettingsToggle(
             label = label,
             modifier = modifier,
             description = description,
-            enabled = isEnabled
+            enabled = isEnabled,
         )
     } else {
         val interactionSource = remember { MutableInteractionSource() }
         PreferenceTemplate(
-            modifier = modifier.combinedClickable(
-                enabled = isEnabled,
-                indication = ripple(),
-                interactionSource = interactionSource,
-                onLongClick = onLongClick,
-                onClick = { sideEffect?.invoke(false) }
-            ),
-            contentModifier = Modifier
-                .fillMaxHeight()
-                .padding(vertical = 16.dp)
-                .padding(start = 16.dp),
+            modifier =
+                modifier.combinedClickable(
+                    enabled = isEnabled,
+                    indication = ripple(),
+                    interactionSource = interactionSource,
+                    onLongClick = onLongClick,
+                    onClick = { sideEffect?.invoke(false) },
+                ),
+            contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
             title = { Text(fontWeight = FontWeight.Bold, text = label) },
             description = { description?.let { Text(text = it) } },
             enabled = isEnabled,
             applyPaddings = false,
             endWidget = endWidget,
-            startWidget = startWidget
+            startWidget = startWidget,
         )
     }
 }

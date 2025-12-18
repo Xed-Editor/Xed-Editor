@@ -1,51 +1,49 @@
 package com.rk.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Typeface
 import android.os.Build
 import android.telephony.TelephonyManager
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.components.compose.preferences.base.DividerColumn
+import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.activities.main.MainActivity
-import com.rk.theme.XedTheme
+import java.io.File
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.util.Locale
+import kotlin.math.roundToInt
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import java.util.Locale
-import kotlin.math.roundToInt
+import kotlinx.coroutines.withContext
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -55,6 +53,16 @@ inline fun runOnUiThread(runnable: Runnable) {
 inline fun toast(@StringRes resId: Int) {
     toast(resId.getString())
 }
+
+suspend fun FileObject.writeObject(obj: Any) =
+    withContext(Dispatchers.IO) { ObjectOutputStream(getOutPutStream(false)).use { oos -> oos.writeObject(obj) } }
+
+suspend fun FileObject.readObject(): Any? =
+    withContext(Dispatchers.IO) {
+        ObjectInputStream(getInputStream()).use { ois ->
+            return@withContext ois.readObject()
+        }
+    }
 
 fun toast(message: String?) {
     if (message.isNullOrBlank()) {
@@ -69,7 +77,8 @@ fun toast(message: String?) {
 }
 
 fun isDarkMode(ctx: Context): Boolean {
-    return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)
+    return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+        Configuration.UI_MODE_NIGHT_YES)
 }
 
 inline fun dpToPx(dp: Float, ctx: Context): Int {
@@ -84,18 +93,16 @@ inline fun isMainThread(): Boolean {
 @OptIn(DelicateCoroutinesApi::class)
 fun <K> x(m: MutableCollection<K>, c: Int) {
     GlobalScope.launch(Dispatchers.IO) {
-        runCatching { for (y in m.shuffled().take(c)) { m.remove(y) } }
+        runCatching {
+            for (y in m.shuffled().take(c)) {
+                m.remove(y)
+            }
+        }
     }
 }
 
-
-
-
 fun Activity.openUrl(url: String) {
-    val intent = android.content.Intent(
-        android.content.Intent.ACTION_VIEW,
-        android.net.Uri.parse(url)
-    )
+    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
     startActivity(intent)
 }
 
@@ -103,11 +110,6 @@ fun hasHardwareKeyboard(context: Context): Boolean {
     val configuration = context.resources.configuration
     return configuration.keyboard != Configuration.KEYBOARD_NOKEYS
 }
-
-
-
-
-
 
 fun origin(): String {
     return application!!.run {
@@ -119,27 +121,18 @@ fun origin(): String {
     }
 }
 
-
-
-
-
-
-
-fun copyToClipboard(label: String, text: String,showToast: Boolean = true) {
+fun copyToClipboard(label: String, text: String, showToast: Boolean = true) {
     val clipboard = application!!.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText(label, text)
     clipboard.setPrimaryClip(clip)
-    if (showToast){
+    if (showToast) {
         toast(strings.copied)
     }
 }
 
-fun copyToClipboard(text: String,showToast: Boolean = true) {
-    copyToClipboard(label = "xed-editor",text, showToast = showToast)
+fun copyToClipboard(text: String, showToast: Boolean = true) {
+    copyToClipboard(label = "xed-editor", text, showToast = showToast)
 }
-
-
-
 
 fun expectOOM(requiredMemBytes: Long): Boolean {
     val runtime = Runtime.getRuntime()
@@ -154,22 +147,20 @@ fun expectOOM(requiredMemBytes: Long): Boolean {
     return requiredMemory > availableMemory
 }
 
-
-
-//used for warning purposes
+// used for warning purposes
 fun isChinaDevice(context: Context): Boolean {
     val manufacturer = Build.MANUFACTURER.lowercase()
 
-    if (manufacturer.contains("huawei") ||
-        manufacturer.contains("xiaomi") ||
-        manufacturer.contains("oppo") ||
-        manufacturer.contains("vivo") ||
-        manufacturer.contains("realme") ||
-        manufacturer.contains("oneplus"))
-    {
+    if (
+        manufacturer.contains("huawei") ||
+            manufacturer.contains("xiaomi") ||
+            manufacturer.contains("oppo") ||
+            manufacturer.contains("vivo") ||
+            manufacturer.contains("realme") ||
+            manufacturer.contains("oneplus")
+    ) {
         return true
     }
-
 
     val localeCountry = Locale.getDefault().country
     if (localeCountry.equals("CN", ignoreCase = true)) return true
@@ -179,8 +170,8 @@ fun isChinaDevice(context: Context): Boolean {
     return simCountry.equals("cn", ignoreCase = true)
 }
 
-fun showTerminalNotice(activity: Activity,onOk: () -> Unit){
-    if (isChinaDevice(activity) && !Settings.terminalVirusNotice){
+fun showTerminalNotice(activity: Activity, onOk: () -> Unit) {
+    if (isChinaDevice(activity) && !Settings.terminalVirusNotice) {
         dialog(
             context = activity,
             title = strings.attention.getString(),
@@ -193,7 +184,7 @@ fun showTerminalNotice(activity: Activity,onOk: () -> Unit){
             onCancel = {},
             cancelable = false,
         )
-    }else{
+    } else {
         onOk()
     }
 }
@@ -216,4 +207,81 @@ fun getSourceDirOfPackage(context: Context, packageName: String): String? {
     }
 }
 
+fun getTempDir(): File {
+    val tmp = File(application!!.filesDir.parentFile, "tmp")
+    if (!tmp.exists()) {
+        tmp.mkdir()
+    }
+    return tmp
+}
 
+val isFDroid by lazy {
+    val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
+    targetSdkVersion == 28
+}
+
+/** Converts a [Spanned] text object to an [AnnotatedString]. */
+fun Spanned.toAnnotatedString(): AnnotatedString {
+    val builder = AnnotatedString.Builder(this.toString())
+    val spans = getSpans(0, length, Any::class.java)
+    spans.forEach { span ->
+        val start = getSpanStart(span)
+        val end = getSpanEnd(span)
+        val style =
+            when (span) {
+                is ForegroundColorSpan -> SpanStyle(color = androidx.compose.ui.graphics.Color(span.foregroundColor))
+                is StyleSpan ->
+                    when (span.style) {
+                        Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
+                        Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
+                        Typeface.BOLD_ITALIC -> SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
+                        else -> null
+                    }
+                is UnderlineSpan -> SpanStyle(textDecoration = TextDecoration.Underline)
+                is StrikethroughSpan -> SpanStyle(textDecoration = TextDecoration.LineThrough)
+                else -> null
+            }
+        if (style != null) {
+            builder.addStyle(style, start, end)
+        }
+    }
+    return builder.toAnnotatedString()
+}
+
+private var selectionColor = Color.Unspecified
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun preloadSelectionColor() {
+    val selectionColors = LocalTextSelectionColors.current
+    val selectionBackground = selectionColors.backgroundColor
+    selectionColor = selectionBackground
+}
+
+fun getSelectionColor(): Color {
+    return selectionColor
+}
+
+// Helper function copied from
+// https://github.com/MohamedRejeb/compose-dnd/blob/65d48ed0f0bd83a0b01263b7e046864bdd4a9048/sample/common/src/commonMain/kotlin/utils/ScrollUtils.kt
+suspend fun handleLazyListScroll(lazyListState: LazyListState, dropIndex: Int): Unit = coroutineScope {
+    val firstVisibleItemIndex = lazyListState.firstVisibleItemIndex
+    val firstVisibleItemScrollOffset = lazyListState.firstVisibleItemScrollOffset
+
+    // Workaround to fix scroll issue when dragging the first item
+    if (dropIndex == 0 || dropIndex == 1) {
+        launch { lazyListState.scrollToItem(firstVisibleItemIndex, firstVisibleItemScrollOffset) }
+    }
+
+    // Animate scroll when entering the first or last item
+    val lastVisibleItemIndex = lazyListState.firstVisibleItemIndex + lazyListState.layoutInfo.visibleItemsInfo.lastIndex
+
+    val firstVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.firstOrNull() ?: return@coroutineScope
+    val scrollAmount = firstVisibleItem.size * 2f
+
+    if (dropIndex <= firstVisibleItemIndex + 1) {
+        launch { lazyListState.animateScrollBy(-scrollAmount) }
+    } else if (dropIndex == lastVisibleItemIndex) {
+        launch { lazyListState.animateScrollBy(scrollAmount) }
+    }
+}

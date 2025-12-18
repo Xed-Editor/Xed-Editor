@@ -47,4 +47,8 @@
     <string name="translate">ترجمە ایت</string>
     <string name="properties">اوزللقلر</string>
     <string name="regex">دوزنلی افادە</string>
+    <string name="close_drawer">قاپات</string>
+    <string name="undo">گری آل</string>
+    <string name="search">آرامە</string>
+    <string name="share">پایلاش</string>
 </resources>

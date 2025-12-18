@@ -6,10 +6,21 @@ import java.net.URI
 
 abstract class BaseLspServer {
     abstract fun isInstalled(context: Context): Boolean
+
     abstract fun install(context: Context)
+
     abstract fun getConnectionConfig(): LspConnectionConfig
-    abstract fun getInitializationOptions(uri: URI?):Any?
+
+    open suspend fun beforeConnect() {}
+
+    open suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
+
+    open suspend fun connectionFailure(msg: String?) {}
+
+    open fun getInitializationOptions(uri: URI?): Any? = null
+
     abstract fun isSupported(file: FileObject): Boolean
+
     abstract val id: String
     abstract val languageName: String
     abstract val serverName: String

@@ -3,18 +3,11 @@ package com.rk.lsp
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.lsp.servers.Bash
 import com.rk.lsp.servers.CSS
+import com.rk.lsp.servers.Emmet
 import com.rk.lsp.servers.HTML
 import com.rk.lsp.servers.JSON
 import com.rk.lsp.servers.Python
 import com.rk.lsp.servers.TypeScript
 
-val builtInServer = listOf<BaseLspServer>(
-    Python(),
-    HTML(),
-    CSS(),
-    TypeScript(),
-    JSON(),
-    Bash(),
-)
-
+val builtInServer = listOf(Python(), HTML(), CSS(), TypeScript(), Emmet(), JSON(), Bash())
 val externalServers = mutableStateListOf<BaseLspServer>()

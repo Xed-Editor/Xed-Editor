@@ -21,21 +21,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rk.file.FileWrapper
 import com.rk.DefaultScope
-import com.rk.utils.toast
-import com.rk.resources.getString
-import com.rk.resources.strings
+import com.rk.activities.main.MainActivity
 import com.rk.components.InfoBlock
 import com.rk.components.SingleInputDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.activities.main.MainActivity
+import com.rk.file.FileWrapper
 import com.rk.mutation.Mutators
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.utils.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,52 +46,45 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
     var inputValue by remember { mutableStateOf("") }
     var inputError by remember { mutableStateOf<String?>(null) }
 
-
-    PreferenceLayout(label = stringResource(id = strings.mutators), backArrowVisible = true, fab = {
-        FloatingActionButton(onClick = {
-            showDialog = true
-        }) {
-            Icon(imageVector = Icons.Outlined.Add, contentDescription = "Add Mutator")
-        }
-    }) {
-
+    PreferenceLayout(
+        label = stringResource(id = strings.mutators),
+        backArrowVisible = true,
+        fab = {
+            FloatingActionButton(onClick = { showDialog = true }) {
+                Icon(imageVector = Icons.Outlined.Add, contentDescription = "Add Mutator")
+            }
+        },
+    ) {
         InfoBlock(
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Info, contentDescription = null
-                )
-            },
+            icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
             text = stringResource(strings.info_mutators),
         )
 
         PreferenceGroup {
             if (mutators.isEmpty()) {
-                Text(
-                    text = stringResource(strings.no_mutators), modifier = Modifier.padding(16.dp)
-                )
+                Text(text = stringResource(strings.no_mutators), modifier = Modifier.padding(16.dp))
             } else {
                 mutators.toList().forEach { mut ->
-                    PreferenceTemplate(modifier = modifier.clickable {
-                        DefaultScope.launch {
-                            withContext(Dispatchers.Main) {
-                                MainActivity.instance?.viewModel?.newTab(fileObject = FileWrapper(mut.file))
-                                toast(strings.tab_opened.getString())
-                            }
-
-                        }
-
-                    },
+                    PreferenceTemplate(
+                        modifier =
+                            modifier.clickable {
+                                DefaultScope.launch {
+                                    withContext(Dispatchers.Main) {
+                                        MainActivity.instance?.viewModel?.newTab(fileObject = FileWrapper(mut.file))
+                                        toast(strings.tab_opened.getString())
+                                    }
+                                }
+                            },
                         contentModifier = Modifier.fillMaxHeight(),
                         title = { Text(text = mut.name) },
                         enabled = true,
                         applyPaddings = true,
                         endWidget = {
                             IconButton(onClick = { Mutators.deleteMutator(mut) }) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete, contentDescription = null
-                                )
+                                Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
                             }
-                        })
+                        },
+                    )
                 }
             }
         }
@@ -115,7 +108,8 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
             onConfirm = {
                 Mutators.createMutator(
                     name = inputValue,
-                    script = """
+                    script =
+                        """
                         // ${strings.script_get_text.getString()}
                         // let text = getEditorText()
                         
@@ -134,7 +128,8 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
 
                         // ${strings.script_set_text.getString()}
                         // setEditorText("${strings.script_text.getString()}")
-                """.trimIndent()
+                """
+                            .trimIndent(),
                 )
             },
             onFinish = {
@@ -143,6 +138,5 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                 showDialog = false
             },
         )
-
     }
 }

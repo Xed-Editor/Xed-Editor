@@ -495,4 +495,8 @@
     <string name="theme_flipper">主題切換器</string>
     <string name="theme_flipper_desc">每 7 秒自動切換主題模式</string>
     <string name="lsp_terminal_unavailable">由於終端環境不可用或無法運行，LSP 語言功能將無法使用。</string>
+    <string name="select_language">選取語言</string>
+    <string name="delete_failed">無法刪除檔案</string>
+    <string name="invalid_intent">收到無效的 intent：\n%s</string>
+    <string name="add_parent_command">新增父指令</string>
 </resources>
