@@ -115,11 +115,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
             editorState.editable = Settings.read_only_default.not() && file.canWrite()
             if (editorState.textmateScope == null) {
-                editorState.textmateScope =
-                    file.let {
-                        val ext = it.getName().substringAfterLast('.', "")
-                        FileType.Companion.fromExtension(ext).textmateScope
-                    }
+                editorState.textmateScope = file.let { FileType.getTextMateScopefromName(it.getName()) }
             }
             if (editorState.content == null) {
                 withContext(Dispatchers.IO) {

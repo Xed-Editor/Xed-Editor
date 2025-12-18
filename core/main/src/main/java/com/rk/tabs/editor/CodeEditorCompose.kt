@@ -37,6 +37,7 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.info
+import com.rk.utils.logError
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
@@ -225,7 +226,12 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
 
                 parentFile.let {
                     info("Trying to connect...")
-                    baseLspConnector?.connect(FileType.fromExtension(ext).textmateScope!!)
+                    val textMateScope = FileType.getTextMateScopefromName(file.getName())
+                    if (textMateScope != null) {
+                        baseLspConnector?.connect(textMateScope)
+                    } else {
+                        logError("TextMate scope is null")
+                    }
                     info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
                 }
             }
