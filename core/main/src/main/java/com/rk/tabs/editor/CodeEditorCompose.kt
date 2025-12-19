@@ -37,6 +37,7 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.info
+import com.rk.utils.logError
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
@@ -200,17 +201,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 setLanguage(langScope)
                 applyMarkdownHighlighting()
 
-                if (!InbuiltFeatures.terminal.state.value || !isTerminalInstalled() || !isTerminalWorking()) {
-                    if (editorState.lspDialogMutex.isLocked) return@launch
-                    editorState.lspDialogMutex.lock()
-                    dialog(
-                        context = context as Activity,
-                        title = strings.warning.getString(context),
-                        msg = strings.lsp_terminal_unavailable.getString(context),
-                        okString = strings.ok,
-                    )
-                    return@launch
-                }
+                
                 val ext = file.getName().substringAfterLast(".").trim()
 
                 val builtin = getBuiltinServers(ext, context)
@@ -235,7 +226,12 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
 
                 parentFile.let {
                     info("Trying to connect...")
-                    baseLspConnector?.connect(FileType.fromExtension(ext).textmateScope!!)
+                    val textMateScope = FileType.getTextMateScopefromName(file.getName())
+                    if (textMateScope != null) {
+                        baseLspConnector?.connect(textMateScope)
+                    } else {
+                        logError("TextMate scope is null")
+                    }
                     info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
                 }
             }

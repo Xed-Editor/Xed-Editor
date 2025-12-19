@@ -76,11 +76,11 @@ private val git = drawables.git
  *   (e.g., ```javascript).
  */
 enum class FileType(
-    val extensions: List<String>,
-    val textmateScope: String?,
-    val icon: Int?,
-    val iconOverride: Map<String, Int>? = null,
-    val title: String,
+    var extensions: List<String>,
+    var textmateScope: String?,
+    var icon: Int?,
+    var iconOverride: Map<String, Int>? = null,
+    var title: String,
     /**
      * Language identifiers used in Markdown code blocks. Should only include additional names that are not included in
      * the extensions list.
@@ -299,6 +299,18 @@ enum class FileType(
         fun fromExtension(ext: String): FileType {
             val normalized = ext.lowercase().removePrefix(".")
             return entries.firstOrNull { normalized in it.extensions } ?: UNKNOWN
+        }
+
+        fun getTextMateScopefromName(name: String): String? {
+            when (name) {
+                "CmakeLists.txt" -> {
+                    return "source.cmake"
+                }
+                else -> {
+                    val ext = name.substringAfterLast('.', "")
+                    return FileType.Companion.fromExtension(ext).textmateScope
+                }
+            }
         }
 
         fun fromMarkdownName(name: String): FileType {
