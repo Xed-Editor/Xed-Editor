@@ -528,4 +528,22 @@
     <string name="select_key">Anahtar kodunu seç</string>
     <string name="split_extra_keys">Ekstra tuşları ayır</string>
     <string name="split_extra_keys_desc">Ek tuş panelini komut ve sembolleri ayırmak üzere iki sıraya böl</string>
+    <string name="search_and_replace">Metin Arama ve Değiştirme</string>
+    <string name="matches_in_files">%d eşleşme, %d dosyada</string>
+    <string name="disclaimer_heading">Gizlilik Politikası ve Sorumluluk Reddi Beyanı</string>
+    <string name="disclaimer_read_carefully">Lütfen bu uygulamayı kullanmadan önce dikkatlice okuyun.</string>
+    <string name="data_loss_risk">Veri Kaybı Riski</string>
+    <string name="data_loss_risk_content">Bu uygulama; yazılım kararsızlığı, sistem arızaları, beklenmedik sonlanmalar veya depolama donanımı sorunları gibi öngörülemeyen durumlar nedeniyle veri kaybı yaşanabileceği bilgisiyle kullanıma sunulmuştur. Tüm kritik verilerin bağımsız ve düzenli yedeklerini almak tamamen kullanıcının sorumluluğundadır.</string>
+    <string name="terminal_risks_content">Bu uygulama, dosya sisteminize doğrudan erişim sağlayan terminal işlevselliği içermektedir. Terminal komutlarının yanlış kullanımı aşağıdakilere yol açabilir:\n• Dosya veya dizinlerin kalıcı olarak silinmesi\n• Güvenlik açıkları\n• Kritik verilerin kaybı\n\nÇalıştırdığınız komutları ve bunların potansiyel sonuçlarını anlamak sizin sorumluluğunuzdadır.</string>
+    <string name="third_party_ext">Üçüncü Taraf Eklentiler</string>
+    <string name="third_party_ext_content">Bu uygulama, harici kişiler tarafından geliştirilmiş olabilecek üçüncü taraf eklentileri desteklemektedir. Bu eklentiler:\n• Dosya ve verilerinize erişebilir ve onları değiştirebilir\n• Sisteminizde rastgele kod çalıştırabilir\n• Hatalar, güvenlik açıkları veya zararlı kod içerebilir\n• Sistem kararsızlığına veya çökmelere neden olabilir\n• Güvenliğinizi veya gizliliğinizi tehlikeye atabilir\n\nÜçüncü taraf eklentileri incelememekte, onaylamamakta veya onlar için sorumluluk kabul etmemekteyiz. Eklentileri yüklemek ve kullanmak tamamen kendi sorumluluğunuzdadır. Üçüncü taraf eklentilerinin neden olduğu herhangi bir hasar, veri kaybı veya güvenlik sorunundan sorumlu değiliz.</string>
+    <string name="no_warranty">Garanti Yoktur</string>
+    <string name="no_warranty_content">Bu yazılım GNU Genel Kamu Lisansı v3.0 altında dağıtılmaktadır ve ticari elverişlilik, belirli bir amaca uygunluk ve ihlal etmeme garantileri dahil ancak bunlarla sınırlı olmamak üzere, açık veya zımni hiçbir türden garanti olmaksızın, OLDUĞU GİBİ sağlanmaktadır.</string>
+    <string name="not_liable">Sorumluluğun Sınırlandırılması</string>
+    <string name="not_liable_content">Geliştiriciler veya telif hakkı sahipleri, hiçbir koşulda bu yazılımın kullanımından kaynaklanan herhangi bir talep, hasar veya kayıptan sorumlu tutulamaz. Bu, aşağıdakilerle sınırlı olmamak üzere; veri kaybı, sistem arızaları, gelir kaybı veya her türlü arızi veya dolaylı zararları içerir. Bu tür zararların olasılığı hakkında bilgilendirilmiş olsalar dahi aynı sorumsuzluk geçerlidir.</string>
+    <string name="consent_statement">\"Kabul Ediyorum\" seçeneğine tıklayarak bu şartları okuduğunuzu, anladığınızı ve kabul ettiğinizi onaylamış olursunuz.</string>
+    <string name="decline">Reddet</string>
+    <string name="i_accept_disabled">Kabul Ediyorum (%s)</string>
+    <string name="i_accept">Kabul Ediyorum</string>
+    <string name="terminal_risks">Terminal Riskleri</string>
 </resources>

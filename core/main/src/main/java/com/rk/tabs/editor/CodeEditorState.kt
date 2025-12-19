@@ -17,7 +17,7 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
     var rootView: WeakReference<ConstraintLayout?> = WeakReference(null)
 
-    var content by mutableStateOf(initialContent)
+    var content = initialContent
     var isDirty by mutableStateOf(false)
     var editable by mutableStateOf(Settings.read_only_default.not())
     val updateLock = Mutex()

@@ -9,15 +9,13 @@ import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
 
 class Markdown() : BaseLspServer() {
     override val id: String = "markdown-lsp"
     override val languageName: String = "Markdown"
-    override val serverName = "vscode-langservers-extracted"
+    override val serverName = "vscode-markdown-language-server"
     override val supportedExtensions: List<String> = FileType.MARKDOWN.extensions
     override val icon = FileType.MARKDOWN.icon
 
@@ -28,12 +26,6 @@ class Markdown() : BaseLspServer() {
 
         return sandboxDir().child("/usr/bin/vscode-markdown-language-server").exists()
     }
-
-    override suspend fun beforeConnect() {}
-
-    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    override suspend fun connectionFailure(msg: String?) {}
 
     override fun install(context: Context) {
         val installSH = localBinDir().child("lsp/markdown")
@@ -58,9 +50,5 @@ class Markdown() : BaseLspServer() {
 
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
-    }
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 }

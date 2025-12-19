@@ -9,15 +9,13 @@ import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
 
 class HTML() : BaseLspServer() {
     override val id: String = "html-lsp"
     override val languageName: String = "HTML"
-    override val serverName = "vscode-langservers-extracted"
+    override val serverName = "vscode-html-language-server"
     override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
     override val icon = FileType.HTML.icon
 
@@ -28,12 +26,6 @@ class HTML() : BaseLspServer() {
 
         return sandboxDir().child("/usr/bin/vscode-html-language-server").exists()
     }
-
-    override suspend fun beforeConnect() {}
-
-    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    override suspend fun connectionFailure(msg: String?) {}
 
     override fun install(context: Context) {
         val installSH = localBinDir().child("lsp/html")
@@ -56,9 +48,5 @@ class HTML() : BaseLspServer() {
 
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
-    }
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 }

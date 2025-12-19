@@ -362,7 +362,6 @@ object CommandProvider {
                 label = mutableStateOf(strings.toggle_word_wrap.getString()),
                 action = { vm, _ ->
                     val currentTab = vm.currentTab as? EditorTab ?: return@Command
-                    currentTab.editorState.isWrapping = true
                     currentTab.editorState.editor.get()?.apply { setWordwrap(!isWordwrap, true, true) }
                 },
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },

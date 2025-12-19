@@ -144,13 +144,6 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
             )
 
             SettingsToggle(
-                label = "Code actions",
-                description = "Enable quick fixes and refactorings",
-                default = Preference.getBoolean("lsp_${server.id}_code_actions", true),
-                sideEffect = { Preference.setBoolean("lsp_${server.id}_code_actions", it) },
-            )
-
-            SettingsToggle(
                 label = "Formatting",
                 description = "Enable document formatting",
                 default = Preference.getBoolean("lsp_${server.id}_formatting", true),

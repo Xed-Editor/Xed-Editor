@@ -101,6 +101,7 @@ class Editor : CodeEditor {
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,
                     EditorColorScheme.SIGNATURE_BACKGROUND,
                     EditorColorScheme.HOVER_BACKGROUND,
+                    EditorColorScheme.LINE_NUMBER_PANEL,
                 )
 
                 setColors(highSurfaceContainer, EditorColorScheme.COMPLETION_WND_ITEM_CURRENT)
@@ -128,6 +129,7 @@ class Editor : CodeEditor {
                 setColors(
                     colorPrimary,
                     EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
+                    EditorColorScheme.HIGHLIGHTED_DELIMITERS_BORDER,
                     EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
                     EditorColorScheme.HOVER_TEXT_HIGHLIGHTED,
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION,

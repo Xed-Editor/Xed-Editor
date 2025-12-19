@@ -17,6 +17,7 @@ import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class UriWrapper : FileObject {
@@ -227,11 +228,29 @@ class UriWrapper : FileObject {
         }
 
     override fun canWrite(): Boolean {
-        return file.canWrite()
+        if (file.canWrite()) {
+            return true
+        }
+
+        runCatching {
+            runBlocking { getOutPutStream(false).close() }
+            return true
+        }
+
+        return false
     }
 
     override fun canRead(): Boolean {
-        return file.canRead()
+        if (file.canRead()) {
+            return true
+        }
+
+        runCatching {
+            runBlocking { getInputStream().close() }
+            return true
+        }
+
+        return false
     }
 
     override fun canExecute(): Boolean {

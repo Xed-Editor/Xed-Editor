@@ -19,6 +19,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.dialog
+import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -116,6 +117,17 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     if (it) {
                         startThemeFlipperIfNotRunning()
                     }
+                },
+            )
+
+            SettingsToggle(
+                label = "Reset Consent Status",
+                description = "Shows the terms of use disclaimer on next startup.",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    Settings.shownDisclaimer = false
+                    toast(strings.restart_required)
                 },
             )
         }

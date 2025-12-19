@@ -52,13 +52,13 @@ abstract class BaseLspServer {
 
     abstract fun getConnectionConfig(): LspConnectionConfig
 
-    abstract suspend fun beforeConnect()
+    open suspend fun beforeConnect() {}
 
-    abstract suspend fun connectionSuccess(lspConnector: BaseLspConnector)
+    open suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
 
-    abstract suspend fun connectionFailure(msg: String?)
+    open suspend fun connectionFailure(msg: String?) {}
 
-    abstract fun getInitializationOptions(uri: URI?): Any?
+    open fun getInitializationOptions(uri: URI?): Any? = null
 
     abstract fun isSupported(file: FileObject): Boolean
 

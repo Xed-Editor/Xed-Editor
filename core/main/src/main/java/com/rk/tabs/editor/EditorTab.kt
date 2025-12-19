@@ -31,7 +31,6 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.components.AddDialogItem
-import com.rk.components.EditorActions
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
@@ -132,6 +131,21 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
         }
     }
 
+    fun refresh() {
+        scope.launch(Dispatchers.IO) {
+            val newContent = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+
+            withContext(Dispatchers.Main) {
+                editorState.updateLock.withLock {
+                    editorState.content = newContent
+                    editorState.editor.get()?.setText(newContent)
+                    editorState.updateUndoRedo()
+                    editorState.isDirty = false
+                }
+            }
+        }
+    }
+
     private val saveMutex = Mutex()
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -143,17 +157,19 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 }
 
                 suspend fun write() {
-                    runCatching {
-                            if (file.canWrite().not()) {
-                                errorDialog(strings.cant_write)
-                                return
+                    withContext(Dispatchers.IO) {
+                        runCatching {
+                                if (file.canWrite().not()) {
+                                    errorDialog(strings.cant_write)
+                                    return@withContext
+                                }
+                                file.writeText(editorState.content.toString(), charset)
+
+                                editorState.isDirty = false
+                                baseLspConnector?.notifySave(charset)
                             }
-                            editorState.isDirty = false
-                            file.writeText(editorState.content.toString(), charset)
-                            editorState.isDirty = false
-                            baseLspConnector?.notifySave(charset)
-                        }
-                        .onFailure { errorDialog(it) }
+                            .onFailure { errorDialog(it) }
+                    }
                 }
 
                 if (isTemp) {
@@ -188,10 +204,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                             editorState.runnersToShow = emptyList()
                         }
                     ) {
-                        Column(
-                            modifier =
-                                Modifier.Companion.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
-                        ) {
+                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
                             editorState.runnersToShow.forEach { runner ->
                                 AddDialogItem(
                                     icon = runner.getIcon(context) ?: Icon.DrawableRes(drawableRes = drawables.run),
@@ -341,17 +354,4 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     }
 
     override val showGlobalActions: Boolean = false
-
-    fun refresh() {
-        scope.launch(Dispatchers.IO) {
-            val content = file.getInputStream().use { ContentIO.createFrom(it) }
-            editorState.content = content
-            withContext(Dispatchers.Main) {
-                editorState.updateLock.withLock {
-                    editorState.editor.get()?.setText(content)
-                    editorState.updateUndoRedo()
-                }
-            }
-        }
-    }
 }

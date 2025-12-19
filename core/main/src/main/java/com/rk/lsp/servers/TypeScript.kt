@@ -9,10 +9,8 @@ import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
 
 class TypeScript() : BaseLspServer() {
     override val id: String = "typescript-lsp"
@@ -32,12 +30,6 @@ class TypeScript() : BaseLspServer() {
 
         return sandboxDir().child("/usr/bin/typescript-language-server").exists()
     }
-
-    override suspend fun beforeConnect() {}
-
-    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    override suspend fun connectionFailure(msg: String?) {}
 
     override fun install(context: Context) {
         val installSH = localBinDir().child("lsp/typescript")
@@ -60,9 +52,5 @@ class TypeScript() : BaseLspServer() {
 
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
-    }
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 }

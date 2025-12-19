@@ -12,24 +12,23 @@ import com.rk.file.sandboxDir
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
-class CSS() : BaseLspServer() {
-    override val id: String = "css-lsp"
-    override val languageName: String = "CSS"
-    override val serverName = "vscode-css-language-server"
-    override val supportedExtensions: List<String> =
-        FileType.CSS.extensions + FileType.SCSS.extensions + FileType.LESS.extensions
-    override val icon = FileType.CSS.icon
+class Emmet() : BaseLspServer() {
+    override val id: String = "emmet-lsp"
+    override val languageName: String = "Emmet"
+    override val serverName = "emmet-language-server"
+    override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
+    override val icon = FileType.HTML.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
 
-        return sandboxDir().child("/usr/bin/vscode-css-language-server").exists()
+        return sandboxDir().child("/usr/bin/emmet-language-server").exists()
     }
 
     override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/css")
+        val installSH = localBinDir().child("lsp/emmet")
 
         launchInternalTerminal(
             context = context,
@@ -37,14 +36,14 @@ class CSS() : BaseLspServer() {
                 TerminalCommand(
                     exe = "/bin/bash",
                     args = arrayOf(installSH.absolutePath),
-                    id = "css-lsp-installer",
+                    id = "emmet-lsp-installer",
                     env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
                 ),
         )
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/vscode-css-language-server", "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/emmet-language-server", "--stdio"))
     }
 
     override fun isSupported(file: FileObject): Boolean {

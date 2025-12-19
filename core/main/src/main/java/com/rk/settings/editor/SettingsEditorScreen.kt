@@ -293,13 +293,6 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.smooth_tabs),
-                description = stringResource(id = strings.smooth_tab_desc),
-                default = Settings.smooth_tabs,
-                sideEffect = { Settings.smooth_tabs = it },
-            )
-
-            EditorSettingsToggle(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 showSwitch = false,

@@ -12,7 +12,6 @@ import com.rk.file.sandboxHomeDir
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
 import org.eclipse.lsp4j.DidChangeConfigurationParams
 
 class Python() : BaseLspServer() {
@@ -49,8 +48,6 @@ class Python() : BaseLspServer() {
         return LspConnectionConfig.Process(arrayOf("/home/.local/share/pipx/venvs/python-lsp-server/bin/pylsp"))
     }
 
-    override suspend fun beforeConnect() {}
-
     override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {
         val requestManager = lspConnector.lspEditor!!.requestManager!!
 
@@ -79,9 +76,5 @@ class Python() : BaseLspServer() {
 
     override fun isSupported(file: FileObject): Boolean {
         return supportedExtensions.contains(file.getName().substringAfterLast("."))
-    }
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 }
