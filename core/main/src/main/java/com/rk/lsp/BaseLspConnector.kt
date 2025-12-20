@@ -262,15 +262,15 @@ class BaseLspConnector(
                             }
                         }
 
-                        override fun onStatusChange(status: ServerStatus) {
-                            if (server.status == LspConnectionStatus.ERROR && status != ServerStatus.STARTING) return
+                        override fun onStatusChange(newStatus: ServerStatus, oldStatus: ServerStatus) {
+                            if (server.status == LspConnectionStatus.ERROR && newStatus != ServerStatus.STARTING) return
 
-                            if (status == ServerStatus.INITIALIZED) {
+                            if (newStatus == ServerStatus.INITIALIZED) {
                                 scope.launch { server.connectionSuccess(this@BaseLspConnector) }
                             }
 
                             val statusMessage =
-                                when (status) {
+                                when (newStatus) {
                                     ServerStatus.STARTING -> "Connecting to LSP server..."
                                     ServerStatus.INITIALIZED -> "LSP server initialized"
                                     ServerStatus.STARTED -> "Connected to LSP server successfully"
@@ -280,7 +280,7 @@ class BaseLspConnector(
                             server.addLog(LspLogEntry(MessageType.Info, statusMessage))
 
                             server.status =
-                                when (status) {
+                                when (newStatus) {
                                     ServerStatus.INITIALIZED,
                                     ServerStatus.STARTED -> LspConnectionStatus.CONNECTED
                                     ServerStatus.STARTING -> LspConnectionStatus.CONNECTING
