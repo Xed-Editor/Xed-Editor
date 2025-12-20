@@ -551,7 +551,7 @@
     <string name="status_connected">Connected</string>
     <string name="status_connecting">Connecting…</string>
     <string name="status_not_running">Not running</string>
-    <string name="supported_extensions">Supported extensions: %d</string>
+    <string name="supported_extensions">Supported extensions: %s</string>
     <string name="features">Features</string>
     <string name="hover_information">Hover information</string>
     <string name="hover_information_desc">Show documentation on hover</string>
