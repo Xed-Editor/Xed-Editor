@@ -124,17 +124,7 @@ class CrashActivity : ComponentActivity() {
                                             if (showReport) {
                                                 TextButton(
                                                     onClick = {
-                                                        runCatching {
-                                                                val url =
-                                                                    "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
-                                                                        URLEncoder.encode(
-                                                                            "``` \n$crashText\n ```",
-                                                                            StandardCharsets.UTF_8.toString(),
-                                                                        )
-                                                                val browserIntent =
-                                                                    Intent(Intent.ACTION_VIEW, url.toUri())
-                                                                context.startActivity(browserIntent)
-                                                            }
+                                                        runCatching { reportLogs(crashText, context) }
                                                             .onFailure { logErrorOrExit(it) }
                                                     }
                                                 ) {
@@ -178,6 +168,14 @@ class CrashActivity : ComponentActivity() {
                 runCatching { finishAffinity() }
                 exitProcess(1)
             }
+    }
+
+    private fun reportLogs(crashText: String, context: Context) {
+        val url =
+            "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                URLEncoder.encode("``` \n$crashText\n ```", StandardCharsets.UTF_8.toString())
+        val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+        context.startActivity(browserIntent)
     }
 
     private fun buildCrashReport(): String {

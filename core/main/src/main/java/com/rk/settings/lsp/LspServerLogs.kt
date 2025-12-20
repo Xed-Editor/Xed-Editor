@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
 fun LspServerLogs(server: BaseLspServer) {
     val scope = rememberCoroutineScope()
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    val context = SettingsActivity.instance!!
     val logText = buildLogs(server)
 
     XedTheme {
@@ -67,43 +66,7 @@ fun LspServerLogs(server: BaseLspServer) {
                             }
 
                             TextButton(
-                                onClick = {
-                                    runCatching {
-                                            val urlStart =
-                                                "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Language%20Server%20Error%20Report&body="
-                                            val url =
-                                                urlStart +
-                                                    URLEncoder.encode(
-                                                        "```log \n${logText}\n ```",
-                                                        StandardCharsets.UTF_8.toString(),
-                                                    )
-                                            if (url.length > 2048) {
-                                                val trimmedUrl =
-                                                    urlStart +
-                                                        URLEncoder.encode(
-                                                            "```log \nPaste the logs here\n ```",
-                                                            StandardCharsets.UTF_8.toString(),
-                                                        )
-                                                dialog(
-                                                    context = SettingsActivity.instance!!,
-                                                    title = strings.logs_too_long.getString(),
-                                                    msg = strings.logs_too_long_desc.getString(),
-                                                    okString = strings.continue_action,
-                                                    onOk = {
-                                                        copyToClipboard("server_logs", logText, true)
-                                                        val browserIntent =
-                                                            Intent(Intent.ACTION_VIEW, trimmedUrl.toUri())
-                                                        context.startActivity(browserIntent)
-                                                    },
-                                                    cancelable = false,
-                                                )
-                                                return@runCatching
-                                            }
-                                            val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
-                                            context.startActivity(browserIntent)
-                                        }
-                                        .onFailure { logErrorOrExit(it) }
-                                }
+                                onClick = { runCatching { reportLogs(logText) }.onFailure { logErrorOrExit(it) } }
                             ) {
                                 Text(stringResource(strings.report_issue))
                             }
@@ -138,6 +101,32 @@ fun LspServerLogs(server: BaseLspServer) {
             )
         }
     }
+}
+
+private fun reportLogs(logText: String) {
+    val context = SettingsActivity.instance!!
+
+    val urlStart = "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Language%20Server%20Error%20Report&body="
+    val url = urlStart + URLEncoder.encode("```log \n${logText}\n ```", StandardCharsets.UTF_8.toString())
+    if (url.length > 2048) {
+        val trimmedUrl =
+            urlStart + URLEncoder.encode("```log \nPaste the logs here\n ```", StandardCharsets.UTF_8.toString())
+        dialog(
+            context = context,
+            title = strings.logs_too_long.getString(),
+            msg = strings.logs_too_long_desc.getString(),
+            okString = strings.continue_action,
+            onOk = {
+                copyToClipboard("server_logs", logText, true)
+                val browserIntent = Intent(Intent.ACTION_VIEW, trimmedUrl.toUri())
+                context.startActivity(browserIntent)
+            },
+            cancelable = false,
+        )
+        return
+    }
+    val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+    context.startActivity(browserIntent)
 }
 
 private fun buildLogs(server: BaseLspServer): String {
