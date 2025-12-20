@@ -31,6 +31,7 @@ import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 import com.rk.utils.dialog
 import java.lang.ref.WeakReference
@@ -75,10 +76,19 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             val hardThreshold = with(density) { 100.dp.toPx() }
 
             CommandProvider.globalCommands = CommandProvider.buildCommands(viewModel)
+            val snackbarBottomPadding =
+                if (Settings.show_extra_keys) {
+                    if (Settings.split_extra_keys) 88.dp else 48.dp
+                } else 0.dp
 
             val mainContent: @Composable () -> Unit = {
                 Scaffold(
-                    snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+                    snackbarHost = {
+                        SnackbarHost(
+                            hostState = snackbarHostState,
+                            modifier = Modifier.padding(bottom = snackbarBottomPadding),
+                        )
+                    },
                     modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
                     topBar = {
                         XedTopBar(

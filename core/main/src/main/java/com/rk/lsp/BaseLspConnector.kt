@@ -209,25 +209,18 @@ class BaseLspConnector(
                                 server.addLog(LspLogEntry(MessageType.Error, message))
 
                                 scope.launch {
+                                    val snackbarHost = snackbarHostStateRef.get() ?: return@launch
                                     val result =
-                                        snackbarHostStateRef
-                                            .get()
-                                            ?.showSnackbar(
-                                                message = message,
-                                                actionLabel = strings.view_logs.getString(),
-                                                duration = SnackbarDuration.Short,
-                                            )
-                                    when (result) {
-                                        SnackbarResult.ActionPerformed -> {
-                                            val activity = MainActivity.instance!!
-                                            val intent = Intent(activity, SettingsActivity::class.java)
-                                            intent.putExtra(
-                                                "route",
-                                                "${SettingsRoutes.LspServerLogs.route}/${server.id}",
-                                            )
-                                            activity.startActivity(intent)
-                                        }
-                                        else -> {}
+                                        snackbarHost.showSnackbar(
+                                            message = message,
+                                            actionLabel = strings.view_logs.getString(),
+                                            duration = SnackbarDuration.Short,
+                                        )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        val activity = MainActivity.instance!!
+                                        val intent = Intent(activity, SettingsActivity::class.java)
+                                        intent.putExtra("route", "${SettingsRoutes.LspServerLogs.route}/${server.id}")
+                                        activity.startActivity(intent)
                                     }
                                 }
                             }

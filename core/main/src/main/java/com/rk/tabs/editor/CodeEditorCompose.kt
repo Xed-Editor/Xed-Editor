@@ -1,6 +1,5 @@
 package com.rk.tabs.editor
 
-import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +7,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -17,6 +18,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.activities.main.snackbarHostStateRef
 import com.rk.editor.Editor
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
@@ -29,7 +31,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.info
 import com.rk.utils.logError
@@ -202,7 +203,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
     }
 }
 
-private suspend fun EditorTab.getBuiltinServers(ext: String, context: Context): List<BaseLspServer> {
+private fun EditorTab.getBuiltinServers(ext: String, context: Context): List<BaseLspServer> {
     val servers = builtInServer.filter { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
     val supportedServers = mutableListOf<BaseLspServer>()
 
@@ -229,28 +230,18 @@ private suspend fun EditorTab.getBuiltinServers(ext: String, context: Context): 
     return supportedServers
 }
 
-private suspend fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspServer) {
-    if (!editorState.lspDialogMutex.isLocked) {
-        editorState.lspDialogMutex.lock()
-        dialog(
-            context = context as Activity,
-            title = strings.attention.getString(context),
-            msg = strings.ask_lsp_install.getFilledString(context, server.languageName),
-            cancelString = strings.disable,
-            okString = strings.install,
-            onOk = {
-                if (editorState.lspDialogMutex.isLocked) {
-                    editorState.lspDialogMutex.unlock()
-                }
-                server.install(context)
-            },
-            onCancel = {
-                if (editorState.lspDialogMutex.isLocked) {
-                    editorState.lspDialogMutex.unlock()
-                }
-                Preference.setBoolean("lsp_${server.id}", false)
-            },
-        )
+private fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspServer) {
+    scope.launch {
+        val snackbarHost = snackbarHostStateRef.get() ?: return@launch
+        val result =
+            snackbarHost.showSnackbar(
+                message = strings.ask_lsp_install.getFilledString(context, server.languageName),
+                actionLabel = strings.install.getString(),
+                duration = SnackbarDuration.Long,
+            )
+        if (result == SnackbarResult.ActionPerformed) {
+            server.install(context)
+        }
     }
 }
 

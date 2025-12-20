@@ -60,7 +60,6 @@ data class CodeEditorState(val initialContent: Content? = null) {
         canRedo = editor.get()?.canRedo() ?: false
     }
 
-    val lspDialogMutex by lazy { Mutex() }
     var isWrapping by mutableStateOf(false)
     var isConnectingLsp by mutableStateOf(false)
 }
