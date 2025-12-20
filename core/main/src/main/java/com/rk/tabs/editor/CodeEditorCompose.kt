@@ -8,13 +8,11 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -54,30 +52,11 @@ fun EditorTab.CodeEditor(
     onKeyEvent: (EditorKeyEvent) -> Unit,
     onTextChange: () -> Unit,
 ) {
-    val surfaceColor =
-        if (isSystemInDarkTheme()) {
-            MaterialTheme.colorScheme.surfaceDim
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
-    val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
-    val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
     val selectionColors = LocalTextSelectionColors.current
-    val realSurface = MaterialTheme.colorScheme.surface
-    val selectionBackground = selectionColors.backgroundColor
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    val colorPrimary = MaterialTheme.colorScheme.primary
-    val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
-    val colorSecondary = MaterialTheme.colorScheme.secondary
-    val handleColor = selectionColors.handleColor
-    val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
-
-    val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-    val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
-
-    val divider = MaterialTheme.colorScheme.outlineVariant
     val isDarkMode = isSystemInDarkTheme()
+    val colorScheme = MaterialTheme.colorScheme
 
+    val divider = colorScheme.outlineVariant
     val constraintSet = remember { ConstraintSet() }
     val scope = rememberCoroutineScope()
 
@@ -105,20 +84,8 @@ fun EditorTab.CodeEditor(
 
                         setThemeColors(
                             isDarkMode = isDarkMode,
-                            editorSurface = surfaceColor.toArgb(),
-                            surfaceContainer = surfaceContainer.toArgb(),
-                            highSurfaceContainer = highSurfaceContainer.toArgb(),
-                            surface = realSurface.toArgb(),
-                            onSurface = onSurfaceColor.toArgb(),
-                            colorPrimary = colorPrimary.toArgb(),
-                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
-                            colorSecondary = colorSecondary.toArgb(),
-                            secondaryContainer = secondaryContainer.toArgb(),
-                            selectionBg = selectionBackground.toArgb(),
-                            handleColor = handleColor.toArgb(),
-                            gutterColor = gutterColor.toArgb(),
-                            currentLine = currentLineColor.toArgb(),
-                            dividerColor = divider.toArgb(),
+                            selectionColors = selectionColors,
+                            colorScheme = colorScheme,
                         )
 
                         state.editor = WeakReference(this)

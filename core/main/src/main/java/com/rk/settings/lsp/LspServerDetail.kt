@@ -31,6 +31,7 @@ import com.rk.icons.XedIcons
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.getConnectionColor
+import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.theme.greenStatus
@@ -63,7 +64,7 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
                         LspConnectionStatus.CONNECTED -> {
                             Icon(
                                 imageVector = Icons.Outlined.CheckCircle,
-                                contentDescription = "Connected",
+                                contentDescription = stringResource(strings.status_connected),
                                 tint = MaterialTheme.colorScheme.greenStatus,
                                 modifier = Modifier.size(32.dp),
                             )
@@ -87,18 +88,22 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
 
                 Text(
                     text =
-                        when (server.status) {
-                            LspConnectionStatus.CONNECTED -> "Status: Connected"
-                            LspConnectionStatus.CONNECTING -> "Status: Connecting..."
-                            LspConnectionStatus.ERROR -> "Status: Error"
-                            LspConnectionStatus.NOT_RUNNING -> "Status: Not running"
-                        },
+                        stringResource(strings.status_info)
+                            .fillPlaceholders(
+                                when (server.status) {
+                                    LspConnectionStatus.CONNECTED -> stringResource(strings.status_connected)
+                                    LspConnectionStatus.CONNECTING -> stringResource(strings.status_connecting)
+                                    LspConnectionStatus.ERROR -> stringResource(strings.error)
+                                    LspConnectionStatus.NOT_RUNNING -> stringResource(strings.status_not_running)
+                                }
+                            ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = server.getConnectionColor() ?: MaterialTheme.colorScheme.onSurface,
                 )
 
+                val extensions = server.supportedExtensions.joinToString(", ") { ".$it" }
                 Text(
-                    text = "Supported extensions: ${server.supportedExtensions.joinToString(", ") { ".$it" }}",
+                    text = stringResource(strings.supported_extensions).fillPlaceholders(extensions),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodySmall,
@@ -107,54 +112,54 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
             }
         }
 
-        PreferenceGroup(heading = "Features") {
+        PreferenceGroup(heading = stringResource(strings.features)) {
             SettingsToggle(
-                label = "Hover information",
-                description = "Show documentation on hover",
+                label = stringResource(strings.hover_information),
+                description = stringResource(strings.hover_information_desc),
                 default = Preference.getBoolean("lsp_${server.id}_hover", true),
                 sideEffect = { Preference.setBoolean("lsp_${server.id}_hover", it) },
             )
 
             SettingsToggle(
-                label = "Signature help",
-                description = "Show parameter information",
+                label = stringResource(strings.signature_help),
+                description = stringResource(strings.signature_help_desc),
                 default = Preference.getBoolean("lsp_${server.id}_signature_help", true),
                 sideEffect = { Preference.setBoolean("lsp_${server.id}_signature_help", it) },
             )
 
             SettingsToggle(
-                label = "Inlay hints",
-                description = "Show inline type hints and parameter names",
+                label = stringResource(strings.inlay_hints),
+                description = stringResource(strings.inlay_hints_desc),
                 default = Preference.getBoolean("lsp_${server.id}_inlay_hints", true),
                 sideEffect = { Preference.setBoolean("lsp_${server.id}_inlay_hints", it) },
             )
 
             SettingsToggle(
-                label = "Code completion",
-                description = "Enable auto-completion suggestions",
+                label = stringResource(strings.code_completion),
+                description = stringResource(strings.code_completion_desc),
                 default = Preference.getBoolean("lsp_${server.id}_completion", true),
                 sideEffect = { Preference.setBoolean("lsp_${server.id}_completion", it) },
             )
 
             SettingsToggle(
-                label = "Diagnostics",
-                description = "Show errors and warnings",
+                label = stringResource(strings.diagnostics),
+                description = stringResource(strings.diagnostics_desc),
                 default = Preference.getBoolean("lsp_${server.id}_diagnostics", true),
                 sideEffect = { Preference.setBoolean("lsp_${server.id}_diagnostics", it) },
             )
 
             SettingsToggle(
-                label = "Formatting",
-                description = "Enable document formatting",
+                label = stringResource(strings.formatting),
+                description = stringResource(strings.formatting_desc),
                 default = Preference.getBoolean("lsp_${server.id}_formatting", true),
                 sideEffect = { Preference.setBoolean("lsp_${server.id}_formatting", it) },
             )
         }
 
-        PreferenceGroup(heading = "Logs") {
+        PreferenceGroup(heading = stringResource(strings.logs)) {
             SettingsToggle(
-                label = "Show logs",
-                description = "Show the language server logs",
+                label = stringResource(strings.view_logs),
+                description = stringResource(strings.view_logs_desc),
                 default = false,
                 showSwitch = false,
                 onClick = { navController.navigate("lsp_server_logs/${server.id}") },
