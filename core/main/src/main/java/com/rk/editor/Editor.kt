@@ -75,7 +75,7 @@ class Editor : CodeEditor {
     fun setThemeColors(isDarkMode: Boolean, selectionColors: TextSelectionColors, colorScheme: ColorScheme) {
         val surfaceColor = if (isDarkMode) colorScheme.surfaceDim else colorScheme.surface
         val surfaceContainer = colorScheme.surfaceContainer
-        val realSurface = colorScheme.surface
+        val highSurfaceContainer = colorScheme.surfaceContainerHigh
         val onSurfaceColor = colorScheme.onSurface
         val colorPrimary = colorScheme.primary
         val divider = colorScheme.outlineVariant
@@ -90,8 +90,8 @@ class Editor : CodeEditor {
             isDarkMode = isDarkMode,
             editorSurface = surfaceColor.toArgb(),
             surfaceContainer = surfaceContainer.toArgb(),
-            onSurface = realSurface.toArgb(),
-            highSurfaceContainer = onSurfaceColor.toArgb(),
+            highSurfaceContainer = highSurfaceContainer.toArgb(),
+            onSurface = onSurfaceColor.toArgb(),
             colorPrimary = colorPrimary.toArgb(),
             selectionBg = selectionBackground.toArgb(),
             handleColor = handleColor.toArgb(),
@@ -105,8 +105,8 @@ class Editor : CodeEditor {
         isDarkMode: Boolean,
         editorSurface: Int,
         surfaceContainer: Int,
-        onSurface: Int,
         highSurfaceContainer: Int,
+        onSurface: Int,
         colorPrimary: Int,
         selectionBg: Int,
         handleColor: Int,
