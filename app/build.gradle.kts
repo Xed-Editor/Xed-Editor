@@ -86,8 +86,8 @@ android {
         targetSdk = 28
 
         // versioning
-        versionCode = 76
-        versionName = "3.2.5"
+        versionCode = 80
+        versionName = "3.2.6"
         vectorDrawables { useSupportLibrary = true }
     }
 
