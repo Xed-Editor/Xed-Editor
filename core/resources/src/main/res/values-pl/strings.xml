@@ -530,13 +530,20 @@
     <string name="split_extra_keys_desc">Rozdziel panel dodatkowych klawiszy na dwa rzędy, aby oddzielić polecenia od symboli</string>
     <string name="symbols">Symbole</string>
     <string name="info_extra_keys">Dodatkowe klawisze to polecenia oraz symbole w panelu wyświetlanym nad klawiaturą. Zmień kolejność przez przytrzymanie i przeciągnięcie, dodaj nowe polecenie klikając przycisk. Dostosuj symbole używając ostatniej opcji.</string>
-    <string name="disclaimer_heading">Warunki użytkowania oraz zastrzeżenie</string>
-    <string name="disclaimer_read_carefully">Proszę, przeczytaj uważnie przed użyciem aplikacji.</string>
+    <string name="disclaimer_heading">Warunki użytkowania oraz zastrzeżenia</string>
+    <string name="disclaimer_read_carefully">Przeczytaj uważnie przed użyciem aplikacji.</string>
     <string name="data_loss_risk">Ryzyko utraty danych</string>
-    <string name="third_party_ext">Rozszerzenia innych osób</string>
-    <string name="no_warranty">Bez gwarancji</string>
+    <string name="third_party_ext">Rozszerzenia osób trzecich</string>
+    <string name="no_warranty">Brak gwarancji</string>
     <string name="not_liable">Ograniczenie odpowiedzielności</string>
     <string name="decline">Odrzucam</string>
     <string name="i_accept_disabled">Akceptuje (%s)</string>
     <string name="i_accept">Akceptuje</string>
+    <string name="data_loss_risk_content">Aplikacja udostępniona do użytku ze zrozumieniem, że może wystąpić utrata danych z powodu nieprzewidzianych okoliczności, w tym ale nie ograniczając się do: niestabilności oprogramowania, awarii systemu, niespodziewanych zamknięć aplikacji oraz problemów z pamięcią wewnętrzną. Użytkownik jest odpowiedzialny za regularne tworzenie niezależnych kopii zapasowych wszystkich danych krytycznych.</string>
+    <string name="terminal_risks">Ryzyko użycia Terminalu</string>
+    <string name="terminal_risks_content">Aplikacja zawiera funkcje terminalu, która zapewnia bezpośredni dostęp do systemu plików. Niewłaściwe wykorzystanie komend może skutkować:\n• Trwałym usunięciem plików lub katalogów\n• Lukami w zabezpieczeniach\n• Utratą danych krytycznych\n\nUżytkownik jest odpowiedzialny za zrozumienie oraz potencjalne konsekwencje wprowadzanych komend.</string>
+    <string name="consent_statement">Klikając Akceptuje, potwierdzasz zrozumienie oraz zgadzasz się na powyższe warunki.</string>
+    <string name="third_party_ext_content">Aplikacja wspiera rozszerzenia osób trzecich, które są rozwijane przez strony trzecie. Rozszerzenia mogą:\n• Uzyskać dostęp oraz modyfikować dane\n• Uruchamiać dowolny kod\n• Zawierać błędy, luki, złośliwy kod\n• Powodować niestabilność oraz awarie\n• Zagrażać bezpieczeństwu oraz prywatności\n\nNie recenzujemy, zatwierdzamy, bierzemy odpowiedzialności za żadne rozszerzenie. Instalujesz oraz używasz rozszerzeń na własne ryzyko. Nie odpowiadamy za żadne uszkodzenia, utratę danych oraz problemy z bezpieczeństwem spowodowane przez rozszerzenia osób trzecich.</string>
+    <string name="no_warranty_content">Oprogramowanie jest rozpowszechniane na licencji GNU General Public License v3.0 oraz jest udostępniane TAK JAK JEST, BEZ ŻADNEJ GWARANCJI, zarówno jawnej jak i domniemanej, w tym gwarancji przydatności handlowej, przydatności do określonego celu i nienaruszania własności intelektualnej.</string>
+    <string name="not_liable_content">W żadnym wypadku deweloperzy oraz właściciele praw autorskich nie zostaną pociągnięci do odpowiedzialności za żadne roszczenia, uszkodzenia oraz straty wynikające z użycia oprogramowania. W tym, nie ograniczając się do: utraty danych, awarii systemu, straty przychodów, lub jakichkolwiek przypadkowych lub celowych strat, nawet jeśli pouczono o możliwości ich wystąpienia.</string>
 </resources>

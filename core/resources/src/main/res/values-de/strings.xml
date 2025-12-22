@@ -528,4 +528,19 @@
     <string name="select_key">Tastencode auswählen</string>
     <string name="split_extra_keys">Zusatztasten teilen</string>
     <string name="split_extra_keys_desc">Zusatztastenfeld in zwei Zeilen aufteilen, um Befehle und Symbole zu trennen</string>
+    <string name="disclaimer_heading">Nutzungsbedingungen &amp; Haftungsausschluss</string>
+    <string name="disclaimer_read_carefully">Bitte lies den Text genau vor der Verwendung dieser Anwendung.</string>
+    <string name="data_loss_risk">Datenverlust-Risiko</string>
+    <string name="data_loss_risk_content">Diese Anwendung wird unter der Voraussetzung bereitgestellt, dass Datenverluste aufgrund unvorhergesehener Umstände auftreten können, insbesondere, aber nicht ausschließlich: Softwareinstabilität, Systemausfälle, unerwartete Beendigung oder Probleme mit der Speicherhardware. Die Benutzer sind allein verantwortlich für die regelmäßige und unabhängige Sicherung aller wichtigen Daten.</string>
+    <string name="terminal_risks">Terminal-Risiken</string>
+    <string name="terminal_risks_content">Diese Anwendung beinhaltet Terminal-Funktionen, die direkten Zugriff auf dein Dateisystem ermöglichen. Die unsachgemäße Verwendung von Terminal-Befehlen kann folgende Folgen haben:\n• Endgültige Löschung von Dateien oder Verzeichnissen\n• Sicherheitslücken\n• Verlust kritischer Daten\n\nDu bist selbst dafür verantwortlich, die von dir ausgeführten Befehle und deren mögliche Konsequenzen zu verstehen.</string>
+    <string name="third_party_ext">Erweiterungen von Drittanbietern</string>
+    <string name="third_party_ext_content">Diese Anwendung unterstützt Erweiterungen von Drittanbietern, die von externen Parteien entwickelt werden können. Diese Erweiterungen können:\n• Auf deine Dateien und Daten zugreifen und diese verändern\n• Beliebigen Code auf deinem System ausführen\n• Bugs, Sicherheitslücken oder schädlichen Code beinhalten\n• Systeminstabilität oder Abstürze verursachen\n• Deine Sicherheit oder Privatsphäre gefährden\n\nWir überprüfen, befürworten oder verantworten keine Erweiterungen von Drittanbietern. Die Installation und Nutzung von Erweiterungen erfolgt ausschließlich auf eigenes Risiko. Wir haften nicht für Schäden, Datenverluste oder Sicherheitsprobleme, die durch Erweiterungen von Drittanbietern verursacht werden.</string>
+    <string name="no_warranty">Keine Garantie</string>
+    <string name="no_warranty_content">Diese Software wird unter der GNU General Public License v3.0 vertrieben und ohne jegliche Gewährleistung, weder ausdrücklich noch stillschweigend, bereitgestellt, aber nicht beschränkt auf die Gewährleistung der Marktgängigkeit, der Eignung für einen bestimmten Zweck sowie der Nichtverletzung von Rechten Dritter.</string>
+    <string name="not_liable">Haftungsbeschränkung</string>
+    <string name="consent_statement">Mit einem Klick auf „Ich akzeptiere“ bestätigst du, dass du diese Bedingungen gelesen und verstanden hast und ihnen zustimmst.</string>
+    <string name="decline">Ablehnen</string>
+    <string name="i_accept_disabled">Ich akzeptiere (%s)</string>
+    <string name="i_accept">Ich akzeptiere</string>
 </resources>

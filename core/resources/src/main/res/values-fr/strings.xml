@@ -531,4 +531,20 @@
     <string name="info_extra_keys">Les touches additionnelles sont des commandes et des symboles affichés dans le panneau au-dessus du clavier. Vous pouvez faire un appui long et déplacer pour modifier l\'ordre des commandes, ou appuyer sur le bouton pour ajouter une nouvelle commande. Vous pouvez aussi personnaliser les symboles en utilisant la dernière option.</string>
     <string name="emulate_editor_key">Émule l\'appui de touches de l\'éditeur</string>
     <string name="select_key">Sélectionner le code de la touche</string>
+    <string name="disclaimer_heading">Conditions d\'utilisation &amp; avertissements</string>
+    <string name="disclaimer_read_carefully">À lire attentivement avant d\'utiliser le logiciel, s\'il vous plaît.</string>
+    <string name="data_loss_risk">Risque de perte de données</string>
+    <string name="data_loss_risk_content">Ce logiciel est fourni pour être utilisée en comprenant bien que des pertes de données peuvent survenir à causes de circonstances imprévisibles, incluant --- mais non limitée à : instabilité du logiciel, échecs du système, fermeture inattendue, ou problèmes de stockage. Les utilisateurs sont les seuls à être responsables d\'effectuer régulièrement des sauvegardes indépendantes de toutes les données critiques.</string>
+    <string name="terminal_risks">Risques du terminal</string>
+    <string name="terminal_risks_content">Ce logiciel inclut une fonctionnalité de terminal qui fournit un accès direct au système de fichiers. Un usage inapproprié des commandes du terminal peut causer :\n• Un effacement permanent de fichiers ou de répertoires\n• Des vulnérabilités de sécurité\n• Une perte de données critiques\n\nIl est de votre responsabilité de comprendre les commandes que vous lancez et leurs conséquences potentielles.</string>
+    <string name="third_party_ext">Extensions tierces</string>
+    <string name="third_party_ext_content">Ce logiciel utilise des extensions tierces qui peuvent être développées par des membres externes. Ces extensions peuvent :\n• Accéder et modifier vos fichiers et vos données\n• Exécuter un code arbitraire sur votre système\n• Contenir des bugs, des vulnérabilités ou des codes malicieux\n• Causer une instabilité du système ou des crashs\n• Compromettre votre sécurité ou votre vie privée\n\nNous n\'évaluons pas, ne cautionnons pas et ne prenons pas de responsabilités vis-à-vis des extensions tierces. Vous installez et utilisez des extensions à vos propres risques. Nous ne sommes pas responsables d\'un quelconque dommage, perte de données ou problème de sécurité causées par des extensions tierces.</string>
+    <string name="no_warranty">Pas de garantie</string>
+    <string name="no_warranty_content">Ce logiciel est distribué sous la licence GNU General Public License v3.0 et est fourni TEL QUEL, SANS GARANTIE AUCUNE, ni explicitement, ni implicitement, incluant, mais non limitée, aux garanties commerciales, de conformité pour un objectif donné, et de non-contrefaçon.</string>
+    <string name="not_liable">Limitation de responsabilité</string>
+    <string name="not_liable_content">En aucun cas les développeurs ou les détenteurs de droits ne sont responsables d\'une quelconque réclamation, dommage ou perte provenant de l\'utilisation de ce logiciel. Cela inclut, sans y être limité : perte de données, dysfonctionnement du système, perte de revenus, ou tout dommage direct ou indirect, même si informé de la possibilité d\'un tel dommage.</string>
+    <string name="consent_statement">En cliquant \"J\'accepte\", vous reconnaissez que vous avez lu, compris et accepté ces conditions.</string>
+    <string name="decline">Refuser</string>
+    <string name="i_accept_disabled">J\'accepte (%s)</string>
+    <string name="i_accept">J\'accepte</string>
 </resources>
