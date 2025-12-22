@@ -540,4 +540,13 @@
     <string name="decline">Decline</string>
     <string name="i_accept_disabled">I Accept (%s)</string>
     <string name="i_accept">I Accept</string>
+    <string name="keybindings">Keybindings</string>
+    <string name="keybindings_desc">Configure keybindings</string>
+    <string name="none_set">None set</string>
+    <string name="press_key">Press a key combination (must contain Ctrl or Alt)</string>
+    <string name="ctrl">Ctrl</string>
+    <string name="alt">Alt</string>
+    <string name="shift">Shift</string>
+    <string name="keybinds_info">Xed-Editor supports hardware keyboard shortcuts to help you work faster and more efficiently. A wide set of default keybindings is already available and you can configure them below to your liking.</string>
+    <string name="reset_all">Reset all</string>
 </resources>

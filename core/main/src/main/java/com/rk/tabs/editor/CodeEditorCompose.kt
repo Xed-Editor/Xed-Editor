@@ -20,8 +20,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.editor.Editor
-import com.rk.exec.isTerminalInstalled
-import com.rk.exec.isTerminalWorking
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
@@ -33,13 +31,11 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.info
 import com.rk.utils.logError
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -54,7 +50,6 @@ fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     parentTab: EditorTab,
-    onKeyEvent: (EditorKeyEvent) -> Unit,
     onTextChange: () -> Unit,
 ) {
     val surfaceColor =
@@ -147,8 +142,6 @@ fun EditorTab.CodeEditor(
                             }
                         }
 
-                        subscribeAlways(EditorKeyEvent::class.java) { event -> onKeyEvent.invoke(event) }
-
                         subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
                             editorState.isWrapping = event.isLayoutBusy
                         }
@@ -203,7 +196,6 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 setLanguage(langScope)
                 applyMarkdownHighlighting()
 
-                
                 val ext = file.getName().substringAfterLast(".").trim()
 
                 val builtin = getBuiltinServers(ext, context)

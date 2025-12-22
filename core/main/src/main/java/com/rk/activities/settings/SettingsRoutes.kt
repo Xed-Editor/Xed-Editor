@@ -7,6 +7,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object EditorSettings : SettingsRoutes("editor_settings")
 
+    data object Keybindings : SettingsRoutes("keybindings")
+
     data object TerminalSettings : SettingsRoutes("terminal_settings")
 
     data object About : SettingsRoutes("about")

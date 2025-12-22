@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -24,12 +26,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.CommandProvider
+import com.rk.commands.KeybindingsManager
 import com.rk.icons.Icon
 import com.rk.settings.Settings
 import com.rk.terminal.isV
+import com.rk.theme.Typography
 import com.rk.utils.x
 import kotlin.math.min
 
@@ -73,8 +78,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                     modifier = Modifier.size(48.dp),
                     enabled = command.isEnabled.value,
                 ) {
-                    val icon = command.icon.value
-                    when (icon) {
+                    when (val icon = command.icon.value) {
                         is Icon.DrawableRes -> {
                             Icon(
                                 painter = painterResource(id = icon.drawableRes),
@@ -105,8 +109,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                                     expanded = false
                                 },
                                 leadingIcon = {
-                                    val icon = command.icon.value
-                                    when (icon) {
+                                    when (val icon = command.icon.value) {
                                         is Icon.DrawableRes -> {
                                             Icon(
                                                 painter = painterResource(id = icon.drawableRes),
@@ -117,6 +120,20 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                                         is Icon.VectorIcon -> {
                                             Icon(imageVector = icon.vector, contentDescription = command.label.value)
                                         }
+                                    }
+                                },
+                                trailingIcon = {
+                                    val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
+                                    val displayKeyCombination = keyCombination?.getDisplayName()
+                                    displayKeyCombination?.let {
+                                        Text(
+                                            modifier = Modifier.padding(start = 4.dp),
+                                            text = it,
+                                            maxLines = 1,
+                                            fontFamily = FontFamily.Monospace,
+                                            style = Typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
                                     }
                                 },
                             )

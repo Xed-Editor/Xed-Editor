@@ -31,6 +31,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.settings.keybinds.KeyUtils
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
 import com.rk.utils.dialog
@@ -82,6 +83,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { InbuiltFeatures.terminal.state.value },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.terminal)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_J, ctrl = true),
             ),
             Command(
                 id = "global.settings",
@@ -90,6 +92,7 @@ object CommandProvider {
                 isSupported = mutableStateOf(true),
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.settings)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_COMMA, ctrl = true),
             ),
             Command(
                 id = "global.new_file",
@@ -98,6 +101,7 @@ object CommandProvider {
                 isSupported = mutableStateOf(true),
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.add)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_N, ctrl = true),
             ),
             Command(
                 id = "global.command_palette",
@@ -106,6 +110,7 @@ object CommandProvider {
                 isSupported = mutableStateOf(true),
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.command_palette)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_P, ctrl = true, shift = true),
             ),
             Command(
                 id = "global.search_file_folder",
@@ -114,6 +119,7 @@ object CommandProvider {
                 isSupported = mutableStateOf(true),
                 isEnabled = derivedStateOf { currentTab != null && currentTab is FileTreeTab },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.search)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_P, ctrl = true),
             ),
             Command(
                 id = "global.search_code",
@@ -122,6 +128,7 @@ object CommandProvider {
                 isSupported = mutableStateOf(true),
                 isEnabled = derivedStateOf { currentTab != null },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.search)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F, ctrl = true, shift = true),
             ),
         )
     }
@@ -136,7 +143,8 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.cut)),
-                keybinds = "Ctrl + X",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_X, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.copy",
@@ -145,7 +153,8 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.copy)),
-                keybinds = "Ctrl + C",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_C, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.paste",
@@ -154,7 +163,8 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.paste)),
-                keybinds = "Ctrl + V",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_V, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.select_all",
@@ -163,7 +173,8 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.select_all)),
-                keybinds = "Ctrl + A",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_A, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.select_word",
@@ -172,7 +183,8 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.select)),
-                keybinds = "Ctrl + W",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_W, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.duplicate_line",
@@ -181,7 +193,8 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.duplicate_line)),
-                keybinds = "Ctrl + D",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_D, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.save",
@@ -193,7 +206,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.file?.canWrite() == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.save)),
-                keybinds = "Ctrl + S",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true),
             ),
             Command(
                 id = "editor.save_all",
@@ -204,6 +217,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.tabs.isNotEmpty() },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.save)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true, shift = true),
             ),
             Command(
                 id = "editor.undo",
@@ -220,7 +234,8 @@ object CommandProvider {
                         tab != null && tab.editorState.editable && tab.editorState.canUndo
                     },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.undo)),
-                keybinds = "Ctrl + Z",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_Z, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.redo",
@@ -237,7 +252,8 @@ object CommandProvider {
                         tab != null && tab.editorState.editable && tab.editorState.canRedo
                     },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.redo)),
-                keybinds = "Ctrl + Y",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_Y, ctrl = true),
+                externalKeybind = true,
             ),
             Command(
                 id = "editor.run",
@@ -263,6 +279,7 @@ object CommandProvider {
                     },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.run)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F5),
             ),
             Command(
                 id = "editor.editable",
@@ -286,6 +303,7 @@ object CommandProvider {
                             Icon.DrawableRes(drawables.lock)
                         else Icon.DrawableRes(drawables.edit)
                     },
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_E, ctrl = true),
             ),
             Command(
                 id = "editor.search",
@@ -294,7 +312,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.search)),
-                keybinds = "Ctrl + F",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F, ctrl = true),
             ),
             Command(
                 id = "editor.replace",
@@ -309,7 +327,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.find_replace)),
-                keybinds = "Ctrl + H",
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_H, ctrl = true),
             ),
             Command(
                 id = "editor.refresh",
@@ -332,6 +350,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.refresh)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_R, ctrl = true, shift = true),
             ),
             Command(
                 id = "editor.syntax_highlighting",
@@ -368,6 +387,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.edit_note)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_Z, alt = true),
             ),
             Command(
                 id = "editor.jump_to_line",
@@ -376,6 +396,7 @@ object CommandProvider {
                 isSupported = derivedStateOf { viewModel.currentTab is EditorTab },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_G, ctrl = true),
             ),
             Command(
                 id = "editor.share",
@@ -431,9 +452,11 @@ object CommandProvider {
 
                         val keyCode = it.getInt(null)
                         val keyName = it.name.removePrefix("KEYCODE_")
+                        val keyDisplayName = KeyUtils.getKeyDisplayName(keyCode)
+                        val keyIcon = KeyUtils.getKeyIcon(keyCode)
                         Command(
                             id = "editor.emulate_key.${keyName.lowercase()}",
-                            label = mutableStateOf(getKeyDisplayName(keyCode, keyName)),
+                            label = mutableStateOf(keyDisplayName),
                             action = { vm, _ ->
                                 (vm.currentTab as? EditorTab)
                                     ?.editorState
@@ -443,7 +466,7 @@ object CommandProvider {
                             },
                             isSupported = mutableStateOf(true),
                             isEnabled = mutableStateOf(true),
-                            icon = mutableStateOf(Icon.DrawableRes(getKeyIcon(keyCode))),
+                            icon = mutableStateOf(Icon.DrawableRes(keyIcon)),
                         )
                     },
                 childSearchPlaceholder = strings.select_key.getString(),
@@ -452,32 +475,6 @@ object CommandProvider {
                 icon = mutableStateOf(Icon.DrawableRes(drawables.keyboard)),
             ),
         )
-    }
-
-    private fun getKeyDisplayName(keyCode: Int, keyName: String): String {
-        when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_DOWN -> return "Arrow Down"
-            KeyEvent.KEYCODE_DPAD_UP -> return "Arrow Up"
-            KeyEvent.KEYCODE_DPAD_LEFT -> return "Arrow Left"
-            KeyEvent.KEYCODE_DPAD_RIGHT -> return "Arrow Right"
-            KeyEvent.KEYCODE_DEL -> return "Backspace"
-            KeyEvent.KEYCODE_FORWARD_DEL -> return "Delete"
-        }
-
-        return keyName.lowercase().split("_").joinToString(" ") { it[0].uppercase() + it.substring(1) }
-    }
-
-    private fun getKeyIcon(keyCode: Int): Int {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_DOWN -> drawables.kbd_arrow_down
-            KeyEvent.KEYCODE_DPAD_UP -> drawables.kbd_arrow_up
-            KeyEvent.KEYCODE_DPAD_LEFT -> drawables.kbd_arrow_left
-            KeyEvent.KEYCODE_DPAD_RIGHT -> drawables.kbd_arrow_right
-            KeyEvent.KEYCODE_DEL -> drawables.backspace
-            KeyEvent.KEYCODE_FORWARD_DEL -> drawables.backspace_mirrored
-            KeyEvent.KEYCODE_TAB -> drawables.kbd_tab
-            else -> drawables.keyboard
-        }
     }
 
     private fun getLspCommands(viewModel: MainViewModel): List<Command> {
@@ -494,6 +491,7 @@ object CommandProvider {
                     },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.jump_to_element)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F12),
             ),
             Command(
                 id = "lsp.go_to_references",
@@ -507,6 +505,7 @@ object CommandProvider {
                     },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.manage_search)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F12, shift = true),
             ),
             Command(
                 id = "lsp.rename_symbol",
@@ -518,6 +517,7 @@ object CommandProvider {
                     },
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.manage_search)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F2),
             ),
             Command(
                 id = "lsp.format_document",
@@ -529,6 +529,7 @@ object CommandProvider {
                     },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.auto_fix)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F, ctrl = true, alt = true),
             ),
             Command(
                 id = "lsp.format_selection",
@@ -540,6 +541,7 @@ object CommandProvider {
                     },
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.auto_fix)),
+                defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_F, ctrl = true, shift = true, alt = true),
             ),
         )
     }
@@ -577,6 +579,10 @@ object CommandProvider {
     fun getForId(id: String): Command? = findRecursive(id, globalCommands)
 
     fun getParentCommand(command: Command): Command? = findParent(command, globalCommands)
+
+    fun getForKeyCombination(keyCombination: KeyCombination): Command? {
+        return globalCommands.find { it.defaultKeybinds == keyCombination }
+    }
 
     private fun findParent(target: Command, commands: List<Command>): Command? {
         for (parent in commands) {

@@ -11,9 +11,14 @@ import com.rk.icons.Icon
  * @property id Unique identifier for the command.
  * @property label The display text shown in the UI.
  * @property action The logic executed when triggered (unless [childCommands] are present).
+ * @property isEnabled Whether this command is enabled (will be greyed out if false).
+ * @property isSupported Whether this command is supported (will be hidden or greyed out if false).
+ * @property icon The icon displayed in the UI.
  * @property childCommands If provided, selecting this command opens a submenu with these items.
+ * @property childSearchPlaceholder The placeholder text for the search field in the submenu of this command.
  * @property sectionEndsBelow If true, draws a divider after this command.
- * @property keybinds Optional shortcut string (e.g., "Ctrl+S").
+ * @property defaultKeybinds Optional default key combination for this command.
+ * @property externalKeybind Whether the keybinds of this command are managed externally (can't be changed).
  */
 data class Command(
     val id: String,
@@ -26,7 +31,8 @@ data class Command(
     val childCommands: List<Command> = emptyList(),
     val childSearchPlaceholder: String? = null,
     val sectionEndsBelow: Boolean = false,
-    val keybinds: String? = null,
+    val defaultKeybinds: KeyCombination? = null,
+    val externalKeybind: Boolean = false,
 ) {
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
     fun performCommand(viewModel: MainViewModel, activity: Activity?) {

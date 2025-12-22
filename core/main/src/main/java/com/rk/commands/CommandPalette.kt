@@ -178,6 +178,7 @@ fun CommandItem(
     val activity = LocalActivity.current
     val enabled = command.isSupported.value && command.isEnabled.value
     val childCommands = command.childCommands
+    val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
 
     Column {
         PreferenceTemplate(
@@ -198,9 +199,7 @@ fun CommandItem(
             verticalPadding = 8.dp,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    val icon = command.icon.value
-
-                    when (icon) {
+                    when (val icon = command.icon.value) {
                         is Icon.DrawableRes -> {
                             Icon(
                                 painter = painterResource(id = icon.drawableRes),
@@ -255,9 +254,9 @@ fun CommandItem(
             },
             endWidget = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    command.keybinds?.let {
+                    keyCombination?.let {
                         Text(
-                            text = command.keybinds,
+                            text = keyCombination.getDisplayName(),
                             fontFamily = FontFamily.Monospace,
                             style = Typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,

@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.commands.CommandProvider
+import com.rk.commands.KeybindingsManager
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
 import com.rk.filetree.FileTreeViewModel
@@ -73,6 +74,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             val hardThreshold = with(density) { 100.dp.toPx() }
 
             CommandProvider.globalCommands = CommandProvider.buildCommands(viewModel)
+            KeybindingsManager.loadKeybindings()
 
             val mainContent: @Composable () -> Unit = {
                 Scaffold(

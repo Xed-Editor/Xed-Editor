@@ -1,6 +1,5 @@
 package com.rk.settings
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -49,8 +48,6 @@ fun SettingsScreen(navController: NavController) {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Categories(navController: NavController) {
-    val activity = LocalActivity.current
-
     PreferenceCategory(
         label = stringResource(id = strings.app),
         description = stringResource(id = strings.app_desc),
@@ -70,6 +67,13 @@ private fun Categories(navController: NavController) {
         description = stringResource(id = strings.editor_desc),
         iconResource = drawables.edit_note,
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
+    )
+
+    PreferenceCategory(
+        label = stringResource(strings.keybindings),
+        description = stringResource(strings.keybindings_desc),
+        iconResource = drawables.keyboard,
+        onNavigate = { navController.navigate(SettingsRoutes.Keybindings.route) },
     )
 
     if (InbuiltFeatures.terminal.state.value) {

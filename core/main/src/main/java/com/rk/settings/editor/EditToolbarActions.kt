@@ -161,7 +161,7 @@ private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDism
                 isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
                 isSupported = mutableStateOf(true),
                 icon = command.icon,
-                keybinds = command.keybinds,
+                defaultKeybinds = command.defaultKeybinds,
             )
         }
 
@@ -193,7 +193,7 @@ private fun patchChildCommands(
             isEnabled = derivedStateOf { !commandIds.contains(command.id) },
             isSupported = mutableStateOf(true),
             icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
-            keybinds = null,
+            defaultKeybinds = null,
         )
     )
     addAll(
@@ -209,7 +209,7 @@ private fun patchChildCommands(
                 isEnabled = derivedStateOf { !commandIds.contains(it.id) },
                 isSupported = mutableStateOf(true),
                 icon = it.icon,
-                keybinds = it.keybinds,
+                defaultKeybinds = it.defaultKeybinds,
             )
         }
     )
