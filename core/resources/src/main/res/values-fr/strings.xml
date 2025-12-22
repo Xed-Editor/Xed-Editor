@@ -542,7 +542,7 @@
     <string name="no_warranty">Pas de garantie</string>
     <string name="no_warranty_content">Ce logiciel est distribué sous la licence GNU General Public License v3.0 et est fourni TEL QUEL, SANS GARANTIE AUCUNE, ni explicitement, ni implicitement, incluant, mais non limitée, aux garanties commerciales, de conformité pour un objectif donné, et de non-contrefaçon.</string>
     <string name="not_liable">Limitation de responsabilité</string>
-    <string name="not_liable_content">En aucun cas les développeurs ou les détenteurs de droit ne sont responsables d\'une quelconque réclamation, dommage ou perte provenant de l\'utilisation de ce logiciel. Cela inclut, sans y être limité : perte de données, dysfonctionnement du système, perte de revenus, ou tout dommage direct ou indirect, même si informé de la possibilité d\'un tel dommage.</string>
+    <string name="not_liable_content">En aucun cas les développeurs ou les détenteurs de droits ne sont responsables d\'une quelconque réclamation, dommage ou perte provenant de l\'utilisation de ce logiciel. Cela inclut, sans y être limité : perte de données, dysfonctionnement du système, perte de revenus, ou tout dommage direct ou indirect, même si informé de la possibilité d\'un tel dommage.</string>
     <string name="consent_statement">En cliquant \"J\'accepte\", vous reconnaissez que vous avez lu, compris et accepté ces conditions.</string>
     <string name="decline">Refuser</string>
     <string name="i_accept_disabled">J\'accepte (%s)</string>
