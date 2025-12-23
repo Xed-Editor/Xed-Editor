@@ -3,14 +3,17 @@ package com.rk.settings.keybinds
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -35,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -55,29 +59,82 @@ import com.rk.theme.Typography
 @Composable
 fun KeybindingsScreen() {
     var editCommandKeybinds by remember { mutableStateOf<Command?>(null) }
-    val commands = CommandProvider.globalCommands
     var refreshTrigger by remember { mutableIntStateOf(0) }
+    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
-    PreferenceLayoutLazyColumn(label = stringResource(id = strings.keybindings), backArrowVisible = true) {
-        item { InfoBlock(text = stringResource(id = strings.keybinds_info)) }
+    val commands = CommandProvider.globalCommands
+    val filteredCommands =
+        if (searchQuery.text.isEmpty()) {
+            commands
+        } else {
+            val query = searchQuery.text.lowercase()
 
-        item {
-            Row {
-                Spacer(modifier = Modifier.weight(1f))
-                ResetButton {
-                    KeybindingsManager.resetAllKeys()
-                    refreshTrigger++
-                }
+            commands.filter { command ->
+                val labelMatch = command.label.value.lowercase().contains(query)
+                val prefixMatch = command.prefix?.lowercase()?.contains(query) == true
+                val keybindMatch =
+                    KeybindingsManager.getKeyCombinationForCommand(command.id)
+                        ?.getDisplayName()
+                        ?.lowercase()
+                        ?.contains(query) == true
+
+                labelMatch || prefixMatch || keybindMatch
             }
         }
 
-        items(commands) { command ->
+    PreferenceLayoutLazyColumn(
+        label = stringResource(id = strings.keybindings),
+        backArrowVisible = true,
+        actions = {
+            ResetButton {
+                KeybindingsManager.resetAllKeys()
+                refreshTrigger++
+            }
+        },
+    ) {
+        item { InfoBlock(text = stringResource(id = strings.keybinds_info)) }
+
+        item {
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                maxLines = 1,
+                modifier =
+                    Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                        .fillMaxWidth()
+                        .onPreviewKeyEvent { keyEvent ->
+                            if (KeyUtils.isModifierKey(keyEvent)) {
+                                return@onPreviewKeyEvent false
+                            }
+
+                            val keyCombination = KeyCombination.fromEvent(keyEvent)
+                            if (!keyCombination.ctrl && !keyCombination.alt && !keyCombination.shift) {
+                                return@onPreviewKeyEvent false
+                            }
+                            searchQuery =
+                                searchQuery.copy(
+                                    text = keyCombination.getDisplayName(),
+                                    selection = TextRange(searchQuery.text.length),
+                                )
+                            return@onPreviewKeyEvent true
+                        },
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                placeholder = { Text(stringResource(strings.search_keybinds)) },
+                trailingIcon = {},
+            )
+        }
+
+        items(filteredCommands, key = { it.id }) { command ->
             val keyCombination by
                 remember(refreshTrigger) {
                     derivedStateOf { KeybindingsManager.getKeyCombinationForCommand(command.id) }
                 }
-            KeybindItem(command = command, keyCombination = keyCombination) { editCommandKeybinds = it }
+            Box(modifier = Modifier.animateItem()) {
+                KeybindItem(command = command, keyCombination = keyCombination) { editCommandKeybinds = it }
+            }
         }
+
+        item { Spacer(modifier = Modifier.height(16.dp)) }
     }
 
     editCommandKeybinds?.let { command ->
@@ -95,6 +152,60 @@ fun KeybindingsScreen() {
             onDismiss = { editCommandKeybinds = null },
         )
     }
+}
+
+@Composable
+fun KeybindItem(command: Command, keyCombination: KeyCombination?, promptKeybinds: (Command) -> Unit) {
+    PreferenceTemplate(
+        modifier = Modifier.clickable(enabled = !command.externalKeybind, onClick = { promptKeybinds(command) }),
+        verticalPadding = 8.dp,
+        horizontalPadding = 24.dp,
+        enabled = !command.externalKeybind,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                when (val icon = command.icon.value) {
+                    is Icon.DrawableRes -> {
+                        Icon(
+                            painter = painterResource(id = icon.drawableRes),
+                            contentDescription = command.label.value,
+                            modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                        )
+                    }
+
+                    is Icon.VectorIcon -> {
+                        Icon(
+                            imageVector = icon.vector,
+                            contentDescription = command.label.value,
+                            modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                        )
+                    }
+                }
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
+                        Text(
+                            text = command.label.value,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                }
+            }
+        },
+        endWidget = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = keyCombination?.getDisplayName() ?: stringResource(strings.none_set),
+                    fontFamily = FontFamily.Monospace,
+                    style = Typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+        },
+    )
 }
 
 @Composable
@@ -189,58 +300,5 @@ fun EditKeybindsDialog(command: Command, onSubmit: (KeyCombination?) -> Unit, on
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.cancel)) } },
-    )
-}
-
-@Composable
-fun KeybindItem(command: Command, keyCombination: KeyCombination?, promptKeybinds: (Command) -> Unit) {
-    PreferenceTemplate(
-        modifier = Modifier.clickable(enabled = !command.externalKeybind, onClick = { promptKeybinds(command) }),
-        verticalPadding = 8.dp,
-        horizontalPadding = 24.dp,
-        enabled = !command.externalKeybind,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                when (val icon = command.icon.value) {
-                    is Icon.DrawableRes -> {
-                        Icon(
-                            painter = painterResource(id = icon.drawableRes),
-                            contentDescription = command.label.value,
-                            modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                        )
-                    }
-
-                    is Icon.VectorIcon -> {
-                        Icon(
-                            imageVector = icon.vector,
-                            contentDescription = command.label.value,
-                            modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                        )
-                    }
-                }
-
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
-                        Text(
-                            text = command.label.value,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
-            }
-        },
-        endWidget = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = keyCombination?.getDisplayName() ?: stringResource(strings.none_set),
-                    fontFamily = FontFamily.Monospace,
-                    style = Typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
     )
 }

@@ -1,10 +1,9 @@
 package com.rk.commands
 
 import android.view.KeyEvent
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import com.google.gson.Gson
 import com.rk.activities.main.MainActivity
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.keybinds.KeyUtils
@@ -17,12 +16,11 @@ data class KeyCombination(
     val alt: Boolean = false,
     val shift: Boolean = false,
 ) {
-    @Composable
     fun getDisplayName(): String {
         return buildString {
-            if (ctrl) append("${stringResource(strings.ctrl)}-")
-            if (shift) append("${stringResource(strings.shift)}-")
-            if (alt) append("${stringResource(strings.alt)}-")
+            if (ctrl) append("${strings.ctrl.getString()}-")
+            if (shift) append("${strings.shift.getString()}-")
+            if (alt) append("${strings.alt.getString()}-")
 
             append(KeyUtils.getShortDisplayName(keyCode))
         }

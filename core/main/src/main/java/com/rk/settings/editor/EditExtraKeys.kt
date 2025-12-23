@@ -98,6 +98,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
         label = stringResource(strings.extra_keys),
         backArrowVisible = true,
         isExpandedScreen = LocalIsExpandedScreen.current,
+        actions = { ResetButton { resetOrder(commandIds, extraKeysValue) } },
         fab = {
             ExtendedFloatingActionButton(onClick = { showCommandSelectionDialog = true }) {
                 Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
@@ -131,8 +132,6 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
                             modifier = Modifier.padding(bottom = 16.dp),
                         )
                     }
-
-                    item { ResetButton { resetOrder(commandIds, extraKeysValue) } }
 
                     item { PreferenceGroupHeading(heading = stringResource(strings.commands)) }
                     items(commands, key = { it.id }) { command ->

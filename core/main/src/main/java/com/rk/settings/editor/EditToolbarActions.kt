@@ -68,6 +68,7 @@ fun EditToolbarActions(modifier: Modifier = Modifier) {
         label = stringResource(strings.toolbar_actions),
         backArrowVisible = true,
         isExpandedScreen = LocalIsExpandedScreen.current,
+        actions = { ResetButton { resetOrder(commandIds) } },
         fab = {
             ExtendedFloatingActionButton(onClick = { showCommandSelectionDialog = true }) {
                 Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
@@ -102,8 +103,6 @@ fun EditToolbarActions(modifier: Modifier = Modifier) {
                             modifier = Modifier.padding(bottom = 8.dp),
                         )
                     }
-
-                    item { ResetButton { resetOrder(commandIds) } }
 
                     items(commands, key = { it.id }) { command ->
                         ReorderableItem(
