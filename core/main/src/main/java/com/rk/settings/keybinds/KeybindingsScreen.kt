@@ -11,10 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +44,7 @@ import com.rk.commands.KeyAction
 import com.rk.commands.KeyCombination
 import com.rk.commands.KeybindingsManager
 import com.rk.components.InfoBlock
+import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.PreferenceLayoutLazyColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.icons.Icon
@@ -57,7 +56,7 @@ import com.rk.theme.Typography
 fun KeybindingsScreen() {
     var editCommandKeybinds by remember { mutableStateOf<Command?>(null) }
     val commands = CommandProvider.globalCommands
-    var refreshTrigger by remember { mutableStateOf(0) }
+    var refreshTrigger by remember { mutableIntStateOf(0) }
 
     PreferenceLayoutLazyColumn(label = stringResource(id = strings.keybindings), backArrowVisible = true) {
         item { InfoBlock(text = stringResource(id = strings.keybinds_info)) }
@@ -65,21 +64,9 @@ fun KeybindingsScreen() {
         item {
             Row {
                 Spacer(modifier = Modifier.weight(1f))
-                TextButton(
-                    modifier = Modifier.padding(top = 8.dp, end = 16.dp),
-                    colors = ButtonDefaults.textButtonColors().copy(contentColor = MaterialTheme.colorScheme.error),
-                    onClick = {
-                        KeybindingsManager.resetAllKeys()
-                        refreshTrigger++
-                    },
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
-                        Text(text = stringResource(id = strings.reset_all))
-                    }
+                ResetButton {
+                    KeybindingsManager.resetAllKeys()
+                    refreshTrigger++
                 }
             }
         }

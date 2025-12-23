@@ -15,8 +15,10 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,7 @@ import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.EditorSettingsToggle
 import com.rk.components.InfoBlock
+import com.rk.components.ResetButton
 import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
@@ -47,10 +50,17 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
+
+var refreshTrigger by mutableIntStateOf(0)
+
+const val DEFAULT_EXTRA_KEYS_COMMANDS =
+    "global.command_palette|editor.emulate_key.tab|editor.emulate_key.dpad_left|editor.emulate_key.dpad_up|editor.emulate_key.dpad_right|editor.emulate_key.dpad_down"
+const val DEFAULT_EXTRA_KEYS_SYMBOLS = "()\"{}[];"
 
 @Composable
 fun EditExtraKeys(modifier: Modifier = Modifier) {
@@ -60,24 +70,25 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
     val reorderState = rememberReorderState<String>(dragAfterLongPress = true)
     val lazyListState = rememberLazyListState()
 
-    val commandIds = remember { mutableStateListOf(*Settings.extra_keys_commands.split("|").toTypedArray()) }
+    val commandIds =
+        remember(refreshTrigger) { mutableStateListOf(*Settings.extra_keys_commands.split("|").toTypedArray()) }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
 
     var showExtraKeysDialog by remember { mutableStateOf(false) }
-    var extraKeysValue by remember { mutableStateOf(Settings.extra_keys_symbols) }
+    val extraKeysValue = remember { mutableStateOf(Settings.extra_keys_symbols) }
 
     if (showExtraKeysDialog) {
         SingleInputDialog(
             title = stringResource(id = strings.extra_keys),
             inputLabel = stringResource(id = strings.extra_keys),
-            inputValue = extraKeysValue,
-            onInputValueChange = { extraKeysValue = it },
+            inputValue = extraKeysValue.value,
+            onInputValueChange = { extraKeysValue.value = it },
             onConfirm = {
-                Settings.extra_keys_symbols = extraKeysValue
+                Settings.extra_keys_symbols = extraKeysValue.value
                 toast(strings.restart_required)
             },
             onFinish = {
-                extraKeysValue = Settings.extra_keys_symbols
+                extraKeysValue.value = Settings.extra_keys_symbols
                 showExtraKeysDialog = false
             },
         )
@@ -120,6 +131,8 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
                             modifier = Modifier.padding(bottom = 16.dp),
                         )
                     }
+
+                    item { ResetButton { resetOrder(commandIds, extraKeysValue) } }
 
                     item { PreferenceGroupHeading(heading = stringResource(strings.commands)) }
                     items(commands, key = { it.id }) { command ->
@@ -256,4 +269,13 @@ private fun patchChildCommands(
 /** Save order of commands in settings */
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
     Settings.extra_keys_commands = commandIds.joinToString("|")
+}
+
+/** Reset order of commands and symbols to default */
+private fun resetOrder(commandIds: SnapshotStateList<String>, extraKeysValue: MutableState<String>) {
+    Preference.removeKey("extra_keys_commands")
+    Preference.removeKey("extra_keys_symbols")
+    commandIds.clear()
+    commandIds.addAll(DEFAULT_EXTRA_KEYS_COMMANDS.split("|"))
+    extraKeysValue.value = DEFAULT_EXTRA_KEYS_SYMBOLS
 }

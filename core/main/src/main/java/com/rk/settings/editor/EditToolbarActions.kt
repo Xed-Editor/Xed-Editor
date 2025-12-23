@@ -37,6 +37,7 @@ import com.rk.commands.Command
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.InfoBlock
+import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceScaffold
@@ -44,9 +45,13 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
+
+const val DEFAULT_ACTION_ITEMS =
+    "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings"
 
 @Composable
 fun EditToolbarActions(modifier: Modifier = Modifier) {
@@ -97,6 +102,8 @@ fun EditToolbarActions(modifier: Modifier = Modifier) {
                             modifier = Modifier.padding(bottom = 8.dp),
                         )
                     }
+
+                    item { ResetButton { resetOrder(commandIds) } }
 
                     items(commands, key = { it.id }) { command ->
                         ReorderableItem(
@@ -218,4 +225,11 @@ private fun patchChildCommands(
 /** Save order of commands in settings */
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
     Settings.action_items = commandIds.joinToString("|")
+}
+
+/** Reset order of toolbar actions to default */
+private fun resetOrder(commandIds: SnapshotStateList<String>) {
+    Preference.removeKey("action_items")
+    commandIds.clear()
+    commandIds.addAll(DEFAULT_ACTION_ITEMS.split("|"))
 }

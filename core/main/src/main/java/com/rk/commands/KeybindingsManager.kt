@@ -20,9 +20,9 @@ data class KeyCombination(
     @Composable
     fun getDisplayName(): String {
         return buildString {
-            if (ctrl) append("${stringResource(strings.ctrl)} + ")
-            if (shift) append("${stringResource(strings.shift)} + ")
-            if (alt) append("${stringResource(strings.alt)} + ")
+            if (ctrl) append("${stringResource(strings.ctrl)}-")
+            if (shift) append("${stringResource(strings.shift)}-")
+            if (alt) append("${stringResource(strings.alt)}-")
 
             append(KeyUtils.getShortDisplayName(keyCode))
         }
