@@ -40,6 +40,8 @@ function hash(text) {
     }
   );
 
+  issues.sort((a, b) => a.number - b.number);
+
   const seen = new Map(); // hash → canonical issue number
 
   for (const issue of issues) {
