@@ -36,7 +36,7 @@ async function callGemini(prompt) {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview", // or gemini-1.5-pro / flash
+      model: "gemini-1.5-pro", // or gemini-1.5-pro / flash
       contents: prompt,
     });
 
