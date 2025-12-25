@@ -6,7 +6,9 @@ on:
     types: [opened, edited]
 
 permissions:
-  issues: write
+  issues: read
+  contents: read
+
 
 jobs:
   improve-title:
