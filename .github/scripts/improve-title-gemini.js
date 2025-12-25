@@ -143,7 +143,7 @@ ${body}
     {
       owner,
       repo,
-      state: "all", // IMPORTANT for manual runs
+      state: "open", // IMPORTANT for manual runs
       per_page: 100,
     }
   );
