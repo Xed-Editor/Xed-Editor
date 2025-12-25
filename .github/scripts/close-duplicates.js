@@ -7,21 +7,23 @@ const octokit = github.getOctokit(token);
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-function extractStacktrace(body = "") {
+function extractStacktrace(body) {
+  if (typeof body !== "string") return null;
+
   const marker = "Error StackTrace :";
   const idx = body.indexOf(marker);
   if (idx === -1) return null;
 
   let trace = body.substring(idx + marker.length);
 
-  // Normalize stacktrace
   trace = trace
-    .replace(/:\d+\)/g, ")")        // remove line numbers
-    .replace(/\s+/g, " ")           // normalize whitespace
+    .replace(/:\d+\)/g, ")")   // remove line numbers
+    .replace(/\s+/g, " ")
     .trim();
 
   return trace.length > 50 ? trace : null;
 }
+
 
 function hash(text) {
   return crypto.createHash("sha256").update(text).digest("hex");
