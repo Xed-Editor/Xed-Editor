@@ -18,7 +18,6 @@ import com.rk.icons.Icon
  * @property childSearchPlaceholder The placeholder text for the search field in the submenu of this command.
  * @property sectionEndsBelow If true, draws a divider after this command.
  * @property defaultKeybinds Optional default key combination for this command.
- * @property externalKeybind Whether the keybinds of this command are managed externally (can't be changed).
  */
 data class Command(
     val id: String,
@@ -32,7 +31,6 @@ data class Command(
     val childSearchPlaceholder: String? = null,
     val sectionEndsBelow: Boolean = false,
     val defaultKeybinds: KeyCombination? = null,
-    val externalKeybind: Boolean = false,
 ) {
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
     fun performCommand(viewModel: MainViewModel, activity: Activity?) {

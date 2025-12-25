@@ -157,10 +157,9 @@ fun KeybindingsScreen() {
 @Composable
 fun KeybindItem(command: Command, keyCombination: KeyCombination?, promptKeybinds: (Command) -> Unit) {
     PreferenceTemplate(
-        modifier = Modifier.clickable(enabled = !command.externalKeybind, onClick = { promptKeybinds(command) }),
+        modifier = Modifier.clickable(onClick = { promptKeybinds(command) }),
         verticalPadding = 8.dp,
         horizontalPadding = 24.dp,
-        enabled = !command.externalKeybind,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 when (val icon = command.icon.value) {

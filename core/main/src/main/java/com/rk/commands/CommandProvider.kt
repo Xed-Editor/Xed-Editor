@@ -144,7 +144,6 @@ object CommandProvider {
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.cut)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_X, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.copy",
@@ -154,7 +153,6 @@ object CommandProvider {
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.copy)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_C, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.paste",
@@ -164,7 +162,6 @@ object CommandProvider {
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.paste)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_V, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.select_all",
@@ -174,7 +171,6 @@ object CommandProvider {
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.select_all)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_A, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.select_word",
@@ -184,7 +180,6 @@ object CommandProvider {
                 isEnabled = mutableStateOf(true),
                 icon = mutableStateOf(Icon.DrawableRes(drawables.select)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_W, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.duplicate_line",
@@ -194,7 +189,6 @@ object CommandProvider {
                 isEnabled = derivedStateOf { (viewModel.currentTab as? EditorTab)?.editorState?.editable == true },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.duplicate_line)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_D, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.save",
@@ -235,7 +229,6 @@ object CommandProvider {
                     },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.undo)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_Z, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.redo",
@@ -253,7 +246,6 @@ object CommandProvider {
                     },
                 icon = mutableStateOf(Icon.DrawableRes(drawables.redo)),
                 defaultKeybinds = KeyCombination(keyCode = KeyEvent.KEYCODE_Y, ctrl = true),
-                externalKeybind = true,
             ),
             Command(
                 id = "editor.run",

@@ -2,6 +2,7 @@ package com.rk.tabs.editor
 
 import android.app.Activity
 import android.content.Context
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -36,6 +37,7 @@ import com.rk.utils.dpToPx
 import com.rk.utils.info
 import com.rk.utils.logError
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -144,6 +146,23 @@ fun EditorTab.CodeEditor(
 
                         subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
                             editorState.isWrapping = event.isLayoutBusy
+                        }
+
+                        // Intercept the default handling of some keybinds because
+                        // they should be handled by Xed-Editor's key binding system instead
+                        // (for custom keybinds support)
+                        subscribeAlways(KeyBindingEvent::class.java) { event ->
+                            val keyCode = event.keyCode
+                            val shouldBeIntercepted =
+                                keyCode == KeyEvent.KEYCODE_A ||
+                                    keyCode == KeyEvent.KEYCODE_C ||
+                                    keyCode == KeyEvent.KEYCODE_X ||
+                                    keyCode == KeyEvent.KEYCODE_V ||
+                                    keyCode == KeyEvent.KEYCODE_U ||
+                                    keyCode == KeyEvent.KEYCODE_R ||
+                                    keyCode == KeyEvent.KEYCODE_D ||
+                                    keyCode == KeyEvent.KEYCODE_W
+                            if (shouldBeIntercepted) event.markAsConsumed()
                         }
 
                         applyHighlightingAndConnectLSP()
