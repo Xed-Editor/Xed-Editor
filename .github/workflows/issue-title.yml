@@ -24,7 +24,8 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install @actions/github
+        run: npm install @actions/github @google/genai
+
 
       - name: Improve issue title using Gemini
         env:

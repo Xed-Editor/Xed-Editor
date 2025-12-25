@@ -1,6 +1,13 @@
 const https = require("https");
 const github = require("@actions/github");
 
+const { GoogleGenAI } = require("@google/genai");
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
+
+
 console.log("[start] Gemini issue title improver");
 
 const token = process.env.GITHUB_TOKEN;
@@ -24,46 +31,25 @@ let stats = {
 
 /* ---------------- Gemini ---------------- */
 
-function callGemini(prompt) {
-  console.log("[gemini] sending request");
+async function callGemini(prompt) {
+  console.log("[gemini] sending request (SDK)");
 
-  const data = JSON.stringify({
-    contents: [{ parts: [{ text: prompt }] }],
-  });
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview", // or gemini-1.5-pro / flash
+      contents: prompt,
+    });
 
-  return new Promise((resolve, reject) => {
-    const req = https.request(
-      {
-        hostname: "generativelanguage.googleapis.com",
-        path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(data),
-        },
-      },
-      (res) => {
-        let body = "";
-        res.on("data", (d) => (body += d));
-        res.on("end", () => {
-          console.log(`[gemini] response status ${res.statusCode}`);
-          try {
-            const json = JSON.parse(body);
-            resolve(
-              json.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
-            );
-          } catch (e) {
-            reject(e);
-          }
-        });
-      }
-    );
+    const text = response.text?.trim();
 
-    req.on("error", reject);
-    req.write(data);
-    req.end();
-  });
+    console.log("[gemini] response received");
+    return text || null;
+  } catch (err) {
+    console.error("[gemini] SDK error:", err.message);
+    return null;
+  }
 }
+
 
 /* ---------------- Title Improvement ---------------- */
 
