@@ -15,6 +15,7 @@ import com.rk.settings.editor.EditToolbarActions
 import com.rk.settings.editor.EditorFontScreen
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.extension.Extensions
+import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.lsp.LspSettings
 import com.rk.settings.mutators.ManageMutators
@@ -36,6 +37,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity, navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
+        composable(SettingsRoutes.Keybindings.route) { KeybindingsScreen() }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }

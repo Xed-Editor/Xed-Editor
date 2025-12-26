@@ -68,14 +68,19 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
         label = { Text(stringResource(strings.address)) },
         singleLine = true,
         isError = hostError != null,
-        supportingText = {
-            hostError?.let {
-                Text(text = it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth())
-            }
-        },
+        supportingText =
+            if (hostError != null) {
+                {
+                    Text(
+                        text = hostError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            } else null,
         trailingIcon = {
             if (hostError != null) {
-                Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
             }
         },
     )
@@ -96,14 +101,19 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         isError = portError != null,
-        supportingText = {
-            portError?.let {
-                Text(text = it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth())
-            }
-        },
+        supportingText =
+            if (portError != null) {
+                {
+                    Text(
+                        text = portError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            } else null,
         trailingIcon = {
             if (portError != null) {
-                Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
             }
         },
     )
@@ -129,14 +139,19 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
         label = { Text(stringResource(strings.file_ext_example)) },
         singleLine = true,
         isError = extensionsError != null,
-        supportingText = {
-            extensionsError?.let {
-                Text(text = it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth())
-            }
-        },
+        supportingText =
+            if (extensionsError != null) {
+                {
+                    Text(
+                        text = extensionsError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            } else null,
         trailingIcon = {
             if (extensionsError != null) {
-                Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
             }
         },
     )

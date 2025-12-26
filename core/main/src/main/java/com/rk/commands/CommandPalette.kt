@@ -40,12 +40,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.icons.Icon
@@ -60,7 +62,6 @@ fun CommandPalette(
     progress: Float,
     commands: List<Command>,
     lastUsedCommand: Command?,
-    viewModel: MainViewModel,
     initialChildCommands: List<Command>? = null,
     initialPlaceholder: String? = null,
     onDismissRequest: () -> Unit,
@@ -87,7 +88,7 @@ fun CommandPalette(
         remember(visibleCommands, searchQuery) {
             derivedStateOf {
                 visibleCommands.filter {
-                    it.label.value.contains(searchQuery, ignoreCase = true) ||
+                    it.getLabel().contains(searchQuery, ignoreCase = true) ||
                         it.prefix?.contains(searchQuery, ignoreCase = true) == true
                 }
             }
@@ -147,9 +148,9 @@ fun CommandPalette(
                         Box(modifier = Modifier.animateItem()) {
                             val isRecentlyUsed = command == lastUsedCommand
                             CommandItem(
-                                viewModel,
                                 command,
                                 isRecentlyUsed,
+                                searchQuery,
                                 onDismissRequest,
                                 onNavigateToChildren = { placeholder, commands ->
                                     childCommands = commands
@@ -168,16 +169,35 @@ fun CommandPalette(
 
 @Composable
 fun CommandItem(
-    viewModel: MainViewModel,
     command: Command,
     recentlyUsed: Boolean,
+    searchQuery: String,
     onDismissRequest: () -> Unit,
     onNavigateToChildren: (String?, List<Command>) -> Unit,
     isSubpage: Boolean,
 ) {
     val activity = LocalActivity.current
-    val enabled = command.isSupported.value && command.isEnabled.value
+    val enabled by derivedStateOf { command.isSupported() && command.isEnabled() }
     val childCommands = command.childCommands
+    val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
+
+    val startIndex = command.getLabel().indexOf(searchQuery, ignoreCase = true)
+    val endIndex = startIndex + searchQuery.length
+    val highlightColor = MaterialTheme.colorScheme.primary
+    val highlightedString =
+        remember(searchQuery) {
+            buildAnnotatedString {
+                append(command.getLabel())
+
+                if (startIndex != -1) {
+                    addStyle(
+                        style = SpanStyle(color = highlightColor, fontWeight = FontWeight.Bold),
+                        start = startIndex,
+                        end = endIndex,
+                    )
+                }
+            }
+        }
 
     Column {
         PreferenceTemplate(
@@ -188,23 +208,21 @@ fun CommandItem(
                     onClick = {
                         Settings.last_used_command = command.id
                         if (childCommands.isNotEmpty()) {
-                            onNavigateToChildren(command.childSearchPlaceholder, childCommands)
+                            onNavigateToChildren(command.getChildSearchPlaceholder(), childCommands)
                         } else {
                             onDismissRequest()
-                            command.action(viewModel, activity)
+                            command.action(ActionContext(activity!!))
                         }
                     },
                 ),
             verticalPadding = 8.dp,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    val icon = command.icon.value
-
-                    when (icon) {
+                    when (val icon = command.getIcon()) {
                         is Icon.DrawableRes -> {
                             Icon(
                                 painter = painterResource(id = icon.drawableRes),
-                                contentDescription = command.label.value,
+                                contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(16.dp),
                             )
                         }
@@ -212,7 +230,7 @@ fun CommandItem(
                         is Icon.VectorIcon -> {
                             Icon(
                                 imageVector = icon.vector,
-                                contentDescription = command.label.value,
+                                contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(16.dp),
                             )
                         }
@@ -222,7 +240,7 @@ fun CommandItem(
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
                             Text(
-                                text = command.label.value,
+                                text = highlightedString,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f),
@@ -240,9 +258,9 @@ fun CommandItem(
                         }
 
                         if (!isSubpage) {
-                            CommandProvider.getParentCommand(command)?.label?.let {
+                            CommandProvider.getParentCommand(command)?.getLabel()?.let {
                                 Text(
-                                    text = it.value,
+                                    text = it,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     fontSize = 12.sp,
@@ -255,9 +273,9 @@ fun CommandItem(
             },
             endWidget = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    command.keybinds?.let {
+                    keyCombination?.let {
                         Text(
-                            text = command.keybinds,
+                            text = keyCombination.getDisplayName(),
                             fontFamily = FontFamily.Monospace,
                             style = Typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
