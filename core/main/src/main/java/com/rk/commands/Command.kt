@@ -1,8 +1,6 @@
 package com.rk.commands
 
 import android.app.Activity
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.editor.Editor
@@ -10,50 +8,13 @@ import com.rk.icons.Icon
 import com.rk.lsp.BaseLspConnector
 import com.rk.tabs.editor.EditorTab
 
-/// **
-// * Represents an executable command or a submenu within the command palette.
-// *
-// * @property id Unique identifier for the command.
-// * @property label The display text shown in the UI.
-// * @property action The logic executed when triggered (unless [childCommands] are present).
-// * @property isEnabled Whether this command is enabled (will be greyed out if false).
-// * @property isSupported Whether this command is supported (will be hidden or greyed out if false).
-// * @property icon The icon displayed in the UI.
-// * @property childCommands If provided, selecting this command opens a submenu with these items.
-// * @property childSearchPlaceholder The placeholder text for the search field in the submenu of this command.
-// * @property sectionEndsBelow If true, draws a divider after this command.
-// * @property defaultKeybinds Optional default key combination for this command.
-// */
-// data class Command(
-//    val id: String,
-//    val prefix: String? = null,
-//    val label: State<String>,
-//    val action: (MainViewModel, Activity?) -> Unit,
-//    val isEnabled: State<Boolean>,
-//    val isSupported: State<Boolean>,
-//    val icon: State<Icon>,
-//    val childCommands: List<Command> = emptyList(),
-//    val childSearchPlaceholder: String? = null,
-//    val sectionEndsBelow: Boolean = false,
-//    val defaultKeybinds: KeyCombination? = null,
-// ) {
-//    /** Executes this command's action, or opens a submenu if [childCommands] are present. */
-//    fun performCommand(viewModel: MainViewModel, activity: Activity?) {
-//        if (childCommands.isNotEmpty()) {
-//            viewModel.showCommandPaletteWithChildren(childSearchPlaceholder, childCommands)
-//        } else {
-//            action(viewModel, activity)
-//        }
-//    }
-// }
-
 data class CommandContext(val mainActivity: MainActivity, val mainViewModel: MainViewModel)
 
 data class ActionContext(val currentActivity: Activity)
 
 data class EditorActionContext(val currentActivity: Activity, val editorTab: EditorTab, val editor: Editor)
 
-data class EditorNonActionContext(val editorTab: EditorTab, val editor: Editor)
+data class EditorNonActionContext(val editorTab: EditorTab)
 
 data class LspActionContext(
     val currentActivity: Activity,
@@ -62,35 +23,25 @@ data class LspActionContext(
     val baseLspConnector: BaseLspConnector?,
 )
 
-data class LspNonActionContext(val editorTab: EditorTab, val editor: Editor, val baseLspConnector: BaseLspConnector)
+data class LspNonActionContext(val editorTab: EditorTab, val baseLspConnector: BaseLspConnector)
 
 abstract class Command(val commandContext: CommandContext) {
     abstract val id: String
     open val prefix: String? = null
 
-    protected abstract fun getLabel(): String
-
-    val label: State<String> = derivedStateOf { getLabel() }
+    abstract fun getLabel(): String
 
     abstract fun action(actionContext: ActionContext)
 
-    protected open fun isEnabled(): Boolean = true
+    open fun isEnabled(): Boolean = true
 
-    val isEnabled: State<Boolean> = derivedStateOf { isEnabled() }
+    open fun isSupported(): Boolean = true
 
-    protected open fun isSupported(): Boolean = true
-
-    val isSupported: State<Boolean> = derivedStateOf { isSupported() }
-
-    protected abstract fun getIcon(): Icon
-
-    val icon: State<Icon> = derivedStateOf { getIcon() }
+    abstract fun getIcon(): Icon
 
     open val childCommands: List<Command> = emptyList()
 
-    protected open fun getChildSearchPlaceholder(): String? = null
-
-    val childSearchPlaceholder: State<String?> = derivedStateOf { getChildSearchPlaceholder() }
+    open fun getChildSearchPlaceholder(): String? = null
 
     open val sectionEndsBelow: Boolean = false
     open val defaultKeybinds: KeyCombination? = null
@@ -98,7 +49,7 @@ abstract class Command(val commandContext: CommandContext) {
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
     fun performCommand(actionContext: ActionContext) {
         if (childCommands.isNotEmpty()) {
-            commandContext.mainViewModel.showCommandPaletteWithChildren(childSearchPlaceholder.value, childCommands)
+            commandContext.mainViewModel.showCommandPaletteWithChildren(getChildSearchPlaceholder(), childCommands)
         } else {
             action(actionContext)
         }
@@ -154,12 +105,7 @@ abstract class Command(val commandContext: CommandContext) {
         var result = sectionEndsBelow.hashCode()
         result = 31 * result + commandContext.hashCode()
         result = 31 * result + (prefix?.hashCode() ?: 0)
-        result = 31 * result + label.hashCode()
-        result = 31 * result + isEnabled.hashCode()
-        result = 31 * result + isSupported.hashCode()
-        result = 31 * result + icon.hashCode()
         result = 31 * result + childCommands.hashCode()
-        result = 31 * result + childSearchPlaceholder.hashCode()
         result = 31 * result + (defaultKeybinds?.hashCode() ?: 0)
         result = 31 * result + id.hashCode()
         return result
@@ -180,17 +126,13 @@ abstract class EditorCommand(commandContext: CommandContext) : Command(commandCo
     final override fun isSupported(): Boolean {
         val currentTab = commandContext.mainViewModel.currentTab
         if (currentTab !is EditorTab) return false
-
-        val editor = currentTab.editorState.editor.get() ?: return false
-        return isSupported(EditorNonActionContext(currentTab, editor))
+        return isSupported(EditorNonActionContext(currentTab))
     }
 
     final override fun isEnabled(): Boolean {
         val currentTab = commandContext.mainViewModel.currentTab
         if (currentTab !is EditorTab) return false
-
-        val editor = currentTab.editorState.editor.get() ?: return false
-        return isEnabled(EditorNonActionContext(currentTab, editor))
+        return isEnabled(EditorNonActionContext(currentTab))
     }
 
     open fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean = true
@@ -210,16 +152,14 @@ abstract class LspCommand(commandContext: CommandContext) : EditorCommand(comman
 
     final override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean {
         val currentTab = editorNonActionContext.editorTab
-        val editor = editorNonActionContext.editor
         val baseLspConnector = currentTab.baseLspConnector ?: return false
-        return isSupported(LspNonActionContext(currentTab, editor, baseLspConnector))
+        return isSupported(LspNonActionContext(currentTab, baseLspConnector))
     }
 
     final override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
         val currentTab = editorNonActionContext.editorTab
-        val editor = editorNonActionContext.editor
         val baseLspConnector = currentTab.baseLspConnector ?: return false
-        return isEnabled(LspNonActionContext(currentTab, editor, baseLspConnector))
+        return isEnabled(LspNonActionContext(currentTab, baseLspConnector))
     }
 
     open fun isSupported(lspNonActionContext: LspNonActionContext): Boolean = true

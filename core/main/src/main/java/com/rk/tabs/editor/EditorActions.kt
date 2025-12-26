@@ -53,7 +53,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
         val maxVisibleCount = (availableWidth / itemWidth).toInt().coerceAtLeast(0)
 
         // Filter visible actions first
-        val visibleActions = allActions.filter { it.isSupported.value }
+        val visibleActions = allActions.filter { it.isSupported() }
 
         // Calculate actual number of actions to show in toolbar
         var actualVisibleCount = min(visibleActions.size, maxVisibleCount)
@@ -77,18 +77,18 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                 IconButton(
                     onClick = { command.performCommand(ActionContext(activity!!)) },
                     modifier = Modifier.size(48.dp),
-                    enabled = command.isEnabled.value,
+                    enabled = command.isEnabled(),
                 ) {
-                    when (val icon = command.icon.value) {
+                    when (val icon = command.getIcon()) {
                         is Icon.DrawableRes -> {
                             Icon(
                                 painter = painterResource(id = icon.drawableRes),
-                                contentDescription = command.label.value,
+                                contentDescription = command.getLabel(),
                             )
                         }
 
                         is Icon.VectorIcon -> {
-                            Icon(imageVector = icon.vector, contentDescription = command.label.value)
+                            Icon(imageVector = icon.vector, contentDescription = command.getLabel())
                         }
                     }
                 }
@@ -103,23 +103,23 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         dropdownActions.forEach { command ->
                             DropdownMenuItem(
-                                enabled = command.isEnabled.value,
-                                text = { Text(command.label.value) },
+                                enabled = command.isEnabled(),
+                                text = { Text(command.getLabel()) },
                                 onClick = {
                                     command.performCommand(ActionContext(activity!!))
                                     expanded = false
                                 },
                                 leadingIcon = {
-                                    when (val icon = command.icon.value) {
+                                    when (val icon = command.getIcon()) {
                                         is Icon.DrawableRes -> {
                                             Icon(
                                                 painter = painterResource(id = icon.drawableRes),
-                                                contentDescription = command.label.value,
+                                                contentDescription = command.getLabel(),
                                             )
                                         }
 
                                         is Icon.VectorIcon -> {
-                                            Icon(imageVector = icon.vector, contentDescription = command.label.value)
+                                            Icon(imageVector = icon.vector, contentDescription = command.getLabel())
                                         }
                                     }
                                 },

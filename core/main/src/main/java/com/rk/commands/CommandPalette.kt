@@ -88,7 +88,7 @@ fun CommandPalette(
         remember(visibleCommands, searchQuery) {
             derivedStateOf {
                 visibleCommands.filter {
-                    it.label.value.contains(searchQuery, ignoreCase = true) ||
+                    it.getLabel().contains(searchQuery, ignoreCase = true) ||
                         it.prefix?.contains(searchQuery, ignoreCase = true) == true
                 }
             }
@@ -177,17 +177,17 @@ fun CommandItem(
     isSubpage: Boolean,
 ) {
     val activity = LocalActivity.current
-    val enabled = command.isSupported.value && command.isEnabled.value
+    val enabled by derivedStateOf { command.isSupported() && command.isEnabled() }
     val childCommands = command.childCommands
     val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
 
-    val startIndex = command.label.value.indexOf(searchQuery, ignoreCase = true)
+    val startIndex = command.getLabel().indexOf(searchQuery, ignoreCase = true)
     val endIndex = startIndex + searchQuery.length
     val highlightColor = MaterialTheme.colorScheme.primary
     val highlightedString =
         remember(searchQuery) {
             buildAnnotatedString {
-                append(command.label.value)
+                append(command.getLabel())
 
                 if (startIndex != -1) {
                     addStyle(
@@ -208,7 +208,7 @@ fun CommandItem(
                     onClick = {
                         Settings.last_used_command = command.id
                         if (childCommands.isNotEmpty()) {
-                            onNavigateToChildren(command.childSearchPlaceholder.value, childCommands)
+                            onNavigateToChildren(command.getChildSearchPlaceholder(), childCommands)
                         } else {
                             onDismissRequest()
                             command.action(ActionContext(activity!!))
@@ -218,11 +218,11 @@ fun CommandItem(
             verticalPadding = 8.dp,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    when (val icon = command.icon.value) {
+                    when (val icon = command.getIcon()) {
                         is Icon.DrawableRes -> {
                             Icon(
                                 painter = painterResource(id = icon.drawableRes),
-                                contentDescription = command.label.value,
+                                contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(16.dp),
                             )
                         }
@@ -230,7 +230,7 @@ fun CommandItem(
                         is Icon.VectorIcon -> {
                             Icon(
                                 imageVector = icon.vector,
-                                contentDescription = command.label.value,
+                                contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(16.dp),
                             )
                         }
@@ -258,9 +258,9 @@ fun CommandItem(
                         }
 
                         if (!isSubpage) {
-                            CommandProvider.getParentCommand(command)?.label?.let {
+                            CommandProvider.getParentCommand(command)?.getLabel()?.let {
                                 Text(
-                                    text = it.value,
+                                    text = it,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     fontSize = 12.sp,

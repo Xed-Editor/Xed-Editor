@@ -39,13 +39,14 @@ private data class ExtraKey(val label: String, val icon: Icon? = null, val enabl
 fun ExtraKeys(editorTab: EditorTab) {
     val commandIds = remember { mutableStateListOf(*Settings.extra_keys_commands.split("|").toTypedArray()) }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
+
     val commandExtraKeys =
-        commands.map {
+        commands.map { command ->
             ExtraKey(
-                label = it.label.value,
-                icon = it.icon.value,
-                enabled = it.isEnabled.value && it.isSupported.value,
-                onClick = { it.performCommand(ActionContext(MainActivity.instance!!)) },
+                label = command.getLabel(),
+                icon = command.getIcon(),
+                enabled = command.isEnabled() && command.isSupported(),
+                onClick = { command.performCommand(ActionContext(MainActivity.instance!!)) },
             )
         }
 

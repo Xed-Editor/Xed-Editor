@@ -73,7 +73,7 @@ fun KeybindingsScreen() {
             val query = searchQuery.text.lowercase()
 
             commands.filter { command ->
-                val labelMatch = command.label.value.lowercase().contains(query)
+                val labelMatch = command.getLabel().lowercase().contains(query)
                 val prefixMatch = command.prefix?.lowercase()?.contains(query) == true
                 val keybindMatch =
                     KeybindingsManager.getKeyCombinationForCommand(command.id)
@@ -166,13 +166,13 @@ fun KeybindItem(
     searchQuery: String,
     promptKeybinds: (Command) -> Unit,
 ) {
-    val startIndex = command.label.value.indexOf(searchQuery, ignoreCase = true)
+    val startIndex = command.getLabel().indexOf(searchQuery, ignoreCase = true)
     val endIndex = startIndex + searchQuery.length
     val highlightColor = MaterialTheme.colorScheme.primary
     val highlightedString =
         remember(searchQuery) {
             buildAnnotatedString {
-                append(command.label.value)
+                append(command.getLabel())
 
                 if (startIndex != -1) {
                     addStyle(
@@ -190,11 +190,11 @@ fun KeybindItem(
         horizontalPadding = 24.dp,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                when (val icon = command.icon.value) {
+                when (val icon = command.getIcon()) {
                     is Icon.DrawableRes -> {
                         Icon(
                             painter = painterResource(id = icon.drawableRes),
-                            contentDescription = command.label.value,
+                            contentDescription = command.getLabel(),
                             modifier = Modifier.padding(end = 8.dp).size(20.dp),
                         )
                     }
@@ -202,7 +202,7 @@ fun KeybindItem(
                     is Icon.VectorIcon -> {
                         Icon(
                             imageVector = icon.vector,
-                            contentDescription = command.label.value,
+                            contentDescription = command.getLabel(),
                             modifier = Modifier.padding(end = 8.dp).size(20.dp),
                         )
                     }
@@ -252,7 +252,7 @@ fun EditKeybindsDialog(command: Command, onSubmit: (KeyCombination?) -> Unit, on
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = command.label.value) },
+        title = { Text(text = command.getLabel()) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(text = stringResource(strings.press_key))
