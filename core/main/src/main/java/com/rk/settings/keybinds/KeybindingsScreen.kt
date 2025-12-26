@@ -54,7 +54,9 @@ import com.rk.components.InfoBlock
 import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.PreferenceLayoutLazyColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.icons.Error
 import com.rk.icons.Icon
+import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.Typography
@@ -242,6 +244,7 @@ fun EditKeybindsDialog(command: Command, onSubmit: (KeyCombination?) -> Unit, on
     val currentKeyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
     var keyCombination by remember { mutableStateOf(currentKeyCombination) }
     val keyCombinationText = keyCombination?.getDisplayName() ?: noneSetText
+    val hasConflict = keyCombination?.let { KeybindingsManager.conflictsWithExisting(it, command) } ?: false
 
     var textFieldValue by
         remember(keyCombinationText) {
@@ -268,6 +271,17 @@ fun EditKeybindsDialog(command: Command, onSubmit: (KeyCombination?) -> Unit, on
                             return@onPreviewKeyEvent true
                         },
                     value = textFieldValue,
+                    isError = hasConflict,
+                    supportingText =
+                        if (hasConflict) {
+                            {
+                                Text(
+                                    text = stringResource(strings.keybindings_conflict_error),
+                                    color = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                            }
+                        } else null,
                     onValueChange = {
                         it.text.lastOrNull()?.let { char ->
                             val keyCode = KeyUtils.getKeyCodeFromChar(char)
@@ -276,11 +290,24 @@ fun EditKeybindsDialog(command: Command, onSubmit: (KeyCombination?) -> Unit, on
                         }
                     },
                     trailingIcon = {
-                        Icon(
-                            modifier = Modifier.combinedClickable(onClick = { keyCombination = null }),
-                            painter = painterResource(drawables.close),
-                            contentDescription = null,
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            Icon(
+                                modifier = Modifier.combinedClickable(onClick = { keyCombination = null }),
+                                painter = painterResource(drawables.close),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                            if (hasConflict) {
+                                Icon(
+                                    XedIcons.Error,
+                                    stringResource(strings.error),
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        }
                     },
                     maxLines = 1,
                     textStyle = Typography.bodyLarge.copy(fontFamily = FontFamily.Monospace),
@@ -318,10 +345,11 @@ fun EditKeybindsDialog(command: Command, onSubmit: (KeyCombination?) -> Unit, on
         },
         confirmButton = {
             TextButton(
+                enabled = !hasConflict,
                 onClick = {
                     onSubmit(keyCombination)
                     onDismiss()
-                }
+                },
             ) {
                 Text(stringResource(strings.save))
             }

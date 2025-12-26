@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val handledEvent = KeybindingsManager.handleEvent(event, this)
+        val handledEvent = KeybindingsManager.handleGlobalEvent(event, this)
         if (handledEvent) return true
         return super.dispatchKeyEvent(event)
     }
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             NavHost(
-                navController = navController!!,
+                navController = navController,
                 startDestination =
                     if (Settings.shownDisclaimer) {
                         MainRoutes.Main.route

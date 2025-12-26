@@ -73,7 +73,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             val softThreshold = with(density) { 50.dp.toPx() }
             val hardThreshold = with(density) { 100.dp.toPx() }
 
-            CommandProvider.globalCommands = CommandProvider.buildCommands(viewModel)
+            CommandProvider.buildCommands(viewModel)
             KeybindingsManager.loadKeybindings()
 
             val mainContent: @Composable () -> Unit = {

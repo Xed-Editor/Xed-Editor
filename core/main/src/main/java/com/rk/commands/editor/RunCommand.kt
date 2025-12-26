@@ -3,6 +3,7 @@ package com.rk.commands.editor
 import android.view.KeyEvent
 import com.rk.DefaultScope
 import com.rk.commands.CommandContext
+import com.rk.commands.CommandProvider
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.EditorNonActionContext
@@ -24,7 +25,7 @@ class RunCommand(commandContext: CommandContext) : EditorCommand(commandContext)
     override fun action(editorActionContext: EditorActionContext) {
         val editorTab = editorActionContext.editorTab
         val activity = editorActionContext.currentActivity
-        SaveCommand(commandContext).action(editorActionContext)
+        CommandProvider.SaveCommand.action(editorActionContext)
         DefaultScope.launch {
             Runner.run(
                 context = activity,

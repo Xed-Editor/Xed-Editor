@@ -65,12 +65,13 @@ fun ExternalProcessServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServ
         label = { Text(stringResource(strings.command)) },
         singleLine = true,
         isError = error != null,
-        supportingText = {
-            error?.let { Text(text = it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
-        },
+        supportingText =
+            if (error != null) {
+                { Text(text = error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
+            } else null,
         trailingIcon = {
             if (error != null) {
-                Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
             }
         },
     )
@@ -97,14 +98,19 @@ fun ExternalProcessServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServ
         label = { Text(stringResource(strings.file_ext_example)) },
         singleLine = true,
         isError = extensionsError != null,
-        supportingText = {
-            extensionsError?.let {
-                Text(text = it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth())
-            }
-        },
+        supportingText =
+            if (extensionsError != null) {
+                {
+                    Text(
+                        text = extensionsError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            } else null,
         trailingIcon = {
             if (extensionsError != null) {
-                Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
             }
         },
     )

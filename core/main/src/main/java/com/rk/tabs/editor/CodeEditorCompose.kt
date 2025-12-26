@@ -20,6 +20,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.activities.main.MainActivity
+import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
@@ -161,8 +163,13 @@ fun EditorTab.CodeEditor(
                                     keyCode == KeyEvent.KEYCODE_U ||
                                     keyCode == KeyEvent.KEYCODE_R ||
                                     keyCode == KeyEvent.KEYCODE_D ||
-                                    keyCode == KeyEvent.KEYCODE_W
+                                    keyCode == KeyEvent.KEYCODE_W ||
+                                    keyCode == KeyEvent.KEYCODE_Y ||
+                                    keyCode == KeyEvent.KEYCODE_Z ||
+                                    keyCode == KeyEvent.KEYCODE_J
                             if (shouldBeIntercepted) event.markAsConsumed()
+
+                            KeybindingsManager.handleEditorEvent(event, MainActivity.instance!!)
                         }
 
                         applyHighlightingAndConnectLSP()
