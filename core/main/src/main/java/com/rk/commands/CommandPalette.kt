@@ -40,12 +40,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.icons.Icon
@@ -60,7 +62,6 @@ fun CommandPalette(
     progress: Float,
     commands: List<Command>,
     lastUsedCommand: Command?,
-    viewModel: MainViewModel,
     initialChildCommands: List<Command>? = null,
     initialPlaceholder: String? = null,
     onDismissRequest: () -> Unit,
@@ -147,9 +148,9 @@ fun CommandPalette(
                         Box(modifier = Modifier.animateItem()) {
                             val isRecentlyUsed = command == lastUsedCommand
                             CommandItem(
-                                viewModel,
                                 command,
                                 isRecentlyUsed,
+                                searchQuery,
                                 onDismissRequest,
                                 onNavigateToChildren = { placeholder, commands ->
                                     childCommands = commands
@@ -168,9 +169,9 @@ fun CommandPalette(
 
 @Composable
 fun CommandItem(
-    viewModel: MainViewModel,
     command: Command,
     recentlyUsed: Boolean,
+    searchQuery: String,
     onDismissRequest: () -> Unit,
     onNavigateToChildren: (String?, List<Command>) -> Unit,
     isSubpage: Boolean,
@@ -179,6 +180,24 @@ fun CommandItem(
     val enabled = command.isSupported.value && command.isEnabled.value
     val childCommands = command.childCommands
     val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
+
+    val startIndex = command.label.value.indexOf(searchQuery, ignoreCase = true)
+    val endIndex = startIndex + searchQuery.length
+    val highlightColor = MaterialTheme.colorScheme.primary
+    val highlightedString =
+        remember(searchQuery) {
+            buildAnnotatedString {
+                append(command.label.value)
+
+                if (startIndex != -1) {
+                    addStyle(
+                        style = SpanStyle(color = highlightColor, fontWeight = FontWeight.Bold),
+                        start = startIndex,
+                        end = endIndex,
+                    )
+                }
+            }
+        }
 
     Column {
         PreferenceTemplate(
@@ -189,10 +208,10 @@ fun CommandItem(
                     onClick = {
                         Settings.last_used_command = command.id
                         if (childCommands.isNotEmpty()) {
-                            onNavigateToChildren(command.childSearchPlaceholder, childCommands)
+                            onNavigateToChildren(command.childSearchPlaceholder.value, childCommands)
                         } else {
                             onDismissRequest()
-                            command.action(viewModel, activity)
+                            command.action(ActionContext(activity!!))
                         }
                     },
                 ),
@@ -221,7 +240,7 @@ fun CommandItem(
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                             command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
                             Text(
-                                text = command.label.value,
+                                text = highlightedString,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f),

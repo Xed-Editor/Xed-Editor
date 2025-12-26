@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import com.rk.activities.main.MainActivity
+import com.rk.commands.ActionContext
 import com.rk.commands.Command
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
@@ -198,31 +198,18 @@ private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDism
                 }
 
             val hasChildCommands = patchedChildCommands.isNotEmpty()
-            Command(
-                id = command.id,
-                prefix = command.prefix,
-                label = command.label,
-                action = { _, _ ->
+            command.copy(
+                childCommands = patchedChildCommands,
+                action = {
                     commandIds.add(command.id)
                     saveOrder(commandIds)
                 },
-                childCommands = patchedChildCommands,
-                childSearchPlaceholder = command.childSearchPlaceholder,
-                isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
-                isSupported = mutableStateOf(true),
-                icon = command.icon,
-                defaultKeybinds = command.defaultKeybinds,
+                isSupported = { true },
+                isEnabled = { !commandIds.contains(command.id) || hasChildCommands },
             )
         }
 
-    CommandPalette(
-        progress = 1f,
-        commands = dialogCommands,
-        lastUsedCommand = null,
-        viewModel = MainActivity.instance!!.viewModel,
-    ) {
-        onDismiss()
-    }
+    CommandPalette(progress = 1f, commands = dialogCommands, lastUsedCommand = null) { onDismiss() }
 }
 
 @Composable
@@ -232,34 +219,32 @@ private fun patchChildCommands(
     existingCommands: List<Command>,
 ): List<Command> = buildList {
     add(
-        Command(
-            id = command.id,
-            label = mutableStateOf(strings.add_parent_command.getString()),
-            action = { _, _ ->
+        object : Command(command.commandContext) {
+            override val id: String = command.id
+
+            override fun getLabel(): String = strings.add_parent_command.getString()
+
+            override fun action(actionContext: ActionContext) {
                 commandIds.add(command.id)
                 saveOrder(commandIds)
-            },
-            sectionEndsBelow = true,
-            isEnabled = derivedStateOf { !commandIds.contains(command.id) },
-            isSupported = mutableStateOf(true),
-            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
-            defaultKeybinds = null,
-        )
+            }
+
+            override val sectionEndsBelow: Boolean = true
+
+            override fun isEnabled(): Boolean = !commandIds.contains(command.id)
+
+            override fun getIcon(): Icon = Icon.DrawableRes(drawables.arrow_outward)
+        }
     )
     addAll(
-        existingCommands.map {
-            Command(
-                id = it.id,
-                prefix = it.prefix,
-                label = it.label,
-                action = { _, _ ->
-                    commandIds.add(it.id)
+        existingCommands.map { command ->
+            command.copy(
+                action = {
+                    commandIds.add(command.id)
                     saveOrder(commandIds)
                 },
-                isEnabled = derivedStateOf { !commandIds.contains(it.id) },
-                isSupported = mutableStateOf(true),
-                icon = it.icon,
-                defaultKeybinds = it.defaultKeybinds,
+                isEnabled = { !commandIds.contains(command.id) },
+                isSupported = { true },
             )
         }
     )

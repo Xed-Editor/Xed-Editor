@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
+import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
 import com.rk.icons.Icon
@@ -74,7 +75,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
             }
             toolbarActions.forEach { command ->
                 IconButton(
-                    onClick = { command.performCommand(viewModel, activity) },
+                    onClick = { command.performCommand(ActionContext(activity!!)) },
                     modifier = Modifier.size(48.dp),
                     enabled = command.isEnabled.value,
                 ) {
@@ -105,7 +106,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                                 enabled = command.isEnabled.value,
                                 text = { Text(command.label.value) },
                                 onClick = {
-                                    command.performCommand(viewModel, activity)
+                                    command.performCommand(ActionContext(activity!!))
                                     expanded = false
                                 },
                                 leadingIcon = {

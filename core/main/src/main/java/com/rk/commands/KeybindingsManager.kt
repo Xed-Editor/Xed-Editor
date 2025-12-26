@@ -106,13 +106,14 @@ object KeybindingsManager {
     }
 
     fun handleEvent(event: KeyEvent, mainActivity: MainActivity): Boolean {
+        // TODO: Check isSupported and isEnabled before running
         if (event.action != KeyEvent.ACTION_DOWN) return false
 
         val keyCombination = KeyCombination.fromEvent(event)
         val commandId = keybindMap[keyCombination] ?: return false
         val command = CommandProvider.getForId(commandId) ?: return false
 
-        command.performCommand(mainActivity.viewModel, mainActivity)
+        command.performCommand(ActionContext(mainActivity))
         return true
     }
 }

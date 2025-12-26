@@ -36,8 +36,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
@@ -130,7 +133,9 @@ fun KeybindingsScreen() {
                     derivedStateOf { KeybindingsManager.getKeyCombinationForCommand(command.id) }
                 }
             Box(modifier = Modifier.animateItem()) {
-                KeybindItem(command = command, keyCombination = keyCombination) { editCommandKeybinds = it }
+                KeybindItem(command = command, keyCombination = keyCombination, searchQuery = searchQuery.text) {
+                    editCommandKeybinds = it
+                }
             }
         }
 
@@ -155,7 +160,30 @@ fun KeybindingsScreen() {
 }
 
 @Composable
-fun KeybindItem(command: Command, keyCombination: KeyCombination?, promptKeybinds: (Command) -> Unit) {
+fun KeybindItem(
+    command: Command,
+    keyCombination: KeyCombination?,
+    searchQuery: String,
+    promptKeybinds: (Command) -> Unit,
+) {
+    val startIndex = command.label.value.indexOf(searchQuery, ignoreCase = true)
+    val endIndex = startIndex + searchQuery.length
+    val highlightColor = MaterialTheme.colorScheme.primary
+    val highlightedString =
+        remember(searchQuery) {
+            buildAnnotatedString {
+                append(command.label.value)
+
+                if (startIndex != -1) {
+                    addStyle(
+                        style = SpanStyle(color = highlightColor, fontWeight = FontWeight.Bold),
+                        start = startIndex,
+                        end = endIndex,
+                    )
+                }
+            }
+        }
+
     PreferenceTemplate(
         modifier = Modifier.clickable(onClick = { promptKeybinds(command) }),
         verticalPadding = 8.dp,
@@ -184,7 +212,7 @@ fun KeybindItem(command: Command, keyCombination: KeyCombination?, promptKeybind
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                         command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
                         Text(
-                            text = command.label.value,
+                            text = highlightedString,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),

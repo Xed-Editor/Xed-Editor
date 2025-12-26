@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import com.rk.activities.main.MainActivity
 import com.rk.commands.Command
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
@@ -41,9 +40,6 @@ import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceScaffold
-import com.rk.icons.Icon
-import com.rk.resources.drawables
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
@@ -154,31 +150,25 @@ private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDism
                 }
 
             val hasChildCommands = patchedChildCommands.isNotEmpty()
-            Command(
-                id = command.id,
-                prefix = command.prefix,
-                label = command.label,
-                action = { _, _ ->
-                    commandIds.add(command.id)
-                    saveOrder(commandIds)
-                },
-                childCommands = patchedChildCommands,
-                childSearchPlaceholder = command.childSearchPlaceholder,
-                isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
-                isSupported = mutableStateOf(true),
-                icon = command.icon,
-                defaultKeybinds = command.defaultKeybinds,
-            )
+            command
+            //            Command(
+            //                id = command.id,
+            //                prefix = command.prefix,
+            //                label = command.label,
+            //                action = { _, _ ->
+            //                    commandIds.add(command.id)
+            //                    saveOrder(commandIds)
+            //                },
+            //                childCommands = patchedChildCommands,
+            //                childSearchPlaceholder = command.childSearchPlaceholder,
+            //                isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
+            //                isSupported = mutableStateOf(true),
+            //                icon = command.icon,
+            //                defaultKeybinds = command.defaultKeybinds,
+            //            )
         }
 
-    CommandPalette(
-        progress = 1f,
-        commands = dialogCommands,
-        lastUsedCommand = null,
-        viewModel = MainActivity.instance!!.viewModel,
-    ) {
-        onDismiss()
-    }
+    CommandPalette(progress = 1f, commands = dialogCommands, lastUsedCommand = null) { onDismiss() }
 }
 
 @Composable
@@ -187,38 +177,38 @@ private fun patchChildCommands(
     commandIds: SnapshotStateList<String>,
     existingCommands: List<Command>,
 ): List<Command> = buildList {
-    add(
-        Command(
-            id = command.id,
-            label = mutableStateOf(strings.add_parent_command.getString()),
-            action = { _, _ ->
-                commandIds.add(command.id)
-                saveOrder(commandIds)
-            },
-            sectionEndsBelow = true,
-            isEnabled = derivedStateOf { !commandIds.contains(command.id) },
-            isSupported = mutableStateOf(true),
-            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
-            defaultKeybinds = null,
-        )
-    )
-    addAll(
-        existingCommands.map {
-            Command(
-                id = it.id,
-                prefix = it.prefix,
-                label = it.label,
-                action = { _, _ ->
-                    commandIds.add(it.id)
-                    saveOrder(commandIds)
-                },
-                isEnabled = derivedStateOf { !commandIds.contains(it.id) },
-                isSupported = mutableStateOf(true),
-                icon = it.icon,
-                defaultKeybinds = it.defaultKeybinds,
-            )
-        }
-    )
+    //    add(
+    //        Command(
+    //            id = command.id,
+    //            label = mutableStateOf(strings.add_parent_command.getString()),
+    //            action = { _, _ ->
+    //                commandIds.add(command.id)
+    //                saveOrder(commandIds)
+    //            },
+    //            sectionEndsBelow = true,
+    //            isEnabled = derivedStateOf { !commandIds.contains(command.id) },
+    //            isSupported = mutableStateOf(true),
+    //            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
+    //            defaultKeybinds = null,
+    //        )
+    //    )
+    //    addAll(
+    //        existingCommands.map {
+    //            Command(
+    //                id = it.id,
+    //                prefix = it.prefix,
+    //                label = it.label,
+    //                action = { _, _ ->
+    //                    commandIds.add(it.id)
+    //                    saveOrder(commandIds)
+    //                },
+    //                isEnabled = derivedStateOf { !commandIds.contains(it.id) },
+    //                isSupported = mutableStateOf(true),
+    //                icon = it.icon,
+    //                defaultKeybinds = it.defaultKeybinds,
+    //            )
+    //        }
+    //    )
 }
 
 /** Save order of commands in settings */

@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
+import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.icons.Icon
 import com.rk.settings.Settings
@@ -44,7 +45,7 @@ fun ExtraKeys(editorTab: EditorTab) {
                 label = it.label.value,
                 icon = it.icon.value,
                 enabled = it.isEnabled.value && it.isSupported.value,
-                onClick = { it.performCommand(editorTab.viewModel, MainActivity.instance) },
+                onClick = { it.performCommand(ActionContext(MainActivity.instance!!)) },
             )
         }
 
