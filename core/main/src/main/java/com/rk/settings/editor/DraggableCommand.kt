@@ -30,7 +30,7 @@ import com.rk.resources.drawables
 
 @Composable
 fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: () -> Unit) {
-    val parentLabelState = remember(command.id) { CommandProvider.getParentCommand(command)?.label }
+    val parentLabelState = remember(command.id) { CommandProvider.getParentCommand(command)?.getLabel() }
 
     Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp, modifier = modifier) {
         PreferenceTemplate(
@@ -45,11 +45,11 @@ fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: 
                         modifier = Modifier.padding(end = 12.dp).size(20.dp),
                     )
 
-                    when (val icon = command.icon.value) {
+                    when (val icon = command.getIcon()) {
                         is Icon.DrawableRes -> {
                             Icon(
                                 painter = painterResource(id = icon.drawableRes),
-                                contentDescription = command.label.value,
+                                contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(20.dp),
                             )
                         }
@@ -57,7 +57,7 @@ fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: 
                         is Icon.VectorIcon -> {
                             Icon(
                                 imageVector = icon.vector,
-                                contentDescription = command.label.value,
+                                contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(20.dp),
                             )
                         }
@@ -66,11 +66,11 @@ fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: 
                     Column {
                         Row {
                             command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
-                            Text(text = command.label.value, style = MaterialTheme.typography.bodyLarge)
+                            Text(text = command.getLabel(), style = MaterialTheme.typography.bodyLarge)
                         }
                         parentLabelState?.let {
                             Text(
-                                text = it.value,
+                                text = it,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 12.sp,

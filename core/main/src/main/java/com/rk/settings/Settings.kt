@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
+import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
+import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
 import com.rk.theme.blueberry
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
@@ -62,6 +65,7 @@ object Settings {
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
     var show_tab_icons by CachedPreference("show_tab_icons", true)
     var split_extra_keys by CachedPreference("split_extra_keys", false)
+    var auto_open_new_files by CachedPreference("auto_open_new_files", true)
     var complete_on_enter by CachedPreference("complete_on_enter", true)
 
     // Int settings
@@ -79,12 +83,8 @@ object Settings {
     var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
     var currentLang: String? by
         CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
-    var extra_keys_symbols by CachedPreference("extra_keys", "()\"{}[];")
-    var extra_keys_commands by
-        CachedPreference(
-            "extra_keys_commands",
-            "global.command_palette|editor.emulate_key.tab|editor.emulate_key.dpad_left|editor.emulate_key.dpad_up|editor.emulate_key.dpad_right|editor.emulate_key.dpad_down",
-        )
+    var extra_keys_symbols by CachedPreference("extra_keys", DEFAULT_EXTRA_KEYS_SYMBOLS)
+    var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
@@ -94,11 +94,7 @@ object Settings {
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
-    var action_items by
-        CachedPreference(
-            "action_items",
-            "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings",
-        )
+    var action_items by CachedPreference("action_items", DEFAULT_ACTION_ITEMS)
 }
 
 object Preference {

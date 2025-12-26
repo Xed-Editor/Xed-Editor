@@ -1,6 +1,5 @@
 package com.rk.tabs.editor
 
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -301,11 +300,6 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                                 delay(400)
                                 saveMutex.unlock()
                             }
-                        }
-                    },
-                    onKeyEvent = { event ->
-                        if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                            scope.launch(Dispatchers.IO) { save() }
                         }
                     },
                 )

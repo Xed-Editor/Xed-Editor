@@ -1,6 +1,7 @@
 package com.rk.tabs.editor
 
 import android.content.Context
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,7 +19,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.activities.main.MainActivity
 import com.rk.activities.main.snackbarHostStateRef
+import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
@@ -35,7 +38,7 @@ import com.rk.utils.dpToPx
 import com.rk.utils.info
 import com.rk.utils.logError
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import io.github.rosemoe.sora.event.EditorKeyEvent
+import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -50,7 +53,6 @@ fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     parentTab: EditorTab,
-    onKeyEvent: (EditorKeyEvent) -> Unit,
     onTextChange: () -> Unit,
 ) {
     val selectionColors = LocalTextSelectionColors.current
@@ -112,11 +114,33 @@ fun EditorTab.CodeEditor(
                             }
                         }
 
-                        subscribeAlways(EditorKeyEvent::class.java) { event -> onKeyEvent.invoke(event) }
-
                         subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
                             editorState.isWrapping = event.isLayoutBusy
                         }
+
+                        // Intercept the default handling of some keybinds because
+                        // they should be handled by Xed-Editor's key binding system instead
+                        // (for custom keybinds support)
+                        subscribeAlways(KeyBindingEvent::class.java) { event ->
+                            val keyCode = event.keyCode
+                            val shouldBeIntercepted =
+                                keyCode == KeyEvent.KEYCODE_A ||
+                                    keyCode == KeyEvent.KEYCODE_C ||
+                                    keyCode == KeyEvent.KEYCODE_X ||
+                                    keyCode == KeyEvent.KEYCODE_V ||
+                                    keyCode == KeyEvent.KEYCODE_U ||
+                                    keyCode == KeyEvent.KEYCODE_R ||
+                                    keyCode == KeyEvent.KEYCODE_D ||
+                                    keyCode == KeyEvent.KEYCODE_W ||
+                                    keyCode == KeyEvent.KEYCODE_Y ||
+                                    keyCode == KeyEvent.KEYCODE_Z ||
+                                    keyCode == KeyEvent.KEYCODE_J
+                            if (shouldBeIntercepted) event.markAsConsumed()
+
+                            KeybindingsManager.handleEditorEvent(event, MainActivity.instance!!)
+                        }
+
+                        applyHighlightingAndConnectLSP()
                     }
 
                 val divider =
