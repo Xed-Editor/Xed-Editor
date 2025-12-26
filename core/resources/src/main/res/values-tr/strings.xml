@@ -546,4 +546,19 @@
     <string name="i_accept_disabled">Kabul Ediyorum (%s)</string>
     <string name="i_accept">Kabul Ediyorum</string>
     <string name="terminal_risks">Terminal Riskleri</string>
+    <string name="keybindings">Tuş atamaları</string>
+    <string name="keybindings_desc">Tuş atamalarını yapılandır</string>
+    <string name="none_set">Ayarlanmamış</string>
+    <string name="press_key">Bir tuş kombinasyonuna basın (Ctrl veya Alt içermeli)</string>
+    <string name="ctrl">Ctrl</string>
+    <string name="alt">Alt</string>
+    <string name="shift">Shift</string>
+    <string name="keybinds_info">Xed-Editor, daha hızlı ve verimli çalışmanıza yardımcı olmak için donanım klavye kısayollarını destekler. Geniş bir varsayılan tuş atamaları seti zaten mevcuttur ve bunları aşağıda dilediğiniz gibi yapılandırabilirsiniz.</string>
+    <string name="reset_all">Tümünü sıfırla</string>
+    <string name="search_keybinds">Arama komutu veya tuş atamaları</string>
+    <string name="transform_lowercase">Küçük harfe dönüştür</string>
+    <string name="transform_uppercase">Büyük harfe dönüştür</string>
+    <string name="keybindings_conflict_error">Ayarlamaya çalıştığınız tuş ataması başka bir tuş atamasıyla çakışıyor.</string>
+    <string name="auto_open_new_files">Oluşturulan dosyaları aç</string>
+    <string name="auto_open_new_files_desc">Yeni oluşturulan dosyaları otomatik olarak aç</string>
 </resources>
