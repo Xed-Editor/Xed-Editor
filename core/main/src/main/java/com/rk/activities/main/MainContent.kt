@@ -82,7 +82,7 @@ fun MainContent(
 
             CommandPalette(
                 progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
-                commands = CommandProvider.globalCommands,
+                commands = CommandProvider.commandList,
                 lastUsedCommand = lastUsedCommand,
                 initialChildCommands = mainViewModel.commandPaletteInitialChildCommands,
                 initialPlaceholder = mainViewModel.commandPaletteInitialPlaceholder,

@@ -111,7 +111,7 @@ object KeybindingsManager {
         val customCommandIds = customKeybinds.map { it.commandId }.toSet()
 
         // If no custom keybind is set, proceed with default keybindings
-        for (command in CommandProvider.globalCommands) {
+        for (command in CommandProvider.commandList) {
             if (customCommandIds.contains(command.id)) continue
             command.defaultKeybinds?.let { keybindMap[it] = command.id }
         }
