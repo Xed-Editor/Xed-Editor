@@ -279,6 +279,13 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(strings.auto_open_new_files),
+                description = stringResource(strings.auto_open_new_files_desc),
+                default = Settings.auto_open_new_files,
+                sideEffect = { Settings.auto_open_new_files = it },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(id = strings.auto_save),
                 description = stringResource(id = strings.auto_save_desc),
                 default = Settings.auto_save,

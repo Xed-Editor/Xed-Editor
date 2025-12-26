@@ -553,4 +553,6 @@
     <string name="transform_lowercase">Transform to lowercase</string>
     <string name="transform_uppercase">Transform to uppercase</string>
     <string name="keybindings_conflict_error">The keybinding you are trying to set conflicts with another keybinding.</string>
+    <string name="auto_open_new_files">Open created files</string>
+    <string name="auto_open_new_files_desc">Automatically open newly created files</string>
 </resources>

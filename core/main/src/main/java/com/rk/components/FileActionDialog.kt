@@ -24,7 +24,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -56,8 +61,8 @@ import com.rk.icons.CreateNewFolder
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
-import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.errorDialog
@@ -416,7 +421,11 @@ fun FileActionDialog(
             onConfirm = {
                 DefaultScope.launch {
                     if (!file.hasChild(newNameValue)) {
-                        file.createChild(createFile = isNewFile, newNameValue)
+                        val newChild = file.createChild(createFile = isNewFile, newNameValue)
+
+                        if (isNewFile && newChild != null && Settings.auto_open_new_files) {
+                            MainActivity.instance?.viewModel?.newTab(newChild)
+                        }
                     }
 
                     fileTreeViewModel.updateCache(file)
