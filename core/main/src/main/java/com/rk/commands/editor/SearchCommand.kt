@@ -16,7 +16,10 @@ class SearchCommand(commandContext: CommandContext) : EditorCommand(commandConte
     override fun getLabel(): String = strings.search.getString()
 
     override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editorTab.editorState.isSearching = true
+        editorActionContext.editorTab.editorState.apply {
+            isSearching = true
+            isReplaceShown = false
+        }
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.search)
