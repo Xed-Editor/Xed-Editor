@@ -320,23 +320,29 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                 editorState.showRenameDialog = true
                 editorState.renameConfirm = { newName ->
                     scope.launch(Dispatchers.Default) {
-                        val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
+                        runCatching {
+                                val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
 
-                        // TODO: Handle documentChanges too
-                        val changes = workspaceEdit.changes
+                                // TODO: Handle documentChanges too
+                                val changes = workspaceEdit.changes
 
-                        // Edits only supported in currently opened file
-                        // TODO: Support edits in other files
-                        if (changes.size > 1) {
-                            toast(strings.rename_symbol_multiple_files)
-                            return@launch
-                        }
+                                // Edits only supported in currently opened file
+                                // TODO: Support edits in other files
+                                if (changes.size > 1) {
+                                    toast(strings.rename_symbol_multiple_files)
+                                    return@launch
+                                }
 
-                        val edits = changes[file.toUri().toString()]!!
-                        baseLspConnector.getEventManager()!!.emitAsync(EventType.applyEdits) {
-                            put("edits", edits)
-                            put(editor.text)
-                        }
+                                val edits = changes[file.toUri().toString()]!!
+                                baseLspConnector.getEventManager()!!.emitAsync(EventType.applyEdits) {
+                                    put("edits", edits)
+                                    put(editor.text)
+                                }
+                            }
+                            .onFailure {
+                                it.printStackTrace()
+                                toast(strings.rename_symbol_error)
+                            }
                     }
                 }
             }

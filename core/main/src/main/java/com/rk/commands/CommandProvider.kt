@@ -48,7 +48,7 @@ import com.rk.utils.errorDialog
 import kotlinx.coroutines.launch
 
 object CommandProvider {
-    var globalCommands = listOf<Command>()
+    var commandList = listOf<Command>()
 
     lateinit var TerminalCommand: TerminalCommand
     lateinit var SettingsCommand: SettingsCommand
@@ -84,7 +84,7 @@ object CommandProvider {
     lateinit var FormatDocumentCommand: FormatDocumentCommand
     lateinit var FormatSelectionCommand: FormatSelectionCommand
 
-    fun buildCommands(mainViewModel: MainViewModel): List<Command> {
+    fun buildCommands(mainViewModel: MainViewModel) {
         val mainActivity = MainActivity.instance!!
         val commandContext = CommandContext(mainActivity, mainViewModel)
 
@@ -122,7 +122,8 @@ object CommandProvider {
         FormatDocumentCommand = FormatDocumentCommand(commandContext)
         FormatSelectionCommand = FormatSelectionCommand(commandContext)
 
-        return listOf(
+        commandList =
+            listOf(
                 TerminalCommand,
                 SettingsCommand,
                 NewFileCommand,
@@ -158,7 +159,6 @@ object CommandProvider {
                 FormatSelectionCommand,
                 *getMutatorCommands(commandContext).toTypedArray(),
             )
-            .also { globalCommands = it }
     }
 
     fun getMutatorCommands(commandContext: CommandContext): List<Command> {
@@ -193,12 +193,12 @@ object CommandProvider {
 
     fun getForId(id: String, commands: List<Command>): Command? = findRecursive(id, commands)
 
-    fun getForId(id: String): Command? = findRecursive(id, globalCommands)
+    fun getForId(id: String): Command? = findRecursive(id, commandList)
 
-    fun getParentCommand(command: Command): Command? = findParent(command, globalCommands)
+    fun getParentCommand(command: Command): Command? = findParent(command, commandList)
 
     fun getForKeyCombination(keyCombination: KeyCombination): Command? {
-        return globalCommands.find { it.defaultKeybinds == keyCombination }
+        return commandList.find { it.defaultKeybinds == keyCombination }
     }
 
     private fun findParent(target: Command, commands: List<Command>): Command? {
