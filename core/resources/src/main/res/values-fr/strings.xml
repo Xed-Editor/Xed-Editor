@@ -562,4 +562,6 @@
     <string name="keybindings_conflict_error">Le raccourci clavier que vous tentez de configurer est en conflit avec un autre raccourci clavier.</string>
     <string name="auto_open_new_files">Ouvrir les fichiers créés</string>
     <string name="auto_open_new_files_desc">Ouvre automatiquement les fichiers nouvellement créés</string>
+    <string name="open_main_activity">Démarrer l\'activité principale</string>
+    <string name="open_main_activity_desc">Démarrer l\'activité principale après avoir quitter le terminal</string>
 </resources>
