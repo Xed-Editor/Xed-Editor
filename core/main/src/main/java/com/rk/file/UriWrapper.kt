@@ -158,10 +158,17 @@ class UriWrapper : FileObject {
             }
         }
 
-    override suspend fun renameTo(string: String): Boolean =
-        withContext(Dispatchers.IO) {
-            return@withContext file.renameTo(string)
+    override suspend fun renameTo(string: String): Boolean{
+        return try {
+            withContext(Dispatchers.IO) {
+                return@withContext file.renameTo(string)
+            }
+        }catch (e: Exception){
+            e.printStackTrace()
+            false
         }
+    }
+
 
     override suspend fun hasChild(name: String): Boolean =
         withContext(Dispatchers.IO) {
