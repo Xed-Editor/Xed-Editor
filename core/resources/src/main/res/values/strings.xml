@@ -463,7 +463,7 @@
     <string name="external_lsp">External LSP</string>
     <string name="external">External</string>
     <string name="desktop_mode">Desktop Mode (Experimental)</string>
-    <string name="desktop_mode_desc">Makes the app easier to use on tablets and desktop-sized screens.</string>
+    <string name="desktop_mode_desc">Makes the app easier to use on tablets and desktop-sized screens</string>
     <string name="built_in">Built-in</string>
     <string name="change_lang_warn">Changing the language will restart this screen to apply the new language immediately.
     This may briefly show a blank screen, which could potentially trigger discomfort
@@ -555,6 +555,8 @@
     <string name="keybindings_conflict_error">The keybinding you are trying to set conflicts with another keybinding.</string>
     <string name="auto_open_new_files">Open created files</string>
     <string name="auto_open_new_files_desc">Automatically open newly created files</string>
-    <string name="open_main_activity_desc">Launch mainActivity after exiting terminal</string>
-    <string name="open_main_activity">Launch mainActivity</string>
+    <string name="return_to_app_desc">Go back to the app after exiting the terminal</string>
+    <string name="return_to_app">Return to app</string>
+    <string name="reset_consent">Reset consent status</string>
+    <string name="reset_consent_desc">Show the terms of use disclaimer on next startup</string>
 </resources>

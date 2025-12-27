@@ -54,19 +54,18 @@ fun XedTopBar(
 
             if (viewModel.tabs.isNotEmpty()) {
 
-                val tab = if (isV){
-                    viewModel.tabs[viewModel.currentTabIndex]
-                }else{
-                    viewModel.tabs.getOrNull(viewModel.currentTabIndex)
-                }
+                val tab =
+                    if (isV) {
+                        viewModel.tabs[viewModel.currentTabIndex]
+                    } else {
+                        viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+                    }
 
-
-                if (tab != null){
-                    tab?.apply { Actions() }
-                }else{
+                if (tab != null) {
+                    tab.apply { Actions() }
+                } else {
                     toast(strings.unknown_error)
                 }
-
             }
         },
     )

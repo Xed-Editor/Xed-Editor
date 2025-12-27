@@ -259,10 +259,10 @@ fun SettingsTerminalScreen() {
 
         PreferenceGroup {
             SettingsToggle(
-                label = stringResource(strings.open_main_activity),
-                description = stringResource(strings.open_main_activity_desc),
-                default = Settings.openMainActivityAfterTerminalExit,
-                sideEffect = { Settings.openMainActivityAfterTerminalExit = it },
+                label = stringResource(strings.return_to_app),
+                description = stringResource(strings.return_to_app_desc),
+                default = Settings.return_to_app,
+                sideEffect = { Settings.return_to_app = it },
                 showSwitch = true,
             )
 

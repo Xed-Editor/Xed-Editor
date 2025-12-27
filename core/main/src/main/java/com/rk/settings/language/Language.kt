@@ -13,8 +13,10 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -137,5 +139,5 @@ private suspend fun readSupportedLocales(context: Context): List<Locale> =
 fun setAppLanguage(locale: Locale) {
     val appLocale = LocaleListCompat.create(locale)
     AppCompatDelegate.setApplicationLocales(appLocale)
-    Settings.currentLang = locale.toLanguageTag()
+    Settings.current_lang = locale.toLanguageTag()
 }

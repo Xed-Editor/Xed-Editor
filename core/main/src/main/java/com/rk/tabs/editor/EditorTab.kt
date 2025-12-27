@@ -355,7 +355,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is EditorTab){
+        if (other !is EditorTab) {
             return false
         }
 
