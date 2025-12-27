@@ -1,4 +1,4 @@
-package com.rk
+package com.rk.terminal
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -17,7 +17,6 @@ import com.rk.activities.terminal.Terminal
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi

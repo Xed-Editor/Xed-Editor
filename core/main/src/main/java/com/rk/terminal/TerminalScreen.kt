@@ -1,11 +1,13 @@
 package com.rk.terminal
 
+import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
 import android.graphics.Typeface
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -58,12 +60,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rk.SessionService
 import com.rk.activities.terminal.Terminal
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.exec.pendingCommand
@@ -77,7 +79,6 @@ import com.rk.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
-import com.rk.theme.currentTheme
 import com.rk.utils.dpToPx
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TextStyle
@@ -117,8 +118,6 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
     val isDarkMode = isSystemInDarkTheme()
     val scope = rememberCoroutineScope()
     val currentTheme = LocalThemeHolder.current
-
-    LaunchedEffect("terminal") { context.startService(Intent(context, SessionService::class.java)) }
 
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

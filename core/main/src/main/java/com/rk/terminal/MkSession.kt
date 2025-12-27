@@ -1,7 +1,6 @@
 package com.rk.terminal
 
 import android.os.Build
-import com.rk.SessionPwd
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.exec.pendingCommand
@@ -11,7 +10,6 @@ import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
-import com.rk.filetree.currentTab
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.getSourceDirOfPackage

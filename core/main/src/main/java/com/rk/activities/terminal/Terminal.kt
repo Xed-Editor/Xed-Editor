@@ -32,8 +32,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.SessionService
+import com.rk.terminal.SessionService
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -69,7 +70,7 @@ class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
 
-    private val serviceConnection =
+    val serviceConnection =
         object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 val binder = service as SessionService.SessionBinder
@@ -86,6 +87,11 @@ class Terminal : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        ContextCompat.startForegroundService(
+            this,
+            Intent(this, SessionService::class.java)
+        )
+
         Intent(this, SessionService::class.java).also { intent ->
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
