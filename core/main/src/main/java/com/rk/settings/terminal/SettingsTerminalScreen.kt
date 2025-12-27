@@ -259,6 +259,14 @@ fun SettingsTerminalScreen() {
 
         PreferenceGroup {
             SettingsToggle(
+                label = stringResource(strings.open_main_activity),
+                description = stringResource(strings.open_main_activity_desc),
+                default = Settings.openMainActivityAfterTerminalExit,
+                sideEffect = { Settings.openMainActivityAfterTerminalExit = it },
+                showSwitch = true,
+            )
+
+            SettingsToggle(
                 label = stringResource(strings.project_as_wk),
                 description = stringResource(strings.project_as_wk_desc),
                 default = Settings.project_as_pwd,

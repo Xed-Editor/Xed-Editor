@@ -66,6 +66,7 @@ object Settings {
     var show_tab_icons by CachedPreference("show_tab_icons", true)
     var split_extra_keys by CachedPreference("split_extra_keys", false)
     var auto_open_new_files by CachedPreference("auto_open_new_files", true)
+    var openMainActivityAfterTerminalExit by CachedPreference("openMainActivityAfterTerminalExit", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

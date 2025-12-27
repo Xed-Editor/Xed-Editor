@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.rk.activities.main.MainActivity
 import com.rk.terminal.SessionService
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
@@ -45,6 +46,7 @@ import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
@@ -167,6 +169,24 @@ class Terminal : AppCompatActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        if (!isFinishing) {
+            super.onDestroy()
+            return
+        }
+
+        if (Settings.openMainActivityAfterTerminalExit) {
+            startActivity(
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+            )
+        }
+
+        super.onDestroy()
+    }
+
 
     var progressText by mutableStateOf(strings.installing.getString())
     var installNextStage by mutableStateOf<NEXT_STAGE?>(null)

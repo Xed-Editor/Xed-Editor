@@ -555,4 +555,6 @@
     <string name="keybindings_conflict_error">The keybinding you are trying to set conflicts with another keybinding.</string>
     <string name="auto_open_new_files">Open created files</string>
     <string name="auto_open_new_files_desc">Automatically open newly created files</string>
+    <string name="open_main_activity_desc">Launch mainActivity after exiting terminal</string>
+    <string name="open_main_activity">Launch mainActivity</string>
 </resources>
