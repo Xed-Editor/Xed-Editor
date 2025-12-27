@@ -259,6 +259,14 @@ fun SettingsTerminalScreen() {
 
         PreferenceGroup {
             SettingsToggle(
+                label = stringResource(strings.return_to_app),
+                description = stringResource(strings.return_to_app_desc),
+                default = Settings.return_to_app,
+                sideEffect = { Settings.return_to_app = it },
+                showSwitch = true,
+            )
+
+            SettingsToggle(
                 label = stringResource(strings.project_as_wk),
                 description = stringResource(strings.project_as_wk_desc),
                 default = Settings.project_as_pwd,

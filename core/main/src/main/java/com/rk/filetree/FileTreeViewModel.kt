@@ -59,8 +59,8 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun updateCache(file: FileObject) {
-        if (file.isFile()) {
-            throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
+        if (file.isDirectory().not()) {
+            return
         }
         _loadingStates[file] = true // Mark as loading
         viewModelScope.launch(Dispatchers.IO) {

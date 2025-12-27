@@ -7,7 +7,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-
 console.log("[start] Gemini issue title improver");
 
 const token = process.env.GITHUB_TOKEN;
@@ -19,19 +18,56 @@ const [owner, repo] = process.env.REPOSITORY.split("/");
 const issueNumberEnv = process.env.ISSUE_NUMBER;
 const singleIssueMode = Boolean(issueNumberEnv);
 
+// Track rate limit status
+let rateLimitExceeded = false;
+
 let stats = {
   total: 0,
   skipped_pr: 0,
   skipped_no_body: 0,
   skipped_short_body: 0,
   skipped_no_change: 0,
+  skipped_already_improved: 0,
+  skipped_rate_limit: 0,
   updated: 0,
   failed: 0,
 };
 
+/* ---------------- Helper Functions ---------------- */
+
+// Check if title appears to be already improved by AI
+function isAlreadyImproved(title, body) {
+  // Markers of AI-improved titles
+  const aiMarkers = [
+    /:/,  // Contains colon (common in structured titles)
+    /\b(add|implement|fix|support|feature|issue|error|crash|bug)\b/i,
+  ];
+
+  // Check for technical/structured format
+  const isTechnical = aiMarkers.some(marker => marker.test(title));
+
+  // Check title length and specificity
+  const isDetailed = title.length > 40;
+
+  // Check if title contains key terms from body
+  const bodyWords = body.toLowerCase().split(/\s+/).slice(0, 50);
+  const titleWords = title.toLowerCase().split(/\s+/);
+  const hasRelevantTerms = titleWords.some(word =>
+    word.length > 4 && bodyWords.includes(word)
+  );
+
+  return isTechnical && isDetailed && hasRelevantTerms;
+}
+
 /* ---------------- Gemini ---------------- */
 
 async function callGemini(prompt) {
+  // Don't make API calls if rate limit exceeded
+  if (rateLimitExceeded) {
+    console.log("[gemini] skipping call - rate limit exceeded");
+    return null;
+  }
+
   console.log("[gemini] sending request (SDK)");
 
   try {
@@ -46,10 +82,21 @@ async function callGemini(prompt) {
     return text || null;
   } catch (err) {
     console.error("[gemini] SDK error:", err.message);
+
+    // Check if error is rate limit related
+    if (err.message && (
+      err.message.includes("429") ||
+      err.message.includes("quota") ||
+      err.message.includes("RESOURCE_EXHAUSTED") ||
+      err.message.includes("rate limit")
+    )) {
+      console.log("[gemini] RATE LIMIT EXCEEDED - stopping further API calls");
+      rateLimitExceeded = true;
+    }
+
     return null;
   }
 }
-
 
 /* ---------------- Title Improvement ---------------- */
 
@@ -74,6 +121,20 @@ async function improveIssue(issue) {
   if (body.length < 50) {
     stats.skipped_short_body++;
     console.log(`[skip] #${issue.number} body too short (${body.length})`);
+    return;
+  }
+
+  // Check if title is already improved
+  if (isAlreadyImproved(currentTitle, body)) {
+    stats.skipped_already_improved++;
+    console.log(`[skip] #${issue.number} title appears already improved`);
+    return;
+  }
+
+  // Check if rate limit exceeded before making API call
+  if (rateLimitExceeded) {
+    stats.skipped_rate_limit++;
+    console.log(`[skip] #${issue.number} rate limit exceeded`);
     return;
   }
 
@@ -132,6 +193,8 @@ ${body}
     });
 
     console.log("[done] single issue processed");
+    console.log("[summary]");
+    console.log(stats);
     return;
   }
 
@@ -143,7 +206,7 @@ ${body}
     {
       owner,
       repo,
-      state: "open", // IMPORTANT for manual runs
+      state: "open",
       per_page: 100,
     }
   );
@@ -155,6 +218,12 @@ ${body}
   for (const issue of issues) {
     try {
       await improveIssue(issue);
+
+      // Stop processing if rate limit exceeded
+      if (rateLimitExceeded) {
+        console.log("[stop] rate limit exceeded - stopping bulk processing");
+        break;
+      }
     } catch (e) {
       stats.failed++;
       console.error(`[error] #${issue.number}`, e.message);
@@ -163,4 +232,9 @@ ${body}
 
   console.log("[summary]");
   console.log(stats);
+
+  if (rateLimitExceeded) {
+    console.log("\n⚠️  Rate limit reached. Remaining issues were not processed.");
+    console.log("Please wait for quota reset or upgrade your API plan.");
+  }
 })();

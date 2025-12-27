@@ -58,7 +58,7 @@ class App : Application() {
         LspPersistence.restoreServers()
         MarkdownImageProvider.register()
 
-        val currentLocale = Locale.forLanguageTag(Settings.currentLang)
+        val currentLocale = Locale.forLanguageTag(Settings.current_lang)
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
 

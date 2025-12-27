@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
             NavHost(
                 navController = navController,
                 startDestination =
-                    if (Settings.shownDisclaimer) {
+                    if (Settings.shown_disclaimer) {
                         MainRoutes.Main.route
                     } else {
                         MainRoutes.Disclaimer.route
@@ -273,7 +273,7 @@ class MainActivity : AppCompatActivity() {
                                     enabled = isAcceptedEnabled,
                                     modifier = Modifier.weight(1f),
                                     onClick = {
-                                        Settings.shownDisclaimer = true
+                                        Settings.shown_disclaimer = true
                                         navController!!.navigate(MainRoutes.Main.route)
                                     },
                                 ) {

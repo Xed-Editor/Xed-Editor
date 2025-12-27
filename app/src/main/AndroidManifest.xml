@@ -43,7 +43,7 @@
             tools:targetApi="29" />
 
         <service
-            android:name="com.rk.SessionService"
+            android:name="com.rk.terminal.SessionService"
             android:foregroundServiceType="specialUse" />
 
         <activity

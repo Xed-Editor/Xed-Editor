@@ -9,7 +9,11 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
@@ -36,7 +40,7 @@ fun ResponsiveDrawer(
     sheetContent: @Composable ColumnScope.() -> Unit,
 ) {
 
-    if (Settings.desktopMode) {
+    if (Settings.desktop_mode) {
         val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
         isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }
     }

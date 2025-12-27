@@ -547,4 +547,21 @@
     <string name="decline">Refuser</string>
     <string name="i_accept_disabled">J\'accepte (%s)</string>
     <string name="i_accept">J\'accepte</string>
+    <string name="keybindings">Raccourcis clavier</string>
+    <string name="keybindings_desc">Configurer les raccourcis clavier</string>
+    <string name="none_set">Non définis</string>
+    <string name="press_key">Appuyer sur une combinaison de touches (devant contenir Ctrl ou Alt)</string>
+    <string name="ctrl">Ctrl</string>
+    <string name="alt">Alt</string>
+    <string name="shift">Maj.</string>
+    <string name="keybinds_info">Xed-editor gère des raccourcis clavier matériel pour vous aider à travailler plus vite et plus efficacement. Une large gamme de raccourcis clavier sont déjà disponibles par défaut et vous pouvez les configurer ci-dessous à votre convenance.</string>
+    <string name="reset_all">Tout réinitialiser</string>
+    <string name="search_keybinds">Commande de recherche ou raccourcis clavier</string>
+    <string name="transform_lowercase">Transformer en minuscules</string>
+    <string name="transform_uppercase">Transformer en majuscules</string>
+    <string name="keybindings_conflict_error">Le raccourci clavier que vous tentez de configurer est en conflit avec un autre raccourci clavier.</string>
+    <string name="auto_open_new_files">Ouvrir les fichiers créés</string>
+    <string name="auto_open_new_files_desc">Ouvre automatiquement les fichiers nouvellement créés</string>
+    <string name="open_main_activity">Démarrer l\'activité principale</string>
+    <string name="open_main_activity_desc">Démarrer l\'activité principale après avoir quitter le terminal</string>
 </resources>

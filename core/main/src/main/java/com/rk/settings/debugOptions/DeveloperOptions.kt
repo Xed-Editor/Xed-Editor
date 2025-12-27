@@ -103,17 +103,17 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 label = stringResource(strings.desktop_mode),
                 description = stringResource(strings.desktop_mode_desc),
                 showSwitch = true,
-                default = Settings.desktopMode,
-                sideEffect = { Settings.desktopMode = it },
+                default = Settings.desktop_mode,
+                sideEffect = { Settings.desktop_mode = it },
             )
 
             SettingsToggle(
                 label = stringResource(strings.theme_flipper),
                 description = stringResource(strings.theme_flipper_desc),
                 showSwitch = true,
-                default = Settings.themeFlipper,
+                default = Settings.theme_flipper,
                 sideEffect = {
-                    Settings.themeFlipper = it
+                    Settings.theme_flipper = it
                     if (it) {
                         startThemeFlipperIfNotRunning()
                     }
@@ -121,12 +121,12 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
 
             SettingsToggle(
-                label = "Reset Consent Status",
-                description = "Shows the terms of use disclaimer on next startup.",
+                label = stringResource(strings.reset_consent),
+                description = stringResource(strings.reset_consent_desc),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    Settings.shownDisclaimer = false
+                    Settings.shown_disclaimer = false
                     toast(strings.restart_required)
                 },
             )
@@ -139,7 +139,7 @@ fun startThemeFlipperIfNotRunning() {
         flipperJob =
             GlobalScope.launch(Dispatchers.IO) {
                 runCatching {
-                        while (isActive && Settings.themeFlipper) {
+                        while (isActive && Settings.theme_flipper) {
                             delay(7000)
 
                             val mode =

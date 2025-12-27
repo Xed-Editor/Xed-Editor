@@ -344,4 +344,20 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     }
 
     override val showGlobalActions: Boolean = false
+
+    override fun hashCode(): Int {
+        return file.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is EditorTab) {
+            return false
+        }
+
+        return other.file == file
+    }
+
+    override fun toString(): String {
+        return "[EditorTab] ${file.getAbsolutePath()}"
+    }
 }

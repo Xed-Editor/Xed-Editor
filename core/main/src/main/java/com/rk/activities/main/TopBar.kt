@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import com.rk.components.GlobalActions
 import com.rk.components.isPermanentDrawer
+import com.rk.resources.strings
+import com.rk.terminal.isV
+import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +53,19 @@ fun XedTopBar(
             GlobalActions(viewModel)
 
             if (viewModel.tabs.isNotEmpty()) {
-                viewModel.tabs[viewModel.currentTabIndex].apply { Actions() }
+
+                val tab =
+                    if (isV) {
+                        viewModel.tabs[viewModel.currentTabIndex]
+                    } else {
+                        viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+                    }
+
+                if (tab != null) {
+                    tab.apply { Actions() }
+                } else {
+                    toast(strings.unknown_error)
+                }
             }
         },
     )
