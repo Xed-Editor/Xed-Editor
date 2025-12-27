@@ -95,7 +95,7 @@ fun EditorTab.CodeEditor(
 
                 val editor =
                     Editor(ctx).apply {
-                        if (this@CodeEditor == viewModel.currentTab){
+                        if (this@CodeEditor == viewModel.currentTab) {
                             requestFocus()
                             requestFocusFromTouch()
                         }
