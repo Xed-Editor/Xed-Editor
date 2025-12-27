@@ -44,6 +44,7 @@ fun SettingsToggle(
     reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
+    onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     isEnabled: Boolean = true,
     isSwitchLocked: Boolean = false,
@@ -57,6 +58,7 @@ fun SettingsToggle(
     if (showSwitch) {
         PreferenceSwitch(
             checked = state.value,
+            onClick = onClick,
             onLongClick = onLongClick,
             onCheckedChange = {
                 if (isSwitchLocked.not()) {
@@ -68,6 +70,7 @@ fun SettingsToggle(
                     sideEffect?.invoke(state.value)
                 }
             },
+            startWidget = startWidget,
             label = label,
             modifier = modifier,
             description = description,
@@ -82,7 +85,7 @@ fun SettingsToggle(
                     indication = ripple(),
                     interactionSource = interactionSource,
                     onLongClick = onLongClick,
-                    onClick = { sideEffect?.invoke(false) },
+                    onClick = { onClick?.invoke() ?: sideEffect?.invoke(false) },
                 ),
             contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
             title = { Text(fontWeight = FontWeight.Bold, text = label) },

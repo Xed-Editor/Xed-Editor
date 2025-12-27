@@ -38,6 +38,7 @@ fun PreferenceSwitch(
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
+    startWidget: (@Composable () -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -63,6 +64,7 @@ fun PreferenceSwitch(
         contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
         description = { description?.let { Text(text = it) } },
+        startWidget = startWidget,
         endWidget = {
             if (onClick != null) {
                 Spacer(

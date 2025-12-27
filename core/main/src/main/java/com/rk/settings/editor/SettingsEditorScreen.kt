@@ -182,6 +182,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { showTextSizeDialog = true },
             )
 
+            EditorSettingsToggle(
+                label = stringResource(strings.complete_on_enter),
+                description = stringResource(strings.complete_on_enter_desc),
+                default = Settings.complete_on_enter,
+                sideEffect = { Settings.complete_on_enter = it },
+            )
+
             SettingsToggle(
                 label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),

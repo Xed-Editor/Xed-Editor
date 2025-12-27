@@ -67,6 +67,7 @@ object Settings {
     var split_extra_keys by CachedPreference("split_extra_keys", false)
     var auto_open_new_files by CachedPreference("auto_open_new_files", true)
     var return_to_app by CachedPreference("return_to_app", true)
+    var complete_on_enter by CachedPreference("complete_on_enter", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
