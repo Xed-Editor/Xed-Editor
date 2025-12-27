@@ -274,7 +274,7 @@
     <string name="lang_desc">Ustawienia języka</string>
     <string name="indian">Indyjski</string>
     <string name="runners">Programy uruchamiające</string>
-    <string name="runners_desc">Programy uruchamiające powłoki</string>
+    <string name="runners_desc">Zarządzaj programami uruchamiającymi powłoki</string>
     <string name="no_runners">Brak programów uruchamiających</string>
     <string name="new_runner">Nowy program uruchamiający</string>
     <string name="runner_name">Nazwa programu uruchamiającego</string>
@@ -564,5 +564,5 @@
     <string name="keybindings_desc">Konfiguruj przypisania klawiszy</string>
     <string name="none_set">Nie ustawiono</string>
     <string name="press_key">Naciśnij kombinacaje klawiszy (musi zawierać Ctrl lub Alt)</string>
-    <string name="keybinds_info">Aplikacja wspiera skróty klawiatury fizycznej, aby pracować szybciej i efektywniej. Rozbudowany zestaw domyślnych skrótów jest dostępny od ręki oraz możesz go dostosować do upodobań poniżej.</string>
+    <string name="keybinds_info">Aplikacja wspiera skróty klawiszowe klawiatury fizycznej, aby pracować szybciej i efektywniej. Rozbudowany zestaw domyślnych skrótów jest dostępny od ręki oraz możesz go dostosować do upodobań poniżej.</string>
 </resources>
