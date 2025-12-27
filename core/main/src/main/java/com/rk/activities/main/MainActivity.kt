@@ -47,6 +47,7 @@ import com.rk.filetree.saveProjects
 import com.rk.resources.getFilledString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.debugOptions.HarmlessException
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
 import java.lang.ref.WeakReference

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -51,6 +52,9 @@ import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.system.exitProcess
+import android.os.Process
+import kotlin.system.exitProcess
+
 
 class CrashActivity : ComponentActivity() {
     companion object {
@@ -87,6 +91,10 @@ class CrashActivity : ComponentActivity() {
         }
     }
 
+    fun isMainThreadCrashed():Boolean{
+        return intent.getStringExtra("thread").toString().lowercase() == "main"
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,9 +110,24 @@ class CrashActivity : ComponentActivity() {
                         Scaffold(
                             topBar = {
                                 Column {
+                                    val mainThreadCrashed = remember(intent) { isMainThreadCrashed() }
+
                                     TopAppBar(
                                         navigationIcon = {
-                                            IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
+                                            IconButton(onClick = {
+                                                if (mainThreadCrashed){
+                                                    runCatching {
+                                                        // Close all activities
+                                                        finishAffinity()
+
+                                                        // Kill the app process
+                                                        Process.killProcess(Process.myPid())
+                                                        exitProcess(0)
+                                                    }
+                                                }else{
+                                                    onBackPressedDispatcher.onBackPressed()
+                                                }
+                                            }) {
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                                     contentDescription = "Back",
