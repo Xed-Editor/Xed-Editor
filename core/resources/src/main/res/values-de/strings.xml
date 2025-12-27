@@ -451,7 +451,7 @@
     <string name="expert_mode_warn">Der Experten-Modus deaktiviert Sicherheitsbeschränkungen, die bei Missbrauch zu Datenverlust oder anderen Problemen führen können. Aktiviere ihn nur, wenn du weißt, was du tust.</string>
     <string name="external_lsp">Externer LSP</string>
     <string name="desktop_mode">Desktop-Modus (experimentell)</string>
-    <string name="desktop_mode_desc">Erleichtert die Verwendung der App auf Tablets und Desktop-Bildschirmen.</string>
+    <string name="desktop_mode_desc">Erleichtert die Verwendung der App auf Tablets und Desktop-Bildschirmen</string>
     <string name="built_in">Integriert</string>
     <string name="change_lang_warn">Beim Ändern der Sprache wird dieser Bildschirm neu gestartet, um die neue Sprache sofort anzuwenden. Dabei kann kurzzeitig ein leerer Bildschirm angezeigt werden, was bei Menschen mit lichtempfindlicher Epilepsie möglicherweise Unbehagen auslösen kann.</string>
     <string name="type_command">Befehl eingeben</string>
@@ -544,4 +544,23 @@
     <string name="i_accept_disabled">Ich akzeptiere (%s)</string>
     <string name="i_accept">Ich akzeptiere</string>
     <string name="not_liable_content">Unter keinen Umständen haften die Entwickler oder Inhaber der Uhrheberrechte für jegliche Ansprüche, Schäden oder Verluste, die aus der Nutzung dieser Software entstehen. Dies umfasst insbesondere, aber nicht ausschließlich: Datenverluste, Systemfehler, Umsatzeinbußen sowie sonstige direkte oder indirekte Schäden, selbst wenn auf die Möglichkeit solcher Schäden hingewiesen wurde.</string>
+    <string name="keybindings">Tastenkombinationen</string>
+    <string name="keybindings_desc">Tastenkombinationen konfigurieren</string>
+    <string name="none_set">Nicht belegt</string>
+    <string name="press_key">Drücke eine Tastenkombination (muss Strg oder Alt enthalten)</string>
+    <string name="ctrl">Strg</string>
+    <string name="alt">Alt</string>
+    <string name="shift">Shift</string>
+    <string name="keybinds_info">Xed-Editor unterstützt Hardware-Tastaturkürzel, damit du schneller und effizienter arbeiten kannst. Eine Vielzahl von Standard-Tastenkombinationen ist bereits verfügbar und du kannst sie unten nach deinen Wünschen konfigurieren.</string>
+    <string name="reset_all">Alle zurücksetzen</string>
+    <string name="transform_lowercase">In Kleinbuchstaben umwandeln</string>
+    <string name="transform_uppercase">In Großbuchstaben umwandeln</string>
+    <string name="keybindings_conflict_error">Die Tastenkombination, die du festlegen möchtest, steht im Konflikt mit einer anderen Tastenkombination.</string>
+    <string name="auto_open_new_files">Erstellte Dateien öffnen</string>
+    <string name="auto_open_new_files_desc">Neu erstellte Dateien automatisch öffnen</string>
+    <string name="return_to_app">Zurück zur App</string>
+    <string name="reset_consent">Zustimmungsstatus zurücksetzen</string>
+    <string name="reset_consent_desc">Nutzungsbedingungen beim nächsten Start anzeigen</string>
+    <string name="search_keybinds">Befehle oder Tastenkombinationen suchen</string>
+    <string name="return_to_app_desc">Nach dem Beenden des Terminals zur App zurückkehren</string>
 </resources>
