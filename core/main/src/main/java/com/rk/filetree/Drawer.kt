@@ -161,24 +161,38 @@ fun addProject(tab: DrawerTab, save: Boolean = false) {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun removeProject(fileObject: FileObject, save: Boolean = false) {
-    tabs.remove(tabs.find { it is FileTreeTab && it.root == fileObject })
-    if (currentTab is FileTreeTab && (currentTab as FileTreeTab).root == fileObject) {
-        currentTab = tabs.last()
+    val tabToRemove = tabs.find {
+        it is FileTreeTab && it.root == fileObject
+    } ?: return
+
+    if (currentTab == tabToRemove) {
+        currentTab = tabs.firstOrNull { it != tabToRemove }
     }
+
+    tabs.remove(tabToRemove)
+
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+        GlobalScope.launch(Dispatchers.IO) {
+            saveProjects()
+        }
     }
 }
 
+
 fun removeProject(tab: DrawerTab, save: Boolean = false) {
-    tabs.remove(tab)
-    if (currentTab is FileTreeTab && currentTab == tab) {
-        currentTab = tabs.last()
+    if (currentTab == tab) {
+        currentTab = tabs.firstOrNull { it != tab }
     }
+
+    tabs.remove(tab)
+
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+        GlobalScope.launch(Dispatchers.IO) {
+            saveProjects()
+        }
     }
 }
+
 
 var isLoading by mutableStateOf(true)
 
