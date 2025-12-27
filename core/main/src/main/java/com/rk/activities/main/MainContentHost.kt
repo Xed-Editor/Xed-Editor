@@ -29,6 +29,7 @@ import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
 import com.rk.utils.dialog
 import java.lang.ref.WeakReference
@@ -47,7 +48,28 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-            LaunchedEffect(drawerState) { drawerStateRef = WeakReference(drawerState) }
+            LaunchedEffect(drawerState) {
+                drawerStateRef = WeakReference(drawerState)
+            }
+
+            LaunchedEffect(drawerState.isOpen) {
+                if (drawerState.isOpen){
+                    MainActivity.instance?.viewModel?.currentTab?.let {
+                        if (it is EditorTab){
+                            it.editorState.editor.get()?.clearFocus()
+                        }
+                    }
+                }else if (drawerState.isClosed){
+                    MainActivity.instance?.viewModel?.currentTab?.let {
+                        if (it is EditorTab){
+                            it.editorState.editor.get()?.apply {
+                                requestFocus()
+                                requestFocusFromTouch()
+                            }
+                        }
+                    }
+                }
+            }
 
             navigationDrawerState = WeakReference(drawerState)
             val scope = rememberCoroutineScope()

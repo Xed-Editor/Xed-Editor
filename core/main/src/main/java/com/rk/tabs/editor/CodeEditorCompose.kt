@@ -95,6 +95,11 @@ fun EditorTab.CodeEditor(
 
                 val editor =
                     Editor(ctx).apply {
+                        if (this@CodeEditor == viewModel.currentTab){
+                            requestFocus()
+                            requestFocusFromTouch()
+                        }
+
                         info("New Editor instance")
 
                         editable = state.editable
