@@ -266,6 +266,14 @@ fun SettingsTerminalScreen() {
                 showSwitch = true,
             )
 
+            SettingsToggle(
+                label = stringResource(strings.volume_key_scroll),
+                description = stringResource(strings.volume_key_scroll_desc),
+                default = Settings.enable_volume_scroll_terminal,
+                sideEffect = { Settings.enable_volume_scroll_terminal = it },
+                showSwitch = true,
+            )
+
             var exposeHomeDirState by remember { mutableStateOf(Settings.expose_home_dir) }
             PreferenceSwitch(
                 checked = exposeHomeDirState,

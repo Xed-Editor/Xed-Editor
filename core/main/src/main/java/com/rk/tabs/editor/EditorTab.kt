@@ -47,6 +47,8 @@ import com.rk.resources.strings
 import com.rk.runner.currentRunner
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
+import com.rk.utils.VolumeKeyHandler
+import com.rk.utils.VolumeScrollTarget
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
 import io.github.rosemoe.sora.text.ContentIO
@@ -64,7 +66,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 @OptIn(DelicateCoroutinesApi::class)
-open class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : Tab() {
+open class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : Tab(), VolumeScrollTarget {
     val isTemp: Boolean
         get() {
             return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
@@ -347,6 +349,15 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
             scrollY = editor.scrollY,
             unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
         )
+    }
+
+    override fun scrollByVolume(up: Boolean): Boolean {
+        val editor = editorState.editor.get() ?: return false
+        val density = editor.context.resources.displayMetrics.density
+        val scrollAmount = VolumeKeyHandler.getScrollAmountPx(density)
+        val delta = if (up) -scrollAmount else scrollAmount
+        editor.eventHandler.scrollBy(0f, delta.toFloat(), false)
+        return true
     }
 
     @Composable

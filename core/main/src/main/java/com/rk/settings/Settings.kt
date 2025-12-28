@@ -62,6 +62,8 @@ object Settings {
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
     var show_tab_icons by CachedPreference("show_tab_icons", true)
     var split_extra_keys by CachedPreference("split_extra_keys", false)
+    var enable_volume_scroll_editor by CachedPreference("enable_volume_scroll_editor", false)
+    var enable_volume_scroll_terminal by CachedPreference("enable_volume_scroll_terminal", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

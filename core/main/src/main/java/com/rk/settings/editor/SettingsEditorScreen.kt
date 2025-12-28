@@ -168,6 +168,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.quick_deletion = it },
             )
 
+            EditorSettingsToggle(
+                label = stringResource(id = strings.volume_key_scroll),
+                description = stringResource(id = strings.volume_key_scroll_desc),
+                default = Settings.enable_volume_scroll_editor,
+                sideEffect = { Settings.enable_volume_scroll_editor = it },
+            )
+
             NextScreenCard(
                 label = stringResource(strings.manage_editor_font),
                 description = stringResource(strings.manage_editor_font),

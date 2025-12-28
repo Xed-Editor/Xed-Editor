@@ -78,6 +78,8 @@ import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
 import com.rk.theme.currentTheme
+import com.rk.utils.VolumeKeyHandler
+import com.rk.utils.VolumeScrollTarget
 import com.rk.utils.dpToPx
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TextStyle
@@ -524,6 +526,20 @@ private fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: 
 
     invalidate()
 }
+
+/**
+ * Extension function to create a VolumeScrollTarget from a TerminalView. This allows the terminal to be scrolled using
+ * volume keys.
+ */
+fun TerminalView.asVolumeScrollTarget(): VolumeScrollTarget =
+    object : VolumeScrollTarget {
+        override fun scrollByVolume(up: Boolean): Boolean {
+            if (mEmulator == null) return false
+            val rows = if (up) -VolumeKeyHandler.TERMINAL_SCROLL_ROWS else VolumeKeyHandler.TERMINAL_SCROLL_ROWS
+            doScroll(null, rows)
+            return true
+        }
+    }
 
 const val VIRTUAL_KEYS =
     ("[" +

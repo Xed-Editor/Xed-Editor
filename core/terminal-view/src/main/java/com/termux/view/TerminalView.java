@@ -571,7 +571,7 @@ public final class TerminalView extends View {
     }
 
     /** Perform a scroll, either from dragging the screen or by scrolling a mouse wheel. */
-    void doScroll(MotionEvent event, int rowsDown) {
+    public void doScroll(MotionEvent event, int rowsDown) {
         boolean up = rowsDown < 0;
         int amount = Math.abs(rowsDown);
         for (int i = 0; i < amount; i++) {
