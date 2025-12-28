@@ -46,6 +46,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
@@ -208,7 +209,9 @@ private fun patchChildCommands(
 
 /** Save order of commands in settings */
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
-    Settings.action_items = commandIds.joinToString("|")
+    val actionItems = commandIds.joinToString("|")
+    Settings.action_items = actionItems
+    ReactiveSettings.toolbarActionIds = actionItems
 }
 
 /** Reset order of toolbar actions to default */
@@ -216,4 +219,5 @@ private fun resetOrder(commandIds: SnapshotStateList<String>) {
     Preference.removeKey("action_items")
     commandIds.clear()
     commandIds.addAll(DEFAULT_ACTION_ITEMS.split("|"))
+    ReactiveSettings.toolbarActionIds = DEFAULT_ACTION_ITEMS
 }

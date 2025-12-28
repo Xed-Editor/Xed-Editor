@@ -51,9 +51,9 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
-import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 var refreshTrigger by mutableIntStateOf(0)
@@ -85,7 +85,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
             onInputValueChange = { extraKeysValue.value = it },
             onConfirm = {
                 Settings.extra_keys_symbols = extraKeysValue.value
-                toast(strings.restart_required)
+                ReactiveSettings.extraKeySymbols = extraKeysValue.value
             },
             onFinish = {
                 extraKeysValue.value = Settings.extra_keys_symbols
@@ -252,7 +252,9 @@ private fun patchChildCommands(
 
 /** Save order of commands in settings */
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
-    Settings.extra_keys_commands = commandIds.joinToString("|")
+    val extraKeyCommandIds = commandIds.joinToString("|")
+    Settings.extra_keys_commands = extraKeyCommandIds
+    ReactiveSettings.extraKeyCommandIds = extraKeyCommandIds
 }
 
 /** Reset order of commands and symbols to default */
@@ -262,4 +264,7 @@ private fun resetOrder(commandIds: SnapshotStateList<String>, extraKeysValue: Mu
     commandIds.clear()
     commandIds.addAll(DEFAULT_EXTRA_KEYS_COMMANDS.split("|"))
     extraKeysValue.value = DEFAULT_EXTRA_KEYS_SYMBOLS
+
+    ReactiveSettings.extraKeyCommandIds = DEFAULT_EXTRA_KEYS_COMMANDS
+    ReactiveSettings.extraKeySymbols = DEFAULT_EXTRA_KEYS_SYMBOLS
 }

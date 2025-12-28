@@ -33,7 +33,7 @@ import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
 import com.rk.icons.Icon
-import com.rk.settings.Settings
+import com.rk.settings.ReactiveSettings
 import com.rk.terminal.isV
 import com.rk.theme.Typography
 import com.rk.utils.x
@@ -44,8 +44,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val allActions =
-        remember(Settings.action_items) { Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) } }
+    val allActions = ReactiveSettings.toolbarActionIds.split("|").mapNotNull { CommandProvider.getForId(it) }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp

@@ -33,6 +33,7 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
@@ -184,7 +185,7 @@ fun EditorTab.CodeEditor(
                     View(ctx).apply {
                         id = dividerId
                         visibility =
-                            if (Settings.show_extra_keys) {
+                            if (ReactiveSettings.showExtraKeys) {
                                 View.VISIBLE
                             } else {
                                 View.GONE

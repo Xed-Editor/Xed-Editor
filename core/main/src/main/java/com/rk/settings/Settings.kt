@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
@@ -18,6 +21,19 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+/**
+ * Wraps settings in `MutableState`s for reactive UI updates. This is necessary because the static `Settings` object,
+ * which reads from SharedPreferences, will not trigger a recomposition when its values change.
+ */
+object ReactiveSettings {
+    var toolbarActionIds by mutableStateOf(Settings.action_items)
+    var showExtraKeys by mutableStateOf(Settings.show_extra_keys)
+    var splitExtraKeys by mutableStateOf(Settings.split_extra_keys)
+    var extraKeyCommandIds by mutableStateOf(Settings.extra_keys_commands)
+    var extraKeySymbols by mutableStateOf(Settings.extra_keys_symbols)
+    var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
+}
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)

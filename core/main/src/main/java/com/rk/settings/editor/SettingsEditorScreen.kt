@@ -17,10 +17,10 @@ import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
-import com.rk.tabs.editor.extraKeysBackground
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 
@@ -194,6 +194,53 @@ fun SettingsEditorScreen(navController: NavController) {
             )
         }
 
+        PreferenceGroup(heading = stringResource(strings.actions)) {
+            NextScreenCard(
+                label = stringResource(strings.toolbar_actions),
+                description = stringResource(strings.toolbar_actions_desc),
+                route = SettingsRoutes.ToolbarActions,
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.extra_keys),
+                description = stringResource(id = strings.extra_keys_desc),
+                default = Settings.show_extra_keys,
+                sideEffect = {
+                    ReactiveSettings.showExtraKeys = it
+                    Settings.show_extra_keys = it
+                },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.extra_key_bg),
+                description = stringResource(id = strings.extra_key_bg_desc),
+                isEnabled = ReactiveSettings.showExtraKeys,
+                default = Settings.extra_keys_bg,
+                sideEffect = {
+                    ReactiveSettings.extraKeysBackground = it
+                    Settings.extra_keys_bg = it
+                },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.split_extra_keys),
+                description = stringResource(id = strings.split_extra_keys_desc),
+                isEnabled = ReactiveSettings.showExtraKeys,
+                default = Settings.split_extra_keys,
+                sideEffect = {
+                    ReactiveSettings.splitExtraKeys = it
+                    Settings.split_extra_keys = it
+                },
+            )
+
+            NextScreenCard(
+                label = stringResource(strings.change_extra_keys),
+                description = stringResource(strings.change_extra_keys_desc),
+                route = SettingsRoutes.ExtraKeys,
+                isEnabled = ReactiveSettings.showExtraKeys,
+            )
+        }
+
         PreferenceGroup(heading = stringResource(strings.other)) {
             EditorSettingsToggle(
                 label = stringResource(id = strings.restore_sessions),
@@ -214,52 +261,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.show_tab_icons_desc),
                 default = Settings.show_tab_icons,
                 sideEffect = { Settings.show_tab_icons = it },
-            )
-
-            NextScreenCard(
-                label = stringResource(strings.toolbar_actions),
-                description = stringResource(strings.toolbar_actions_desc),
-                route = SettingsRoutes.ToolbarActions,
-            )
-
-            var extraKeysEnabled by remember { mutableStateOf(Settings.show_extra_keys) }
-
-            EditorSettingsToggle(
-                label = stringResource(id = strings.extra_keys),
-                description = stringResource(id = strings.extra_keys_desc),
-                default = Settings.show_extra_keys,
-                sideEffect = {
-                    extraKeysEnabled = it
-                    Settings.show_extra_keys = it
-                },
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(id = strings.extra_key_bg),
-                description = stringResource(id = strings.extra_keys_desc),
-                default = Settings.extra_keys_bg,
-                sideEffect = {
-                    extraKeysBackground = it
-                    Settings.extra_keys_bg = it
-                },
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(id = strings.split_extra_keys),
-                description = stringResource(id = strings.split_extra_keys_desc),
-                isEnabled = extraKeysEnabled,
-                default = Settings.split_extra_keys,
-                sideEffect = {
-                    Settings.split_extra_keys = it
-                    toast(strings.restart_required)
-                },
-            )
-
-            NextScreenCard(
-                label = stringResource(strings.change_extra_keys),
-                description = stringResource(strings.change_extra_keys_desc),
-                route = SettingsRoutes.ExtraKeys,
-                isEnabled = extraKeysEnabled,
             )
 
             NextScreenCard(
@@ -416,7 +417,7 @@ fun SettingsEditorScreen(navController: NavController) {
     }
 }
 
-private fun reapplyEditorSettings() {
+fun reapplyEditorSettings() {
     MainActivity.instance?.apply {
         viewModel.tabs.forEach {
             if (it is EditorTab) {

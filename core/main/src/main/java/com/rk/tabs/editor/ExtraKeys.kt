@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.*
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +31,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.icons.Icon
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 
 private data class ExtraKey(val label: String, val icon: Icon? = null, val enabled: Boolean, val onClick: () -> Unit)
@@ -78,7 +79,7 @@ fun ExtraKeys(editorTab: EditorTab) {
     val extraKeys = commandExtraKeys + symbolExtraKeys
 
     Column(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (Settings.split_extra_keys) {
+        if (ReactiveSettings.splitExtraKeys) {
             KeyRow(commandExtraKeys)
             KeyRow(symbolExtraKeys)
         } else {
@@ -94,8 +95,6 @@ private fun KeyRow(extraKeys: List<ExtraKey>) {
     }
 }
 
-
-var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
 @Composable
 private fun KeyButton(key: ExtraKey) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -104,10 +103,15 @@ private fun KeyButton(key: ExtraKey) {
         modifier =
             Modifier.size(32.dp, 32.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .then(if (extraKeysBackground){
-                    Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = if (key.enabled) 1f else 0.5f))
-                }else{
-                    Modifier})
+                .then(
+                    if (ReactiveSettings.extraKeysBackground) {
+                        Modifier.background(
+                            MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = if (key.enabled) 1f else 0.5f)
+                        )
+                    } else {
+                        Modifier
+                    }
+                )
                 .clickable(
                     enabled = key.enabled,
                     onClick = {

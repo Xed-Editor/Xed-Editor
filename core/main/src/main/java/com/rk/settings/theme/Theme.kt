@@ -241,7 +241,6 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
                                         bottomSheetState.hide()
                                         showBottomSheet.value = false
                                     }
-                                    // toast(strings.restart_required)
                                 },
                             startWidget = { RadioButton(selected = selectedMode == mode, onClick = null) },
                         )

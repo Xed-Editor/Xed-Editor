@@ -1,6 +1,5 @@
 package com.rk.components
 
-import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -12,9 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
-import com.rk.activities.main.MainActivity
-import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorTab
+import com.rk.settings.editor.reapplyEditorSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -57,21 +54,7 @@ fun EditorSettingsToggle(
         sideEffect = {
             DefaultScope.launch(Dispatchers.Main) {
                 sideEffect?.invoke(it)
-                if (showSwitch) {
-                    MainActivity.instance?.apply {
-                        viewModel.tabs.forEach {
-                            if (it is EditorTab) {
-                                it.editorState.editor.get()?.applySettings()
-                                it.editorState.arrowKeys.get()?.visibility =
-                                    if (Settings.show_extra_keys) {
-                                        View.VISIBLE
-                                    } else {
-                                        View.GONE
-                                    }
-                            }
-                        }
-                    }
-                }
+                if (showSwitch) reapplyEditorSettings()
             }
         },
     )
