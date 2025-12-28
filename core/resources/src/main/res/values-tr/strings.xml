@@ -565,4 +565,6 @@
     <string name="return_to_app">Uygulamaya dön</string>
     <string name="reset_consent">Onay durumunu sıfırla</string>
     <string name="reset_consent_desc">Bir sonraki açılışta kullanım koşulları feragatnamesini göster</string>
+    <string name="extra_key_bg">ExtraKey arka planı</string>
+    <string name="extra_key_bg_desc">Ek tuşlar için arka planı göster</string>
 </resources>
