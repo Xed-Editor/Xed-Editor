@@ -565,4 +565,7 @@
     <string name="none_set">Nie ustawiono</string>
     <string name="press_key">Naciśnij kombinacaje klawiszy (musi zawierać Ctrl lub Alt)</string>
     <string name="keybinds_info">Aplikacja wspiera skróty klawiszowe klawiatury fizycznej, aby pracować szybciej i efektywniej. Rozbudowany zestaw domyślnych skrótów jest dostępny od ręki oraz możesz go dostosować do upodobań poniżej.</string>
+    <string name="extra_key_bg">Tło dodatkowych klawiszy</string>
+    <string name="extra_key_bg_desc">Pokaż tło dodatkowych klawiszy</string>
+    <string name="actions">Czynności</string>
 </resources>
