@@ -20,6 +20,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
+import com.rk.tabs.editor.extraKeysBackground
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 
@@ -230,6 +231,16 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     extraKeysEnabled = it
                     Settings.show_extra_keys = it
+                },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.extra_key_bg),
+                description = stringResource(id = strings.extra_keys_desc),
+                default = Settings.extra_keys_bg,
+                sideEffect = {
+                    extraKeysBackground = it
+                    Settings.extra_keys_bg = it
                 },
             )
 
