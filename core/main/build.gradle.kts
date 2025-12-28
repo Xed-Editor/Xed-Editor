@@ -110,6 +110,7 @@ dependencies {
     implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidsvg.aar)
+    debugImplementation(libs.leakcanary)
     // implementation("androidx.compose.material:material-icons-extended:1.7.8")
 
     // Modules
