@@ -1,15 +1,18 @@
 package com.rk.activities.terminal
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,8 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.SessionService
+import com.rk.activities.main.MainActivity
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -44,6 +48,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.terminal.NEXT_STAGE
+import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
 import com.rk.terminal.asVolumeScrollTarget
@@ -73,7 +78,7 @@ class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
 
-    private val serviceConnection =
+    val serviceConnection =
         object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 val binder = service as SessionService.SessionBinder
@@ -90,6 +95,8 @@ class Terminal : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        ContextCompat.startForegroundService(this, Intent(this, SessionService::class.java))
+
         Intent(this, SessionService::class.java).also { intent ->
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
@@ -121,10 +128,23 @@ class Terminal : AppCompatActivity() {
         }
     }
 
+    private fun needsNotificationPermission(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+    }
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> }
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (needsNotificationPermission()) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
 
         setContent {
             XedTheme {
@@ -133,7 +153,7 @@ class Terminal : AppCompatActivity() {
                         TerminalScreenHost(this)
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No service connection")
+                            Text("Error: No service connection")
                         }
                     }
                 }
@@ -141,12 +161,31 @@ class Terminal : AppCompatActivity() {
         }
     }
 
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         handleVolumeKey(event, Settings.enable_volume_scroll_terminal) { terminalView.get()?.asVolumeScrollTarget() }
             ?.let {
                 return it
             }
         return super.dispatchKeyEvent(event)
+    }
+
+    override fun onDestroy() {
+        if (!isFinishing) {
+            super.onDestroy()
+            return
+        }
+
+        if (Settings.return_to_app) {
+            startActivity(
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+            )
+        }
+
+        super.onDestroy()
+
     }
 
     var progressText by mutableStateOf(strings.installing.getString())

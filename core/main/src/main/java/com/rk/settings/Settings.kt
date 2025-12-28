@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
+import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
+import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
+import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
 import com.rk.theme.blueberry
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
@@ -18,7 +21,7 @@ import kotlinx.coroutines.withContext
 
 object Settings {
     var read_only_default by CachedPreference("readOnly", false)
-    var shownDisclaimer by CachedPreference("shownDisclaimer", false)
+    var shown_disclaimer by CachedPreference("shownDisclaimer", false)
     var amoled by CachedPreference("oled", false)
     var monet by CachedPreference("monet", false)
     var pin_line_number by CachedPreference("pinline", false)
@@ -51,11 +54,11 @@ object Settings {
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
-    var terminalVirusNotice by CachedPreference("terminal-virus-notice", false)
+    var terminal_virus_notice by CachedPreference("terminal-virus-notice", false)
     var textmate_suggestion by CachedPreference("textMateSuggestion", true)
     var seccomp by CachedPreference("seccomp", false)
-    var desktopMode by CachedPreference("desktopMode", false)
-    var themeFlipper by CachedPreference("theme_flipper", false)
+    var desktop_mode by CachedPreference("desktopMode", false)
+    var theme_flipper by CachedPreference("theme_flipper", false)
     var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
@@ -64,6 +67,10 @@ object Settings {
     var split_extra_keys by CachedPreference("split_extra_keys", false)
     var enable_volume_scroll_editor by CachedPreference("enable_volume_scroll_editor", false)
     var enable_volume_scroll_terminal by CachedPreference("enable_volume_scroll_terminal", false)
+    var extra_keys_bg by CachedPreference("extra_keys_bg", false)
+    var auto_open_new_files by CachedPreference("auto_open_new_files", true)
+    var return_to_app by CachedPreference("return_to_app", true)
+
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
@@ -73,33 +80,25 @@ object Settings {
     var visits by CachedPreference("visits", 0)
 
     // String settings
-    var selectedProject by CachedPreference("selected_project", "")
+    var selected_project by CachedPreference("selected_project", "")
     var font_gson by CachedPreference("selected_font", "")
     var theme by CachedPreference("theme", blueberry.id)
     var selected_font_path by CachedPreference("selected_font_path", "")
     var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
-    var currentLang: String? by
+    var current_lang: String? by
         CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
-    var extra_keys_symbols by CachedPreference("extra_keys", "()\"{}[];")
-    var extra_keys_commands by
-        CachedPreference(
-            "extra_keys_commands",
-            "global.command_palette|editor.emulate_key.tab|editor.emulate_key.dpad_left|editor.emulate_key.dpad_up|editor.emulate_key.dpad_right|editor.emulate_key.dpad_down",
-        )
+    var extra_keys_symbols by CachedPreference("extra_keys", DEFAULT_EXTRA_KEYS_SYMBOLS)
+    var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
-    var lastVersionCode by CachedPreference("last_version_code", -1L)
+    var last_version_code by CachedPreference("last_version_code", -1L)
 
     // Float settings
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
-    var action_items by
-        CachedPreference(
-            "action_items",
-            "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings",
-        )
+    var action_items by CachedPreference("action_items", DEFAULT_ACTION_ITEMS)
 }
 
 object Preference {

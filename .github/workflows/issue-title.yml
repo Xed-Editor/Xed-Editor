@@ -1,0 +1,39 @@
+name: Improve Issue Titles (Gemini)
+
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+  contents: read
+
+
+jobs:
+  improve-title:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install @actions/github @google/genai
+
+
+      - name: Improve issue title using Gemini
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          node .github/scripts/improve-title-gemini.js

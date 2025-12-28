@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
+import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.icons.Icon
 import com.rk.settings.Settings
@@ -38,13 +39,14 @@ private data class ExtraKey(val label: String, val icon: Icon? = null, val enabl
 fun ExtraKeys(editorTab: EditorTab) {
     val commandIds = remember { mutableStateListOf(*Settings.extra_keys_commands.split("|").toTypedArray()) }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
+
     val commandExtraKeys =
-        commands.map {
+        commands.map { command ->
             ExtraKey(
-                label = it.label.value,
-                icon = it.icon.value,
-                enabled = it.isEnabled.value && it.isSupported.value,
-                onClick = { it.performCommand(editorTab.viewModel, MainActivity.instance) },
+                label = command.getLabel(),
+                icon = command.getIcon(),
+                enabled = command.isEnabled() && command.isSupported(),
+                onClick = { command.performCommand(ActionContext(MainActivity.instance!!)) },
             )
         }
 
@@ -92,6 +94,8 @@ private fun KeyRow(extraKeys: List<ExtraKey>) {
     }
 }
 
+
+var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
 @Composable
 private fun KeyButton(key: ExtraKey) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -100,7 +104,10 @@ private fun KeyButton(key: ExtraKey) {
         modifier =
             Modifier.size(32.dp, 32.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = if (key.enabled) 1f else 0.5f))
+                .then(if (extraKeysBackground){
+                    Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = if (key.enabled) 1f else 0.5f))
+                }else{
+                    Modifier})
                 .clickable(
                     enabled = key.enabled,
                     onClick = {

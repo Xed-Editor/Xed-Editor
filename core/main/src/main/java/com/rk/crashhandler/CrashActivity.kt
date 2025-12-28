@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Process
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -87,6 +88,10 @@ class CrashActivity : ComponentActivity() {
         }
     }
 
+    fun isMainThreadCrashed(): Boolean {
+        return intent.getStringExtra("thread").toString().lowercase() == "main"
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,9 +107,26 @@ class CrashActivity : ComponentActivity() {
                         Scaffold(
                             topBar = {
                                 Column {
+                                    val mainThreadCrashed = remember(intent) { isMainThreadCrashed() }
+
                                     TopAppBar(
                                         navigationIcon = {
-                                            IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
+                                            IconButton(
+                                                onClick = {
+                                                    if (mainThreadCrashed) {
+                                                        runCatching {
+                                                            // Close all activities
+                                                            finishAffinity()
+
+                                                            // Kill the app process
+                                                            Process.killProcess(Process.myPid())
+                                                            exitProcess(0)
+                                                        }
+                                                    } else {
+                                                        onBackPressedDispatcher.onBackPressed()
+                                                    }
+                                                }
+                                            ) {
                                                 Icon(
                                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                                     contentDescription = "Back",

@@ -24,9 +24,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -37,6 +39,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rk.commands.KeybindingsManager
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
@@ -57,7 +60,6 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
-
     val fileManager = FileManager(this)
 
     // suspend (isForeground) -> Unit
@@ -113,6 +115,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val handledEvent = KeybindingsManager.handleGlobalEvent(event, this)
+        if (handledEvent) return true
+        return super.dispatchKeyEvent(event)
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(Settings.default_night_mode)
@@ -125,9 +133,9 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             NavHost(
-                navController = navController!!,
+                navController = navController,
                 startDestination =
-                    if (Settings.shownDisclaimer) {
+                    if (Settings.shown_disclaimer) {
                         MainRoutes.Main.route
                     } else {
                         MainRoutes.Disclaimer.route
@@ -267,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                                     enabled = isAcceptedEnabled,
                                     modifier = Modifier.weight(1f),
                                     onClick = {
-                                        Settings.shownDisclaimer = true
+                                        Settings.shown_disclaimer = true
                                         navController!!.navigate(MainRoutes.Main.route)
                                     },
                                 ) {

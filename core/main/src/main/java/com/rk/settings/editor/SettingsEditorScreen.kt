@@ -20,6 +20,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
+import com.rk.tabs.editor.extraKeysBackground
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 
@@ -241,6 +242,16 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(id = strings.extra_key_bg),
+                description = stringResource(id = strings.extra_keys_desc),
+                default = Settings.extra_keys_bg,
+                sideEffect = {
+                    extraKeysBackground = it
+                    Settings.extra_keys_bg = it
+                },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(id = strings.split_extra_keys),
                 description = stringResource(id = strings.split_extra_keys_desc),
                 isEnabled = extraKeysEnabled,
@@ -283,6 +294,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.show_hidden_files_search_desc),
                 default = Settings.show_hidden_files_search,
                 sideEffect = { Settings.show_hidden_files_search = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.auto_open_new_files),
+                description = stringResource(strings.auto_open_new_files_desc),
+                default = Settings.auto_open_new_files,
+                sideEffect = { Settings.auto_open_new_files = it },
             )
 
             EditorSettingsToggle(

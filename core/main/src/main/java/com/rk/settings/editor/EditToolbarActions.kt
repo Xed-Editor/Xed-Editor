@@ -32,11 +32,12 @@ import androidx.compose.ui.unit.dp
 import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import com.rk.activities.main.MainActivity
+import com.rk.commands.ActionContext
 import com.rk.commands.Command
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.InfoBlock
+import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.LocalIsExpandedScreen
 import com.rk.components.compose.preferences.base.NestedScrollStretch
 import com.rk.components.compose.preferences.base.PreferenceScaffold
@@ -44,9 +45,13 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
+
+const val DEFAULT_ACTION_ITEMS =
+    "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings"
 
 @Composable
 fun EditToolbarActions(modifier: Modifier = Modifier) {
@@ -63,6 +68,7 @@ fun EditToolbarActions(modifier: Modifier = Modifier) {
         label = stringResource(strings.toolbar_actions),
         backArrowVisible = true,
         isExpandedScreen = LocalIsExpandedScreen.current,
+        actions = { ResetButton { resetOrder(commandIds) } },
         fab = {
             ExtendedFloatingActionButton(onClick = { showCommandSelectionDialog = true }) {
                 Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
@@ -138,7 +144,7 @@ fun EditToolbarActions(modifier: Modifier = Modifier) {
 @Composable
 private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDismiss: () -> Unit) {
     val dialogCommands =
-        CommandProvider.globalCommands.map { command ->
+        CommandProvider.commandList.map { command ->
             val existingCommands = command.childCommands
             val patchedChildCommands =
                 if (existingCommands.isEmpty()) {
@@ -148,31 +154,18 @@ private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDism
                 }
 
             val hasChildCommands = patchedChildCommands.isNotEmpty()
-            Command(
-                id = command.id,
-                prefix = command.prefix,
-                label = command.label,
-                action = { _, _ ->
+            command.copy(
+                childCommands = patchedChildCommands,
+                action = {
                     commandIds.add(command.id)
                     saveOrder(commandIds)
                 },
-                childCommands = patchedChildCommands,
-                childSearchPlaceholder = command.childSearchPlaceholder,
-                isEnabled = derivedStateOf { !commandIds.contains(command.id) || hasChildCommands },
-                isSupported = mutableStateOf(true),
-                icon = command.icon,
-                keybinds = command.keybinds,
+                isSupported = { true },
+                isEnabled = { !commandIds.contains(command.id) || hasChildCommands },
             )
         }
 
-    CommandPalette(
-        progress = 1f,
-        commands = dialogCommands,
-        lastUsedCommand = null,
-        viewModel = MainActivity.instance!!.viewModel,
-    ) {
-        onDismiss()
-    }
+    CommandPalette(progress = 1f, commands = dialogCommands, lastUsedCommand = null) { onDismiss() }
 }
 
 @Composable
@@ -182,34 +175,32 @@ private fun patchChildCommands(
     existingCommands: List<Command>,
 ): List<Command> = buildList {
     add(
-        Command(
-            id = command.id,
-            label = mutableStateOf(strings.add_parent_command.getString()),
-            action = { _, _ ->
+        object : Command(command.commandContext) {
+            override val id: String = command.id
+
+            override fun getLabel(): String = strings.add_parent_command.getString()
+
+            override fun action(actionContext: ActionContext) {
                 commandIds.add(command.id)
                 saveOrder(commandIds)
-            },
-            sectionEndsBelow = true,
-            isEnabled = derivedStateOf { !commandIds.contains(command.id) },
-            isSupported = mutableStateOf(true),
-            icon = mutableStateOf(Icon.DrawableRes(drawables.arrow_outward)),
-            keybinds = null,
-        )
+            }
+
+            override val sectionEndsBelow: Boolean = true
+
+            override fun isEnabled(): Boolean = !commandIds.contains(command.id)
+
+            override fun getIcon(): Icon = Icon.DrawableRes(drawables.arrow_outward)
+        }
     )
     addAll(
-        existingCommands.map {
-            Command(
-                id = it.id,
-                prefix = it.prefix,
-                label = it.label,
-                action = { _, _ ->
-                    commandIds.add(it.id)
+        existingCommands.map { command ->
+            command.copy(
+                action = {
+                    commandIds.add(command.id)
                     saveOrder(commandIds)
                 },
-                isEnabled = derivedStateOf { !commandIds.contains(it.id) },
-                isSupported = mutableStateOf(true),
-                icon = it.icon,
-                keybinds = it.keybinds,
+                isEnabled = { !commandIds.contains(command.id) },
+                isSupported = { true },
             )
         }
     )
@@ -218,4 +209,11 @@ private fun patchChildCommands(
 /** Save order of commands in settings */
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
     Settings.action_items = commandIds.joinToString("|")
+}
+
+/** Reset order of toolbar actions to default */
+private fun resetOrder(commandIds: SnapshotStateList<String>) {
+    Preference.removeKey("action_items")
+    commandIds.clear()
+    commandIds.addAll(DEFAULT_ACTION_ITEMS.split("|"))
 }

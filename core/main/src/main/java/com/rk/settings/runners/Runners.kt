@@ -18,11 +18,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -223,18 +225,23 @@ fun Runners(modifier: Modifier = Modifier) {
                             label = { Text(stringResource(strings.runner_name)) },
                             modifier = Modifier.focusRequester(nameFocusRequester),
                             isError = nameError != null,
-                            supportingText = {
-                                nameError?.let {
-                                    Text(
-                                        text = it,
-                                        color = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                                    )
-                                }
-                            },
+                            supportingText =
+                                if (nameError != null) {
+                                    {
+                                        Text(
+                                            text = nameError!!,
+                                            color = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                                        )
+                                    }
+                                } else null,
                             trailingIcon = {
                                 if (nameError != null) {
-                                    Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                                    Icon(
+                                        XedIcons.Error,
+                                        stringResource(strings.error),
+                                        tint = MaterialTheme.colorScheme.error,
+                                    )
                                 }
                             },
                             enabled = isEditingExisting == null, // Disable name editing for existing runners
@@ -250,18 +257,23 @@ fun Runners(modifier: Modifier = Modifier) {
                             label = { Text(stringResource(strings.regex_pattern)) },
                             modifier = Modifier.focusRequester(regexFocusRequester),
                             isError = regexError != null,
-                            supportingText = {
-                                regexError?.let {
-                                    Text(
-                                        text = it,
-                                        color = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.fillMaxWidth(),
-                                    )
-                                }
-                            },
+                            supportingText =
+                                if (regexError != null) {
+                                    {
+                                        Text(
+                                            text = regexError!!,
+                                            color = MaterialTheme.colorScheme.error,
+                                            modifier = Modifier.fillMaxWidth(),
+                                        )
+                                    }
+                                } else null,
                             trailingIcon = {
                                 if (regexError != null) {
-                                    Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
+                                    Icon(
+                                        XedIcons.Error,
+                                        stringResource(strings.error),
+                                        tint = MaterialTheme.colorScheme.error,
+                                    )
                                 }
                             },
                         )

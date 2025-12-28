@@ -28,7 +28,7 @@ object UpdateManager {
 
     fun inspect() =
         with(application!!) {
-            val lastVersionCode = Settings.lastVersionCode
+            val lastVersionCode = Settings.last_version_code
             val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
 
             if (lastVersionCode != currentVersionCode) {
@@ -78,6 +78,6 @@ object UpdateManager {
                 deleteCommonFiles()
             }
 
-            Settings.lastVersionCode = currentVersionCode
+            Settings.last_version_code = currentVersionCode
         }
 }

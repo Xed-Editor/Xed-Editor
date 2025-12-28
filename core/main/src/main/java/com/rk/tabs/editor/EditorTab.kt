@@ -1,6 +1,5 @@
 package com.rk.tabs.editor
 
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -310,11 +309,6 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                             }
                         }
                     },
-                    onKeyEvent = { event ->
-                        if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                            scope.launch(Dispatchers.IO) { save() }
-                        }
-                    },
                 )
 
                 if (Settings.show_extra_keys) {
@@ -366,4 +360,20 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     }
 
     override val showGlobalActions: Boolean = false
+
+    override fun hashCode(): Int {
+        return file.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is EditorTab) {
+            return false
+        }
+
+        return other.file == file
+    }
+
+    override fun toString(): String {
+        return "[EditorTab] ${file.getAbsolutePath()}"
+    }
 }

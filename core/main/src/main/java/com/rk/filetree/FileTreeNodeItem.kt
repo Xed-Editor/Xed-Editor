@@ -103,7 +103,7 @@ fun FileTreeNodeItem(
                         },
                     )
                     .then(
-                        if (viewModel.selectedFile[(currentTab as FileTreeTab).root!!] == node.file && !isCut) {
+                        if (viewModel.selectedFile[(currentTab as? FileTreeTab)?.root] == node.file && !isCut) {
                             Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
                         } else {
                             Modifier

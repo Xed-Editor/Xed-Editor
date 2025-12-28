@@ -31,6 +31,7 @@ import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.navigationDrawerState
 import com.rk.activities.settings.SettingsActivity
+import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -65,9 +66,8 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         IconButton(onClick = { addDialog = true }) { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) }
 
         if (InbuiltFeatures.terminal.state.value) {
-            val terminalAction = CommandProvider.getForId("global.terminal")
-
-            IconButton(onClick = { terminalAction!!.action(viewModel, context as Activity) }) {
+            val terminalAction = CommandProvider.TerminalCommand
+            IconButton(onClick = { terminalAction.action(ActionContext(context as Activity)) }) {
                 Icon(painter = painterResource(drawables.terminal), contentDescription = null)
             }
         }

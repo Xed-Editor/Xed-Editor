@@ -508,4 +508,13 @@
     <string name="change_extra_symbols">Upravovat extra symboly</string>
     <string name="change_extra_symbols_desc">Přizpůsobit znaky zobrazeny v panelu extra kláves</string>
     <string name="info_extra_keys">Extra klávesy jsou příkazy a symboly zobrazeny v panelu nad klávesnicí. Můžete dlouhým klepnutím a přetáhnutím změnit pořadí příkazů nebo klepnutím na tlačítko pro přidání nového příkazu. Můžete taky přizpůsobit ty symboly pomocí té poslední možnosti.</string>
+    <string name="disclaimer_read_carefully">Prosím přečtete důkladně před použití aplikace.</string>
+    <string name="data_loss_risk">Rizika ztrátu dat</string>
+    <string name="terminal_risks">Rizika terminálu</string>
+    <string name="terminal_risks_content">Táto aplikace má k dispozici terminálové funkce, které mají přímý přistup k souborovém systému. Nesprávné použití příkazů v terminálu může způsobit:\n• Nenávratné odstranění souborů a složek\n• Ohrožení zabezpečení\n• Ztráta kritických dat\n\nVy máte zodpovědnost rozumět jaké příkazy zadáte a jejich možné důsledky.</string>
+    <string name="third_party_ext">Doplňky třetích stran</string>
+    <string name="no_warranty">Žádná záruka</string>
+    <string name="decline">Nesouhlasím</string>
+    <string name="i_accept_disabled">Souhlasím (%s)</string>
+    <string name="i_accept">Souhlasím</string>
 </resources>

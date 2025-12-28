@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.commands.CommandProvider
+import com.rk.commands.KeybindingsManager
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
 import com.rk.filetree.FileTreeViewModel
@@ -28,6 +29,7 @@ import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
 import com.rk.utils.dialog
 import java.lang.ref.WeakReference
@@ -47,6 +49,25 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
             LaunchedEffect(drawerState) { drawerStateRef = WeakReference(drawerState) }
+
+            LaunchedEffect(drawerState.isOpen) {
+                if (drawerState.isOpen) {
+                    MainActivity.instance?.viewModel?.currentTab?.let {
+                        if (it is EditorTab) {
+                            it.editorState.editor.get()?.clearFocus()
+                        }
+                    }
+                } else if (drawerState.isClosed) {
+                    MainActivity.instance?.viewModel?.currentTab?.let {
+                        if (it is EditorTab) {
+                            it.editorState.editor.get()?.apply {
+                                requestFocus()
+                                requestFocusFromTouch()
+                            }
+                        }
+                    }
+                }
+            }
 
             navigationDrawerState = WeakReference(drawerState)
             val scope = rememberCoroutineScope()
@@ -72,7 +93,8 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             val softThreshold = with(density) { 50.dp.toPx() }
             val hardThreshold = with(density) { 100.dp.toPx() }
 
-            CommandProvider.globalCommands = CommandProvider.buildCommands(viewModel)
+            CommandProvider.buildCommands(viewModel)
+            KeybindingsManager.loadKeybindings()
 
             val mainContent: @Composable () -> Unit = {
                 Scaffold(
