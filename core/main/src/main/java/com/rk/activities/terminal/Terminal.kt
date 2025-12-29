@@ -82,6 +82,7 @@ class Terminal : AppCompatActivity() {
                 sessionBinder = WeakReference(binder)
                 // sessionBinder = WeakReference(binder)
                 isBound = true
+                handleIntent(intent)
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
@@ -101,19 +102,27 @@ class Terminal : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
+    }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
+    fun handleIntent(intent: Intent) {
         this.intent = intent
         val binder = sessionBinder?.get() ?: return
         val terminalView = terminalView.get() ?: return
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val pwd = getPwd()
+            val pwd = intent.getStringExtra("cwd").toString()
             val client = TerminalBackEnd(terminalView, this@Terminal)
             val sessionId = File(pwd).name
 
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)
+            setIntent(Intent())
         }
     }
 
