@@ -287,8 +287,8 @@
     <string name="themes">Motywy</string>
     <string name="change_theme">Zmień motyw</string>
     <string name="editor">Edytor</string>
-    <string name="smooth_tabs">Płynne karty</string>
-    <string name="smooth_tab_desc">Płynnie przełączaj pomiędzy kartami</string>
+    <string name="smooth_tabs">Płynne przejście</string>
+    <string name="smooth_tab_desc">Włącz płynne przejście pomiędzy kartami</string>
     <string name="word_wrap_desc">Włącz zawijanie tekstu we wszystkich edytorach</string>
     <string name="drawer_lock_desc">Utrzymuj szufladę w pozycji zablokowanej podczas otwierania pliku</string>
     <string name="downloading">Pobieranie…</string>
@@ -568,4 +568,9 @@
     <string name="extra_key_bg">Tło dodatkowych klawiszy</string>
     <string name="extra_key_bg_desc">Pokaż tło dodatkowych klawiszy</string>
     <string name="actions">Czynności</string>
+    <string name="enjoying_xed">Podoba Ci się Xed Editor?</string>
+    <string name="support_message">Zapisano pliki: %s oraz Uruchomiono kod: %s razy z Xed.\n\nJestem developerem działającym w pojedynkę, utrzymując aplikację jako bezpłatną oraz szanującą prywatność. Jeśli Xed sprawił że koduje Ci się przyjemniej, czy rozważysz wsparcie rozwoju?\n\nWsparcie pomoże mi w:\n• Szybszym dodawaniu nowych funkcji\n• Utrzymaniu aplikacji jako bezpłatnej na zawsze\n• Sprawniejszej naprawie błędów</string>
+    <string name="yes_support">Tak, wesprę! ❤️</string>
+    <string name="remind_me">Przypomnij później</string>
+    <string name="not_for_me">Nie, dziękuję</string>
 </resources>
