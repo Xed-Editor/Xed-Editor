@@ -457,7 +457,7 @@
     <string name="external_lsp">LSP externe</string>
     <string name="external">Externe</string>
     <string name="desktop_mode">Mode bureau (expérimental)</string>
-    <string name="desktop_mode_desc">Facilite l\'utilisation de l\'app sur les tablettes et écrans de bureau.</string>
+    <string name="desktop_mode_desc">Facilite l\'utilisation de l\'app sur les tablettes et écrans de bureau</string>
     <string name="built_in">Intégré</string>
     <string name="change_lang_warn">Changer la langue relancera cet écran immédiatement. Cela pourrait afficher brièvement un écran blanc et ainsi causer de l\'inconfort aux personnes atteints d\'épilepsie photosensible.</string>
     <string name="address">Adresse</string>
@@ -549,14 +549,14 @@
     <string name="i_accept">J\'accepte</string>
     <string name="keybindings">Raccourcis clavier</string>
     <string name="keybindings_desc">Configurer les raccourcis clavier</string>
-    <string name="none_set">Non définis</string>
+    <string name="none_set">Non défini</string>
     <string name="press_key">Appuyer sur une combinaison de touches (devant contenir Ctrl ou Alt)</string>
     <string name="ctrl">Ctrl</string>
     <string name="alt">Alt</string>
     <string name="shift">Maj.</string>
     <string name="keybinds_info">Xed-editor gère des raccourcis clavier matériel pour vous aider à travailler plus vite et plus efficacement. Une large gamme de raccourcis clavier sont déjà disponibles par défaut et vous pouvez les configurer ci-dessous à votre convenance.</string>
     <string name="reset_all">Tout réinitialiser</string>
-    <string name="search_keybinds">Commande de recherche ou raccourcis clavier</string>
+    <string name="search_keybinds">Commandes de recherche ou raccourcis clavier</string>
     <string name="transform_lowercase">Transformer en minuscules</string>
     <string name="transform_uppercase">Transformer en majuscules</string>
     <string name="keybindings_conflict_error">Le raccourci clavier que vous tentez de configurer est en conflit avec un autre raccourci clavier.</string>
@@ -568,4 +568,7 @@
     <string name="return_to_app">Retourner au logiciel</string>
     <string name="reset_consent">Réinitialiser le statut du consentement</string>
     <string name="reset_consent_desc">Afficher les conditions d\'utilisation au prochain démarrage</string>
+    <string name="extra_key_bg">Fond des touches additionnelles</string>
+    <string name="extra_key_bg_desc">Affiche l\'arrière-plan pour les touches additionnelles</string>
+    <string name="actions">Actions</string>
 </resources>
