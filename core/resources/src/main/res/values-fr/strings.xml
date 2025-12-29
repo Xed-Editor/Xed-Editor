@@ -571,4 +571,9 @@
     <string name="extra_key_bg">Fond des touches additionnelles</string>
     <string name="extra_key_bg_desc">Affiche l\'arrière-plan pour les touches additionnelles</string>
     <string name="actions">Actions</string>
+    <string name="enjoying_xed">Vous appréciez Xed Editor ?</string>
+    <string name="support_message">Vous avez enregistré %s fichiers et fait tourner %s fois du code avec Xed. \n\nJe suis un développeur indépendant, gardant ce logiciel libre et attentif à la vie privée. Si Xed a facilité votre travail de codage, pourriez-vous soutenir son développement ?\n\nVotre soutien m\'aidera à :\n• Développer plus rapidement des fonctionnalités \n• Gardez Xed sans publicité pour toujours\n• Réagir rapidement à des bugs</string>
+    <string name="yes_support">Oui, je vais soutenir ! ❤️</string>
+    <string name="remind_me">Me le rappeler plus tard</string>
+    <string name="not_for_me">Non merci</string>
 </resources>
