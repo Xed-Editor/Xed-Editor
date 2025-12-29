@@ -107,6 +107,7 @@ class Terminal : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        instance = this
     }
 
     fun handleIntent(intent: Intent) {
@@ -114,11 +115,14 @@ class Terminal : AppCompatActivity() {
         val binder = sessionBinder?.get() ?: return
         val terminalView = terminalView.get() ?: return
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            val pwd = intent.getStringExtra("cwd").toString()
-            val client = TerminalBackEnd(terminalView, this@Terminal)
-            val sessionId = File(pwd).name
+        val pwd = intent.getStringExtra("cwd")
+        if (pwd == null){
+            return
+        }
+        val sessionId = File(pwd).name
 
+        lifecycleScope.launch(Dispatchers.Main) {
+            val client = TerminalBackEnd()
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)
@@ -140,6 +144,16 @@ class Terminal : AppCompatActivity() {
                 PackageManager.PERMISSION_GRANTED
     }
 
+
+    companion object {
+        private var activityRef = WeakReference<Terminal?>(null)
+        var instance: Terminal?
+            get() = activityRef.get()
+            private set(value) {
+                activityRef = WeakReference(value)
+            }
+    }
+
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> }
 
@@ -147,6 +161,7 @@ class Terminal : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        instance = this
 
         if (needsNotificationPermission()) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)

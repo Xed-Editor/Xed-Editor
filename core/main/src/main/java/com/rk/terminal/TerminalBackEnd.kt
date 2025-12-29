@@ -13,9 +13,9 @@ import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd() : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
-        terminal.onScreenUpdated()
+        terminalView.get()?.onScreenUpdated()
     }
 
     override fun onTitleChanged(changedSession: TerminalSession) {}
@@ -28,8 +28,8 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
 
     override fun onPasteTextFromClipboard(session: TerminalSession?) {
         val clip = ClipboardUtils.getText().toString()
-        if (clip.trim { it <= ' ' }.isNotEmpty() && terminal.mEmulator != null) {
-            terminal.mEmulator.paste(clip)
+        if (clip.trim { it <= ' ' }.isNotEmpty() && terminalView.get()?.mEmulator != null) {
+            terminalView.get()?.mEmulator?.paste(clip)
         }
     }
 
@@ -76,7 +76,7 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
 
     override fun onScale(scale: Float): Float {
         val fontScale = scale.coerceIn(11f, 45f)
-        terminal.setTextSize(fontScale.toInt())
+        terminalView.get()?.setTextSize(fontScale.toInt())
         return fontScale
     }
 
@@ -104,6 +104,10 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
+            val activity = Terminal.instance
+            if (activity == null){
+                return false
+            }
             activity.sessionBinder
                 ?.get()
                 ?.terminateSession(activity.sessionBinder?.get()!!.getService().currentSession.value)
@@ -155,13 +159,14 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
     }
 
     private fun setTerminalCursorBlinkingState(start: Boolean) {
-        if (terminal.mEmulator != null) {
-            terminal.setTerminalCursorBlinkerState(start, true)
+        if (terminalView.get()?.mEmulator != null) {
+            terminalView.get()?.setTerminalCursorBlinkerState(start, true)
         }
     }
 
     private fun showSoftInput() {
-        terminal.requestFocus()
-        KeyboardUtils.showSoftInput(terminal)
+        terminalView.get()?.requestFocus()
+        terminalView.get()?.let { KeyboardUtils.showSoftInput(it) }
+
     }
 }

@@ -149,7 +149,7 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                                             return newString
                                         }
                                         terminalView.get()?.let {
-                                            val client = TerminalBackEnd(it, terminalActivity)
+                                            val client = TerminalBackEnd()
                                             terminalActivity.sessionBinder
                                                 ?.get()!!
                                                 .createSession(
@@ -261,7 +261,7 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
 
                                     terminalView = WeakReference(this)
                                     setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                                    val client = TerminalBackEnd(this, terminalActivity)
+                                    val client = TerminalBackEnd()
 
                                     val session =
                                         if (pendingCommand != null) {
@@ -485,7 +485,7 @@ fun Terminal.changeSession(sessionId: String) {
     val terminalView = terminalView.get() ?: return
     val binder = sessionBinder!!.get()!!
 
-    val client = TerminalBackEnd(terminalView, this)
+    val client = TerminalBackEnd()
     val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this).session
 
     session.updateTerminalSessionClient(client)
