@@ -90,7 +90,14 @@ object Settings {
     var editor_text_size by CachedPreference("textsize", 14)
     var default_night_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
-    var visits by CachedPreference("visits", 0)
+
+    var user_declined_value by CachedPreference("user_declined_value", false)
+    var user_said_maybe_later by CachedPreference("user_said_maybe_later", false)
+    var user_has_supported by CachedPreference("user_has_supported", false)
+    var donation_ask_count by CachedPreference("donation_ask_count", 0)
+    var saves by CachedPreference("saves", 0)
+    var runs by CachedPreference("runs", 0)
+    var last_donation_dialog_timestamp by CachedPreference("last_donation_dialog_timestamp", 0L)
 
     // String settings
     var selected_project by CachedPreference("selected_project", "")

@@ -5,6 +5,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rk.file.FileManager
@@ -37,12 +38,15 @@ class SettingsActivity : AppCompatActivity() {
                     val navController = rememberNavController()
                     settingsNavController = WeakReference(navController)
                     SettingsNavHost(activity = this@SettingsActivity, navController = navController)
-                    if (intent.hasExtra("route")) {
-                        val route = intent.getStringExtra("route")
-                        if (route != null) {
-                            navController.navigate(route)
-                        } else {
-                            toast(strings.unknown_err)
+
+                    LaunchedEffect(intent) {
+                        if (intent.hasExtra("route")) {
+                            val route = intent.getStringExtra("route")
+                            if (route != null) {
+                                navController.navigate(route)
+                            } else {
+                                toast(strings.unknown_err)
+                            }
                         }
                     }
                 }

@@ -87,9 +87,12 @@ fun errorDialog(exception: Exception) {
     errorDialog(msg = message.toString())
 }
 
+var isDialogShowing = false
+    private set
+
 fun dialog(
     context: Activity? = MainActivity.instance,
-    title: String,
+    title: String? = null,
     msg: String,
     @StringRes cancelString: Int = strings.cancel,
     @StringRes okString: Int = strings.ok,
@@ -99,12 +102,14 @@ fun dialog(
     cancelable: Boolean = true,
 ) {
     if (context == null) {
-        toast(msg)
+        toast(strings.unknown_error)
         return
     }
     var alertDialog: AlertDialog? = null
     runOnUiThread {
         MaterialAlertDialogBuilder(context).apply {
+            setOnCancelListener { isDialogShowing = false }
+
             setView(
                 ComposeView(context).apply {
                     setContent {
@@ -143,6 +148,7 @@ fun dialog(
             }
 
             alertDialog = show()
+            isDialogShowing = true
         }
     }
 }
@@ -150,7 +156,7 @@ fun dialog(
 @Composable
 private fun DialogContent(
     alertDialog: AlertDialog?,
-    title: String,
+    title: String?,
     msg: String,
     @StringRes cancelString: Int,
     @StringRes okString: Int,
@@ -158,7 +164,13 @@ private fun DialogContent(
     onCancel: (() -> Unit)? = null,
 ) {
     Column(modifier = Modifier.padding(24.dp)) {
-        Text(text = title, style = MaterialTheme.typography.headlineSmall, modifier = Modifier.padding(bottom = 16.dp))
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp),
+            )
+        }
 
         Column(modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())) {
             Text(text = msg, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(bottom = 24.dp))

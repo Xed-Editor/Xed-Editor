@@ -47,6 +47,7 @@ import com.rk.filetree.saveProjects
 import com.rk.resources.getFilledString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.support.handleSupport
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
 import java.lang.ref.WeakReference
@@ -91,6 +92,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
             foregroundListener.values.forEach { it.invoke(true) }
+            delay(1000)
+            handleSupport()
         }
     }
 

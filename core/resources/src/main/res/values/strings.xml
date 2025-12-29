@@ -562,4 +562,10 @@
     <string name="extra_key_bg">Extra key background</string>
     <string name="extra_key_bg_desc">Show background for extra keys</string>
     <string name="actions">Actions</string>
+
+    <string name="enjoying_xed">Enjoying Xed Editor?</string>
+    <string name="support_message">You\'ve saved %s files and run code %s times with Xed. \n\nI\'m a solo developer keeping this app free and privacy-focused. If Xed has made your coding easier, would you consider supporting its development?\n\nYour support helps me:\n• Build features faster\n• Keep Xed ad-free forever\n• Respond to bugs quickly</string>
+    <string name="yes_support">Yes, I\'ll support! ❤️</string>
+    <string name="remind_me">Remind me later</string>
+    <string name="not_for_me">No thanks</string>
 </resources>

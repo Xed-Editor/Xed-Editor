@@ -13,6 +13,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
+import com.rk.settings.Settings
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -27,6 +28,7 @@ class RunCommand(commandContext: CommandContext) : EditorCommand(commandContext)
         val activity = editorActionContext.currentActivity
         CommandProvider.SaveCommand.action(editorActionContext)
         DefaultScope.launch {
+            Settings.runs += 1
             Runner.run(
                 context = activity,
                 fileObject = editorTab.file,
