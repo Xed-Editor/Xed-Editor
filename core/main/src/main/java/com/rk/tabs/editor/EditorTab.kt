@@ -43,6 +43,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.currentRunner
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
@@ -304,7 +305,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     },
                 )
 
-                if (Settings.show_extra_keys) {
+                if (ReactiveSettings.showExtraKeys) {
                     ExtraKeys(editorTab = this@EditorTab)
                 }
 

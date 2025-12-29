@@ -451,7 +451,7 @@
     <string name="expert_mode_warn">Uzman modu, güvenlik kısıtlamalarını kaldırarak yanlış kullanımda veri kaybı gibi sorunlara neden olabilir. Sadece konuyu biliyorsanız açın.</string>
     <string name="external_lsp">Harici LSP</string>
     <string name="desktop_mode">Masaüstü Modu (Deneysel)</string>
-    <string name="desktop_mode_desc">Uygulamayı tabletlerde ve masaüstü boyutundaki ekranlarda kullanımı daha kolay hale getirir.</string>
+    <string name="desktop_mode_desc">Uygulamayı tabletlerde ve masaüstü boyutundaki ekranlarda kullanmayı kolaylaştırır</string>
     <string name="built_in">Dahili</string>
     <string name="change_lang_warn">Dili değiştirmek, yeni dili hemen uygulamak için bu ekranı yeniden başlatacaktır. Bu, fotosensitif epilepsisi olan kişilerde rahatsızlık tetikleyebilecek kısa süreli boş bir ekran görüntüsüne neden olabilir.</string>
     <string name="debug_mode_warn">Hata ayıklama modu, güvenlik kısıtlamalarını devre dışı bırakır; bu da yanlış kullanıldığında veri kaybına veya başka sorunlara yol açabilir. Yalnızca ne yaptığınızı biliyorsanız etkinleştirin.</string>
@@ -555,10 +555,17 @@
     <string name="shift">Shift</string>
     <string name="keybinds_info">Xed-Editor, daha hızlı ve verimli çalışmanıza yardımcı olmak için donanım klavye kısayollarını destekler. Geniş bir varsayılan tuş atamaları seti zaten mevcuttur ve bunları aşağıda dilediğiniz gibi yapılandırabilirsiniz.</string>
     <string name="reset_all">Tümünü sıfırla</string>
-    <string name="search_keybinds">Arama komutu veya tuş atamaları</string>
+    <string name="search_keybinds">Komutları veya tuş atamalarını ara</string>
     <string name="transform_lowercase">Küçük harfe dönüştür</string>
     <string name="transform_uppercase">Büyük harfe dönüştür</string>
     <string name="keybindings_conflict_error">Ayarlamaya çalıştığınız tuş ataması başka bir tuş atamasıyla çakışıyor.</string>
     <string name="auto_open_new_files">Oluşturulan dosyaları aç</string>
     <string name="auto_open_new_files_desc">Yeni oluşturulan dosyaları otomatik olarak aç</string>
+    <string name="return_to_app_desc">Terminalden çıktıktan sonra uygulamaya geri dön</string>
+    <string name="return_to_app">Uygulamaya dön</string>
+    <string name="reset_consent">Onay durumunu sıfırla</string>
+    <string name="reset_consent_desc">Bir sonraki açılışta kullanım koşulları feragatnamesini göster</string>
+    <string name="extra_key_bg">Extra tuş arka planı</string>
+    <string name="extra_key_bg_desc">Ek tuşlar için arka planı göster</string>
+    <string name="actions">Eylemler</string>
 </resources>

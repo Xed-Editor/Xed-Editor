@@ -124,6 +124,7 @@ class MainActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(Settings.default_night_mode)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        instance = this
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }

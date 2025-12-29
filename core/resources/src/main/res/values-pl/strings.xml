@@ -274,7 +274,7 @@
     <string name="lang_desc">Ustawienia języka</string>
     <string name="indian">Indyjski</string>
     <string name="runners">Programy uruchamiające</string>
-    <string name="runners_desc">Programy uruchamiające powłoki</string>
+    <string name="runners_desc">Zarządzaj programami uruchamiającymi powłoki</string>
     <string name="no_runners">Brak programów uruchamiających</string>
     <string name="new_runner">Nowy program uruchamiający</string>
     <string name="runner_name">Nazwa programu uruchamiającego</string>
@@ -452,7 +452,7 @@
     <string name="external_lsp">Zewnętrzny serwer</string>
     <string name="desktop_mode">Tryb stacjonarny (Funkcja eksperymentalna)</string>
     <string name="built_in">Wbudowane</string>
-    <string name="desktop_mode_desc">Spraw, aby aplikacja dostosowała się do większych ekranów.</string>
+    <string name="desktop_mode_desc">Spraw, aby aplikacja dostosowała się do większych ekranów</string>
     <string name="change_lang_warn">Zmiana języka uruchomi ponownie aplikację, aby zastosować zmiany. Ekran może błysnąć wywołu}ąc dyskomfort u ludzi z epilepsją światłoczułą.</string>
     <string name="debug_mode_warn">Tryb debug wyłącza zabezpieczenia, może powodować utratę danych lub inne awarie. Użyj na własne ryzyko.</string>
     <string name="address">Adres</string>
@@ -546,4 +546,26 @@
     <string name="third_party_ext_content">Aplikacja wspiera rozszerzenia osób trzecich, które są rozwijane przez strony trzecie. Rozszerzenia mogą:\n• Uzyskać dostęp oraz modyfikować dane\n• Uruchamiać dowolny kod\n• Zawierać błędy, luki, złośliwy kod\n• Powodować niestabilność oraz awarie\n• Zagrażać bezpieczeństwu oraz prywatności\n\nNie recenzujemy, zatwierdzamy, bierzemy odpowiedzialności za żadne rozszerzenie. Instalujesz oraz używasz rozszerzeń na własne ryzyko. Nie odpowiadamy za żadne uszkodzenia, utratę danych oraz problemy z bezpieczeństwem spowodowane przez rozszerzenia osób trzecich.</string>
     <string name="no_warranty_content">Oprogramowanie jest rozpowszechniane na licencji GNU General Public License v3.0 oraz jest udostępniane TAK JAK JEST, BEZ ŻADNEJ GWARANCJI, zarówno jawnej jak i domniemanej, w tym gwarancji przydatności handlowej, przydatności do określonego celu i nienaruszania własności intelektualnej.</string>
     <string name="not_liable_content">W żadnym wypadku deweloperzy oraz właściciele praw autorskich nie zostaną pociągnięci do odpowiedzialności za żadne roszczenia, uszkodzenia oraz straty wynikające z użycia oprogramowania. W tym, nie ograniczając się do: utraty danych, awarii systemu, straty przychodów, lub jakichkolwiek przypadkowych lub celowych strat, nawet jeśli pouczono o możliwości ich wystąpienia.</string>
+    <string name="ctrl">Ctrl</string>
+    <string name="alt">Alt</string>
+    <string name="shift">Shift</string>
+    <string name="reset_all">Resetuj wszystkie</string>
+    <string name="search_keybinds">Szukaj komend lub skrótów klawiszowych</string>
+    <string name="transform_lowercase">Zamień na małe litery</string>
+    <string name="transform_uppercase">Zamień na duże litery</string>
+    <string name="keybindings_conflict_error">Przypisanie klawisza konfliktuje z innym skrótem klawiszowym.</string>
+    <string name="auto_open_new_files">Otwórz stworzone pliki</string>
+    <string name="auto_open_new_files_desc">Automatycznie otwieraj stworzone pliki</string>
+    <string name="return_to_app_desc">Wróć do aplikacji po zamknięciu terminalu</string>
+    <string name="return_to_app">Wróć do aplikacji</string>
+    <string name="reset_consent">Reset zgody</string>
+    <string name="reset_consent_desc">Pokaż warunki użytkowania oraz zastrzeżenia podczas następnego uruchomienia</string>
+    <string name="keybindings">Przypisania klawiszy</string>
+    <string name="keybindings_desc">Konfiguruj przypisania klawiszy</string>
+    <string name="none_set">Nie ustawiono</string>
+    <string name="press_key">Naciśnij kombinacaje klawiszy (musi zawierać Ctrl lub Alt)</string>
+    <string name="keybinds_info">Aplikacja wspiera skróty klawiszowe klawiatury fizycznej, aby pracować szybciej i efektywniej. Rozbudowany zestaw domyślnych skrótów jest dostępny od ręki oraz możesz go dostosować do upodobań poniżej.</string>
+    <string name="extra_key_bg">Tło dodatkowych klawiszy</string>
+    <string name="extra_key_bg_desc">Pokaż tło dodatkowych klawiszy</string>
+    <string name="actions">Czynności</string>
 </resources>

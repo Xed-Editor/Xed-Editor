@@ -549,7 +549,7 @@
     <string name="shift">Shift</string>
     <string name="keybinds_info">Xed-Editor supports hardware keyboard shortcuts to help you work faster and more efficiently. A wide set of default keybindings is already available and you can configure them below to your liking.</string>
     <string name="reset_all">Reset all</string>
-    <string name="search_keybinds">Search command or keybindings</string>
+    <string name="search_keybinds">Search commands or keybindings</string>
     <string name="transform_lowercase">Transform to lowercase</string>
     <string name="transform_uppercase">Transform to uppercase</string>
     <string name="keybindings_conflict_error">The keybinding you are trying to set conflicts with another keybinding.</string>
@@ -584,4 +584,7 @@
     <string name="diagnostics_desc">Show errors and warnings</string>
     <string name="formatting">Formatting</string>
     <string name="formatting_desc">Enable document formatting</string>
+    <string name="extra_key_bg">Extra key background</string>
+    <string name="extra_key_bg_desc">Show background for extra keys</string>
+    <string name="actions">Actions</string>
 </resources>

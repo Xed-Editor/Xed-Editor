@@ -564,4 +564,8 @@
     <string name="auto_open_new_files_desc">Ouvre automatiquement les fichiers nouvellement créés</string>
     <string name="open_main_activity">Démarrer l\'activité principale</string>
     <string name="open_main_activity_desc">Démarrer l\'activité principale après avoir quitter le terminal</string>
+    <string name="return_to_app_desc">Retourner au logiciel après avoir quitté le terminal</string>
+    <string name="return_to_app">Retourner au logiciel</string>
+    <string name="reset_consent">Réinitialiser le statut du consentement</string>
+    <string name="reset_consent_desc">Afficher les conditions d\'utilisation au prochain démarrage</string>
 </resources>

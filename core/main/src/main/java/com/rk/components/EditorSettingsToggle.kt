@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.tabs.editor.EditorTab
+import com.rk.settings.editor.reapplyEditorSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -64,6 +65,9 @@ fun EditorSettingsToggle(
                         }
                     }
                 }
+
+                if (showSwitch) reapplyEditorSettings()
+
             }
         },
     )
