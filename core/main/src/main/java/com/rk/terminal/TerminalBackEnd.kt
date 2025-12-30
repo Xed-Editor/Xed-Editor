@@ -10,7 +10,6 @@ import com.rk.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
 class TerminalBackEnd() : TerminalViewClient, TerminalSessionClient {
@@ -105,7 +104,7 @@ class TerminalBackEnd() : TerminalViewClient, TerminalSessionClient {
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
             val activity = Terminal.instance
-            if (activity == null){
+            if (activity == null) {
                 return false
             }
             activity.sessionBinder
@@ -167,6 +166,5 @@ class TerminalBackEnd() : TerminalViewClient, TerminalSessionClient {
     private fun showSoftInput() {
         terminalView.get()?.requestFocus()
         terminalView.get()?.let { KeyboardUtils.showSoftInput(it) }
-
     }
 }

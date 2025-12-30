@@ -277,7 +277,7 @@
     <string name="update_files_cleared">App atualizado: dados limpos</string>
     <string name="new_document">Novo documento</string>
     <string name="sponsor">Patrocinador</string>
-    <string name="sponsor_desc">Apoie o desenvolvimento</string>
+    <string name="support_desc">Apoie o desenvolvimento</string>
     <string name="feature_toggles">Alternadores de recursos</string>
     <string name="backup">Backup</string>
     <string name="restore">Restaurar</string>
@@ -323,7 +323,7 @@
     <string name="no_runners">Nenhum Executor</string>
     <string name="new_runner">Novo Executor</string>
     <string name="runner_name">Nome do Executor</string>
-    <string name="regex_pattern">Padrão Regex</string>
+    <string name="runner_regex">Padrão Regex</string>
     <string name="invalid_runner_name">Somente letras, números, sublinhados e hifens são permitidos</string>
     <string name="invalid_regex">Padrão regex inválido</string>
     <string name="runner_name_exists">Nome do Executor já existe</string>

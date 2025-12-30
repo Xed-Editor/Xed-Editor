@@ -34,7 +34,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -46,11 +48,12 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
+import com.rk.settings.Settings
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 @Composable
-fun Runners(modifier: Modifier = Modifier) {
+fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     var runnerName by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf<String?>(null) }
@@ -127,7 +130,31 @@ fun Runners(modifier: Modifier = Modifier) {
             text = stringResource(strings.info_runners),
         )
 
-        PreferenceGroup {
+        PreferenceGroup(heading = stringResource(strings.built_in)) {
+            SettingsToggle(
+                label = stringResource(strings.html_preview),
+                description = stringResource(strings.html_preview_desc),
+                default = Settings.enable_html_runner,
+                sideEffect = { Settings.enable_html_runner = it },
+                onClick = { navController.navigate(SettingsRoutes.HtmlRunner.route) },
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.markdown_preview),
+                description = stringResource(strings.markdown_preview_desc),
+                default = Settings.enable_md_runner,
+                sideEffect = { Settings.enable_md_runner = it },
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.universal_runner),
+                description = stringResource(strings.universal_runner_desc),
+                default = Settings.enable_universal_runner,
+                sideEffect = { Settings.enable_universal_runner = it },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.external)) {
             val scope = rememberCoroutineScope()
             if (isLoading) {
                 SettingsToggle(
@@ -215,7 +242,7 @@ fun Runners(modifier: Modifier = Modifier) {
                     Text(stringResource(if (isEditingExisting != null) strings.edit_runner else strings.new_runner))
                 },
                 text = {
-                    Column {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
                             value = runnerName,
                             onValueChange = {
@@ -254,7 +281,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                 regexFieldValue = it
                                 validateRegex()
                             },
-                            label = { Text(stringResource(strings.regex_pattern)) },
+                            label = { Text(stringResource(strings.runner_regex)) },
                             modifier = Modifier.focusRequester(regexFocusRequester),
                             isError = regexError != null,
                             supportingText =

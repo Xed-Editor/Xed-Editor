@@ -251,7 +251,7 @@
     <string name="update_files_cleared">Uygulama güncellendi: veriler temizlendi</string>
     <string name="folder">Klasör</string>
     <string name="sponsor">Sponsor</string>
-    <string name="sponsor_desc">Geliştirmeyi destekle</string>
+    <string name="support_desc">Geliştirmeyi destekle</string>
     <string name="file_not_loaded">Dosya henüz yüklenmedi.</string>
     <string name="ext_desc">Eklentileri yönet</string>
     <string name="info_mutators">Değiştiriciler editor metnini değiştiren küçük yazılımlardır. Bir değiştirici oluştur ve açmak için üzerine tıkla.</string>
@@ -344,7 +344,7 @@
     <string name="no_runners">Çalıştırıcı yok</string>
     <string name="new_runner">Yeni çalıştırıcı</string>
     <string name="runner_name">Çalıştırıcı adı</string>
-    <string name="regex_pattern">Regex deseni</string>
+    <string name="runner_regex">Regex deseni</string>
     <string name="redo">Tekrar</string>
     <string name="terminal_virus_notice">Bazı cihazlarda, özellikle Çin menşeli belirli modellerde, terminalde çok sayıda işlem çalıştığında (örneğin \'apt update\' veya \'apt upgrade\' sırasında) bir sistem güvenlik uyarısı görebilirsiniz. Bu yanlış bir alarmdır ve gerçek bir virüs olduğu anlamına gelmez.</string>
     <string name="text_mate_suggestion_desc">Önceden tanımlanmış anahtar kelimeler öner</string>
@@ -568,4 +568,9 @@
     <string name="extra_key_bg">Extra tuş arka planı</string>
     <string name="extra_key_bg_desc">Ek tuşlar için arka planı göster</string>
     <string name="actions">Eylemler</string>
+    <string name="enjoying_xed">Xed Editör\'ü seviyor musunuz?</string>
+    <string name="support_message">Xed ile %s dosya kaydettiniz ve %s kez kod çalıştırdınız.\n\nBu uygulamayı ücretsiz ve gizlilik odaklı tutan tek geliştiriciyim. Eğer Xed kod yazmanızı kolaylaştırdıysa, geliştirmesine destek olmayı düşünür müsünüz?\n\nDesteğiniz bana yardımcı olur:\n• Özellikleri daha hızlı geliştirmeme\n• Xed\'i sonsuza dek reklamsız tutmama\n• Hatalara hızla yanıt vermeme</string>
+    <string name="yes_support">Evet, destekleyeceğim! ❤️</string>
+    <string name="remind_me">Daha sonra hatırlat</string>
+    <string name="not_for_me">Hayır teşekkürler</string>
 </resources>

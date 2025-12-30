@@ -61,6 +61,7 @@ import com.rk.icons.CreateNewFolder
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
+import com.rk.resources.getFilledString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
@@ -420,8 +421,16 @@ fun FileActionDialog(
             },
             onConfirm = {
                 DefaultScope.launch {
-                    if (!file.hasChild(newNameValue)) {
+                    if (file.hasChild(newNameValue)) {
+                        val msg = if (isNewFile) strings.file_already_exists else strings.folder_already_exists
+                        toast(msg.getFilledString(newNameValue))
+                    } else {
                         val newChild = file.createChild(createFile = isNewFile, newNameValue)
+
+                        if (newChild == null) {
+                            val msg = if (isNewFile) strings.file_creation_failed else strings.folder_creation_failed
+                            toast(msg)
+                        }
 
                         if (isNewFile && newChild != null && Settings.auto_open_new_files) {
                             MainActivity.instance?.viewModel?.newTab(newChild)

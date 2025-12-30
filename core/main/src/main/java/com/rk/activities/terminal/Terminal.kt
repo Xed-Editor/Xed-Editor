@@ -52,7 +52,6 @@ import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
 import com.rk.terminal.changeSession
 import com.rk.terminal.getNextStage
-import com.rk.terminal.getPwd
 import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
@@ -116,7 +115,7 @@ class Terminal : AppCompatActivity() {
         val terminalView = terminalView.get() ?: return
 
         val pwd = intent.getStringExtra("cwd")
-        if (pwd == null){
+        if (pwd == null) {
             return
         }
         val sessionId = File(pwd).name
@@ -143,7 +142,6 @@ class Terminal : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED
     }
-
 
     companion object {
         private var activityRef = WeakReference<Terminal?>(null)
@@ -304,7 +302,7 @@ class Terminal : AppCompatActivity() {
                                     File(getTempDir(), "sandbox.tar.gz").delete()
                                 }
                             }
-                            errorDialog("Setup Failed: ${error.message}")
+                            errorDialog("Setup failed: ${error.message}")
                         }
                         finish()
                     },
@@ -316,7 +314,7 @@ class Terminal : AppCompatActivity() {
                     errorDialog(strings.timeout)
                 } else {
                     e.printStackTrace()
-                    toast("Setup Failed: ${e.message}")
+                    toast("Setup failed: ${e.message}")
                 }
                 finish()
             }

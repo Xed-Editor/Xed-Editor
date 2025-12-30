@@ -252,7 +252,7 @@
     <string name="file">Datei</string>
     <string name="folder">Ordner</string>
     <string name="sponsor">Sponsor</string>
-    <string name="sponsor_desc">Entwicklung unterstützen</string>
+    <string name="support_desc">Entwicklung unterstützen</string>
     <string name="feature_toggles">Funktionen umschalten</string>
     <string name="feature_toggles_desc">Spezifische Funktionen aktivieren oder deaktivieren</string>
     <string name="backup">Sicherung</string>
@@ -314,7 +314,7 @@
     <string name="can_read">Kann lesen</string>
     <string name="can_write">Kann schreiben</string>
     <string name="is_file">Ist Datei</string>
-    <string name="regex_pattern">Regex-Ausdruck</string>
+    <string name="runner_regex">Regex-Ausdruck</string>
     <string name="invalid_runner_name">Nur Buchstaben, Zahlen, Unterstriche und Bindestriche erlaubt</string>
     <string name="invalid_regex">Ungültiger Regex-Ausdruck</string>
     <string name="timeout">Download wegen Zeitüberschreitung abgebrochen. Bitte stelle sicher, dass deine Internetverbindung stabil ist</string>

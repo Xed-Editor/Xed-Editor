@@ -282,7 +282,7 @@
     <string name="read_only_file">ファイルは読み取り専用です</string>
     <string name="folder">フォルダ</string>
     <string name="sponsor">スポンサー</string>
-    <string name="sponsor_desc">開発を支援</string>
+    <string name="support_desc">開発を支援</string>
     <string name="feature_toggles">機能の切り替え</string>
     <string name="feature_toggles_desc">特定の機能を有効化/無効化します</string>
     <string name="backup">バックアップ</string>
@@ -322,7 +322,7 @@
     <string name="no_runners">ランナーはありません</string>
     <string name="new_runner">新規ランナー</string>
     <string name="runner_name">ランナー名</string>
-    <string name="regex_pattern">正規表現パターン</string>
+    <string name="runner_regex">正規表現パターン</string>
     <string name="invalid_runner_name">文字、数字、アンダースコア、ハイフンのみ使用できます</string>
     <string name="invalid_regex">無効な正規表現パターン</string>
     <string name="runner_name_exists">ランナー名は既に存在しています</string>

@@ -24,7 +24,7 @@ import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.currentTheme
 import com.rk.utils.getSelectionColor
-import com.rk.utils.isDarkMode
+import com.rk.utils.isDarkTheme
 import com.rk.utils.toAnnotatedString
 import com.rk.utils.toast
 import io.github.rosemoe.sora.event.SelectionChangeEvent
@@ -112,7 +112,7 @@ suspend fun generateSnippet(
         val highlightedAnnotated = (highlightedSpanned as? Spannable)?.toAnnotatedString() ?: highlightedSpanned
 
         val editorColors =
-            if (isDarkMode(context)) {
+            if (isDarkTheme(context)) {
                 currentTheme.value?.darkEditorColors
             } else {
                 currentTheme.value?.lightEditorColors

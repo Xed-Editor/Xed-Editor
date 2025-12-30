@@ -25,6 +25,7 @@ import com.rk.commands.editor.ToggleWordWrapCommand
 import com.rk.commands.editor.UndoCommand
 import com.rk.commands.editor.UpperCaseCommand
 import com.rk.commands.global.CommandPaletteCommand
+import com.rk.commands.global.DocumentationCommand
 import com.rk.commands.global.NewFileCommand
 import com.rk.commands.global.SaveAllCommand
 import com.rk.commands.global.SearchCodeCommand
@@ -50,6 +51,7 @@ import kotlinx.coroutines.launch
 object CommandProvider {
     var commandList = listOf<Command>()
 
+    lateinit var DocumentationCommand: DocumentationCommand
     lateinit var TerminalCommand: TerminalCommand
     lateinit var SettingsCommand: SettingsCommand
     lateinit var NewFileCommand: NewFileCommand
@@ -88,6 +90,7 @@ object CommandProvider {
         val mainActivity = MainActivity.instance!!
         val commandContext = CommandContext(mainActivity, mainViewModel)
 
+        DocumentationCommand = DocumentationCommand(commandContext)
         TerminalCommand = TerminalCommand(commandContext)
         SettingsCommand = SettingsCommand(commandContext)
         NewFileCommand = NewFileCommand(commandContext)
@@ -124,6 +127,7 @@ object CommandProvider {
 
         commandList =
             listOf(
+                DocumentationCommand,
                 TerminalCommand,
                 SettingsCommand,
                 NewFileCommand,

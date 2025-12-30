@@ -275,7 +275,7 @@
     <string name="file">קובץ</string>
     <string name="folder">תיקיה</string>
     <string name="sponsor">חסות</string>
-    <string name="sponsor_desc">תמיכה במפתח</string>
+    <string name="support_desc">תמיכה במפתח</string>
     <string name="backup">גיבוי</string>
     <string name="restore">שחזור</string>
     <string name="success">בצליח</string>

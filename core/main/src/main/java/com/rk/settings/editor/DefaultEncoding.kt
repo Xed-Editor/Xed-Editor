@@ -51,7 +51,12 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                         Settings.encoding = selectedEncoding
                     },
                 contentModifier = Modifier.fillMaxHeight(),
-                title = { Text(fontWeight = FontWeight.Bold, text = Charset.defaultCharset().name() + " (Default)") },
+                title = {
+                    Text(
+                        fontWeight = FontWeight.Bold,
+                        text = Charset.defaultCharset().name() + " (${stringResource(strings.default_option)})",
+                    )
+                },
                 enabled = true,
                 applyPaddings = true,
                 startWidget = {

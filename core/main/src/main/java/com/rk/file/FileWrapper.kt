@@ -165,7 +165,7 @@ class FileWrapper(var file: File) : FileObject {
     override suspend fun createChild(createFile: Boolean, name: String): FileObject =
         withContext(Dispatchers.IO) {
             if (name.isBlank()) {
-                throw IllegalArgumentException("name cannot be blank")
+                throw IllegalArgumentException("Name cannot be blank")
             }
             return@withContext if (createFile) {
                 FileWrapper(File(file, name)).createFileIfNot()

@@ -51,10 +51,6 @@ fun SettingsToggle(
     startWidget: (@Composable () -> Unit)? = null,
     endWidget: (@Composable () -> Unit)? = null,
 ) {
-    if (showSwitch && endWidget != null) {
-        throw IllegalStateException("endWidget with show switch")
-    }
-
     if (showSwitch) {
         PreferenceSwitch(
             checked = state.value,
@@ -71,6 +67,7 @@ fun SettingsToggle(
                 }
             },
             startWidget = startWidget,
+            endWidget = endWidget,
             label = label,
             modifier = modifier,
             description = description,

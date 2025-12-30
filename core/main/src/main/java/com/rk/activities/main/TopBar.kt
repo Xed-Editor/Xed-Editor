@@ -53,7 +53,6 @@ fun XedTopBar(
             GlobalActions(viewModel)
 
             if (viewModel.tabs.isNotEmpty()) {
-
                 val tab =
                     if (isV) {
                         viewModel.tabs[viewModel.currentTabIndex]

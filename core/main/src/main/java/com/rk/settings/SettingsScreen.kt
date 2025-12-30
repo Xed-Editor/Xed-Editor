@@ -139,7 +139,7 @@ private fun Categories(navController: NavController) {
                 .background(Color.Transparent),
         verticalPadding = 14.dp,
         title = { Text(stringResource(strings.support)) },
-        description = { Text(stringResource(id = strings.sponsor_desc)) },
+        description = { Text(stringResource(id = strings.support_desc)) },
         startWidget = { HeartbeatIcon() },
     )
 }
