@@ -135,7 +135,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                 label = stringResource(strings.html_preview),
                 description = stringResource(strings.html_preview_desc),
                 default = Settings.enable_html_runner,
-                sideEffect = { Settings.enable_html_runner },
+                sideEffect = { Settings.enable_html_runner = it },
                 onClick = { navController.navigate(SettingsRoutes.HtmlRunner.route) },
             )
 
@@ -143,14 +143,14 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                 label = stringResource(strings.markdown_preview),
                 description = stringResource(strings.markdown_preview_desc),
                 default = Settings.enable_md_runner,
-                sideEffect = { Settings.enable_md_runner },
+                sideEffect = { Settings.enable_md_runner = it },
             )
 
             SettingsToggle(
                 label = stringResource(strings.universal_runner),
                 description = stringResource(strings.universal_runner_desc),
                 default = Settings.enable_universal_runner,
-                sideEffect = { Settings.enable_universal_runner },
+                sideEffect = { Settings.enable_universal_runner = it },
             )
         }
 

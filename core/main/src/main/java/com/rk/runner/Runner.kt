@@ -25,7 +25,11 @@ abstract class RunnerImpl() {
 
 var currentRunner = WeakReference<RunnerImpl?>(null)
 
-abstract class RunnerBuilder(val regex: Regex, val enabled: Boolean = true, val clazz: Class<out RunnerImpl>) {
+abstract class RunnerBuilder(
+    val regex: Regex,
+    val enabled: () -> Boolean = { true },
+    val clazz: Class<out RunnerImpl>,
+) {
     fun build(): RunnerImpl {
         return clazz.getDeclaredConstructor().newInstance()
     }
@@ -40,7 +44,7 @@ object Runner {
                 object :
                     RunnerBuilder(
                         regex = Regex(".*\\.(html|svg)$"),
-                        enabled = Settings.enable_html_runner,
+                        enabled = { Settings.enable_html_runner },
                         clazz = HtmlRunner::class.java,
                     ) {}
             )
@@ -48,7 +52,7 @@ object Runner {
                 object :
                     RunnerBuilder(
                         regex = Regex(".*\\.md$"),
-                        enabled = Settings.enable_md_runner,
+                        enabled = { Settings.enable_md_runner },
                         clazz = MarkdownRunner::class.java,
                     ) {}
             )
@@ -59,7 +63,7 @@ object Runner {
                             Regex(
                                 ".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"
                             ),
-                        enabled = Settings.enable_universal_runner,
+                        enabled = { Settings.enable_universal_runner },
                         clazz = UniversalRunner::class.java,
                     ) {}
             )
@@ -77,7 +81,7 @@ object Runner {
         }
 
         runnerBuilders.forEach {
-            if (!it.enabled) return@forEach
+            if (!it.enabled()) return@forEach
 
             val name = fileObject.getName()
             val regex = it.regex
