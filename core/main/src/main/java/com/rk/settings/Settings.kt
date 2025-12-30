@@ -75,7 +75,6 @@ object Settings {
     var seccomp by CachedPreference("seccomp", false)
     var desktop_mode by CachedPreference("desktopMode", false)
     var theme_flipper by CachedPreference("theme_flipper", false)
-    var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
@@ -84,11 +83,15 @@ object Settings {
     var extra_keys_bg by CachedPreference("extra_keys_bg", false)
     var auto_open_new_files by CachedPreference("auto_open_new_files", true)
     var return_to_app by CachedPreference("return_to_app", false)
+    var enable_html_runner by CachedPreference("enable_html_runner", true)
+    var enable_md_runner by CachedPreference("enable_md_runner", true)
+    var enable_universal_runner by CachedPreference("enable_universal_runner", true)
+    var inject_eruda by CachedPreference("inject_eruda", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
     var editor_text_size by CachedPreference("textsize", 14)
-    var default_night_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+    var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
 
     var user_declined_value by CachedPreference("user_declined_value", false)

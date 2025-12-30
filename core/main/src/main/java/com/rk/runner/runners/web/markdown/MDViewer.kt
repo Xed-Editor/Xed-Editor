@@ -1,6 +1,5 @@
 package com.rk.runner.runners.web.markdown
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -12,6 +11,7 @@ import com.rk.runner.runners.web.WebActivity
 import com.rk.runner.runners.web.WebScreen
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.theme.XedTheme
+import com.rk.utils.isDarkTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import java.lang.ref.WeakReference
@@ -34,8 +34,7 @@ class MDViewer : WebActivity() {
         mdViewerRef = WeakReference(this)
         file = toPreviewFile!!
 
-        val isDarkMode: Boolean =
-            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val isDarkMode: Boolean = isDarkTheme(this)
 
         // kill any existing HtmlRunner server
         HtmlRunner.httpServer?.let { if (it.isAlive) it.stop() }
@@ -43,7 +42,7 @@ class MDViewer : WebActivity() {
         lifecycleScope.launch {
             // start markdown-serving server
             httpServer =
-                HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
+                HttpServer(this@MDViewer, PORT, file.getParentFile() ?: file) { md, session ->
                     return@HttpServer runBlocking {
                         val parameters = session.parameters
                         val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
@@ -59,9 +58,21 @@ class MDViewer : WebActivity() {
                     <head>
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>${md.getName().removeSuffix(".md")}</title>
-                        <script type="module" src="https://cdn.jsdelivr.net/npm/zero-md@3?register"></script>
                     </head>
-                    <body style="background-color:${if (isDarkMode) "#0D1117" else "#FFFFFF"};">
+                    <script type="module">
+                      import ZeroMd, { STYLES } from 'https://cdn.jsdelivr.net/npm/zero-md@3'
+
+                      customElements.define(
+                        'zero-md',
+                        class extends ZeroMd {
+                          async load() {
+                            await super.load()
+                            this.template = STYLES.preset('${if (isDarkMode) "dark" else "light"}')
+                          }
+                        }
+                      )
+                    </script>
+                    <body style="background-color: ${if (isDarkMode) "#0D1117" else "#FFFFFF"};">
                          <zero-md src="/$pathAfterSlash?textmd"></zero-md>
                     </body>
                     </html>

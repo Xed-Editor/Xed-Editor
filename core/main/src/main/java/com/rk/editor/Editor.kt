@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
 import android.util.AttributeSet
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.unit.Density
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
@@ -15,7 +14,7 @@ import com.rk.settings.Settings
 import com.rk.theme.currentTheme
 import com.rk.utils.application
 import com.rk.utils.errorDialog
-import com.rk.utils.isDarkMode
+import com.rk.utils.isDarkTheme
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -356,12 +355,7 @@ class Editor : CodeEditor {
         private val highlightingCache = hashMapOf<String, TextMateLanguage>()
 
         private fun getCacheKey(context: Context): String {
-            val darkTheme =
-                when (Settings.default_night_mode) {
-                    AppCompatDelegate.MODE_NIGHT_YES -> true
-                    AppCompatDelegate.MODE_NIGHT_NO -> false
-                    else -> isDarkMode(context)
-                }
+            val darkTheme = isDarkTheme(context)
 
             val prefix = if (darkTheme) "dark" else "light"
 

@@ -39,10 +39,8 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
     }
 
     /**
-     * Sets the specified text in the current editor if it is a text file.
-     *
-     * **Note:** While the script is running, the user may switch to a different editor, which could result in the text
-     * being set in the wrong editor.
+     * Sets the specified text in the current editor if it is a text file. 1 **Note:** While the script is running, the
+     * user may switch to a different editor, which could result in the text being set in the wrong editor.
      *
      * @param text The text to set in the current editor. If null, the editor's content will be cleared.
      */

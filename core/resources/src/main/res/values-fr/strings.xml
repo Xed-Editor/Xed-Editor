@@ -288,7 +288,7 @@
     <string name="read_only_file">Le fichier est en lecture seule</string>
     <string name="folder">Répertoire</string>
     <string name="sponsor">Sponsor</string>
-    <string name="sponsor_desc">Soutenir le développement</string>
+    <string name="support_desc">Soutenir le développement</string>
     <string name="backup">Sauvegarde</string>
     <string name="unknown_err">Quelque-chose a échoué</string>
     <string name="misc">Divers</string>
@@ -324,7 +324,7 @@
     <string name="no_runners">Pas de lanceurs</string>
     <string name="new_runner">Nouveau lanceur</string>
     <string name="runner_name">Nom du lanceur</string>
-    <string name="regex_pattern">Motif de regex</string>
+    <string name="runner_regex">Motif de regex</string>
     <string name="invalid_runner_name">Seuls des lettres, des chiffres, des soulignements et des tirets sont permis</string>
     <string name="invalid_regex">Motif de Regex invalide</string>
     <string name="runner_name_exists">Nom de lanceur déjà existant</string>

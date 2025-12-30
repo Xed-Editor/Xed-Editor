@@ -196,7 +196,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
 fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
     val bottomSheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
-    var selectedMode by remember { mutableIntStateOf(Settings.default_night_mode) }
+    var selectedMode by remember { mutableIntStateOf(Settings.theme_mode) }
 
     val modes =
         listOf(
@@ -235,7 +235,7 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
                             modifier =
                                 Modifier.clickable {
                                     selectedMode = mode
-                                    Settings.default_night_mode = selectedMode
+                                    Settings.theme_mode = selectedMode
                                     AppCompatDelegate.setDefaultNightMode(selectedMode)
                                     coroutineScope.launch {
                                         bottomSheetState.hide()

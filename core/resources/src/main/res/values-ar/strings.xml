@@ -292,7 +292,7 @@
     <string name="success">‌بنجاح</string>
     <string name="restore">استعادة</string>
     <string name="backup">نسخ احتياطي</string>
-    <string name="sponsor_desc">أدعم المطور</string>
+    <string name="support_desc">أدعم المطور</string>
     <string name="expose_saf">عرض دليل الرئيسي</string>
     <string name="saf_expose_warning">قد يؤدي كشف الدليل الرئيسي إلى كشف معلومات حساسة للتطبيقات الضارة، بما في ذلك رموز Git وكلمات المرور وأسماء المستخدمين والملفات الأخرى المخزنة في الدليل الرئيسي لجهازك. هل تريد المتابعة؟</string>
     <string name="info">معلومات</string>
@@ -333,7 +333,7 @@
     <string name="no_runners">لا مشغلات</string>
     <string name="new_runner">مشغل جديد</string>
     <string name="runner_name">اسم المشغل</string>
-    <string name="regex_pattern">نمط التعبيرات العادية</string>
+    <string name="runner_regex">نمط التعبيرات العادية</string>
     <string name="invalid_runner_name">مسموح فقط بالأحرف والأرقام والشرطات السفلية وعلامات الوصل</string>
     <string name="invalid_regex">نمط تعبير عادي غير صالح</string>
     <string name="open_as_project">الفتح كمشروع</string>

@@ -290,7 +290,7 @@
     <string name="file">கோப்பு</string>
     <string name="folder">கோப்புறை</string>
     <string name="sponsor">ஒப்புரவாளர்</string>
-    <string name="sponsor_desc">உதவி மேம்பாடு</string>
+    <string name="support_desc">உதவி மேம்பாடு</string>
     <string name="feature_toggles">நற்பொருத்தம் மாற்றங்கள்</string>
     <string name="feature_toggles_desc">குறிப்பிட்ட அம்சங்களை இயக்கவும் அல்லது முடக்கவும்</string>
     <string name="unknown_err">ஏதோ தவறாகிவிட்டது</string>
@@ -324,7 +324,7 @@
     <string name="no_runners">ஓட்டப்பந்தய வீரர்கள் இல்லை</string>
     <string name="new_runner">புதிய ரன்னர்</string>
     <string name="runner_name">ரன்னர் பெயர்</string>
-    <string name="regex_pattern">ரீசெக்ச் முறை</string>
+    <string name="runner_regex">ரீசெக்ச் முறை</string>
     <string name="invalid_runner_name">கடிதங்கள், எண்கள், அடிக்கோடிட்டுக் காட்டுதல் மற்றும் ஐபன்கள் மட்டுமே அனுமதிக்கப்படுகின்றன</string>
     <string name="invalid_regex">தவறான ரீசெக்ச் முறை</string>
     <string name="runner_name_exists">ரன்னர் பெயர் ஏற்கனவே உள்ளது</string>

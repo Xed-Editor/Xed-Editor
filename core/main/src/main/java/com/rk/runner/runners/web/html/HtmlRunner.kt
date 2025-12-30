@@ -4,8 +4,11 @@ import android.content.Context
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import com.rk.icons.Icon
 import com.rk.resources.drawables
+import com.rk.resources.getFilledString
+import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
 import com.rk.utils.toast
@@ -16,49 +19,23 @@ class HtmlRunner() : RunnerImpl() {
         private const val PORT = 8357
     }
 
-    // a broadcasts should be used instead of this hack
-    //    class DevTools : Service(){
-    //        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-    //            httpServer?.let {
-    //                if (it.isAlive.not()){
-    //                    stopSelf()
-    //                }
-    //
-    //                //how do you even refresh?? only if chrome custom tab had a simple api
-    //            }
-    //            stopSelf()
-    //            return super.onStartCommand(intent, flags, startId)
-    //        }
-    //        override fun onBind(p0: Intent?): IBinder? {
-    //            return null
-    //        }
-    //    }
-
-    override suspend fun run(context: Context, file: FileObject) {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         stop()
-        httpServer = HttpServer(PORT, file.getParentFile() ?: file)
+        httpServer = HttpServer(context, PORT, fileObject.getParentFile() ?: fileObject)
 
-        toast("Serving at: http://localhost:$PORT")
+        val address = "http://localhost:$PORT"
+        toast(strings.http_server_at.getFilledString(address))
 
-        val url = "http://localhost:$PORT/${file.getName()}"
+        val url = "$address/${fileObject.getName()}"
         CustomTabsIntent.Builder()
-            .apply {
-                setShowTitle(true)
-                setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-
-                //            val pendingIntent = PendingIntent.getService(
-                //                context, 0, Intent(context,DevTools::class.java), PendingIntent.FLAG_IMMUTABLE or
-                // PendingIntent.FLAG_UPDATE_CURRENT
-                //            )
-                //
-                //            addMenuItem("Dev Tools",pendingIntent)
-            }
+            .setShowTitle(true)
+            .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
             .build()
             .launchUrl(context, url.toUri())
     }
 
     override fun getName(): String {
-        return "Html"
+        return FileType.HTML.title
     }
 
     override fun getIcon(context: Context): Icon {

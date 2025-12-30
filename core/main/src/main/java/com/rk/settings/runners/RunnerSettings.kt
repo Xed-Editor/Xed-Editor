@@ -46,11 +46,12 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
+import com.rk.settings.Settings
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 @Composable
-fun Runners(modifier: Modifier = Modifier) {
+fun RunnerSettings(modifier: Modifier = Modifier) {
     var showDialog by remember { mutableStateOf(false) }
     var runnerName by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf<String?>(null) }
@@ -127,7 +128,38 @@ fun Runners(modifier: Modifier = Modifier) {
             text = stringResource(strings.info_runners),
         )
 
-        PreferenceGroup {
+        PreferenceGroup(heading = stringResource(strings.built_in)) {
+            SettingsToggle(
+                label = stringResource(strings.html_preview),
+                description = stringResource(strings.html_preview_desc),
+                default = Settings.enable_html_runner,
+                sideEffect = { Settings.enable_html_runner },
+                onClick = {},
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.markdown_preview),
+                description = stringResource(strings.markdown_preview_desc),
+                default = Settings.enable_md_runner,
+                sideEffect = { Settings.enable_md_runner },
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.universal_runner),
+                description = stringResource(strings.universal_runner_desc),
+                default = Settings.enable_universal_runner,
+                sideEffect = { Settings.enable_universal_runner },
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.inject_eruda),
+                description = stringResource(strings.inject_eruda_desc),
+                default = Settings.inject_eruda,
+                sideEffect = { Settings.inject_eruda = it },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.external)) {
             val scope = rememberCoroutineScope()
             if (isLoading) {
                 SettingsToggle(
@@ -215,7 +247,7 @@ fun Runners(modifier: Modifier = Modifier) {
                     Text(stringResource(if (isEditingExisting != null) strings.edit_runner else strings.new_runner))
                 },
                 text = {
-                    Column {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
                             value = runnerName,
                             onValueChange = {
@@ -254,7 +286,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                 regexFieldValue = it
                                 validateRegex()
                             },
-                            label = { Text(stringResource(strings.regex_pattern)) },
+                            label = { Text(stringResource(strings.runner_regex)) },
                             modifier = Modifier.focusRequester(regexFocusRequester),
                             isError = regexError != null,
                             supportingText =
