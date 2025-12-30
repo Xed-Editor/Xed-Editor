@@ -2,7 +2,6 @@ package com.rk.theme
 
 import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -19,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.MaterialColors
 import com.rk.settings.Settings
 import com.rk.settings.theme.themes
-import com.rk.utils.isDarkMode
+import com.rk.utils.isDarkTheme
 import com.rk.utils.toast
 
 val currentTheme = mutableStateOf<ThemeHolder?>(null)
@@ -30,12 +29,7 @@ val LocalThemeHolder = staticCompositionLocalOf<ThemeHolder> { error("No ThemeHo
 
 @Composable
 fun XedTheme(
-    darkTheme: Boolean =
-        when (Settings.default_night_mode) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isDarkMode(LocalContext.current)
-        },
+    darkTheme: Boolean = isDarkTheme(LocalContext.current),
     highContrastDarkTheme: Boolean = amoled.value,
     dynamicColor: Boolean = dynamicTheme.value,
     content: @Composable () -> Unit,

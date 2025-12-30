@@ -284,7 +284,7 @@
     <string name="new_document">Nuovo documento</string>
     <string name="file">File</string>
     <string name="feature_toggles">Gestisci funzioni</string>
-    <string name="sponsor_desc">Supporta lo sviluppo</string>
+    <string name="support_desc">Supporta lo sviluppo</string>
     <string name="feature_toggles_desc">Abilita o disabilita funzionalità specifiche</string>
     <string name="new_document_desc">Nuovo file o cartella</string>
     <string name="folder">Cartella</string>
@@ -324,7 +324,7 @@
     <string name="no_runners">Nessun esecutore</string>
     <string name="new_runner">Nuovo esecutore</string>
     <string name="runner_name">Nome esecutore</string>
-    <string name="regex_pattern">Modello regex</string>
+    <string name="runner_regex">Modello regex</string>
     <string name="delete_desc">Elimina definitivamente il documento</string>
     <string name="invalid_runner_name">Consentiti solo lettere, numeri, underscore e trattini</string>
     <string name="invalid_regex">Modello regex non valido</string>

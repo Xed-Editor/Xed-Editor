@@ -283,7 +283,7 @@
     <string name="read_only_file">Berkas hanya dapat dibaca</string>
     <string name="folder">Folder</string>
     <string name="sponsor">Sponsor</string>
-    <string name="sponsor_desc">Dukung pengembangan</string>
+    <string name="support_desc">Dukung pengembangan</string>
     <string name="feature_toggles">Tombol fitur</string>
     <string name="feature_toggles_desc">Mengaktifkan atau menonaktifkan fitur tertentu</string>
     <string name="backup">Cadangkan</string>
@@ -324,7 +324,7 @@
     <string name="no_runners">Tidak ada runner</string>
     <string name="new_runner">Runner baru</string>
     <string name="runner_name">Nama runner</string>
-    <string name="regex_pattern">Pola regex</string>
+    <string name="runner_regex">Pola regex</string>
     <string name="invalid_runner_name">Hanya huruf, angka, garis bawah, dan tanda hubung yang diperbolehkan</string>
     <string name="invalid_regex">Pola regex tidak sah</string>
     <string name="runner_name_exists">Nama runner sudah tersedia</string>

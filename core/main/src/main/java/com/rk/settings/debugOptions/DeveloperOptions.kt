@@ -143,13 +143,13 @@ fun startThemeFlipperIfNotRunning() {
                             delay(7000)
 
                             val mode =
-                                if (Settings.default_night_mode == AppCompatDelegate.MODE_NIGHT_NO) {
+                                if (Settings.theme_mode == AppCompatDelegate.MODE_NIGHT_NO) {
                                     AppCompatDelegate.MODE_NIGHT_YES
                                 } else {
                                     AppCompatDelegate.MODE_NIGHT_NO
                                 }
 
-                            Settings.default_night_mode = mode
+                            Settings.theme_mode = mode
 
                             withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(mode) }
                         }

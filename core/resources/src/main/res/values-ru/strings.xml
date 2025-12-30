@@ -285,7 +285,7 @@
     <string name="toggle_word_wrap">Переключить перенос слов</string>
     <string name="warning_private_dir">Содержимое этого каталога будет удалено, если вы очистите данные или удалите Xed-Editor</string>
     <string name="sponsor">Поддержать</string>
-    <string name="sponsor_desc">Поддержать разработку</string>
+    <string name="support_desc">Поддержать разработку</string>
     <string name="feature_toggles">Переключатель функций</string>
     <string name="feature_toggles_desc">Включить или отключить определенные функции</string>
     <string name="restore">Восстановить</string>
@@ -323,7 +323,7 @@
     <string name="no_runners">Скриптов нет</string>
     <string name="new_runner">Новый скрипт</string>
     <string name="runner_name">Имя скрипта</string>
-    <string name="regex_pattern">Regex-шаблон</string>
+    <string name="runner_regex">Regex-шаблон</string>
     <string name="runner_name_exists">Имя скрипта уже существует</string>
     <string name="edit_runner">Редактировать скрипт</string>
     <string name="info_runners">Небольшие bash-сценарии для запуска файла/проекта. Создайте скрипт и нажмите на него, чтобы открыть в редакторе.</string>

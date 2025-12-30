@@ -33,6 +33,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object Runners : SettingsRoutes("runners")
 
+    data object HtmlRunner : SettingsRoutes("html_preview")
+
     data object Themes : SettingsRoutes("theme")
 
     data object LspSettings : SettingsRoutes("lsp_settings")

@@ -288,7 +288,7 @@
     <string name="file">फ़ाइल</string>
     <string name="folder">फ़ोल्डर</string>
     <string name="sponsor">स्पॉन्सर करें</string>
-    <string name="sponsor_desc">डेवलपमेंट सपोर्ट करें</string>
+    <string name="support_desc">डेवलपमेंट सपोर्ट करें</string>
     <string name="feature_toggles">फ़ीचर टॉगल्स</string>
     <string name="feature_toggles_desc">विशिष्ट फ़ीचर्स सक्षम/अक्षम करें</string>
     <string name="backup">बैकअप</string>
@@ -324,7 +324,7 @@
     <string name="no_runners">कोई रनर्स नहीं</string>
     <string name="new_runner">नया रनर</string>
     <string name="runner_name">रनर नाम</string>
-    <string name="regex_pattern">रेजेक्स पैटर्न</string>
+    <string name="runner_regex">रेजेक्स पैटर्न</string>
     <string name="invalid_runner_name">केवल अक्षर, संख्याएँ, अंडरस्कोर और हाइफ़न अनुमत</string>
     <string name="invalid_regex">अमान्य रेजेक्स पैटर्न</string>
     <string name="runner_name_exists">रनर नाम पहले से मौजूद</string>

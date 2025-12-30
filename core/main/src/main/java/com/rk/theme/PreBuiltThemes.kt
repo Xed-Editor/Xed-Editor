@@ -4,8 +4,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import com.google.gson.JsonArray
+import com.rk.resources.getString
+import com.rk.resources.strings
 import java.util.Properties
-import kotlin.collections.emptyList
 
 fun Color.toHex(): String {
     val intColor = this.value.toLong().toInt()
@@ -19,7 +20,7 @@ fun Color.toHex(): String {
 val blueberry =
     ThemeHolder(
         id = "blueberry-default",
-        name = "BlueBerry (Default)",
+        name = "BlueBerry (${strings.default_option.getString()})",
         inheritBase = true,
         lightScheme =
             lightColorScheme(

@@ -3,8 +3,10 @@ package com.rk.runner.runners.web.markdown
 import android.content.Context
 import android.content.Intent
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import com.rk.icons.Icon
-import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.html.HtmlRunner
 import java.lang.ref.WeakReference
@@ -12,19 +14,19 @@ import java.lang.ref.WeakReference
 var mdViewerRef = WeakReference<MDViewer?>(null)
 var toPreviewFile: FileObject? = null
 
-class MarkDownRunner : RunnerImpl() {
-    override suspend fun run(context: Context, file: FileObject) {
+class MarkdownRunner : RunnerImpl() {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         val intent = Intent(context, MDViewer::class.java)
-        toPreviewFile = file
+        toPreviewFile = fileObject
         context.startActivity(intent)
     }
 
     override fun getName(): String {
-        return "MarkDown"
+        return strings.markdown_preview.getString()
     }
 
     override fun getIcon(context: Context): Icon {
-        return Icon.DrawableRes(drawables.markdown)
+        return Icon.DrawableRes(FileType.MARKDOWN.icon!!)
     }
 
     override suspend fun isRunning(): Boolean {

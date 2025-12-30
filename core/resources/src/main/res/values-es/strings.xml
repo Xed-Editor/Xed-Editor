@@ -272,7 +272,7 @@
     <string name="update_files_cleared">Aplicación actualizada: datos purgados</string>
     <string name="toggle_word_wrap">Conmutar ajuste de palabra</string>
     <string name="sponsor">Patrocinador</string>
-    <string name="sponsor_desc">Apoyo del desarrollo</string>
+    <string name="support_desc">Apoyo del desarrollo</string>
     <string name="feature_toggles_desc">Habilitar o deshabilitar funciones específicas</string>
     <string name="feature_toggles">Característica palancas</string>
     <string name="read_only_file">El archivo es de sólo lectura</string>
@@ -313,7 +313,7 @@
     <string name="manage_storage_desc">Administrar los permisos al almacenamiento</string>
     <string name="lang">Idioma</string>
     <string name="lang_desc">Ajustes de idioma</string>
-    <string name="regex_pattern">Patrón regex</string>
+    <string name="runner_regex">Patrón regex</string>
     <string name="redo">Rehacer</string>
     <string name="read_mode">Modo de lectura</string>
     <string name="edit_mode">Modo de edición</string>

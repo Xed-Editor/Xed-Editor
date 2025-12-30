@@ -38,7 +38,7 @@ fun isUPISupported(context: Context): Boolean {
     val isIndia = currentLocale.country.equals("IN", ignoreCase = true)
 
     // 2. Check if there is at least one app capable of handling a UPI URI
-    val uri = Uri.parse("upi://pay")
+    val uri = "upi://pay".toUri()
     val intent = Intent(Intent.ACTION_VIEW, uri)
     val packageManager = context.packageManager
 
@@ -67,7 +67,7 @@ fun Support(modifier: Modifier = Modifier) {
         PreferenceGroup {
             SettingsToggle(
                 label = "GitHub Sponsors",
-                description = "Become a sponsor and help shape the future of this project",
+                description = stringResource(strings.sponsor_desc),
                 isEnabled = true,
                 showSwitch = false,
                 default = false,
@@ -87,14 +87,14 @@ fun Support(modifier: Modifier = Modifier) {
                 },
                 sideEffect = {
                     val url = "https://github.com/sponsors/RohitKushvaha01"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
                     Settings.donated = true
                 },
             )
             SettingsToggle(
                 label = "Buy Me a Coffee",
-                description = "Show your love with a coffee - every cup helps! ☕",
+                description = stringResource(strings.coffee_desc),
                 isEnabled = true,
                 showSwitch = false,
                 default = false,
@@ -123,7 +123,7 @@ fun Support(modifier: Modifier = Modifier) {
             if (upiAvailable) {
                 SettingsToggle(
                     label = "UPI",
-                    description = "Support directly through your favorite UPI app",
+                    description = stringResource(strings.upi_desc),
                     isEnabled = true,
                     showSwitch = false,
                     default = false,
@@ -153,12 +153,12 @@ fun Support(modifier: Modifier = Modifier) {
                                 .build()
                         val intent = Intent(Intent.ACTION_VIEW).apply { data = uri }
 
-                        val chooser = Intent.createChooser(intent, "Use")
+                        val chooser = Intent.createChooser(intent, strings.use.getString())
                         if (intent.resolveActivity(context.packageManager) != null) {
                             context.startActivity(chooser)
                             Settings.donated = true
                         } else {
-                            toast("No UPI app found")
+                            toast(strings.no_upi_error)
                         }
                     },
                 )

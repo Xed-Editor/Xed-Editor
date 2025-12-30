@@ -47,7 +47,7 @@
     <string name="about">O aplikaci</string>
     <string name="new_document_desc">Nový soubor nebo složka</string>
     <string name="file">Soubor</string>
-    <string name="sponsor_desc">Podpořit vývoj</string>
+    <string name="support_desc">Podpořit vývoj</string>
     <string name="read_only_file">Soubor je jenom pro čtení</string>
     <string name="new_document">Nový</string>
     <string name="folder">Složka</string>
@@ -295,7 +295,7 @@
     <string name="no_runners">Žádné spouštěče</string>
     <string name="new_runner">Nový spouštěč</string>
     <string name="runner_name">Jméno spouštěče</string>
-    <string name="regex_pattern">Vzor regexu</string>
+    <string name="runner_regex">Vzor regexu</string>
     <string name="invalid_runner_name">Jsou povoleny jenom písměna, číslice, podtržítka a pomlčky</string>
     <string name="invalid_regex">Neplatný vzor regexu</string>
     <string name="runner_name_exists">Jméno spouštěče bylo už použito</string>

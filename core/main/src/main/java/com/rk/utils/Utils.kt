@@ -18,6 +18,7 @@ import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -73,10 +74,20 @@ fun toast(message: String?) {
         Log.w("TOAST", message)
         return
     }
-    runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
+    runOnUiThread { Toast.makeText(application!!, message, Toast.LENGTH_SHORT).show() }
 }
 
-fun isDarkMode(ctx: Context): Boolean {
+/** Returns true if the currently selected user theme is dark. If it's set to system, the system theme is used. */
+fun isDarkTheme(ctx: Context): Boolean {
+    return when (Settings.theme_mode) {
+        AppCompatDelegate.MODE_NIGHT_YES -> true
+        AppCompatDelegate.MODE_NIGHT_NO -> false
+        else -> isSystemInDarkTheme(ctx)
+    }
+}
+
+/** Returns true if the system theme is dark. **NOTE:** Prefer [isDarkTheme] to respect user settings. */
+fun isSystemInDarkTheme(ctx: Context): Boolean {
     return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
         Configuration.UI_MODE_NIGHT_YES)
 }
@@ -131,7 +142,7 @@ fun copyToClipboard(label: String, text: String, showToast: Boolean = true) {
 }
 
 fun copyToClipboard(text: String, showToast: Boolean = true) {
-    copyToClipboard(label = "xed-editor", text, showToast = showToast)
+    copyToClipboard(label = "Xed-Editor", text, showToast = showToast)
 }
 
 fun expectOOM(requiredMemBytes: Long): Boolean {

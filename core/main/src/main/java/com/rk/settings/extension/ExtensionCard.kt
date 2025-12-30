@@ -29,12 +29,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.extension.Extension
 import com.rk.icons.Download
 import com.rk.icons.XedIcons
+import com.rk.resources.strings
 import kotlinx.coroutines.launch
 
 enum class InstallState {
@@ -101,7 +103,7 @@ fun ExtensionCard(
                         ) {
                             Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text("Install")
+                            Text(stringResource(strings.install))
                         }
                     }
 
@@ -119,7 +121,7 @@ fun ExtensionCard(
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                             Spacer(Modifier.width(6.dp))
-                            Text("Installing")
+                            Text(stringResource(strings.installing))
                         }
                     }
 
@@ -136,7 +138,7 @@ fun ExtensionCard(
                         ) {
                             Icon(Icons.Outlined.Delete, contentDescription = null, Modifier.size(18.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text("Uninstall")
+                            Text(stringResource(strings.uninstall))
                         }
                     }
                 }

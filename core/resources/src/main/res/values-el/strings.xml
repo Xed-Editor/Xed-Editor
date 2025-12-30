@@ -244,7 +244,7 @@
     <string name="file">Αρχείο</string>
     <string name="folder">Φάκελος</string>
     <string name="sponsor">Χορηγός</string>
-    <string name="sponsor_desc">Υποστήριξη ανάπτυξης</string>
+    <string name="support_desc">Υποστήριξη ανάπτυξης</string>
     <string name="feature_toggles">Εναλλαγές λειτουργιών</string>
     <string name="feature_toggles_desc">Ενεργοποίηση ή απενεργοποίηση συγκεκριμένων λειτουργιών</string>
     <string name="backup">Αντίγραφο ασφαλείας</string>

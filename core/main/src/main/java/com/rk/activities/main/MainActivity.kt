@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        AppCompatDelegate.setDefaultNightMode(Settings.default_night_mode)
+        AppCompatDelegate.setDefaultNightMode(Settings.theme_mode)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         instance = this
@@ -278,7 +278,7 @@ class MainActivity : AppCompatActivity() {
                                     modifier = Modifier.weight(1f),
                                     onClick = {
                                         Settings.shown_disclaimer = true
-                                        navController!!.navigate(MainRoutes.Main.route)
+                                        navController.navigate(MainRoutes.Main.route)
                                     },
                                 ) {
                                     Text(

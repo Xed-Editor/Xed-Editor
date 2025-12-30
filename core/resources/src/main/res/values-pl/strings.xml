@@ -167,7 +167,7 @@
     <string name="file">Plik</string>
     <string name="folder">Katalog</string>
     <string name="sponsor">Zasponsoruj</string>
-    <string name="sponsor_desc">Wsparcie rozwoju</string>
+    <string name="support_desc">Wsparcie rozwoju</string>
     <string name="feature_toggles">Przełączniki funkcji</string>
     <string name="feature_toggles_desc">Włącz lub wyłącz funkcje</string>
     <string name="backup">Kopia zapasowa</string>
@@ -376,7 +376,7 @@
     <string name="capture_logcat_desc">Przechwyć dzienniki w tle do debugingu</string>
     <string name="logcat_service">Usługa dzienników komunikatów</string>
     <string name="logcat_service_desc">Przechwytywanie dzienników w tle</string>
-    <string name="regex_pattern">Wzór wyrażenia regularnego</string>
+    <string name="runner_regex">Wzór wyrażenia regularnego</string>
     <string name="invalid_runner_name">Tylko litery, liczby, podkreślniki oraz łączniki dozwolone</string>
     <string name="invalid_regex">Nieprawidłowy wzór wyrażenia regularnego</string>
     <string name="runner_name_exists">Nazwa programu uruchamiającego jest już używana</string>

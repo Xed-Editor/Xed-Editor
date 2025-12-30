@@ -81,7 +81,7 @@ object SessionManager {
                     }
                     .onFailure {
                         it.printStackTrace()
-                        toast("Unable to save tabs")
+                        toast(strings.save_tabs_error)
                     }
             }
         }

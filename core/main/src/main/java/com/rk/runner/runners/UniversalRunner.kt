@@ -64,7 +64,7 @@ class UniversalRunner : RunnerImpl() {
     }
 
     override fun getName(): String {
-        return "Universal Runner"
+        return strings.universal_runner.getString()
     }
 
     override fun getIcon(context: Context): Icon {
