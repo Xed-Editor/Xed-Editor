@@ -78,7 +78,7 @@ class HttpServer(
 
             newFixedLengthResponse(
                 Status.OK,
-                URLConnection.guessContentTypeFromName(file.getName()) ?: "application/octet-stream",
+                URLConnection.guessContentTypeFromName(file.getName()) ?: "text/html",
                 injected,
             )
         } catch (_: SecurityException) {

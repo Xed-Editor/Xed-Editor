@@ -278,7 +278,7 @@ class MainActivity : AppCompatActivity() {
                                     modifier = Modifier.weight(1f),
                                     onClick = {
                                         Settings.shown_disclaimer = true
-                                        navController!!.navigate(MainRoutes.Main.route)
+                                        navController.navigate(MainRoutes.Main.route)
                                     },
                                 ) {
                                     Text(

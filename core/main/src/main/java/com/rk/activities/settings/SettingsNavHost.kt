@@ -19,6 +19,7 @@ import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.lsp.LspSettings
 import com.rk.settings.mutators.ManageMutators
+import com.rk.settings.runners.HtmlRunnerSettings
 import com.rk.settings.runners.RunnerSettings
 import com.rk.settings.support.Support
 import com.rk.settings.terminal.SettingsTerminalScreen
@@ -48,8 +49,8 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
         composable(SettingsRoutes.Support.route) { Support() }
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
-        composable(SettingsRoutes.Runners.route) { RunnerSettings() }
-        composable(SettingsRoutes.HTMLPreview.route) { HtmlRunnerSettings() }
+        composable(SettingsRoutes.Runners.route) { RunnerSettings(navController = navController) }
+        composable(SettingsRoutes.HtmlRunner.route) { HtmlRunnerSettings() }
         composable(SettingsRoutes.LspSettings.route) { LspSettings() }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
         composable(SettingsRoutes.Extensions.route) { Extensions() }

@@ -34,7 +34,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -51,7 +53,7 @@ import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
 @Composable
-fun RunnerSettings(modifier: Modifier = Modifier) {
+fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     var runnerName by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf<String?>(null) }
@@ -134,7 +136,7 @@ fun RunnerSettings(modifier: Modifier = Modifier) {
                 description = stringResource(strings.html_preview_desc),
                 default = Settings.enable_html_runner,
                 sideEffect = { Settings.enable_html_runner },
-                onClick = {},
+                onClick = { navController.navigate(SettingsRoutes.HtmlRunner.route) },
             )
 
             SettingsToggle(
@@ -149,13 +151,6 @@ fun RunnerSettings(modifier: Modifier = Modifier) {
                 description = stringResource(strings.universal_runner_desc),
                 default = Settings.enable_universal_runner,
                 sideEffect = { Settings.enable_universal_runner },
-            )
-
-            SettingsToggle(
-                label = stringResource(strings.inject_eruda),
-                description = stringResource(strings.inject_eruda_desc),
-                default = Settings.inject_eruda,
-                sideEffect = { Settings.inject_eruda = it },
             )
         }
 

@@ -86,6 +86,8 @@ object Settings {
     var enable_html_runner by CachedPreference("enable_html_runner", true)
     var enable_md_runner by CachedPreference("enable_md_runner", true)
     var enable_universal_runner by CachedPreference("enable_universal_runner", true)
+    var http_server_port by CachedPreference("http_server_port", 8357)
+    var launch_in_browser by CachedPreference("launch_in_browser", false)
     var inject_eruda by CachedPreference("inject_eruda", true)
 
     // Int settings

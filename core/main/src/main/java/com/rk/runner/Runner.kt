@@ -5,7 +5,7 @@ import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
-import com.rk.runner.runners.web.markdown.MarkDownRunner
+import com.rk.runner.runners.web.markdown.MarkdownRunner
 import com.rk.settings.Settings
 import com.rk.utils.errorDialog
 import java.lang.ref.WeakReference
@@ -49,7 +49,7 @@ object Runner {
                     RunnerBuilder(
                         regex = Regex(".*\\.md$"),
                         enabled = Settings.enable_md_runner,
-                        clazz = MarkDownRunner::class.java,
+                        clazz = MarkdownRunner::class.java,
                     ) {}
             )
             add(
