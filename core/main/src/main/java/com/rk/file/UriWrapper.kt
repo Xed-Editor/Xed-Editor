@@ -239,7 +239,7 @@ class UriWrapper : FileObject {
         }
 
         runCatching {
-            runBlocking { getOutPutStream(false).close() }
+            runBlocking { getOutPutStream(true).close() }
             return true
         }
 
