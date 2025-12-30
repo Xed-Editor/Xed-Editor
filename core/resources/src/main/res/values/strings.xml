@@ -585,4 +585,11 @@
     <string name="server_port_desc">Set the port used by the built-in HTTP server</string>
     <string name="launch_in_browser">Open in browser</string>
     <string name="launch_in_browser_desc">Open the file in your default browser instead of the in-app preview</string>
+    <string name="default_option">Default</string>
+    <string name="save_tabs_error">Unable to save tabs</string>
+    <string name="no_themes_found">No themes found</string>
+    <string name="file_already_exists">A file with the name \'%s\' already exists</string>
+    <string name="folder_already_exists">A folder with the name \'%s\' already exists</string>
+    <string name="file_creation_failed">Unable to create file</string>
+    <string name="folder_creation_failed">Unable to create folder</string>
 </resources>

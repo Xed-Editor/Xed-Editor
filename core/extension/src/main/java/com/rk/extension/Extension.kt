@@ -107,7 +107,7 @@ val LocalExtension.apkFile
 
         if (!dir.isDirectory) error("Extension [$name, $id] directory not found")
 
-        dir.listFiles { it.extension == "apk" }?.first()?.also { it.setReadOnly() } ?: error("apk not found")
+        dir.listFiles { it.extension == "apk" }?.first()?.also { it.setReadOnly() } ?: error("APK not found")
     }
 
 fun LocalExtension.getApkPackageInfo(context: Context) = run {

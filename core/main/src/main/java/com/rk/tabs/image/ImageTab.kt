@@ -31,7 +31,7 @@ class ImageTab(override val file: FileObject) : Tab() {
         get() = XedIcons.Photo
 
     override val name: String
-        get() = "Image Viewer"
+        get() = "Image viewer"
 
     @Composable
     override fun Content() {

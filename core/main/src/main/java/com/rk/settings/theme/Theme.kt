@@ -118,7 +118,12 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
 
         PreferenceGroup(heading = stringResource(strings.themes)) {
             if (themes.isEmpty()) {
-                SettingsToggle(label = "No themes found", description = null, showSwitch = false, default = false)
+                SettingsToggle(
+                    label = stringResource(strings.no_themes_found),
+                    description = null,
+                    showSwitch = false,
+                    default = false,
+                )
             } else {
                 themes.forEach { theme ->
                     SettingsToggle(
