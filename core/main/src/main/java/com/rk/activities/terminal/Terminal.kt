@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.activities.main.MainActivity
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -45,7 +44,6 @@ import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
@@ -184,14 +182,6 @@ class Terminal : AppCompatActivity() {
         if (!isFinishing) {
             super.onDestroy()
             return
-        }
-
-        if (Settings.return_to_app) {
-            startActivity(
-                Intent(this, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-            )
         }
 
         super.onDestroy()

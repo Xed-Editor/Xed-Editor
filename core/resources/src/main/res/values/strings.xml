@@ -554,8 +554,6 @@
     <string name="keybindings_conflict_error">The keybinding you are trying to set conflicts with another keybinding.</string>
     <string name="auto_open_new_files">Open created files</string>
     <string name="auto_open_new_files_desc">Automatically open newly created files</string>
-    <string name="return_to_app_desc">Go back to the app after exiting the terminal</string>
-    <string name="return_to_app">Return to app</string>
     <string name="reset_consent">Reset consent status</string>
     <string name="reset_consent_desc">Show the terms of use disclaimer on next startup</string>
     <string name="extra_key_bg">Extra key background</string>
