@@ -421,24 +421,30 @@ fun FileActionDialog(
             },
             onConfirm = {
                 DefaultScope.launch {
-                    if (file.hasChild(newNameValue)) {
-                        val msg = if (isNewFile) strings.file_already_exists else strings.folder_already_exists
-                        toast(msg.getFilledString(newNameValue))
-                    } else {
-                        val newChild = file.createChild(createFile = isNewFile, newNameValue)
+                    runCatching {
+                            if (file.canWrite().not()) {
+                                toast(strings.permission_denied)
+                                return@launch
+                            }
+                            if (file.hasChild(newNameValue).not()) {
+                                val newChild = file.createChild(createFile = isNewFile, newNameValue)
 
-                        if (newChild == null) {
-                            val msg = if (isNewFile) strings.file_creation_failed else strings.folder_creation_failed
-                            toast(msg)
-                        }
+                                if (newChild == null) {
+                                    val msg = if (isNewFile) strings.file_creation_failed else strings.folder_creation_failed
+                                    toast(msg)
+                                }
 
-                        if (isNewFile && newChild != null && Settings.auto_open_new_files) {
-                            MainActivity.instance?.viewModel?.newTab(newChild)
-                        }
-                    }
+                                if (isNewFile && newChild != null && Settings.auto_open_new_files) {
+                                    MainActivity.instance?.viewModel?.newTab(newChild)
+                                }
+                            } else {
+                                val msg = if (isNewFile) strings.file_already_exists else strings.folder_already_exists
+                                toast(msg.getFilledString(newNameValue))
+                            }
 
-                    fileTreeViewModel.updateCache(file)
-                    newNameValue = ""
+                            fileTreeViewModel.updateCache(file)
+                            newNameValue = ""
+                        }.onFailure { errorDialog(it) }
                 }
 
                 onDismissRequest()

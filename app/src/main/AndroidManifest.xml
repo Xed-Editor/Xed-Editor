@@ -101,7 +101,6 @@
             android:name="com.rk.activities.terminal.Terminal"
             android:exported="true"
             android:label="Terminal"
-            android:taskAffinity="com.rk.activities.terminal.Terminal"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>

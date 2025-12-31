@@ -83,7 +83,6 @@ object Settings {
     var extra_keys_bg by CachedPreference("extra_keys_bg", false)
     var auto_open_new_files by CachedPreference("auto_open_new_files", true)
     var complete_on_enter by CachedPreference("complete_on_enter", true)
-    var return_to_app by CachedPreference("return_to_app", false)
     var enable_html_runner by CachedPreference("enable_html_runner", true)
     var enable_md_runner by CachedPreference("enable_md_runner", true)
     var enable_universal_runner by CachedPreference("enable_universal_runner", true)
