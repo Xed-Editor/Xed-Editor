@@ -567,4 +567,5 @@
     <string name="extra_key_bg_desc">显示额外符号栏的背景</string>
     <string name="shift">Shift</string>
     <string name="actions">行动</string>
+    <string name="sponsor_desc">成为赞助者，帮助塑造本项目的未来</string>
 </resources>
