@@ -18,7 +18,7 @@ object ExtensionLspRegistry {
         get() = mutableServers.toList()
 
     fun registerServer(server: BaseLspServer) {
-        if (!servers.contains(server)) {
+        if (!mutableServers.contains(server)) {
             mutableServers.add(server)
         }
     }
