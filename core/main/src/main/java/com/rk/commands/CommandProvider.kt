@@ -1,6 +1,5 @@
 package com.rk.commands
 
-import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.editor.CopyCommand
@@ -37,16 +36,6 @@ import com.rk.commands.lsp.FormatSelectionCommand
 import com.rk.commands.lsp.GoToDefinitionCommand
 import com.rk.commands.lsp.GoToReferencesCommand
 import com.rk.commands.lsp.RenameSymbolCommand
-import com.rk.icons.Icon
-import com.rk.mutation.Engine
-import com.rk.mutation.MutatorAPI
-import com.rk.mutation.Mutators
-import com.rk.resources.drawables
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.errorDialog
-import kotlinx.coroutines.launch
 
 object CommandProvider {
     var commandList = listOf<Command>()
@@ -161,38 +150,7 @@ object CommandProvider {
                 RenameSymbolCommand,
                 FormatDocumentCommand,
                 FormatSelectionCommand,
-                *getMutatorCommands(commandContext).toTypedArray(),
             )
-    }
-
-    fun getMutatorCommands(commandContext: CommandContext): List<Command> {
-        if (!InbuiltFeatures.mutators.state.value) return emptyList()
-
-        return Mutators.mutators.map { mut ->
-            object : EditorCommand(commandContext) {
-                override val id: String = "mutators.${mut.name}"
-
-                override val prefix: String = strings.mutators.getString()
-
-                override fun getLabel(): String = mut.name
-
-                override fun action(editorActionContext: EditorActionContext) {
-                    DefaultScope.launch {
-                        Engine(mut.script, DefaultScope)
-                            .start(
-                                onResult = { _, result -> println(result) },
-                                onError = { t ->
-                                    t.printStackTrace()
-                                    errorDialog(t)
-                                },
-                                api = MutatorAPI::class.java,
-                            )
-                    }
-                }
-
-                override fun getIcon(): Icon = Icon.DrawableRes(drawables.run)
-            }
-        }
     }
 
     fun getForId(id: String, commands: List<Command>): Command? = findRecursive(id, commands)
