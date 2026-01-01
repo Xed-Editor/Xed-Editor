@@ -1,14 +1,23 @@
 package com.rk.lsp
 
+import android.content.Intent
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
+import com.rk.activities.main.MainActivity
+import com.rk.activities.main.snackbarHostStateRef
+import com.rk.activities.settings.SettingsActivity
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.editor.Editor
 import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Preference
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialog
 import com.rk.utils.errorDialog
 import com.rk.utils.info
-import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import io.github.rosemoe.sora.lsp.client.languageserver.ServerStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.EventHandler
 import io.github.rosemoe.sora.lsp.editor.LspEditor
@@ -21,6 +30,7 @@ import java.net.URI
 import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,6 +67,7 @@ class BaseLspConnector(
     private val projectFile: FileObject,
     private val fileObject: FileObject,
     private val codeEditor: Editor,
+    private val editorTab: EditorTab,
     private val servers: List<BaseLspServer>,
 ) {
     var lspEditor: LspEditor? = null
@@ -75,112 +86,203 @@ class BaseLspConnector(
                 return@withContext
             }
 
-            runCatching {
-                    val projectPath = projectFile.getAbsolutePath()
-                    val fileExt = fileObject.getName().substringAfterLast(".")
+            try {
+                runCatching {
+                        val projectPath = projectFile.getAbsolutePath()
+                        val fileExt = fileObject.getName().substringAfterLast(".")
 
-                    val project =
-                        projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }
+                        val project =
+                            projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }
 
-                    servers.forEach { server ->
-                        val serverDef = createServerDefinition(fileExt, server)
+                        servers.forEach { server ->
+                            val serverDef = createServerDefinition(fileExt, server, this@withContext)
 
-                        try {
-                            project.addServerDefinition(serverDef)
-                        } catch (e: IllegalArgumentException) {
-                            e.printStackTrace()
-                        }
-                    }
-
-                    lspEditor =
-                        withContext(Dispatchers.Main) {
-                            project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
-                                wrapperLanguage = TextMateLanguage.create(textMateScope, false)
-                                editor = codeEditor
-                                isEnableInlayHint = true
+                            try {
+                                project.addServerDefinition(serverDef)
+                            } catch (e: IllegalArgumentException) {
+                                e.printStackTrace()
                             }
                         }
 
-                    if (isConnected()) {
-                        info("LSP server already connected skipping...")
-                        return@withContext
-                    } else {
+                        lspEditor =
+                            withContext(Dispatchers.Main) {
+                                project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
+                                    wrapperLanguage = TextMateLanguage.create(textMateScope, false)
+                                    editor = codeEditor
+                                    isEnableInlayHint = true
+                                }
+                            }
+
+                        if (isConnected()) {
+                            info("LSP server already connected skipping...")
+                            return@withContext
+                        }
+
+                        editorTab.editorState.isConnectingLsp = true
                         launch { servers.forEach { it.beforeConnect() } }
-                    }
 
-                    lspEditor!!.connectWithTimeout()
-                    lspEditor!!
-                        .requestManager
-                        .didChangeWorkspaceFolders(
-                            DidChangeWorkspaceFoldersParams().apply {
-                                event =
-                                    WorkspaceFoldersChangeEvent().apply {
-                                        added =
-                                            listOf(
-                                                WorkspaceFolder(projectFile.getAbsolutePath(), projectFile.getName())
-                                            )
-                                    }
-                            }
-                        )
-                    lspEditor!!.openDocument()
-                    launch { servers.forEach { it.connectionSuccess(this@BaseLspConnector) } }
-                }
-                .onFailure {
-                    codeEditor.setLanguage(textMateScope)
-                    it.printStackTrace()
-                    toast(it.message)
-                    launch { servers.forEach { server -> server.connectionFailure(it.message) } }
-                }
+                        lspEditor!!.connect()
+                        lspEditor!!
+                            .requestManager
+                            .didChangeWorkspaceFolders(
+                                DidChangeWorkspaceFoldersParams().apply {
+                                    event =
+                                        WorkspaceFoldersChangeEvent().apply {
+                                            added =
+                                                listOf(
+                                                    WorkspaceFolder(
+                                                        projectFile.getAbsolutePath(),
+                                                        projectFile.getName(),
+                                                    )
+                                                )
+                                        }
+                                }
+                            )
+                        lspEditor!!.openDocument()
+                    }
+                    .onFailure {
+                        codeEditor.setLanguage(textMateScope)
+                        it.printStackTrace()
+                    }
+            } finally {
+                editorTab.editorState.isConnectingLsp = false
+            }
         }
 
-    private fun createServerDefinition(fileExt: String, server: BaseLspServer): CustomLanguageServerDefinition {
-        val newDef =
-            object :
-                CustomLanguageServerDefinition(
-                    ext = fileExt,
-                    serverConnectProvider =
-                        ServerConnectProvider { server.getConnectionConfig().providerFactory().create() },
-                    name = server.serverName,
-                    extensionsOverride = server.supportedExtensions,
-                ) {
+    private fun createServerDefinition(
+        fileExt: String,
+        server: BaseLspServer,
+        scope: CoroutineScope,
+    ): CustomLanguageServerDefinition {
+        return object :
+            CustomLanguageServerDefinition(
+                ext = fileExt,
+                serverConnectProvider =
+                    ServerConnectProvider { server.getConnectionConfig().providerFactory().create() },
+                name = server.serverName,
+                extensionsOverride = server.supportedExtensions,
+                expectedCapabilitiesOverride =
+                    ServerCapabilities().apply {
+                        if (!Preference.getBoolean("lsp_${server.id}_hover", true)) {
+                            hoverProvider = Either.forLeft(false)
+                        }
+                        if (!Preference.getBoolean("lsp_${server.id}_signature_help", true)) {
+                            signatureHelpProvider = null
+                        }
+                        if (!Preference.getBoolean("lsp_${server.id}_inlay_hints", true)) {
+                            inlayHintProvider = Either.forLeft(false)
+                        }
+                        if (!Preference.getBoolean("lsp_${server.id}_completion", true)) {
+                            completionProvider = null
+                        }
+                        if (!Preference.getBoolean("lsp_${server.id}_diagnostics", true)) {
+                            diagnosticProvider = null
+                        }
+                        if (!Preference.getBoolean("lsp_${server.id}_formatting", true)) {
+                            documentFormattingProvider = Either.forLeft(false)
+                            documentRangeFormattingProvider = Either.forLeft(false)
+                            documentOnTypeFormattingProvider = null
+                        }
+                    },
+            ) {
 
-                override fun getInitializationOptions(uri: URI?): Any? {
-                    return server.getInitializationOptions(uri)
-                }
+            override fun getInitializationOptions(uri: URI?): Any? {
+                return server.getInitializationOptions(uri)
+            }
 
-                override val eventListener: EventHandler.EventListener
-                    get() =
-                        object : EventHandler.EventListener {
-                            override fun initialize(server: LanguageServer?, result: InitializeResult) {
-                                super.initialize(server, result)
+            override val eventListener: EventHandler.EventListener
+                get() =
+                    object : EventHandler.EventListener {
+                        override fun initialize(server: LanguageServer?, result: InitializeResult) {
+                            super.initialize(server, result)
+                        }
+
+                        override fun onHandlerException(exception: Exception) {
+                            scope.launch {
+                                server.connectionFailure(
+                                    exception.message
+                                ) // TODO: Still runs many times (see https://github.com/Rosemoe/sora-editor/issues/777)
                             }
+                            server.status = LspConnectionStatus.ERROR
 
-                            override fun onLogMessage(messageParams: MessageParams?) {
-                                if (messageParams == null) {
-                                    return super.onLogMessage(messageParams)
+                            exception.cause?.localizedMessage?.let { message ->
+                                server.addLog(LspLogEntry(MessageType.Error, message))
+
+                                scope.launch {
+                                    val snackbarHost = snackbarHostStateRef.get() ?: return@launch
+                                    val result =
+                                        snackbarHost.showSnackbar(
+                                            message = message,
+                                            actionLabel = strings.view_logs.getString(),
+                                            duration = SnackbarDuration.Short,
+                                        )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        val activity = MainActivity.instance!!
+                                        val intent = Intent(activity, SettingsActivity::class.java)
+                                        intent.putExtra("route", "${SettingsRoutes.LspServerLogs.route}/${server.id}")
+                                        activity.startActivity(intent)
+                                    }
                                 }
-                                info(messageParams.message)
                             }
-
-                            override fun onShowMessage(messageParams: MessageParams?) {
-                                if (messageParams == null) {
-                                    return super.onShowMessage(messageParams)
-                                }
-
-                                when (messageParams.type) {
-                                    MessageType.Error -> errorDialog(messageParams.message)
-                                    MessageType.Warning ->
-                                        dialog(title = strings.warning.getString(), msg = messageParams.message)
-
-                                    MessageType.Info ->
-                                        dialog(title = strings.info.getString(), msg = messageParams.message)
-
-                                    MessageType.Log -> info(messageParams.message)
-                                }
+                            exception.localizedMessage?.let { message ->
+                                server.addLog(LspLogEntry(MessageType.Error, message))
                             }
                         }
-            }
-        return newDef
+
+                        override fun onLogMessage(messageParams: MessageParams?) {
+                            if (messageParams == null) {
+                                return super.onLogMessage(messageParams)
+                            }
+                            info(messageParams.message)
+                            server.addLog(messageParams)
+                        }
+
+                        override fun onShowMessage(messageParams: MessageParams?) {
+                            if (messageParams == null) {
+                                return super.onShowMessage(messageParams)
+                            }
+
+                            server.addLog(messageParams)
+                            when (messageParams.type) {
+                                MessageType.Error -> errorDialog(messageParams.message)
+                                MessageType.Warning ->
+                                    dialog(title = strings.warning.getString(), msg = messageParams.message)
+
+                                MessageType.Info ->
+                                    dialog(title = strings.info.getString(), msg = messageParams.message)
+
+                                MessageType.Log -> info(messageParams.message)
+                            }
+                        }
+
+                        override fun onStatusChange(newStatus: ServerStatus, oldStatus: ServerStatus) {
+                            if (server.status == LspConnectionStatus.ERROR && newStatus != ServerStatus.STARTING) return
+
+                            if (newStatus == ServerStatus.INITIALIZED) {
+                                scope.launch { server.connectionSuccess(this@BaseLspConnector) }
+                            }
+
+                            val statusMessage =
+                                when (newStatus) {
+                                    ServerStatus.STARTING -> "Connecting to LSP server..."
+                                    ServerStatus.INITIALIZED -> "LSP server initialized"
+                                    ServerStatus.STARTED -> "Connected to LSP server successfully"
+                                    ServerStatus.STOPPING -> "Disconnecting from LSP server..."
+                                    ServerStatus.STOPPED -> "Disconnected from LSP server"
+                                }
+                            server.addLog(LspLogEntry(MessageType.Info, statusMessage))
+
+                            server.status =
+                                when (newStatus) {
+                                    ServerStatus.INITIALIZED,
+                                    ServerStatus.STARTED -> LspConnectionStatus.CONNECTED
+                                    ServerStatus.STARTING -> LspConnectionStatus.CONNECTING
+                                    ServerStatus.STOPPING,
+                                    ServerStatus.STOPPED -> LspConnectionStatus.NOT_RUNNING
+                                }
+                        }
+                    }
+        }
     }
 
     fun getEventManager(): LspEventManager? {
@@ -300,7 +402,12 @@ class BaseLspConnector(
         runCatching {
                 lspEditor?.disposeAsync()
                 lspEditor = null
+                //                setStatus(LspConnectionStatus.NOT_RUNNING)
             }
-            .onFailure { it.printStackTrace() }
+            .onFailure {
+                it.printStackTrace()
+                //                it.localizedMessage?.let { message -> log(LspLogEntry(MessageType.Error, message)) }
+                //                setStatus(LspConnectionStatus.ERROR)
+            }
     }
 }

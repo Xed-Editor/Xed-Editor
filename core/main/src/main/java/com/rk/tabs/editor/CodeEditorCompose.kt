@@ -1,6 +1,5 @@
 package com.rk.tabs.editor
 
-import android.app.Activity
 import android.content.Context
 import android.view.KeyEvent
 import android.view.View
@@ -9,18 +8,19 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.snackbarHostStateRef
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.file.FileType
@@ -35,7 +35,6 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
-import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.info
 import com.rk.utils.logError
@@ -57,30 +56,11 @@ fun EditorTab.CodeEditor(
     parentTab: EditorTab,
     onTextChange: () -> Unit,
 ) {
-    val surfaceColor =
-        if (isSystemInDarkTheme()) {
-            MaterialTheme.colorScheme.surfaceDim
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
-    val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
-    val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
     val selectionColors = LocalTextSelectionColors.current
-    val realSurface = MaterialTheme.colorScheme.surface
-    val selectionBackground = selectionColors.backgroundColor
-    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    val colorPrimary = MaterialTheme.colorScheme.primary
-    val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
-    val colorSecondary = MaterialTheme.colorScheme.secondary
-    val handleColor = selectionColors.handleColor
-    val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
-
-    val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-    val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
-
-    val divider = MaterialTheme.colorScheme.outlineVariant
     val isDarkMode = isSystemInDarkTheme()
+    val colorScheme = MaterialTheme.colorScheme
 
+    val divider = colorScheme.outlineVariant
     val constraintSet = remember { ConstraintSet() }
     val scope = rememberCoroutineScope()
 
@@ -113,20 +93,8 @@ fun EditorTab.CodeEditor(
 
                         setThemeColors(
                             isDarkMode = isDarkMode,
-                            editorSurface = surfaceColor.toArgb(),
-                            surfaceContainer = surfaceContainer.toArgb(),
-                            highSurfaceContainer = highSurfaceContainer.toArgb(),
-                            surface = realSurface.toArgb(),
-                            onSurface = onSurfaceColor.toArgb(),
-                            colorPrimary = colorPrimary.toArgb(),
-                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
-                            colorSecondary = colorSecondary.toArgb(),
-                            secondaryContainer = secondaryContainer.toArgb(),
-                            selectionBg = selectionBackground.toArgb(),
-                            handleColor = handleColor.toArgb(),
-                            gutterColor = gutterColor.toArgb(),
-                            currentLine = currentLineColor.toArgb(),
-                            dividerColor = divider.toArgb(),
+                            selectionColors = selectionColors,
+                            colorScheme = colorScheme,
                         )
 
                         state.editor = WeakReference(this)
@@ -244,6 +212,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                         projectFile = parentFile,
                         fileObject = file,
                         codeEditor = editorState.editor.get()!!,
+                        editorTab = this@applyHighlightingAndConnectLSP,
                         servers = external + builtin,
                     )
 
@@ -262,7 +231,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
     }
 }
 
-private suspend fun EditorTab.getBuiltinServers(ext: String, context: Context): List<BaseLspServer> {
+private fun EditorTab.getBuiltinServers(ext: String, context: Context): List<BaseLspServer> {
     val servers = builtInServer.filter { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
     val supportedServers = mutableListOf<BaseLspServer>()
 
@@ -289,28 +258,18 @@ private suspend fun EditorTab.getBuiltinServers(ext: String, context: Context): 
     return supportedServers
 }
 
-private suspend fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspServer) {
-    if (!editorState.lspDialogMutex.isLocked) {
-        editorState.lspDialogMutex.lock()
-        dialog(
-            context = context as Activity,
-            title = strings.attention.getString(context),
-            msg = strings.ask_lsp_install.getFilledString(context, server.languageName),
-            cancelString = strings.disable,
-            okString = strings.install,
-            onOk = {
-                if (editorState.lspDialogMutex.isLocked) {
-                    editorState.lspDialogMutex.unlock()
-                }
-                server.install(context)
-            },
-            onCancel = {
-                if (editorState.lspDialogMutex.isLocked) {
-                    editorState.lspDialogMutex.unlock()
-                }
-                Preference.setBoolean("lsp_${server.id}", false)
-            },
-        )
+private fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspServer) {
+    scope.launch {
+        val snackbarHost = snackbarHostStateRef.get() ?: return@launch
+        val result =
+            snackbarHost.showSnackbar(
+                message = strings.ask_lsp_install.getFilledString(context, server.languageName),
+                actionLabel = strings.install.getString(),
+                duration = SnackbarDuration.Long,
+            )
+        if (result == SnackbarResult.ActionPerformed) {
+            server.install(context)
+        }
     }
 }
 
