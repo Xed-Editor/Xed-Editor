@@ -256,7 +256,7 @@
     <string name="script_text">此文字將被寫入到編輯器</string>
     <string name="script_api_info">如需更多資訊，請查看 Xed-Editor 源代碼中 的 ImplApi 類別 （位於 PROJECT/core/main/ui/screens/mutators/ImplApi）</string>
     <string name="installing">安裝中…</string>
-    <string name="not_plugin_err">選取的檔案不是 APK 檔</string>
+    <string name="not_ext_error">選取的檔案不是 APK 檔</string>
     <string name="install_from_storage">從儲存空間安裝</string>
     <string name="no_ext">未安裝擴充功能。</string>
     <string name="loading">載入中…</string>

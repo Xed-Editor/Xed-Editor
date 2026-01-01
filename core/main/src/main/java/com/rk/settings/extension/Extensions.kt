@@ -41,9 +41,9 @@ import com.rk.DefaultScope
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceScaffold
+import com.rk.extension.ExtensionRegistry
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
-import com.rk.extension.PluginRegistry
 import com.rk.extension.github.GitHubApiException
 import com.rk.extension.installExtension
 import com.rk.extension.load
@@ -59,8 +59,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-var selectedPlugin: LocalExtension? = null
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -176,10 +174,10 @@ fun Extensions(modifier: Modifier = Modifier) {
             } else {
                 if (extensions.isNotEmpty()) {
                     LazyColumn(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        items(extensions.map { it.value }.sortedBy { it.name }) { plugin ->
+                        items(extensions.map { it.value }.sortedBy { it.name }) { extension ->
                             var installState by remember {
                                 mutableStateOf(
-                                    if (extensionManager.isInstalled(plugin.id)) {
+                                    if (extensionManager.isInstalled(extension.id)) {
                                         InstallState.Installed
                                     } else {
                                         InstallState.Idle
@@ -187,16 +185,15 @@ fun Extensions(modifier: Modifier = Modifier) {
                                 )
                             }
 
-                            var extension = extensionManager.localExtensions[plugin.id]
                             ExtensionCard(
-                                plugin = plugin,
+                                extension = extension,
                                 installState = installState,
                                 onInstallClick = {
                                     installState = InstallState.Installing
 
                                     runCatching {
-                                            val dir = context.cacheDir.resolve(plugin.id)
-                                            PluginRegistry.downloadExtension(plugin.id, dir)
+                                            val dir = context.cacheDir.resolve(extension.id)
+                                            ExtensionRegistry.downloadExtension(extension.id, dir)
                                             dir
                                         }
                                         .onSuccess { dir ->
@@ -208,7 +205,6 @@ fun Extensions(modifier: Modifier = Modifier) {
 
                                             handleInstallResult(result, activity) { ext ->
                                                 installState = InstallState.Installed
-                                                extension = ext
 
                                                 scope.launch(Dispatchers.Default) {
                                                     ext.load(application!!)
@@ -231,7 +227,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                                 },
                                 onUninstallClick = {
                                     extensionManager
-                                        .uninstallExtension(plugin.id)
+                                        .uninstallExtension(extension.id)
                                         .onSuccess {}
                                         .onFailure { errorDialog(it, activity) }
                                     installState = InstallState.Idle
@@ -261,7 +257,7 @@ fun Extensions(modifier: Modifier = Modifier) {
 private fun handleInstallResult(result: InstallResult, activity: Activity?, onSuccess: (LocalExtension) -> Unit = {}) =
     when (result) {
         is InstallResult.AlreadyInstalled -> {
-            errorDialog("Plugin already installed", activity)
+            errorDialog("Extension already installed", activity)
         }
 
         is InstallResult.Error -> {

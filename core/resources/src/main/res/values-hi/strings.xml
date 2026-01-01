@@ -258,7 +258,7 @@
     <string name="script_text">यह टेक्स्ट एडिटर में लिखा जाएगा</string>
     <string name="script_api_info">अधिक जानकारी के लिए PROJECT/core/main/ui/screens/mutators/ImplApi में xed-editors सोर्स कोड में ImplApi क्लास चेक करें</string>
     <string name="installing">इंस्टॉल हो रहा है…</string>
-    <string name="not_plugin_err">चयनित फ़ाइल .apk फ़ाइल नहीं है</string>
+    <string name="not_ext_error">चयनित फ़ाइल .apk फ़ाइल नहीं है</string>
     <string name="install_from_storage">स्टोरेज से इंस्टॉल करें</string>
     <string name="no_ext">कोई एक्सटेंशन इंस्टॉल नहीं।</string>
     <string name="loading">लोड हो रहा है…</string>

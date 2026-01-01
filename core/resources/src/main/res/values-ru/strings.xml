@@ -234,7 +234,7 @@
     <string name="launch">Запустить</string>
     <string name="script_api_info">Подробнее можно посмотреть в классе ImplApi в исходном коде Xed-Editor по пути: PROJECT/core/main/ui/screens/mutators/ImplApi</string>
     <string name="no_mutators">Нет мутаторов</string>
-    <string name="not_plugin_err">Выбранный файл не является APK файлом</string>
+    <string name="not_ext_error">Выбранный файл не является APK файлом</string>
     <string name="mutator_name">Название мутатора</string>
     <string name="loading">Загрузка…</string>
     <string name="terminal_home">Домашняя папка терминала</string>

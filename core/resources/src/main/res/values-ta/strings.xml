@@ -263,7 +263,7 @@
     <string name="script_text">இந்த உரை எடிட்டரில் எழுதப்படும்</string>
     <string name="script_api_info">மேலும் தகவலுக்கு, PROJECT/core/main/ui/screens/mutators/ImplApi இல் Xed-Editor இன் மூலக் குறியீட்டில் ImplApi வகுப்பைச் சரிபார்க்கவும்</string>
     <string name="installing">நிறுவுதல்…</string>
-    <string name="not_plugin_err">தேர்ந்தெடுக்கப்பட்ட கோப்பு APK கோப்பு அல்ல</string>
+    <string name="not_ext_error">தேர்ந்தெடுக்கப்பட்ட கோப்பு APK கோப்பு அல்ல</string>
     <string name="install_from_storage">சேமிப்பகத்திலிருந்து நிறுவவும்</string>
     <string name="no_ext">நீட்டிப்பு நிறுவப்படவில்லை.</string>
     <string name="loading">ஏற்றுகிறது…</string>

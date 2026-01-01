@@ -214,7 +214,7 @@
     <string name="script_text">Αυτό το κείμενο θα γραφτεί στον επεξεργαστή</string>
     <string name="script_api_info">Ελέγξτε την κλάση ImplApi στον πηγαίο κώδικα του Xed-Editor στο PROJECT/core/main/ui/screens/mutators/ImplApi για περισσότερες πληροφορίες</string>
     <string name="installing">Εγκατάσταση…</string>
-    <string name="not_plugin_err">Το επιλεγμένο αρχείο δεν είναι αρχείο APK</string>
+    <string name="not_ext_error">Το επιλεγμένο αρχείο δεν είναι αρχείο APK</string>
     <string name="install_from_storage">Εγκατάσταση από τον αποθηκευτικό χώρο</string>
     <string name="no_ext">Καμία επέκταση εγκαταστημένη.</string>
     <string name="loading">Φόρτωση…</string>

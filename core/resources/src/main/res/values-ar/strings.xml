@@ -266,7 +266,7 @@
     <string name="terminal_runtime_desc">حدد وقت تشغيل المحطة الطرفية</string>
     <string name="terminal_runtime">وقت تشغيل المحطة الطرفية</string>
     <string name="ext">إضافات</string>
-    <string name="not_plugin_err">الملف المحدد ليس ملف APK</string>
+    <string name="not_ext_error">الملف المحدد ليس ملف APK</string>
     <string name="scroll_to_bottom">انتقل إلى الأسفل</string>
     <string name="scroll_to_bottom_desc">انتقل إلى الأسفل عند فتح الملف</string>
     <string name="file_err">لا يمكن حفظ الملف، حاول إغلاقه وإعادة فتحه</string>

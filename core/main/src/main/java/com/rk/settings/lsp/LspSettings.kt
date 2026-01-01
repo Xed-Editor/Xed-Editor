@@ -33,6 +33,7 @@ import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.lsp.BaseLspServer
+import com.rk.lsp.ExtensionLspRegistry
 import com.rk.lsp.builtInServer
 import com.rk.lsp.externalServers
 import com.rk.resources.strings
@@ -77,6 +78,21 @@ fun LspSettings(modifier: Modifier = Modifier) {
         } else {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(stringResource(strings.no_language_server))
+            }
+        }
+
+        val extensionServers = ExtensionLspRegistry.servers
+        if (extensionServers.isNotEmpty()) {
+            PreferenceGroup(heading = stringResource(strings.ext)) {
+                extensionServers.forEach { server ->
+                    SettingsToggle(
+                        label = server.languageName,
+                        default = Preference.getBoolean("lsp_${server.id}", false),
+                        description = server.serverName,
+                        showSwitch = true,
+                        sideEffect = { Preference.setBoolean("lsp_${server.id}", it) },
+                    )
+                }
             }
         }
 

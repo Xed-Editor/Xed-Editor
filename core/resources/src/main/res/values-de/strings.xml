@@ -238,7 +238,7 @@
     <string name="script_showing_dialog">Dialog anzeigen</string>
     <string name="installing">Wird installiert …</string>
     <string name="unknown_error">Unbekannter Fehler</string>
-    <string name="not_plugin_err">Ausgewählte Datei ist keine APK-Datei</string>
+    <string name="not_ext_error">Ausgewählte Datei ist keine APK-Datei</string>
     <string name="install_from_storage">Aus Speicher installieren</string>
     <string name="no_ext">Keine Erweiterungen installiert.</string>
     <string name="loading">Wird geladen …</string>

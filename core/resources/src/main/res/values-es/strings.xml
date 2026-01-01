@@ -256,7 +256,7 @@
     <string name="name_used">Nombre ya usado</string>
     <string name="script_network">Red</string>
     <string name="script_text">Este texto será escrito en el editor</string>
-    <string name="not_plugin_err">El archivo seleccionado no es un archivo .apk</string>
+    <string name="not_ext_error">El archivo seleccionado no es un archivo .apk</string>
     <string name="loading">Cargando…</string>
     <string name="info_ext">Se pueden usar extensiones para modificar el comportamiento y las características de Xed-Editor. Para aprender a crear un complemento, pulse aquí.</string>
     <string name="initializing">Inicializando…</string>

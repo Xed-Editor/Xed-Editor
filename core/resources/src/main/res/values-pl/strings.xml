@@ -145,7 +145,7 @@
     <string name="script_text">Tekst zostanie użyty w edytorze</string>
     <string name="script_api_info">Sprawdź klasę ImplApi w kodzie źródłowym Xed-Editor\'a na PROJECT/core/main/ui/screens/mutators/ImplApi aby uzyskać więcej informacji</string>
     <string name="installing">Instaluje…</string>
-    <string name="not_plugin_err">Wybrany plik nie jest plikiem APK</string>
+    <string name="not_ext_error">Wybrany plik nie jest plikiem APK</string>
     <string name="install_from_storage">Instaluj z pamięci</string>
     <string name="no_ext">Brak zainstalowanych rozszerzeń.</string>
     <string name="loading">Ładuje…</string>
