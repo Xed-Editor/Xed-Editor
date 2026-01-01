@@ -278,4 +278,24 @@
     <string name="experimental_feature">Експериментална функция</string>
     <string name="experimental_session_restore_warning">Тази функция е експериментална и е известно, че понякога води до загуба на данни</string>
     <string name="highlighting">Подчертаване на синтаксиса</string>
+    <string name="unrestricted_file">Отваряне на файлове с всякакъв размер</string>
+    <string name="unrestricted_file_desc">Позволява отваряне на файлове с всякакъв размер. Може да доведе до сривове.</string>
+    <string name="suggest_clear_app_data">Препоръчва се изчистване на данните на приложението</string>
+    <string name="update_files_cleared">Приложението е актуализирано: данните са изчистени</string>
+    <string name="toggle_word_wrap">Превключване на пренасянето на думи</string>
+    <string name="warning_private_dir">Съдържанието на тази директория ще бъде изтрито, ако изчистите данните или изтриете Xed-Editor</string>
+    <string name="read_only_file">Файлът е само за четене</string>
+    <string name="new_document">Нов документ</string>
+    <string name="new_document_desc">Нов файл или папка</string>
+    <string name="file">Файл</string>
+    <string name="folder">Папка</string>
+    <string name="feature_toggles">Функция за превключване</string>
+    <string name="feature_toggles_desc">Активиране или деактивиране на специфични функции</string>
+    <string name="backup">Архивиране</string>
+    <string name="restore">Възстановяване</string>
+    <string name="success">Успешно</string>
+    <string name="failed">Неуспешно</string>
+    <string name="unknown_err">Нещо се обърка</string>
+    <string name="misc">Разни</string>
+    <string name="misc_desc">Разни настройки</string>
 </resources>
