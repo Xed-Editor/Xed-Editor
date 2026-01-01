@@ -177,8 +177,6 @@ fun EditorTab.CodeEditor(
 
                             KeybindingsManager.handleEditorEvent(event, MainActivity.instance!!)
                         }
-
-                        applyHighlightingAndConnectLSP()
                     }
 
                 val divider =
@@ -232,6 +230,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
 
                 val builtin = getBuiltinServers(ext, context)
                 val external = getExternalServers()
+                if (builtin.isEmpty() && external.isEmpty()) return@launch
 
                 val parentFile =
                     file.getParentFile()
