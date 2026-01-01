@@ -60,14 +60,6 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.content)) {
-            if (InbuiltFeatures.mutators.state.value) {
-                NextScreenCard(
-                    label = stringResource(strings.mutators),
-                    description = stringResource(strings.mutator_desc),
-                    route = SettingsRoutes.ManageMutators,
-                )
-            }
-
             val wordWrap = remember { mutableStateOf(Settings.word_wrap) }
             val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_for_text || Settings.word_wrap) }
 
