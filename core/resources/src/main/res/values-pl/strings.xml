@@ -592,7 +592,7 @@
     <string name="server_port_desc">Ustaw port używany przez wbudowany serwer HTTP</string>
     <string name="launch_in_browser">Otwórz w przeglądarce</string>
     <string name="launch_in_browser_desc">Otwieraj pliki w domyślnej przeglądarce zamiast we wbudowanym podglądzie</string>
-    <string name="default_option">Domyślnie</string>
+    <string name="default_option">Domyślny</string>
     <string name="save_tabs_error">Nie można zapisać kart</string>
     <string name="no_themes_found">Nie znaleziono motywów</string>
     <string name="file_already_exists">Plik o nazwie \'%s\' już istnieje</string>
