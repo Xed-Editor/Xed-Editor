@@ -367,7 +367,7 @@
     <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w linijkach jako widoczne symbole</string>
     <string name="manage_storage_reason">Aplikacja wymaga dostępu, aby edytować pliki w pamięci wewnętrznej. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
-    <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji aplikacji. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
+    <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji aplikacji. Aby nauczyć się jak stworzyć rozszerzenie, kliknij tutaj.</string>
     <string name="initializing">Inicjowanie…</string>
     <string name="network_err">Bład sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
     <string name="expose_saf_desc">Udostępnij katalog główny aplikacjom zewnętrznym używając systemowego menedżera plików (SAF)</string>
@@ -397,7 +397,7 @@
     <string name="rename_file">Zmień nazwę pliku</string>
     <string name="new_name">Nowa nazwa</string>
     <string name="lsp_settings">Ustawienia dostawcy usług językowych</string>
-    <string name="no_language_server">Brak zainstalowanych serwerów językowych.</string>
+    <string name="no_language_server">Brak dostępnego serwera językowego.</string>
     <string name="developer">Deweloper</string>
     <string name="build_info">Informacje o wydaniu</string>
     <string name="community">Społeczność</string>
