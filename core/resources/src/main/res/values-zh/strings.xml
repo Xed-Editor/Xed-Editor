@@ -397,7 +397,7 @@
     <string name="render_whitespace">显示空白字符</string>
     <string name="render_whitespace_desc">使空格、制表符和换行符可见</string>
     <string name="lsp_settings">LSP 语言服务器设置</string>
-    <string name="no_language_server">未安装语言服务器。</string>
+    <string name="no_language_server">无可用的语言服务器。</string>
     <string name="developer">开发者</string>
     <string name="build_info">构建信息</string>
     <string name="community">社区</string>
