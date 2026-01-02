@@ -101,15 +101,7 @@ abstract class Command(val commandContext: CommandContext) {
         return id == other.id
     }
 
-    override fun hashCode(): Int {
-        var result = sectionEndsBelow.hashCode()
-        result = 31 * result + commandContext.hashCode()
-        result = 31 * result + (prefix?.hashCode() ?: 0)
-        result = 31 * result + childCommands.hashCode()
-        result = 31 * result + (defaultKeybinds?.hashCode() ?: 0)
-        result = 31 * result + id.hashCode()
-        return result
-    }
+    override fun hashCode(): Int = id.hashCode()
 }
 
 abstract class GlobalCommand(commandContext: CommandContext) : Command(commandContext)

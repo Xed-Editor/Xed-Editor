@@ -48,7 +48,7 @@ enum class InstallState {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExtensionCard(
-    plugin: Extension,
+    extension: Extension,
     modifier: Modifier = Modifier,
     installState: InstallState = InstallState.Idle,
     onInstallClick: suspend (Extension) -> Unit,
@@ -64,7 +64,7 @@ fun ExtensionCard(
                 .fillMaxWidth()
                 .padding(vertical = 6.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .combinedClickable(onLongClick = { scope.launch { onLongPress(plugin) } }, onClick = {}),
+                .combinedClickable(onLongClick = { scope.launch { onLongPress(extension) } }, onClick = {}),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
     ) {
@@ -76,19 +76,19 @@ fun ExtensionCard(
             ) {
                 Column {
                     Text(
-                        text = plugin.name,
+                        text = extension.name,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
 
                     Text(
-                        text = "by ${plugin.authors.joinToString()}",
+                        text = "by ${extension.authors.joinToString()}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
 
                     Text(
-                        text = "v${plugin.version}",
+                        text = "v${extension.version}",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -97,7 +97,7 @@ fun ExtensionCard(
                 when (installState) {
                     InstallState.Idle -> {
                         Button(
-                            onClick = { scope.launch { onInstallClick(plugin) } },
+                            onClick = { scope.launch { onInstallClick(extension) } },
                             shape = RoundedCornerShape(10.dp),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                         ) {
@@ -127,7 +127,7 @@ fun ExtensionCard(
 
                     InstallState.Installed -> {
                         Button(
-                            onClick = { scope.launch { onUninstallClick(plugin) } },
+                            onClick = { scope.launch { onUninstallClick(extension) } },
                             shape = RoundedCornerShape(10.dp),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
                             colors =
@@ -147,7 +147,7 @@ fun ExtensionCard(
             Spacer(Modifier.height(10.dp))
 
             Text(
-                text = plugin.description,
+                text = extension.description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 3,

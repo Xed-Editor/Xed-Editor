@@ -248,11 +248,11 @@
     <string name="name_empty_err">Name cannot be empty</string>
     <string name="name_used">Name already used</string>
     <string name="installing">Installing…</string>
-    <string name="not_plugin_err">Selected file is not an APK file</string>
+    <string name="not_ext_error">Selected file is not an APK file</string>
     <string name="install_from_storage">Install from storage</string>
     <string name="no_ext">No extension installed.</string>
     <string name="loading">Loading…</string>
-    <string name="info_ext">Extensions can be used to modify the behavior and features of Xed-Editor. To learn how to build a plugin, click here.</string>
+    <string name="info_ext">Extensions can be used to modify the behavior and features of Xed-Editor. To learn how to build an extension, click here.</string>
     <string name="initializing">Initializing…</string>
     <string name="downloading">Downloading…</string>
     <string name="network_err">Network error. Please check that your internet connection is working properly.</string>
@@ -388,7 +388,7 @@
     <string name="manage_language_servers_desc">Install, connect and configure language servers</string>
     <string name="format_on_save">Format on save</string>
     <string name="format_on_save_desc">Format the file automatically when saved</string>
-    <string name="no_language_server">No language server installed.</string>
+    <string name="no_language_server">No language server available.</string>
     <string name="developer">Developer</string>
     <string name="build_info">Build info</string>
     <string name="community">Community</string>

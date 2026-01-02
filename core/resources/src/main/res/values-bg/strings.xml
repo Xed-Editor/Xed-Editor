@@ -260,7 +260,7 @@
     <string name="script_text">Този текст ще бъде написан в редактора</string>
     <string name="script_api_info">Проверете класа ImplApi в изходния код на Xed-Editor на адрес PROJECT/core/main/ui/screens/mutators/ImplApi за повече информация</string>
     <string name="installing">Инсталиране…</string>
-    <string name="not_plugin_err">Избраният файл не е APK файл</string>
+    <string name="not_ext_error">Избраният файл не е APK файл</string>
     <string name="install_from_storage">Инсталиране от хранилището</string>
     <string name="no_ext">Няма инсталирано разширение.</string>
     <string name="loading">Зареждане…</string>

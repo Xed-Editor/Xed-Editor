@@ -11,3 +11,19 @@ import com.rk.lsp.servers.TypeScript
 
 val builtInServer = listOf(Python(), HTML(), CSS(), TypeScript(), Emmet(), JSON(), Bash())
 val externalServers = mutableStateListOf<BaseLspServer>()
+
+object ExtensionLspRegistry {
+    private val mutableServers = mutableStateListOf<BaseLspServer>()
+    val servers: List<BaseLspServer>
+        get() = mutableServers.toList()
+
+    fun registerServer(server: BaseLspServer) {
+        if (!mutableServers.contains(server)) {
+            mutableServers.add(server)
+        }
+    }
+
+    fun unregisterServer(server: BaseLspServer) {
+        mutableServers.remove(server)
+    }
+}

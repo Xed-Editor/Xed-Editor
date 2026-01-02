@@ -12,7 +12,7 @@
     <string name="open_directory">Otevřít složku</string>
     <string name="new_file">Nový soubor</string>
     <string name="new_file_hint">Jméno (např. test.txt)</string>
-    <string name="not_plugin_err">Vybraný soubor není apk soubor</string>
+    <string name="not_ext_error">Vybraný soubor není apk soubor</string>
     <string name="title">Název</string>
     <string name="path">Umístění</string>
     <string name="word_wrap">Zalamování slov</string>

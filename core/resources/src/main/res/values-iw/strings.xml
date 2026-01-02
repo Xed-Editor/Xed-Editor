@@ -251,7 +251,7 @@
     <string name="mutators">משנים</string>
     <string name="mutator_name">שם משנה</string>
     <string name="installing">מתקין…</string>
-    <string name="not_plugin_err">הקובץ שנבחר אינו קובץ .apk</string>
+    <string name="not_ext_error">הקובץ שנבחר אינו קובץ .apk</string>
     <string name="install_from_storage">התקנה מהאחסון</string>
     <string name="no_ext">לא הותקנה הרחבה.</string>
     <string name="loading">טוען…</string>

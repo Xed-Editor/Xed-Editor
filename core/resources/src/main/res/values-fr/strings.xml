@@ -265,7 +265,7 @@
     <string name="launch">Lancer</string>
     <string name="script_api_info">Vérifier la classe ImplApi dans le code source de Xed-Editor à PROJECT/core/main/ui/screens/mutators/ImplApi pour plus d’informations</string>
     <string name="install_from_storage">Installer depuis le stockage</string>
-    <string name="not_plugin_err">Le fichier sélectionné n’est pas un fichier APK</string>
+    <string name="not_ext_error">Le fichier sélectionné n’est pas un fichier APK</string>
     <string name="info_mutators">Les mutateurs sont de petits scripts utilisés pour modifier l’éditeur de texte. Créez un mutateur et cliquez dessus pour l’ouvrir dans l’éditeur.</string>
     <string name="mutator_name">Nom du mutateur</string>
     <string name="update_files_cleared">App mise à jour : données supprimées</string>

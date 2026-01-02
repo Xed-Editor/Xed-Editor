@@ -230,7 +230,7 @@
     <string name="script_showing_dialog">ダイアログの表示</string>
     <string name="script_text">このテキストがエディターに書かれます</string>
     <string name="installing">インストール中…</string>
-    <string name="not_plugin_err">選択されたファイルはAPKファイルではありません</string>
+    <string name="not_ext_error">選択されたファイルはAPKファイルではありません</string>
     <string name="loading">読み込み中…</string>
     <string name="network_err">ネットワークエラーです。インターネットに接続できているかご確認ください。</string>
     <string name="file_err">ファイルを保存できません。一度ファイルを閉じて再度開いてください</string>

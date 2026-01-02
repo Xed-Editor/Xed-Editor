@@ -236,7 +236,7 @@
     <string name="script_showing_dialog">显示对话框</string>
     <string name="loading">加载中…</string>
     <string name="no_ext">未安装扩展。</string>
-    <string name="not_plugin_err">所选文件不是 APK 格式</string>
+    <string name="not_ext_error">所选文件不是 APK 格式</string>
     <string name="install_from_storage">从内部存储安装</string>
     <string name="network_err">网络错误。请检查您的网络连接是否正常工作。</string>
     <string name="initializing">初始化中…</string>

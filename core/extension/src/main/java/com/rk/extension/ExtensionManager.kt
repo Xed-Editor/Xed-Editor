@@ -37,17 +37,17 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         }
     }
 
-    internal fun validateExtensionDir(dir: File): Result<PluginInfo> {
-        var pluginJson = dir.resolve("plugin.json")
-        if (!pluginJson.exists()) {
+    internal fun validateExtensionDir(dir: File): Result<ExtensionInfo> {
+        var extensionJson = dir.resolve("plugin.json")
+        if (!extensionJson.exists()) {
             if (dir.resolve("manifest.json").exists()) {
-                pluginJson = dir.resolve("manifest.json")
+                extensionJson = dir.resolve("manifest.json")
             } else {
                 return Result.failure(Exception("Missing manifest.json"))
             }
         }
-        val pluginInfo =
-            runCatching { Gson().fromJson(pluginJson.readText(), PluginInfo::class.java) }
+        val extensionInfo =
+            runCatching { Gson().fromJson(extensionJson.readText(), ExtensionInfo::class.java) }
                 .getOrElse {
                     return Result.failure(Exception("Invalid plugin.json", it))
                 }
@@ -57,7 +57,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             return Result.failure(Exception("Missing APK file"))
         }
 
-        return Result.success(pluginInfo)
+        return Result.success(extensionInfo)
     }
 
     suspend fun installExtension(zipFile: File): InstallResult =
@@ -91,31 +91,31 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 return@withContext InstallResult.ValidationFailed(validation.exceptionOrNull())
             }
 
-            val pluginInfo = validation.getOrThrow()
-            val targetDir = context.extensionDir.resolve(pluginInfo.id)
+            val extensionInfo = validation.getOrThrow()
+            val targetDir = context.extensionDir.resolve(extensionInfo.id)
 
             if (targetDir.exists()) {
-                uninstallExtension(pluginInfo.id)
-                // return@withContext InstallResult.AlreadyInstalled(pluginInfo.id)
+                uninstallExtension(extensionInfo.id)
+                // return@withContext InstallResult.AlreadyInstalled(extensionInfo.id)
             }
 
             val pm = context.packageManager
             val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
 
-            if (pluginInfo.minAppVersion != -1 && xedVersionCode < pluginInfo.minAppVersion) {
+            if (extensionInfo.minAppVersion != -1 && xedVersionCode < extensionInfo.minAppVersion) {
                 return@withContext InstallResult.Error(
-                    "Xed-Editor is outdated. Requires >= ${pluginInfo.minAppVersion}, current $xedVersionCode"
+                    "Xed-Editor is outdated. Requires >= ${extensionInfo.minAppVersion}, current $xedVersionCode"
                 )
-            } else if (pluginInfo.targetAppVersion != -1 && xedVersionCode > pluginInfo.targetAppVersion) {
+            } else if (extensionInfo.targetAppVersion != -1 && xedVersionCode > extensionInfo.targetAppVersion) {
                 return@withContext InstallResult.Error(
-                    "Plugin ${pluginInfo.name} was made for older Xed-Editor. Ask developer to update."
+                    "Extension ${extensionInfo.name} was made for older Xed-Editor. Ask developer to update."
                 )
             }
 
             dir.copyRecursively(targetDir, overwrite = true)
 
-            val extension = LocalExtension(info = pluginInfo, installPath = targetDir.absolutePath)
-            localExtensions[pluginInfo.id] = extension
+            val extension = LocalExtension(info = extensionInfo, installPath = targetDir.absolutePath)
+            localExtensions[extensionInfo.id] = extension
 
             InstallResult.Success(extension)
         }
@@ -153,15 +153,15 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         withContext(Dispatchers.IO) {
             baseDir.listFiles()?.forEach { dir ->
                 if (dir.isDirectory) {
-                    var pluginJson = dir.resolve("plugin.json")
-                    if (pluginJson.exists().not()) {
-                        pluginJson = dir.resolve("manifest.json")
+                    var extensionJson = dir.resolve("plugin.json")
+                    if (extensionJson.exists().not()) {
+                        extensionJson = dir.resolve("manifest.json")
                     }
-                    if (pluginJson.exists()) {
+                    if (extensionJson.exists()) {
                         runCatching {
-                            val pluginInfo = Gson().fromJson(pluginJson.readText(), PluginInfo::class.java)
-                            val extension = LocalExtension(info = pluginInfo, installPath = dir.absolutePath)
-                            localExtensions[pluginInfo.id] = extension
+                            val extensionInfo = Gson().fromJson(extensionJson.readText(), ExtensionInfo::class.java)
+                            val extension = LocalExtension(info = extensionInfo, installPath = dir.absolutePath)
+                            localExtensions[extensionInfo.id] = extension
                         }
                     }
                 }
@@ -170,7 +170,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     suspend fun indexStoreExtensions() =
         withContext(Dispatchers.IO) {
-            val extensions = PluginRegistry.fetchExtensions()
+            val extensions = ExtensionRegistry.fetchExtensions()
             storeExtension.clear()
             storeExtension.putAll(extensions.associate { it.id to StoreExtension(it) })
         }

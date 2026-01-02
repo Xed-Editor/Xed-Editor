@@ -38,7 +38,9 @@ import com.rk.commands.lsp.GoToReferencesCommand
 import com.rk.commands.lsp.RenameSymbolCommand
 
 object CommandProvider {
-    var commandList = listOf<Command>()
+    private val mutableCommandList = mutableListOf<Command>()
+    val commandList: List<Command>
+        get() = mutableCommandList.toList()
 
     lateinit var DocumentationCommand: DocumentationCommand
     lateinit var TerminalCommand: TerminalCommand
@@ -79,89 +81,61 @@ object CommandProvider {
         val mainActivity = MainActivity.instance!!
         val commandContext = CommandContext(mainActivity, mainViewModel)
 
-        DocumentationCommand = DocumentationCommand(commandContext)
-        TerminalCommand = TerminalCommand(commandContext)
-        SettingsCommand = SettingsCommand(commandContext)
-        NewFileCommand = NewFileCommand(commandContext)
-        CommandPaletteCommand = CommandPaletteCommand(commandContext)
-        SearchFileFolderCommand = SearchFileFolderCommand(commandContext)
-        SearchCodeCommand = SearchCodeCommand(commandContext)
-        CutCommand = CutCommand(commandContext)
-        CopyCommand = CopyCommand(commandContext)
-        PasteCommand = PasteCommand(commandContext)
-        SelectAllCommand = SelectAllCommand(commandContext)
-        SelectWordCommand = SelectWordCommand(commandContext)
-        DuplicateLineCommand = DuplicateLineCommand(commandContext)
-        LowerCaseCommand = LowerCaseCommand(commandContext)
-        UpperCaseCommand = UpperCaseCommand(commandContext)
-        SaveCommand = SaveCommand(commandContext)
-        SaveAllCommand = SaveAllCommand(commandContext)
-        UndoCommand = UndoCommand(commandContext)
-        RedoCommand = RedoCommand(commandContext)
-        RunCommand = RunCommand(commandContext)
-        ToggleReadOnlyCommand = ToggleReadOnlyCommand(commandContext)
-        SearchCommand = SearchCommand(commandContext)
-        ReplaceCommand = ReplaceCommand(commandContext)
-        RefreshCommand = RefreshCommand(commandContext)
-        SyntaxHighlightingCommand = SyntaxHighlightingCommand(commandContext)
-        ToggleWordWrapCommand = ToggleWordWrapCommand(commandContext)
-        JumpToLineCommand = JumpToLineCommand(commandContext)
-        ShareCommand = ShareCommand(commandContext)
-        EmulateKeyCommand = EmulateKeyCommand(commandContext)
-        GoToDefinitionCommand = GoToDefinitionCommand(commandContext)
-        GoToReferencesCommand = GoToReferencesCommand(commandContext)
-        RenameSymbolCommand = RenameSymbolCommand(commandContext)
-        FormatDocumentCommand = FormatDocumentCommand(commandContext)
-        FormatSelectionCommand = FormatSelectionCommand(commandContext)
-
-        commandList =
-            listOf(
-                DocumentationCommand,
-                TerminalCommand,
-                SettingsCommand,
-                NewFileCommand,
-                CommandPaletteCommand,
-                SearchFileFolderCommand,
-                SearchCodeCommand,
-                CutCommand,
-                CopyCommand,
-                PasteCommand,
-                SelectAllCommand,
-                SelectWordCommand,
-                DuplicateLineCommand,
-                LowerCaseCommand,
-                UpperCaseCommand,
-                SaveCommand,
-                SaveAllCommand,
-                UndoCommand,
-                RedoCommand,
-                RunCommand,
-                ToggleReadOnlyCommand,
-                SearchCommand,
-                ReplaceCommand,
-                RefreshCommand,
-                SyntaxHighlightingCommand,
-                ToggleWordWrapCommand,
-                JumpToLineCommand,
-                ShareCommand,
-                EmulateKeyCommand,
-                GoToDefinitionCommand,
-                GoToReferencesCommand,
-                RenameSymbolCommand,
-                FormatDocumentCommand,
-                FormatSelectionCommand,
-            )
+        registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
+        registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
+        registerBuiltin(TerminalCommand(commandContext)) { TerminalCommand = it }
+        registerBuiltin(SettingsCommand(commandContext)) { SettingsCommand = it }
+        registerBuiltin(NewFileCommand(commandContext)) { NewFileCommand = it }
+        registerBuiltin(CommandPaletteCommand(commandContext)) { CommandPaletteCommand = it }
+        registerBuiltin(SearchFileFolderCommand(commandContext)) { SearchFileFolderCommand = it }
+        registerBuiltin(SearchCodeCommand(commandContext)) { SearchCodeCommand = it }
+        registerBuiltin(CutCommand(commandContext)) { CutCommand = it }
+        registerBuiltin(CopyCommand(commandContext)) { CopyCommand = it }
+        registerBuiltin(PasteCommand(commandContext)) { PasteCommand = it }
+        registerBuiltin(SelectAllCommand(commandContext)) { SelectAllCommand = it }
+        registerBuiltin(SelectWordCommand(commandContext)) { SelectWordCommand = it }
+        registerBuiltin(DuplicateLineCommand(commandContext)) { DuplicateLineCommand = it }
+        registerBuiltin(LowerCaseCommand(commandContext)) { LowerCaseCommand = it }
+        registerBuiltin(UpperCaseCommand(commandContext)) { UpperCaseCommand = it }
+        registerBuiltin(SaveCommand(commandContext)) { SaveCommand = it }
+        registerBuiltin(SaveAllCommand(commandContext)) { SaveAllCommand = it }
+        registerBuiltin(UndoCommand(commandContext)) { UndoCommand = it }
+        registerBuiltin(RedoCommand(commandContext)) { RedoCommand = it }
+        registerBuiltin(RunCommand(commandContext)) { RunCommand = it }
+        registerBuiltin(ToggleReadOnlyCommand(commandContext)) { ToggleReadOnlyCommand = it }
+        registerBuiltin(SearchCommand(commandContext)) { SearchCommand = it }
+        registerBuiltin(ReplaceCommand(commandContext)) { ReplaceCommand = it }
+        registerBuiltin(RefreshCommand(commandContext)) { RefreshCommand = it }
+        registerBuiltin(SyntaxHighlightingCommand(commandContext)) { SyntaxHighlightingCommand = it }
+        registerBuiltin(ToggleWordWrapCommand(commandContext)) { ToggleWordWrapCommand = it }
+        registerBuiltin(JumpToLineCommand(commandContext)) { JumpToLineCommand = it }
+        registerBuiltin(ShareCommand(commandContext)) { ShareCommand = it }
+        registerBuiltin(EmulateKeyCommand(commandContext)) { EmulateKeyCommand = it }
+        registerBuiltin(GoToDefinitionCommand(commandContext)) { GoToDefinitionCommand = it }
+        registerBuiltin(GoToReferencesCommand(commandContext)) { GoToReferencesCommand = it }
+        registerBuiltin(RenameSymbolCommand(commandContext)) { RenameSymbolCommand = it }
+        registerBuiltin(FormatDocumentCommand(commandContext)) { FormatDocumentCommand = it }
+        registerBuiltin(FormatSelectionCommand(commandContext)) { FormatSelectionCommand = it }
     }
 
-    fun getForId(id: String, commands: List<Command>): Command? = findRecursive(id, commands)
+    private fun <T : Command> registerBuiltin(command: T, assign: (T) -> Unit) {
+        assign(command)
+        mutableCommandList.add(command)
+    }
+
+    fun registerCommand(command: Command) {
+        if (!mutableCommandList.contains(command)) {
+            mutableCommandList.add(command)
+        }
+    }
+
+    fun unregisterCommand(command: Command) {
+        mutableCommandList.remove(command)
+    }
 
     fun getForId(id: String): Command? = findRecursive(id, commandList)
 
     fun getParentCommand(command: Command): Command? = findParent(command, commandList)
-
-    fun getForKeyCombination(keyCombination: KeyCombination): Command? {
-        return commandList.find { it.defaultKeybinds == keyCombination }
-    }
 
     private fun findParent(target: Command, commands: List<Command>): Command? {
         for (parent in commands) {
@@ -178,6 +152,7 @@ object CommandProvider {
         for (command in commands) {
             if (command.id == id) return command
             val children = command.childCommands
+
             val match = findRecursive(id, children)
             if (match != null) return match
         }

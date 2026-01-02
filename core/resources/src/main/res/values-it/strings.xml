@@ -249,7 +249,7 @@
     <string name="script_showing_dialog">Mostrando una finestra di dialogo</string>
     <string name="installing">Installazione…</string>
     <string name="script_text">Questo testo sarà scritto nell\'editor</string>
-    <string name="not_plugin_err">Il file selezionato non è un file APK</string>
+    <string name="not_ext_error">Il file selezionato non è un file APK</string>
     <string name="no_mutators">Nessun mutatore</string>
     <string name="name_empty_err">Il nome non può essere vuoto</string>
     <string name="terminal_runtime_desc">Seleziona tempo di esecuzione del terminale</string>
