@@ -101,7 +101,6 @@ dependencies {
     implementation(libs.glide)
     // implementation(libs.media3.ui)
     implementation(libs.browser)
-    implementation(libs.quickjs.android)
     implementation(libs.anrwatchdog)
     implementation(libs.lsp4j)
     implementation(libs.kotlin.reflect)
