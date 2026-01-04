@@ -82,7 +82,6 @@ object CommandProvider {
         val commandContext = CommandContext(mainActivity, mainViewModel)
 
         registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
-        registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
         registerBuiltin(TerminalCommand(commandContext)) { TerminalCommand = it }
         registerBuiltin(SettingsCommand(commandContext)) { SettingsCommand = it }
         registerBuiltin(NewFileCommand(commandContext)) { NewFileCommand = it }
