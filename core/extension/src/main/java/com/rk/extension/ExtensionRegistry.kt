@@ -17,11 +17,11 @@ object ExtensionRegistry {
 
     suspend fun fetchExtensions() =
         withContext(Dispatchers.IO) {
-            val extensions = GitHubApi.fetchContents("plugins")
+            val extensions = GitHubApi.fetchContents("extensions")
             extensions
                 .filter { it.type == "dir" }
                 .mapNotNull { extDir ->
-                    val extensionPath = "${extDir.path}/plugin.json"
+                    val extensionPath = "${extDir.path}/extension.json"
                     val extensionInfo =
                         try {
                             val extensionFileInfo = GitHubApi.fetchContents(extensionPath).first()
@@ -65,7 +65,7 @@ object ExtensionRegistry {
 
     suspend fun downloadExtension(id: ExtensionId, targetDir: File) =
         withContext(Dispatchers.IO) {
-            val contents = GitHubApi.fetchContents("plugins/$id")
+            val contents = GitHubApi.fetchContents("extensions/$id")
 
             contents.forEach { item ->
                 when (item.type) {
