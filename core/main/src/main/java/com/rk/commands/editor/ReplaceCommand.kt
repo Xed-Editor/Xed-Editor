@@ -17,6 +17,7 @@ class ReplaceCommand(commandContext: CommandContext) : EditorCommand(commandCont
 
     override fun action(editorActionContext: EditorActionContext) {
         editorActionContext.editorTab.editorState.apply {
+            editorActionContext.editor.getSelectedText()?.let { searchKeyword = it }
             isSearching = true
             isReplaceShown = true
         }

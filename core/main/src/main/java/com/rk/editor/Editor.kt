@@ -443,4 +443,17 @@ class Editor : CodeEditor {
     fun unregisterTextAction(item: TextActionItem) {
         textActionWindow.unregisterTextAction(item)
     }
+
+    /**
+     * Retrieves the currently selected text in the editor.
+     *
+     * @return The selected text or `null` if no text is currently selected.
+     */
+    fun getSelectedText(): String? {
+        if (!isTextSelected) return null
+
+        val selectionStart = cursorRange.startIndex
+        val selectionEnd = cursorRange.endIndex
+        return text.substring(selectionStart, selectionEnd)
+    }
 }

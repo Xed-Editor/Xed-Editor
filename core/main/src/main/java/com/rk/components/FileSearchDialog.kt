@@ -100,7 +100,7 @@ fun FileSearchDialog(projectFile: FileObject, onFinish: () -> Unit, onSelect: (F
                 if (searchQuery.isEmpty()) {
                     snapshotList
                 } else {
-                    snapshotList.filter { it.getAppropriateName().lowercase().contains(searchQuery.lowercase()) }
+                    snapshotList.filter { it.getAppropriateName().contains(searchQuery, ignoreCase = true) }
                 }
             }
 
@@ -174,7 +174,7 @@ fun SearchItem(
             verticalPadding = 8.dp,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.addIf(isHidden) { Modifier.alpha(0.5f) }) { FileIcon(file = fileObject) }
+                    Box(modifier = Modifier.addIf(isHidden) { alpha(0.5f) }) { FileIcon(file = fileObject) }
 
                     Column(modifier = Modifier.padding(start = 8.dp)) {
                         Text(text = fileObject.getAppropriateName())
