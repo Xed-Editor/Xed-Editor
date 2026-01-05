@@ -18,7 +18,7 @@ sealed interface Extension {
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
-data class StoreExtension(val info: PluginInfo, val verified: Boolean = false) : Extension {
+data class StoreExtension(val info: ExtensionInfo, val verified: Boolean = false) : Extension {
     override val id
         get() = info.id
 
@@ -40,7 +40,7 @@ data class StoreExtension(val info: PluginInfo, val verified: Boolean = false) :
 
 /** Extensions that are installed locally (from disk). */
 data class LocalExtension(
-    val info: PluginInfo,
+    val info: ExtensionInfo,
 
     // Path where extension is installed
     val installPath: String,

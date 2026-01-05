@@ -11,7 +11,7 @@ import kotlinx.coroutines.sync.withLock
 object ExtensionAPIManager : ExtensionAPI(), CoroutineScope by DefaultScope {
     private val mutex = Mutex()
 
-    override fun onPluginLoaded(extension: Extension) {
+    override fun onExtensionLoaded(extension: Extension) {
         throw IllegalStateException("This function not be called from here")
     }
 

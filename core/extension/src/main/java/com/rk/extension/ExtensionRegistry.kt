@@ -11,47 +11,47 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-object PluginRegistry {
-    private const val TAG = "PluginRegistry"
-    private val cache = mutableMapOf<String, CachedPlugin>()
+object ExtensionRegistry {
+    private const val TAG = "ExtensionRegistry"
+    private val cache = mutableMapOf<String, CachedExtension>()
 
     suspend fun fetchExtensions() =
         withContext(Dispatchers.IO) {
-            val extensions = GitHubApi.fetchContents("plugins")
+            val extensions = GitHubApi.fetchContents("extensions")
             extensions
                 .filter { it.type == "dir" }
                 .mapNotNull { extDir ->
-                    val pluginPath = "${extDir.path}/plugin.json"
-                    val pluginInfo =
+                    val extensionPath = "${extDir.path}/extension.json"
+                    val extensionInfo =
                         try {
-                            val pluginFileInfo = GitHubApi.fetchContents(pluginPath).first()
+                            val extensionFileInfo = GitHubApi.fetchContents(extensionPath).first()
 
-                            val cached = cache[pluginPath]
-                            if (cached != null && cached.sha == pluginFileInfo.sha) {
+                            val cached = cache[extensionPath]
+                            if (cached != null && cached.sha == extensionFileInfo.sha) {
                                 return@mapNotNull cached.metadata
                             }
 
                             val decoded =
-                                pluginFileInfo.content?.decodeFromBase64()?.decodeToString()
-                                    ?: fetchRawFile(pluginFileInfo)
+                                extensionFileInfo.content?.decodeFromBase64()?.decodeToString()
+                                    ?: fetchRawFile(extensionFileInfo)
                                     ?: return@mapNotNull null
 
-                            val pluginInfo = Gson().fromJson(decoded, PluginInfo::class.java)
+                            val extensionInfo = Gson().fromJson(decoded, ExtensionInfo::class.java)
 
-                            cache[pluginPath] =
-                                CachedPlugin(
-                                    sha = pluginFileInfo.sha,
-                                    metadata = pluginInfo,
+                            cache[extensionPath] =
+                                CachedExtension(
+                                    sha = extensionFileInfo.sha,
+                                    metadata = extensionInfo,
                                     lastFetched = System.currentTimeMillis(),
                                 )
 
-                            pluginInfo
+                            extensionInfo
                         } catch (err: Exception) {
                             Log.w(TAG, "Failed to fetch extension ${extDir.name}: ${err.message}")
                             null
                         }
 
-                    pluginInfo
+                    extensionInfo
                 }
         }
 
@@ -59,13 +59,13 @@ object PluginRegistry {
         val url = file.downloadUrl ?: return null
         val request = Request.Builder().url(url).build()
         OkHttpClient().newCall(request).execute().use { response ->
-            return if (response.isSuccessful) response.body?.string() else null
+            return if (response.isSuccessful) response.body.string() else null
         }
     }
 
     suspend fun downloadExtension(id: ExtensionId, targetDir: File) =
         withContext(Dispatchers.IO) {
-            val contents = GitHubApi.fetchContents("plugins/$id")
+            val contents = GitHubApi.fetchContents("extensions/$id")
 
             contents.forEach { item ->
                 when (item.type) {

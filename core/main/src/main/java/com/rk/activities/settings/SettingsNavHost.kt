@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.rk.animations.NavigationAnimationTransitions
-import com.rk.lsp.getServer
+import com.rk.lsp.LspRegistry
 import com.rk.settings.SettingsScreen
 import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
@@ -23,7 +23,6 @@ import com.rk.settings.language.LanguageScreen
 import com.rk.settings.lsp.LspServerDetail
 import com.rk.settings.lsp.LspServerLogs
 import com.rk.settings.lsp.LspSettings
-import com.rk.settings.mutators.ManageMutators
 import com.rk.settings.runners.HtmlRunnerSettings
 import com.rk.settings.runners.RunnerSettings
 import com.rk.settings.support.Support
@@ -51,7 +50,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
         composable(SettingsRoutes.ExtraKeys.route) { EditExtraKeys() }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
-        composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
         composable(SettingsRoutes.Support.route) { Support() }
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
         composable(SettingsRoutes.Runners.route) { RunnerSettings(navController = navController) }
@@ -62,7 +60,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
         ) { backStackEntry ->
             val serverId = backStackEntry.arguments?.getString("serverId")!!
-            val server = getServer(serverId)!!
+            val server = LspRegistry.getForId(serverId)!!
             LspServerDetail(navController, server)
         }
         composable(
@@ -70,7 +68,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
         ) { backStackEntry ->
             val serverId = backStackEntry.arguments?.getString("serverId")!!
-            val server = getServer(serverId)!!
+            val server = LspRegistry.getForId(serverId)!!
             LspServerLogs(server)
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }

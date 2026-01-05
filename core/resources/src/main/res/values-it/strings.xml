@@ -90,7 +90,7 @@
     <string name="open_in_terminal">Apri nel terminale</string>
     <string name="open_dir_in_terminal">Apri la cartella nel terminale</string>
     <string name="file_open_denied">Non è consentito aprire questo file con altre app</string>
-    <string name="close_current_project">Chiudi il progetto corrente</string>
+    <string name="close_current_project">Sei sicuro di voler chiudere il progetto \'%s\'?</string>
     <string name="open_with_other">Apri il file selezionato in altre app</string>
     <string name="add_file_desc">Seleziona un nuovo file da aggiungere qui</string>
     <string name="paste_desc">Incolla documento</string>
@@ -120,7 +120,7 @@
     <string name="already_installed">Già installato</string>
     <string name="yes">Si</string>
     <string name="app">Applicazione</string>
-    <string name="oled_desc">Tema nero (#000)</string>
+    <string name="oled_desc">Applica un tema nero puro</string>
     <string name="change_theme">Cambia tema</string>
     <string name="editor">Editor</string>
     <string name="word_wrap_desc">Abilita a capo automatico in tutti gli editor</string>
@@ -135,7 +135,7 @@
     <string name="cursor_anim_desc">Abilita animazioni fluide del cursore</string>
     <string name="pin_line_number">Fissa il numero delle linee</string>
     <string name="extra_keys">Tasti aggiuntivi</string>
-    <string name="extra_keys_desc">Mostra tasti aggiuntivi nell\'editor</string>
+    <string name="extra_keys_desc">Mostra tasti aggiuntivi sopra alla tastiera</string>
     <string name="auto_save">Salvataggio automatico</string>
     <string name="auto_save_desc">Salva automaticamente il file</string>
     <string name="interval_in_ms">Intervallo in millisecondi</string>
@@ -249,7 +249,7 @@
     <string name="script_showing_dialog">Mostrando una finestra di dialogo</string>
     <string name="installing">Installazione…</string>
     <string name="script_text">Questo testo sarà scritto nell\'editor</string>
-    <string name="not_plugin_err">Il file selezionato non è un file APK</string>
+    <string name="not_ext_error">Il file selezionato non è un file APK</string>
     <string name="no_mutators">Nessun mutatore</string>
     <string name="name_empty_err">Il nome non può essere vuoto</string>
     <string name="terminal_runtime_desc">Seleziona tempo di esecuzione del terminale</string>
@@ -368,4 +368,5 @@
     <string name="force_crash_desc">Genera un’eccezione a runtime</string>
     <string name="force_crash_confirm">Vuoi forzare l\'arresto dell\'app? L\'app potrebbe bloccarsi.</string>
     <string name="memory_usage">Utilizzo memoria</string>
+    <string name="open_as_project">Apri come un progetto</string>
 </resources>

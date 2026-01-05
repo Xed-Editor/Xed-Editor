@@ -21,8 +21,6 @@ sealed class SettingsRoutes(val route: String) {
 
     data object ExtraKeys : SettingsRoutes("extra_keys")
 
-    data object ManageMutators : SettingsRoutes("manage_mutators")
-
     data object Extensions : SettingsRoutes("extensions")
 
     data object DeveloperOptions : SettingsRoutes("developer_options")

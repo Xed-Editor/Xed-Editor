@@ -62,6 +62,16 @@ abstract class BaseLspServer {
 
     abstract fun isSupported(file: FileObject): Boolean
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BaseLspServer
+        return id == other.id
+    }
+
+    override fun hashCode(): Int = id.hashCode()
+
     abstract val id: String
     abstract val languageName: String
     abstract val serverName: String

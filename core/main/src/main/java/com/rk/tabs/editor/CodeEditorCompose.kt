@@ -26,9 +26,8 @@ import com.rk.editor.Editor
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
-import com.rk.lsp.builtInServer
+import com.rk.lsp.LspRegistry
 import com.rk.lsp.createLspTextActions
-import com.rk.lsp.externalServers
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -145,8 +144,6 @@ fun EditorTab.CodeEditor(
 
                             KeybindingsManager.handleEditorEvent(event, MainActivity.instance!!)
                         }
-
-                        applyHighlightingAndConnectLSP()
                     }
 
                 val divider =
@@ -234,7 +231,8 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
 }
 
 private fun EditorTab.getBuiltinServers(ext: String, context: Context): List<BaseLspServer> {
-    val servers = builtInServer.filter { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
+    val servers =
+        LspRegistry.builtInServer.filter { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
     val supportedServers = mutableListOf<BaseLspServer>()
 
     servers.forEach { server ->
@@ -276,5 +274,5 @@ private fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspS
 }
 
 private fun EditorTab.getExternalServers(): List<BaseLspServer> {
-    return externalServers.filter { server -> server.isSupported(file) }
+    return LspRegistry.externalServers.filter { server -> server.isSupported(file) }
 }

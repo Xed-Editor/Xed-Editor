@@ -256,9 +256,9 @@
     <string name="ext_desc">Eklentileri yönet</string>
     <string name="info_mutators">Değiştiriciler editor metnini değiştiren küçük yazılımlardır. Bir değiştirici oluştur ve açmak için üzerine tıkla.</string>
     <string name="script_showing_dialog">Bir dialog gösteriliyor</string>
-    <string name="not_plugin_err">Seçilen dosya APK dosyası değildir</string>
+    <string name="not_ext_error">Seçilen dosya APK dosyası değildir</string>
     <string name="install_from_storage">Dahili depolamadan kur</string>
-    <string name="info_ext">Eklentiler, Xed-Editor’un davranışlarını ve özelliklerini değiştirmek için kullanılabilir. Bir eklentinin nasıl oluşturulacağını öğrenmek için buraya tıklayın.</string>
+    <string name="info_ext">Eklentiler, Xed-Editor\'ün davranışını ve özelliklerini değiştirmek için kullanılabilir. Bir eklenti uzantısının nasıl oluşturulacağını öğrenmek için buraya tıklayın.</string>
     <string name="downloading">İndiriliyor…</string>
     <string name="warning_private_dir">Bu klasörün içeriği uygulamayı silerseniz veya verileri temizlerseniz kaybolur</string>
     <string name="feature_toggles">Özellik anahtarları</string>

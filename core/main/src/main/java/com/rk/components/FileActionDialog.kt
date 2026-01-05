@@ -430,7 +430,8 @@ fun FileActionDialog(
                                 val newChild = file.createChild(createFile = isNewFile, newNameValue)
 
                                 if (newChild == null) {
-                                    val msg = if (isNewFile) strings.file_creation_failed else strings.folder_creation_failed
+                                    val msg =
+                                        if (isNewFile) strings.file_creation_failed else strings.folder_creation_failed
                                     toast(msg)
                                 }
 
@@ -444,7 +445,8 @@ fun FileActionDialog(
 
                             fileTreeViewModel.updateCache(file)
                             newNameValue = ""
-                        }.onFailure { errorDialog(it) }
+                        }
+                        .onFailure { errorDialog(it) }
                 }
 
                 onDismissRequest()

@@ -260,12 +260,12 @@
     <string name="encoding_warning">Modifier l’encodage par défaut est fortement déconseillé, car cela peut provoquer des corruptions de fichiers. Il est fortement recommandé d’utiliser UTF-8 à moins d’en maitriser les implications et de disposer de sauvegardes.</string>
     <string name="line_spacing_multiplier">Multiplicateur d’interlignes</string>
     <string name="ignore">Ignorer</string>
-    <string name="info_ext">Les extensions sont utilisées pour modifier le comportement et les fonctionnalités de Xed-Editor. Pour découvrir comment créer un greffon, cliquer ici.</string>
+    <string name="info_ext">Les extensions sont utilisées pour modifier le comportement et les fonctionnalités de Xed-Editor. Pour découvrir comment créer une extension, cliquer ici.</string>
     <string name="script_network">Réseau</string>
     <string name="launch">Lancer</string>
     <string name="script_api_info">Vérifier la classe ImplApi dans le code source de Xed-Editor à PROJECT/core/main/ui/screens/mutators/ImplApi pour plus d’informations</string>
     <string name="install_from_storage">Installer depuis le stockage</string>
-    <string name="not_plugin_err">Le fichier sélectionné n’est pas un fichier APK</string>
+    <string name="not_ext_error">Le fichier sélectionné n’est pas un fichier APK</string>
     <string name="info_mutators">Les mutateurs sont de petits scripts utilisés pour modifier l’éditeur de texte. Créez un mutateur et cliquez dessus pour l’ouvrir dans l’éditeur.</string>
     <string name="mutator_name">Nom du mutateur</string>
     <string name="update_files_cleared">App mise à jour : données supprimées</string>
@@ -398,7 +398,7 @@
     <string name="render_whitespace">Afficher les espaces</string>
     <string name="render_whitespace_desc">Affiche les espaces, les tabulations et les sauts de ligne comme des symboles visibles</string>
     <string name="lsp_settings">Paramètres LSP</string>
-    <string name="no_language_server">Aucun serveur de langue sélectionné.</string>
+    <string name="no_language_server">Aucun serveur de langue disponible.</string>
     <string name="developer">Développeur</string>
     <string name="build_info">Information de build</string>
     <string name="community">Communauté</string>

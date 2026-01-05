@@ -30,7 +30,7 @@ import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspServer
-import com.rk.lsp.builtInServer
+import com.rk.lsp.LspRegistry
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
@@ -146,7 +146,7 @@ private fun buildLogs(server: BaseLspServer): String {
         append("[DEBUG] Server id: ").append(server.id).appendLine()
         append("[DEBUG] Server status: ").append(server.status.name).appendLine()
         append("[DEBUG] Supported extensions: ").append(server.supportedExtensions).appendLine()
-        append("[DEBUG] Is built-in: ").append(builtInServer.contains(server)).appendLine()
+        append("[DEBUG] Is built-in: ").append(LspRegistry.builtInServer.contains(server)).appendLine()
 
         appendLine()
 

@@ -7,7 +7,6 @@ import com.rk.file.copyToTempDir
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isMainThread
-import kotlin.collections.iterator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -69,25 +68,25 @@ fun LocalExtension.load(application: Application) = run {
                 )
 
         try {
-            instance.onPluginLoaded(this)
+            instance.onExtensionLoaded(this)
         } catch (err: ClassNotFoundException) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to initialize plugin '${info.name}': A required class was not found. This might indicate a missing dependency or an issue with the extension's packaging. Details: ${err.message}",
+                    "Failed to initialize extension '${info.name}': A required class was not found. This might indicate a missing dependency or an issue with the extension's packaging. Details: ${err.message}",
                     err,
                 )
             )
         } catch (err: NoClassDefFoundError) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to initialize plugin '${info.name}': A class definition was not found. This usually means a class was available at compile time but is missing at runtime. Check the extension's dependencies. Details: ${err.message}",
+                    "Failed to initialize extension '${info.name}': A class definition was not found. This usually means a class was available at compile time but is missing at runtime. Check the extension's dependencies. Details: ${err.message}",
                     err,
                 )
             )
         } catch (err: Exception) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to initialize plugin '${info.name}': An unexpected error occurred during the onPluginLoaded call. Details: ${err.message}",
+                    "Failed to initialize extension '${info.name}': An unexpected error occurred during the onExtensionLoaded call. Details: ${err.message}",
                     err,
                 )
             )
@@ -98,7 +97,7 @@ fun LocalExtension.load(application: Application) = run {
     } else {
         Result.failure(
             RuntimeException(
-                "The main class '${info.mainClass}' of plugin '${info.name}' does not implement the ExtensionAPI interface. Please ensure the main class correctly implements this interface."
+                "The main class '${info.mainClass}' of extension '${info.name}' does not implement the ExtensionAPI interface. Please ensure the main class correctly implements this interface."
             )
         )
     }

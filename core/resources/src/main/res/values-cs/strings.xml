@@ -12,7 +12,7 @@
     <string name="open_directory">Otevřít složku</string>
     <string name="new_file">Nový soubor</string>
     <string name="new_file_hint">Jméno (např. test.txt)</string>
-    <string name="not_plugin_err">Vybraný soubor není apk soubor</string>
+    <string name="not_ext_error">Vybraný soubor není apk soubor</string>
     <string name="title">Název</string>
     <string name="path">Umístění</string>
     <string name="word_wrap">Zalamování slov</string>
@@ -321,7 +321,7 @@
     <string name="tab_memory_warning">Není dostatek prostředků pro otevření této karty. Otevření této karty může způsobit havarii Xed-Editoru. Chcete i tak pokračkovat?</string>
     <string name="read_mode_desc">Výchoze zapnout čtecí režim</string>
     <string name="mutator_desc">Vytvářejte uživatelské skripty</string>
-    <string name="info_ext">Doplňky mohou být použity pro změnění chování a funkce Xed-Editoru. K naučení jak se sestavuje plugin, klepněte zde.</string>
+    <string name="info_ext">Doplňky mohou být použity pro změnění chování a funkce Xed-Editoru. K naučení jak se sestavuje doplňek, klepněte zde.</string>
     <string name="ask_lsp_install">Chtěli byste nainstalovat \'%s\' jazykový server?</string>
     <string name="dont_ask_again">Neptat se znova</string>
     <string name="install">Instalovat</string>
@@ -351,7 +351,7 @@
     <string name="view_github_profile">Zobrazit GitHub profil</string>
     <string name="delete_desc">Nenávratně odstranit soubor</string>
     <string name="lsp_settings">LSP nastavení</string>
-    <string name="no_language_server">Žádný jazykový server nainstalován.</string>
+    <string name="no_language_server">Žádný jazykový server dostupný.</string>
     <string name="developer">Vývojář</string>
     <string name="build_info">Informace o sestavení</string>
     <string name="community">Komunita</string>

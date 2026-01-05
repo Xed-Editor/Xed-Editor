@@ -40,8 +40,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspPersistence
-import com.rk.lsp.builtInServer
-import com.rk.lsp.externalServers
+import com.rk.lsp.LspRegistry
 import com.rk.lsp.getConnectionColor
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -70,9 +69,9 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
             warning = true,
         )
 
-        if (builtInServer.isNotEmpty()) {
+        if (LspRegistry.builtInServer.isNotEmpty()) {
             PreferenceGroup(heading = stringResource(strings.built_in)) {
-                builtInServer.forEach { server ->
+                LspRegistry.builtInServer.forEach { server ->
                     SettingsToggle(
                         label = server.languageName,
                         default = Preference.getBoolean("lsp_${server.id}", false),
@@ -90,9 +89,26 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
             }
         }
 
-        if (externalServers.isNotEmpty()) {
+        val extensionServers = LspRegistry.extensionServers
+        if (extensionServers.isNotEmpty()) {
+            PreferenceGroup(heading = stringResource(strings.ext)) {
+                extensionServers.forEach { server ->
+                    SettingsToggle(
+                        label = server.languageName,
+                        default = Preference.getBoolean("lsp_${server.id}", false),
+                        description = server.serverName,
+                        showSwitch = true,
+                        onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
+                        startWidget = server.icon?.let { { LanguageServerIcon(server, it) } },
+                        sideEffect = { Preference.setBoolean("lsp_${server.id}", it) },
+                    )
+                }
+            }
+        }
+
+        if (LspRegistry.externalServers.isNotEmpty()) {
             PreferenceGroup(heading = stringResource(strings.external)) {
-                externalServers.forEach { server ->
+                LspRegistry.externalServers.forEach { server ->
                     SettingsToggle(
                         label = server.languageName,
                         default = true,
@@ -103,7 +119,7 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
                         endWidget = {
                             IconButton(
                                 onClick = {
-                                    externalServers.remove(server)
+                                    LspRegistry.externalServers.remove(server)
                                     LspPersistence.saveServers()
                                 }
                             ) {
@@ -121,7 +137,7 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
             ExternalLSP(
                 onDismiss = { showDialog = false },
                 onConfirm = { server ->
-                    externalServers.add(server)
+                    LspRegistry.externalServers.add(server)
                     LspPersistence.saveServers()
                 },
             )

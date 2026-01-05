@@ -253,7 +253,7 @@
     <string name="script_set_text">Atur teks</string>
     <string name="script_api_info">Periksa kelas ImplApi di kode sumber Xed-Editor pada PROJECT/core/main/ui/screens/mutators/ImplApi untuk informasi lebih lanjut</string>
     <string name="installing">Memasang…</string>
-    <string name="not_plugin_err">Berkas yang dipilih bukan berkas APK</string>
+    <string name="not_ext_error">Berkas yang dipilih bukan berkas APK</string>
     <string name="install_from_storage">Memasang dari penyimpanan</string>
     <string name="no_ext">Tidak ada pengaya yang dipasang.</string>
     <string name="loading">Memuat…</string>
