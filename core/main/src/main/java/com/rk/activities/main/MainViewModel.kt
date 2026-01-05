@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.commands.Command
+import com.rk.commands.CommandProvider
+import com.rk.commands.KeybindingsManager
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.resources.getString
@@ -21,6 +23,7 @@ import com.rk.utils.application
 import com.rk.utils.dialog
 import com.rk.utils.expectOOM
 import com.rk.utils.toast
+import io.github.rosemoe.sora.event.SelectionChangeEvent
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
@@ -112,6 +115,9 @@ class MainViewModel : ViewModel() {
         if (Settings.restore_sessions) {
             restoreTabs()
         }
+
+        CommandProvider.buildCommands(this)
+        KeybindingsManager.loadKeybindings()
     }
 
     /**
@@ -399,5 +405,23 @@ class MainViewModel : ViewModel() {
         }
         currentTabIndex = index
         return true
+    }
+
+    /** Go to or open tab that contains the range and select it. */
+    suspend fun goToTabAndSelect(file: FileObject, lineStart: Int, charStart: Int, lineEnd: Int, charEnd: Int) {
+        withContext(Dispatchers.Main) { newTab(file, switchToTab = true) }
+
+        val targetTab = tabs.filterIsInstance<EditorTab>().find { it.file == file }
+
+        // Wait until editor content is loaded
+        targetTab!!.editorState.contentRendered.await()
+
+        withContext(Dispatchers.Main) {
+            targetTab.editorState.editor
+                .get()
+                ?.setSelectionRegion(lineStart, charStart, lineEnd, charEnd, SelectionChangeEvent.CAUSE_SEARCH)
+
+            targetTab.editorState.editor.get()?.ensureSelectionVisible()
+        }
     }
 }

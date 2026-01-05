@@ -27,7 +27,6 @@ import com.rk.utils.getSelectionColor
 import com.rk.utils.isDarkTheme
 import com.rk.utils.toAnnotatedString
 import com.rk.utils.toast
-import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.getOption
 import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
@@ -82,7 +81,7 @@ suspend fun generateSnippet(
     targetFile: FileObject,
     range: Range,
 ): AnnotatedString {
-    return withContext(Dispatchers.Default) {
+    return withContext(Dispatchers.IO) {
         val openedTab = viewModel.tabs.find { it is EditorTab && it.file == targetFile } as? EditorTab
 
         // Only read file if it's not already opened as a tab
@@ -128,28 +127,8 @@ suspend fun generateSnippet(
     }
 }
 
-/** Go to or open tab that contains the range and select it. */
-suspend fun goToTabAndSelect(viewModel: MainViewModel, file: FileObject, range: Range) {
-    withContext(Dispatchers.Main) { viewModel.newTab(file, switchToTab = true) }
-
-    val targetTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file == file }
-
-    // Wait until editor content is loaded
-    targetTab!!.editorState.contentRendered.await()
-
-    withContext(Dispatchers.Main) {
-        targetTab.editorState.editor
-            .get()
-            ?.setSelectionRegion(
-                range.start.line,
-                range.start.character,
-                range.end.line,
-                range.end.character,
-                SelectionChangeEvent.CAUSE_SEARCH,
-            )
-
-        targetTab.editorState.editor.get()?.ensureSelectionVisible()
-    }
+suspend fun MainViewModel.goToTabAndSelect(file: FileObject, range: Range) {
+    goToTabAndSelect(file, range.start.line, range.start.character, range.end.line, range.end.character)
 }
 
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
@@ -180,7 +159,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { goToTabAndSelect(viewModel, targetFile, range) }
+                    scope.launch { viewModel.goToTabAndSelect(targetFile, range) }
                     return@launch
                 }
 
@@ -203,9 +182,10 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                             CodeItem(
                                 snippet = generateSnippet(viewModel, context, targetFile, range),
                                 fileName = targetFile.getName(),
+                                highlightStart = range.start.character,
                                 line = range.start.line + 1,
                                 column = range.start.character + 1,
-                                onClick = { scope.launch { goToTabAndSelect(viewModel, targetFile, range) } },
+                                onClick = { scope.launch { viewModel.goToTabAndSelect(targetFile, range) } },
                             )
                         }
                 }
@@ -243,7 +223,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { goToTabAndSelect(viewModel, targetFile, range) }
+                    scope.launch { viewModel.goToTabAndSelect(targetFile, range) }
                     return@launch
                 }
 
@@ -264,7 +244,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                                 fileName = targetFile.getName(),
                                 line = range.start.line + 1,
                                 column = range.start.character + 1,
-                                onClick = { scope.launch { goToTabAndSelect(viewModel, targetFile, range) } },
+                                onClick = { scope.launch { viewModel.goToTabAndSelect(targetFile, range) } },
                             )
                         }
                 }

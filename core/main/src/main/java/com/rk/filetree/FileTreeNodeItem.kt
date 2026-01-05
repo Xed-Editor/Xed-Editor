@@ -81,7 +81,7 @@ fun FileTreeNodeItem(
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
-                Modifier.addIf(isCut) { Modifier.alpha(0.5f) }
+                Modifier.addIf(isCut) { alpha(0.5f) }
                     .combinedClickable(
                         onClick = {
                             if (node.isDirectory) {
@@ -92,10 +92,10 @@ fun FileTreeNodeItem(
                                     onFileClick(node)
                                 }
                             }
-                            viewModel.selectedFile[(currentTab as FileTreeTab).root!!] = node.file
+                            viewModel.selectedFile[(currentTab as FileTreeTab).root] = node.file
                         },
                         onLongClick = {
-                            viewModel.selectedFile[(currentTab as FileTreeTab).root!!] = node.file
+                            viewModel.selectedFile[(currentTab as FileTreeTab).root] = node.file
                             scope.launch {
                                 delay(50)
                                 onFileLongClick(node)
@@ -137,7 +137,7 @@ fun FileTreeNodeItem(
                 Spacer(modifier = Modifier.width(24.dp))
             }
 
-            Box(modifier = Modifier.addIf(isHidden) { Modifier.alpha(0.5f) }) { FileIcon(node.file) }
+            Box(modifier = Modifier.addIf(isHidden) { alpha(0.5f) }) { FileIcon(node.file) }
 
             Spacer(modifier = Modifier.width(8.dp))
 

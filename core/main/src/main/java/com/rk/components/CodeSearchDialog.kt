@@ -5,7 +5,6 @@ import android.graphics.Typeface
 import android.text.Spannable
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +51,6 @@ import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.filetree.FileIcon
-import com.rk.lsp.goToTabAndSelect
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -70,8 +68,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
 
 val binaryExtensions: Set<String> =
     FileType.IMAGE.extensions.toSet() +
@@ -104,6 +100,7 @@ private suspend fun findCodeRecursive(
     parent: FileObject,
     query: String,
     results: SnapshotStateMap<FileObject, MutableList<CodeItem>>,
+    isResultHidden: Boolean = false,
 ) {
     val childFiles = parent.listFiles()
     val context = currentCoroutineContext()
@@ -113,11 +110,11 @@ private suspend fun findCodeRecursive(
     for (file in childFiles) {
         if (!context.isActive) return
 
-        val isHidden = file.getName().startsWith(".")
+        val isHidden = file.getName().startsWith(".") || isResultHidden
         if (isHidden && !Settings.show_hidden_files_search) continue
 
         if (file.isDirectory()) {
-            findCodeRecursive(mainViewModel, scope, file, query, results)
+            findCodeRecursive(mainViewModel, scope, file, query, results, isHidden)
             continue
         }
 
@@ -132,16 +129,24 @@ private suspend fun findCodeRecursive(
             if (openedTab != null) {
                 openedTab.editorState.editor.get()?.text.toString().lines()
             } else {
-                val fileText = file.readText()
-                if (hasBinaryChars(fileText ?: "")) {
+                val fileText =
+                    withContext(Dispatchers.IO) {
+                        try {
+                            file.readText()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
+                if (fileText == null || hasBinaryChars(fileText)) {
                     continue // Do not search in file if it's likely to be binary (character based detection)
                 }
-                fileText?.lines() ?: emptyList()
+                fileText.lines()
             }
 
         lines.forEachIndexed { lineIndex, line ->
-            if (line.lowercase().contains(query.lowercase())) {
-                val charIndex = line.indexOf(query)
+            if (line.contains(query, ignoreCase = true)) {
+                val charIndex = line.indexOf(query, ignoreCase = true)
                 val fileExt = file.getName().substringAfterLast(".")
 
                 val codeItem =
@@ -156,19 +161,19 @@ private suspend fun findCodeRecursive(
                                 start = charIndex,
                                 end = charIndex + query.length,
                             ),
+                        highlightStart = charIndex,
                         fileName = file.getName(),
+                        isHidden = isHidden,
                         line = lineIndex + 1,
                         column = charIndex + 1,
                         onClick = {
                             DefaultScope.launch {
-                                goToTabAndSelect(
-                                    viewModel = mainViewModel,
+                                mainViewModel.goToTabAndSelect(
                                     file = file,
-                                    range =
-                                        Range(
-                                            Position(lineIndex, charIndex),
-                                            Position(lineIndex, charIndex + query.length),
-                                        ),
+                                    lineStart = lineIndex,
+                                    charStart = charIndex,
+                                    lineEnd = lineIndex,
+                                    charEnd = charIndex + query.length,
                                 )
                             }
                         },
@@ -233,14 +238,15 @@ fun CodeSearchDialog(viewModel: MainViewModel, projectFile: FileObject, onFinish
     LaunchedEffect(searchQuery) {
         delay(250)
 
+        listState.scrollToItem(0)
         isIndexing = true
         filteredCode.clear()
         if (searchQuery.isNotEmpty()) {
-            findCodeRecursive(viewModel, scope, projectFile, searchQuery, filteredCode)
+            withContext(Dispatchers.Default) {
+                findCodeRecursive(viewModel, scope, projectFile, searchQuery, filteredCode)
+            }
         }
         isIndexing = false
-
-        listState.scrollToItem(0)
     }
 
     val resultsCount by remember { derivedStateOf { filteredCode.values.sumOf { it.size } } }
@@ -280,13 +286,12 @@ fun CodeSearchDialog(viewModel: MainViewModel, projectFile: FileObject, onFinish
 
             LazyColumn(state = listState, modifier = Modifier.padding(all = 16.dp)) {
                 filteredCode.forEach { (fileObject, codeItems) ->
-                    val isHidden = fileObject.getName().startsWith(".") || fileObject.getAbsolutePath().contains("/.")
-
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier =
-                                Modifier.addIf(isHidden) { Modifier.alpha(0.5f) }.padding(top = 8.dp, bottom = 4.dp),
+                                Modifier.addIf(codeItems.first().isHidden) { alpha(0.5f) }
+                                    .padding(top = 8.dp, bottom = 4.dp),
                         ) {
                             FileIcon(file = fileObject, iconTint = MaterialTheme.colorScheme.primary)
 
@@ -301,15 +306,13 @@ fun CodeSearchDialog(viewModel: MainViewModel, projectFile: FileObject, onFinish
                     }
 
                     items(codeItems) { codeItem ->
-                        Box(modifier = Modifier.addIf(isHidden) { Modifier.alpha(0.5f) }) {
-                            CodeItemRow(
-                                item = codeItem,
-                                onClick = {
-                                    codeItem.onClick()
-                                    onFinish()
-                                },
-                            )
-                        }
+                        CodeItemRow(
+                            item = codeItem,
+                            onClick = {
+                                codeItem.onClick()
+                                onFinish()
+                            },
+                        )
                     }
 
                     item { Spacer(modifier = Modifier.height(8.dp)) }
