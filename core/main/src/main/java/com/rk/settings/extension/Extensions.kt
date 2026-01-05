@@ -162,7 +162,7 @@ fun Extensions(modifier: Modifier = Modifier) {
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             InfoBlock(
                 modifier =
-                    Modifier.clickable { activity?.openUrl("https://xed-editor.github.io/Xed-Docs/docs/plugins/") },
+                    Modifier.clickable { activity?.openUrl("https://xed-editor.github.io/Xed-Docs/docs/extensions/") },
                 icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
                 text = stringResource(strings.info_ext),
             )

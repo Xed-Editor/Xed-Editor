@@ -38,18 +38,14 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     }
 
     internal fun validateExtensionDir(dir: File): Result<ExtensionInfo> {
-        var extensionJson = dir.resolve("plugin.json")
+        val extensionJson = dir.resolve("manifest.json")
         if (!extensionJson.exists()) {
-            if (dir.resolve("manifest.json").exists()) {
-                extensionJson = dir.resolve("manifest.json")
-            } else {
-                return Result.failure(Exception("Missing manifest.json"))
-            }
+            return Result.failure(Exception("Missing manifest.json"))
         }
         val extensionInfo =
             runCatching { Gson().fromJson(extensionJson.readText(), ExtensionInfo::class.java) }
                 .getOrElse {
-                    return Result.failure(Exception("Invalid plugin.json", it))
+                    return Result.failure(Exception("Invalid manifest.json", it))
                 }
 
         val hasApk = dir.listFiles()?.any { it.extension == "apk" } == true
@@ -153,10 +149,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         withContext(Dispatchers.IO) {
             baseDir.listFiles()?.forEach { dir ->
                 if (dir.isDirectory) {
-                    var extensionJson = dir.resolve("plugin.json")
-                    if (extensionJson.exists().not()) {
-                        extensionJson = dir.resolve("manifest.json")
-                    }
+                    val extensionJson = dir.resolve("manifest.json")
                     if (extensionJson.exists()) {
                         runCatching {
                             val extensionInfo = Gson().fromJson(extensionJson.readText(), ExtensionInfo::class.java)
