@@ -72,16 +72,15 @@ fun KeybindingsScreen() {
         if (searchQuery.text.isEmpty()) {
             commands
         } else {
-            val query = searchQuery.text.lowercase()
+            val query = searchQuery.text
 
             commands.filter { command ->
-                val labelMatch = command.getLabel().lowercase().contains(query)
-                val prefixMatch = command.prefix?.lowercase()?.contains(query) == true
+                val labelMatch = command.getLabel().contains(query, ignoreCase = true)
+                val prefixMatch = command.prefix?.contains(query, ignoreCase = true) == true
                 val keybindMatch =
                     KeybindingsManager.getKeyCombinationForCommand(command.id)
                         ?.getDisplayName()
-                        ?.lowercase()
-                        ?.contains(query) == true
+                        ?.contains(query, ignoreCase = true) == true
 
                 labelMatch || prefixMatch || keybindMatch
             }

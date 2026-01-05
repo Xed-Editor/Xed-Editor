@@ -23,8 +23,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rk.commands.CommandProvider
-import com.rk.commands.KeybindingsManager
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
 import com.rk.filetree.FileTreeViewModel
@@ -96,9 +94,6 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             var accumulator = 0f
             val softThreshold = with(density) { 50.dp.toPx() }
             val hardThreshold = with(density) { 100.dp.toPx() }
-
-            CommandProvider.buildCommands(viewModel)
-            KeybindingsManager.loadKeybindings()
 
             val snackbarBottomPadding =
                 if (Settings.show_extra_keys) {

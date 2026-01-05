@@ -297,8 +297,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         projectName = currentTab!!.getName(),
                         onConfirm = {
                             closeProjectDialog = false
-                            tabs.remove(currentTab)
-                            currentTab = null
+                            removeProject(currentTab!!)
                         },
                         onDismiss = { closeProjectDialog = false },
                     )
