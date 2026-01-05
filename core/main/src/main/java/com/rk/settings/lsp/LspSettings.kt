@@ -22,7 +22,9 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,12 +40,18 @@ import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.file.FileType
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspPersistence
 import com.rk.lsp.LspRegistry
 import com.rk.lsp.getConnectionColor
+import com.rk.lsp.servers.ExternalProcessServer
+import com.rk.lsp.servers.ExternalSocketServer
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.utils.parseExtensions
+import com.rk.utils.toast
 
 @Composable
 fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
@@ -152,20 +160,104 @@ private fun LanguageServerIcon(server: BaseLspServer, i: Int) {
     }
 }
 
+class ExternalLspDialogState {
+    // Shared
+    var lspExtensions by mutableStateOf("")
+    var extensionsError by mutableStateOf<String?>(null)
+
+    // Command
+    var lspCommand by mutableStateOf("")
+    var externalError by mutableStateOf<String?>(null)
+    val externalConfirmEnabled by derivedStateOf {
+        externalError == null && extensionsError == null && lspCommand.isNotBlank() && lspExtensions.isNotBlank()
+    }
+
+    // Socket
+    var lspHost by mutableStateOf("localhost")
+    var lspPort by mutableStateOf("")
+    var hostError by mutableStateOf<String?>(null)
+    var portError by mutableStateOf<String?>(null)
+    val socketConfirmEnabled by derivedStateOf {
+        hostError == null &&
+            portError == null &&
+            extensionsError == null &&
+            lspPort.isNotBlank() &&
+            lspExtensions.isNotBlank()
+    }
+
+    /**
+     * Should be called when the value of the extensions input field changes. It handles the validation of the
+     * extensions and makes sure that the extensions value in the external and socket page are synced.
+     */
+    fun onExtensionsChange(newValue: String) {
+        lspExtensions = newValue
+        extensionsError = null
+
+        val parsedExtensions = parseExtensions(lspExtensions)
+        if (parsedExtensions.isEmpty()) {
+            extensionsError = strings.unsupported_file_ext.getString()
+        } else {
+            val invalid = parsedExtensions.filter { !FileType.knowsExtension(it) }
+            if (invalid.isNotEmpty()) {
+                extensionsError =
+                    "${strings.unsupported_file_ext.getString()}: ${invalid.joinToString(", ") { ".$it" }}"
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Unit) {
+    val socketLabel = stringResource(strings.socket)
+    val processLabel = stringResource(strings.process)
+    var selected by remember { mutableStateOf(socketLabel) }
+    val options = listOf(socketLabel, processLabel)
+
+    val dialogState = remember { ExternalLspDialogState() }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(strings.external_lsp)) },
-        confirmButton = {},
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    runCatching {
+                            var server: BaseLspServer? = null
+                            when (selected) {
+                                socketLabel ->
+                                    server =
+                                        ExternalSocketServer(
+                                            host = dialogState.lspHost,
+                                            port = dialogState.lspPort.toInt(),
+                                            supportedExtensions = parseExtensions(dialogState.lspExtensions),
+                                        )
+                                processLabel ->
+                                    server =
+                                        ExternalProcessServer(
+                                            command = dialogState.lspCommand,
+                                            supportedExtensions = parseExtensions(dialogState.lspExtensions),
+                                        )
+                            }
+                            server?.let { onConfirm(it) }
+                        }
+                        .onFailure { toast(it.message) }
+
+                    onDismiss()
+                },
+                enabled =
+                    when (selected) {
+                        socketLabel -> dialogState.socketConfirmEnabled
+                        processLabel -> dialogState.externalConfirmEnabled
+                        else -> false
+                    },
+            ) {
+                Text(stringResource(strings.add))
+            }
+        },
+        dismissButton = { TextButton(onClick = { onDismiss() }) { Text(stringResource(strings.cancel)) } },
         text = {
             Column {
-                val socketLabel = stringResource(strings.socket)
-                val processLabel = stringResource(strings.process)
-                var selected by remember { mutableStateOf(socketLabel) }
-                val options = listOf(socketLabel, processLabel)
-
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     options.forEach { option ->
                         SegmentedButton(
@@ -181,8 +273,8 @@ private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Uni
                 Spacer(Modifier.height(8.dp))
 
                 when (selected) {
-                    socketLabel -> ExternalSocketServer(onConfirm = onConfirm, onDismiss = { onDismiss() })
-                    processLabel -> ExternalProcessServer(onConfirm = onConfirm, onDismiss = { onDismiss() })
+                    socketLabel -> ExternalSocketServer(dialogState)
+                    processLabel -> ExternalProcessServer(dialogState)
                 }
             }
         },
