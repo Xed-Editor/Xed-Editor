@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
 import android.util.AttributeSet
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
