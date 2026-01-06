@@ -111,11 +111,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             val uri = intent.data!!
-            val file = uri.toFileObject(expectedIsFile = true)
-            if (file == null) {
+
+            if (uri.toString().startsWith("content://telephony")) {
                 toast(strings.unsupported_content)
                 return
             }
+
+            val file = uri.toFileObject(expectedIsFile = true)
+
             viewModel.newTab(file, switchToTab = true)
             setIntent(Intent())
         }
