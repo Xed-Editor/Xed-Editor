@@ -602,4 +602,12 @@
     <string name="folder_already_exists">Il existe déjà un dossier nommé \'%s\'</string>
     <string name="file_creation_failed">Impossible de créer le fichier</string>
     <string name="folder_creation_failed">Impossible de créer le dossier</string>
+    <string name="restore_terminal">Restaurer la sauvegarde du terminal</string>
+    <string name="terminal_backup">Sauvegarde du terminal</string>
+    <string name="settings_backup_desc">Créé une sauvegarde de tous les paramètres actuels</string>
+    <string name="settings_restore_desc">Restaure les paramètres à partir d\'une sauvegarde</string>
+    <string name="export_successful">Exportation réussie</string>
+    <string name="export_failed">Échec de l\'exportation</string>
+    <string name="import_successful">Importations réussie</string>
+    <string name="import_failed">Échec de l\'importation</string>
 </resources>
