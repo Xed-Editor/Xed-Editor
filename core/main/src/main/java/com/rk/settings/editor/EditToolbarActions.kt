@@ -211,7 +211,7 @@ private fun patchChildCommands(
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
     val actionItems = commandIds.joinToString("|")
     Settings.action_items = actionItems
-    ReactiveSettings.toolbarActionIds = actionItems
+    ReactiveSettings.update()
 }
 
 /** Reset order of toolbar actions to default */
@@ -219,5 +219,5 @@ private fun resetOrder(commandIds: SnapshotStateList<String>) {
     Preference.removeKey("action_items")
     commandIds.clear()
     commandIds.addAll(DEFAULT_ACTION_ITEMS.split("|"))
-    ReactiveSettings.toolbarActionIds = DEFAULT_ACTION_ITEMS
+    ReactiveSettings.update()
 }

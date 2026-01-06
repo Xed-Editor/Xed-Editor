@@ -198,8 +198,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.extra_keys_desc),
                 default = Settings.show_extra_keys,
                 sideEffect = {
-                    ReactiveSettings.showExtraKeys = it
                     Settings.show_extra_keys = it
+                    ReactiveSettings.update()
                 },
             )
 
@@ -209,8 +209,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 isEnabled = ReactiveSettings.showExtraKeys,
                 default = Settings.extra_keys_bg,
                 sideEffect = {
-                    ReactiveSettings.extraKeysBackground = it
                     Settings.extra_keys_bg = it
+                    ReactiveSettings.update()
                 },
             )
 
@@ -220,8 +220,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 isEnabled = ReactiveSettings.showExtraKeys,
                 default = Settings.split_extra_keys,
                 sideEffect = {
-                    ReactiveSettings.splitExtraKeys = it
                     Settings.split_extra_keys = it
+                    ReactiveSettings.update()
                 },
             )
 
