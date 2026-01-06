@@ -1,5 +1,6 @@
 package com.rk.utils
 
+import android.app.Activity
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.Row
@@ -75,7 +76,10 @@ constructor(private val ctx: Context, hideAfterMillis: Long? = null, scope: Coro
         return this
     }
 
-    fun show(): LoadingPopup {
+    fun show(): LoadingPopup? {
+        if ((ctx as? Activity)?.isFinishing == true || (ctx as? Activity)?.isDestroyed == true) {
+            return null
+        }
         runOnUiThread {
             if (dialog?.isShowing?.not() == true) {
                 dialog?.show()

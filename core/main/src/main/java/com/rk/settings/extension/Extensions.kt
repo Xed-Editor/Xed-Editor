@@ -93,13 +93,13 @@ fun Extensions(modifier: Modifier = Modifier) {
 
                         if (exists && canRead && isZip) {
                             loading = LoadingPopup(context as Activity, null).show()
-                            loading.setMessage(strings.installing.getString())
+                            loading?.setMessage(strings.installing.getString())
                             DefaultScope.launch {
                                 val result = extensionManager.installExtension(fileObject)
                                 handleInstallResult(result, activity)
                             }
 
-                            loading.hide()
+                            loading?.hide()
                         } else {
                             errorDialog(
                                 "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",

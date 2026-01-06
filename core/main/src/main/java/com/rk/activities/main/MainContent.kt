@@ -266,24 +266,6 @@ private fun TabItem(
             )
         },
         modifier = Modifier.fillMaxWidth().onSizeChanged { size -> calculatedTabWidth = size.width },
-        // TODO: Combined clickable below won't work
-        // .combinedClickable(
-        //     onLongClick = {
-        //         if (mainViewModel.currentTabIndex == index) {
-        //             showTabMenu = true
-        //         }
-        //     },
-        //     onDoubleClick = {
-        //         toast("Double click")
-        //     },
-        //     onClick = {
-        //         if (isSelected) {
-        //             showTabMenu = true
-        //         } else {
-        //             mainViewModel.currentTabIndex = index
-        //         }
-        //     }
-        // )
     ) {
         TabItemContent(
             mainViewModel = mainViewModel,
