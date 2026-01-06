@@ -83,7 +83,11 @@ suspend fun FileObject.copyToTempDir() = run {
     file
 }
 
-suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject? {
+
+    if (toString().startsWith("content://telephony")) {
+        return null
+    }
 
     if (this.toString().startsWith("http")) {
         return NetWrapper(URL(toString()))
