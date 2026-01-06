@@ -50,6 +50,7 @@ import com.rk.settings.Settings
 import com.rk.settings.support.handleSupport
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
+import com.rk.utils.toast
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -110,7 +111,14 @@ class MainActivity : AppCompatActivity() {
             }
 
             val uri = intent.data!!
+
+            if (uri.toString().startsWith("content://telephony")) {
+                toast(strings.unsupported_content)
+                return
+            }
+
             val file = uri.toFileObject(expectedIsFile = true)
+
             viewModel.newTab(file, switchToTab = true)
             setIntent(Intent())
         }

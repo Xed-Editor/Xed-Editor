@@ -10,6 +10,7 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
+import java.net.URL
 import java.nio.charset.Charset
 
 interface FileObject : Serializable {
@@ -83,6 +84,10 @@ suspend fun FileObject.copyToTempDir() = run {
 }
 
 suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+    if (this.toString().startsWith("http")) {
+        return NetWrapper(URL(toString()))
+    }
+
     // First, try to resolve to a real File (for direct access when possible)
     val file = File(this.toPath())
 
