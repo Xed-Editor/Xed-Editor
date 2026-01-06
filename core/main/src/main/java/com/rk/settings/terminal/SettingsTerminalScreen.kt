@@ -131,7 +131,7 @@ fun SettingsTerminalScreen() {
 
             SettingsToggle(
                 label = stringResource(strings.backup),
-                description = "${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
+                description = stringResource(strings.terminal_backup),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -216,12 +216,7 @@ fun SettingsTerminalScreen() {
 
             SettingsToggle(
                 label = stringResource(strings.restore),
-                description =
-                    "${stringResource(strings.restore)} ${stringResource(strings.terminal)} ${
-                    stringResource(
-                        strings.backup
-                    )
-                }",
+                description = stringResource(strings.restore_terminal),
                 showSwitch = false,
                 default = false,
                 sideEffect = { restore.launch("application/gzip") },
