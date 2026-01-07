@@ -597,4 +597,12 @@
     <string name="use">Verwenden</string>
     <string name="http_server_port_error">HTTP-Server konnte auf Port %d nicht gestartet werden</string>
     <string name="http_server_at">Läuft unter: %s</string>
+    <string name="restore_terminal">Terminal-Backup wiederherstellen</string>
+    <string name="terminal_backup">Terminal-Backup</string>
+    <string name="settings_backup_desc">Ein Backup von all deinen aktuellen Einstellungen erstellen</string>
+    <string name="settings_restore_desc">Einstellungen aus einem Backup wiederherstellen</string>
+    <string name="export_successful">Export erfolgreich</string>
+    <string name="export_failed">Export fehlgeschlagen</string>
+    <string name="import_successful">Import erfolgreich</string>
+    <string name="import_failed">Import fehlgeschlagen</string>
 </resources>
