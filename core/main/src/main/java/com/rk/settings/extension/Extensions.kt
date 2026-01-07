@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -64,7 +65,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Extensions(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val activity = LocalActivity.current
+    val activity = LocalActivity.current as? AppCompatActivity
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -92,7 +93,8 @@ fun Extensions(modifier: Modifier = Modifier) {
                         val isZip = fileObject.getName().endsWith(".zip")
 
                         if (exists && canRead && isZip) {
-                            loading = LoadingPopup(context as Activity, null).show()
+
+                            loading = LoadingPopup(activity, null).show()
                             loading?.setMessage(strings.installing.getString())
                             DefaultScope.launch {
                                 val result = extensionManager.installExtension(fileObject)
@@ -197,7 +199,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                                             dir
                                         }
                                         .onSuccess { dir ->
-                                            val loadingPopup = LoadingPopup(context)
+                                            val loadingPopup = LoadingPopup(activity)
                                             loadingPopup.setMessage(strings.installing.getString())
                                             loadingPopup.show()
 
