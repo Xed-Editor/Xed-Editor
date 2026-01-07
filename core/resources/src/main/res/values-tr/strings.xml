@@ -599,4 +599,12 @@
     <string name="folder_already_exists">\'%s\' adlı klasör zaten mevcut</string>
     <string name="file_creation_failed">Dosya oluşturulamıyor</string>
     <string name="folder_creation_failed">Klasör oluşturulamıyor</string>
+    <string name="restore_terminal">Terminal yedeğini geri yükle</string>
+    <string name="terminal_backup">Terminali yedekle</string>
+    <string name="settings_backup_desc">Tüm mevcut ayarlarınızın bir yedeğini oluşturun</string>
+    <string name="settings_restore_desc">Ayarları bir yedekten geri yükle</string>
+    <string name="export_successful">Dışa aktarma başarılı</string>
+    <string name="export_failed">Dışa aktarma başarısız oldu</string>
+    <string name="import_successful">İçe aktarma başarılı</string>
+    <string name="import_failed">İçe aktarma başarısız</string>
 </resources>
