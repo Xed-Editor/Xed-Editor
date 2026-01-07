@@ -599,4 +599,12 @@
     <string name="folder_already_exists">Katalog o nazwie \'%s\' już istnieje</string>
     <string name="file_creation_failed">Nie można stworzyć pliku</string>
     <string name="folder_creation_failed">Nie można stworzyć katalogu</string>
+    <string name="restore_terminal">Przywróć kopie zapasową Terminalu</string>
+    <string name="terminal_backup">Kopia zapasowa Terminalu</string>
+    <string name="settings_backup_desc">Stwórz kopię zapasową bierzących ustawień</string>
+    <string name="settings_restore_desc">Przywróć ustawienia z kopii zapasowej</string>
+    <string name="export_successful">Eksport udany</string>
+    <string name="export_failed">Eksport nie powiódł się</string>
+    <string name="import_successful">Import udany</string>
+    <string name="import_failed">Import nie powiódł się</string>
 </resources>
