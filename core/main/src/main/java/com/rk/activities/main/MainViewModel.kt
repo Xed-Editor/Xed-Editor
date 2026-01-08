@@ -29,8 +29,8 @@ import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -111,9 +111,16 @@ class MainViewModel : ViewModel() {
     val currentTab: Tab?
         get() = tabs.getOrNull(currentTabIndex)
 
+    val sessionRestored = CompletableDeferred<Unit>()
+
     init {
         if (Settings.restore_sessions) {
-            restoreTabs()
+            viewModelScope.launch(Dispatchers.IO) {
+                restoreTabs()
+                sessionRestored.complete(Unit)
+            }
+        } else {
+            sessionRestored.complete(Unit)
         }
 
         CommandProvider.buildCommands(this)
@@ -124,25 +131,23 @@ class MainViewModel : ViewModel() {
      * Restores tabs from the previous session if session restoration is enabled. It loads the preloaded session state,
      * restores each tab, and sets the active tab index.
      */
-    private fun restoreTabs() {
-        viewModelScope.launch(Dispatchers.IO) {
-            SessionManager.mutex.withLock {
-                val session = SessionManager.preloadedSession ?: return@launch
+    private suspend fun restoreTabs() {
+        SessionManager.mutex.withLock {
+            val session = SessionManager.preloadedSession ?: return
 
-                val deferredRestoredTabs =
-                    session.tabStates
-                        .mapNotNull { tabState -> getTabFromState(tabState) }
-                        .filter {
-                            if (it is EditorTab) {
-                                return@filter it.file.exists() && it.file.canRead()
-                            }
-                            true
+            val deferredRestoredTabs =
+                session.tabStates
+                    .mapNotNull { tabState -> getTabFromState(tabState) }
+                    .filter {
+                        if (it is EditorTab) {
+                            return@filter it.file.exists() && it.file.canRead()
                         }
+                        true
+                    }
 
-                tabs.addAll(deferredRestoredTabs)
+            tabs.addAll(deferredRestoredTabs)
 
-                currentTabIndex = session.currentTabIndex
-            }
+            currentTabIndex = session.currentTabIndex
         }
     }
 
@@ -258,12 +263,17 @@ class MainViewModel : ViewModel() {
                 editorTab.editorState.isDirty = true
                 editor.setText(it)
             }
-            editor.setSelectionRegion(
-                editorState.cursor.lineLeft,
-                editorState.cursor.columnLeft,
-                editorState.cursor.lineRight,
-                editorState.cursor.columnRight,
-            )
+
+            val maxLine = editor.text.lineCount - 1
+            val lineLeft = editorState.cursor.lineLeft.coerceAtMost(maxLine)
+            val lineRight = editorState.cursor.lineRight.coerceAtMost(maxLine)
+
+            val maxColumnLeft = editor.text.getColumnCount(lineLeft)
+            val maxColumnRight = editor.text.getColumnCount(lineRight)
+            val columnLeft = editorState.cursor.columnLeft.coerceAtMost(maxColumnLeft)
+            val columnRight = editorState.cursor.columnRight.coerceAtMost(maxColumnRight)
+
+            editor.setSelectionRegion(lineLeft, columnLeft, lineRight, columnRight)
             editor.scroller.startScroll(editorState.scrollX, editorState.scrollY, 0, 0)
         }
 
@@ -301,7 +311,6 @@ class MainViewModel : ViewModel() {
 
                     if (openTab) tabs.add(editorTab)
                     if (openTab && switchToTab) {
-                        delay(70)
                         currentTabIndex = tabs.lastIndex
                     }
 
@@ -320,7 +329,6 @@ class MainViewModel : ViewModel() {
         mutex.withLock {
             tabs.add(tab)
             if (switchToTab) {
-                delay(70)
                 currentTabIndex = tabs.lastIndex
             }
         }

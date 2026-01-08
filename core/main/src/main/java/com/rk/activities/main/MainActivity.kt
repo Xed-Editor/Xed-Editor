@@ -119,6 +119,7 @@ class MainActivity : AppCompatActivity() {
 
             val file = uri.toFileObject(expectedIsFile = true)
 
+            viewModel.sessionRestored.await()
             viewModel.newTab(file, switchToTab = true)
             setIntent(Intent())
         }
