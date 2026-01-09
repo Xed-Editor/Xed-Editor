@@ -586,4 +586,7 @@
     <string name="export_failed">Export failed</string>
     <string name="import_successful">Import successful</string>
     <string name="import_failed">Import failed</string>
+    <string name="intelligent_features">Intelligent features</string>
+    <string name="auto_close_tags">Auto close tags</string>
+    <string name="auto_close_tags_desc">Automatically close HTML tags</string>
 </resources>

@@ -23,6 +23,7 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import kotlin.random.Random.Default.nextInt
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -57,6 +58,24 @@ fun SettingsEditorScreen(navController: NavController) {
                     sideEffect = { Settings.format_on_save = it },
                 )
             }
+        }
+
+        PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
+            EditorSettingsToggle(
+                label = stringResource(strings.auto_close_tags),
+                description = stringResource(strings.auto_close_tags_desc),
+                default = Settings.auto_close_tags,
+                sideEffect = {
+                    Settings.auto_close_tags = it
+                    MainActivity.instance?.apply {
+                        viewModel.tabs.forEach { tab ->
+                            if (tab is EditorTab) {
+                                tab.refreshKey = nextInt()
+                            }
+                        }
+                    }
+                },
+            )
         }
 
         PreferenceGroup(heading = stringResource(strings.content)) {

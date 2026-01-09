@@ -109,7 +109,9 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     },
                 )
             }
+        }
 
+        PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
             val activity = LocalActivity.current
 
             BasicToggle(
@@ -128,9 +130,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     InbuiltFeatures.debugMode.setEnable(false)
                 }
             }
-        }
 
-        PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
             SettingsToggle(
                 label = stringResource(InbuiltFeatures.terminal.nameRes),
                 default = InbuiltFeatures.terminal.state.value,
