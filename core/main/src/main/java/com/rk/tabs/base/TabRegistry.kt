@@ -7,7 +7,7 @@ import com.rk.tabs.image.ImageTab
 object TabRegistry {
     fun getTab(file: FileObject): Tab? {
         val ext = file.getName().substringAfterLast('.', "")
-        val type = FileType.Companion.fromExtension(ext)
+        val type = FileType.fromExtension(ext)
 
         return when (type) {
             FileType.IMAGE -> ImageTab(file)
