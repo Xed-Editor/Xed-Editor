@@ -594,4 +594,12 @@
     <string name="folder_already_exists">Folder dengan nama \'%s\' sudah ada</string>
     <string name="file_creation_failed">Tidak dapat membuat berkas</string>
     <string name="folder_creation_failed">Tidak dapat membuat folder</string>
+    <string name="restore_terminal">Pulihkan cadangan terminal</string>
+    <string name="terminal_backup">Cadangan Terminal</string>
+    <string name="settings_backup_desc">Buat cadangan dari semua pengaturan Anda saat ini</string>
+    <string name="settings_restore_desc">Pulihkan pengaturan dari cadangan</string>
+    <string name="export_successful">Ekspor berhasil</string>
+    <string name="export_failed">Ekspor gagal</string>
+    <string name="import_successful">Impor berhasil</string>
+    <string name="import_failed">Impor gagal</string>
 </resources>
