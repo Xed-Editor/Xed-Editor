@@ -605,4 +605,7 @@
     <string name="export_failed">Export fehlgeschlagen</string>
     <string name="import_successful">Import erfolgreich</string>
     <string name="import_failed">Import fehlgeschlagen</string>
+    <string name="intelligent_features">Intelligente Funktionen</string>
+    <string name="auto_close_tags">Tags automatisch schließen</string>
+    <string name="auto_close_tags_desc">HTML-Tags automatisch schließen</string>
 </resources>
