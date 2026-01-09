@@ -607,4 +607,7 @@
     <string name="export_failed">Dışa aktarma başarısız oldu</string>
     <string name="import_successful">İçe aktarma başarılı</string>
     <string name="import_failed">İçe aktarma başarısız</string>
+    <string name="intelligent_features">Akıllı özellikler</string>
+    <string name="auto_close_tags">Etiketleri otomatik kapat</string>
+    <string name="auto_close_tags_desc">HTML etiketlerini otomatik olarak kapat</string>
 </resources>
