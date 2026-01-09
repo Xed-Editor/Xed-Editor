@@ -23,6 +23,7 @@ import androidx.core.view.children
 import com.rk.activities.main.MainActivity
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
+import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
@@ -55,6 +56,7 @@ fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     parentTab: EditorTab,
+    supportedFeatures: List<IntelligentFeature>,
     onTextChange: () -> Unit,
 ) {
     val surfaceColor =
@@ -145,6 +147,15 @@ fun EditorTab.CodeEditor(
                         }
 
                         subscribeAlways(ContentChangeEvent::class.java) {
+                            if (it.action == ContentChangeEvent.ACTION_INSERT && it.changedText.length == 1) {
+                                val character = it.changedText.first()
+                                supportedFeatures.forEach { feature ->
+                                    if (feature.triggerCharacters.contains(character)) {
+                                        feature.handle(character, this)
+                                    }
+                                }
+                            }
+
                             if (!state.updateLock.isLocked) {
                                 state.isDirty = true
                                 editorState.updateUndoRedo()

@@ -121,29 +121,6 @@ fun MainContent(
                 }
             }
 
-            //            LaunchedEffect(mainViewModel.tabs) {
-            //                if (mainViewModel.tabs.size != pagerState.pageCount) {
-            //                    if (Settings.smooth_tabs) {
-            //                        pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
-            //                    } else {
-            //                        pagerState.scrollToPage(mainViewModel.currentTabIndex)
-            //                    }
-            //                }
-            //            }
-
-            //            LaunchedEffect(pagerState) {
-            //                snapshotFlow { pagerState.settledPage }
-            //                    .collect { settledPage ->
-            //                        if (
-            //                            mainViewModel.tabs.isNotEmpty() &&
-            //                                settledPage < mainViewModel.tabs.size &&
-            //                                mainViewModel.currentTabIndex != settledPage
-            //                        ) {
-            //                            mainViewModel.currentTabIndex = settledPage
-            //                        }
-            //                    }
-            //            }
-
             val reorderState = rememberReorderState<Tab>(dragAfterLongPress = true)
 
             ReorderContainer(state = reorderState) {

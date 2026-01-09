@@ -99,6 +99,7 @@ object Settings {
     var http_server_port by CachedPreference("http_server_port", 8357)
     var launch_in_browser by CachedPreference("launch_in_browser", false)
     var inject_eruda by CachedPreference("inject_eruda", true)
+    var auto_close_tags by CachedPreference("auto_close_tags", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

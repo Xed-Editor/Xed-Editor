@@ -34,6 +34,7 @@ import com.rk.components.AddDialogItem
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
+import com.rk.editor.intelligent.IntelligentFeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.child
@@ -295,10 +296,17 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
                 }
 
+                val fileExtension = file.getName().substringAfterLast(".")
+                val supportedFeatures =
+                    IntelligentFeatureRegistry.allFeatures.filter { feature ->
+                        feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
+                    }
+
                 CodeEditor(
                     modifier = Modifier.weight(1f),
                     state = editorState,
                     parentTab = this@EditorTab,
+                    supportedFeatures = supportedFeatures,
                     onTextChange = {
                         if (Settings.auto_save) {
                             scope.launch(Dispatchers.IO) {

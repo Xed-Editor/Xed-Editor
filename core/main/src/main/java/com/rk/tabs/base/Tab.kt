@@ -9,7 +9,7 @@ import com.rk.file.FileObject
 import kotlin.random.Random
 
 abstract class Tab() {
-    var refreshKey: Int = Random.Default.nextInt()
+    var refreshKey: Int = Random.nextInt()
     abstract val name: String
     abstract val icon: ImageVector
 
