@@ -5,7 +5,12 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
 import android.util.AttributeSet
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
@@ -66,17 +71,42 @@ class Editor : CodeEditor {
         }
     }
 
+    fun setThemeColors(isDarkMode: Boolean, selectionColors: TextSelectionColors, colorScheme: ColorScheme) {
+        val surfaceColor = if (isDarkMode) colorScheme.surfaceDim else colorScheme.surface
+        val surfaceContainer = colorScheme.surfaceContainer
+        val highSurfaceContainer = colorScheme.surfaceContainerHigh
+        val onSurfaceColor = colorScheme.onSurface
+        val colorPrimary = colorScheme.primary
+        val divider = colorScheme.outlineVariant
+
+        val selectionBackground = selectionColors.backgroundColor
+        val handleColor = selectionColors.handleColor
+
+        val gutterColor = colorScheme.surfaceColorAtElevation(1.dp)
+        val currentLineColor = colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
+
+        setThemeColors(
+            isDarkMode = isDarkMode,
+            editorSurface = surfaceColor.toArgb(),
+            surfaceContainer = surfaceContainer.toArgb(),
+            highSurfaceContainer = highSurfaceContainer.toArgb(),
+            onSurface = onSurfaceColor.toArgb(),
+            colorPrimary = colorPrimary.toArgb(),
+            selectionBg = selectionBackground.toArgb(),
+            handleColor = handleColor.toArgb(),
+            gutterColor = gutterColor.toArgb(),
+            currentLine = currentLineColor.toArgb(),
+            dividerColor = divider.toArgb(),
+        )
+    }
+
     fun setThemeColors(
         isDarkMode: Boolean,
         editorSurface: Int,
         surfaceContainer: Int,
-        surface: Int,
-        onSurface: Int,
         highSurfaceContainer: Int,
+        onSurface: Int,
         colorPrimary: Int,
-        colorPrimaryContainer: Int,
-        colorSecondary: Int,
-        secondaryContainer: Int,
         selectionBg: Int,
         handleColor: Int,
         gutterColor: Int,
@@ -292,12 +322,14 @@ class Editor : CodeEditor {
         val keyboardSuggestion = Settings.show_suggestions
         val lineSpacing = Settings.line_spacing
         val renderWhitespace = Settings.render_whitespace
+        val completeOnEnter = Settings.complete_on_enter
 
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
         props.deleteEmptyLineFast = fastDelete
         props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
+        props.selectCompletionItemOnEnterForSoftKbd = completeOnEnter
         setPinLineNumber(pinLineNumber)
         isLineNumberEnabled = showLineNumber
         isCursorAnimationEnabled = cursorAnimation
