@@ -610,4 +610,7 @@
     <string name="export_failed">Échec de l\'exportation</string>
     <string name="import_successful">Importations réussie</string>
     <string name="import_failed">Échec de l\'importation</string>
+    <string name="intelligent_features">Fonctionnalités intelligentes</string>
+    <string name="auto_close_tags_desc">Ferme automatiquement les étiquettes HTML</string>
+    <string name="auto_close_tags">Fermeture auto des étiquettes</string>
 </resources>
