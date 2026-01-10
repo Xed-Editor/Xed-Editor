@@ -607,4 +607,9 @@
     <string name="export_failed">Eksport nie powiódł się</string>
     <string name="import_successful">Import udany</string>
     <string name="import_failed">Import nie powiódł się</string>
+    <string name="intelligent_features">Funkcje inteligentne</string>
+    <string name="auto_close_tags">Automatyczne zamykanie znaczników</string>
+    <string name="auto_close_tags_desc">Automatycznie zamykaj znaczniki HTML</string>
+    <string name="bullet_continuation">Kontynuacja listy</string>
+    <string name="bullet_continuation_desc">Kontunuuj sekwencje podpunktów listy oraz cytatów w formacie Markdown</string>
 </resources>
