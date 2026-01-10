@@ -610,4 +610,6 @@
     <string name="intelligent_features">Akıllı özellikler</string>
     <string name="auto_close_tags">Etiketleri otomatik kapat</string>
     <string name="auto_close_tags_desc">HTML etiketlerini otomatik olarak kapat</string>
+    <string name="bullet_continuation">Madde devamı</string>
+    <string name="bullet_continuation_desc">Markdown\'da listeleri ve alıntıları otomatik olarak devam ettirir</string>
 </resources>
