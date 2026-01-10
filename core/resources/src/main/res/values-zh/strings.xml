@@ -609,4 +609,6 @@
     <string name="intelligent_features">智能功能</string>
     <string name="auto_close_tags">自动关闭标签</string>
     <string name="auto_close_tags_desc">自动关闭 HTML 标签</string>
+    <string name="bullet_continuation">列表自动续行</string>
+    <string name="bullet_continuation_desc">在 Markdown 中自动续行列表和引用</string>
 </resources>
