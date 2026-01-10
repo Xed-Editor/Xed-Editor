@@ -1,6 +1,5 @@
 package com.rk.settings
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
@@ -18,7 +17,10 @@ import com.rk.xededitor.BuildConfig
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.isAccessible
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -33,6 +35,15 @@ object ReactiveSettings {
     var extraKeyCommandIds by mutableStateOf(Settings.extra_keys_commands)
     var extraKeySymbols by mutableStateOf(Settings.extra_keys_symbols)
     var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
+
+    fun update() {
+        toolbarActionIds = Settings.action_items
+        showExtraKeys = Settings.show_extra_keys
+        splitExtraKeys = Settings.split_extra_keys
+        extraKeyCommandIds = Settings.extra_keys_commands
+        extraKeySymbols = Settings.extra_keys_symbols
+        extraKeysBackground = Settings.extra_keys_bg
+    }
 }
 
 object Settings {
@@ -89,6 +100,8 @@ object Settings {
     var http_server_port by CachedPreference("http_server_port", 8357)
     var launch_in_browser by CachedPreference("launch_in_browser", false)
     var inject_eruda by CachedPreference("inject_eruda", true)
+    var auto_close_tags by CachedPreference("auto_close_tags", true)
+    var bullet_continuation by CachedPreference("bullet_continuation", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
@@ -130,12 +143,44 @@ object Preference {
     private var sharedPreferences: SharedPreferences =
         application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
+    val preferenceTypes: Map<String, KClass<*>> by lazy {
+        Settings::class
+            .declaredMemberProperties
+            .mapNotNull { prop ->
+                try {
+                    prop.isAccessible = true
+                    val delegate = prop.getDelegate(Settings)
+                    if (delegate is CachedPreference<*>) {
+                        delegate.key to delegate.defaultValue!!::class
+                    } else null
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            .toMap()
+    }
+
     // Weak reference caches to allow garbage collection of unused settings
     private val stringCache = mutableMapOf<String, WeakReference<String?>>()
     private val boolCache = mutableMapOf<String, WeakReference<Boolean>>()
     private val intCache = mutableMapOf<String, WeakReference<Int>>()
     private val longCache = mutableMapOf<String, WeakReference<Long>>()
     private val floatCache = mutableMapOf<String, WeakReference<Float>>()
+
+    fun getAll(): Map<String, Any?> {
+        return sharedPreferences.all
+    }
+
+    fun put(key: String, value: Any) {
+        when (value) {
+            is String -> setString(key, value)
+            is Boolean -> setBoolean(key, value)
+            is Int -> setInt(key, value)
+            is Long -> setLong(key, value)
+            is Float -> setFloat(key, value)
+            else -> IllegalArgumentException("Unsupported preference type")
+        }
+    }
 
     // Preload all settings at startup
     suspend fun preloadAllSettings() =
@@ -153,7 +198,6 @@ object Preference {
             }
         }
 
-    @SuppressLint("ApplySharedPref")
     fun clearData() {
         sharedPreferences.edit(commit = true) { clear() }
         clearCaches()
@@ -291,7 +335,7 @@ object Preference {
 }
 
 @Suppress("UNCHECKED_CAST")
-class CachedPreference<T>(private val key: String, private val defaultValue: T) : ReadWriteProperty<Any?, T> {
+class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWriteProperty<Any?, T> {
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         return when (defaultValue) {
             is Boolean -> Preference.getBoolean(key, defaultValue) as T

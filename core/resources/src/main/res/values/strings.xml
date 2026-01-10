@@ -348,6 +348,8 @@
     <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_terminal">Uninstall terminal</string>
+    <string name="restore_terminal">Restore terminal backup</string>
+    <string name="terminal_backup">Terminal backup</string>
     <string name="project_as_wk">Use project as working directory</string>
     <string name="project_as_wk_desc">Use project as working directory in terminal</string>
     <string name="seccomp_desc">Fix \"function not implemented\" error on some devices</string>
@@ -603,4 +605,15 @@
     <string name="folder_already_exists">A folder with the name \'%s\' already exists</string>
     <string name="file_creation_failed">Unable to create file</string>
     <string name="folder_creation_failed">Unable to create folder</string>
+    <string name="settings_backup_desc">Create a backup of all your current settings</string>
+    <string name="settings_restore_desc">Restore settings from a backup</string>
+    <string name="export_successful">Export successful</string>
+    <string name="export_failed">Export failed</string>
+    <string name="import_successful">Import successful</string>
+    <string name="import_failed">Import failed</string>
+    <string name="intelligent_features">Intelligent features</string>
+    <string name="auto_close_tags">Auto close tags</string>
+    <string name="auto_close_tags_desc">Automatically close HTML tags</string>
+    <string name="bullet_continuation">Bullet continuation</string>
+    <string name="bullet_continuation_desc">Automatically continue lists and quotes in Markdown</string>
 </resources>

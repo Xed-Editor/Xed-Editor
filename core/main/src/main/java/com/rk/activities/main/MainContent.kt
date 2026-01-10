@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -120,29 +119,6 @@ fun MainContent(
                         pagerState.scrollToPage(mainViewModel.currentTabIndex)
                     }
                 }
-            }
-
-            LaunchedEffect(mainViewModel.tabs) {
-                if (mainViewModel.tabs.size != pagerState.pageCount) {
-                    if (Settings.smooth_tabs) {
-                        pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
-                    } else {
-                        pagerState.scrollToPage(mainViewModel.currentTabIndex)
-                    }
-                }
-            }
-
-            LaunchedEffect(pagerState) {
-                snapshotFlow { pagerState.settledPage }
-                    .collect { settledPage ->
-                        if (
-                            mainViewModel.tabs.isNotEmpty() &&
-                                settledPage < mainViewModel.tabs.size &&
-                                mainViewModel.currentTabIndex != settledPage
-                        ) {
-                            mainViewModel.currentTabIndex = settledPage
-                        }
-                    }
             }
 
             val reorderState = rememberReorderState<Tab>(dragAfterLongPress = true)
@@ -266,24 +242,6 @@ private fun TabItem(
             )
         },
         modifier = Modifier.fillMaxWidth().onSizeChanged { size -> calculatedTabWidth = size.width },
-        // TODO: Combined clickable below won't work
-        // .combinedClickable(
-        //     onLongClick = {
-        //         if (mainViewModel.currentTabIndex == index) {
-        //             showTabMenu = true
-        //         }
-        //     },
-        //     onDoubleClick = {
-        //         toast("Double click")
-        //     },
-        //     onClick = {
-        //         if (isSelected) {
-        //             showTabMenu = true
-        //         } else {
-        //             mainViewModel.currentTabIndex = index
-        //         }
-        //     }
-        // )
     ) {
         TabItemContent(
             mainViewModel = mainViewModel,

@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-private const val BASE_URL = "https://api.github.com/repos/Xed-Editor/PluginRegistry/contents"
+private const val BASE_URL = "https://api.github.com/repos/Xed-Editor/Extension-Registry/contents"
 
 object GitHubApi {
     private val client = OkHttpClient()
@@ -68,7 +68,7 @@ object GitHubApi {
 
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) return@withContext
-                val data = response.body?.bytes() ?: return@withContext
+                val data = response.body.bytes() ?: return@withContext
                 val outFile =
                     File(targetDir, file.name).apply {
                         if (!exists()) {

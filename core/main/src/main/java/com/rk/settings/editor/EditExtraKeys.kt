@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,8 +55,6 @@ import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
 
-var refreshTrigger by mutableIntStateOf(0)
-
 const val DEFAULT_EXTRA_KEYS_COMMANDS =
     "global.command_palette|editor.emulate_key.tab|editor.emulate_key.dpad_left|editor.emulate_key.dpad_up|editor.emulate_key.dpad_right|editor.emulate_key.dpad_down"
 const val DEFAULT_EXTRA_KEYS_SYMBOLS = "()\"{}[];"
@@ -70,8 +67,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
     val reorderState = rememberReorderState<String>(dragAfterLongPress = true)
     val lazyListState = rememberLazyListState()
 
-    val commandIds =
-        remember(refreshTrigger) { mutableStateListOf(*Settings.extra_keys_commands.split("|").toTypedArray()) }
+    val commandIds = remember { mutableStateListOf(*ReactiveSettings.extraKeyCommandIds.split("|").toTypedArray()) }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
 
     var showExtraKeysDialog by remember { mutableStateOf(false) }
@@ -85,7 +81,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
             onInputValueChange = { extraKeysValue.value = it },
             onConfirm = {
                 Settings.extra_keys_symbols = extraKeysValue.value
-                ReactiveSettings.extraKeySymbols = extraKeysValue.value
+                ReactiveSettings.update()
             },
             onFinish = {
                 extraKeysValue.value = Settings.extra_keys_symbols
@@ -254,17 +250,15 @@ private fun patchChildCommands(
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
     val extraKeyCommandIds = commandIds.joinToString("|")
     Settings.extra_keys_commands = extraKeyCommandIds
-    ReactiveSettings.extraKeyCommandIds = extraKeyCommandIds
+    ReactiveSettings.update()
 }
 
 /** Reset order of commands and symbols to default */
 private fun resetOrder(commandIds: SnapshotStateList<String>, extraKeysValue: MutableState<String>) {
     Preference.removeKey("extra_keys_commands")
-    Preference.removeKey("extra_keys_symbols")
+    Preference.removeKey("extra_keys")
     commandIds.clear()
     commandIds.addAll(DEFAULT_EXTRA_KEYS_COMMANDS.split("|"))
     extraKeysValue.value = DEFAULT_EXTRA_KEYS_SYMBOLS
-
-    ReactiveSettings.extraKeyCommandIds = DEFAULT_EXTRA_KEYS_COMMANDS
-    ReactiveSettings.extraKeySymbols = DEFAULT_EXTRA_KEYS_SYMBOLS
+    ReactiveSettings.update()
 }

@@ -3,6 +3,7 @@ package com.rk.settings.app
 import android.content.Intent
 import android.os.Build
 import androidx.activity.compose.LocalActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -10,24 +11,36 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavController
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.BasicToggle
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.file.toFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
+import com.rk.settings.editor.refreshEditors
+import com.rk.theme.amoled
+import com.rk.theme.currentTheme
+import com.rk.theme.dynamicTheme
 import com.rk.utils.dialog
+import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class Feature(val nameRes: Int, val key: String, val default: Boolean, val onChange: ((Boolean) -> Unit)? = null) {
     val state: MutableState<Boolean> by lazy { mutableStateOf(Preference.getBoolean(key, default)) }
@@ -48,7 +61,8 @@ object InbuiltFeatures {
 @Composable
 fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
-        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+        val gson = GsonBuilder().setPrettyPrinting().create()
 
         PreferenceGroup {
             SettingsToggle(
@@ -88,12 +102,14 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     },
                     sideEffect = {
                         val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.data = "package:${context.packageName}".toUri()
-                        context.startActivity(intent)
+                        intent.data = "package:${activity.packageName}".toUri()
+                        activity.startActivity(intent)
                     },
                 )
             }
+        }
 
+        PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
             val activity = LocalActivity.current
 
             BasicToggle(
@@ -112,9 +128,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     InbuiltFeatures.debugMode.setEnable(false)
                 }
             }
-        }
 
-        PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
             SettingsToggle(
                 label = stringResource(InbuiltFeatures.terminal.nameRes),
                 default = InbuiltFeatures.terminal.state.value,
@@ -125,6 +139,82 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 label = stringResource(InbuiltFeatures.extensions.nameRes),
                 default = InbuiltFeatures.extensions.state.value,
                 sideEffect = { InbuiltFeatures.extensions.setEnable(it) },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.backup)) {
+            SettingsToggle(
+                label = stringResource(id = strings.backup),
+                description = stringResource(id = strings.settings_backup_desc),
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    activity.fileManager.createNewFile("application/json", "xed-settings.json") { fileObject ->
+                        if (fileObject == null) return@createNewFile
+                        scope.launch(Dispatchers.IO) {
+                            try {
+                                val json = gson.toJson(Preference.getAll())
+                                fileObject.getOutPutStream(false).use { outputStream ->
+                                    outputStream.write(json.toByteArray())
+                                }
+                                toast(strings.export_successful)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                toast(strings.export_failed)
+                            }
+                        }
+                    }
+                },
+            )
+            SettingsToggle(
+                label = stringResource(id = strings.restore),
+                description = stringResource(id = strings.settings_restore_desc),
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    activity.fileManager.requestOpenFile("application/json") { uri ->
+                        if (uri == null) return@requestOpenFile
+                        scope.launch(Dispatchers.IO) {
+                            try {
+                                val type = object : TypeToken<Map<String, Any>>() {}.type
+                                val content = uri.toFileObject(true).readText()
+                                val json: Map<String, Any> = gson.fromJson(content, type)
+
+                                Preference.clearData()
+                                json.forEach { (key, value) ->
+                                    val expectedType = Preference.preferenceTypes[key]
+
+                                    val fixedValue =
+                                        when (expectedType) {
+                                            Float::class -> (value as Number).toFloat()
+                                            Int::class -> (value as Number).toInt()
+                                            Long::class -> (value as Number).toLong()
+                                            Boolean::class -> value as Boolean
+                                            String::class -> value as String
+                                            else -> value
+                                        }
+
+                                    Preference.put(key, fixedValue)
+                                }
+                                ReactiveSettings.update()
+
+                                // Update theme in the UI if the setting changed
+                                withContext(Dispatchers.Main) {
+                                    AppCompatDelegate.setDefaultNightMode(Settings.theme_mode)
+                                    dynamicTheme.value = Settings.monet
+                                    amoled.value = Settings.amoled
+                                    currentTheme.value = null
+                                    refreshEditors()
+                                }
+
+                                toast(strings.import_successful)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                toast(strings.import_failed)
+                            }
+                        }
+                    }
+                },
             )
         }
     }

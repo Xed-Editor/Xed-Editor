@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,13 +31,12 @@ import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.icons.Icon
 import com.rk.settings.ReactiveSettings
-import com.rk.settings.Settings
 
 private data class ExtraKey(val label: String, val icon: Icon? = null, val enabled: Boolean, val onClick: () -> Unit)
 
 @Composable
 fun ExtraKeys(editorTab: EditorTab) {
-    val commandIds = remember { mutableStateListOf(*Settings.extra_keys_commands.split("|").toTypedArray()) }
+    val commandIds by remember { derivedStateOf { ReactiveSettings.extraKeyCommandIds.split("|").toTypedArray() } }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
 
     val commandExtraKeys =
@@ -52,7 +50,7 @@ fun ExtraKeys(editorTab: EditorTab) {
         }
 
     val isEditable by remember { derivedStateOf { editorTab.editorState.editable } }
-    val symbols = remember { Settings.extra_keys_symbols }
+    val symbols = ReactiveSettings.extraKeySymbols
     val symbolExtraKeys =
         symbols.map {
             ExtraKey(

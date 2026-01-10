@@ -598,4 +598,15 @@
     <string name="folder_already_exists">文件夹 \'%s\' 已存在</string>
     <string name="file_creation_failed">无法创建文件</string>
     <string name="folder_creation_failed">无法创建文件夹</string>
+    <string name="restore_terminal">还原终端备份</string>
+    <string name="terminal_backup">终端备份</string>
+    <string name="settings_backup_desc">创建包含所有当前设置的备份</string>
+    <string name="settings_restore_desc">从备份中还原设置</string>
+    <string name="export_successful">导出成功</string>
+    <string name="export_failed">导出失败</string>
+    <string name="import_successful">导入成功</string>
+    <string name="import_failed">导入失败</string>
+    <string name="intelligent_features">智能功能</string>
+    <string name="auto_close_tags">自动关闭标签</string>
+    <string name="auto_close_tags_desc">自动关闭 HTML 标签</string>
 </resources>

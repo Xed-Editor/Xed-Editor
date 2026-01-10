@@ -23,6 +23,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.snackbarHostStateRef
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
+import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
@@ -38,6 +39,7 @@ import com.rk.utils.dpToPx
 import com.rk.utils.info
 import com.rk.utils.logError
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import java.lang.ref.WeakReference
@@ -53,6 +55,7 @@ fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     parentTab: EditorTab,
+    intelligentFeatures: List<IntelligentFeature>,
     onTextChange: () -> Unit,
 ) {
     val selectionColors = LocalTextSelectionColors.current
@@ -112,6 +115,27 @@ fun EditorTab.CodeEditor(
                         }
 
                         subscribeAlways(ContentChangeEvent::class.java) {
+                            intelligentFeatures.forEach { feature ->
+                                when (it.action) {
+                                    ContentChangeEvent.ACTION_INSERT -> feature.handleInsert(this)
+                                    ContentChangeEvent.ACTION_DELETE -> feature.handleDelete(this)
+                                }
+                            }
+
+                            if (it.changedText.length == 1) {
+                                val character = it.changedText.first()
+                                intelligentFeatures.forEach { feature ->
+                                    if (feature.triggerCharacters.contains(character)) {
+                                        when (it.action) {
+                                            ContentChangeEvent.ACTION_INSERT ->
+                                                feature.handleInsertChar(character, this)
+                                            ContentChangeEvent.ACTION_DELETE ->
+                                                feature.handleDeleteChar(character, this)
+                                        }
+                                    }
+                                }
+                            }
+
                             if (!state.updateLock.isLocked) {
                                 state.isDirty = true
                                 editorState.updateUndoRedo()
@@ -123,10 +147,17 @@ fun EditorTab.CodeEditor(
                             editorState.isWrapping = event.isLayoutBusy
                         }
 
+                        subscribeAlways(EditorKeyEvent::class.java) { event ->
+                            intelligentFeatures.forEach { it.handleKeyEvent(event, this) }
+                        }
+
                         // Intercept the default handling of some keybinds because
                         // they should be handled by Xed-Editor's key binding system instead
                         // (for custom keybinds support)
                         subscribeAlways(KeyBindingEvent::class.java) { event ->
+                            intelligentFeatures.forEach { it.handleKeyBindingEvent(event, this) }
+                            if (event.isIntercepted) return@subscribeAlways
+
                             val keyCode = event.keyCode
                             val shouldBeIntercepted =
                                 keyCode == KeyEvent.KEYCODE_A ||

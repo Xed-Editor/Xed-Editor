@@ -3,6 +3,7 @@ package com.rk.settings.terminal
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,7 +52,7 @@ import kotlinx.coroutines.withContext
 fun SettingsTerminalScreen() {
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
-        val activity = LocalActivity.current
+        val activity = LocalActivity.current as? AppCompatActivity
 
         if (InbuiltFeatures.debugMode.state.value) {
             PreferenceGroup {
@@ -94,7 +95,7 @@ fun SettingsTerminalScreen() {
                         return@rememberLauncherForActivityResult
                     }
 
-                    val loading = LoadingPopup(context, null)
+                    val loading = LoadingPopup(activity, null)
                     loading.show()
 
                     GlobalScope.launch(Dispatchers.IO) {
@@ -131,7 +132,7 @@ fun SettingsTerminalScreen() {
 
             SettingsToggle(
                 label = stringResource(strings.backup),
-                description = "${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
+                description = stringResource(strings.terminal_backup),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -156,7 +157,7 @@ fun SettingsTerminalScreen() {
                                     }
                                 }
 
-                                val loading = LoadingPopup(context, null)
+                                val loading = LoadingPopup(activity, null)
                                 loading.show()
                                 GlobalScope.launch(Dispatchers.IO) {
                                     try {
@@ -216,12 +217,7 @@ fun SettingsTerminalScreen() {
 
             SettingsToggle(
                 label = stringResource(strings.restore),
-                description =
-                    "${stringResource(strings.restore)} ${stringResource(strings.terminal)} ${
-                    stringResource(
-                        strings.backup
-                    )
-                }",
+                description = stringResource(strings.restore_terminal),
                 showSwitch = false,
                 default = false,
                 sideEffect = { restore.launch("application/gzip") },
@@ -241,7 +237,7 @@ fun SettingsTerminalScreen() {
                         okString = strings.delete,
                         onOk = {
                             GlobalScope.launch(Dispatchers.IO) {
-                                val loading = LoadingPopup(context, null)
+                                val loading = LoadingPopup(activity, null)
                                 loading.show()
                                 runCatching {
                                     localBinDir().deleteRecursively()
