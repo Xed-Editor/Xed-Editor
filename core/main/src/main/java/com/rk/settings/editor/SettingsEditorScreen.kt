@@ -67,13 +67,17 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.auto_close_tags,
                 sideEffect = {
                     Settings.auto_close_tags = it
-                    MainActivity.instance?.apply {
-                        viewModel.tabs.forEach { tab ->
-                            if (tab is EditorTab) {
-                                tab.refreshKey = nextInt()
-                            }
-                        }
-                    }
+                    refreshEditors()
+                },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.bullet_continuation),
+                description = stringResource(strings.bullet_continuation_desc),
+                default = Settings.bullet_continuation,
+                sideEffect = {
+                    Settings.bullet_continuation = it
+                    refreshEditors()
                 },
             )
         }
@@ -424,6 +428,16 @@ fun SettingsEditorScreen(navController: NavController) {
                     showTabSizeDialog = false
                 },
             )
+        }
+    }
+}
+
+fun refreshEditors() {
+    MainActivity.instance?.apply {
+        viewModel.tabs.forEach {
+            if (it is EditorTab) {
+                it.refreshKey = nextInt()
+            }
         }
     }
 }

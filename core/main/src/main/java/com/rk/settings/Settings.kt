@@ -100,6 +100,7 @@ object Settings {
     var launch_in_browser by CachedPreference("launch_in_browser", false)
     var inject_eruda by CachedPreference("inject_eruda", true)
     var auto_close_tags by CachedPreference("auto_close_tags", true)
+    var bullet_continuation by CachedPreference("bullet_continuation", true)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

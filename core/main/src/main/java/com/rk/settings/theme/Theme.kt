@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.rk.DefaultScope
-import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
 import com.rk.components.BottomSheetContent
 import com.rk.components.SettingsToggle
@@ -43,7 +42,7 @@ import com.rk.file.themeDir
 import com.rk.file.toFileObject
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorTab
+import com.rk.settings.editor.refreshEditors
 import com.rk.theme.ThemeHolder
 import com.rk.theme.amoled
 import com.rk.theme.blueberry
@@ -52,7 +51,6 @@ import com.rk.theme.dynamicTheme
 import com.rk.theme.inbuiltThemes
 import com.rk.theme.installFromFile
 import com.rk.theme.updateThemes
-import kotlin.random.Random.Default.nextInt
 import kotlinx.coroutines.launch
 
 val themes = mutableStateListOf<ThemeHolder>()
@@ -139,26 +137,14 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                                 onClick = {
                                     currentTheme.value = theme
                                     Settings.theme = theme.id
-                                    MainActivity.instance?.apply {
-                                        viewModel.tabs.forEach {
-                                            if (it is EditorTab) {
-                                                it.refreshKey = nextInt()
-                                            }
-                                        }
-                                    }
+                                    refreshEditors()
                                 },
                             )
                         },
                         sideEffect = {
                             currentTheme.value = theme
                             Settings.theme = theme.id
-                            MainActivity.instance?.apply {
-                                viewModel.tabs.forEach {
-                                    if (it is EditorTab) {
-                                        it.refreshKey = nextInt()
-                                    }
-                                }
-                            }
+                            refreshEditors()
                         },
                         endWidget = {
                             if (!inbuiltThemes.contains(theme)) {
@@ -167,14 +153,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                                         if (currentTheme.value?.id == theme.id) {
                                             currentTheme.value = blueberry
                                             Settings.theme = blueberry.id
-
-                                            MainActivity.instance?.apply {
-                                                viewModel.tabs.forEach {
-                                                    if (it is EditorTab) {
-                                                        it.refreshKey = nextInt()
-                                                    }
-                                                }
-                                            }
+                                            refreshEditors()
                                         }
 
                                         themeDir().child(theme.name).delete()

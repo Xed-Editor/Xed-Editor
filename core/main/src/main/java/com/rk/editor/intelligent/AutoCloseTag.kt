@@ -33,21 +33,21 @@ object AutoCloseTag : IntelligentFeature() {
             "wbr",
         )
 
-    override fun handle(triggerCharacter: Char, editor: Editor) {
+    override fun handleInsertChar(triggerCharacter: Char, editor: Editor) {
         if (editor.cursor.isSelected) return
         val lineIndexBefore = editor.cursor.leftLine
         val columnIndexBefore = editor.cursor.leftColumn
 
         val line = editor.text.getLine(lineIndexBefore)
-        val text = line.take(columnIndexBefore)
+        val lineToCursor = line.take(columnIndexBefore)
 
-        val result = OPEN_TAG_REGEX.find(text) ?: return
+        val result = OPEN_TAG_REGEX.find(lineToCursor) ?: return
         val tagName = result.groupValues[1].lowercase()
         val endingChar = result.groupValues[2]
 
-        val evenSingleQuotes = text.count { it == '\'' } % 2 == 0
-        val evenDoubleQuotes = text.count { it == '\"' } % 2 == 0
-        val evenBackticks = text.count { it == '`' } % 2 == 0
+        val evenSingleQuotes = lineToCursor.count { it == '\'' } % 2 == 0
+        val evenDoubleQuotes = lineToCursor.count { it == '\"' } % 2 == 0
+        val evenBackticks = lineToCursor.count { it == '`' } % 2 == 0
         if (!evenSingleQuotes && !evenDoubleQuotes && !evenBackticks) return
 
         if (endingChar == ">") {
@@ -55,7 +55,8 @@ object AutoCloseTag : IntelligentFeature() {
             editor.text.insert(lineIndexBefore, columnIndexBefore, "</$tagName>")
             editor.setSelection(lineIndexBefore, columnIndexBefore)
         } else {
-            if (text[columnIndexBefore - 2] != ' ') {
+            if (lineToCursor.length < line.length) return
+            if (lineToCursor[columnIndexBefore - 2] != ' ') {
                 editor.text.insert(lineIndexBefore, columnIndexBefore - 1, " ")
             }
             editor.text.insert(editor.cursor.leftLine, editor.cursor.leftColumn, ">")

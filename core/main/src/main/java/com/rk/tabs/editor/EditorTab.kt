@@ -297,7 +297,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 }
 
                 val fileExtension = file.getName().substringAfterLast(".")
-                val supportedFeatures =
+                val intelligentFeatures =
                     IntelligentFeatureRegistry.allFeatures.filter { feature ->
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
                     }
@@ -306,7 +306,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     modifier = Modifier.weight(1f),
                     state = editorState,
                     parentTab = this@EditorTab,
-                    supportedFeatures = supportedFeatures,
+                    intelligentFeatures = intelligentFeatures,
                     onTextChange = {
                         if (Settings.auto_save) {
                             scope.launch(Dispatchers.IO) {
