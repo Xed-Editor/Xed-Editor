@@ -613,4 +613,6 @@
     <string name="intelligent_features">Fonctionnalités intelligentes</string>
     <string name="auto_close_tags_desc">Ferme automatiquement les étiquettes HTML</string>
     <string name="auto_close_tags">Fermeture auto des étiquettes</string>
+    <string name="bullet_continuation_desc">Poursuivre automatiquement les listes et les citations en Markdown</string>
+    <string name="bullet_continuation">Poursuivre les listes</string>
 </resources>
