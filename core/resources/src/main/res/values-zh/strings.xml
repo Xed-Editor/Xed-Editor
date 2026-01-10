@@ -606,4 +606,7 @@
     <string name="export_failed">导出失败</string>
     <string name="import_successful">导入成功</string>
     <string name="import_failed">导入失败</string>
+    <string name="intelligent_features">智能功能</string>
+    <string name="auto_close_tags">自动关闭标签</string>
+    <string name="auto_close_tags_desc">自动关闭 HTML 标签</string>
 </resources>
