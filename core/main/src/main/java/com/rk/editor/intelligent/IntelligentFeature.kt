@@ -2,9 +2,11 @@ package com.rk.editor.intelligent
 
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.editor.Editor
+import io.github.rosemoe.sora.event.EditorKeyEvent
+import io.github.rosemoe.sora.event.KeyBindingEvent
 
 object IntelligentFeatureRegistry {
-    val builtInFeatures = listOf(AutoCloseTag)
+    val builtInFeatures = listOf(AutoCloseTag, BulletContinuation)
 
     private val mutableFeatures = mutableStateListOf<IntelligentFeature>()
     val extensionFeatures: List<IntelligentFeature>
@@ -27,9 +29,19 @@ object IntelligentFeatureRegistry {
 abstract class IntelligentFeature {
     abstract val id: String
     abstract val supportedExtensions: List<String>
-    abstract val triggerCharacters: List<Char>
+    open val triggerCharacters: List<Char> = emptyList()
 
-    abstract fun handle(triggerCharacter: Char, editor: Editor)
+    open fun handleInsertChar(triggerCharacter: Char, editor: Editor) {}
+
+    open fun handleDeleteChar(triggerCharacter: Char, editor: Editor) {}
+
+    open fun handleInsert(editor: Editor) {}
+
+    open fun handleDelete(editor: Editor) {}
+
+    open fun handleKeyEvent(event: EditorKeyEvent, editor: Editor) {}
+
+    open fun handleKeyBindingEvent(event: KeyBindingEvent, editor: Editor) {}
 
     open fun isEnabled(): Boolean = true
 }

@@ -19,7 +19,6 @@ import androidx.core.net.toUri
 import androidx.navigation.NavController
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.BasicToggle
@@ -32,14 +31,13 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorTab
+import com.rk.settings.editor.refreshEditors
 import com.rk.theme.amoled
 import com.rk.theme.currentTheme
 import com.rk.theme.dynamicTheme
 import com.rk.utils.dialog
 import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
-import kotlin.random.Random.Default.nextInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -206,13 +204,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                                     dynamicTheme.value = Settings.monet
                                     amoled.value = Settings.amoled
                                     currentTheme.value = null
-                                    MainActivity.instance?.apply {
-                                        viewModel.tabs.forEach {
-                                            if (it is EditorTab) {
-                                                it.refreshKey = nextInt()
-                                            }
-                                        }
-                                    }
+                                    refreshEditors()
                                 }
 
                                 toast(strings.import_successful)

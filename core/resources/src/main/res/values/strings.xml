@@ -589,4 +589,6 @@
     <string name="intelligent_features">Intelligent features</string>
     <string name="auto_close_tags">Auto close tags</string>
     <string name="auto_close_tags_desc">Automatically close HTML tags</string>
+    <string name="bullet_continuation">Bullet continuation</string>
+    <string name="bullet_continuation_desc">Automatically continue lists and quotes in Markdown</string>
 </resources>
