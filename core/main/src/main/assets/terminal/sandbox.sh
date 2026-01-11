@@ -63,17 +63,9 @@ ARGS="$ARGS -L"
 
 chmod -R +x $LOCAL/bin
 
-if [ "$FDROID" = false ]; then
-    if [ $# -gt 0 ]; then
-        $LINKER $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i -c "$*"
-    else
-        $LINKER $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i
-    fi
+if [ $# -gt 0 ]; then
+    $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i -c "$*"
 else
-    if [ $# -gt 0 ]; then
-        $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i -c "$*"
-    else
-        $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i
-    fi
+    $LOCAL/bin/proot $ARGS /bin/bash --rcfile $LOCAL/bin/init -i
 fi
 
