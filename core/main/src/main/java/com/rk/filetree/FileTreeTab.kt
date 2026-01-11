@@ -21,7 +21,6 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class FileTreeTab(val root: FileObject) : DrawerTab() {
@@ -29,18 +28,19 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     override fun Content(modifier: Modifier) {
         var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
         val scope = rememberCoroutineScope()
+        val mainViewModel = MainActivity.instance?.viewModel
+
         FileTree(
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
             rootNode = root.toFileTreeNode(),
             viewModel = fileTreeViewModel.get()!!,
-            onFileClick = {
-                if (it.isFile) {
+            onFileClick = { node ->
+                if (node.isFile) {
                     scope.launch(Dispatchers.IO) {
-                        if (it.file.isFile()) {
-                            MainActivity.instance?.viewModel?.newTab(it.file, switchToTab = true)
+                        if (node.file.isFile()) {
+                            mainViewModel?.newTab(node.file, switchToTab = true)
                         }
 
-                        delay(60)
                         if (Settings.keep_drawer_locked.not()) {
                             drawerStateRef.get()?.close()
                         }

@@ -8,9 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -22,6 +26,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
@@ -34,6 +39,7 @@ import com.rk.components.AddDialogItem
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
+import com.rk.components.hasBinaryChars
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileType
@@ -47,6 +53,7 @@ import com.rk.resources.strings
 import com.rk.runner.currentRunner
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
+import com.rk.settings.editor.refreshEditorSettings
 import com.rk.settings.support.handleSupport
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
@@ -54,6 +61,8 @@ import com.rk.utils.getTempDir
 import io.github.rosemoe.sora.text.ContentIO
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
+import java.nio.file.Paths
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +73,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.ec4j.core.Cache.Caches
+import org.ec4j.core.EditorConfigLoader
+import org.ec4j.core.Resource
+import org.ec4j.core.ResourcePath
+import org.ec4j.core.ResourceProperties
+import org.ec4j.core.ResourcePropertiesService
+import org.ec4j.core.model.PropertyType
 
 @OptIn(DelicateCoroutinesApi::class)
 open class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : Tab() {
@@ -72,7 +88,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
             return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
         }
 
-    private val charset = Charset.forName(Settings.encoding)
+    private var charset = Charset.forName(Settings.encoding)
     var baseLspConnector: BaseLspConnector? = null
 
     override val icon: ImageVector
@@ -111,23 +127,93 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
     init {
         scope.launch {
-            if (file.exists().not() || file.canRead().not()) {
-                return@launch
+            if (!file.exists() || !file.canRead()) return@launch
+
+            editorState.editable = !Settings.read_only_default && file.canWrite()
+            if (editorState.textmateScope == null) {
+                editorState.textmateScope = FileType.getTextMateScopefromName(file.getName())
             }
 
-            editorState.editable = Settings.read_only_default.not() && file.canWrite()
-            if (editorState.textmateScope == null) {
-                editorState.textmateScope = file.let { FileType.getTextMateScopefromName(it.getName()) }
-            }
+            loadEditorConfig()
+
             if (editorState.content == null) {
                 withContext(Dispatchers.IO) {
                     runCatching {
                             editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
                             editorState.contentLoaded.complete(Unit)
+
+                            if (hasBinaryChars(editorState.content.toString())) {
+                                editorState.editable = false
+                                showNotice("binary_file") { id ->
+                                    EditorNotice(
+                                        stringResource(strings.binary_file_notice),
+                                        actionButton = {
+                                            IconButton(onClick = { removeNotice(id) }) {
+                                                Icon(
+                                                    painter = painterResource(drawables.close),
+                                                    contentDescription = stringResource(strings.close),
+                                                    tint = MaterialTheme.colorScheme.onSurface,
+                                                )
+                                            }
+                                        },
+                                    )
+                                }
+                            }
                         }
                         .onFailure { errorDialog(it) }
                 }
             }
+        }
+    }
+
+    fun showNotice(id: String, notice: @Composable (String) -> Unit) {
+        if (editorState.notices.contains(id)) return
+        editorState.notices[id] = notice
+    }
+
+    fun removeNotice(id: String) {
+        editorState.notices.remove(id)
+    }
+
+    /** Refresh all normal editor settings and EditorConfig settings and apply them to the editor */
+    suspend fun reapplyEditorSettings() {
+        val editor = editorState.editor.get()
+        editor?.apply {
+            applySettings()
+
+            loadEditorConfig()
+            editorState.editorConfigLoaded?.await()?.let { applySettings() }
+        }
+    }
+
+    suspend fun loadEditorConfig() {
+        if (!Settings.enable_editorconfig) {
+            editorState.editorConfigLoaded = null
+            return
+        }
+
+        val deferred = CompletableDeferred<ResourceProperties>()
+        editorState.editorConfigLoaded = deferred
+
+        withContext(Dispatchers.IO) {
+            val cache = Caches.permanent()
+            val loader = EditorConfigLoader.default_()
+            val propService =
+                ResourcePropertiesService.builder()
+                    .apply {
+                        cache(cache)
+                        loader(loader)
+                        file.getParentFile()?.getAbsolutePath()?.let {
+                            rootDirectory(ResourcePath.ResourcePaths.ofPath(Paths.get(it), charset))
+                        }
+                    }
+                    .build()
+            val props =
+                propService.queryProperties(Resource.Resources.ofPath(Paths.get(file.getAbsolutePath()), charset))
+            deferred.complete(props)
+
+            val editorConfigCharset = props.getValue(PropertyType.charset, null, false)
+            editorConfigCharset?.let { charset = Charset.forName(it) }
         }
     }
 
@@ -163,10 +249,13 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                                     errorDialog(strings.cant_write)
                                     return@withContext
                                 }
-                                file.writeText(editorState.content.toString(), charset)
+
+                                val content = editorState.content.toString()
+                                val normalizedContent = editorState.editor.get()!!.lineEnding.applyOn(content)
+                                file.writeText(normalizedContent, charset)
 
                                 editorState.isDirty = false
-                                baseLspConnector?.notifySave(charset)
+                                baseLspConnector?.notifySave()
                                 Settings.saves += 1
 
                                 MainActivity.instance?.handleSupport()
@@ -296,6 +385,8 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
                 }
 
+                editorState.notices.forEach { (id, notice) -> notice(id) }
+
                 val fileExtension = file.getName().substringAfterLast(".")
                 val intelligentFeatures =
                     IntelligentFeatureRegistry.allFeatures.filter { feature ->
@@ -314,6 +405,27 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                                 saveMutex.lock()
                                 delay(400)
                                 saveMutex.unlock()
+                            }
+                        }
+
+                        if (file.getName() == ".editorconfig" && Settings.enable_editorconfig) {
+                            showNotice("editorconfig_changed") { id ->
+                                EditorNotice(
+                                    stringResource(strings.editorconfig_changed),
+                                    actionButton = {
+                                        TextButton(
+                                            onClick = {
+                                                scope.launch {
+                                                    save()
+                                                    refreshEditorSettings()
+                                                    removeNotice(id)
+                                                }
+                                            }
+                                        ) {
+                                            Text(stringResource(strings.apply))
+                                        }
+                                    },
+                                )
                             }
                         }
                     },

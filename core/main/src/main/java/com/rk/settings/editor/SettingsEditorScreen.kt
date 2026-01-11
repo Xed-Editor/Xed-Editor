@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
@@ -24,6 +25,8 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import kotlin.random.Random.Default.nextInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -57,6 +60,20 @@ fun SettingsEditorScreen(navController: NavController) {
                     default = Settings.format_on_save,
                     sideEffect = { Settings.format_on_save = it },
                 )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.insert_final_newline),
+                    description = stringResource(strings.insert_final_newline_desc),
+                    default = Settings.insert_final_newline,
+                    sideEffect = { Settings.insert_final_newline = it },
+                )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.trim_trailing_whitespace),
+                    description = stringResource(strings.trim_trailing_whitespace_desc),
+                    default = Settings.trim_trailing_whitespace,
+                    sideEffect = { Settings.trim_trailing_whitespace = it },
+                )
             }
         }
 
@@ -84,7 +101,7 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.content)) {
             val wordWrap = remember { mutableStateOf(Settings.word_wrap) }
-            val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_for_text || Settings.word_wrap) }
+            val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_text || Settings.word_wrap) }
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.word_wrap),
@@ -106,7 +123,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 state = wordWrapTxt,
                 sideEffect = {
                     wordWrapTxt.value = it
-                    Settings.word_wrap_for_text = it
+                    Settings.word_wrap_text = it
                     toast(strings.restart_required)
                 },
             )
@@ -201,9 +218,9 @@ fun SettingsEditorScreen(navController: NavController) {
             SettingsToggle(
                 label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),
-                default = Settings.textmate_suggestion,
+                default = Settings.textmate_suggestions,
                 sideEffect = {
-                    Settings.textmate_suggestion = it
+                    Settings.textmate_suggestions = it
                     toast(strings.restart_required)
                 },
             )
@@ -284,6 +301,12 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.DefaultEncoding,
             )
 
+            NextScreenCard(
+                label = stringResource(strings.line_ending),
+                description = stringResource(strings.line_ending_desc),
+                route = SettingsRoutes.DefaultLineEnding,
+            )
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.keep_drawer_locked),
                 description = stringResource(id = strings.drawer_lock_desc),
@@ -317,6 +340,16 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.auto_save_desc),
                 default = Settings.auto_save,
                 sideEffect = { Settings.auto_save = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.enable_editorconfig),
+                description = stringResource(id = strings.enable_editorconfig_desc),
+                default = Settings.enable_editorconfig,
+                sideEffect = {
+                    Settings.enable_editorconfig = it
+                    refreshEditorSettings()
+                },
             )
 
             EditorSettingsToggle(
@@ -362,7 +395,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.line_spacing = lineSpacingValue.toFloat()
-                    reapplyEditorSettings()
+                    refreshEditorSettings()
                 },
                 onFinish = {
                     lineSpacingValue = Settings.line_spacing.toString()
@@ -391,7 +424,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.editor_text_size = textSizeValue.toInt()
-                    reapplyEditorSettings()
+                    refreshEditorSettings()
                 },
                 onFinish = {
                     textSizeValue = Settings.editor_text_size.toString()
@@ -420,7 +453,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.tab_size = tabSizeValue.toInt()
-                    reapplyEditorSettings()
+                    refreshEditorSettings()
                 },
                 onFinish = {
                     tabSizeValue = Settings.tab_size.toString()
@@ -442,11 +475,11 @@ fun refreshEditors() {
     }
 }
 
-fun reapplyEditorSettings() {
+fun refreshEditorSettings() {
     MainActivity.instance?.apply {
         viewModel.tabs.forEach {
             if (it is EditorTab) {
-                it.editorState.editor.get()?.applySettings()
+                lifecycleScope.launch(Dispatchers.IO) { it.reapplyEditorSettings() }
             }
         }
     }
