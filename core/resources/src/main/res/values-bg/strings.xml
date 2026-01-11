@@ -388,4 +388,17 @@
     <string name="capturing_logcat">Записване на logcat…</string>
     <string name="unsupported_file_ext">Неподдържано файлово разширение</string>
     <string name="invalid_port">Невалиден порт</string>
+    <string name="restore_terminal">Възстановяване на резервно копие на терминала</string>
+    <string name="terminal_backup">Резервно копие на терминала</string>
+    <string name="port_number">Номер на порт</string>
+    <string name="file_ext_example">Разширение на файла (напр. py)</string>
+    <string name="logcat_saved">Файлът е запазен в началната директория на терминала като logcat.txt</string>
+    <string name="stop_logcat">Спиране на logcat</string>
+    <string name="discord">Discord общност</string>
+    <string name="use_tabs">Вмъкване на табулатор</string>
+    <string name="use_tabs_desc">Използвайте истински табулатор (\\t) вместо интервали за отстъп</string>
+    <string name="language_server">Езиков сървър</string>
+    <string name="manage_language_servers">Управление на езикови сървъри</string>
+    <string name="manage_language_servers_desc">Инсталиране, свързване и конфигуриране на езикови сървъри</string>
+    <string name="format_on_save">Форматиране при запазване</string>
 </resources>
