@@ -591,4 +591,15 @@
     <string name="auto_close_tags_desc">Automatically close HTML tags</string>
     <string name="bullet_continuation">Bullet continuation</string>
     <string name="bullet_continuation_desc">Automatically continue lists and quotes in Markdown</string>
+    <string name="insert_final_newline">Insert final newline</string>
+    <string name="insert_final_newline_desc">Ensure file ends with a newline when formatting</string>
+    <string name="trim_trailing_whitespace">Trim trailing whitespace</string>
+    <string name="trim_trailing_whitespace_desc">Remove trailing whitespace characters preceding newline characters when formatting</string>
+    <string name="line_ending">Line ending</string>
+    <string name="line_ending_desc">Change the default line ending</string>
+    <string name="line_ending_info">Line breaks are special characters that indicate the end of a line. They\'re also known as end-of-line (EOL) characters. Differing line breaks can cause compatibility issues when transferring files across different platforms.</string>
+    <string name="editorconfig_changed">EditorConfig file has been changed</string>
+    <string name="enable_editorconfig">Enable EditorConfig support</string>
+    <string name="enable_editorconfig_desc">Automatically apply code style rules defined in .editorconfig files</string>
+    <string name="binary_file_notice">This file appears to be binary. Editing is disabled</string>
 </resources>

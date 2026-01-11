@@ -20,7 +20,6 @@ import com.rk.file.toFileWrapper
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.currentTheme
 import com.rk.utils.getSelectionColor
@@ -333,10 +332,13 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
     }
 }
 
-fun applyFormattingOptions(eventManager: LspEventManager) {
+fun applyFormattingOptions(eventManager: LspEventManager, editorTab: EditorTab) {
+    val editor = editorTab.editorState.editor.get() ?: return
     val formattingOptions = eventManager.getOption<FormattingOptions>()!!
-    formattingOptions.tabSize = Settings.tab_size
-    formattingOptions.isInsertSpaces = !Settings.actual_tabs
+    formattingOptions.tabSize = editor.tabWidth
+    formattingOptions.isInsertSpaces = !editor.editorLanguage.useTab()
+    formattingOptions.isInsertFinalNewline = editor.insertFinalNewline
+    formattingOptions.isTrimTrailingWhitespace = editor.trimTrailingWhitespace
 }
 
 /**
@@ -350,7 +352,7 @@ suspend fun formatDocumentSuspend(editorTab: EditorTab) {
             val editor = editorState.editor.get()!!
             val eventManager = baseLspConnector.getEventManager()!!
 
-            applyFormattingOptions(eventManager)
+            applyFormattingOptions(eventManager, editorTab)
 
             eventManager.emitAsync(EventType.fullFormatting, editor.text)
         }
@@ -372,7 +374,7 @@ fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {
                 val editor = editorState.editor.get()!!
                 val eventManager = baseLspConnector.getEventManager()!!
 
-                applyFormattingOptions(eventManager)
+                applyFormattingOptions(eventManager, editorTab)
 
                 eventManager.emitAsync(EventType.rangeFormatting) {
                     put("text", editor.text)

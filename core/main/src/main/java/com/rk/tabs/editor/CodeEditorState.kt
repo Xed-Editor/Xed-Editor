@@ -1,7 +1,9 @@
 package com.rk.tabs.editor
 
 import android.widget.HorizontalScrollView
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -13,6 +15,7 @@ import io.github.rosemoe.sora.text.Content
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
+import org.ec4j.core.ResourceProperties
 
 data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
@@ -23,8 +26,12 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var isDirty by mutableStateOf(false)
     var editable by mutableStateOf(Settings.read_only_default.not())
     val updateLock = Mutex()
+
+    var editorConfigLoaded: CompletableDeferred<ResourceProperties>? = null
     val contentLoaded = CompletableDeferred<Unit>()
     val contentRendered = CompletableDeferred<Unit>()
+
+    val notices = mutableStateMapOf<String, @Composable (String) -> Unit>()
 
     var isSearching by mutableStateOf(false)
     var isReplaceShown by mutableStateOf(false)

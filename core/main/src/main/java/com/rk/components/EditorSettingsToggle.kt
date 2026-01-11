@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
-import com.rk.settings.editor.reapplyEditorSettings
+import com.rk.settings.editor.refreshEditorSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -54,7 +54,7 @@ fun EditorSettingsToggle(
         sideEffect = {
             DefaultScope.launch(Dispatchers.Main) {
                 sideEffect?.invoke(it)
-                if (showSwitch) reapplyEditorSettings()
+                if (showSwitch) refreshEditorSettings()
             }
         },
     )

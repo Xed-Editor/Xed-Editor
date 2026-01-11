@@ -18,7 +18,6 @@ import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.net.URI
-import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -292,7 +291,7 @@ class BaseLspConnector(
         return rangeFormattingProvider?.left == true || rangeFormattingProvider?.right != null
     }
 
-    suspend fun notifySave(charset: Charset = Charsets.UTF_8) {
+    suspend fun notifySave() {
         lspEditor?.saveDocument()
     }
 
