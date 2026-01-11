@@ -575,4 +575,17 @@
     <string name="commands">Příkazy</string>
     <string name="invalid_intent">Obdržel neplatný intent:\n%s</string>
     <string name="enjoying_xed">Užíváte si Xed-Editor?</string>
+    <string name="export_successful">Export úspěšný</string>
+    <string name="export_failed">Export selhal</string>
+    <string name="import_successful">Import úspěšný</string>
+    <string name="import_failed">Import selhal</string>
+    <string name="intelligent_features">Inteligentní funkce</string>
+    <string name="auto_close_tags">Automaticky uzavřít tagy</string>
+    <string name="auto_close_tags_desc">Automaticky uzavřít HTML tagy</string>
+    <string name="bullet_continuation_desc">Automaticky rozšířit seznamy a uvozovky v Markdown</string>
+    <string name="bullet_continuation">Pokračování odrážek</string>
+    <string name="settings_backup_desc">Vytvořit zálohu od všechna vaších nastavení</string>
+    <string name="settings_restore_desc">Obnovit nastavení ze zálohy</string>
+    <string name="terminal_backup">Záloha terminálu</string>
+    <string name="restore_terminal">Obnovit terminál ze zálohy</string>
 </resources>
