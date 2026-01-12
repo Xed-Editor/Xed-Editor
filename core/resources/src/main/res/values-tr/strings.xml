@@ -618,4 +618,9 @@
     <string name="trim_trailing_whitespace_desc">Biçimlendirirken, yeni satır karakterlerinden önce gelen sondaki boşluk karakterlerini kaldır</string>
     <string name="line_ending">Satır sonu</string>
     <string name="line_ending_desc">Varsayılan satır sonunu değiştir</string>
+    <string name="line_ending_info">Satır sonları, bir satırın bittiğini gösteren özel karakterlerdir. Bunlar aynı zamanda satır sonu (EOL) karakterleri olarak da bilinir. Farklı satır sonları, dosyaları farklı platformlar arasında aktarırken uyumluluk sorunlarına neden olabilir.</string>
+    <string name="editorconfig_changed">EditorConfig dosyası değiştirildi</string>
+    <string name="enable_editorconfig">EditorConfig desteğini etkinleştir</string>
+    <string name="enable_editorconfig_desc">.editorconfig dosyalarında tanımlanan kod stil kurallarını otomatik olarak uygula</string>
+    <string name="binary_file_notice">Bu dosya ikili bir dosya gibi görünüyor. Düzenleme devre dışı bırakıldı</string>
 </resources>
