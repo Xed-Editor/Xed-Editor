@@ -611,4 +611,10 @@
     <string name="auto_close_tags_desc">自动关闭 HTML 标签</string>
     <string name="bullet_continuation">列表自动续行</string>
     <string name="bullet_continuation_desc">在 Markdown 中自动续行列表和引用</string>
+    <string name="insert_final_newline">插入末尾换行符</string>
+    <string name="insert_final_newline_desc">格式化时确保文件以换行符结尾</string>
+    <string name="trim_trailing_whitespace">移除每行后的空格</string>
+    <string name="trim_trailing_whitespace_desc">格式化时移除换行符前的多余空格</string>
+    <string name="line_ending">行尾字符</string>
+    <string name="line_ending_desc">修改默认的换行符</string>
 </resources>
