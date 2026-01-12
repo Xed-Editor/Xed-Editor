@@ -614,7 +614,7 @@
     <string name="auto_close_tags_desc">Ferme automatiquement les étiquettes HTML</string>
     <string name="auto_close_tags">Fermeture auto des étiquettes</string>
     <string name="bullet_continuation_desc">Poursuivre automatiquement les listes et les citations en Markdown</string>
-    <string name="bullet_continuation">Poursuivre les listes</string>
+    <string name="bullet_continuation">Poursuivre la liste</string>
     <string name="insert_final_newline">Insérer une nouvelle ligne à la fin</string>
     <string name="insert_final_newline_desc">S\'assure que le fichier se termine toujours avec une nouvelle ligne lors du formatage</string>
     <string name="trim_trailing_whitespace">Supprimer les espaces en fin de ligne</string>
