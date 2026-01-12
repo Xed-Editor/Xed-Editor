@@ -10,6 +10,7 @@ import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
 import com.rk.settings.debugOptions.DeveloperOptions
 import com.rk.settings.editor.DefaultEncoding
+import com.rk.settings.editor.DefaultLineEnding
 import com.rk.settings.editor.EditExtraKeys
 import com.rk.settings.editor.EditToolbarActions
 import com.rk.settings.editor.EditorFontScreen
@@ -42,6 +43,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
+        composable(SettingsRoutes.DefaultLineEnding.route) { DefaultLineEnding() }
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
         composable(SettingsRoutes.ExtraKeys.route) { EditExtraKeys() }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }

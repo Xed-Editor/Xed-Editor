@@ -17,6 +17,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object DefaultEncoding : SettingsRoutes("default_encoding")
 
+    data object DefaultLineEnding : SettingsRoutes("default_line_ending")
+
     data object ToolbarActions : SettingsRoutes("toolbar_actions")
 
     data object ExtraKeys : SettingsRoutes("extra_keys")

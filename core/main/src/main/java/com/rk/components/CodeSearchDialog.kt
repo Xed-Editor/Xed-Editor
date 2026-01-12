@@ -77,11 +77,11 @@ val binaryExtensions: Set<String> =
         FileType.APK.extensions.toSet() +
         FileType.EXECUTABLE.extensions.toSet()
 
-private fun hasBinaryChars(fileContent: String): Boolean {
+fun hasBinaryChars(text: String): Boolean {
     val checkedCharacters = 1024
     val threshold = 0.3
 
-    val checkText = fileContent.take(checkedCharacters)
+    val checkText = text.take(checkedCharacters)
     val total = checkText.length
     if (total == 0) return false
 

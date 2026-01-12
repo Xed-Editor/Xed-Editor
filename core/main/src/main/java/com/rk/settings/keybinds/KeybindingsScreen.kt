@@ -296,7 +296,7 @@ fun EditKeybindsDialog(command: Command, onSubmit: (KeyCombination?) -> Unit, on
                             Icon(
                                 modifier = Modifier.combinedClickable(onClick = { keyCombination = null }),
                                 painter = painterResource(drawables.close),
-                                contentDescription = null,
+                                contentDescription = stringResource(strings.close),
                                 tint = MaterialTheme.colorScheme.onSurface,
                             )
                             if (hasConflict) {

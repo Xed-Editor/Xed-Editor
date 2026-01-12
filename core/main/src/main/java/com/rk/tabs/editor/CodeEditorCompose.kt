@@ -107,7 +107,7 @@ fun EditorTab.CodeEditor(
                         info("New Editor instance")
 
                         editable = state.editable
-                        if (Settings.word_wrap_for_text && !isWordwrap) {
+                        if (Settings.word_wrap_text && !isWordwrap) {
                             val isTextFile = file.getName().endsWith(".txt")
                             setWordwrap(isTextFile, true, true)
                         }
@@ -146,6 +146,8 @@ fun EditorTab.CodeEditor(
                                 }
                             }
                         }
+
+                        scope.launch { state.editorConfigLoaded?.await()?.let { applySettings() } }
 
                         subscribeAlways(ContentChangeEvent::class.java) {
                             intelligentFeatures.forEach { feature ->
