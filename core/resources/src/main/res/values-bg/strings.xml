@@ -401,4 +401,15 @@
     <string name="manage_language_servers">Управление на езикови сървъри</string>
     <string name="manage_language_servers_desc">Инсталиране, свързване и конфигуриране на езикови сървъри</string>
     <string name="format_on_save">Форматиране при запазване</string>
+    <string name="format_on_save_desc">Форматирайте файла автоматично при запазване</string>
+    <string name="no_language_server">Няма наличен езиков сървър.</string>
+    <string name="developer">Разработчик</string>
+    <string name="build_info">Информация за изграждането</string>
+    <string name="community">Общност</string>
+    <string name="failsafe_mode">Режим на безопасност</string>
+    <string name="failsafe_mode_desc">Стартирайте терминала в режим на поддръжка</string>
+    <string name="render_whitespace">Рендиране на празно пространство</string>
+    <string name="render_whitespace_desc">Визуализиране на интервали, табулации и нови редове като видими символи</string>
+    <string name="ask_refresh">Сигурни ли сте, че искате да обновите този документ? Всички незапазени промени ще бъдат загубени.</string>
+    <string name="docs">Документация</string>
 </resources>
