@@ -612,4 +612,10 @@
     <string name="auto_close_tags_desc">HTML etiketlerini otomatik olarak kapat</string>
     <string name="bullet_continuation">Madde devamı</string>
     <string name="bullet_continuation_desc">Markdown\'da listeleri ve alıntıları otomatik olarak devam ettirir</string>
+    <string name="insert_final_newline">Son satıra boşluk ekle</string>
+    <string name="insert_final_newline_desc">Biçimlendirirken dosyanın sonunda bir yeni satır karakteri olduğundan emin olun</string>
+    <string name="trim_trailing_whitespace">Sondaki boşluğu kırp</string>
+    <string name="trim_trailing_whitespace_desc">Biçimlendirirken, yeni satır karakterlerinden önce gelen sondaki boşluk karakterlerini kaldır</string>
+    <string name="line_ending">Satır sonu</string>
+    <string name="line_ending_desc">Varsayılan satır sonunu değiştir</string>
 </resources>
