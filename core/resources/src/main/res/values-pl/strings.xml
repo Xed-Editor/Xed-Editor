@@ -612,4 +612,8 @@
     <string name="auto_close_tags_desc">Automatycznie zamykaj znaczniki HTML</string>
     <string name="bullet_continuation">Kontynuacja listy</string>
     <string name="bullet_continuation_desc">Kontunuuj sekwencje podpunktów listy oraz cytatów w formacie Markdown</string>
+    <string name="insert_final_newline">Wstaw znak nowej lini</string>
+    <string name="insert_final_newline_desc">Dopilnuj aby plik kończył się znakiem nowej linii podczas formatowania</string>
+    <string name="trim_trailing_whitespace">Usuń białą spacje</string>
+    <string name="trim_trailing_whitespace_desc">Usuń białą spację poprzedzającą znaki nowej linii podczas formatowania</string>
 </resources>
