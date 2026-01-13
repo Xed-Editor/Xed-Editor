@@ -376,4 +376,5 @@
     <string name="debug_options_desc">Επιλογές εντοπισμού σφαλμάτων για %s</string>
     <string name="force_crash">Αναγκαστικό σφάλμα</string>
     <string name="force_crash_desc">Δημιουργία εξαίρεσης χρόνου εκτέλεσης</string>
+    <string name="sponsor_desc">Γίνετε χορηγός και βοηθήστε να διαμορφωθεί το μέλλον αυτού του πρότζεκτ</string>
 </resources>
