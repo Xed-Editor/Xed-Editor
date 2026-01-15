@@ -612,9 +612,14 @@
     <string name="bullet_continuation">列表自动续行</string>
     <string name="bullet_continuation_desc">在 Markdown 中自动续行列表和引用</string>
     <string name="insert_final_newline">插入末尾换行符</string>
-    <string name="insert_final_newline_desc">格式化时确保文件以换行符结尾</string>
+    <string name="insert_final_newline_desc">确保文件格式化时以换行符结尾</string>
     <string name="trim_trailing_whitespace">移除每行后的空格</string>
     <string name="trim_trailing_whitespace_desc">格式化时移除换行符前的多余空格</string>
     <string name="line_ending">行尾字符</string>
     <string name="line_ending_desc">修改默认的换行符</string>
+    <string name="line_ending_info">换行符是用来表示一行结束的特殊字符，也称为行尾（EOL）字符，不同的换行格式再跨平台传输文档时，可能会造成兼容性问题。</string>
+    <string name="editorconfig_changed">EditorConfig 文件已更改</string>
+    <string name="enable_editorconfig">启用 EditorConfig 支持</string>
+    <string name="enable_editorconfig_desc">自动应用 .editorconfig 文件中的代码风格规则</string>
+    <string name="binary_file_notice">此文件似乎为二进制文件。编辑模式已禁用</string>
 </resources>
