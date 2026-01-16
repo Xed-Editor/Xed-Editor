@@ -3,13 +3,13 @@ package com.rk.file
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
-import java.io.*
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.Charset
 
 class NetWrapper(private val url: URL) : FileObject {
-
     private fun openConnection(): HttpURLConnection {
         return (url.openConnection() as HttpURLConnection).apply {
             connectTimeout = 10_000
@@ -102,6 +102,8 @@ class NetWrapper(private val url: URL) : FileObject {
     override fun canRead(): Boolean = true
 
     override fun canExecute(): Boolean = false
+
+    override fun lastModified(): Long = -1L
 
     override suspend fun getChildForName(name: String): FileObject {
         throw UnsupportedOperationException("URL is not a directory")

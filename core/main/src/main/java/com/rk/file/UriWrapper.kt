@@ -21,7 +21,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class UriWrapper : FileObject {
-
     private val uri: String
     private val isTree: Boolean
 
@@ -261,6 +260,10 @@ class UriWrapper : FileObject {
 
     override fun canExecute(): Boolean {
         return false
+    }
+
+    override fun lastModified(): Long {
+        return file.lastModified()
     }
 
     override suspend fun getChildForName(name: String): FileObject =

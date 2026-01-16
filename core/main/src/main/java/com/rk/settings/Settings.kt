@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
+import com.rk.filetree.SortMode
 import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
@@ -35,6 +36,7 @@ object ReactiveSettings {
     var extraKeyCommandIds by mutableStateOf(Settings.extra_keys_commands)
     var extraKeySymbols by mutableStateOf(Settings.extra_keys_symbols)
     var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
+    var showHiddenFilesDrawer by mutableStateOf(Settings.show_hidden_files_drawer)
 
     fun update() {
         toolbarActionIds = Settings.action_items
@@ -43,6 +45,7 @@ object ReactiveSettings {
         extraKeyCommandIds = Settings.extra_keys_commands
         extraKeySymbols = Settings.extra_keys_symbols
         extraKeysBackground = Settings.extra_keys_bg
+        showHiddenFilesDrawer = Settings.show_hidden_files_drawer
     }
 }
 
@@ -119,6 +122,7 @@ object Settings {
     var saves by CachedPreference("saves", 0)
     var runs by CachedPreference("runs", 0)
     var last_donation_dialog_timestamp by CachedPreference("last_donation_dialog_timestamp", 0L)
+    var sort_mode by CachedPreference("sort_mode", SortMode.SORT_BY_NAME.ordinal)
 
     // String settings
     var selected_project by CachedPreference("selected_project", "")

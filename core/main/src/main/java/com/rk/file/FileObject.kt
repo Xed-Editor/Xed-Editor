@@ -64,6 +64,8 @@ interface FileObject : Serializable {
 
     fun canExecute(): Boolean
 
+    fun lastModified(): Long
+
     suspend fun getChildForName(name: String): FileObject
 
     suspend fun readText(): String?
