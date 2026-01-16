@@ -16,7 +16,6 @@
     <string name="new_file">New file</string>
     <string name="new_file_hint">Name (e.g. test.txt)</string>
     <string name="mime">MIME type (e.g. text/plain)</string>
-    <string name="rep">Replacement</string>
     <string name="search_keyword">Search keyword</string>
     <string name="cs">Case sensitive</string>
     <string name="wait">Please wait…</string>
@@ -68,7 +67,6 @@
     <string name="open_as_project">Open as a project</string>
     <string name="keyword_regex">Keyword (regex)</string>
     <string name="replace_all">Replace all</string>
-    <string name="replacement">Replacement</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="title">Title</string>
@@ -505,6 +503,7 @@
     <string name="no_results">No results found</string>
     <string name="results">%d results found</string>
     <string name="enter_name">Enter a name</string>
+    <string name="show_hidden_files">Show hidden files</string>
     <string name="show_hidden_files_drawer">Show hidden files in drawer</string>
     <string name="show_hidden_files_drawer_desc">Show hidden files or folders like .git in the drawer</string>
     <string name="show_hidden_files_search">Show hidden files in search</string>
@@ -602,4 +601,10 @@
     <string name="enable_editorconfig">Enable EditorConfig support</string>
     <string name="enable_editorconfig_desc">Automatically apply code style rules defined in .editorconfig files</string>
     <string name="binary_file_notice">This file appears to be binary. Editing is disabled</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_size">Sort by size</string>
+    <string name="sort_by_date">Sort by date</string>
+    <string name="sort_mode">Sort mode</string>
+    <string name="sort_mode_desc">Select the default sorting mode</string>
+    <string name="drawer">Drawer</string>
 </resources>

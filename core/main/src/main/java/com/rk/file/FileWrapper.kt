@@ -186,6 +186,10 @@ class FileWrapper(var file: File) : FileObject {
         return file.canExecute()
     }
 
+    override fun lastModified(): Long {
+        return file.lastModified()
+    }
+
     override suspend fun getChildForName(name: String): FileObject {
         return FileWrapper(File(file, name))
     }
