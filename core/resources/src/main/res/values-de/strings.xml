@@ -331,7 +331,7 @@
     <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi</string>
     <string name="read_only_file">Datei ist schreibgeschützt</string>
     <string name="expose_saf">Home-Verzeichnis freigeben</string>
-    <string name="expose_saf_desc">Home-Verzeichnis über den System-Dateiauswahldialog (SAF) für externe Apps zugänglich machen</string>
+    <string name="expose_saf_desc">Home-Verzeichnis über die System-Dateiauswahl (SAF) für externe Apps zugänglich machen</string>
     <string name="saf_expose_warning">Durch das Freigeben des Home-Verzeichnisses könnten bösartige Apps sensible Informationen einsehen, darunter Git-Tokens, Passwörter, Benutzernamen und andere Dateien in deinem Terminal-Home-Verzeichnis. Möchtest du fortfahren?</string>
     <string name="indian">Indisch</string>
     <string name="runners">Runner</string>
@@ -609,16 +609,16 @@
     <string name="auto_close_tags">Tags automatisch schließen</string>
     <string name="auto_close_tags_desc">HTML-Tags automatisch schließen</string>
     <string name="bullet_continuation_desc">Listen und Zitate in Markdown automatisch fortsetzen</string>
-    <string name="bullet_continuation">Fortsetzung der Aufzählung</string>
-    <string name="insert_final_newline">Letzten Zeilenumbruch einfügen</string>
+    <string name="bullet_continuation">Aufzählung fortsetzen</string>
+    <string name="insert_final_newline">Finalen Zeilenumbruch einfügen</string>
     <string name="insert_final_newline_desc">Stelle sicher, dass die Datei beim Formatieren mit einem Zeilenumbruch endet</string>
     <string name="trim_trailing_whitespace">Nachfolgende Leerzeichen entfernen</string>
-    <string name="trim_trailing_whitespace_desc">Entferne bei der Formatierung führende Leerzeichen vor Zeilenumbruchzeichen</string>
+    <string name="trim_trailing_whitespace_desc">Bei der Formatierung nachfolgende Leerzeichen vor Zeilenumbrüchen entfernen</string>
     <string name="line_ending">Zeilenende</string>
-    <string name="line_ending_desc">Ändert die Standard-Zeilenendezeichen</string>
-    <string name="line_ending_info">Zeilenumbrüche sind Sonderzeichen, die das Ende einer Zeile anzeigen. Sie werden auch als Zeilenendezeichen (EOL-Zeichen) bezeichnet. Unterschiedliche Zeilenumbrüche können zu Kompatibilitätsproblemen bei der Übertragung von Dateien zwischen verschiedenen Plattformen führen.</string>
+    <string name="line_ending_desc">Das Standard-Zeilenende ändern</string>
+    <string name="line_ending_info">Zeilenumbrüche sind Sonderzeichen, die das Ende einer Zeile kennzeichnen. Sie werden auch als end-of-line (EOL) Zeichen bezeichnet. Unterschiedliche Zeilenumbrüche können zu Kompatibilitätsproblemen bei der Übertragung von Dateien zwischen verschiedenen Plattformen führen.</string>
     <string name="editorconfig_changed">Die EditorConfig-Datei wurde geändert</string>
     <string name="enable_editorconfig">EditorConfig-Unterstützung aktivieren</string>
-    <string name="enable_editorconfig_desc">Wendet die in den Dateien .editorconfig definierten Regeln für den Code-Stil automatisch an</string>
+    <string name="enable_editorconfig_desc">Codestil-Regeln aus .editorconfig-Dateien automatisch anwenden</string>
     <string name="binary_file_notice">Diese Datei scheint binär zu sein. Die Bearbeitung ist deaktiviert</string>
 </resources>
