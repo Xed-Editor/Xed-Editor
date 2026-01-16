@@ -170,8 +170,8 @@
     <string name="support_desc">Wsparcie rozwoju</string>
     <string name="feature_toggles">Przełączniki funkcji</string>
     <string name="feature_toggles_desc">Włącz lub wyłącz funkcje</string>
-    <string name="backup">Wykonaj kopię zapasową</string>
-    <string name="restore">Przywróć kopię zapasową</string>
+    <string name="backup">Kopia zapasowa</string>
+    <string name="restore">Przywracanie</string>
     <string name="success">Powodzenie</string>
     <string name="failed">Niepowodzenie</string>
     <string name="unknown_err">Coś poszło nie tak</string>
@@ -294,7 +294,7 @@
     <string name="downloading">Pobieranie…</string>
     <string name="memory_usage">Użycie pamięci</string>
     <string name="strict_mode">Tryb ścisły</string>
-    <string name="copied">Skopiowane</string>
+    <string name="copied">Skopiowano</string>
     <string name="flavor">Wydanie</string>
     <string name="cant_undo">Czynności nie da się odwrócić</string>
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
@@ -619,7 +619,7 @@
     <string name="enable_editorconfig">Włącz wsparcie konfiguracji edytora</string>
     <string name="enable_editorconfig_desc">Automatycznie stosuj zasady stylu kodu zdefiniowane w plikach .editorconfig</string>
     <string name="binary_file_notice">Plik binarny. Edytowanie wyłączone</string>
-    <string name="line_ending">Zakończrnie linijki</string>
+    <string name="line_ending">Zakończenie linijki</string>
     <string name="line_ending_desc">Zmień domyślne zakończenie linijki</string>
     <string name="line_ending_info">Przerwy w lini to specjalne symbole wskazujące koniec lini. Znane również jako symbole end-of-line (EOL). Zmiana symbolu przerwy w lini może powodować problemy z kompatybilnością na innych platformach.</string>
     <string name="editorconfig_changed">Plik konfiguracji edytora zostal zmieniony</string>
