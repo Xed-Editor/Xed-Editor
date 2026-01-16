@@ -621,4 +621,6 @@
     <string name="binary_file_notice">Plik binarny. Edytowanie wyłączone</string>
     <string name="line_ending">Zakończrnie linijki</string>
     <string name="line_ending_desc">Zmień domyślne zakończenie linijki</string>
+    <string name="line_ending_info">Przerwy w lini to specjalne symbole wskazujące koniec lini. Znane również jako symbole end-of-line (EOL). Zmiana symbolu przerwy w lini może powodować problemy z kompatybilnością na innych platformach.</string>
+    <string name="editorconfig_changed">Plik konfiguracji edytora zostal zmieniony</string>
 </resources>
