@@ -377,4 +377,25 @@
     <string name="force_crash">Αναγκαστικό σφάλμα</string>
     <string name="force_crash_desc">Δημιουργία εξαίρεσης χρόνου εκτέλεσης</string>
     <string name="sponsor_desc">Γίνετε χορηγός και βοηθήστε να διαμορφωθεί το μέλλον αυτού του πρότζεκτ</string>
+    <string name="print">Εκτύπωση</string>
+    <string name="force_crash_confirm">Θέλετε να επιβάλετε διακοπή λειτουργίας της εφαρμογής; Η εφαρμογή ενδέχεται να κολλήσει.</string>
+    <string name="memory_usage">Χρήση μνήμης</string>
+    <string name="strict_mode">Αυστηρή λειτουργία</string>
+    <string name="strict_mode_desc">Εντοπισμός πρόσβασης σε δίσκο ή δίκτυο στο κύριο νήμα</string>
+    <string name="anr_watchdog">Παρατηρητής ANR</string>
+    <string name="verbose_errors">Λεπτομερή σφάλματα</string>
+    <string name="verbose_errors_desc">Συμπερίληψη ιχνηλάτησης στοίβας στα παράθυρα διαλόγου σφαλμάτων</string>
+    <string name="debugger_not_allowed">Το πρόγραμμα εντοπισμού σφαλμάτων δεν επιτρέπεται σε εκδόσεις κυκλοφορίας</string>
+    <string name="capturing_logcat">Καταγραφή logcat…</string>
+    <string name="unsupported_file_ext">Μη υποστηριζόμενη επέκταση αρχείου</string>
+    <string name="invalid_port">Μη έγκυρη θύρα</string>
+    <string name="port_number">Αριθμός θύρας</string>
+    <string name="file_ext_example">Επέκταση αρχείου (π.χ. py)</string>
+    <string name="logcat_saved">Το αρχείο αποθηκεύτηκε στον αρχικό κατάλογο του τερματικού ως logcat.txt</string>
+    <string name="stop_logcat">Διακοπή logcat</string>
+    <string name="discord">Κοινότητα Discord</string>
+    <string name="use_tabs">Εισαγωγή χαρακτήρα tab</string>
+    <string name="use_tabs_desc">Χρήση πραγματικού tab (\\t) αντί για κενά για εσοχή</string>
+    <string name="language_server">Διακομιστής γλώσσας</string>
+    <string name="manage_language_servers">Διαχείριση διακομιστών γλώσσας</string>
 </resources>
