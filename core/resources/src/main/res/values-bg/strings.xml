@@ -412,4 +412,11 @@
     <string name="render_whitespace_desc">Визуализиране на интервали, табулации и нови редове като видими символи</string>
     <string name="ask_refresh">Сигурни ли сте, че искате да обновите този документ? Всички незапазени промени ще бъдат загубени.</string>
     <string name="docs">Документация</string>
+    <string name="docs_desc">Посетете страницата с документация.</string>
+    <string name="github_stars">GitHub звезди</string>
+    <string name="api_error">Грешка в API</string>
+    <string name="unknown">Неизвестен</string>
+    <string name="cant_write">Не може да се записва във файла (няма права за запис)</string>
+    <string name="content_update">Този файл е променен от друго приложение. Искате ли да го обновите? Незапазените промени ще бъдат загубени.</string>
+    <string name="info_lsp">Езиковите сървъри са отделни процеси, които предоставят интелигентни функции, като например довършване на код, маркиране на грешки и вградена документация.</string>
 </resources>
