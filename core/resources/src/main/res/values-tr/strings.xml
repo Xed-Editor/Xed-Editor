@@ -623,4 +623,11 @@
     <string name="enable_editorconfig">EditorConfig desteğini etkinleştir</string>
     <string name="enable_editorconfig_desc">.editorconfig dosyalarında tanımlanan kod stil kurallarını otomatik olarak uygula</string>
     <string name="binary_file_notice">Bu dosya ikili bir dosya gibi görünüyor. Düzenleme devre dışı bırakıldı</string>
+    <string name="show_hidden_files">Gizli dosyaları göster</string>
+    <string name="sort_by_name">Ada göre sırala</string>
+    <string name="sort_by_size">Boyuta göre sırala</string>
+    <string name="sort_by_date">Tarihe göre sırala</string>
+    <string name="sort_mode">Sıralama modu</string>
+    <string name="sort_mode_desc">Varsayılan sıralama modunu seçin</string>
+    <string name="drawer">Çekmece</string>
 </resources>
