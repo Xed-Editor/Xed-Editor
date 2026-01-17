@@ -325,7 +325,7 @@
     <string name="force_char_desc">Zeichenbasierte Eingabe im Terminal erzwingen</string>
     <string name="use_ctrl_workaround">Strg-Workaround verwenden</string>
     <string name="use_ctrl_workaround_desc">Strg+Leertaste-Workaround verwenden</string>
-    <string name="force_normal">Normalmodus erzwingen</string>
+    <string name="force_normal">Normalen Modus erzwingen</string>
     <string name="theme_mode">Thema-Modus</string>
     <string name="cannot_be_empty">Es darf nicht leer sein.</string>
     <string name="script_api_info">Weitere Informationen findest du in der Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi</string>
