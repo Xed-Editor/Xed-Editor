@@ -623,4 +623,11 @@
     <string name="line_ending_desc">Zmień domyślne zakończenie linijki</string>
     <string name="line_ending_info">Przerwy w lini to specjalne symbole wskazujące koniec lini. Znane również jako symbole end-of-line (EOL). Zmiana symbolu przerwy w lini może powodować problemy z kompatybilnością na innych platformach.</string>
     <string name="editorconfig_changed">Plik konfiguracji edytora zostal zmieniony</string>
+    <string name="show_hidden_files">Pokaż ukryte pliki</string>
+    <string name="sort_by_name">Sortuj po nazwie</string>
+    <string name="sort_by_size">Sortuj po rozmiarze</string>
+    <string name="sort_by_date">Sortuj po dacie</string>
+    <string name="sort_mode">Tryb sortowania</string>
+    <string name="sort_mode_desc">Wybierz domyślny sposób sortowania</string>
+    <string name="drawer">Szuflada</string>
 </resources>
