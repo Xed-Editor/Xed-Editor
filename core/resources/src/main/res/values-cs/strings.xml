@@ -588,4 +588,21 @@
     <string name="settings_restore_desc">Obnovit nastavení ze zálohy</string>
     <string name="terminal_backup">Záloha terminálu</string>
     <string name="restore_terminal">Obnovit terminál ze zálohy</string>
+    <string name="binary_file_notice">Tento soubor vypadá na binární soubor. Upravování bylo vypnuto</string>
+    <string name="sort_by_name">Seřadit podle názvu</string>
+    <string name="sort_by_size">Seřadit podle velikosti</string>
+    <string name="sort_by_date">Seřadit podle datumu</string>
+    <string name="sort_mode">Režim seřazení</string>
+    <string name="sort_mode_desc">Vybrat výchozí režim seřazení</string>
+    <string name="drawer">Postranní panel</string>
+    <string name="insert_final_newline">Vložit nový řádek na konci souboru</string>
+    <string name="insert_final_newline_desc">Při formátování, zajistit soubor aby končíl novým řádkem</string>
+    <string name="trim_trailing_whitespace">Vymazat koncové mezery</string>
+    <string name="trim_trailing_whitespace_desc">Při formátování, vymazat mezery (whitespace znaky) před znaky nových řádků</string>
+    <string name="line_ending">Konce řádků</string>
+    <string name="line_ending_desc">Změnit výchozí konec řádku</string>
+    <string name="line_ending_info">Konce řádků jsou speciální znaky, které naznačují konec řádku v souboru. Jsou taky známé jako end-of-line (EOL) znaky. Rozdílné konce řádků mohou způsobit problémy s kompatibilitou při přesouvání souborů na jiné platformy.</string>
+    <string name="editorconfig_changed">Soubor EditorConfig byl změněn</string>
+    <string name="enable_editorconfig">Zapnout podporu EditorConfig</string>
+    <string name="enable_editorconfig_desc">Automaticky použít pravidla stylu zdrojového kódu definované ve .editorconfig souborech</string>
 </resources>
