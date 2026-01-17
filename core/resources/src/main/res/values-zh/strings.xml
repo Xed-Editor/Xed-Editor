@@ -622,4 +622,10 @@
     <string name="enable_editorconfig">启用 EditorConfig 支持</string>
     <string name="enable_editorconfig_desc">自动应用 .editorconfig 文件中的代码风格规则</string>
     <string name="binary_file_notice">此文件似乎为二进制文件。编辑模式已禁用</string>
+    <string name="show_hidden_files">显示隐藏的文件</string>
+    <string name="sort_by_name">按名称排序</string>
+    <string name="sort_by_size">按大小排序</string>
+    <string name="sort_by_date">按日期排序</string>
+    <string name="sort_mode">文件排序方式</string>
+    <string name="sort_mode_desc">选择默认的文件排序方式</string>
 </resources>
