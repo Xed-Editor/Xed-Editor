@@ -605,4 +605,5 @@
     <string name="editorconfig_changed">Soubor EditorConfig byl změněn</string>
     <string name="enable_editorconfig">Zapnout podporu EditorConfig</string>
     <string name="enable_editorconfig_desc">Automaticky použít pravidla stylu zdrojového kódu definované ve .editorconfig souborech</string>
+    <string name="show_hidden_files">Zobrazit skryté soubory</string>
 </resources>
