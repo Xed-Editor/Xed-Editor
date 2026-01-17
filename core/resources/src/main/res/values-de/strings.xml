@@ -621,4 +621,11 @@
     <string name="enable_editorconfig">EditorConfig-Unterstützung aktivieren</string>
     <string name="enable_editorconfig_desc">Codestil-Regeln aus .editorconfig-Dateien automatisch anwenden</string>
     <string name="binary_file_notice">Diese Datei scheint binär zu sein. Die Bearbeitung ist deaktiviert</string>
+    <string name="show_hidden_files">Versteckte Dateien anzeigen</string>
+    <string name="sort_by_name">Nach Namen sortieren</string>
+    <string name="sort_by_size">Nach Größe sortieren</string>
+    <string name="sort_by_date">Nach Datum sortieren</string>
+    <string name="sort_mode">Sortiermodus</string>
+    <string name="sort_mode_desc">Standard-Sortiermodus auswählen</string>
+    <string name="drawer">Drawer</string>
 </resources>
