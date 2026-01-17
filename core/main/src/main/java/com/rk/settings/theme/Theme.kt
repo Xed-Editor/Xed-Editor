@@ -4,13 +4,13 @@ import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -30,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.rk.App.Companion.iconPackManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.components.BottomSheetContent
@@ -38,8 +40,10 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.file.child
+import com.rk.file.copyToTempDir
 import com.rk.file.themeDir
 import com.rk.file.toFileObject
+import com.rk.icons.pack.currentIconPack
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
@@ -51,6 +55,7 @@ import com.rk.theme.dynamicTheme
 import com.rk.theme.inbuiltThemes
 import com.rk.theme.installFromFile
 import com.rk.theme.updateThemes
+import com.rk.utils.LoadingPopup
 import kotlinx.coroutines.launch
 
 val themes = mutableStateListOf<ThemeHolder>()
@@ -61,24 +66,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
     val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
     val amoledState = remember { mutableStateOf(Settings.amoled) }
 
-    PreferenceLayout(
-        label = stringResource(strings.themes),
-        fab = {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/json") {
-                        DefaultScope.launch {
-                            if (it != null) {
-                                installFromFile(it.toFileObject(expectedIsFile = true))
-                            }
-                        }
-                    }
-                },
-                icon = { Icon(imageVector = Icons.Outlined.Add, null) },
-                text = { Text(stringResource(strings.add_theme)) },
-            )
-        },
-    ) {
+    PreferenceLayout(label = stringResource(strings.themes)) {
         PreferenceGroup(heading = stringResource(strings.theme_settings)) {
             SettingsToggle(
                 label = stringResource(id = strings.theme_mode),
@@ -115,62 +103,167 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup(heading = stringResource(strings.themes)) {
-            if (themes.isEmpty()) {
+            themes.forEach { theme ->
                 SettingsToggle(
-                    label = stringResource(strings.no_themes_found),
+                    isEnabled = !dynamicTheme.value,
+                    label = theme.name,
                     description = null,
                     showSwitch = false,
                     default = false,
-                )
-            } else {
-                themes.forEach { theme ->
-                    SettingsToggle(
-                        isEnabled = !dynamicTheme.value,
-                        label = theme.name,
-                        description = null,
-                        showSwitch = false,
-                        default = false,
-                        startWidget = {
-                            RadioButton(
-                                enabled = !dynamicTheme.value,
-                                selected = currentTheme.value?.id == theme.id,
+                    startWidget = {
+                        RadioButton(
+                            modifier = Modifier.padding(start = 16.dp),
+                            enabled = !dynamicTheme.value,
+                            selected = currentTheme.value?.id == theme.id,
+                            onClick = null,
+                        )
+                    },
+                    sideEffect = {
+                        currentTheme.value = theme
+                        Settings.theme = theme.id
+                        refreshEditors()
+                    },
+                    endWidget = {
+                        if (!inbuiltThemes.contains(theme)) {
+                            IconButton(
                                 onClick = {
-                                    currentTheme.value = theme
-                                    Settings.theme = theme.id
-                                    refreshEditors()
-                                },
-                            )
-                        },
-                        sideEffect = {
-                            currentTheme.value = theme
-                            Settings.theme = theme.id
-                            refreshEditors()
-                        },
-                        endWidget = {
-                            if (!inbuiltThemes.contains(theme)) {
-                                IconButton(
-                                    onClick = {
-                                        if (currentTheme.value?.id == theme.id) {
-                                            currentTheme.value = blueberry
-                                            Settings.theme = blueberry.id
-                                            refreshEditors()
-                                        }
-
-                                        themeDir().child(theme.name).delete()
-                                        themes.remove(theme)
+                                    if (currentTheme.value?.id == theme.id) {
+                                        currentTheme.value = blueberry
+                                        Settings.theme = blueberry.id
+                                        refreshEditors()
                                     }
-                                ) {
-                                    Icon(imageVector = Icons.Outlined.Delete, null)
+
+                                    themeDir().child(theme.name).delete()
+                                    themes.remove(theme)
                                 }
+                            ) {
+                                Icon(imageVector = Icons.Outlined.Delete, stringResource(strings.delete))
                             }
-                        },
-                    )
-                }
+                        }
+                    },
+                )
             }
+
+            SettingsToggle(
+                label = stringResource(strings.add_theme),
+                description = null,
+                showSwitch = false,
+                default = false,
+                startWidget = {
+                    Icon(
+                        modifier = Modifier.padding(start = 16.dp),
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = stringResource(strings.add),
+                    )
+                },
+                sideEffect = { addTheme() },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.icon_packs)) {
+            SettingsToggle(
+                label = "Simple Icons (${stringResource(strings.default_option)})",
+                description = null,
+                showSwitch = false,
+                default = false,
+                startWidget = {
+                    RadioButton(
+                        modifier = Modifier.padding(start = 16.dp),
+                        selected = currentIconPack.value == null,
+                        onClick = null,
+                    )
+                },
+                sideEffect = {
+                    currentIconPack.value = null
+                    Settings.icon_pack = ""
+                },
+            )
+
+            iconPackManager.iconPacks.forEach { (id, iconPack) ->
+                val iconPackInfo = iconPack.info
+
+                SettingsToggle(
+                    label = iconPackInfo.name,
+                    description = null,
+                    showSwitch = false,
+                    default = false,
+                    startWidget = {
+                        RadioButton(
+                            modifier = Modifier.padding(start = 16.dp),
+                            selected = currentIconPack.value?.info?.id == id,
+                            onClick = null,
+                        )
+                    },
+                    sideEffect = {
+                        currentIconPack.value = iconPack
+                        Settings.icon_pack = id
+                    },
+                    endWidget = {
+                        IconButton(
+                            onClick = {
+                                if (currentIconPack.value?.info?.id == id) {
+                                    currentIconPack.value = null
+                                    Settings.icon_pack = ""
+                                }
+
+                                iconPackManager.uninstallIconPack(id)
+                            }
+                        ) {
+                            Icon(imageVector = Icons.Outlined.Delete, null)
+                        }
+                    },
+                )
+            }
+
+            SettingsToggle(
+                label = stringResource(strings.add_icon_pack),
+                description = null,
+                showSwitch = false,
+                default = false,
+                startWidget = {
+                    Icon(
+                        modifier = Modifier.padding(start = 16.dp),
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = stringResource(strings.add),
+                    )
+                },
+                sideEffect = { addIconPack() },
+            )
         }
 
         if (showDayNightBottomSheet.value) {
             DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = LocalContext.current)
+        }
+    }
+}
+
+private fun addTheme() {
+    SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/json") {
+        DefaultScope.launch {
+            if (it != null) {
+                val loading = LoadingPopup(SettingsActivity.instance, null)
+                loading.show()
+
+                installFromFile(it.toFileObject(expectedIsFile = true))
+
+                loading.hide()
+            }
+        }
+    }
+}
+
+private fun addIconPack() {
+    SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/zip") {
+        DefaultScope.launch {
+            if (it != null) {
+                val loading = LoadingPopup(SettingsActivity.instance, null)
+                loading.show()
+
+                val file = it.toFileObject(expectedIsFile = true).copyToTempDir()
+                iconPackManager.installIconPack(file)
+
+                loading.hide()
+            }
         }
     }
 }

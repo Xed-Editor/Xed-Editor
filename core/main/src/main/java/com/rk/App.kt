@@ -13,6 +13,7 @@ import com.rk.editor.FontCache
 import com.rk.extension.ExtensionAPIManager
 import com.rk.extension.ExtensionManager
 import com.rk.extension.loadAllExtensions
+import com.rk.icons.pack.IconPackManager
 import com.rk.lsp.MarkdownImageProvider
 import com.rk.resources.Res
 import com.rk.settings.Preference
@@ -41,6 +42,16 @@ class App : Application() {
 
                 return _extensionManager!!
             }
+
+        private var _iconPackManager: IconPackManager? = null
+        val iconPackManager: IconPackManager
+            get() {
+                if (_iconPackManager == null) {
+                    _iconPackManager = IconPackManager(application!!)
+                }
+
+                return _iconPackManager!!
+            }
     }
 
     init {
@@ -66,6 +77,8 @@ class App : Application() {
                 extensionManager.loadAllExtensions()
                 registerActivityLifecycleCallbacks(ExtensionAPIManager)
             }
+
+            launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
 
             launch { Editor.initGrammarRegistry() }
 

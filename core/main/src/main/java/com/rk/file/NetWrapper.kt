@@ -76,8 +76,6 @@ class NetWrapper(private val url: URL) : FileObject {
         }
     }
 
-    override suspend fun calcSize(): Long = length()
-
     override suspend fun delete(): Boolean = false
 
     override suspend fun toUri(): Uri = Uri.parse(url.toString())

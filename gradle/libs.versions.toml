@@ -51,6 +51,7 @@ lifecycleProcess = "2.10.0"
 composeDnd = "0.4.0"
 androidsvgAar = "1.4"
 ec4jCore = "1.2.0"
+coilSvg = "2.7.0"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
@@ -59,6 +60,7 @@ compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "anrwatchdog" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coilSvg" }
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }

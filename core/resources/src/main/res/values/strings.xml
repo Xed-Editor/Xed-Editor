@@ -607,4 +607,9 @@
     <string name="sort_mode">Sort mode</string>
     <string name="sort_mode_desc">Select the default sorting mode</string>
     <string name="drawer">Drawer</string>
+    <string name="icon_packs">Icon packs</string>
+    <string name="no_icon_packs_found">No icon packs found</string>
+    <string name="add_icon_pack">Add icon pack</string>
+    <string name="last_modified">Last modified</string>
+    <string name="content_property">%s items, totaling %s</string>
 </resources>

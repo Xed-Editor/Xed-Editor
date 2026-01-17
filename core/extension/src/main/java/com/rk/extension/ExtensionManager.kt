@@ -23,7 +23,6 @@ val Context.extensionDir: File
 internal fun Context.compiledDexDir() = extensionDir.resolve("oat")
 
 open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
-
     private val mutex = Mutex()
     val localExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()

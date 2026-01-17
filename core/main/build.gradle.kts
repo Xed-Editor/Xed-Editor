@@ -92,6 +92,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.utilcode)
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
     implementation(libs.gson)
     implementation(libs.commons.net)
     implementation(libs.okhttp)

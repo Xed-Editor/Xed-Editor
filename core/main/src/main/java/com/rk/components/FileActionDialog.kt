@@ -2,6 +2,7 @@ package com.rk.components
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,12 +38,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
@@ -69,6 +66,9 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice
 import com.rk.utils.toast
+import java.text.DateFormat
+import java.text.NumberFormat
+import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -541,27 +541,60 @@ fun DeleteConfirmationDialog(fileName: String, onConfirm: () -> Unit, onDismiss:
     )
 }
 
+data class ContentProgress(val totalSize: Long, val totalItems: Long)
+
+private suspend fun calculateContent(folder: FileObject, onProgress: (ContentProgress) -> Unit = {}) {
+    var totalSize = 0L
+    var totalItems = 0L
+
+    val stack = ArrayDeque<FileObject>()
+    stack.add(folder)
+
+    while (stack.isNotEmpty()) {
+        val current = stack.removeLast()
+        if (current.isDirectory()) {
+            stack.addAll(current.listFiles())
+            totalItems++
+            onProgress(ContentProgress(totalSize, totalItems))
+        } else {
+            totalSize += current.length()
+            totalItems++
+            onProgress(ContentProgress(totalSize, totalItems))
+        }
+    }
+}
+
 // Properties Dialog
 @Composable
 fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
-    var size by remember { mutableStateOf<Long?>(null) }
-    val calculatingText = stringResource(strings.calculating)
+    var size by remember { mutableStateOf(formatFileSize(0)) }
+    var itemsCount by remember { mutableStateOf("0") }
+    val numberFormatter = remember { NumberFormat.getNumberInstance() }
 
-    LaunchedEffect(file) { size = file.calcSize() }
+    val lastModified =
+        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault())
+            .format(Date(file.lastModified()))
+
+    LaunchedEffect(file) {
+        if (file.isFile()) {
+            size = formatFileSize(file.length())
+        } else {
+            calculateContent(file) {
+                size = formatFileSize(it.totalSize)
+                itemsCount = numberFormatter.format(it.totalItems)
+            }
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(strings.properties)) },
         text = {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 InfoRow(stringResource(strings.name), file.getName())
                 InfoRow(
-                    label = stringResource(strings.size),
-                    value =
-                        size?.let { AnnotatedString(formatFileSize(it)) }
-                            ?: buildAnnotatedString {
-                                withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) { append(calculatingText) }
-                            },
+                    label = stringResource(strings.content),
+                    value = stringResource(strings.content_property).fillPlaceholders(itemsCount, size),
                 )
                 InfoRow(
                     label = stringResource(strings.type),
@@ -573,7 +606,10 @@ fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
                         },
                 )
                 PermissionRow(canRead = file.canRead(), canWrite = file.canWrite(), canExecute = file.canExecute())
-                InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
+                if (InbuiltFeatures.debugMode.state.value) {
+                    InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
+                }
+                InfoRow(stringResource(strings.last_modified), lastModified)
                 InfoRow(stringResource(strings.path), file.getAbsolutePath())
             }
         },
@@ -584,17 +620,7 @@ fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
 
 @Composable
 fun InfoRow(label: String, value: String) {
-    InfoRow(label, AnnotatedString(value))
-}
-
-@Composable
-fun InfoRow(label: String, value: AnnotatedString) {
-    SelectionContainer {
-        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-            Text(text = "$label:", fontWeight = FontWeight.Medium)
-            Text(modifier = Modifier.padding(top = 2.dp), text = value, style = MaterialTheme.typography.bodyLarge)
-        }
-    }
+    OutlinedTextField(value = value, onValueChange = {}, label = { Text(label) }, readOnly = true)
 }
 
 @Composable
