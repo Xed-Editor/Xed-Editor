@@ -630,4 +630,15 @@
     <string name="sort_mode">Sıralama modu</string>
     <string name="sort_mode_desc">Varsayılan sıralama modunu seçin</string>
     <string name="drawer">Çekmece</string>
+    <string name="icon_packs">İkon paketleri</string>
+    <string name="no_icon_packs_found">İkon paketleri bulunamadı</string>
+    <string name="add_icon_pack">İkon paketi ekle</string>
+    <string name="last_modified">Son Düzenleme</string>
+    <string name="content_property">%s öğe, toplam %s</string>
+    <string name="icon_pack_install_failed">İkon paketi kurulumu başarısız oldu</string>
+    <string name="icon_pack_missing_fields">manifest.json dosyasında eksik veya geçersiz özellikler bulunuyor:\n%s\n\nLütfen dosyayı kontrol edin ve tekrar deneyin.</string>
+    <string name="manifest_missing">manifest.json dosyası eksik. Lütfen ekleyin ve tekrar deneyin.</string>
+    <string name="outdated_extension">Bu eklenti, Xed-Editor\'ın daha eski bir sürümü için yapıldı. Lütfen geliştiriciden bir güncelleme isteyin.</string>
+    <string name="outdated_client">Xed-Editor\'ınız güncel değil. Bu eklentiyi kullanabilmek için lütfen en son sürüme güncelleyin.</string>
+    <string name="extension_validation_failed">Eklenti doğrulaması başarısız oldu</string>
 </resources>
