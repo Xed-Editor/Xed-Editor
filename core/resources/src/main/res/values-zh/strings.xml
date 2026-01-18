@@ -526,7 +526,7 @@
     <string name="show_tab_icons">显示 Tab 图标</string>
     <string name="show_tab_icons_desc">在 Tab 标题旁显示文件图标</string>
     <string name="emulate_editor_key">模拟编辑器按键</string>
-    <string name="select_key">选择键值（keyCode）</string>
+    <string name="select_key">选择键值</string>
     <string name="split_extra_keys">拆分符号栏</string>
     <string name="split_extra_keys_desc">将符号栏拆分成两行以分隔命令和符号</string>
     <string name="disclaimer_heading">使用条款及免责声明</string>
@@ -628,4 +628,5 @@
     <string name="sort_by_date">按日期排序</string>
     <string name="sort_mode">文件排序方式</string>
     <string name="sort_mode_desc">选择默认的文件排序方式</string>
+    <string name="drawer">侧滑栏</string>
 </resources>
