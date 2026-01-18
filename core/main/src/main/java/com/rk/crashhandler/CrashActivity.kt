@@ -200,6 +200,7 @@ class CrashActivity : ComponentActivity() {
                                 MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
 
                             val divider = MaterialTheme.colorScheme.outlineVariant
+                            val errorColor = MaterialTheme.colorScheme.error
                             val isDarkMode = isSystemInDarkTheme()
 
                             AndroidView(
@@ -226,6 +227,7 @@ class CrashActivity : ComponentActivity() {
                                             gutterColor = gutterColor.toArgb(),
                                             currentLine = currentLineColor.toArgb(),
                                             dividerColor = divider.toArgb(),
+                                            errorColor = errorColor.toArgb(),
                                         )
                                     }
                                 },
