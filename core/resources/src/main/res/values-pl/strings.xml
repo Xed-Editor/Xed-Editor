@@ -630,4 +630,8 @@
     <string name="sort_mode">Tryb sortowania</string>
     <string name="sort_mode_desc">Wybierz domyślny sposób sortowania</string>
     <string name="drawer">Szuflada</string>
+    <string name="icon_packs">Paczki ikon</string>
+    <string name="no_icon_packs_found">Nie znaleziono paczek ikon</string>
+    <string name="add_icon_pack">Dodaj paczkę ikon</string>
+    <string name="last_modified">Ostatnio zmodyfikowane</string>
 </resources>
