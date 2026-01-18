@@ -25,7 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class LoadingPopup(private val activity: AppCompatActivity?, hideAfterMillis: Long? = null) {
-
     private var dialog: AlertDialog? = null
     private var message: String = strings.wait.getString()
 

@@ -44,8 +44,6 @@ interface FileObject : Serializable {
 
     suspend fun length(): Long
 
-    suspend fun calcSize(): Long
-
     suspend fun delete(): Boolean
 
     suspend fun toUri(): Uri
@@ -63,6 +61,8 @@ interface FileObject : Serializable {
     fun canRead(): Boolean
 
     fun canExecute(): Boolean
+
+    fun lastModified(): Long
 
     suspend fun getChildForName(name: String): FileObject
 

@@ -39,7 +39,6 @@ fun ResponsiveDrawer(
     mainContent: @Composable () -> Unit,
     sheetContent: @Composable ColumnScope.() -> Unit,
 ) {
-
     if (Settings.desktop_mode) {
         val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
         isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }

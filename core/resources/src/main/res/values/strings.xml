@@ -16,7 +16,6 @@
     <string name="new_file">New file</string>
     <string name="new_file_hint">Name (e.g. test.txt)</string>
     <string name="mime">MIME type (e.g. text/plain)</string>
-    <string name="rep">Replacement</string>
     <string name="search_keyword">Search keyword</string>
     <string name="cs">Case sensitive</string>
     <string name="wait">Please wait…</string>
@@ -68,7 +67,6 @@
     <string name="open_as_project">Open as a project</string>
     <string name="keyword_regex">Keyword (regex)</string>
     <string name="replace_all">Replace all</string>
-    <string name="replacement">Replacement</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="title">Title</string>
@@ -505,6 +503,7 @@
     <string name="no_results">No results found</string>
     <string name="results">%d results found</string>
     <string name="enter_name">Enter a name</string>
+    <string name="show_hidden_files">Show hidden files</string>
     <string name="show_hidden_files_drawer">Show hidden files in drawer</string>
     <string name="show_hidden_files_drawer_desc">Show hidden files or folders like .git in the drawer</string>
     <string name="show_hidden_files_search">Show hidden files in search</string>
@@ -616,4 +615,32 @@
     <string name="auto_close_tags_desc">Automatically close HTML tags</string>
     <string name="bullet_continuation">Bullet continuation</string>
     <string name="bullet_continuation_desc">Automatically continue lists and quotes in Markdown</string>
+    <string name="insert_final_newline">Insert final newline</string>
+    <string name="insert_final_newline_desc">Ensure file ends with a newline when formatting</string>
+    <string name="trim_trailing_whitespace">Trim trailing whitespace</string>
+    <string name="trim_trailing_whitespace_desc">Remove trailing whitespace characters preceding newline characters when formatting</string>
+    <string name="line_ending">Line ending</string>
+    <string name="line_ending_desc">Change the default line ending</string>
+    <string name="line_ending_info">Line breaks are special characters that indicate the end of a line. They\'re also known as end-of-line (EOL) characters. Differing line breaks can cause compatibility issues when transferring files across different platforms.</string>
+    <string name="editorconfig_changed">EditorConfig file has been changed</string>
+    <string name="enable_editorconfig">Enable EditorConfig support</string>
+    <string name="enable_editorconfig_desc">Automatically apply code style rules defined in .editorconfig files</string>
+    <string name="binary_file_notice">This file appears to be binary. Editing is disabled</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_size">Sort by size</string>
+    <string name="sort_by_date">Sort by date</string>
+    <string name="sort_mode">Sort mode</string>
+    <string name="sort_mode_desc">Select the default sorting mode</string>
+    <string name="drawer">Drawer</string>
+    <string name="icon_packs">Icon packs</string>
+    <string name="no_icon_packs_found">No icon packs found</string>
+    <string name="add_icon_pack">Add icon pack</string>
+    <string name="last_modified">Last modified</string>
+    <string name="content_property">%s items, totaling %s</string>
+    <string name="icon_pack_install_failed">Icon pack installation failed</string>
+    <string name="icon_pack_missing_fields">The manifest.json file has missing or invalid properties:\n%s\n\nPlease check the file and try again.</string>
+    <string name="manifest_missing">The manifest.json file is missing. Please add it and try again.</string>
+    <string name="outdated_extension">This extension was made for an older version of Xed-Editor. Please ask the developer for an update.</string>
+    <string name="outdated_client">Your Xed-Editor is out of date. Please update to the latest version to use this extension.</string>
+    <string name="extension_validation_failed">Extension validation failed</string>
 </resources>

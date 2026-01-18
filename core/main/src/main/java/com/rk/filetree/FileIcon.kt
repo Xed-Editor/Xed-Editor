@@ -4,12 +4,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
 import com.rk.file.FileObject
 import com.rk.file.FileType
+import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
 import com.rk.theme.folderSurface
 
@@ -23,10 +30,13 @@ private val gradle = drawables.gradle
 private val info = drawables.info
 
 @Composable
-fun FileIcon(file: FileObject, iconTint: Color? = null) {
+fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = false) {
+    val iconPackFile = currentIconPack.value?.getIconFileFor(file, isExpanded)
+    val imageLoader = rememberSvgImageLoader()
+
     val icon =
         when {
-            file.isFile() -> getFileIcon(file)
+            file.isFile() -> getBuiltInFileIcon(file)
             file.isDirectory() -> folder
             file.isSymlink() -> fileSymlink
             else -> unknown
@@ -38,10 +48,33 @@ fun FileIcon(file: FileObject, iconTint: Color? = null) {
                 MaterialTheme.colorScheme.folderSurface
             } else MaterialTheme.colorScheme.secondary
 
-    Icon(painter = painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
+    val useTint = currentIconPack.value?.info?.applyTint == true
+
+    if (iconPackFile != null) {
+        AsyncImage(
+            model = iconPackFile,
+            imageLoader = imageLoader,
+            contentDescription = null,
+            colorFilter = if (useTint) ColorFilter.tint(tint) else null,
+            modifier = Modifier.size(20.dp),
+        )
+    } else {
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(20.dp),
+        )
+    }
 }
 
-private fun getFileIcon(file: FileObject): Int =
+@Composable
+private fun rememberSvgImageLoader(): ImageLoader {
+    val context = LocalContext.current
+    return remember { ImageLoader.Builder(context).components { add(SvgDecoder.Factory()) }.build() }
+}
+
+private fun getBuiltInFileIcon(file: FileObject): Int =
     when (file.getName()) {
         "contract.sol",
         "LICENSE",

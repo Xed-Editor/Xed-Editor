@@ -610,4 +610,24 @@
     <string name="intelligent_features">Akıllı özellikler</string>
     <string name="auto_close_tags">Etiketleri otomatik kapat</string>
     <string name="auto_close_tags_desc">HTML etiketlerini otomatik olarak kapat</string>
+    <string name="bullet_continuation">Madde devamı</string>
+    <string name="bullet_continuation_desc">Markdown\'da listeleri ve alıntıları otomatik olarak devam ettirir</string>
+    <string name="insert_final_newline">Son satıra boşluk ekle</string>
+    <string name="insert_final_newline_desc">Biçimlendirirken dosyanın sonunda bir yeni satır karakteri olduğundan emin olun</string>
+    <string name="trim_trailing_whitespace">Sondaki boşluğu kırp</string>
+    <string name="trim_trailing_whitespace_desc">Biçimlendirirken, yeni satır karakterlerinden önce gelen sondaki boşluk karakterlerini kaldır</string>
+    <string name="line_ending">Satır sonu</string>
+    <string name="line_ending_desc">Varsayılan satır sonunu değiştir</string>
+    <string name="line_ending_info">Satır sonları, bir satırın bittiğini gösteren özel karakterlerdir. Bunlar aynı zamanda satır sonu (EOL) karakterleri olarak da bilinir. Farklı satır sonları, dosyaları farklı platformlar arasında aktarırken uyumluluk sorunlarına neden olabilir.</string>
+    <string name="editorconfig_changed">EditorConfig dosyası değiştirildi</string>
+    <string name="enable_editorconfig">EditorConfig desteğini etkinleştir</string>
+    <string name="enable_editorconfig_desc">.editorconfig dosyalarında tanımlanan kod stil kurallarını otomatik olarak uygula</string>
+    <string name="binary_file_notice">Bu dosya ikili bir dosya gibi görünüyor. Düzenleme devre dışı bırakıldı</string>
+    <string name="show_hidden_files">Gizli dosyaları göster</string>
+    <string name="sort_by_name">Ada göre sırala</string>
+    <string name="sort_by_size">Boyuta göre sırala</string>
+    <string name="sort_by_date">Tarihe göre sırala</string>
+    <string name="sort_mode">Sıralama modu</string>
+    <string name="sort_mode_desc">Varsayılan sıralama modunu seçin</string>
+    <string name="drawer">Çekmece</string>
 </resources>

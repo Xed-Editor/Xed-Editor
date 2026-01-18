@@ -1,10 +1,13 @@
 package com.rk.filetree
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
+import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -15,6 +18,7 @@ fun FileObject.toFileTreeNode(): FileTreeNode {
 }
 
 class FileTreeViewModel : ViewModel() {
+    var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
@@ -75,12 +79,9 @@ class FileTreeViewModel : ViewModel() {
                     }
 
                 // Process files
-                val files =
-                    fileList.sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() })).map {
-                        it.toFileTreeNode()
-                    }
+                val sortedFiles = getSortedFiles(fileList)
 
-                fileListCache[file] = files
+                fileListCache[file] = sortedFiles
 
                 // Maybe important
                 if (!isNodeExpanded(file)) {
@@ -122,7 +123,6 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun loadChildrenForNode(node: FileTreeNode) {
-
         // If already in cache, don't reload
         if (fileListCache.containsKey(node.file)) {
             _loadingStates[node.file] = false
@@ -143,25 +143,53 @@ class FileTreeViewModel : ViewModel() {
                 val fileList =
                     try {
                         node.file.listFiles()
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         _loadingStates[node.file] = false
                         return@launch
                     }
 
                 // Process files
-                val files =
-                    fileList.sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() })).map {
-                        it.toFileTreeNode()
-                    }
+                val sortedFiles = getSortedFiles(fileList)
 
-                fileListCache[node.file] = files
+                fileListCache[node.file] = sortedFiles
                 viewModelScope.launch {
                     delay(300)
                     _loadingStates[node.file] = false
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _loadingStates[node.file] = false
             }
         }
+    }
+
+    private suspend fun calculateFileSizes(fileObjects: List<FileObject>): Map<FileObject, Long> {
+        val fileSizes = mutableMapOf<FileObject, Long>()
+        if (sortMode != SortMode.SORT_BY_SIZE) return fileSizes
+
+        fileObjects.forEach { file ->
+            if (!file.isDirectory()) {
+                fileSizes[file] = file.length()
+            }
+        }
+        return fileSizes
+    }
+
+    private suspend fun getSortedFiles(fileObjects: List<FileObject>): List<FileTreeNode> {
+        val fileSizes = calculateFileSizes(fileObjects)
+
+        return fileObjects
+            .sortedWith(
+                compareBy<FileObject> { !it.isDirectory() }
+                    .thenComparator { f1, f2 ->
+                        when (sortMode) {
+                            SortMode.SORT_BY_NAME ->
+                                f1.getName().lowercase().compareTo(f2.getName().lowercase()) // A -> Z
+                            SortMode.SORT_BY_SIZE ->
+                                (fileSizes[f2] ?: 0L).compareTo(fileSizes[f1] ?: 0L) // Biggest first
+                            SortMode.SORT_BY_DATE -> (f2.lastModified()).compareTo(f1.lastModified()) // Newest first
+                        }
+                    }
+            )
+            .map { it.toFileTreeNode() }
     }
 }

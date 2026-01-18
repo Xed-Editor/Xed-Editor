@@ -16,11 +16,11 @@ import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import com.rk.file.FileType
 import com.rk.settings.Settings
+import com.rk.settings.editor.LineEnding
 import com.rk.theme.currentTheme
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isDarkTheme
-import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
@@ -45,6 +45,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.ec4j.core.ResourceProperties
+import org.ec4j.core.model.PropertyType
 import org.eclipse.tm4e.core.registry.IThemeSource
 
 @Suppress("NOTHING_TO_INLINE")
@@ -57,6 +59,10 @@ class Editor : CodeEditor {
 
     private val scope = CoroutineScope(Dispatchers.Default)
     private val themeRegistry: ThemeRegistry = ThemeRegistry()
+
+    var lineEnding = LineEnding.LF
+    var insertFinalNewline = false
+    var trimTrailingWhitespace = false
 
     init {
         applyFont()
@@ -322,6 +328,10 @@ class Editor : CodeEditor {
         val keyboardSuggestion = Settings.show_suggestions
         val lineSpacing = Settings.line_spacing
         val renderWhitespace = Settings.render_whitespace
+        val hideSoftKbd = Settings.hide_soft_keyboard_if_hardware
+        val lineEndingSetting = Settings.line_ending
+        val finalNewline = Settings.insert_final_newline
+        val trailingWhitespace = Settings.trim_trailing_whitespace
         val completeOnEnter = Settings.complete_on_enter
 
         props.deleteMultiSpaces = tabSize
@@ -336,8 +346,13 @@ class Editor : CodeEditor {
         setTextSize(textSize.toFloat())
         setWordwrap(wordWrap, true, true)
         lineSpacingMultiplier = lineSpacing
-        isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
+        isDisableSoftKbdIfHardKbdAvailable = hideSoftKbd
         showSuggestions(keyboardSuggestion)
+
+        LineEnding.fromValue(lineEndingSetting)?.let { lineEnding = it }
+        lineSeparator = lineEnding.type
+        insertFinalNewline = finalNewline
+        trimTrailingWhitespace = trailingWhitespace
 
         val minScaleSize: Float = 6f * resources.displayMetrics.scaledDensity
         val maxScaleSize: Float = 100f * resources.displayMetrics.scaledDensity
@@ -352,6 +367,38 @@ class Editor : CodeEditor {
                     FLAG_DRAW_WHITESPACE_FOR_EMPTY_LINE or
                     FLAG_DRAW_WHITESPACE_IN_SELECTION
             } else 0
+    }
+
+    fun applySettings(resourceProperties: ResourceProperties) {
+        val indentStyle: PropertyType.IndentStyleValue? =
+            resourceProperties.getValue(PropertyType.indent_style, null, false)
+        val indentSize: Int? = resourceProperties.getValue(PropertyType.indent_size, null, false)
+        val tabSize: Int? = resourceProperties.getValue(PropertyType.tab_width, null, false)
+
+        indentStyle?.let {
+            val useTabs = it == PropertyType.IndentStyleValue.tab
+            (editorLanguage as? TextMateLanguage)?.useTab(useTabs)
+        }
+
+        val actualTabSize = indentSize ?: tabSize
+        actualTabSize?.let {
+            props.deleteMultiSpaces = it
+            tabWidth = it
+        }
+
+        val endOfLine: PropertyType.EndOfLineValue? = resourceProperties.getValue(PropertyType.end_of_line, null, false)
+        lineEnding =
+            when (endOfLine) {
+                PropertyType.EndOfLineValue.cr -> LineEnding.CR
+                PropertyType.EndOfLineValue.lf -> LineEnding.LF
+                PropertyType.EndOfLineValue.crlf -> LineEnding.CRLF
+                else -> lineEnding
+            }
+        lineSeparator = lineEnding.type
+
+        insertFinalNewline = resourceProperties.getValue(PropertyType.insert_final_newline, insertFinalNewline, false)
+        trimTrailingWhitespace =
+            resourceProperties.getValue(PropertyType.trim_trailing_whitespace, trimTrailingWhitespace, false)
     }
 
     fun applyFont() {
@@ -432,17 +479,15 @@ class Editor : CodeEditor {
                 delay(100)
 
                 val language = loadLanguage(this, languageScopeName)
-
                 language.useTab(Settings.actual_tabs)
-
-                withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
+                withContext(Dispatchers.Main) { setEditorLanguage(language) }
             }
         }
 
     fun loadLanguage(scope: CoroutineScope, languageScopeName: String): TextMateLanguage {
         return highlightingCache.getOrPut(getCacheKey(context) + languageScopeName) {
-            TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
-                if (Settings.textmate_suggestion) {
+            TextMateLanguage.create(languageScopeName, Settings.textmate_suggestions).apply {
+                if (Settings.textmate_suggestions) {
                     scope.launch {
                         context.assets.open("textmate/keywords.json").use {
                             JsonParser.parseReader(InputStreamReader(it))

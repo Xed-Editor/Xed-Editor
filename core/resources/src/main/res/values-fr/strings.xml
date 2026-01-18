@@ -613,4 +613,17 @@
     <string name="intelligent_features">Fonctionnalités intelligentes</string>
     <string name="auto_close_tags_desc">Ferme automatiquement les étiquettes HTML</string>
     <string name="auto_close_tags">Fermeture auto des étiquettes</string>
+    <string name="bullet_continuation_desc">Poursuivre automatiquement les listes et les citations en Markdown</string>
+    <string name="bullet_continuation">Poursuivre la liste</string>
+    <string name="insert_final_newline">Insérer une nouvelle ligne à la fin</string>
+    <string name="insert_final_newline_desc">S\'assure que le fichier se termine toujours avec une nouvelle ligne lors du formatage</string>
+    <string name="trim_trailing_whitespace">Supprimer les espaces en fin de ligne</string>
+    <string name="trim_trailing_whitespace_desc">Supprime les caractères espaces précédents un caractère de changement de ligne lors du formatage</string>
+    <string name="line_ending">Fin de ligne</string>
+    <string name="line_ending_desc">Modifie la fin de ligne par défaut</string>
+    <string name="line_ending_info">Les sauts de ligne sont des caractères spéciaux qui indiquent la fin d\'une ligne. Ils sont aussi connus comme caractères de fin de ligne. Des caractères de fin de ligne différents peuvent causer des problèmes de compatibilité des fichiers entre différentes plateformes.</string>
+    <string name="editorconfig_changed">Le fichier EditorConfig a été modifié</string>
+    <string name="enable_editorconfig">Autoriser l\'utilisation d\'EditorConfig</string>
+    <string name="enable_editorconfig_desc">Appliquer automatiquement les règles de style de code définies dans les fichiers .editorconfig</string>
+    <string name="binary_file_notice">Ce fichier semble être un binaire. L\'édition est désactivée</string>
 </resources>

@@ -1,14 +1,26 @@
 package com.rk.settings.editor
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.EditorSettingsToggle
 import com.rk.components.NextScreenCard
@@ -16,6 +28,8 @@ import com.rk.components.SettingsToggle
 import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.filetree.SortMode
 import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
@@ -24,6 +38,8 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import kotlin.random.Random.Default.nextInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -42,6 +58,9 @@ fun SettingsEditorScreen(navController: NavController) {
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
+        var showSortingModeDialog by remember { mutableStateOf(false) }
+        var sortingModeValue by remember { mutableStateOf(Settings.sort_mode) }
+
         if (InbuiltFeatures.terminal.state.value) {
             PreferenceGroup(heading = stringResource(strings.language_server)) {
                 NextScreenCard(
@@ -56,6 +75,20 @@ fun SettingsEditorScreen(navController: NavController) {
                     description = stringResource(strings.format_on_save_desc),
                     default = Settings.format_on_save,
                     sideEffect = { Settings.format_on_save = it },
+                )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.insert_final_newline),
+                    description = stringResource(strings.insert_final_newline_desc),
+                    default = Settings.insert_final_newline,
+                    sideEffect = { Settings.insert_final_newline = it },
+                )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.trim_trailing_whitespace),
+                    description = stringResource(strings.trim_trailing_whitespace_desc),
+                    default = Settings.trim_trailing_whitespace,
+                    sideEffect = { Settings.trim_trailing_whitespace = it },
                 )
             }
         }
@@ -84,7 +117,7 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.content)) {
             val wordWrap = remember { mutableStateOf(Settings.word_wrap) }
-            val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_for_text || Settings.word_wrap) }
+            val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_text || Settings.word_wrap) }
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.word_wrap),
@@ -106,7 +139,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 state = wordWrapTxt,
                 sideEffect = {
                     wordWrapTxt.value = it
-                    Settings.word_wrap_for_text = it
+                    Settings.word_wrap_text = it
                     toast(strings.restart_required)
                 },
             )
@@ -208,10 +241,35 @@ fun SettingsEditorScreen(navController: NavController) {
             SettingsToggle(
                 label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),
-                default = Settings.textmate_suggestion,
+                default = Settings.textmate_suggestions,
                 sideEffect = {
-                    Settings.textmate_suggestion = it
+                    Settings.textmate_suggestions = it
                     toast(strings.restart_required)
+                },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.tab_size),
+                description = stringResource(id = strings.tab_size_desc),
+                showSwitch = false,
+                default = false,
+                sideEffect = { showTabSizeDialog = true },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.use_tabs),
+                description = stringResource(strings.use_tabs_desc),
+                default = Settings.actual_tabs,
+                sideEffect = {
+                    Settings.actual_tabs = it
+
+                    MainActivity.instance?.apply {
+                        viewModel.tabs.forEach { tab ->
+                            if (tab is EditorTab) {
+                                (tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage)?.useTab(it)
+                            }
+                        }
+                    }
                 },
             )
         }
@@ -263,6 +321,46 @@ fun SettingsEditorScreen(navController: NavController) {
             )
         }
 
+        PreferenceGroup(heading = stringResource(strings.drawer)) {
+            EditorSettingsToggle(
+                label = stringResource(id = strings.keep_drawer_locked),
+                description = stringResource(id = strings.drawer_lock_desc),
+                default = Settings.keep_drawer_locked,
+                sideEffect = { Settings.keep_drawer_locked = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.sort_mode),
+                description = stringResource(id = strings.sort_mode_desc),
+                showSwitch = false,
+                sideEffect = { showSortingModeDialog = true },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_drawer),
+                description = stringResource(id = strings.show_hidden_files_drawer_desc),
+                default = Settings.show_hidden_files_drawer,
+                sideEffect = {
+                    Settings.show_hidden_files_drawer = it
+                    ReactiveSettings.update()
+                },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_search),
+                description = stringResource(id = strings.show_hidden_files_search_desc),
+                default = Settings.show_hidden_files_search,
+                sideEffect = { Settings.show_hidden_files_search = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.auto_open_new_files),
+                description = stringResource(strings.auto_open_new_files_desc),
+                default = Settings.auto_open_new_files,
+                sideEffect = { Settings.auto_open_new_files = it },
+            )
+        }
+
         PreferenceGroup(heading = stringResource(strings.other)) {
             EditorSettingsToggle(
                 label = stringResource(id = strings.restore_sessions),
@@ -291,32 +389,10 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.DefaultEncoding,
             )
 
-            EditorSettingsToggle(
-                label = stringResource(id = strings.keep_drawer_locked),
-                description = stringResource(id = strings.drawer_lock_desc),
-                default = Settings.keep_drawer_locked,
-                sideEffect = { Settings.keep_drawer_locked = it },
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(id = strings.show_hidden_files_drawer),
-                description = stringResource(id = strings.show_hidden_files_drawer_desc),
-                default = Settings.show_hidden_files_drawer,
-                sideEffect = { Settings.show_hidden_files_drawer = it },
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(id = strings.show_hidden_files_search),
-                description = stringResource(id = strings.show_hidden_files_search_desc),
-                default = Settings.show_hidden_files_search,
-                sideEffect = { Settings.show_hidden_files_search = it },
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(strings.auto_open_new_files),
-                description = stringResource(strings.auto_open_new_files_desc),
-                default = Settings.auto_open_new_files,
-                sideEffect = { Settings.auto_open_new_files = it },
+            NextScreenCard(
+                label = stringResource(strings.line_ending),
+                description = stringResource(strings.line_ending_desc),
+                route = SettingsRoutes.DefaultLineEnding,
             )
 
             EditorSettingsToggle(
@@ -327,27 +403,12 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.tab_size),
-                description = stringResource(id = strings.tab_size_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = { showTabSizeDialog = true },
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(strings.use_tabs),
-                description = stringResource(strings.use_tabs_desc),
-                default = Settings.actual_tabs,
+                label = stringResource(id = strings.enable_editorconfig),
+                description = stringResource(id = strings.enable_editorconfig_desc),
+                default = Settings.enable_editorconfig,
                 sideEffect = {
-                    Settings.actual_tabs = it
-
-                    MainActivity.instance?.apply {
-                        viewModel.tabs.forEach { tab ->
-                            if (tab is EditorTab) {
-                                (tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage)?.useTab(it)
-                            }
-                        }
-                    }
+                    Settings.enable_editorconfig = it
+                    refreshEditorSettings()
                 },
             )
         }
@@ -369,7 +430,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.line_spacing = lineSpacingValue.toFloat()
-                    reapplyEditorSettings()
+                    refreshEditorSettings()
                 },
                 onFinish = {
                     lineSpacingValue = Settings.line_spacing.toString()
@@ -398,7 +459,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.editor_text_size = textSizeValue.toInt()
-                    reapplyEditorSettings()
+                    refreshEditorSettings()
                 },
                 onFinish = {
                     textSizeValue = Settings.editor_text_size.toString()
@@ -427,12 +488,91 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.tab_size = tabSizeValue.toInt()
-                    reapplyEditorSettings()
+                    refreshEditorSettings()
                 },
                 onFinish = {
                     tabSizeValue = Settings.tab_size.toString()
                     tabSizeError = null
                     showTabSizeDialog = false
+                },
+            )
+        }
+
+        if (showSortingModeDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showSortingModeDialog = false
+                    sortingModeValue = Settings.sort_mode
+                },
+                title = { Text(stringResource(strings.sort_mode)) },
+                text = {
+                    Column {
+                        PreferenceTemplate(
+                            modifier =
+                                Modifier.clip(MaterialTheme.shapes.large).clickable {
+                                    sortingModeValue = SortMode.SORT_BY_NAME.ordinal
+                                },
+                            title = { Text(stringResource(strings.sort_by_name)) },
+                            startWidget = {
+                                RadioButton(
+                                    selected = sortingModeValue == SortMode.SORT_BY_NAME.ordinal,
+                                    onClick = null,
+                                )
+                            },
+                        )
+
+                        PreferenceTemplate(
+                            modifier =
+                                Modifier.clip(MaterialTheme.shapes.large).clickable {
+                                    sortingModeValue = SortMode.SORT_BY_SIZE.ordinal
+                                },
+                            title = { Text(stringResource(strings.sort_by_size)) },
+                            startWidget = {
+                                RadioButton(
+                                    selected = sortingModeValue == SortMode.SORT_BY_SIZE.ordinal,
+                                    onClick = null,
+                                )
+                            },
+                        )
+
+                        PreferenceTemplate(
+                            modifier =
+                                Modifier.clip(MaterialTheme.shapes.large).clickable {
+                                    sortingModeValue = SortMode.SORT_BY_DATE.ordinal
+                                },
+                            title = { Text(stringResource(strings.sort_by_date)) },
+                            startWidget = {
+                                RadioButton(
+                                    selected = sortingModeValue == SortMode.SORT_BY_DATE.ordinal,
+                                    onClick = null,
+                                )
+                            },
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showSortingModeDialog = false
+                            Settings.sort_mode = sortingModeValue
+                            fileTreeViewModel.get()?.apply {
+                                sortMode = SortMode.entries[sortingModeValue]
+                                viewModelScope.launch { refreshEverything() }
+                            }
+                        }
+                    ) {
+                        Text(stringResource(strings.apply))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showSortingModeDialog = false
+                            sortingModeValue = Settings.sort_mode
+                        }
+                    ) {
+                        Text(stringResource(strings.cancel))
+                    }
                 },
             )
         }
@@ -449,11 +589,11 @@ fun refreshEditors() {
     }
 }
 
-fun reapplyEditorSettings() {
+fun refreshEditorSettings() {
     MainActivity.instance?.apply {
         viewModel.tabs.forEach {
             if (it is EditorTab) {
-                it.editorState.editor.get()?.applySettings()
+                lifecycleScope.launch(Dispatchers.IO) { it.reapplyEditorSettings() }
             }
         }
     }

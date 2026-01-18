@@ -27,18 +27,14 @@ import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.net.URI
-import java.nio.charset.Charset
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.eclipse.lsp4j.DefinitionOptions
 import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
-import org.eclipse.lsp4j.DocumentFormattingOptions
-import org.eclipse.lsp4j.DocumentRangeFormattingOptions
 import org.eclipse.lsp4j.InitializeResult
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.LocationLink
@@ -50,9 +46,7 @@ import org.eclipse.lsp4j.PrepareRenameParams
 import org.eclipse.lsp4j.PrepareRenameResult
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.ReferenceContext
-import org.eclipse.lsp4j.ReferenceOptions
 import org.eclipse.lsp4j.ReferenceParams
-import org.eclipse.lsp4j.RenameOptions
 import org.eclipse.lsp4j.RenameParams
 import org.eclipse.lsp4j.ServerCapabilities
 import org.eclipse.lsp4j.TextDocumentIdentifier
@@ -290,15 +284,16 @@ class BaseLspConnector(
     }
 
     fun getCapabilities(): ServerCapabilities? {
-        return lspEditor?.languageServerWrapper?.getServerCapabilities()
+        return runCatching { lspEditor?.languageServerWrapper?.getServerCapabilities() }.getOrNull()
     }
 
     fun isGoToDefinitionSupported(): Boolean {
         val caps = getCapabilities()
-        val definitionProvider: Either<Boolean, DefinitionOptions>? = caps?.definitionProvider
+        val definitionProvider = caps?.definitionProvider
         return definitionProvider?.left == true || definitionProvider?.right != null
     }
 
+    @Throws(Exception::class)
     suspend fun requestDefinition(editor: CodeEditor): Either<List<Location>, List<LocationLink>> {
         return withContext(Dispatchers.Default) {
             lspEditor!!
@@ -316,10 +311,11 @@ class BaseLspConnector(
 
     fun isGoToReferencesSupported(): Boolean {
         val caps = getCapabilities()
-        val referenceProvider: Either<Boolean, ReferenceOptions>? = caps?.referencesProvider
+        val referenceProvider = caps?.referencesProvider
         return referenceProvider?.left == true || referenceProvider?.right != null
     }
 
+    @Throws(Exception::class)
     suspend fun requestReferences(editor: CodeEditor): List<Location?> {
         return withContext(Dispatchers.Default) {
             lspEditor!!
@@ -338,10 +334,11 @@ class BaseLspConnector(
 
     fun isRenameSymbolSupported(): Boolean {
         val caps = getCapabilities()
-        val renameProvider: Either<Boolean, RenameOptions>? = caps?.renameProvider
+        val renameProvider = caps?.renameProvider
         return renameProvider?.left == true || renameProvider?.right != null
     }
 
+    @Throws(Exception::class)
     suspend fun requestRenameSymbol(editor: CodeEditor, newName: String): WorkspaceEdit {
         return withContext(Dispatchers.Default) {
             lspEditor!!
@@ -360,10 +357,11 @@ class BaseLspConnector(
 
     fun isPrepareRenameSymbolSupported(): Boolean {
         val caps = getCapabilities()
-        val renameProvider: Either<Boolean, RenameOptions>? = caps?.renameProvider
+        val renameProvider = caps?.renameProvider
         return renameProvider?.right?.prepareProvider == true
     }
 
+    @Throws(Exception::class)
     suspend fun requestPrepareRenameSymbol(
         editor: CodeEditor
     ): Either3<Range?, PrepareRenameResult?, PrepareRenameDefaultBehavior?>? {
@@ -383,18 +381,17 @@ class BaseLspConnector(
 
     fun isFormattingSupported(): Boolean {
         val caps = getCapabilities()
-        val formattingProvider: Either<Boolean, DocumentFormattingOptions>? = caps?.documentFormattingProvider
+        val formattingProvider = caps?.documentFormattingProvider
         return formattingProvider?.left == true || formattingProvider?.right != null
     }
 
     fun isRangeFormattingSupported(): Boolean {
         val caps = getCapabilities()
-        val rangeFormattingProvider: Either<Boolean, DocumentRangeFormattingOptions>? =
-            caps?.documentRangeFormattingProvider
+        val rangeFormattingProvider = caps?.documentRangeFormattingProvider
         return rangeFormattingProvider?.left == true || rangeFormattingProvider?.right != null
     }
 
-    suspend fun notifySave(charset: Charset = Charsets.UTF_8) {
+    suspend fun notifySave() {
         lspEditor?.saveDocument()
     }
 

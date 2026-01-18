@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
@@ -33,6 +34,7 @@ import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
 import com.rk.icons.Icon
+import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings
 import com.rk.terminal.isV
 import com.rk.theme.Typography
@@ -96,7 +98,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
             if (dropdownActions.isNotEmpty()) {
                 Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                     IconButton(onClick = { expanded = true }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.MoreVert, null)
+                        Icon(Icons.Outlined.MoreVert, stringResource(strings.more))
                     }
 
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

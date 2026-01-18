@@ -170,8 +170,8 @@
     <string name="support_desc">Wsparcie rozwoju</string>
     <string name="feature_toggles">Przełączniki funkcji</string>
     <string name="feature_toggles_desc">Włącz lub wyłącz funkcje</string>
-    <string name="backup">Wykonaj kopię zapasową</string>
-    <string name="restore">Przywróć kopię zapasową</string>
+    <string name="backup">Kopia zapasowa</string>
+    <string name="restore">Przywracanie</string>
     <string name="success">Powodzenie</string>
     <string name="failed">Niepowodzenie</string>
     <string name="unknown_err">Coś poszło nie tak</string>
@@ -294,7 +294,7 @@
     <string name="downloading">Pobieranie…</string>
     <string name="memory_usage">Użycie pamięci</string>
     <string name="strict_mode">Tryb ścisły</string>
-    <string name="copied">Skopiowane</string>
+    <string name="copied">Skopiowano</string>
     <string name="flavor">Wydanie</string>
     <string name="cant_undo">Czynności nie da się odwrócić</string>
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
@@ -607,4 +607,27 @@
     <string name="export_failed">Eksport nie powiódł się</string>
     <string name="import_successful">Import udany</string>
     <string name="import_failed">Import nie powiódł się</string>
+    <string name="intelligent_features">Funkcje inteligentne</string>
+    <string name="auto_close_tags">Automatyczne zamykanie znaczników</string>
+    <string name="auto_close_tags_desc">Automatycznie zamykaj znaczniki HTML</string>
+    <string name="bullet_continuation">Kontynuacja listy</string>
+    <string name="bullet_continuation_desc">Kontunuuj sekwencje podpunktów listy oraz cytatów w formacie Markdown</string>
+    <string name="insert_final_newline">Wstaw znak nowej lini</string>
+    <string name="insert_final_newline_desc">Dopilnuj aby plik kończył się znakiem nowej linii podczas formatowania</string>
+    <string name="trim_trailing_whitespace">Usuń białą spacje</string>
+    <string name="trim_trailing_whitespace_desc">Usuń białą spację poprzedzającą znaki nowej linii podczas formatowania</string>
+    <string name="enable_editorconfig">Włącz wsparcie konfiguracji edytora</string>
+    <string name="enable_editorconfig_desc">Automatycznie stosuj zasady stylu kodu zdefiniowane w plikach .editorconfig</string>
+    <string name="binary_file_notice">Plik binarny. Edytowanie wyłączone</string>
+    <string name="line_ending">Zakończenie linijki</string>
+    <string name="line_ending_desc">Zmień domyślne zakończenie linijki</string>
+    <string name="line_ending_info">Przerwy w lini to specjalne symbole wskazujące koniec lini. Znane również jako symbole end-of-line (EOL). Zmiana symbolu przerwy w lini może powodować problemy z kompatybilnością na innych platformach.</string>
+    <string name="editorconfig_changed">Plik konfiguracji edytora zostal zmieniony</string>
+    <string name="show_hidden_files">Pokaż ukryte pliki</string>
+    <string name="sort_by_name">Sortuj po nazwie</string>
+    <string name="sort_by_size">Sortuj po rozmiarze</string>
+    <string name="sort_by_date">Sortuj po dacie</string>
+    <string name="sort_mode">Tryb sortowania</string>
+    <string name="sort_mode_desc">Wybierz domyślny sposób sortowania</string>
+    <string name="drawer">Szuflada</string>
 </resources>

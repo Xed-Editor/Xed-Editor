@@ -397,7 +397,7 @@
     <string name="render_whitespace">呈現空白字元</string>
     <string name="render_whitespace_desc">將空白、定位字元與換行符號呈現為可見符號</string>
     <string name="lsp_settings">LSP 语言伺服器设定</string>
-    <string name="no_language_server">未安装语言伺服器。</string>
+    <string name="no_language_server">沒有可用的語言服務器。</string>
     <string name="developer">開發者</string>
     <string name="build_info">建置資訊</string>
     <string name="community">社群</string>
@@ -595,4 +595,28 @@
     <string name="folder_already_exists">已存在名為「%s」的資料夾</string>
     <string name="file_creation_failed">無法建立檔案</string>
     <string name="folder_creation_failed">無法建立資料夾</string>
+    <string name="restore_terminal">還原終端機備份</string>
+    <string name="terminal_backup">終端機備份</string>
+    <string name="settings_backup_desc">建立目前所有設定的備份</string>
+    <string name="settings_restore_desc">從備份還原設定</string>
+    <string name="export_successful">匯出成功</string>
+    <string name="export_failed">匯出失敗</string>
+    <string name="import_successful">匯入成功</string>
+    <string name="import_failed">匯入失敗</string>
+    <string name="intelligent_features">智慧型功能</string>
+    <string name="auto_close_tags">自動閉合標籤</string>
+    <string name="auto_close_tags_desc">自動閉合 HTML 標籤</string>
+    <string name="bullet_continuation">項目符號延續</string>
+    <string name="bullet_continuation_desc">在 Markdown 中自動延續清單與引用</string>
+    <string name="insert_final_newline">插入結尾換行</string>
+    <string name="insert_final_newline_desc">格式化時確保檔案以換行結尾</string>
+    <string name="trim_trailing_whitespace">移除尾端空白</string>
+    <string name="trim_trailing_whitespace_desc">格式化時移除換行符號前的尾端空白字元</string>
+    <string name="line_ending">行尾字元</string>
+    <string name="line_ending_desc">變更預設行尾字元</string>
+    <string name="line_ending_info">換行是用來表示一行結束的特殊字元，也稱為行尾（EOL）字元。不同的換行格式在跨平台傳輸檔案時，可能會造成相容性問題。</string>
+    <string name="editorconfig_changed">EditorConfig 檔案已變更</string>
+    <string name="enable_editorconfig">啟用 EditorConfig 支援</string>
+    <string name="enable_editorconfig_desc">自動套用 .editorconfig 檔案中定義的程式碼風格規則</string>
+    <string name="binary_file_notice">此檔案看起來是二進位檔，已停用編輯</string>
 </resources>

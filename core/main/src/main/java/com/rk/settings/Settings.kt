@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.edit
+import com.rk.filetree.SortMode
 import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
@@ -35,6 +36,7 @@ object ReactiveSettings {
     var extraKeyCommandIds by mutableStateOf(Settings.extra_keys_commands)
     var extraKeySymbols by mutableStateOf(Settings.extra_keys_symbols)
     var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
+    var showHiddenFilesDrawer by mutableStateOf(Settings.show_hidden_files_drawer)
 
     fun update() {
         toolbarActionIds = Settings.action_items
@@ -43,20 +45,22 @@ object ReactiveSettings {
         extraKeyCommandIds = Settings.extra_keys_commands
         extraKeySymbols = Settings.extra_keys_symbols
         extraKeysBackground = Settings.extra_keys_bg
+        showHiddenFilesDrawer = Settings.show_hidden_files_drawer
     }
 }
 
+// NOTE: USE snake_case FOR KEYS!
 object Settings {
-    var read_only_default by CachedPreference("readOnly", false)
-    var shown_disclaimer by CachedPreference("shownDisclaimer", false)
-    var amoled by CachedPreference("oled", false)
+    var read_only_default by CachedPreference("read_only_default", false)
+    var shown_disclaimer by CachedPreference("shown_disclaimer", false)
+    var amoled by CachedPreference("amoled", false)
     var monet by CachedPreference("monet", false)
-    var pin_line_number by CachedPreference("pinline", false)
-    var word_wrap_for_text by CachedPreference("ww_txt", true)
-    var word_wrap by CachedPreference("wordwrap", false)
+    var pin_line_number by CachedPreference("pin_line_number", false)
+    var word_wrap_text by CachedPreference("word_wrap_text", true)
+    var word_wrap by CachedPreference("word_wrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
     var cursor_animation by CachedPreference("cursor_animation", true)
-    var show_extra_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
+    var show_extra_keys by CachedPreference("show_extra_keys", hasHardwareKeyboard(application!!).not())
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)
@@ -75,16 +79,16 @@ object Settings {
     var has_shown_private_data_dir_warning by CachedPreference("has_shown_private_data_dir_warning", false)
     var has_shown_terminal_dir_warning by CachedPreference("has_shown_terminal_dir_warning", false)
     var anr_watchdog by CachedPreference("anr", BuildConfig.DEBUG)
-    var strict_mode by CachedPreference("strictMode", BuildConfig.DEBUG)
+    var strict_mode by CachedPreference("strict_mode", BuildConfig.DEBUG)
     var expose_home_dir by CachedPreference("expose_home_dir", false)
     var verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
-    var terminal_virus_notice by CachedPreference("terminal-virus-notice", false)
-    var textmate_suggestion by CachedPreference("textMateSuggestion", true)
+    var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
+    var textmate_suggestions by CachedPreference("textmate_suggestions", true)
     var seccomp by CachedPreference("seccomp", false)
-    var desktop_mode by CachedPreference("desktopMode", false)
+    var desktop_mode by CachedPreference("desktop_mode", false)
     var theme_flipper by CachedPreference("theme_flipper", false)
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
@@ -102,10 +106,13 @@ object Settings {
     var inject_eruda by CachedPreference("inject_eruda", true)
     var auto_close_tags by CachedPreference("auto_close_tags", true)
     var bullet_continuation by CachedPreference("bullet_continuation", true)
+    var insert_final_newline by CachedPreference("insert_final_newline", true)
+    var trim_trailing_whitespace by CachedPreference("trim_trailing_whitespace", true)
+    var enable_editorconfig by CachedPreference("enable_editorconfig", true)
 
     // Int settings
-    var tab_size by CachedPreference("tabsize", 4)
-    var editor_text_size by CachedPreference("textsize", 14)
+    var tab_size by CachedPreference("tab_size", 4)
+    var editor_text_size by CachedPreference("text_size", 14)
     var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
 
@@ -116,16 +123,19 @@ object Settings {
     var saves by CachedPreference("saves", 0)
     var runs by CachedPreference("runs", 0)
     var last_donation_dialog_timestamp by CachedPreference("last_donation_dialog_timestamp", 0L)
+    var sort_mode by CachedPreference("sort_mode", SortMode.SORT_BY_NAME.ordinal)
 
     // String settings
     var selected_project by CachedPreference("selected_project", "")
     var font_gson by CachedPreference("selected_font", "")
     var theme by CachedPreference("theme", blueberry.id)
+    var icon_pack: String by CachedPreference("icon_pack", "")
     var selected_font_path by CachedPreference("selected_font_path", "")
-    var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
-    var current_lang: String? by
-        CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
-    var extra_keys_symbols by CachedPreference("extra_keys", DEFAULT_EXTRA_KEYS_SYMBOLS)
+    var encoding: String by CachedPreference("encoding", Charset.defaultCharset().name())
+    var line_ending by CachedPreference("line_ending", "lf")
+    var current_lang: String by
+        CachedPreference("current_lang", application!!.resources.configuration.locales[0].language)
+    var extra_keys_symbols by CachedPreference("extra_keys_symbols", DEFAULT_EXTRA_KEYS_SYMBOLS)
     var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
 
     // Long settings

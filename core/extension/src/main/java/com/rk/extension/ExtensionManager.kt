@@ -23,7 +23,6 @@ val Context.extensionDir: File
 internal fun Context.compiledDexDir() = extensionDir.resolve("oat")
 
 open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
-
     private val mutex = Mutex()
     val localExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
@@ -99,13 +98,9 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
 
             if (extensionInfo.minAppVersion != -1 && xedVersionCode < extensionInfo.minAppVersion) {
-                return@withContext InstallResult.Error(
-                    "Xed-Editor is outdated. Requires >= ${extensionInfo.minAppVersion}, current $xedVersionCode"
-                )
+                return@withContext InstallResult.Error(ExtensionError.OUTDATED_CLIENT)
             } else if (extensionInfo.targetAppVersion != -1 && xedVersionCode > extensionInfo.targetAppVersion) {
-                return@withContext InstallResult.Error(
-                    "Extension ${extensionInfo.name} was made for older Xed-Editor. Ask developer to update."
-                )
+                return@withContext InstallResult.Error(ExtensionError.OUTDATED_EXTENSION)
             }
 
             dir.copyRecursively(targetDir, overwrite = true)

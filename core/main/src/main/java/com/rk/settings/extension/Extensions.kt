@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -37,10 +36,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.App.Companion.extensionManager
-import com.rk.DefaultScope
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceLazyColumn
+import com.rk.components.compose.preferences.base.PreferenceScaffold
+import com.rk.extension.ExtensionError
 import com.rk.extension.ExtensionRegistry
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
@@ -56,9 +56,9 @@ import com.rk.utils.errorDialog
 import com.rk.utils.openUrl
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,11 +80,9 @@ fun Extensions(modifier: Modifier = Modifier) {
         rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             var loading: LoadingPopup? = null
 
-            GlobalScope.launch {
+            scope.launch(Dispatchers.IO) {
                 runCatching {
-                        if (uri == null) {
-                            return@runCatching
-                        }
+                        if (uri == null) return@runCatching
 
                         val fileObject = uri.toFileObject(expectedIsFile = true)
                         val exists = fileObject.exists()
@@ -92,14 +90,17 @@ fun Extensions(modifier: Modifier = Modifier) {
                         val isZip = fileObject.getName().endsWith(".zip")
 
                         if (exists && canRead && isZip) {
-                            loading = LoadingPopup(activity, null).show()
-                            loading.setMessage(strings.installing.getString())
-                            DefaultScope.launch {
-                                val result = extensionManager.installExtension(fileObject)
-                                handleInstallResult(result, activity)
+                            withContext(Dispatchers.Main) {
+                                loading = LoadingPopup(activity, null).show()
+                                loading.setMessage(strings.installing.getString())
                             }
 
-                            loading.hide()
+                            val result = extensionManager.installExtension(fileObject)
+
+                            withContext(Dispatchers.Main) {
+                                handleInstallResult(result, activity)
+                                loading?.hide()
+                            }
                         } else {
                             errorDialog(
                                 "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
@@ -114,7 +115,7 @@ fun Extensions(modifier: Modifier = Modifier) {
             }
         }
 
-    PreferenceLayout(
+    PreferenceScaffold(
         label = stringResource(strings.ext),
         isExpandedScreen = false,
         backArrowVisible = true,
@@ -125,7 +126,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                 text = { Text(stringResource(strings.install_from_storage)) },
             )
         },
-    ) {
+    ) { innerPadding ->
         val extensions by remember {
             derivedStateOf { extensionManager.localExtensions + extensionManager.storeExtension }
         }
@@ -159,18 +160,26 @@ fun Extensions(modifier: Modifier = Modifier) {
             }
         }
 
-        InfoBlock(
-            modifier =
-                Modifier.clickable { activity?.openUrl("https://xed-editor.github.io/Xed-Docs/docs/extensions/") },
-            icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
-            text = stringResource(strings.info_ext),
-        )
+        PreferenceLazyColumn(contentPadding = innerPadding) {
+            item {
+                InfoBlock(
+                    modifier =
+                        Modifier.clickable {
+                            activity?.openUrl("https://xed-editor.github.io/Xed-Docs/docs/extensions/")
+                        },
+                    icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
+                    text = stringResource(strings.info_ext),
+                )
+            }
 
-        if (isIndexing) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        } else {
-            if (extensions.isNotEmpty()) {
-                LazyColumn(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+            if (isIndexing) {
+                item {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            } else {
+                if (extensions.isNotEmpty()) {
                     items(extensions.map { it.value }.sortedBy { it.name }) { extension ->
                         var installState by remember {
                             mutableStateOf(
@@ -242,9 +251,13 @@ fun Extensions(modifier: Modifier = Modifier) {
                             }
                         }
                     }
+                } else {
+                    item {
+                        PreferenceGroup {
+                            Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp))
+                        }
+                    }
                 }
-            } else {
-                PreferenceGroup { Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp)) }
             }
         }
     }
@@ -253,11 +266,16 @@ fun Extensions(modifier: Modifier = Modifier) {
 private fun handleInstallResult(result: InstallResult, activity: Activity?, onSuccess: (LocalExtension) -> Unit = {}) =
     when (result) {
         is InstallResult.AlreadyInstalled -> {
-            errorDialog("Extension already installed", activity)
+            //            errorDialog("Extension already installed", activity)
         }
 
         is InstallResult.Error -> {
-            errorDialog(result.message, activity)
+            when (result.error) {
+                ExtensionError.OUTDATED_CLIENT ->
+                    errorDialog(strings.outdated_client.getString(), activity, strings.install_failed.getString())
+                ExtensionError.OUTDATED_EXTENSION ->
+                    errorDialog(strings.outdated_extension.getString(), activity, strings.install_failed.getString())
+            }
         }
 
         is InstallResult.Success -> {
@@ -266,6 +284,10 @@ private fun handleInstallResult(result: InstallResult, activity: Activity?, onSu
         }
 
         is InstallResult.ValidationFailed -> {
-            errorDialog(result.error?.message ?: "Validation failed", activity)
+            errorDialog(
+                result.error?.localizedMessage ?: strings.unknown_err.getString(),
+                activity,
+                strings.extension_validation_failed.getString(),
+            )
         }
     }
