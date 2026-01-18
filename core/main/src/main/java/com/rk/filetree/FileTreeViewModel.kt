@@ -98,11 +98,6 @@ class FileTreeViewModel : ViewModel() {
 
                 fileListCache[file] = sortedFiles
 
-                // Maybe important
-                if (!isNodeExpanded(file)) {
-                    expandedNodes[file] = true
-                }
-
                 viewModelScope.launch {
                     delay(300)
                     _loadingStates[file] = false
