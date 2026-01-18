@@ -3,22 +3,29 @@ package com.rk.icons.pack
 import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import com.google.gson.Gson
+import com.rk.activities.settings.SettingsActivity
 import com.rk.file.child
 import com.rk.file.createDirIfNot
 import com.rk.file.localDir
+import com.rk.resources.getFilledString
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.utils.toast
+import com.rk.utils.dialog
 import java.io.File
 import java.util.zip.ZipFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.json.Json
 
 val currentIconPack = mutableStateOf<IconPack?>(null)
 val iconPackDir = localDir().child("icon_pack").also { it.createDirIfNot() }
 
 class IconPackManager(private val context: Application) {
     val iconPacks = mutableStateMapOf<IconPackId, IconPack>()
+    val json = Json { ignoreUnknownKeys = true }
 
     suspend fun installIconPack(zipFile: File) =
         withContext(Dispatchers.IO) {
@@ -59,16 +66,38 @@ class IconPackManager(private val context: Application) {
         iconPacks[iconPackInfo.id] = iconPack
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     internal fun validateIconPack(dir: File): IconPackInfo? {
         val iconPackJson = dir.resolve("manifest.json")
         if (!iconPackJson.exists()) {
-            toast("Missing manifest.json")
+            dialog(
+                SettingsActivity.instance,
+                strings.icon_pack_install_failed.getString(),
+                strings.manifest_missing.getString(),
+                cancelable = false,
+            )
+
             return null
         }
         val iconPackInfo =
-            runCatching { Gson().fromJson(iconPackJson.readText(), IconPackInfo::class.java) }
-                .getOrElse {
-                    toast("Invalid manifest.json")
+            runCatching { json.decodeFromString<IconPackInfo>(iconPackJson.readText()) }
+                .getOrElse { e ->
+                    if (e is MissingFieldException) {
+                        val fields = e.missingFields.joinToString("\n") { "• $it" }
+                        dialog(
+                            SettingsActivity.instance,
+                            strings.icon_pack_install_failed.getString(),
+                            strings.icon_pack_missing_fields.getFilledString(fields),
+                            cancelable = false,
+                        )
+                        return null
+                    }
+                    dialog(
+                        SettingsActivity.instance,
+                        strings.icon_pack_install_failed.getString(),
+                        e.localizedMessage ?: strings.unknown_err.getString(),
+                        cancelable = false,
+                    )
                     return null
                 }
 
@@ -89,7 +118,7 @@ class IconPackManager(private val context: Application) {
                     val manifestJson = dir.resolve("manifest.json")
                     if (manifestJson.exists()) {
                         runCatching {
-                            val iconPackInfo = Gson().fromJson(manifestJson.readText(), IconPackInfo::class.java)
+                            val iconPackInfo = json.decodeFromString<IconPackInfo>(manifestJson.readText())
                             val installDir = iconPackDir.child(iconPackInfo.id)
                             val iconPack = IconPack(iconPackInfo, installDir)
                             iconPacks[iconPackInfo.id] = iconPack

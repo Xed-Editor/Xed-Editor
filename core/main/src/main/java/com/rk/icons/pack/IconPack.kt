@@ -2,24 +2,25 @@ package com.rk.icons.pack
 
 import com.rk.file.FileObject
 import java.io.File
-import java.io.Serializable
+import kotlinx.serialization.Serializable
 
 typealias IconPackId = String
 
 typealias IconPackPath = String
 
-data class IconPackInfo(val id: IconPackId, val name: String, val applyTint: Boolean, val icons: IconPackList) :
-    Serializable
+@Serializable
+data class IconPackInfo(val id: IconPackId, val name: String, val applyTint: Boolean = false, val icons: IconPackList)
 
+@Serializable
 data class IconPackList(
     val defaultFile: IconPackPath,
     val defaultFolder: IconPackPath,
     val defaultFolderExpanded: IconPackPath,
-    val folderNames: Map<String, IconPackPath>,
-    val folderNamesExpanded: Map<String, IconPackPath>,
-    val fileNames: Map<String, IconPackPath>,
-    val fileExtensions: Map<String, IconPackPath>,
-) : Serializable
+    val folderNames: Map<String, IconPackPath> = emptyMap(),
+    val folderNamesExpanded: Map<String, IconPackPath> = emptyMap(),
+    val fileNames: Map<String, IconPackPath> = emptyMap(),
+    val fileExtensions: Map<String, IconPackPath> = emptyMap(),
+)
 
 data class IconPack(val info: IconPackInfo, val installDir: File) {
     fun getIconFileFor(file: FileObject, isExpanded: Boolean): File? {
