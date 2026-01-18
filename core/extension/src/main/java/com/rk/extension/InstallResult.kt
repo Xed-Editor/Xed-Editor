@@ -5,7 +5,12 @@ sealed interface InstallResult {
 
     data class ValidationFailed(val error: Throwable?) : InstallResult
 
-    data class AlreadyInstalled(val extensionId: String) : InstallResult
+    class AlreadyInstalled() : InstallResult
 
-    data class Error(val message: String) : InstallResult
+    data class Error(val error: ExtensionError) : InstallResult
+}
+
+enum class ExtensionError {
+    OUTDATED_CLIENT,
+    OUTDATED_EXTENSION,
 }
