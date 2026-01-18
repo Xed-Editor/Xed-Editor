@@ -607,4 +607,15 @@
     <string name="sort_mode">Sort mode</string>
     <string name="sort_mode_desc">Select the default sorting mode</string>
     <string name="drawer">Drawer</string>
+    <string name="icon_packs">Icon packs</string>
+    <string name="no_icon_packs_found">No icon packs found</string>
+    <string name="add_icon_pack">Add icon pack</string>
+    <string name="last_modified">Last modified</string>
+    <string name="content_property">%s items, totaling %s</string>
+    <string name="icon_pack_install_failed">Icon pack installation failed</string>
+    <string name="icon_pack_missing_fields">The manifest.json file has missing or invalid properties:\n%s\n\nPlease check the file and try again.</string>
+    <string name="manifest_missing">The manifest.json file is missing. Please add it and try again.</string>
+    <string name="outdated_extension">This extension was made for an older version of Xed-Editor. Please ask the developer for an update.</string>
+    <string name="outdated_client">Your Xed-Editor is out of date. Please update to the latest version to use this extension.</string>
+    <string name="extension_validation_failed">Extension validation failed</string>
 </resources>

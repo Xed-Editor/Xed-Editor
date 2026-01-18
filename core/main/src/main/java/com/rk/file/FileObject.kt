@@ -44,8 +44,6 @@ interface FileObject : Serializable {
 
     suspend fun length(): Long
 
-    suspend fun calcSize(): Long
-
     suspend fun delete(): Boolean
 
     suspend fun toUri(): Uri

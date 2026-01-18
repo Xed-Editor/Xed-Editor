@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ktfmt)
+
+    kotlin("plugin.serialization") version "2.2.20"
 }
 
 val gitCommitHash: Provider<String> =
@@ -92,6 +94,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.utilcode)
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
     implementation(libs.gson)
     implementation(libs.commons.net)
     implementation(libs.okhttp)
@@ -110,6 +113,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidsvg.aar)
     implementation(libs.ec4j.core)
+    implementation(libs.kotlinx.serialization.json)
     debugImplementation(libs.leakcanary)
     // implementation("androidx.compose.material:material-icons-extended:1.7.8")
 

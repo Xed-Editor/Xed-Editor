@@ -108,24 +108,6 @@ class FileWrapper(var file: File) : FileObject {
             return@withContext file.length()
         }
 
-    override suspend fun calcSize(): Long =
-        withContext(Dispatchers.IO) {
-            return@withContext if (isFile()) length() else getFolderSize(this@FileWrapper)
-        }
-
-    private suspend fun getFolderSize(folder: FileObject): Long {
-        var length: Long = 0
-        for (file in folder.listFiles()) {
-            length +=
-                if (file.isFile()) {
-                    file.length()
-                } else {
-                    getFolderSize(file)
-                }
-        }
-        return length
-    }
-
     override suspend fun delete(): Boolean =
         withContext(Dispatchers.IO) {
             return@withContext if (isDirectory()) {
