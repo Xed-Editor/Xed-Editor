@@ -529,7 +529,7 @@
     <string name="split_extra_keys">Zusatztasten teilen</string>
     <string name="split_extra_keys_desc">Zusatztastenfeld in zwei Zeilen aufteilen, um Befehle und Symbole zu trennen</string>
     <string name="disclaimer_heading">Nutzungsbedingungen &amp; Haftungsausschluss</string>
-    <string name="disclaimer_read_carefully">Bitte lesen Sie diese Hinweise sorgfältig durch, bevor Sie diese Anwendung verwenden.</string>
+    <string name="disclaimer_read_carefully">Bitte lies die Hinweise genau vor der Verwendung dieser Anwendung.</string>
     <string name="data_loss_risk">Datenverlust-Risiko</string>
     <string name="data_loss_risk_content">Diese Anwendung wird unter der Voraussetzung bereitgestellt, dass Datenverluste aufgrund unvorhergesehener Umstände auftreten können, insbesondere, aber nicht ausschließlich: Softwareinstabilität, Systemausfälle, unerwartete Beendigung oder Probleme mit der Speicherhardware. Die Benutzer sind allein verantwortlich für die regelmäßige und unabhängige Sicherung aller wichtigen Daten.</string>
     <string name="terminal_risks">Terminal-Risiken</string>
@@ -627,5 +627,5 @@
     <string name="sort_by_date">Nach Datum sortieren</string>
     <string name="sort_mode">Sortiermodus</string>
     <string name="sort_mode_desc">Standard-Sortiermodus auswählen</string>
-    <string name="drawer">Schublade</string>
+    <string name="drawer">Drawer</string>
 </resources>
