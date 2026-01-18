@@ -154,14 +154,12 @@ fun EditorTab.CodeEditor(
                         scope.launch { state.editorConfigLoaded?.await()?.let { applySettings() } }
 
                         subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
-                            val newDiagnostics = event.newDiagnosticsEvent
                             val viewModel = fileTreeViewModel.get()
-                            var highestSeverity = 0
+                            val diagnostics = event.newDiagnosticsEvent
 
-                            if (newDiagnostics.isNotEmpty()) {
-                                newDiagnostics.forEach {
-                                    highestSeverity = it.severity.toInt().coerceAtLeast(highestSeverity)
-                                }
+                            val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
+
+                            if (highestSeverity != null) {
                                 viewModel?.diagnoseNode(file, highestSeverity)
                             } else {
                                 viewModel?.undiagnoseNode(file)
