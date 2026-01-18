@@ -17,6 +17,7 @@ class HTML() : BaseLspServer() {
     override val languageName: String = "HTML"
     override val serverName = "vscode-html-language-server"
     override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
+    override val icon = FileType.HTML.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

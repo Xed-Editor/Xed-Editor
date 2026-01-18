@@ -17,6 +17,7 @@ class JSON() : BaseLspServer() {
     override val languageName: String = "JSON"
     override val serverName = "vscode-json-language-server"
     override val supportedExtensions: List<String> = FileType.JSON.extensions
+    override val icon = FileType.JSON.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

@@ -9,10 +9,13 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -27,6 +30,7 @@ import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
 import com.rk.utils.dialog
@@ -34,8 +38,7 @@ import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
 
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
-var navigationDrawerState = WeakReference<DrawerState?>(null)
-
+var snackbarHostStateRef: WeakReference<SnackbarHostState?> = WeakReference(null)
 var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 
 @Composable
@@ -45,8 +48,10 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
     XedTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+            val snackbarHostState = remember { SnackbarHostState() }
 
             LaunchedEffect(drawerState) { drawerStateRef = WeakReference(drawerState) }
+            LaunchedEffect(snackbarHostState) { snackbarHostStateRef = WeakReference(snackbarHostState) }
 
             LaunchedEffect(drawerState.isOpen) {
                 if (drawerState.isOpen) {
@@ -67,7 +72,6 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
                 }
             }
 
-            navigationDrawerState = WeakReference(drawerState)
             val scope = rememberCoroutineScope()
 
             BackHandler {
@@ -91,8 +95,19 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
             val softThreshold = with(density) { 50.dp.toPx() }
             val hardThreshold = with(density) { 100.dp.toPx() }
 
+            val snackbarBottomPadding =
+                if (Settings.show_extra_keys) {
+                    if (Settings.split_extra_keys) 88.dp else 48.dp
+                } else 0.dp
+
             val mainContent: @Composable () -> Unit = {
                 Scaffold(
+                    snackbarHost = {
+                        SnackbarHost(
+                            hostState = snackbarHostState,
+                            modifier = Modifier.padding(bottom = snackbarBottomPadding),
+                        )
+                    },
                     modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
                     topBar = {
                         XedTopBar(
