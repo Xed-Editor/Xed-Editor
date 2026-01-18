@@ -33,6 +33,9 @@ class FileTreeViewModel : ViewModel() {
 
     private val cutNode = mutableStateOf<FileObject?>(null)
 
+    // File -> Error severity (see DiagnosticRegion.java)
+    private val diagnosedNodes = mutableStateMapOf<FileObject, Int>()
+
     // Track loading states to avoid showing spinners incorrectly
     private val _loadingStates = mutableStateMapOf<FileObject, Boolean>()
 
@@ -50,6 +53,18 @@ class FileTreeViewModel : ViewModel() {
         if (isNodeCut(fileObject)) {
             cutNode.value = null
         }
+    }
+
+    fun diagnoseNode(fileObject: FileObject, severity: Int) {
+        diagnosedNodes[fileObject] = severity
+    }
+
+    fun undiagnoseNode(fileObject: FileObject) {
+        diagnosedNodes.remove(fileObject)
+    }
+
+    fun getNodeSeverity(fileObject: FileObject): Int {
+        return diagnosedNodes[fileObject] ?: -1
     }
 
     fun toggleNodeExpansion(fileObject: FileObject) {

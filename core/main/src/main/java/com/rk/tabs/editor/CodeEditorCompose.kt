@@ -21,6 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.fileTreeViewModel
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.editor.intelligent.IntelligentFeature
@@ -44,6 +45,7 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
+import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -82,6 +84,7 @@ fun EditorTab.CodeEditor(
     val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
 
     val divider = MaterialTheme.colorScheme.outlineVariant
+    val errorColor = MaterialTheme.colorScheme.error
     val isDarkMode = isSystemInDarkTheme()
 
     val constraintSet = remember { ConstraintSet() }
@@ -130,6 +133,7 @@ fun EditorTab.CodeEditor(
                             gutterColor = gutterColor.toArgb(),
                             currentLine = currentLineColor.toArgb(),
                             dividerColor = divider.toArgb(),
+                            errorColor = errorColor.toArgb(),
                         )
 
                         state.editor = WeakReference(this)
@@ -148,6 +152,21 @@ fun EditorTab.CodeEditor(
                         }
 
                         scope.launch { state.editorConfigLoaded?.await()?.let { applySettings() } }
+
+                        subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
+                            val newDiagnostics = event.newDiagnosticsEvent
+                            val viewModel = fileTreeViewModel.get()
+                            var highestSeverity = 0
+
+                            if (newDiagnostics.isNotEmpty()) {
+                                newDiagnostics.forEach {
+                                    highestSeverity = it.severity.toInt().coerceAtLeast(highestSeverity)
+                                }
+                                viewModel?.diagnoseNode(file, highestSeverity)
+                            } else {
+                                viewModel?.undiagnoseNode(file)
+                            }
+                        }
 
                         subscribeAlways(ContentChangeEvent::class.java) {
                             intelligentFeatures.forEach { feature ->

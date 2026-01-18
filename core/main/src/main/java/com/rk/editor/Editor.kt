@@ -88,6 +88,7 @@ class Editor : CodeEditor {
         gutterColor: Int,
         currentLine: Int,
         dividerColor: Int,
+        errorColor: Int,
     ) {
         updateColors { colors ->
             with(colors) {
@@ -149,6 +150,8 @@ class Editor : CodeEditor {
                 setColors(currentLine, EditorColorScheme.CURRENT_LINE)
                 setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
                 setColors(dividerColor, EditorColorScheme.LINE_DIVIDER, EditorColorScheme.STICKY_SCROLL_DIVIDER)
+
+                setColors(errorColor, EditorColorScheme.PROBLEM_ERROR)
 
                 val editorColors =
                     if (isDarkMode) {
