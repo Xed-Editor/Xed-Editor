@@ -5,9 +5,11 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Typeface
+import android.net.Uri
 import android.os.Build
 import android.telephony.TelephonyManager
 import android.text.Spanned
@@ -22,8 +24,14 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -31,9 +39,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.file.FileObject
+import com.rk.filetree.FileTreeViewModel
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.theme.currentTheme
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
@@ -118,7 +129,7 @@ fun <K> x(m: MutableCollection<K>, c: Int) {
 }
 
 fun Activity.openUrl(url: String) {
-    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     startActivity(intent)
 }
 
@@ -245,7 +256,7 @@ fun Spanned.toAnnotatedString(): AnnotatedString {
         val end = getSpanEnd(span)
         val style =
             when (span) {
-                is ForegroundColorSpan -> SpanStyle(color = androidx.compose.ui.graphics.Color(span.foregroundColor))
+                is ForegroundColorSpan -> SpanStyle(color = Color(span.foregroundColor))
                 is StyleSpan ->
                     when (span.style) {
                         Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
@@ -300,4 +311,64 @@ suspend fun handleLazyListScroll(lazyListState: LazyListState, dropIndex: Int): 
     } else if (dropIndex == lastVisibleItemIndex) {
         launch { lazyListState.animateScrollBy(scrollAmount) }
     }
+}
+
+@Composable
+fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, file: FileObject?): Color? {
+    val diagnosticSeverity = file?.let { fileTreeViewModel.getNodeSeverity(it) } ?: -1
+    val editorColors =
+        if (isDarkTheme(context)) {
+            currentTheme.value?.darkEditorColors
+        } else {
+            currentTheme.value?.lightEditorColors
+        }
+    val underlineColor =
+        when (diagnosticSeverity) {
+            1 -> {
+                editorColors?.find { it.key == EditorColorScheme.PROBLEM_TYPO }?.color?.let { Color(it) }
+                    ?: Color(0x6600ff11) // TODO: Change to green/yellow status colors later in LSP PR
+            }
+            2 -> {
+                editorColors?.find { it.key == EditorColorScheme.PROBLEM_WARNING }?.color?.let { Color(it) }
+                    ?: Color(0xaafff100) // TODO: Change to green/yellow status colors later in LSP PR
+            }
+            3 -> {
+                editorColors?.find { it.key == EditorColorScheme.PROBLEM_ERROR }?.color?.let { Color(it) }
+                    ?: MaterialTheme.colorScheme.error
+            }
+            else -> null
+        }
+
+    return underlineColor
+}
+
+fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
+    val strokeWidth = 3f
+    val waveOffset = 5f
+    val waveHeight = 6f
+    val waveLength = 20f
+
+    val path = Path()
+    var x = 0f
+    val y = size.height + waveOffset - strokeWidth
+    var up = true
+
+    path.moveTo(0f, y)
+
+    while (x < size.width) {
+        val remaining = size.width - x
+        val segment = minOf(waveLength / 2, remaining)
+
+        val controlX = x + segment / 2
+        val endX = x + segment
+
+        val controlY = if (up) y - waveHeight else y + waveHeight
+
+        path.quadraticTo(controlX, controlY, endX, y)
+
+        up = !up
+        x = endX
+    }
+
+    drawPath(path = path, color = errorColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round))
 }

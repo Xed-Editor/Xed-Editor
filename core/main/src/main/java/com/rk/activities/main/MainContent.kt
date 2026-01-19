@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,6 +48,7 @@ import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.FileActionDialog
+import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeTab
@@ -58,6 +60,8 @@ import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialog
+import com.rk.utils.drawErrorUnderline
+import com.rk.utils.getUnderlineColor
 import com.rk.utils.preloadSelectionColor
 import kotlinx.coroutines.launch
 
@@ -136,6 +140,7 @@ fun MainContent(
                         key(tabState) {
                             TabItem(
                                 mainViewModel = mainViewModel,
+                                fileTreeViewModel = fileTreeViewModel,
                                 reorderState = reorderState,
                                 tabState = tabState,
                                 index = index,
@@ -198,6 +203,7 @@ fun MainContent(
 @Composable
 private fun TabItem(
     mainViewModel: MainViewModel,
+    fileTreeViewModel: FileTreeViewModel,
     reorderState: ReorderState<Tab>,
     tabState: Tab,
     index: Int,
@@ -230,6 +236,7 @@ private fun TabItem(
         draggableContent = {
             TabItemContent(
                 mainViewModel = mainViewModel,
+                fileTreeViewModel = fileTreeViewModel,
                 index = index,
                 calculatedTabWidth = calculatedTabWidth,
                 tabState = tabState,
@@ -245,6 +252,7 @@ private fun TabItem(
     ) {
         TabItemContent(
             mainViewModel = mainViewModel,
+            fileTreeViewModel = fileTreeViewModel,
             index = index,
             calculatedTabWidth = calculatedTabWidth,
             tabState = tabState,
@@ -260,6 +268,7 @@ private fun TabItem(
 @Composable
 private fun TabItemContent(
     mainViewModel: MainViewModel,
+    fileTreeViewModel: FileTreeViewModel,
     index: Int,
     calculatedTabWidth: Int?,
     tabState: Tab,
@@ -271,6 +280,7 @@ private fun TabItemContent(
     isDraggableContent: Boolean = false,
 ) {
     var showTabMenu by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val isSelected = mainViewModel.currentTabIndex == index
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
@@ -290,6 +300,7 @@ private fun TabItemContent(
         }
     }
 
+    val underlineColor = getUnderlineColor(context, fileTreeViewModel, tabState.file)
     val tabText: @Composable () -> Unit = {
         Text(
             text =
@@ -300,6 +311,7 @@ private fun TabItemContent(
                 },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
         )
 
         DropdownMenu(expanded = showTabMenu, onDismissRequest = { showTabMenu = false }, modifier = Modifier) {

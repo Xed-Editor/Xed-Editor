@@ -626,4 +626,22 @@
     <string name="enable_editorconfig">Autoriser l\'utilisation d\'EditorConfig</string>
     <string name="enable_editorconfig_desc">Appliquer automatiquement les règles de style de code définies dans les fichiers .editorconfig</string>
     <string name="binary_file_notice">Ce fichier semble être un binaire. L\'édition est désactivée</string>
+    <string name="show_hidden_files">Montrer les fichiers cachés</string>
+    <string name="sort_by_name">Trier par nom</string>
+    <string name="sort_by_size">Trier par taille</string>
+    <string name="sort_by_date">Trier par date</string>
+    <string name="sort_mode">Mode de tri</string>
+    <string name="sort_mode_desc">Choisir le mode de tri par défaut</string>
+    <string name="drawer">Tiroir</string>
+    <string name="icon_packs">Packs d\'icônes</string>
+    <string name="no_icon_packs_found">Aucun pack d\'icônes trouvé</string>
+    <string name="add_icon_pack">Ajouter un pack d\'icônes</string>
+    <string name="last_modified">Dernière modification</string>
+    <string name="content_property">%s éléments, %s au total</string>
+    <string name="icon_pack_install_failed">Échec de l\'installation du pack d\'icônes</string>
+    <string name="icon_pack_missing_fields">Le fichier manifest.json a des propriétés manquantes ou invalides\n%s\n\nVerifiez le fichier et réessayez.</string>
+    <string name="manifest_missing">Le fichier manifest.json est manquant. Ajoutez-le et réessayez.</string>
+    <string name="outdated_extension">Cette extension a été créée pour une version antérieure de Xed-Editor. Demandez une mise-à-jour au développeur.</string>
+    <string name="outdated_client">Votre Xed-Editor est obsolète. Mettez-le à jour pour pouvoir utiliser cette extension.</string>
+    <string name="extension_validation_failed">Échec de la validation de l\'extension</string>
 </resources>

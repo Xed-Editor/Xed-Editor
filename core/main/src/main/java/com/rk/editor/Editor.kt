@@ -84,6 +84,7 @@ class Editor : CodeEditor {
         val onSurfaceColor = colorScheme.onSurface
         val colorPrimary = colorScheme.primary
         val divider = colorScheme.outlineVariant
+        val errorColor = colorScheme.error
 
         val selectionBackground = selectionColors.backgroundColor
         val handleColor = selectionColors.handleColor
@@ -103,6 +104,7 @@ class Editor : CodeEditor {
             gutterColor = gutterColor.toArgb(),
             currentLine = currentLineColor.toArgb(),
             dividerColor = divider.toArgb(),
+            errorColor = errorColor.toArgb(),
         )
     }
 
@@ -118,6 +120,7 @@ class Editor : CodeEditor {
         gutterColor: Int,
         currentLine: Int,
         dividerColor: Int,
+        errorColor: Int,
     ) {
         updateColors { colors ->
             with(colors) {
@@ -179,6 +182,8 @@ class Editor : CodeEditor {
                 setColors(currentLine, EditorColorScheme.CURRENT_LINE)
                 setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
                 setColors(dividerColor, EditorColorScheme.LINE_DIVIDER, EditorColorScheme.STICKY_SCROLL_DIVIDER)
+
+                setColors(errorColor, EditorColorScheme.PROBLEM_ERROR)
 
                 val editorColors =
                     if (isDarkMode) {

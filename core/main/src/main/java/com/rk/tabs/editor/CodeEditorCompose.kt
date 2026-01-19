@@ -20,6 +20,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.snackbarHostStateRef
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
@@ -42,6 +43,7 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
+import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -115,6 +117,19 @@ fun EditorTab.CodeEditor(
                         }
 
                         scope.launch { state.editorConfigLoaded?.await()?.let { applySettings() } }
+
+                        subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
+                            val viewModel = fileTreeViewModel.get()
+                            val diagnostics = event.newDiagnosticsEvent
+
+                            val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
+
+                            if (highestSeverity != null) {
+                                viewModel?.diagnoseNode(file, highestSeverity)
+                            } else {
+                                viewModel?.undiagnoseNode(file)
+                            }
+                        }
 
                         subscribeAlways(ContentChangeEvent::class.java) {
                             intelligentFeatures.forEach { feature ->

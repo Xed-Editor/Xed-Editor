@@ -485,7 +485,7 @@
     <string name="format_range_error">Nie można sformatować zakresu dokumentu.</string>
     <string name="format_document_error">Nie można sformatować dokumentu.</string>
     <string name="format_selection_error">Nie można sformatować wyboru.</string>
-    <string name="project_restore_failed">Niepowodzenie przywrócenia projektów</string>
+    <string name="project_restore_failed">Przywrócenie projektów zakończone niepowodzeniem</string>
     <string name="can_execute">Można uruchomić</string>
     <string name="calculating">Obliczanie…</string>
     <string name="permissions">Uprawnienia</string>
@@ -630,4 +630,15 @@
     <string name="sort_mode">Tryb sortowania</string>
     <string name="sort_mode_desc">Wybierz domyślny sposób sortowania</string>
     <string name="drawer">Szuflada</string>
+    <string name="icon_packs">Paczki ikon</string>
+    <string name="no_icon_packs_found">Nie znaleziono paczek ikon</string>
+    <string name="add_icon_pack">Dodaj paczkę ikon</string>
+    <string name="last_modified">Ostatnio zmodyfikowane</string>
+    <string name="outdated_extension">Rozszerzenie zostało stworzone na starszą wersję aplikacji. Proszę zapytaj developera o aktualizację.</string>
+    <string name="outdated_client">Aplikacja jest przestarzała. Proszę zaktualizuj do najnowszej wersji aby użyć rozszerzenia.</string>
+    <string name="extension_validation_failed">Weryfikacja rozszerzenia zakończona niepowodzeniem</string>
+    <string name="icon_pack_install_failed">Instalacja paczki ikon zakończona niepowodzeniem</string>
+    <string name="icon_pack_missing_fields">Plik manifest.json ma brakujące lub błędne właściwości:\n%s\n\nProszę sprawdź plik i spróbuj ponownie.</string>
+    <string name="manifest_missing">Brak pliku manifest.json. Proszę dodaj i spróbuj ponownie.</string>
+    <string name="content_property">%s pozycji, łącznie %s</string>
 </resources>

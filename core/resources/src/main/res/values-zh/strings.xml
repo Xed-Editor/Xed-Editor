@@ -629,4 +629,15 @@
     <string name="sort_mode">文件排序方式</string>
     <string name="sort_mode_desc">选择默认的文件排序方式</string>
     <string name="drawer">侧滑栏</string>
+    <string name="icon_packs">图标包</string>
+    <string name="no_icon_packs_found">未找到图标包</string>
+    <string name="add_icon_pack">添加图标包</string>
+    <string name="last_modified">最后修改日期</string>
+    <string name="icon_pack_install_failed">图标包安装失败</string>
+    <string name="icon_pack_missing_fields">文件 manifest.json 缺少或包含无效属性：\n%s\n\n请检查该文件并重试。</string>
+    <string name="manifest_missing">缺少 manifest.json 文件。请添加该文件并重试。</string>
+    <string name="outdated_extension">此扩展程序适用于旧版本的 Xed-Editor。请联系开发者获取更新。</string>
+    <string name="outdated_client">您的 Xed-Editor 版本过低。请更新至最新版本以使用此扩展程序。</string>
+    <string name="extension_validation_failed">扩展验证失败</string>
+    <string name="content_property">共 %s 项，总计 %s</string>
 </resources>

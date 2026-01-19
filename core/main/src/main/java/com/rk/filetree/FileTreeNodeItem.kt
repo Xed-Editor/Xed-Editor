@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,8 @@ import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.resources.drawables
 import com.rk.settings.ReactiveSettings
+import com.rk.utils.drawErrorUnderline
+import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -59,6 +62,9 @@ fun FileTreeNodeItem(
     val isLoading = viewModel.isNodeLoading(node.file)
     val isCut = viewModel.isNodeCut(node.file)
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     // Load children when expanded
     LaunchedEffect(node.file, isExpanded) {
         if (isExpanded && node.isDirectory) {
@@ -77,7 +83,6 @@ fun FileTreeNodeItem(
             }
         }
 
-    val scope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
@@ -141,14 +146,17 @@ fun FileTreeNodeItem(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Text(
-                text = node.name,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.width((getDrawerWidth() - 61.dp)),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            val underlineColor = getUnderlineColor(context, viewModel, node.file)
+            Row(modifier = Modifier.width((getDrawerWidth() - 61.dp)), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = node.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
         }
 
         AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {

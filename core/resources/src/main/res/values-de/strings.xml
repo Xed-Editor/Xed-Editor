@@ -529,7 +529,7 @@
     <string name="split_extra_keys">Zusatztasten teilen</string>
     <string name="split_extra_keys_desc">Zusatztastenfeld in zwei Zeilen aufteilen, um Befehle und Symbole zu trennen</string>
     <string name="disclaimer_heading">Nutzungsbedingungen &amp; Haftungsausschluss</string>
-    <string name="disclaimer_read_carefully">Bitte lesen Sie diese Hinweise sorgfältig durch, bevor Sie diese Anwendung verwenden.</string>
+    <string name="disclaimer_read_carefully">Bitte lies die Hinweise genau vor der Verwendung dieser Anwendung.</string>
     <string name="data_loss_risk">Datenverlust-Risiko</string>
     <string name="data_loss_risk_content">Diese Anwendung wird unter der Voraussetzung bereitgestellt, dass Datenverluste aufgrund unvorhergesehener Umstände auftreten können, insbesondere, aber nicht ausschließlich: Softwareinstabilität, Systemausfälle, unerwartete Beendigung oder Probleme mit der Speicherhardware. Die Benutzer sind allein verantwortlich für die regelmäßige und unabhängige Sicherung aller wichtigen Daten.</string>
     <string name="terminal_risks">Terminal-Risiken</string>
@@ -627,5 +627,16 @@
     <string name="sort_by_date">Nach Datum sortieren</string>
     <string name="sort_mode">Sortiermodus</string>
     <string name="sort_mode_desc">Standard-Sortiermodus auswählen</string>
-    <string name="drawer">Schublade</string>
+    <string name="drawer">Drawer</string>
+    <string name="icon_packs">Icon-Pakete</string>
+    <string name="no_icon_packs_found">Keine Icon-Pakete gefunden</string>
+    <string name="add_icon_pack">Icon-Paket hinzufügen</string>
+    <string name="last_modified">Zuletzt geändert</string>
+    <string name="content_property">%s Einträge, %s gesamt</string>
+    <string name="icon_pack_install_failed">Installation des Icon-Pakets fehlgeschlagen</string>
+    <string name="icon_pack_missing_fields">Die Datei manifest.json enthält fehlende oder ungültige Eigenschaften:\n%s\n\nBitte überprüfe die Datei und versuche es erneut.</string>
+    <string name="manifest_missing">Die Datei manifest.json fehlt. Bitte füge sie hinzu und versuche es erneut.</string>
+    <string name="outdated_extension">Diese Erweiterung wurde für eine ältere Version des Xed-Editors entwickelt. Bitte wende dich an den Entwickler, um ein Update zu erhalten.</string>
+    <string name="outdated_client">Dein Xed-Editor ist veraltet. Bitte aktualisiere ihn auf die neueste Version, um diese Erweiterung nutzen zu können.</string>
+    <string name="extension_validation_failed">Validierung der Erweiterung fehlgeschlagen</string>
 </resources>
