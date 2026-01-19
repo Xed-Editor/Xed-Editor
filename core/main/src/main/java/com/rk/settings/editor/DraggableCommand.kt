@@ -22,9 +22,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.rk.commands.Command
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 
@@ -57,6 +59,15 @@ fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: 
                         is Icon.VectorIcon -> {
                             Icon(
                                 imageVector = icon.vector,
+                                contentDescription = command.getLabel(),
+                                modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                            )
+                        }
+
+                        is Icon.SvgIcon -> {
+                            AsyncImage(
+                                model = icon.file,
+                                imageLoader = rememberSvgImageLoader(),
                                 contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(20.dp),
                             )

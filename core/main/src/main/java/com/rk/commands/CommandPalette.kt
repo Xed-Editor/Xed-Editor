@@ -48,8 +48,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Icon
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -177,7 +179,7 @@ fun CommandItem(
     isSubpage: Boolean,
 ) {
     val activity = LocalActivity.current
-    val enabled by derivedStateOf { command.isSupported() && command.isEnabled() }
+    val enabled by remember { derivedStateOf { command.isSupported() && command.isEnabled() } }
     val childCommands = command.childCommands
     val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
 
@@ -230,6 +232,15 @@ fun CommandItem(
                         is Icon.VectorIcon -> {
                             Icon(
                                 imageVector = icon.vector,
+                                contentDescription = command.getLabel(),
+                                modifier = Modifier.padding(end = 8.dp).size(16.dp),
+                            )
+                        }
+
+                        is Icon.SvgIcon -> {
+                            AsyncImage(
+                                model = icon.file,
+                                imageLoader = rememberSvgImageLoader(),
                                 contentDescription = command.getLabel(),
                                 modifier = Modifier.padding(end = 8.dp).size(16.dp),
                             )

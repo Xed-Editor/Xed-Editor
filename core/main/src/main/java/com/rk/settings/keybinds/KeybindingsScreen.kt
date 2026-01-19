@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.rk.commands.Command
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeyAction
@@ -54,6 +55,7 @@ import com.rk.components.InfoBlock
 import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.PreferenceLayoutLazyColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Error
 import com.rk.icons.Icon
 import com.rk.icons.XedIcons
@@ -203,6 +205,15 @@ fun KeybindItem(
                     is Icon.VectorIcon -> {
                         Icon(
                             imageVector = icon.vector,
+                            contentDescription = command.getLabel(),
+                            modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                        )
+                    }
+
+                    is Icon.SvgIcon -> {
+                        AsyncImage(
+                            model = icon.file,
+                            imageLoader = rememberSvgImageLoader(),
                             contentDescription = command.getLabel(),
                             modifier = Modifier.padding(end = 8.dp).size(20.dp),
                         )

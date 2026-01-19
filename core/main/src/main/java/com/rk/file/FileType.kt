@@ -1,5 +1,7 @@
 package com.rk.file
 
+import com.rk.icons.Icon
+import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -295,20 +297,27 @@ enum class FileType(
     APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = apk, title = "APK"),
     UNKNOWN(extensions = emptyList(), textmateScope = null, icon = null, title = strings.unknown.getString());
 
+    /** Retrieves the icon for this file type. It returns an icon from the selected icon pack if possible. */
+    fun getIcon(): Icon {
+        return currentIconPack.value?.getIconFileFor(extensions.first())?.let { Icon.SvgIcon(it) }
+            ?: icon?.let { Icon.DrawableRes(it) }
+            ?: Icon.DrawableRes(drawables.file)
+    }
+
     companion object {
         fun fromExtension(ext: String): FileType {
             val normalized = ext.lowercase().removePrefix(".")
             return entries.firstOrNull { normalized in it.extensions } ?: UNKNOWN
         }
 
-        fun getTextMateScopefromName(name: String): String? {
+        fun getTextmateScopeFromName(name: String): String? {
             when (name) {
                 "CmakeLists.txt" -> {
                     return "source.cmake"
                 }
                 else -> {
                     val ext = name.substringAfterLast('.', "")
-                    return FileType.Companion.fromExtension(ext).textmateScope
+                    return FileType.fromExtension(ext).textmateScope
                 }
             }
         }
