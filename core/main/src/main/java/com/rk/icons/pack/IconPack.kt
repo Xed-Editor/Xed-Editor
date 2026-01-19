@@ -1,6 +1,7 @@
 package com.rk.icons.pack
 
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import java.io.File
 import kotlinx.serialization.Serializable
 
@@ -20,6 +21,7 @@ data class IconPackList(
     val folderNamesExpanded: Map<String, IconPackPath> = emptyMap(),
     val fileNames: Map<String, IconPackPath> = emptyMap(),
     val fileExtensions: Map<String, IconPackPath> = emptyMap(),
+    val languageNames: Map<String, IconPackPath> = emptyMap(),
 )
 
 data class IconPack(val info: IconPackInfo, val installDir: File) {
@@ -38,16 +40,37 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
                         ?: installDir.resolve(info.icons.defaultFolder)
                 }
             } else {
-                // First use fileNames, then fileExtensions, then defaultFile
+                // First use languageNames, then fileNames, then fileExtensions, then defaultFile
                 val ext = fileName.substringAfterLast(".")
-                info.icons.fileNames[fileName.lowercase()]
-                    ?.let { fileName -> installDir.resolve(fileName) }
+
+                info.icons.languageNames[FileType.fromExtension(ext).name.lowercase()]
+                    ?.let { installDir.resolve(it) }
                     ?.takeIf { it.exists() }
+                    ?: info.icons.fileNames[fileName.lowercase()]
+                        ?.let { installDir.resolve(it) }
+                        ?.takeIf { it.exists() }
                     ?: info.icons.fileExtensions[ext.lowercase()]
                         ?.let { installDir.resolve(it) }
                         ?.takeIf { it.exists() }
                     ?: installDir.resolve(info.icons.defaultFile)
             }
+
+        // If no icon was working (even the fallback ones)
+        if (!path.exists()) return null
+
+        return path
+    }
+
+    fun getIconFileFor(fileExtension: String): File? {
+        val path =
+            // First use languageNames, then fileExtensions, then defaultFile
+            info.icons.languageNames[FileType.fromExtension(fileExtension).name.lowercase()]
+                ?.let { installDir.resolve(it) }
+                ?.takeIf { it.exists() }
+                ?: info.icons.fileExtensions[fileExtension.lowercase()]
+                    ?.let { installDir.resolve(it) }
+                    ?.takeIf { it.exists() }
+                ?: installDir.resolve(info.icons.defaultFile)
 
         // If no icon was working (even the fallback ones)
         if (!path.exists()) return null

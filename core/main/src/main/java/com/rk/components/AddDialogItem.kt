@@ -20,7 +20,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Icon
+import java.io.File
 
 @Composable
 fun AddDialogItem(@DrawableRes icon: Int, title: String, description: String? = null, onClick: () -> Unit) {
@@ -43,6 +46,23 @@ fun AddDialogItem(icon: ImageVector, title: String, description: String? = null,
 }
 
 @Composable
+fun AddDialogItem(svgFile: File, title: String, description: String? = null, onClick: () -> Unit) {
+    AddDialogItem(
+        title = title,
+        description = description,
+        onClick = onClick,
+        icon = {
+            AsyncImage(
+                model = svgFile,
+                imageLoader = rememberSvgImageLoader(),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+        },
+    )
+}
+
+@Composable
 fun AddDialogItem(icon: Icon, title: String, description: String? = null, onClick: () -> Unit) {
     when (icon) {
         is Icon.DrawableRes -> {
@@ -51,6 +71,10 @@ fun AddDialogItem(icon: Icon, title: String, description: String? = null, onClic
 
         is Icon.VectorIcon -> {
             AddDialogItem(icon = icon.vector, title = title, description = description, onClick = onClick)
+        }
+
+        is Icon.SvgIcon -> {
+            AddDialogItem(svgFile = icon.file, title = title, description = description, onClick = onClick)
         }
     }
 }

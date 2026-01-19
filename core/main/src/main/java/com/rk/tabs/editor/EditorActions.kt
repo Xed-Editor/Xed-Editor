@@ -29,10 +29,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
+import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Icon
 import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings
@@ -91,6 +93,14 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                         is Icon.VectorIcon -> {
                             Icon(imageVector = icon.vector, contentDescription = command.getLabel())
                         }
+
+                        is Icon.SvgIcon -> {
+                            AsyncImage(
+                                model = icon.file,
+                                imageLoader = rememberSvgImageLoader(),
+                                contentDescription = command.getLabel(),
+                            )
+                        }
                     }
                 }
             }
@@ -121,6 +131,14 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
 
                                         is Icon.VectorIcon -> {
                                             Icon(imageVector = icon.vector, contentDescription = command.getLabel())
+                                        }
+
+                                        is Icon.SvgIcon -> {
+                                            AsyncImage(
+                                                model = icon.file,
+                                                imageLoader = rememberSvgImageLoader(),
+                                                contentDescription = command.getLabel(),
+                                            )
                                         }
                                     }
                                 },

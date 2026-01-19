@@ -131,7 +131,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
             editorState.editable = !Settings.read_only_default && file.canWrite()
             if (editorState.textmateScope == null) {
-                editorState.textmateScope = FileType.getTextMateScopefromName(file.getName())
+                editorState.textmateScope = FileType.getTextmateScopeFromName(file.getName())
             }
 
             loadEditorConfig()

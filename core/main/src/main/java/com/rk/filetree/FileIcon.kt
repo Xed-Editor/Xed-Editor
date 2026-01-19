@@ -69,7 +69,7 @@ fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = fa
 }
 
 @Composable
-private fun rememberSvgImageLoader(): ImageLoader {
+fun rememberSvgImageLoader(): ImageLoader {
     val context = LocalContext.current
     return remember { ImageLoader.Builder(context).components { add(SvgDecoder.Factory()) }.build() }
 }

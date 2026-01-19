@@ -32,7 +32,7 @@ class SyntaxHighlightingCommand(commandContext: CommandContext) : EditorCommand(
                         editorActionContext.editorTab.editorState.textmateScope = fileType.textmateScope!!
                     }
 
-                    override fun getIcon(): Icon = Icon.DrawableRes(fileType.icon ?: drawables.file)
+                    override fun getIcon(): Icon = fileType.getIcon()
                 }
             }
     }
