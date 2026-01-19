@@ -326,11 +326,11 @@ fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, fi
         when (diagnosticSeverity) {
             1 -> {
                 editorColors?.find { it.key == EditorColorScheme.PROBLEM_TYPO }?.color?.let { Color(it) }
-                    ?: Color(0x6600ff11) // TODO: Change to green/yellow status colors later in LSP PR
+                    ?: Color(0x6600ff11) // Color was taken from EditorColorScheme.java
             }
             2 -> {
                 editorColors?.find { it.key == EditorColorScheme.PROBLEM_WARNING }?.color?.let { Color(it) }
-                    ?: Color(0xaafff100) // TODO: Change to green/yellow status colors later in LSP PR
+                    ?: Color(0xaafff100) // Color was taken from EditorColorScheme.java
             }
             3 -> {
                 editorColors?.find { it.key == EditorColorScheme.PROBLEM_ERROR }?.color?.let { Color(it) }
