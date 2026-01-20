@@ -40,16 +40,14 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
                         ?: installDir.resolve(info.icons.defaultFolder)
                 }
             } else {
-                // First use languageNames, then fileNames, then fileExtensions, then defaultFile
+                // First use fileNames, then fileExtensions, then languageNames, then defaultFile
                 val ext = fileName.substringAfterLast(".")
 
-                info.icons.languageNames[FileType.fromExtension(ext).name.lowercase()]
-                    ?.let { installDir.resolve(it) }
-                    ?.takeIf { it.exists() }
-                    ?: info.icons.fileNames[fileName.lowercase()]
+                info.icons.fileNames[fileName.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
+                    ?: info.icons.fileExtensions[ext.lowercase()]
                         ?.let { installDir.resolve(it) }
                         ?.takeIf { it.exists() }
-                    ?: info.icons.fileExtensions[ext.lowercase()]
+                    ?: info.icons.languageNames[FileType.fromExtension(ext).name.lowercase()]
                         ?.let { installDir.resolve(it) }
                         ?.takeIf { it.exists() }
                     ?: installDir.resolve(info.icons.defaultFile)
@@ -63,11 +61,9 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
 
     fun getIconFileFor(fileExtension: String): File? {
         val path =
-            // First use languageNames, then fileExtensions, then defaultFile
-            info.icons.languageNames[FileType.fromExtension(fileExtension).name.lowercase()]
-                ?.let { installDir.resolve(it) }
-                ?.takeIf { it.exists() }
-                ?: info.icons.fileExtensions[fileExtension.lowercase()]
+            // First use fileExtensions, then languageNames, then defaultFile
+            info.icons.fileExtensions[fileExtension.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
+                ?: info.icons.languageNames[FileType.fromExtension(fileExtension).name.lowercase()]
                     ?.let { installDir.resolve(it) }
                     ?.takeIf { it.exists() }
                 ?: installDir.resolve(info.icons.defaultFile)
