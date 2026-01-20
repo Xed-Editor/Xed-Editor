@@ -640,4 +640,6 @@
     <string name="outdated_client">您的 Xed-Editor 版本过低。请更新至最新版本以使用此扩展程序。</string>
     <string name="extension_validation_failed">扩展验证失败</string>
     <string name="content_property">共 %s 项，总计 %s</string>
+    <string name="general">通用</string>
+    <string name="advanced">高级</string>
 </resources>
