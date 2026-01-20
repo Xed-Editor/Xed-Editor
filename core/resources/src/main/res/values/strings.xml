@@ -618,4 +618,6 @@
     <string name="outdated_extension">This extension was made for an older version of Xed-Editor. Please ask the developer for an update.</string>
     <string name="outdated_client">Your Xed-Editor is out of date. Please update to the latest version to use this extension.</string>
     <string name="extension_validation_failed">Extension validation failed</string>
+    <string name="general">General</string>
+    <string name="advanced">Advanced</string>
 </resources>

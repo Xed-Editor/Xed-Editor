@@ -48,6 +48,7 @@ private val toml = drawables.toml
 private val yaml = drawables.yaml
 private val zig = drawables.zig
 private val git = drawables.git
+private val diff = drawables.diff
 
 // TODO: Add icon for FileType.POWERSHELL
 // TODO: Add icon for FileType.EXECUTABLE
@@ -258,6 +259,7 @@ enum class FileType(
         icon = git,
         title = "Ignore",
     ),
+    DIFF(extensions = listOf("diff", "patch", "rej"), textmateScope = "source.diff", icon = diff, title = "Diff"),
 
     // Documents
     TEXT(

@@ -237,6 +237,12 @@
       "languageConfiguration": "textmate/csharp/language-configuration.json"
     },
     {
+      "name": "diff",
+      "scopeName": "source.diff",
+      "grammar": "textmate/diff/syntaxes/diff.tmLanguage.json",
+      "languageConfiguration": "textmate/diff/language-configuration.json"
+    },
+    {
       "name": "go",
       "scopeName": "source.go",
       "grammar": "textmate/go/syntaxes/go.tmLanguage.json",
@@ -291,7 +297,7 @@
       "grammar": "textmate/lisp/syntaxes/lisp.tmLanguage.json",
       "languageConfiguration": "textmate/lisp/language-configuration.json"
     },
-     {
+    {
       "name": "sql",
       "scopeName": "source.sql",
       "grammar": "textmate/sql/syntaxes/sql.tmLanguage.json",
