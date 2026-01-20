@@ -600,7 +600,7 @@
     <string name="trim_trailing_whitespace">Vymazat koncové mezery</string>
     <string name="trim_trailing_whitespace_desc">Při formátování, vymazat mezery (whitespace znaky) před znaky nových řádků</string>
     <string name="line_ending">Konce řádků</string>
-    <string name="line_ending_desc">Změnit výchozí konec řádku</string>
+    <string name="line_ending_desc">Změnit výchozí konce řádku</string>
     <string name="line_ending_info">Konce řádků jsou speciální znaky, které naznačují konec řádku v souboru. Jsou taky známé jako end-of-line (EOL) znaky. Rozdílné konce řádků mohou způsobit problémy s kompatibilitou při přesouvání souborů na jiné platformy.</string>
     <string name="editorconfig_changed">Soubor EditorConfig byl změněn</string>
     <string name="enable_editorconfig">Zapnout podporu EditorConfig</string>
