@@ -641,4 +641,6 @@
     <string name="icon_pack_missing_fields">Plik manifest.json ma brakujące lub błędne właściwości:\n%s\n\nProszę sprawdź plik i spróbuj ponownie.</string>
     <string name="manifest_missing">Brak pliku manifest.json. Proszę dodaj i spróbuj ponownie.</string>
     <string name="content_property">%s pozycji, łącznie %s</string>
+    <string name="general">Ogólne</string>
+    <string name="advanced">Zaawansowane</string>
 </resources>
