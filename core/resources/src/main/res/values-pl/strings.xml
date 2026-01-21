@@ -603,8 +603,8 @@
     <string name="terminal_backup">Wykonaj kopię zapasową Terminalu</string>
     <string name="settings_backup_desc">Wykonaj kopię zapasową bierzących ustawień</string>
     <string name="settings_restore_desc">Przywróć ustawienia z kopii zapasowej</string>
-    <string name="export_successful">Eksport udany</string>
-    <string name="export_failed">Eksport nie powiódł się</string>
+    <string name="export_successful">Eksport zakończony powodzeniem</string>
+    <string name="export_failed">Eksport zakończony niepowodzeniem</string>
     <string name="import_successful">Import udany</string>
     <string name="import_failed">Import nie powiódł się</string>
     <string name="intelligent_features">Funkcje inteligentne</string>
