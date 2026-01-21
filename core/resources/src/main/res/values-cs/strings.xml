@@ -246,7 +246,7 @@
     <string name="install_done">Instalace úspěšná</string>
     <string name="install_failed">Chyba při instalaci</string>
     <string name="toggle_suggestion">Přepnout našeptávání</string>
-    <string name="invalid_userdata">Uživatelelská data jsou neplatná. Změňte v nastavení</string>
+    <string name="invalid_userdata">Uživatelská data jsou neplatná. Změňte v nastavení</string>
     <string name="cloning">Klonuji repozitář…</string>
     <string name="already_installed">Již instalován</string>
     <string name="installed">Instalován</string>
@@ -312,7 +312,7 @@
     <string name="theme_settings">Nastavení téma</string>
     <string name="add_theme">Přidat téma</string>
     <string name="unsupported_feature">Táto funkce není podporována na vašem zařízení</string>
-    <string name="confirm_exit">Jste si jist, že chcete ukončit aplikaci?</string>
+    <string name="confirm_exit">Chcete opravdu ukončit aplikaci?</string>
     <string name="control_panel">Ovládací panel</string>
     <string name="is_null">InputStream je null (prázdný)</string>
     <string name="info_mutators">Mutátory jsou malé skripty, které se používají pro upravování textu v editoru. Vytvořte mutátor a klepněte na ho pro otevření v editoru.</string>
