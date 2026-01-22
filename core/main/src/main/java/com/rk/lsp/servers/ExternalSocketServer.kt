@@ -5,7 +5,6 @@ import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import kotlin.String
 import kotlin.random.Random
 
 // DO not put this in lsp registry
@@ -36,17 +35,30 @@ class ExternalSocketServer(val host: String, val port: Int, override val support
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is ExternalSocketServer) {
-            return false
-        }
-        return other.port == port && other.host == host && supportedExtensions.containsAll(other.supportedExtensions)
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as ExternalSocketServer
+
+        if (port != other.port) return false
+        if (icon != other.icon) return false
+        if (host != other.host) return false
+        if (supportedExtensions != other.supportedExtensions) return false
+        if (languageName != other.languageName) return false
+        if (id != other.id) return false
+        if (serverName != other.serverName) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        var result = port
-        result = 31 * result + languageName.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + port
+        result = 31 * result + (icon ?: 0)
         result = 31 * result + host.hashCode()
         result = 31 * result + supportedExtensions.hashCode()
+        result = 31 * result + languageName.hashCode()
         result = 31 * result + id.hashCode()
         result = 31 * result + serverName.hashCode()
         return result

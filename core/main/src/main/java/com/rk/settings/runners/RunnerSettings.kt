@@ -222,7 +222,10 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                                             }
                                         }
                                     ) {
-                                        Icon(imageVector = Icons.Outlined.Delete, contentDescription = null)
+                                        Icon(
+                                            imageVector = Icons.Outlined.Delete,
+                                            contentDescription = stringResource(strings.delete),
+                                        )
                                     }
                                 }
                             },
@@ -364,7 +367,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                             }
                         },
                     ) {
-                        Text(stringResource(if (isEditingExisting != null) strings.update else strings.create))
+                        Text(stringResource(if (isEditingExisting != null) strings.save else strings.create))
                     }
                 },
                 dismissButton = {

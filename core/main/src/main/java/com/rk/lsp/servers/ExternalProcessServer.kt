@@ -5,7 +5,6 @@ import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import kotlin.String
 import kotlin.random.Random
 
 // DO not put this in lsp registry
@@ -35,16 +34,28 @@ class ExternalProcessServer(val command: String, override val supportedExtension
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is ExternalProcessServer) {
-            return false
-        }
-        return other.command == command && supportedExtensions.containsAll(other.supportedExtensions)
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as ExternalProcessServer
+
+        if (icon != other.icon) return false
+        if (command != other.command) return false
+        if (supportedExtensions != other.supportedExtensions) return false
+        if (languageName != other.languageName) return false
+        if (id != other.id) return false
+        if (serverName != other.serverName) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        var result = languageName.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + (icon ?: 0)
         result = 31 * result + command.hashCode()
         result = 31 * result + supportedExtensions.hashCode()
+        result = 31 * result + languageName.hashCode()
         result = 31 * result + id.hashCode()
         result = 31 * result + serverName.hashCode()
         return result

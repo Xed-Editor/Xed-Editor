@@ -2,6 +2,7 @@ package com.rk.settings.lsp
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
@@ -24,6 +26,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +58,7 @@ import com.rk.utils.toast
 @Composable
 fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
+    var editingIndex by remember { mutableStateOf<Int?>(null) }
 
     PreferenceLayout(
         label = stringResource(strings.manage_language_servers),
@@ -115,7 +119,7 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
 
         if (LspRegistry.externalServers.isNotEmpty()) {
             PreferenceGroup(heading = stringResource(strings.external)) {
-                LspRegistry.externalServers.forEach { server ->
+                LspRegistry.externalServers.forEachIndexed { index, server ->
                     SettingsToggle(
                         label = server.languageName,
                         default = true,
@@ -124,13 +128,28 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
                         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
                         startWidget = server.icon?.let { { LanguageServerIcon(server, it) } },
                         endWidget = {
-                            IconButton(
-                                onClick = {
-                                    LspRegistry.externalServers.remove(server)
-                                    LspPersistence.saveServers()
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    onClick = {
+                                        if (server !is ExternalSocketServer && server !is ExternalProcessServer) {
+                                            return@IconButton
+                                        }
+
+                                        editingIndex = index
+                                        showDialog = true
+                                    }
+                                ) {
+                                    Icon(imageVector = Icons.Outlined.Edit, contentDescription = null)
                                 }
-                            ) {
-                                Icon(imageVector = Icons.Outlined.Delete, null)
+
+                                IconButton(
+                                    onClick = {
+                                        LspRegistry.externalServers.remove(server)
+                                        LspPersistence.saveServers()
+                                    }
+                                ) {
+                                    Icon(imageVector = Icons.Outlined.Delete, stringResource(strings.delete))
+                                }
                             }
                         },
                     )
@@ -142,11 +161,19 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
 
         if (showDialog) {
             ExternalLSP(
-                onDismiss = { showDialog = false },
-                onConfirm = { server ->
-                    LspRegistry.externalServers.add(server)
+                onDismiss = {
+                    showDialog = false
+                    editingIndex = null
+                },
+                onConfirm = { server, replaceIndex ->
+                    if (replaceIndex == -1) {
+                        LspRegistry.externalServers.add(server)
+                    } else {
+                        LspRegistry.externalServers[replaceIndex] = server
+                    }
                     LspPersistence.saveServers()
                 },
+                editingIndex = editingIndex,
             )
         }
     }
@@ -207,13 +234,32 @@ class ExternalLspDialogState {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Unit) {
+private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer, Int) -> Unit, editingIndex: Int?) {
     val socketLabel = stringResource(strings.socket)
     val processLabel = stringResource(strings.process)
     var selected by remember { mutableStateOf(socketLabel) }
     val options = listOf(socketLabel, processLabel)
 
+    val editingServer = remember { editingIndex?.let { LspRegistry.externalServers[it] } }
     val dialogState = remember { ExternalLspDialogState() }
+
+    LaunchedEffect(editingServer) {
+        editingServer?.let { server ->
+            when (server) {
+                is ExternalSocketServer -> {
+                    selected = socketLabel
+                    dialogState.lspHost = server.host
+                    dialogState.lspPort = server.port.toString()
+                    dialogState.onExtensionsChange(server.supportedExtensions.joinToString(", ") { ".$it" })
+                }
+                is ExternalProcessServer -> {
+                    selected = processLabel
+                    dialogState.lspCommand = server.command
+                    dialogState.onExtensionsChange(server.supportedExtensions.joinToString(", ") { ".$it" })
+                }
+            }
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -238,7 +284,7 @@ private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Uni
                                             supportedExtensions = parseExtensions(dialogState.lspExtensions),
                                         )
                             }
-                            server?.let { onConfirm(it) }
+                            server?.let { onConfirm(it, editingIndex ?: -1) }
                         }
                         .onFailure { toast(it.message) }
 
@@ -251,7 +297,11 @@ private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer) -> Uni
                         else -> false
                     },
             ) {
-                Text(stringResource(strings.add))
+                if (editingServer == null) {
+                    Text(stringResource(strings.add))
+                } else {
+                    Text(stringResource(strings.save))
+                }
             }
         },
         dismissButton = { TextButton(onClick = { onDismiss() }) { Text(stringResource(strings.cancel)) } },

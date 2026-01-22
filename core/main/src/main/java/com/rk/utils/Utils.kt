@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Build
 import android.telephony.TelephonyManager
 import android.text.Spanned
@@ -37,6 +36,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
@@ -129,7 +129,7 @@ fun <K> x(m: MutableCollection<K>, c: Int) {
 }
 
 fun Activity.openUrl(url: String) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     startActivity(intent)
 }
 
