@@ -40,7 +40,6 @@ import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.file.FileType
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspPersistence
 import com.rk.lsp.LspRegistry
@@ -197,7 +196,7 @@ class ExternalLspDialogState {
         if (parsedExtensions.isEmpty()) {
             extensionsError = strings.unsupported_file_ext.getString()
         } else {
-            val invalid = parsedExtensions.filter { !FileType.knowsExtension(it) }
+            val invalid = parsedExtensions.filter { it.contains(" ") }
             if (invalid.isNotEmpty()) {
                 extensionsError =
                     "${strings.unsupported_file_ext.getString()}: ${invalid.joinToString(", ") { ".$it" }}"
