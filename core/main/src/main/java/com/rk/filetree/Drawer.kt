@@ -47,6 +47,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import coil.compose.AsyncImage
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
@@ -233,6 +234,13 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     }
                                     is Icon.VectorIcon -> {
                                         Icon(imageVector = icon.vector, contentDescription = null)
+                                    }
+                                    is Icon.SvgIcon -> {
+                                        AsyncImage(
+                                            model = icon.file,
+                                            imageLoader = rememberSvgImageLoader(),
+                                            contentDescription = null,
+                                        )
                                     }
                                 }
                             },

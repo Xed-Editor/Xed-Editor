@@ -603,8 +603,8 @@
     <string name="terminal_backup">Wykonaj kopię zapasową Terminalu</string>
     <string name="settings_backup_desc">Wykonaj kopię zapasową bierzących ustawień</string>
     <string name="settings_restore_desc">Przywróć ustawienia z kopii zapasowej</string>
-    <string name="export_successful">Eksport udany</string>
-    <string name="export_failed">Eksport nie powiódł się</string>
+    <string name="export_successful">Eksport zakończony powodzeniem</string>
+    <string name="export_failed">Eksport zakończony niepowodzeniem</string>
     <string name="import_successful">Import udany</string>
     <string name="import_failed">Import nie powiódł się</string>
     <string name="intelligent_features">Funkcje inteligentne</string>
@@ -641,4 +641,6 @@
     <string name="icon_pack_missing_fields">Plik manifest.json ma brakujące lub błędne właściwości:\n%s\n\nProszę sprawdź plik i spróbuj ponownie.</string>
     <string name="manifest_missing">Brak pliku manifest.json. Proszę dodaj i spróbuj ponownie.</string>
     <string name="content_property">%s pozycji, łącznie %s</string>
+    <string name="general">Ogólne</string>
+    <string name="advanced">Zaawansowane</string>
 </resources>

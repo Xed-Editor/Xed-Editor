@@ -639,4 +639,6 @@
     <string name="outdated_extension">Diese Erweiterung wurde für eine ältere Version des Xed-Editors entwickelt. Bitte wende dich an den Entwickler, um ein Update zu erhalten.</string>
     <string name="outdated_client">Dein Xed-Editor ist veraltet. Bitte aktualisiere ihn auf die neueste Version, um diese Erweiterung nutzen zu können.</string>
     <string name="extension_validation_failed">Validierung der Erweiterung fehlgeschlagen</string>
+    <string name="general">Allgemein</string>
+    <string name="advanced">Erweitert</string>
 </resources>

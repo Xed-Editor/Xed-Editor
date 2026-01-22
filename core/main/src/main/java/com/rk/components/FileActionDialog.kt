@@ -3,12 +3,15 @@ package com.rk.components
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
@@ -20,25 +23,28 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
@@ -59,6 +65,7 @@ import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getFilledString
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
@@ -564,9 +571,72 @@ private suspend fun calculateContent(folder: FileObject, onProgress: (ContentPro
     }
 }
 
-// Properties Dialog
+enum class PropertyRoutes(val label: String, val route: String) {
+    GENERAL(strings.general.getString(), "general"),
+    ADVANCED(strings.advanced.getString(), "advanced"),
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
+    val pagerState = rememberPagerState(initialPage = 0) { PropertyRoutes.entries.size }
+    val scope = rememberCoroutineScope()
+
+    val scrollStates = PropertyRoutes.entries.map { rememberScrollState() }
+    val currentScrollState = scrollStates[pagerState.currentPage]
+    val showHorizontalDivider by
+        remember(pagerState.currentPage) { derivedStateOf { currentScrollState.canScrollForward } }
+
+    XedDialog(onDismissRequest = onDismiss) {
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.8f)) {
+            Text(
+                text = stringResource(strings.properties),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(start = 24.dp, top = 24.dp, end = 24.dp, bottom = 16.dp),
+            )
+
+            PrimaryScrollableTabRow(
+                selectedTabIndex = pagerState.currentPage,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                PropertyRoutes.entries.forEachIndexed { index, destination ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        text = { Text(text = destination.label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+                    )
+                }
+            }
+
+            HorizontalPager(
+                state = pagerState,
+                beyondViewportPageCount = PropertyRoutes.entries.size,
+                pageSpacing = 16.dp,
+                modifier = Modifier.fillMaxWidth().weight(1f),
+            ) { page ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize().verticalScroll(scrollStates[page]).padding(all = 24.dp),
+                ) {
+                    when (PropertyRoutes.entries[page]) {
+                        PropertyRoutes.GENERAL -> GeneralProperties(file)
+                        PropertyRoutes.ADVANCED -> AdvancedProperties(file)
+                    }
+                }
+            }
+
+            if (showHorizontalDivider) HorizontalDivider()
+
+            Box(modifier = Modifier.padding(start = 24.dp, bottom = 24.dp, end = 24.dp).align(Alignment.End)) {
+                TextButton(onClick = onDismiss) { Text(text = stringResource(strings.close)) }
+            }
+        }
+    }
+}
+
+@Composable
+fun GeneralProperties(file: FileObject) {
     var size by remember { mutableStateOf(formatFileSize(0)) }
     var itemsCount by remember { mutableStateOf("0") }
     val numberFormatter = remember { NumberFormat.getNumberInstance() }
@@ -586,36 +656,35 @@ fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
         }
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(strings.properties)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                InfoRow(stringResource(strings.name), file.getName())
-                InfoRow(
-                    label = stringResource(strings.content),
-                    value = stringResource(strings.content_property).fillPlaceholders(itemsCount, size),
-                )
-                InfoRow(
-                    label = stringResource(strings.type),
-                    value =
-                        if (file.isDirectory()) {
-                            stringResource(strings.folder)
-                        } else {
-                            stringResource(strings.file)
-                        },
-                )
-                PermissionRow(canRead = file.canRead(), canWrite = file.canWrite(), canExecute = file.canExecute())
-                if (InbuiltFeatures.debugMode.state.value) {
-                    InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
-                }
-                InfoRow(stringResource(strings.last_modified), lastModified)
-                InfoRow(stringResource(strings.path), file.getAbsolutePath())
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(strings.close)) } },
-        confirmButton = {},
+    InfoRow(stringResource(strings.name), file.getName())
+    InfoRow(stringResource(strings.path), file.getAbsolutePath())
+    InfoRow(
+        label = stringResource(strings.type),
+        value =
+            if (file.isDirectory()) {
+                stringResource(strings.folder)
+            } else {
+                stringResource(strings.file)
+            },
     )
+    if (file.isDirectory()) {
+        InfoRow(
+            label = stringResource(strings.content),
+            value = stringResource(strings.content_property).fillPlaceholders(itemsCount, size),
+        )
+    } else {
+        InfoRow(label = stringResource(strings.size), value = size)
+    }
+    InfoRow(stringResource(strings.last_modified), lastModified)
+}
+
+@Composable
+fun AdvancedProperties(file: FileObject) {
+    //    PermissionRow(canRead = file.canRead(), canWrite = file.canWrite(), canExecute = file.canExecute())
+    InfoRow(stringResource(strings.permissions), getPseudoPermissions(file))
+    if (InbuiltFeatures.debugMode.state.value) {
+        InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
+    }
 }
 
 @Composable
@@ -623,44 +692,18 @@ fun InfoRow(label: String, value: String) {
     OutlinedTextField(value = value, onValueChange = {}, label = { Text(label) }, readOnly = true)
 }
 
-@Composable
-fun PermissionRow(canRead: Boolean, canWrite: Boolean, canExecute: Boolean) {
-    SelectionContainer {
-        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-            Text(text = stringResource(strings.permissions), fontWeight = FontWeight.Medium)
-            Column(modifier = Modifier.padding(top = 2.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(if (canRead) drawables.check else drawables.close),
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp),
-                    )
-
-                    Text(text = stringResource(strings.can_read), style = MaterialTheme.typography.bodyLarge)
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 4.dp)) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(if (canWrite) drawables.check else drawables.close),
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp),
-                    )
-
-                    Text(text = stringResource(strings.can_write), style = MaterialTheme.typography.bodyLarge)
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(if (canExecute) drawables.check else drawables.close),
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp),
-                    )
-
-                    Text(text = stringResource(strings.can_execute), style = MaterialTheme.typography.bodyLarge)
-                }
-            }
+fun getPseudoPermissions(file: FileObject): String {
+    val type =
+        when {
+            file.isDirectory() -> "d"
+            file.isSymlink() -> "l"
+            else -> "-"
         }
-    }
+
+    val r = if (file.canRead()) "r" else "-"
+    val w = if (file.canWrite()) "w" else "-"
+    val x = if (file.canExecute()) "x" else "-"
+    return "$type$r$w$x"
 }
 
 // Utility functions

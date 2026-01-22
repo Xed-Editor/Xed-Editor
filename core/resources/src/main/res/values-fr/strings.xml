@@ -644,4 +644,6 @@
     <string name="outdated_extension">Cette extension a été créée pour une version antérieure de Xed-Editor. Demandez une mise-à-jour au développeur.</string>
     <string name="outdated_client">Votre Xed-Editor est obsolète. Mettez-le à jour pour pouvoir utiliser cette extension.</string>
     <string name="extension_validation_failed">Échec de la validation de l\'extension</string>
+    <string name="general">Général</string>
+    <string name="advanced">Avancé</string>
 </resources>
