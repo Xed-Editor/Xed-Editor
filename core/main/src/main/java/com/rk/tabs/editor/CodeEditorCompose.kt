@@ -264,7 +264,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                     )
 
                 parentFile.let {
-                    info("Trying to connect...")
+                    info("Trying to connect language server...")
                     val textMateScope = FileType.getTextMateScopefromName(file.getName())
                     if (textMateScope != null) {
                         baseLspConnector?.connect(textMateScope)

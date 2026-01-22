@@ -159,7 +159,7 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
         PreferenceGroup(heading = stringResource(strings.logs)) {
             SettingsToggle(
                 label = stringResource(strings.view_logs),
-                description = stringResource(strings.view_logs_desc),
+                description = stringResource(strings.view_lsp_logs),
                 default = false,
                 showSwitch = false,
                 onClick = { navController.navigate("lsp_server_logs/${server.id}") },

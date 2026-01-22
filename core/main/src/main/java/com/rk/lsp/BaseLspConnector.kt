@@ -80,41 +80,41 @@ class BaseLspConnector(
                 return@withContext
             }
 
+            editorTab.editorState.isConnectingLsp = true
+
             try {
+                val projectPath = projectFile.getAbsolutePath()
+                val fileExt = fileObject.getName().substringAfterLast(".")
+
+                val project = projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }
+
+                servers.forEach { server ->
+                    val serverDef = createServerDefinition(fileExt, server, this@withContext)
+
+                    try {
+                        project.addServerDefinition(serverDef)
+                    } catch (e: IllegalArgumentException) {
+                        e.printStackTrace()
+                    }
+                }
+
+                lspEditor =
+                    withContext(Dispatchers.Main) {
+                        project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
+                            wrapperLanguage = TextMateLanguage.create(textMateScope, false)
+                            editor = codeEditor
+                            isEnableInlayHint = true
+                        }
+                    }
+
+                if (isConnected()) {
+                    info("LSP servers already connected skipping...")
+                    return@withContext
+                }
+
+                launch { servers.forEach { it.beforeConnect() } }
+
                 runCatching {
-                        val projectPath = projectFile.getAbsolutePath()
-                        val fileExt = fileObject.getName().substringAfterLast(".")
-
-                        val project =
-                            projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }
-
-                        servers.forEach { server ->
-                            val serverDef = createServerDefinition(fileExt, server, this@withContext)
-
-                            try {
-                                project.addServerDefinition(serverDef)
-                            } catch (e: IllegalArgumentException) {
-                                e.printStackTrace()
-                            }
-                        }
-
-                        lspEditor =
-                            withContext(Dispatchers.Main) {
-                                project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
-                                    wrapperLanguage = TextMateLanguage.create(textMateScope, false)
-                                    editor = codeEditor
-                                    isEnableInlayHint = true
-                                }
-                            }
-
-                        if (isConnected()) {
-                            info("LSP server already connected skipping...")
-                            return@withContext
-                        }
-
-                        editorTab.editorState.isConnectingLsp = true
-                        launch { servers.forEach { it.beforeConnect() } }
-
                         lspEditor!!.connect()
                         lspEditor!!
                             .requestManager
@@ -122,13 +122,7 @@ class BaseLspConnector(
                                 DidChangeWorkspaceFoldersParams().apply {
                                     event =
                                         WorkspaceFoldersChangeEvent().apply {
-                                            added =
-                                                listOf(
-                                                    WorkspaceFolder(
-                                                        projectFile.getAbsolutePath(),
-                                                        projectFile.getName(),
-                                                    )
-                                                )
+                                            added = listOf(WorkspaceFolder(projectPath, projectFile.getName()))
                                         }
                                 }
                             )
@@ -399,12 +393,7 @@ class BaseLspConnector(
         runCatching {
                 lspEditor?.disposeAsync()
                 lspEditor = null
-                //                setStatus(LspConnectionStatus.NOT_RUNNING)
             }
-            .onFailure {
-                it.printStackTrace()
-                //                it.localizedMessage?.let { message -> log(LspLogEntry(MessageType.Error, message)) }
-                //                setStatus(LspConnectionStatus.ERROR)
-            }
+            .onFailure { it.printStackTrace() }
     }
 }

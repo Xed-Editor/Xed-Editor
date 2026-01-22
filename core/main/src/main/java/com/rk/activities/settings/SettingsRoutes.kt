@@ -27,6 +27,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object DeveloperOptions : SettingsRoutes("developer_options")
 
+    data object AppLogs : SettingsRoutes("app_logs")
+
     data object Support : SettingsRoutes("support")
 
     data object LanguageScreen : SettingsRoutes("language")

@@ -547,7 +547,8 @@
     <string name="reset_consent_desc">Show the terms of use disclaimer on next startup</string>
     <string name="logs">Logs</string>
     <string name="view_logs">View logs</string>
-    <string name="view_logs_desc">View the language server logs</string>
+    <string name="view_app_logs">View application logs</string>
+    <string name="view_lsp_logs">View the language server logs</string>
     <string name="logs_too_long">Logs too long</string>
     <string name="logs_too_long_desc">The log file you wanted to report is too long. Please paste the copied log file manually into the report.</string>
     <string name="complete_on_enter">Complete on enter</string>

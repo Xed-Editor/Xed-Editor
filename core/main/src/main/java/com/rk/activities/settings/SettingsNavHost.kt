@@ -11,6 +11,7 @@ import com.rk.lsp.LspRegistry
 import com.rk.settings.SettingsScreen
 import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
+import com.rk.settings.debugOptions.AppLogs
 import com.rk.settings.debugOptions.DeveloperOptions
 import com.rk.settings.editor.DefaultEncoding
 import com.rk.settings.editor.DefaultLineEnding
@@ -52,6 +53,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
         composable(SettingsRoutes.ExtraKeys.route) { EditExtraKeys() }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
+        composable(SettingsRoutes.AppLogs.route) { AppLogs() }
         composable(SettingsRoutes.Support.route) { Support() }
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
         composable(SettingsRoutes.Runners.route) { RunnerSettings(navController = navController) }
