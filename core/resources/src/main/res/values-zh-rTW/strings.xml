@@ -619,4 +619,24 @@
     <string name="enable_editorconfig">啟用 EditorConfig 支援</string>
     <string name="enable_editorconfig_desc">自動套用 .editorconfig 檔案中定義的程式碼風格規則</string>
     <string name="binary_file_notice">此檔案看起來是二進位檔，已停用編輯</string>
+    <string name="show_hidden_files">顯示隱藏檔案</string>
+    <string name="sort_by_name">依名稱排序</string>
+    <string name="sort_by_size">依大小排序</string>
+    <string name="sort_by_date">依日期排序</string>
+    <string name="sort_mode">排序模式</string>
+    <string name="sort_mode_desc">選擇預設排序模式</string>
+    <string name="drawer">側滑欄</string>
+    <string name="icon_packs">圖示套件</string>
+    <string name="no_icon_packs_found">找不到圖示套件</string>
+    <string name="add_icon_pack">新增圖示套件</string>
+    <string name="last_modified">最後修改時間</string>
+    <string name="content_property">%s 個項目，總計 %s</string>
+    <string name="icon_pack_install_failed">圖示套件安裝失敗</string>
+    <string name="icon_pack_missing_fields">manifest.json 檔案缺少或包含無效的屬性：\n%s\n\n請檢查檔案後再試一次。</string>
+    <string name="manifest_missing">缺少 manifest.json 檔案。請加入後再試一次。</string>
+    <string name="outdated_extension">此擴充功能是為舊版 Xed-Editor 製作的。請向開發者索取更新版本。</string>
+    <string name="outdated_client">你的 Xed-Editor 版本已過期。請更新至最新版本以使用此擴充功能。</string>
+    <string name="extension_validation_failed">擴充功能驗證失敗</string>
+    <string name="general">一般</string>
+    <string name="advanced">進階</string>
 </resources>
