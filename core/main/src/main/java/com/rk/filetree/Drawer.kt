@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -35,6 +36,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,6 +66,7 @@ import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.icons.Icon
+import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -382,17 +386,17 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     label = { Text(stringResource(strings.branch)) },
                                     isError = repoBranchError != null,
                                     supportingText =
-                                        if (repoURLBranch != null) {
+                                        if (repoBranchError != null) {
                                             {
                                                 Text(
-                                                    text = repoURLBranch!!,
+                                                    text = repoBranchError!!,
                                                     color = MaterialTheme.colorScheme.error,
                                                     modifier = Modifier.fillMaxWidth(),
                                                 )
                                             }
                                         } else null,
                                     trailingIcon = {
-                                        if (repoURLBranch != null) {
+                                        if (repoBranchError != null) {
                                             Icon(
                                                 XedIcons.Error,
                                                 stringResource(strings.error),
