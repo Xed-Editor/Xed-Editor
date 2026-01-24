@@ -43,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -190,7 +191,7 @@ fun removeProject(tab: DrawerTab, save: Boolean = false) {
     }
 }
 
-fun validateValue(value: String): MutableState<String?> {
+fun validateValue(value: String): String? {
     return when {
         value.isBlank() -> {
             strings.name_empty_err.getString()
@@ -333,8 +334,8 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             showGitCloneDialog = false
                             repoURL = ""
                             repoBranch = "main"
-                            repoURLError = null,
-                            repoBranchError = null,
+                            repoURLError = null
+                            repoBranchError = null
                         },
                         title = {
                             Text(stringResource(strings.clone_repo))
@@ -346,7 +347,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     onValueChange = {
                                         repoURL = it
                                         repoURLError = validateValue(repoURL)
-                                    }
+                                    },
                                     label = { Text(stringResource(strings.repo_url)) },
                                     //placeHolder = { Text(stringResource("https://github.com/user/repo")) },
                                     modifier = Modifier.focusRequester(repoURLFocusRequester),
@@ -377,7 +378,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     onValueChange = {
                                         repoBranch = it
                                         repoBranchError = validateValue(repoBranch)
-                                    }
+                                    },
                                     label = { Text(stringResource(strings.branch)) },
                                     isError = repoBranchError != null,
                                     supportingText =
@@ -420,8 +421,8 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     showGitCloneDialog = false
                                     repoURL = ""
                                     repoBranch = "main"
-                                    repoURLError = null,
-                                    repoBranchError = null,
+                                    repoURLError = null
+                                    repoBranchError = null
                                 }
                             ) {
                                 Text(stringResource(strings.cancel))
