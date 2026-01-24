@@ -65,6 +65,7 @@ import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
+import com.rk.icons.Error
 import com.rk.icons.Icon
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
