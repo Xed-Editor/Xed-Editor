@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +29,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -100,33 +103,33 @@ suspend fun saveProjects() {
 suspend fun restoreProjects() {
     mutex.withLock {
         runCatching {
-                val loadedTabs =
-                    withContext(Dispatchers.IO) {
-                        val file = FileWrapper(application!!.filesDir.child("projects"))
+            val loadedTabs =
+                withContext(Dispatchers.IO) {
+                    val file = FileWrapper(application!!.filesDir.child("projects"))
 
-                        if (file.exists() && file.canRead()) {
-                            file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
-                        } else {
-                            emptyList()
-                        }
+                    if (file.exists() && file.canRead()) {
+                        file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
+                    } else {
+                        emptyList()
                     }
-
-                // Update the existing state list on Main thread
-                withContext(Dispatchers.Main) {
-                    tabs.clear()
-                    tabs.addAll(loadedTabs)
                 }
 
-                val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
-                if (currentTabFile.exists() && currentTabFile.canRead()) {
-                    currentTab = currentTabFile.readObject() as DrawerTab
-                }
-
-                val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
-                if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
-                    fileTreeViewModel.get()?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
-                }
+            // Update the existing state list on Main thread
+            withContext(Dispatchers.Main) {
+                tabs.clear()
+                tabs.addAll(loadedTabs)
             }
+
+            val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
+            if (currentTabFile.exists() && currentTabFile.canRead()) {
+                currentTab = currentTabFile.readObject() as DrawerTab
+            }
+
+            val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
+            if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
+                fileTreeViewModel.get()?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
+            }
+        }
             .onFailure {
                 it.printStackTrace()
                 toast(strings.project_restore_failed)
@@ -200,12 +203,12 @@ fun DrawerContent(modifier: Modifier = Modifier) {
             onResult = { uri ->
                 uri?.let {
                     runCatching {
-                            // Persist access permissions (required for Android 5.0+)
-                            context.contentResolver.takePersistableUriPermission(
-                                it,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
-                            )
-                        }
+                        // Persist access permissions (required for Android 5.0+)
+                        context.contentResolver.takePersistableUriPermission(
+                            it,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                        )
+                    }
                         .onFailure { it.printStackTrace() }
 
                     scope.launch { addProject(it.toFileObject(expectedIsFile = false)) }
@@ -222,6 +225,10 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
 
                 var closeProjectDialog by remember { mutableStateOf(false) }
+                var showGitCloneDialog by remember { mutableStateOf(false) }
+
+                var repoURL by remember { mutableStateOf("") }
+                var repoBranch by remember { mutableStateOf("main") }
 
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     tabs.forEach { tab ->
@@ -232,9 +239,11 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     is Icon.DrawableRes -> {
                                         Icon(painter = painterResource(icon.drawableRes), contentDescription = null)
                                     }
+
                                     is Icon.VectorIcon -> {
                                         Icon(imageVector = icon.vector, contentDescription = null)
                                     }
+
                                     is Icon.SvgIcon -> {
                                         AsyncImage(
                                             model = icon.file,
@@ -297,6 +306,56 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 onOk = { callback.invoke() },
                             )
                         },
+                        showGitCloneDialog = {
+                            showAddDialog = false
+                            showGitCloneDialog = true
+                        }
+                    )
+                }
+
+                if (showGitCloneDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showGitCloneDialog = false },
+                        title = {
+                            Text(stringResource(strings.clone_repo))
+                        },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedTextField(
+                                    value = repoURL,
+                                    label = { Text(stringResource(strings.repo_url)) },
+                                    //placeHolder = { Text(stringResource("https://github.com/user/repo")) },
+                                    onValueChange = {
+                                        repoURL = it
+                                    }
+                                )
+
+                                OutlinedTextField(
+                                    value = repoBranch,
+                                    label = { Text(stringResource(strings.branch)) },
+                                    onValueChange = {
+                                        repoBranch = it
+                                    }
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(
+                                enabled = true, // todo
+                                onClick = {
+                                    // todo
+                                }
+                            ) {
+                                Text(stringResource(strings.ok))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = { showGitCloneDialog = false }
+                            ) {
+                                Text(stringResource(strings.cancel))
+                            }
+                        }
                     )
                 }
 
@@ -322,6 +381,7 @@ private fun AddProjectDialog(
     onAddProject: (FileObject) -> Unit,
     openFolder: ManagedActivityResultLauncher<Uri?, Uri?>,
     showPrivateFileWarning: (onOK: () -> Unit) -> Unit,
+    showGitCloneDialog: () -> Unit
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -344,8 +404,8 @@ private fun AddProjectDialog(
             val isManager = is11Plus && Environment.isExternalStorageManager()
             val legacyPermission =
                 ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) !=
-                    PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                        PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                         PackageManager.PERMISSION_GRANTED
 
             val storage = Environment.getExternalStorageDirectory()
@@ -381,6 +441,17 @@ private fun AddProjectDialog(
                     },
                 )
             }
+
+            // Clone repository option
+            AddDialogItem(
+                icon = Icon.DrawableRes(drawables.git),
+                title = stringResource(strings.clone_repo),
+                description = stringResource(strings.clone_repo_desc),
+                onClick = {
+                    showGitCloneDialog()
+                    onDismiss()
+                },
+            )
 
             // Terminal Home option
             AddDialogItem(

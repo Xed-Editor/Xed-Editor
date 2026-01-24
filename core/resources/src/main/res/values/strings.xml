@@ -105,6 +105,9 @@
     <string name="data_clear">App data is cleared</string>
     <string name="action_done">Action completed</string>
     <string name="clone_repo">Clone repository</string>
+    <string name="clone_repo_desc">Clone remote repository</string>
+    <string name="repo_url">Repository URL</string>
+    <string name="branch">Branch</string>
     <string name="exists">Already exists!</string>
     <string name="private_files">Private files</string>
     <string name="private_files_desc">Private files of Xed-Editor</string>
