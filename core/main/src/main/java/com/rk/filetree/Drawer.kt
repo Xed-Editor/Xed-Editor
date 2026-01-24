@@ -190,6 +190,15 @@ fun removeProject(tab: DrawerTab, save: Boolean = false) {
     }
 }
 
+fun validateValue(value: String): MutableState<String?> {
+    return when {
+        value.isBlank() -> {
+            strings.name_empty_err.getString()
+        }
+        else -> null
+    }
+}
+
 var isLoading by mutableStateOf(true)
 
 @Composable
@@ -229,6 +238,11 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
                 var repoURL by remember { mutableStateOf("") }
                 var repoBranch by remember { mutableStateOf("main") }
+
+                var repoURLError by remember { mutableStateOf<String?>(null) }
+                var repoBranchError by remember { mutableStateOf<String?>(null) }
+
+                val repoURLFocusRequester = remember { FocusRequester() }
 
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     tabs.forEach { tab ->
@@ -315,7 +329,13 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
                 if (showGitCloneDialog) {
                     AlertDialog(
-                        onDismissRequest = { showGitCloneDialog = false },
+                        onDismissRequest = {
+                            showGitCloneDialog = false
+                            repoURL = ""
+                            repoBranch = "main"
+                            repoURLError = null,
+                            repoBranchError = null,
+                        },
                         title = {
                             Text(stringResource(strings.clone_repo))
                         },
@@ -323,25 +343,70 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedTextField(
                                     value = repoURL,
-                                    label = { Text(stringResource(strings.repo_url)) },
-                                    //placeHolder = { Text(stringResource("https://github.com/user/repo")) },
                                     onValueChange = {
                                         repoURL = it
+                                        repoURLError = validateValue(repoURL)
+                                    }
+                                    label = { Text(stringResource(strings.repo_url)) },
+                                    //placeHolder = { Text(stringResource("https://github.com/user/repo")) },
+                                    modifier = Modifier.focusRequester(repoURLFocusRequester),
+                                    isError = repoURLError != null,
+                                    supportingText =
+                                        if (repoURLError != null) {
+                                            {
+                                                Text(
+                                                    text = repoURLError!!,
+                                                    color = MaterialTheme.colorScheme.error,
+                                                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                                                )
+                                            }
+                                        } else null,
+                                    trailingIcon = {
+                                        if (repoURLError != null) {
+                                            Icon(
+                                                XedIcons.Error,
+                                                stringResource(strings.error),
+                                                tint = MaterialTheme.colorScheme.error,
+                                            )
+                                        }
                                     }
                                 )
 
                                 OutlinedTextField(
                                     value = repoBranch,
-                                    label = { Text(stringResource(strings.branch)) },
                                     onValueChange = {
                                         repoBranch = it
+                                        repoBranchError = validateValue(repoBranch)
+                                    }
+                                    label = { Text(stringResource(strings.branch)) },
+                                    isError = repoBranchError != null,
+                                    supportingText =
+                                        if (repoURLBranch != null) {
+                                            {
+                                                Text(
+                                                    text = repoURLBranch!!,
+                                                    color = MaterialTheme.colorScheme.error,
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                )
+                                            }
+                                        } else null,
+                                    trailingIcon = {
+                                        if (repoURLBranch != null) {
+                                            Icon(
+                                                XedIcons.Error,
+                                                stringResource(strings.error),
+                                                tint = MaterialTheme.colorScheme.error,
+                                            )
+                                        }
                                     }
                                 )
+
+                                LaunchedEffect(showGitCloneDialog) { repoURLFocusRequester.requestFocus() }
                             }
                         },
                         confirmButton = {
                             TextButton(
-                                enabled = true, // todo
+                                enabled = repoURLError == null && repoBranchError == null,
                                 onClick = {
                                     // todo
                                 }
@@ -351,7 +416,13 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         },
                         dismissButton = {
                             TextButton(
-                                onClick = { showGitCloneDialog = false }
+                                onClick = {
+                                    showGitCloneDialog = false
+                                    repoURL = ""
+                                    repoBranch = "main"
+                                    repoURLError = null,
+                                    repoBranchError = null,
+                                }
                             ) {
                                 Text(stringResource(strings.cancel))
                             }
