@@ -415,7 +415,9 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             TextButton(
                                 enabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
                                 onClick = {
-                                    // todo
+                                    scope.launch {
+                                        // todo
+                                    }
                                 }
                             ) {
                                 Text(stringResource(strings.ok))
