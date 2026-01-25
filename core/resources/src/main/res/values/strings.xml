@@ -624,4 +624,6 @@
     <string name="extension_validation_failed">Extension validation failed</string>
     <string name="general">General</string>
     <string name="advanced">Advanced</string>
+    <string name="git">Git</string>
+    <string name="git_desc">General git settings</string>
 </resources>

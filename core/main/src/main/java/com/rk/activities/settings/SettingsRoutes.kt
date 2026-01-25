@@ -38,4 +38,6 @@ sealed class SettingsRoutes(val route: String) {
     data object Themes : SettingsRoutes("theme")
 
     data object LspSettings : SettingsRoutes("lsp_settings")
+
+    data object Git : SettingsRoutes("git")
 }
