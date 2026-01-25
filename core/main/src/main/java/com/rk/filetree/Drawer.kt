@@ -199,8 +199,9 @@ fun removeProject(tab: DrawerTab, save: Boolean = false) {
 fun validateValue(value: String): String? {
     return when {
         value.isBlank() -> {
-            strings.name_empty_err.getString()
+            strings.value_empty_err.getString()
         }
+
         else -> null
     }
 }
@@ -412,7 +413,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         },
                         confirmButton = {
                             TextButton(
-                                enabled = repoURLError == null && repoBranchError == null,
+                                enabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
                                 onClick = {
                                     // todo
                                 }

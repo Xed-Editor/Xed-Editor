@@ -247,6 +247,7 @@
     <string name="ext_desc">Manage extensions</string>
     <string name="tab_opened">Tab opened</string>
     <string name="name_empty_err">Name cannot be empty</string>
+    <string name="value_empty_err">Value cannot be empty</string>
     <string name="name_used">Name already used</string>
     <string name="installing">Installing…</string>
     <string name="not_ext_error">Selected file is not an APK file</string>
