@@ -55,6 +55,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.LspSettings.route) { LspSettings() }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
         composable(SettingsRoutes.Extensions.route) { Extensions() }
-        composabld(SettingsRoutes.Git.route) { GitSettings() }
+        composable(SettingsRoutes.Git.route) { GitSettings() }
     }
 }

@@ -626,4 +626,10 @@
     <string name="advanced">Advanced</string>
     <string name="git">Git</string>
     <string name="git_desc">General git settings</string>
+    <string name="credentials">Credentials</string>
+    <string name="credentials_desc">Credentials for access remote repositories</string>
+    <string name="user_data">User data</string>
+    <string name="user_data_desc">User data that will appear in your Git commits</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
 </resources>
