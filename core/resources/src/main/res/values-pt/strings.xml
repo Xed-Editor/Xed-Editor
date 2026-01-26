@@ -75,7 +75,7 @@
     <string name="cloning">A clonar repositório…</string>
     <string name="error">Erro</string>
     <string name="open_file_desc">Escolha um ficheiro para editá-lo diretamente</string>
-    <string name="open_path_desc">Abrir armazenamento interno</string>
+    <string name="open_internal_storage">Abrir armazenamento interno</string>
     <string name="add">Adicionar</string>
     <string name="already_opened">Ficheiro já aberto</string>
     <string name="open_cant">Não é possível abrir mais do que</string>
@@ -263,7 +263,7 @@
     <string name="permission_denied">Permissão negada</string>
     <string name="private_files_desc">Arquivos privados do Xed-Editor</string>
     <string name="open_dir_desc">Abrir uma pasta pelo explorador de arquivos do sistema</string>
-    <string name="open_path">Armazenamento interno</string>
+    <string name="internal_storage">Armazenamento interno</string>
     <string name="already_installed">Já está instalado</string>
     <string name="fetch_failed">Requisição falhou, retorno nulo</string>
     <string name="oled_desc">Aplica um tema escuro de alto contraste</string>

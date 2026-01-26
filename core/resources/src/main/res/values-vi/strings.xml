@@ -117,8 +117,8 @@
     <string name="error">Lỗi</string>
     <string name="open_dir_desc">Mở một thư mục sử dụng trình duyệt tệp của hệ thống</string>
     <string name="open_file_desc">Chọn một tệp để chỉnh sửa nó trực tiếp</string>
-    <string name="open_path">Bộ nhớ trong</string>
-    <string name="open_path_desc">Mở bộ nhớ trong</string>
+    <string name="internal_storage">Bộ nhớ trong</string>
+    <string name="open_internal_storage">Mở bộ nhớ trong</string>
     <string name="add">Thêm</string>
     <string name="already_opened">Tệp đã được mở</string>
     <string name="files">Tệp</string>

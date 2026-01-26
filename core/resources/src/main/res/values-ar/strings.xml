@@ -111,8 +111,8 @@
     <string name="error">خطأ</string>
     <string name="open_dir_desc">فتح دليل عبر منتقي الملفات في النظام</string>
     <string name="open_file_desc">حدد ملفًا لتحريره مباشرةً</string>
-    <string name="open_path">التخزين الداخلي</string>
-    <string name="open_path_desc">فتح وحدة التخزين الداخلية</string>
+    <string name="internal_storage">التخزين الداخلي</string>
+    <string name="open_internal_storage">فتح وحدة التخزين الداخلية</string>
     <string name="add">اضافة</string>
     <string name="already_opened">الملف مفتوح بالفعل</string>
     <string name="open_cant">لا يمكن فتح أكثر من ذلك</string>

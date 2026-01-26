@@ -157,7 +157,7 @@
     <string name="auto_save_desc">ファイルを自動的に保存する</string>
     <string name="text_size_desc">文字の大きさを設定</string>
     <string name="ff_path">ファイル/フォルダのパス</string>
-    <string name="open_path_desc">内部ストレージを開く</string>
+    <string name="open_internal_storage">内部ストレージを開く</string>
     <string name="download_sure">「%s」をダウンロードしてもよろしいですか？</string>
     <string name="choose_file">ファイルを選択</string>
     <string name="force_desktop_desc">画面が小さいデバイスで、デスクトップ用レイアウトを強制する</string>
@@ -167,7 +167,7 @@
     <string name="restart_app">アプリケーションを再起動してください。</string>
     <string name="app_desc">アプリケーションの一般設定</string>
     <string name="is_null">InputStreamがnullです</string>
-    <string name="open_path">内部ストレージ</string>
+    <string name="internal_storage">内部ストレージ</string>
     <string name="themes">テーマ</string>
     <string name="pin_line_number">行番号を固定</string>
     <string name="already_opened">ファイルは既に開かれています</string>

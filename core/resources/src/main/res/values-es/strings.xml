@@ -103,8 +103,8 @@
     <string name="cloning">Clonando repositorio…</string>
     <string name="open_dir_desc">Abre un directorio vía recolector de archivo del sistema</string>
     <string name="open_file_desc">Elige un archivo para editarlo directamente</string>
-    <string name="open_path">Almacén interno</string>
-    <string name="open_path_desc">Abrir almacenamiento interno</string>
+    <string name="internal_storage">Almacén interno</string>
+    <string name="open_internal_storage">Abrir almacenamiento interno</string>
     <string name="add">Añadir</string>
     <string name="already_opened">Archivo ya abierto</string>
     <string name="open_cant">No se pueden abrir más de</string>

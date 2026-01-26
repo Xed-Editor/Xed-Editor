@@ -2,6 +2,7 @@ package com.rk.runner
 
 import android.content.Context
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import com.rk.icons.Icon
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
@@ -39,11 +40,14 @@ object Runner {
     val runnerBuilders = mutableListOf<RunnerBuilder>()
 
     init {
+        val htmlExtensions = FileType.HTML.extensions.joinToString("|")
+        val markdownExtensions = FileType.MARKDOWN.extensions.joinToString("|")
+
         runnerBuilders.apply {
             add(
                 object :
                     RunnerBuilder(
-                        regex = Regex(".*\\.(html|svg)$"),
+                        regex = Regex(".*\\.($htmlExtensions|svg)$"),
                         enabled = { Settings.enable_html_runner },
                         clazz = HtmlRunner::class.java,
                     ) {}
@@ -51,7 +55,7 @@ object Runner {
             add(
                 object :
                     RunnerBuilder(
-                        regex = Regex(".*\\.md$"),
+                        regex = Regex(".*\\.($markdownExtensions)$"),
                         enabled = { Settings.enable_md_runner },
                         clazz = MarkdownRunner::class.java,
                     ) {}

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.activity.compose.LocalActivity
+import android.os.storage.StorageManager
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -481,18 +482,40 @@ private fun AddProjectDialog(
                         PackageManager.PERMISSION_GRANTED
 
             val storage = Environment.getExternalStorageDirectory()
-            if (
-                ((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()
-            ) {
+            if ((isManager || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()) {
                 AddDialogItem(
                     icon = Icon.DrawableRes(drawables.android),
-                    title = stringResource(strings.open_path),
-                    description = stringResource(strings.open_path_desc),
+                    title = stringResource(strings.internal_storage),
+                    description = stringResource(strings.open_internal_storage),
                     onClick = {
                         addProject(FileWrapper(storage))
                         onDismiss()
                     },
                 )
+            }
+
+            if (isManager) {
+                val storageManager = context.getSystemService(StorageManager::class.java)
+                val volumes = storageManager.storageVolumes
+
+                volumes.forEach { volume ->
+                    val root = volume.directory ?: return@forEach
+                    if (root == storage) return@forEach
+                    if (!root.canRead() || !root.canWrite() || root.listFiles() == null) return@forEach
+
+                    val name = volume.getDescription(context)
+                    val removable = volume.isRemovable
+                    val description = if (removable) strings.open_removable_storage else strings.open_internal_storage
+
+                    AddDialogItem(
+                        icon = Icon.DrawableRes(drawables.sd_card),
+                        title = name,
+                        description = stringResource(description),
+                    ) {
+                        addProject(FileWrapper(root))
+                        onDismiss()
+                    }
+                }
             }
 
             if (InbuiltFeatures.debugMode.state.value) {

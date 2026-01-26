@@ -14,6 +14,7 @@ import com.rk.extension.ExtensionAPIManager
 import com.rk.extension.ExtensionManager
 import com.rk.extension.loadAllExtensions
 import com.rk.icons.pack.IconPackManager
+import com.rk.lsp.FileIconProvider
 import com.rk.lsp.MarkdownImageProvider
 import com.rk.resources.Res
 import com.rk.settings.Preference
@@ -65,7 +66,9 @@ class App : Application() {
         Res.application = this
 
         updateThemes()
+
         MarkdownImageProvider.register()
+        FileIconProvider.register()
 
         val currentLocale = Locale.forLanguageTag(Settings.current_lang)
         val appLocale = LocaleListCompat.create(currentLocale)
