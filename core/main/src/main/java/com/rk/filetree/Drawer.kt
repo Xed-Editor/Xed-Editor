@@ -264,13 +264,14 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 val loading = LoadingPopup(activity, null).show()
                                 loading.setMessage(strings.cloning.getString())
                                 var fileObject = it.toFileObject(expectedIsFile = false)
+                                    .createChild(false, repoURL.substringAfterLast("/").substringBeforeLast("."))
                                 var done = false;
                                 withContext(Dispatchers.IO) {
                                     try {
                                         Git.cloneRepository()
                                             .setURI(repoURL)
                                             .setBranch("refs/heads/$repoBranch")
-                                            .setDirectory(File(fileObject.getAbsolutePath()))
+                                            .setDirectory(File(fileObject!!.getAbsolutePath()))
                                             .setCredentialsProvider(
                                                 UsernamePasswordCredentialsProvider(
                                                     Settings.git_username,
@@ -301,7 +302,9 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                         loading.hide()
                                     }
                                 }
-                                if (done) addProject(fileObject)
+                                if (done) {
+                                    addProject(fileObject!!)
+                                }
                             }
                         }
                     }

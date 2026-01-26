@@ -43,6 +43,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     override fun Content(modifier: Modifier) {
         var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
         var searchDialog by remember { mutableStateOf(false) }
+        var gitDialog by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val mainViewModel = MainActivity.instance?.viewModel
 
@@ -65,6 +66,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
             },
             onFileLongClick = { fileActionDialog = it.file },
             onSearchClick = { searchDialog = true },
+            onGitClick = { gitDialog = true }
         )
 
         if (fileActionDialog != null && currentTab != null) {
@@ -79,6 +81,10 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
         if (searchDialog) {
             SearchDialog { searchDialog = false }
+        }
+
+        if (gitDialog) {
+            GitDialog { gitDialog = false }
         }
     }
 
@@ -110,6 +116,11 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 )
             }
         }
+    }
+
+    @Composable
+    private fun GitDialog(onDismiss: () -> Unit) {
+        // TODO
     }
 
     override fun getName(): String {
