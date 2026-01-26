@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -311,45 +313,49 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 )
 
                 NavigationRail(modifier = Modifier.width(61.dp)) {
-                    tabs.forEach { tab ->
-                        NavigationRailItem(
-                            selected = currentTab == tab,
-                            icon = {
-                                when (val icon = tab.getIcon()) {
-                                    is Icon.DrawableRes -> {
-                                        Icon(painter = painterResource(icon.drawableRes), contentDescription = null)
-                                    }
+                    LazyColumn {
+                        items(tabs) { tab ->
+                            NavigationRailItem(
+                                selected = currentTab == tab,
+                                icon = {
+                                    when (val icon = tab.getIcon()) {
+                                        is Icon.DrawableRes -> {
+                                            Icon(painter = painterResource(icon.drawableRes), contentDescription = null)
+                                        }
 
-                                    is Icon.VectorIcon -> {
-                                        Icon(imageVector = icon.vector, contentDescription = null)
-                                    }
+                                        is Icon.VectorIcon -> {
+                                            Icon(imageVector = icon.vector, contentDescription = null)
+                                        }
 
-                                    is Icon.SvgIcon -> {
-                                        AsyncImage(
-                                            model = icon.file,
-                                            imageLoader = rememberSvgImageLoader(),
-                                            contentDescription = null,
-                                        )
+                                        is Icon.SvgIcon -> {
+                                            AsyncImage(
+                                                model = icon.file,
+                                                imageLoader = rememberSvgImageLoader(),
+                                                contentDescription = null,
+                                            )
+                                        }
                                     }
-                                }
-                            },
-                            onClick = {
-                                if (currentTab == tab) {
-                                    closeProjectDialog = true
-                                } else {
-                                    currentTab = tab
-                                }
-                            },
-                            label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        )
+                                },
+                                onClick = {
+                                    if (currentTab == tab) {
+                                        closeProjectDialog = true
+                                    } else {
+                                        currentTab = tab
+                                    }
+                                },
+                                label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                            )
+                        }
+
+                        item {
+                            NavigationRailItem(
+                                selected = false,
+                                icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
+                                onClick = { showAddDialog = true },
+                                label = { Text(stringResource(strings.add)) },
+                            )
+                        }
                     }
-
-                    NavigationRailItem(
-                        selected = false,
-                        icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
-                        onClick = { showAddDialog = true },
-                        label = { Text(stringResource(strings.add)) },
-                    )
                 }
 
                 VerticalDivider()
