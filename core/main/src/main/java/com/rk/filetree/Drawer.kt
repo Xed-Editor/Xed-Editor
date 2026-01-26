@@ -6,9 +6,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,6 +67,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialog
 import com.rk.utils.readObject
@@ -77,6 +80,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import java.io.File
 
 private val mutex = Mutex()
 
@@ -203,6 +209,7 @@ var isLoading by mutableStateOf(true)
 @Composable
 fun DrawerContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val activity = LocalActivity.current as? AppCompatActivity
     val scope = rememberCoroutineScope()
 
     val openFolder =
@@ -224,23 +231,6 @@ fun DrawerContent(modifier: Modifier = Modifier) {
             },
         )
 
-    val cloneGitRepo = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocumentTree(),
-        onResult = { uri ->
-            uri?.let {
-                runCatching {
-                    context.contentResolver.takePersistableUriPermission(
-                        it,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    )
-                }.onFailure { it.printStackTrace() }
-                scope.launch {
-                    // todo
-                }
-            }
-        }
-    )
-
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (isLoading) {
             CircularProgressIndicator()
@@ -257,6 +247,47 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
                 var repoURLError by remember { mutableStateOf<String?>(null) }
                 var repoBranchError by remember { mutableStateOf<String?>(null) }
+
+                val cloneGitRepo = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.OpenDocumentTree(),
+                    onResult = { uri ->
+                        uri?.let {
+                            runCatching {
+                                context.contentResolver.takePersistableUriPermission(
+                                    it,
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                                )
+                            }.onFailure { it.printStackTrace() }
+                            scope.launch {
+                                val loading = LoadingPopup(activity, null).show()
+                                loading.setMessage(strings.cloning.getString())
+                                var fileObject = it.toFileObject(expectedIsFile = false)
+                                var done = false;
+                                withContext(Dispatchers.IO) {
+                                    try {
+                                        Git.cloneRepository()
+                                            .setURI("https://github.com/Andro-Master/flexOS-Sharp") // todo: replace this to repoURL
+                                            .setBranch("refs/heads/$repoBranch")
+                                            .setDirectory(File(fileObject.getAbsolutePath()))
+                                            .setCredentialsProvider(
+                                                UsernamePasswordCredentialsProvider(
+                                                    Settings.git_username,
+                                                    Settings.git_password
+                                                )
+                                            )
+                                            .call()
+                                        done = true
+                                    } catch (e: Exception) {
+                                        // todo
+                                    } finally {
+                                        loading.hide()
+                                    }
+                                }
+                                if (done) addProject(fileObject)
+                            }
+                        }
+                    }
+                )
 
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     tabs.forEach { tab ->
@@ -358,9 +389,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         },
                         firstErrorMessage = repoURLError,
                         secondErrorMessage = repoBranchError,
-                        onConfirm = {
-                            cloneGitRepo.launch(null)
-                        },
+                        onConfirm = { cloneGitRepo.launch(null) },
                         onFinish = {
                             showGitCloneDialog = false
                             repoURL = ""
