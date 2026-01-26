@@ -388,4 +388,7 @@
     <string name="anr_watchdog_desc">Encerrar o Xed-Editor se ele ficar sem resposta por mais de 5 segundos</string>
     <string name="verbose_errors">Erros detalhados</string>
     <string name="verbose_errors_desc">Incluir rastreamento de pilha nas caixas de diálogo de erro</string>
+    <string name="restore_terminal">Restaurar backup do terminal</string>
+    <string name="terminal_backup">Backup do terminal</string>
+    <string name="debugger">Debugger</string>
 </resources>
