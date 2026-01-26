@@ -632,4 +632,5 @@
     <string name="user_data_desc">User data that will appear in your Git commits</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="email">Email</string>
 </resources>
