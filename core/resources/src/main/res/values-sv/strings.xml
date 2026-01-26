@@ -111,8 +111,8 @@
     <string name="error">Fel</string>
     <string name="open_dir_desc">Öppna en katalog via systemets filväljare</string>
     <string name="open_file_desc">Välj en fil att redigera</string>
-    <string name="open_path">Intern lagring</string>
-    <string name="open_path_desc">Öppna intern lagring</string>
+    <string name="internal_storage">Intern lagring</string>
+    <string name="open_internal_storage">Öppna intern lagring</string>
     <string name="add">Lägg till</string>
     <string name="already_opened">Filen är redan öppnad</string>
     <string name="open_cant">Kan inte öppna mer än</string>

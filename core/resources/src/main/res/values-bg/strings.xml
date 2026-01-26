@@ -114,8 +114,8 @@
     <string name="error">Грешка</string>
     <string name="open_dir_desc">Отваряне на директория чрез инструмента за избор на системни файлове</string>
     <string name="open_file_desc">Изберете файл, който да редактирате директно</string>
-    <string name="open_path">Вътрешна памет</string>
-    <string name="open_path_desc">Отворете вътрешната памет</string>
+    <string name="internal_storage">Вътрешна памет</string>
+    <string name="open_internal_storage">Отворете вътрешната памет</string>
     <string name="add">Добавяне</string>
     <string name="already_opened">Файлът вече е отворен</string>
     <string name="open_cant">Не може да се отвори повече от</string>

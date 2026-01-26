@@ -25,10 +25,15 @@ data class IconPackList(
 )
 
 data class IconPack(val info: IconPackInfo, val installDir: File) {
-    fun getIconFileFor(file: FileObject, isExpanded: Boolean): File? {
+    fun getIconFileForFile(file: FileObject, isExpanded: Boolean = false): File? {
         val fileName = file.getName()
+        val isDirectory = file.isDirectory()
+        return getIconFileForName(fileName, isDirectory, isExpanded)
+    }
+
+    fun getIconFileForName(fileName: String, isDirectory: Boolean, isExpanded: Boolean = false): File? {
         val path =
-            if (file.isDirectory()) {
+            if (isDirectory) {
                 if (isExpanded) {
                     // First use folderNamesExpanded, then defaultFolderExpanded
                     info.icons.folderNamesExpanded[fileName.lowercase()]
@@ -59,7 +64,7 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
         return path
     }
 
-    fun getIconFileFor(fileExtension: String): File? {
+    fun getIconFileForExt(fileExtension: String): File? {
         val path =
             // First use fileExtensions, then languageNames, then defaultFile
             info.icons.fileExtensions[fileExtension.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }

@@ -31,7 +31,7 @@ private val info = drawables.info
 
 @Composable
 fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = false) {
-    val iconPackFile = currentIconPack.value?.getIconFileFor(file, isExpanded)
+    val iconPackFile = currentIconPack.value?.getIconFileForFile(file, isExpanded)
     val imageLoader = rememberSvgImageLoader()
 
     val icon =

@@ -125,8 +125,8 @@
     <string name="error">பிழை</string>
     <string name="open_dir_desc">சிச்டம் பைல் பிக்கர் வழியாக ஒரு கோப்பகத்தைத் திறக்கவும்</string>
     <string name="open_file_desc">அதை நேரடியாக திருத்த ஒரு கோப்பைத் தேர்வுசெய்க</string>
-    <string name="open_path">உள் சேமிப்பு</string>
-    <string name="open_path_desc">உள் சேமிப்பகத்தைத் திறக்கவும்</string>
+    <string name="internal_storage">உள் சேமிப்பு</string>
+    <string name="open_internal_storage">உள் சேமிப்பகத்தைத் திறக்கவும்</string>
     <string name="add">கூட்டு</string>
     <string name="already_opened">கோப்பு ஏற்கனவே திறக்கப்பட்டுள்ளது</string>
     <string name="open_cant">விட அதிகமாக திறக்க முடியாது</string>

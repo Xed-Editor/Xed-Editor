@@ -110,8 +110,8 @@
     <string name="error">Erro</string>
     <string name="open_dir_desc">Abrir pasta usando seletor de arquivos do sistema</string>
     <string name="open_file_desc">Escolha um arquivo para editá-lo diretamente</string>
-    <string name="open_path">Armazenamento Interno</string>
-    <string name="open_path_desc">Abrir armazenamento interno</string>
+    <string name="internal_storage">Armazenamento Interno</string>
+    <string name="open_internal_storage">Abrir armazenamento interno</string>
     <string name="add">Adicionar</string>
     <string name="already_opened">Arquivo já aberto</string>
     <string name="open_cant">Não é possível abrir mais de</string>

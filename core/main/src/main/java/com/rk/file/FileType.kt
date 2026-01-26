@@ -301,7 +301,7 @@ enum class FileType(
 
     /** Retrieves the icon for this file type. It returns an icon from the selected icon pack if possible. */
     fun getIcon(): Icon {
-        return currentIconPack.value?.getIconFileFor(extensions.first())?.let { Icon.SvgIcon(it) }
+        return currentIconPack.value?.getIconFileForExt(extensions.first())?.let { Icon.SvgIcon(it) }
             ?: icon?.let { Icon.DrawableRes(it) }
             ?: Icon.DrawableRes(drawables.file)
     }

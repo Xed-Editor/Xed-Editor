@@ -182,8 +182,8 @@
     <string name="update_av">Nové aktualizace dostupné</string>
     <string name="update_disable">Kontrola aktualizacích vypnutá</string>
     <string name="launch">Spustit</string>
-    <string name="open_path_desc">Otevřít interní uložiště</string>
-    <string name="open_path">Interní uložiště</string>
+    <string name="open_internal_storage">Otevřít interní uložiště</string>
+    <string name="internal_storage">Interní uložiště</string>
     <string name="file_not_loaded">Soubor ještě nebyl načten.</string>
     <string name="experimental_session_restore_warning">Táto funkce je experimentální a může způsobit ztrátu dat</string>
     <string name="terminal_home_desc">Výchozí domovská složka terminálu</string>

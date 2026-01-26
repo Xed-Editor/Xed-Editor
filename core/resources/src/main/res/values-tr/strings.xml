@@ -111,8 +111,8 @@
     <string name="error">Yanlış</string>
     <string name="open_dir_desc">Sistem dosya seçicisinden bir klasör aç</string>
     <string name="open_file_desc">Doğrudan düzenlemek için bir dosya seçin</string>
-    <string name="open_path">Dahili depolama</string>
-    <string name="open_path_desc">Dahili depolamayı aç</string>
+    <string name="internal_storage">Dahili depolama</string>
+    <string name="open_internal_storage">Dahili depolamayı aç</string>
     <string name="add">Ekle</string>
     <string name="already_opened">Dosya zaten açıldı</string>
     <string name="open_cant">Bundan fazlasını açamam</string>
