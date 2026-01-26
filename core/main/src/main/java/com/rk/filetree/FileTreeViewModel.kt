@@ -17,6 +17,10 @@ fun FileObject.toFileTreeNode(): FileTreeNode {
     return FileTreeNode(file = this, isFile = isFile(), isDirectory = isDirectory(), name = getAppropriateName())
 }
 
+fun FileObject.isGitRepository(): Boolean {
+    return java.io.File(this.getAbsolutePath(), ".git").exists()
+}
+
 class FileTreeViewModel : ViewModel() {
     var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()

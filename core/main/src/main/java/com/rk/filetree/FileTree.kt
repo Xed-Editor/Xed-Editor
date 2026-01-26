@@ -62,6 +62,7 @@ fun FileTree(
     onFileLongClick: FileTreeNode.(FileTreeNode) -> Unit = {},
     onSearchClick: () -> Unit = {},
     onGitClick: () -> Unit = {},
+    gitEnabled: Boolean,
     viewModel: FileTreeViewModel,
 ) {
     var showOptionsMenu by remember { mutableStateOf(false) }
@@ -105,11 +106,13 @@ fun FileTree(
 
                 IconButton(onClick = onSearchClick) { Icon(Icons.Outlined.Search, stringResource(strings.search)) }
 
-                IconButton(onClick = onGitClick) {
-                    Icon(
-                        painterResource(id = drawables.git),
-                        stringResource(strings.git)
-                    )
+                if (gitEnabled) {
+                    IconButton(onClick = onGitClick) {
+                        Icon(
+                            painterResource(id = drawables.git),
+                            stringResource(strings.git)
+                        )
+                    }
                 }
 
                 Box {

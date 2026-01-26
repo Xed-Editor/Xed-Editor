@@ -66,7 +66,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
             },
             onFileLongClick = { fileActionDialog = it.file },
             onSearchClick = { searchDialog = true },
-            onGitClick = { gitDialog = true }
+            onGitClick = { gitDialog = true },
+            gitEnabled = root.isGitRepository()
         )
 
         if (fileActionDialog != null && currentTab != null) {
@@ -119,8 +120,17 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     }
 
     @Composable
+    @OptIn(ExperimentalMaterial3Api::class)
     private fun GitDialog(onDismiss: () -> Unit) {
-        // TODO
+        ModalBottomSheet(onDismissRequest = onDismiss) {
+            Column(
+                modifier =
+                    Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+                        .verticalScroll(rememberScrollState())
+            ) {
+                // todo
+            }
+        }
     }
 
     override fun getName(): String {
