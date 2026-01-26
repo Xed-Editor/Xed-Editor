@@ -97,8 +97,8 @@
     <string name="error">Erreur</string>
     <string name="open_dir_desc">Ouvrir un dossier via le sélecteur de fichiers du système</string>
     <string name="open_file_desc">Choisir un fichier à éditer</string>
-    <string name="open_path">Stockage interne</string>
-    <string name="open_path_desc">Ouvrir le stockage interne</string>
+    <string name="internal_storage">Stockage interne</string>
+    <string name="open_internal_storage">Ouvrir le stockage interne</string>
     <string name="add">Ajouter</string>
     <string name="already_opened">Fichier déjà ouvert</string>
     <string name="open_cant">Impossible d’ouvrir plus que</string>

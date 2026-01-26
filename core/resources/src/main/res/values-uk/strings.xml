@@ -111,8 +111,8 @@
     <string name="error">Помилка</string>
     <string name="open_dir_desc">Виберіть каталог як проєкт</string>
     <string name="open_file_desc">Виберіть файл, щоб безпосередньо його редагувати</string>
-    <string name="open_path">Внутрішнє сховище</string>
-    <string name="open_path_desc">Відкрити внутрішнє сховище</string>
+    <string name="internal_storage">Внутрішнє сховище</string>
+    <string name="open_internal_storage">Відкрити внутрішнє сховище</string>
     <string name="add">Додати</string>
     <string name="already_opened">Файл уже відкрито</string>
     <string name="open_cant">Не можна відкрити більш ніж</string>

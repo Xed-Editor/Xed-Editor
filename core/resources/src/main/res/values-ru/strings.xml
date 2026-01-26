@@ -111,8 +111,8 @@
     <string name="error">Ошибка</string>
     <string name="open_dir_desc">Открыть каталог с помощью проводника</string>
     <string name="open_file_desc">Выберите файл, чтобы редактировать его напрямую</string>
-    <string name="open_path">Внутреннее хранилище</string>
-    <string name="open_path_desc">Открыть внутреннее хранилище</string>
+    <string name="internal_storage">Внутреннее хранилище</string>
+    <string name="open_internal_storage">Открыть внутреннее хранилище</string>
     <string name="add">Добавить</string>
     <string name="already_opened">Файл уже открыт</string>
     <string name="open_cant">Невозможно открыть больше чем</string>

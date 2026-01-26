@@ -112,8 +112,9 @@
     <string name="error">Error</string>
     <string name="open_dir_desc">Open a directory via system file picker</string>
     <string name="open_file_desc">Choose a file to directly edit it</string>
-    <string name="open_path">Internal storage</string>
-    <string name="open_path_desc">Open internal storage</string>
+    <string name="internal_storage">Internal storage</string>
+    <string name="open_internal_storage">Open internal storage</string>
+    <string name="open_removable_storage">Open removable storage</string>
     <string name="add">Add</string>
     <string name="already_opened">File already opened</string>
     <string name="open_cant">Cannot open more than</string>

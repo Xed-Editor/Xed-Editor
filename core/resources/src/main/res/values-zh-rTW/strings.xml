@@ -111,8 +111,8 @@
     <string name="error">錯誤</string>
     <string name="open_dir_desc">打開資料夾（透過系統檔案選擇器）</string>
     <string name="open_file_desc">選取一個檔案並直接編輯</string>
-    <string name="open_path">內部儲存空間</string>
-    <string name="open_path_desc">開啟內部儲存空間</string>
+    <string name="internal_storage">內部儲存空間</string>
+    <string name="open_internal_storage">開啟內部儲存空間</string>
     <string name="add">新增</string>
     <string name="already_opened">檔案已開啟</string>
     <string name="open_cant">無法開啓多於</string>
