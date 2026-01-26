@@ -224,6 +224,23 @@ fun DrawerContent(modifier: Modifier = Modifier) {
             },
         )
 
+    val cloneGitRepo = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree(),
+        onResult = { uri ->
+            uri?.let {
+                runCatching {
+                    context.contentResolver.takePersistableUriPermission(
+                        it,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                }.onFailure { it.printStackTrace() }
+                scope.launch {
+                    // todo
+                }
+            }
+        }
+    )
+
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (isLoading) {
             CircularProgressIndicator()
@@ -342,7 +359,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         firstErrorMessage = repoURLError,
                         secondErrorMessage = repoBranchError,
                         onConfirm = {
-                            // todo
+                            cloneGitRepo.launch(null)
                         },
                         onFinish = {
                             showGitCloneDialog = false
