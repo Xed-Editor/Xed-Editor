@@ -34,12 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.components.isPermanentDrawer
 import com.rk.file.FileObject
+import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings
@@ -101,6 +103,13 @@ fun FileTree(
                 }
 
                 IconButton(onClick = onSearchClick) { Icon(Icons.Outlined.Search, stringResource(strings.search)) }
+
+                IconButton(onClick = onSearchClick) {
+                    Icon(
+                        painterResource(id = drawables.git),
+                        stringResource(strings.git)
+                    )
+                }
 
                 Box {
                     IconButton(onClick = { showOptionsMenu = true }) {

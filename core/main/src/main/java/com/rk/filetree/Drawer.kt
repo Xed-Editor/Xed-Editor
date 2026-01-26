@@ -83,6 +83,8 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 
 private val mutex = Mutex()
 
@@ -266,7 +268,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 withContext(Dispatchers.IO) {
                                     try {
                                         Git.cloneRepository()
-                                            .setURI("https://github.com/Andro-Master/flexOS-Sharp") // todo: replace this to repoURL
+                                            .setURI(repoURL)
                                             .setBranch("refs/heads/$repoBranch")
                                             .setDirectory(File(fileObject.getAbsolutePath()))
                                             .setCredentialsProvider(
@@ -277,9 +279,25 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                             )
                                             .call()
                                         done = true
+                                    } catch (e: TransportException) {
+                                        if (
+                                            e.message?.contains("Auth", true) == true ||
+                                            e.message?.contains("401") == true ||
+                                            e.message?.contains("403") == true
+                                        ) {
+                                            toast(strings.git_auth_error)
+                                        } else {
+                                            toast(e.message)
+                                        }
+                                    } catch (e: InvalidRemoteException) {
+                                        toast(strings.invalid_repo_url)
                                     } catch (e: Exception) {
-                                        // todo
+                                        toast(e.message)
                                     } finally {
+                                        repoURL = ""
+                                        repoBranch = "main"
+                                        repoURLError = null
+                                        repoBranchError = null
                                         loading.hide()
                                     }
                                 }
@@ -389,8 +407,11 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         },
                         firstErrorMessage = repoURLError,
                         secondErrorMessage = repoBranchError,
-                        onConfirm = { cloneGitRepo.launch(null) },
-                        onFinish = {
+                        onConfirm = {
+                            showGitCloneDialog = false
+                            cloneGitRepo.launch(null)
+                        },
+                        onDismiss = {
                             showGitCloneDialog = false
                             repoURL = ""
                             repoBranch = "main"

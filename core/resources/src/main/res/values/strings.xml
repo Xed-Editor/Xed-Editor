@@ -633,4 +633,6 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="email">Email</string>
+    <string name="git_auth_error">Authorization error. Check your credentials</string>
+    <string name="invalid_repo_url">Invalid repository URL</string>
 </resources>
