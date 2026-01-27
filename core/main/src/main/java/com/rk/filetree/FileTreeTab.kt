@@ -36,6 +36,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File;
 
 class FileTreeTab(val root: FileObject) : DrawerTab() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +44,6 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     override fun Content(modifier: Modifier) {
         var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
         var searchDialog by remember { mutableStateOf(false) }
-        var gitDialog by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val mainViewModel = MainActivity.instance?.viewModel
 
@@ -66,8 +66,6 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
             },
             onFileLongClick = { fileActionDialog = it.file },
             onSearchClick = { searchDialog = true },
-            onGitClick = { gitDialog = true },
-            gitEnabled = root.isGitRepository()
         )
 
         if (fileActionDialog != null && currentTab != null) {
@@ -82,10 +80,6 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
         if (searchDialog) {
             SearchDialog { searchDialog = false }
-        }
-
-        if (gitDialog) {
-            GitDialog { gitDialog = false }
         }
     }
 
@@ -119,18 +113,16 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         }
     }
 
-    @Composable
-    @OptIn(ExperimentalMaterial3Api::class)
-    private fun GitDialog(onDismiss: () -> Unit) {
-        ModalBottomSheet(onDismissRequest = onDismiss) {
-            Column(
-                modifier =
-                    Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
-                        .verticalScroll(rememberScrollState())
-            ) {
-                // todo
+    fun isGitRepo(): Boolean {
+        var dir: File? = File(root.getAbsolutePath())
+        while (dir != null) {
+            val gitDir = File(dir, ".git")
+            if (gitDir.exists() && gitDir.isDirectory) {
+                return true
             }
+            dir = dir.parentFile
         }
+        return false
     }
 
     override fun getName(): String {

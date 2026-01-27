@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
@@ -61,8 +60,6 @@ fun FileTree(
     onFileClick: FileTreeNode.(FileTreeNode) -> Unit,
     onFileLongClick: FileTreeNode.(FileTreeNode) -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onGitClick: () -> Unit = {},
-    gitEnabled: Boolean,
     viewModel: FileTreeViewModel,
 ) {
     var showOptionsMenu by remember { mutableStateOf(false) }
@@ -105,15 +102,6 @@ fun FileTree(
                 }
 
                 IconButton(onClick = onSearchClick) { Icon(Icons.Outlined.Search, stringResource(strings.search)) }
-
-                if (gitEnabled) {
-                    IconButton(onClick = onGitClick) {
-                        Icon(
-                            painterResource(id = drawables.git),
-                            stringResource(strings.git)
-                        )
-                    }
-                }
 
                 Box {
                     IconButton(onClick = { showOptionsMenu = true }) {
