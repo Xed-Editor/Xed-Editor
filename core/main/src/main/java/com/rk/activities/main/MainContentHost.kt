@@ -25,6 +25,7 @@ import com.rk.filetree.DrawerContent
 import com.rk.filetree.FileTreeViewModel
 import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
+import com.rk.git.GitViewModel
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
@@ -34,13 +35,15 @@ import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
 
 var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
+var gitViewModel = WeakReference<GitViewModel?>(null)
 var navigationDrawerState = WeakReference<DrawerState?>(null)
 
 var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 
 @Composable
-fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewModel: FileTreeViewModel = viewModel()) {
+fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewModel: FileTreeViewModel = viewModel(), gitViewModel: GitViewModel = viewModel()) {
     com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
+    com.rk.activities.main.gitViewModel = WeakReference(gitViewModel)
 
     XedTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {

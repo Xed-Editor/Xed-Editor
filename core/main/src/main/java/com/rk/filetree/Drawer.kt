@@ -60,6 +60,7 @@ import coil.compose.AsyncImage
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.CloseConfirmationDialog
 import com.rk.components.DoubleInputDialog
@@ -68,6 +69,7 @@ import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
+import com.rk.git.GitTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -88,10 +90,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
 
 private val mutex = Mutex()
 
@@ -135,7 +133,7 @@ suspend fun restoreProjects() {
 
             val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
             if (currentTabFile.exists() && currentTabFile.canRead()) {
-                currentTab = currentTabFile.readObject() as DrawerTab
+                selectTab(currentTabFile.readObject() as DrawerTab)
             }
 
             val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
@@ -155,17 +153,18 @@ var serviceTabs = mutableStateListOf<DrawerTab>(
     GitTab()
 )
 var currentTab by mutableStateOf<DrawerTab?>(null)
+var currentServiceTab by mutableStateOf<DrawerTab?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(fileObject: FileObject, save: Boolean = false) {
     val alreadyExistingProject = tabs.find { it is FileTreeTab && it.root == fileObject }
     if (alreadyExistingProject != null) {
-        currentTab = alreadyExistingProject
+        selectTab(alreadyExistingProject)
         return
     }
     val tab = FileTreeTab(fileObject)
     tabs.add(tab)
-    currentTab = tab
+    selectTab(tab)
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
@@ -173,7 +172,7 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
 
 fun addProject(tab: DrawerTab, save: Boolean = false) {
     tabs.add(tab)
-    currentTab = tab
+    selectTab(tab)
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
@@ -184,7 +183,7 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
     val tabToRemove = tabs.find { it is FileTreeTab && it.root == fileObject } ?: return
 
     if (currentTab == tabToRemove) {
-        currentTab = tabs.firstOrNull { it != tabToRemove }
+        selectTab(tabs.firstOrNull { it != tabToRemove })
     }
 
     tabs.remove(tabToRemove)
@@ -196,7 +195,7 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
 
 fun removeProject(tab: DrawerTab, save: Boolean = false) {
     if (currentTab == tab) {
-        currentTab = tabs.firstOrNull { it != tab }
+        selectTab(tabs.firstOrNull { it != tab })
     }
 
     tabs.remove(tab)
@@ -213,6 +212,14 @@ fun validateValue(value: String): String? {
         }
 
         else -> null
+    }
+}
+
+fun selectTab(tab: DrawerTab?) {
+    currentTab = tab
+    currentServiceTab = null
+    if (tab is FileTreeTab) {
+        gitViewModel.get()?.setCurrentRoot(tab.root.getAbsolutePath())
     }
 }
 
@@ -275,46 +282,21 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 loading.setMessage(strings.cloning.getString())
                                 var fileObject = it.toFileObject(expectedIsFile = false)
                                     .createChild(false, repoURL.substringAfterLast("/").substringBeforeLast("."))
-                                var done = false;
-                                withContext(Dispatchers.IO) {
-                                    try {
-                                        Git.cloneRepository()
-                                            .setURI(repoURL)
-                                            .setBranch("refs/heads/$repoBranch")
-                                            .setDirectory(File(fileObject!!.getAbsolutePath()))
-                                            .setCredentialsProvider(
-                                                UsernamePasswordCredentialsProvider(
-                                                    Settings.git_username,
-                                                    Settings.git_password
-                                                )
-                                            )
-                                            .call()
-                                        done = true
-                                    } catch (e: TransportException) {
-                                        if (
-                                            e.message?.contains("Auth", true) == true ||
-                                            e.message?.contains("401") == true ||
-                                            e.message?.contains("403") == true
-                                        ) {
-                                            toast(strings.git_auth_error)
-                                        } else {
-                                            toast(e.message)
-                                        }
-                                    } catch (e: InvalidRemoteException) {
-                                        toast(strings.invalid_repo_url)
-                                    } catch (e: Exception) {
-                                        toast(e.message)
-                                    } finally {
+                                gitViewModel.get()?.cloneRepository(
+                                    repoURL = repoURL,
+                                    repoBranch = repoBranch,
+                                    targetDir = File(fileObject!!.getAbsolutePath()),
+                                    onComplete = { success ->
                                         repoURL = ""
                                         repoBranch = "main"
                                         repoURLError = null
                                         repoBranchError = null
                                         loading.hide()
+                                        if (success) {
+                                            addProject(fileObject!!)
+                                        }
                                     }
-                                }
-                                if (done) {
-                                    addProject(fileObject!!)
-                                }
+                                )
                             }
                         }
                     }
@@ -349,10 +331,10 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                         }
                                     },
                                     onClick = {
-                                        if (currentTab == tab) {
+                                        if (currentTab == tab && currentServiceTab == null) {
                                             closeProjectDialog = true
                                         } else {
-                                            currentTab = tab
+                                            selectTab(tab)
                                         }
                                     },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -374,7 +356,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
                             serviceTabs.forEach { tab ->
                                 NavigationRailItem(
-                                    selected = false,
+                                    selected = currentServiceTab == tab,
                                     icon = {
                                         when (val icon = tab.getIcon()) {
                                             is Icon.DrawableRes -> {
@@ -397,11 +379,9 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                             }
                                         }
                                     },
-                                    onClick = {
-                                        // todo
-                                    },
+                                    onClick = { currentServiceTab = tab },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                                    enabled = currentTab != null && (currentTab as FileTreeTab)!!.isGitRepo()
+                                    enabled = currentTab != null && (currentTab as FileTreeTab).isGitRepo()
                                 )
                             }
                         }
@@ -411,22 +391,30 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 VerticalDivider()
 
                 Crossfade(targetState = currentTab, label = "file tree") { tab ->
+                    if (currentServiceTab == null) {
+                        if (tab != null) {
+                            tab.Content(modifier = Modifier.weight(1f))
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxSize().weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Icon(
+                                    painter = painterResource(drawables.outline_folder),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(stringResource(strings.no_folder_opened), color = MaterialTheme.colorScheme.onSurface)
+                           }
+                        }
+                    }
+                }
+
+                Crossfade(targetState = currentServiceTab) { tab ->
                     if (tab != null) {
                         tab.Content(modifier = Modifier.weight(1f))
-                    } else {
-                        Column(
-                            modifier = Modifier.fillMaxSize().weight(1f),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Icon(
-                                painter = painterResource(drawables.outline_folder),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(stringResource(strings.no_folder_opened), color = MaterialTheme.colorScheme.onSurface)
-                        }
                     }
                 }
 
