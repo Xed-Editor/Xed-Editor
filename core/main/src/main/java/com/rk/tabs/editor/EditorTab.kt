@@ -1,5 +1,7 @@
 package com.rk.tabs.editor
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -374,16 +376,18 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     )
                 }
 
-                SearchPanel(editorState = editorState)
-                if (editorState.isSearching) {
-                    HorizontalDivider()
-                }
+                Column(modifier = Modifier.animateContentSize()) {
+                    SearchPanel(editorState = editorState)
+                    if (editorState.isSearching) {
+                        HorizontalDivider()
+                    }
 
-                if (editorState.isWrapping || editorState.isConnectingLsp) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                }
+                    AnimatedVisibility(visible = editorState.isWrapping || editorState.isConnectingLsp) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
+                    }
 
-                editorState.notices.forEach { (id, notice) -> notice(id) }
+                    editorState.notices.forEach { (id, notice) -> notice(id) }
+                }
 
                 val fileExtension = file.getName().substringAfterLast(".")
                 val intelligentFeatures =

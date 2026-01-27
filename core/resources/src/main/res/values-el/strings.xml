@@ -113,8 +113,8 @@
     <string name="error">Σφάλμα</string>
     <string name="open_dir_desc">Άνοιγμα καταλόγου μέσω του επιλογέα αρχείων συστήματος</string>
     <string name="open_file_desc">Επιλέξτε ένα αρχείο για να το επεξεργαστείτε απευθείας</string>
-    <string name="open_path">Εσωτερικός αποθηκευτικός χώρος</string>
-    <string name="open_path_desc">Άνοιγμα εσωτερικού χώρου αποθήκευσης</string>
+    <string name="internal_storage">Εσωτερικός αποθηκευτικός χώρος</string>
+    <string name="open_internal_storage">Άνοιγμα εσωτερικού χώρου αποθήκευσης</string>
     <string name="add">Προσθήκη</string>
     <string name="already_opened">Το αρχείο είναι ήδη ανοιχτό</string>
     <string name="open_cant">Δεν είναι δυνατό το άνοιγμα περισσότερων από</string>

@@ -112,8 +112,8 @@
     <string name="error">त्रुटि</string>
     <string name="open_dir_desc">SAF का उपयोग करके डायरेक्टरी खोलें</string>
     <string name="open_file_desc">सीधे संपादित करने के लिए एक फ़ाइल चुनें</string>
-    <string name="open_path">इंटरनल स्टोरेज</string>
-    <string name="open_path_desc">इंटरनल स्टोरेज खोलें</string>
+    <string name="internal_storage">इंटरनल स्टोरेज</string>
+    <string name="open_internal_storage">इंटरनल स्टोरेज खोलें</string>
     <string name="add">जोड़ें</string>
     <string name="already_opened">फ़ाइल पहले से खुली है</string>
     <string name="open_cant">केवल इतनी ही फ़ाइलें खोल सकते हैं</string>

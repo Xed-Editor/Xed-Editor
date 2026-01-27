@@ -305,8 +305,8 @@
     <string name="error">Błąd</string>
     <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
     <string name="open_file_desc">Wybierz plik, aby edytować go bezpośrednio</string>
-    <string name="open_path">Pamięć wewnętrzna</string>
-    <string name="open_path_desc">Otwórz pamięć wewnętrzną</string>
+    <string name="internal_storage">Pamięć wewnętrzna</string>
+    <string name="open_internal_storage">Otwórz pamięć wewnętrzną</string>
     <string name="add">Dodaj</string>
     <string name="already_opened">Plik jest już otwarty</string>
     <string name="open_cant">Nie można otworzyć więcej niż</string>

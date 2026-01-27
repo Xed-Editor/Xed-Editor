@@ -112,8 +112,8 @@
     <string name="clone_repo">克隆存储库</string>
     <string name="open_dir_desc">打开文件夹（通过系统文件选择器）</string>
     <string name="open_file_desc">选择一个文件并直接编辑它</string>
-    <string name="open_path">内部储存</string>
-    <string name="open_path_desc">打开内部储存文件夹</string>
+    <string name="internal_storage">内部储存</string>
+    <string name="open_internal_storage">打开内部储存文件夹</string>
     <string name="already_opened">文件已打开</string>
     <string name="open_cant">无法打开多于</string>
     <string name="files">文件</string>

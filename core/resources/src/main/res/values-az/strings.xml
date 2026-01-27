@@ -52,7 +52,7 @@
     <string name="exists">artıq mövcuddur!</string>
     <string name="private_files">Şəxsi Fayllar</string>
     <string name="private_files_desc">Karbon-un Şəxsi Faylları</string>
-    <string name="open_path">Daxili Yaddaş</string>
-    <string name="open_path_desc">Daxili yaddaşı aç</string>
+    <string name="internal_storage">Daxili Yaddaş</string>
+    <string name="open_internal_storage">Daxili yaddaşı aç</string>
     <string name="open_file_desc">Birbaşa düzəliş etmək üçün faylı seçin</string>
 </resources>

@@ -107,8 +107,8 @@
     <string name="cloning">Kloning repositori…</string>
     <string name="error">Kesalahan</string>
     <string name="open_dir_desc">Buka sebuah direktori melalui pemilih berkas sistem</string>
-    <string name="open_path">Penyimpanan internal</string>
-    <string name="open_path_desc">Buka penyimpanan internal</string>
+    <string name="internal_storage">Penyimpanan internal</string>
+    <string name="open_internal_storage">Buka penyimpanan internal</string>
     <string name="add">Tambah</string>
     <string name="already_opened">Berkas sudah dibuka</string>
     <string name="open_cant">Tidak dapat membuka lebih dari</string>

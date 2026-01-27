@@ -4,7 +4,7 @@
     <string name="not_implemented">תכונה זו אינה מיושמת עדיין</string>
     <string name="change_theme">שינוי העיצוב</string>
     <string name="new_file_hint">שם לדוגמה. Test.txt</string>
-    <string name="open_path">אחסון חיצוני</string>
+    <string name="internal_storage">אחסון חיצוני</string>
     <string name="download_sure">האם אתה בטוח שאתה רוצה להוריד</string>
     <string name="close_drawer">סגור</string>
     <string name="unsupported_content">תוכן לא נתמך</string>
@@ -182,7 +182,7 @@
     <string name="pkg_download_failed">הורדת חבילה נכשלה</string>
     <string name="auto_mode">אטומטי</string>
     <string name="manage_storage_reason">עורך Xed זקוק לגישה לעריכת קבצים באחסון שלך. אנא אשר את הגישה בהגדרות המערכת שיופיעו.</string>
-    <string name="open_path_desc">פתח אחסון חיצוני</string>
+    <string name="open_internal_storage">פתח אחסון חיצוני</string>
     <string name="install_failed">התקנה נכשלה</string>
     <string name="cursor_anim_desc">הפעל אנימציות עכבר חלקות</string>
     <string name="pin_line_number">הצמד מספרי שורה</string>

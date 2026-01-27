@@ -182,8 +182,8 @@
     <string name="update_av">Nové aktualizace dostupné</string>
     <string name="update_disable">Kontrola aktualizacích vypnutá</string>
     <string name="launch">Spustit</string>
-    <string name="open_path_desc">Otevřít interní uložiště</string>
-    <string name="open_path">Interní uložiště</string>
+    <string name="open_internal_storage">Otevřít interní uložiště</string>
+    <string name="internal_storage">Interní uložiště</string>
     <string name="file_not_loaded">Soubor ještě nebyl načten.</string>
     <string name="experimental_session_restore_warning">Táto funkce je experimentální a může způsobit ztrátu dat</string>
     <string name="terminal_home_desc">Výchozí domovská složka terminálu</string>
@@ -573,7 +573,7 @@
     <string name="folder_creation_failed">Nelze vytvořit složka</string>
     <string name="change_lang_warn">Změnění jazyka obnoví tuto obrazovku, aby se použil nový jazyk ihned. Toto může chvíli zobrazit prázdnou obrazovku, což může vyvolat nepohodlí pro lid s fotosenzitivní epilepsií.</string>
     <string name="commands">Příkazy</string>
-    <string name="invalid_intent">Obdržel neplatný intent:\n%s</string>
+    <string name="invalid_intent">Získán neplatný intent:\n%s</string>
     <string name="enjoying_xed">Užíváte si Xed-Editor?</string>
     <string name="export_successful">Export úspěšný</string>
     <string name="export_failed">Export selhal</string>
@@ -582,7 +582,7 @@
     <string name="intelligent_features">Inteligentní funkce</string>
     <string name="auto_close_tags">Automaticky uzavřít tagy</string>
     <string name="auto_close_tags_desc">Automaticky uzavřít HTML tagy</string>
-    <string name="bullet_continuation_desc">Automaticky rozšířit seznamy a uvozovky v Markdown</string>
+    <string name="bullet_continuation_desc">Automaticky rozšířit seznamy a uvozovky v Markdownu</string>
     <string name="bullet_continuation">Pokračování odrážek</string>
     <string name="settings_backup_desc">Vytvořit zálohu od všechna vaších nastavení</string>
     <string name="settings_restore_desc">Obnovit nastavení ze zálohy</string>
@@ -606,4 +606,19 @@
     <string name="enable_editorconfig">Zapnout podporu EditorConfig</string>
     <string name="enable_editorconfig_desc">Automaticky použít pravidla stylu zdrojového kódu definované ve .editorconfig souborech</string>
     <string name="show_hidden_files">Zobrazit skryté soubory</string>
+    <string name="icon_pack_missing_fields">Soubor manifest.json má chybějící nebo neplatné vlastnosti:\n%s\n\nProsím zkontrolujte soubor a zkuste to znuvu.</string>
+    <string name="manifest_missing">Soubor manifest.json chybí. Prosím přidejte ho a zkuste to znovu.</string>
+    <string name="outdated_extension">Tento doplňek byl vytvořen pro starší verzi Xed-Editoru. Prosím požádejte vývojáře o novou verzi.</string>
+    <string name="outdated_client">Váš Xed-Editor není aktuální. Prosím udělejte aktualizaci na nejnovější verzi pro využití tohoto doplňku.</string>
+    <string name="extension_validation_failed">Ověření doplňku selhalo</string>
+    <string name="general">Obecné</string>
+    <string name="advanced">Pokročilé</string>
+    <string name="icon_packs">Sady ikon</string>
+    <string name="no_icon_packs_found">Žádné sady ikon nenalezeny</string>
+    <string name="add_icon_pack">Přidat sadu ikon</string>
+    <string name="last_modified">Posledně změněno</string>
+    <string name="content_property">%s položky/ek, roven %s</string>
+    <string name="icon_pack_install_failed">Instalace sadu ikon selhalo</string>
+    <string name="emulate_editor_key">Emulovat stisknutí klávesy</string>
+    <string name="select_key">Vyberte kód klávesy</string>
 </resources>

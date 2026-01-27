@@ -69,12 +69,7 @@ class Editor : CodeEditor {
         applySettings()
         lineNumberMarginLeft = 9f
 
-        getComponent<EditorAutoCompletion>(EditorAutoCompletion::class.java).apply {
-            val metrics = context.resources.displayMetrics
-            val density = Density(density = metrics.density, fontScale = context.resources.configuration.fontScale)
-
-            setAdapter(AutoCompletionLayoutAdapter(density))
-        }
+        getComponent(EditorAutoCompletion::class.java).setEnabledAnimation(true)
     }
 
     fun setThemeColors(isDarkMode: Boolean, selectionColors: TextSelectionColors, colorScheme: ColorScheme) {
@@ -181,7 +176,14 @@ class Editor : CodeEditor {
 
                 setColors(currentLine, EditorColorScheme.CURRENT_LINE)
                 setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
-                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER, EditorColorScheme.STICKY_SCROLL_DIVIDER)
+                setColors(
+                    dividerColor,
+                    EditorColorScheme.LINE_DIVIDER,
+                    EditorColorScheme.STICKY_SCROLL_DIVIDER,
+                    EditorColorScheme.COMPLETION_WND_CORNER,
+                    EditorColorScheme.SIGNATURE_BORDER,
+                    EditorColorScheme.HOVER_BORDER,
+                )
 
                 setColors(errorColor, EditorColorScheme.PROBLEM_ERROR)
 
