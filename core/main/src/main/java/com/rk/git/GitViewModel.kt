@@ -24,12 +24,14 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 class GitViewModel : ViewModel() {
     private var currentRoot = mutableStateOf<File?>(null)
     var currentBranch by mutableStateOf<String>("")
+    var currentChanges by mutableStateOf<List<GitChange>>(emptyList())
 
     var isLoading by mutableStateOf(false)
 
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
-        currentBranch = Git.open(currentRoot.value).repository.branch
+        currentBranch = Git.open(currentRoot.value).currentHead()
+        loadChanges()
     }
 
     fun getBranchList(): List<String> {
@@ -180,6 +182,27 @@ class GitViewModel : ViewModel() {
                     .call()
                 withContext(Dispatchers.Main) { isLoading = false }
                 toast(strings.action_done)
+            }
+        }
+    }
+
+    fun loadChanges() {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            val changes = mutableListOf<GitChange>()
+            Git.open(currentRoot.value).use { git ->
+                val status = git.status().call()
+                changes.addAll(status.added.map { GitChange(it, ChangeType.ADDED) })
+                changes.addAll(status.changed.map { GitChange(it, ChangeType.MODIFIED) })
+                changes.addAll(status.removed.map { GitChange(it, ChangeType.DELETED) })
+                changes.addAll(status.missing.map { GitChange(it, ChangeType.DELETED) })
+                changes.addAll(status.modified.map { GitChange(it, ChangeType.MODIFIED) })
+                changes.addAll(status.untracked.map { GitChange(it, ChangeType.ADDED) })
+                changes.addAll(status.conflicting.map { GitChange(it, ChangeType.MODIFIED) })
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    currentChanges = changes
+                }
             }
         }
     }

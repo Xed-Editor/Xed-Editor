@@ -34,7 +34,6 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -111,18 +110,6 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 )
             }
         }
-    }
-
-    fun isGitRepo(): Boolean {
-        var dir: File? = File(root.getAbsolutePath())
-        while (dir != null) {
-            val gitDir = File(dir, ".git")
-            if (gitDir.exists() && gitDir.isDirectory) {
-                return true
-            }
-            dir = dir.parentFile
-        }
-        return false
     }
 
     override fun getName(): String {
