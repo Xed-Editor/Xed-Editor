@@ -643,4 +643,5 @@
     <string name="extension_validation_failed">Eklenti doğrulaması başarısız oldu</string>
     <string name="general">Genel</string>
     <string name="advanced">Gelişmiş</string>
+    <string name="open_removable_storage">Çıkarılabilir depolamayı aç</string>
 </resources>
