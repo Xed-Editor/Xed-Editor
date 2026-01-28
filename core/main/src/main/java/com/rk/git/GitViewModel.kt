@@ -115,9 +115,10 @@ class GitViewModel : ViewModel() {
                     } else {
                         git.checkout().setName(branchName).call()
                     }
-                    val newBranch = git.repository.branch
-                    withContext(Dispatchers.Main) { currentBranch = newBranch }
+                    withContext(Dispatchers.Main) { currentBranch = git.repository.branch }
                 }
+            } catch (e: Exception) {
+                toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) { isLoading = false }
             }
