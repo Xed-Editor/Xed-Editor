@@ -40,7 +40,7 @@ fun GitSettings() {
         var nameError by remember { mutableStateOf<String?>(null) }
         var emailError by remember { mutableStateOf<String?>(null) }
 
-        PreferenceGroup {
+        PreferenceGroup(heading = stringResource(strings.account)) {
             SettingsToggle(
                 label = stringResource(strings.credentials),
                 description = stringResource(strings.credentials_desc),
@@ -55,6 +55,15 @@ fun GitSettings() {
                 showSwitch = false,
                 default = false,
                 sideEffect = { showUserDataDialog = true },
+            )
+        }
+
+        PreferenceGroup {
+            SettingsToggle(
+                label = stringResource(strings.recursive_submodules),
+                description = stringResource(strings.recursive_submodules_desc),
+                default = Settings.git_recursive_submodules,
+                sideEffect = { Settings.git_recursive_submodules = it },
             )
         }
 

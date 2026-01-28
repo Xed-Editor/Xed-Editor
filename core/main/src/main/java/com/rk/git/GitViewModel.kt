@@ -18,6 +18,7 @@ import org.eclipse.jgit.api.errors.DetachedHeadException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 class GitViewModel : ViewModel() {
@@ -121,6 +122,64 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) { isLoading = false }
+                toast(strings.action_done)
+            }
+        }
+    }
+
+    fun pullRepository() {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            Git.open(currentRoot.value).use { git ->
+                val pullResult =
+                    git.pull()
+                        .setRemote(GIT_ORIGIN)
+                        .setCredentialsProvider(
+                            UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
+                        )
+                        .call()
+                if (!pullResult.isSuccessful) {
+                    val errorMessage = buildString {
+                        pullResult.mergeResult?.let { mergeResult ->
+                            append("Merge status: ${mergeResult.mergeStatus}")
+                            if (!mergeResult.mergeStatus.isSuccessful) {
+                                append(", Conflicts: ${mergeResult.conflicts?.keys?.joinToString() ?: "none"}")
+                            }
+                        }
+                        pullResult.rebaseResult?.let { rebaseResult ->
+                            if (isNotEmpty()) append("; ")
+                            append("Rebase status: ${rebaseResult.status}")
+                        }
+                    }
+                    toast(errorMessage)
+                }
+                withContext(Dispatchers.Main) { isLoading = false }
+                toast(strings.action_done)
+            }
+        }
+    }
+
+    fun fetchRepository() {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            Git.open(currentRoot.value).use { git ->
+                git.fetch()
+                    .setRemote(GIT_ORIGIN)
+                    .setCredentialsProvider(
+                        UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
+                    )
+                    .setRecurseSubmodules(
+                        if (Settings.git_recursive_submodules) {
+                            FetchRecurseSubmodulesMode.YES
+                        } else {
+                            FetchRecurseSubmodulesMode.ON_DEMAND
+                        }
+                    )
+                    .setCheckFetchedObjects(true)
+                    .setRemoveDeletedRefs(true)
+                    .call()
+                withContext(Dispatchers.Main) { isLoading = false }
+                toast(strings.action_done)
             }
         }
     }

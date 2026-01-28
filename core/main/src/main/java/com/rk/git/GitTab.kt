@@ -83,11 +83,11 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Spacer(modifier = Modifier.weight(1f))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = {}, enabled = !viewModel.isLoading) {
+                        IconButton(onClick = { viewModel.pullRepository() }, enabled = !viewModel.isLoading) {
                             Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
                         }
 
-                        IconButton(onClick = {}, enabled = !viewModel.isLoading) {
+                        IconButton(onClick = { viewModel.fetchRepository() }, enabled = !viewModel.isLoading) {
                             Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
                         }
 

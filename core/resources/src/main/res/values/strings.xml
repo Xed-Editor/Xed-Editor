@@ -639,4 +639,7 @@
     <string name="pull">Pull</string>
     <string name="fetch">Fetch</string>
     <string name="push">Push</string>
+    <string name="account">Account</string>
+    <string name="recursive_submodules">Recursive submodules</string>
+    <string name="recursive_submodules_desc">Fetch submodules and their dependencies recursively</string>
 </resources>
