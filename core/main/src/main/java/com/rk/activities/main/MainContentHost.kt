@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
 import com.rk.filetree.FileTreeViewModel
+import com.rk.filetree.createServices
 import com.rk.filetree.isLoading
 import com.rk.filetree.restoreProjects
 import com.rk.git.GitViewModel
@@ -41,7 +42,11 @@ var navigationDrawerState = WeakReference<DrawerState?>(null)
 var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 
 @Composable
-fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewModel: FileTreeViewModel = viewModel(), gitViewModel: GitViewModel = viewModel()) {
+fun MainActivity.MainContentHost(
+    modifier: Modifier = Modifier,
+    fileTreeViewModel: FileTreeViewModel = viewModel(),
+    gitViewModel: GitViewModel = viewModel(),
+) {
     com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
     com.rk.activities.main.gitViewModel = WeakReference(gitViewModel)
 
@@ -138,6 +143,7 @@ fun MainActivity.MainContentHost(modifier: Modifier = Modifier, fileTreeViewMode
                 LaunchedEffect(Unit) {
                     isLoading = true
                     restoreProjects()
+                    createServices()
                     isLoading = false
                 }
                 DrawerContent(modifier = Modifier.fillMaxSize().padding(top = 8.dp))

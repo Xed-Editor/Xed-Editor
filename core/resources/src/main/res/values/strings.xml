@@ -636,4 +636,7 @@
     <string name="email">Email</string>
     <string name="git_auth_error">Authorization error. Check your credentials</string>
     <string name="invalid_repo_url">Invalid repository URL</string>
+    <string name="pull">Pull</string>
+    <string name="fetch">Fetch</string>
+    <string name="push">Push</string>
 </resources>

@@ -73,9 +73,10 @@ fun DoubleInputDialog(
                     label = { Text(firstInputLabel) },
                     modifier = Modifier.fillMaxWidth().focusRequester(firstFocusRequester),
                     isError = firstErrorMessage != null,
-                    supportingText = firstErrorMessage?.let {
-                        { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
-                    },
+                    supportingText =
+                        firstErrorMessage?.let {
+                            { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
+                        },
                     trailingIcon = {
                         if (firstErrorMessage != null) {
                             Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
@@ -95,9 +96,10 @@ fun DoubleInputDialog(
                     label = { Text(secondInputLabel) },
                     modifier = Modifier.fillMaxWidth().focusRequester(secondFocusRequester),
                     isError = secondErrorMessage != null,
-                    supportingText = secondErrorMessage?.let {
-                        { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
-                    },
+                    supportingText =
+                        secondErrorMessage?.let {
+                            { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
+                        },
                     trailingIcon = {
                         if (secondErrorMessage != null) {
                             Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)

@@ -133,7 +133,7 @@ object Settings {
     var encoding: String by CachedPreference("encoding", Charset.defaultCharset().name())
     var line_ending by CachedPreference("line_ending", "lf")
     var current_lang: String by
-    CachedPreference("current_lang", application!!.resources.configuration.locales[0].language)
+        CachedPreference("current_lang", application!!.resources.configuration.locales[0].language)
     var extra_keys_symbols by CachedPreference("extra_keys_symbols", DEFAULT_EXTRA_KEYS_SYMBOLS)
     var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
     var git_username by CachedPreference("git_username", "")

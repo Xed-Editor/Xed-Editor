@@ -40,7 +40,6 @@ import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.components.isPermanentDrawer
 import com.rk.file.FileObject
-import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings

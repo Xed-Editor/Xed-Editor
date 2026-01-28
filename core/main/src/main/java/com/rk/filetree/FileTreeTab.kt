@@ -34,9 +34,9 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File;
 
 class FileTreeTab(val root: FileObject) : DrawerTab() {
     @OptIn(ExperimentalMaterial3Api::class)

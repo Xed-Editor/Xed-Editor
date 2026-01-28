@@ -46,7 +46,7 @@ fun GitSettings() {
                 description = stringResource(strings.credentials_desc),
                 showSwitch = false,
                 default = false,
-                sideEffect = { showCredentialsDialog = true }
+                sideEffect = { showCredentialsDialog = true },
             )
 
             SettingsToggle(
@@ -54,7 +54,7 @@ fun GitSettings() {
                 description = stringResource(strings.user_data_desc),
                 showSwitch = false,
                 default = false,
-                sideEffect = { showUserDataDialog = true }
+                sideEffect = { showUserDataDialog = true },
             )
         }
 
@@ -86,7 +86,7 @@ fun GitSettings() {
                 },
                 firstErrorMessage = usernameError,
                 secondErrorMessage = passwordError,
-                confirmEnabled = usernameError == null && passwordError == null && username.isNotBlank()
+                confirmEnabled = usernameError == null && passwordError == null && username.isNotBlank(),
             )
         }
 
@@ -118,7 +118,7 @@ fun GitSettings() {
                 },
                 firstErrorMessage = nameError,
                 secondErrorMessage = emailError,
-                confirmEnabled = nameError == null && emailError == null && name.isNotBlank()
+                confirmEnabled = nameError == null && emailError == null && name.isNotBlank(),
             )
         }
     }
