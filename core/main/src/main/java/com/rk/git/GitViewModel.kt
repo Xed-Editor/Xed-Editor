@@ -129,7 +129,7 @@ class GitViewModel : ViewModel() {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) { isLoading = false }
-                toast(strings.action_done)
+                toast(strings.checkout_complete)
             }
         }
     }
@@ -161,7 +161,7 @@ class GitViewModel : ViewModel() {
                     toast(errorMessage)
                 }
                 withContext(Dispatchers.Main) { isLoading = false }
-                toast(strings.action_done)
+                toast(strings.pull_complete)
             }
         }
     }
@@ -186,7 +186,7 @@ class GitViewModel : ViewModel() {
                     .setRemoveDeletedRefs(true)
                     .call()
                 withContext(Dispatchers.Main) { isLoading = false }
-                toast(strings.action_done)
+                toast(strings.fetch_complete)
             }
         }
     }
@@ -231,7 +231,7 @@ class GitViewModel : ViewModel() {
                     .call()
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    toast(strings.action_done)
+                    toast(strings.commit_complete)
                     loadChanges()
                 }
             }
@@ -268,7 +268,7 @@ class GitViewModel : ViewModel() {
                 } else {
                     withContext(Dispatchers.Main) {
                         isLoading = false
-                        toast(strings.action_done)
+                        toast(strings.push_complete)
                     }
                 }
             }

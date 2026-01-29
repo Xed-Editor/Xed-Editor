@@ -200,6 +200,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
+                        enabled = !viewModel.isLoading,
                         checked = amendState,
                         interactionSource = interactionSource,
                         onCheckedChange = onStateChange,
@@ -210,7 +211,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     enabled = !viewModel.isLoading && viewModel.currentChanges.size > 0,
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     state = commitMessageState,
-                    label = { Text(stringResource(strings.commit_message)) },
+                    placeholder = { Text(stringResource(strings.commit_message)) },
                 )
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
