@@ -646,4 +646,5 @@
     <string name="extension_validation_failed">Échec de la validation de l\'extension</string>
     <string name="general">Général</string>
     <string name="advanced">Avancé</string>
+    <string name="open_removable_storage">Ouvrir un stockage amovible</string>
 </resources>

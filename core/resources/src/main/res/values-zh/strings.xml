@@ -642,4 +642,5 @@
     <string name="content_property">共 %s 项，总计 %s</string>
     <string name="general">通用</string>
     <string name="advanced">高级</string>
+    <string name="open_removable_storage">打开可移动存储</string>
 </resources>
