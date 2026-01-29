@@ -4,19 +4,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.ImageLoader
 import coil.compose.AsyncImage
-import coil.decode.SvgDecoder
 import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.icons.pack.currentIconPack
+import com.rk.icons.rememberSvgImageLoader
 import com.rk.resources.drawables
 import com.rk.theme.folderSurface
 
@@ -66,12 +63,6 @@ fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = fa
             modifier = Modifier.size(20.dp),
         )
     }
-}
-
-@Composable
-fun rememberSvgImageLoader(): ImageLoader {
-    val context = LocalContext.current
-    return remember { ImageLoader.Builder(context).components { add(SvgDecoder.Factory()) }.build() }
 }
 
 private fun getBuiltInFileIcon(file: FileObject): Int =
