@@ -367,3 +367,15 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 
     drawPath(path = path, color = errorColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round))
 }
+
+fun isGitRepo(path: String): Boolean {
+    var dir: File? = File(path)
+    while (dir != null) {
+        val gitDir = File(dir, ".git")
+        if (gitDir.exists() && gitDir.isDirectory) {
+            return true
+        }
+        dir = dir.parentFile
+    }
+    return false
+}

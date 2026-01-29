@@ -7,23 +7,30 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.storage.StorageManager
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -52,24 +59,30 @@ import coil.compose.AsyncImage
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.CloseConfirmationDialog
+import com.rk.components.DoubleInputDialog
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
+import com.rk.git.GitTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialog
+import com.rk.utils.isGitRepo
 import com.rk.utils.readObject
 import com.rk.utils.toast
 import com.rk.utils.writeObject
+import java.io.File
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -120,7 +133,7 @@ suspend fun restoreProjects() {
 
                 val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
                 if (currentTabFile.exists() && currentTabFile.canRead()) {
-                    currentTab = currentTabFile.readObject() as DrawerTab
+                    selectTab(currentTabFile.readObject() as DrawerTab)
                 }
 
                 val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
@@ -135,19 +148,26 @@ suspend fun restoreProjects() {
     }
 }
 
+suspend fun createServices() {
+    serviceTabs.clear()
+    serviceTabs.add(GitTab(gitViewModel.get()!!))
+}
+
 var tabs = mutableStateListOf<DrawerTab>()
+var serviceTabs = mutableStateListOf<DrawerTab>()
 var currentTab by mutableStateOf<DrawerTab?>(null)
+var currentServiceTab by mutableStateOf<DrawerTab?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(fileObject: FileObject, save: Boolean = false) {
     val alreadyExistingProject = tabs.find { it is FileTreeTab && it.root == fileObject }
     if (alreadyExistingProject != null) {
-        currentTab = alreadyExistingProject
+        selectTab(alreadyExistingProject)
         return
     }
     val tab = FileTreeTab(fileObject)
     tabs.add(tab)
-    currentTab = tab
+    selectTab(tab)
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
@@ -155,7 +175,7 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
 
 fun addProject(tab: DrawerTab, save: Boolean = false) {
     tabs.add(tab)
-    currentTab = tab
+    selectTab(tab)
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
@@ -166,7 +186,7 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
     val tabToRemove = tabs.find { it is FileTreeTab && it.root == fileObject } ?: return
 
     if (currentTab == tabToRemove) {
-        currentTab = tabs.firstOrNull { it != tabToRemove }
+        selectTab(tabs.firstOrNull { it != tabToRemove })
     }
 
     tabs.remove(tabToRemove)
@@ -178,7 +198,7 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
 
 fun removeProject(tab: DrawerTab, save: Boolean = false) {
     if (currentTab == tab) {
-        currentTab = tabs.firstOrNull { it != tab }
+        selectTab(tabs.firstOrNull { it != tab })
     }
 
     tabs.remove(tab)
@@ -188,11 +208,30 @@ fun removeProject(tab: DrawerTab, save: Boolean = false) {
     }
 }
 
+fun validateValue(value: String): String? {
+    return when {
+        value.isBlank() -> {
+            strings.value_empty_err.getString()
+        }
+
+        else -> null
+    }
+}
+
+fun selectTab(tab: DrawerTab?) {
+    currentTab = tab
+    currentServiceTab = null
+    if (tab is FileTreeTab && isGitRepo(tab.root.getAbsolutePath())) {
+        gitViewModel.get()?.loadRepository(tab.root.getAbsolutePath())
+    }
+}
+
 var isLoading by mutableStateOf(true)
 
 @Composable
 fun DrawerContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val activity = LocalActivity.current as? AppCompatActivity
     val scope = rememberCoroutineScope()
 
     val openFolder =
@@ -223,68 +262,174 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
 
                 var closeProjectDialog by remember { mutableStateOf(false) }
+                var showGitCloneDialog by remember { mutableStateOf(false) }
 
-                NavigationRail(modifier = Modifier.width(61.dp)) {
-                    tabs.forEach { tab ->
-                        NavigationRailItem(
-                            selected = currentTab == tab,
-                            icon = {
-                                when (val icon = tab.getIcon()) {
-                                    is Icon.DrawableRes -> {
-                                        Icon(painter = painterResource(icon.drawableRes), contentDescription = null)
-                                    }
-                                    is Icon.VectorIcon -> {
-                                        Icon(imageVector = icon.vector, contentDescription = null)
-                                    }
-                                    is Icon.SvgIcon -> {
-                                        AsyncImage(
-                                            model = icon.file,
-                                            imageLoader = rememberSvgImageLoader(),
-                                            contentDescription = null,
+                var repoURL by remember { mutableStateOf("") }
+                var repoBranch by remember { mutableStateOf("main") }
+
+                var repoURLError by remember { mutableStateOf<String?>(null) }
+                var repoBranchError by remember { mutableStateOf<String?>(null) }
+
+                val cloneGitRepo =
+                    rememberLauncherForActivityResult(
+                        contract = ActivityResultContracts.OpenDocumentTree(),
+                        onResult = { uri ->
+                            uri?.let {
+                                runCatching {
+                                        context.contentResolver.takePersistableUriPermission(
+                                            it,
+                                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                                         )
                                     }
+                                    .onFailure { it.printStackTrace() }
+                                scope.launch {
+                                    val loading = LoadingPopup(activity, null).show()
+                                    loading.setMessage(strings.cloning.getString())
+                                    var fileObject =
+                                        it.toFileObject(expectedIsFile = false)
+                                            .createChild(
+                                                false,
+                                                repoURL.substringAfterLast("/").substringBeforeLast("."),
+                                            )
+                                    gitViewModel
+                                        .get()
+                                        ?.cloneRepository(
+                                            repoURL = repoURL,
+                                            repoBranch = repoBranch,
+                                            targetDir = File(fileObject!!.getAbsolutePath()),
+                                            onComplete = { success ->
+                                                repoURL = ""
+                                                repoBranch = "main"
+                                                repoURLError = null
+                                                repoBranchError = null
+                                                loading.hide()
+                                                if (success) {
+                                                    addProject(fileObject!!)
+                                                }
+                                            },
+                                        )
                                 }
-                            },
-                            onClick = {
-                                if (currentTab == tab) {
-                                    closeProjectDialog = true
-                                } else {
-                                    currentTab = tab
-                                }
-                            },
-                            label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        )
-                    }
-
-                    NavigationRailItem(
-                        selected = false,
-                        icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
-                        onClick = { showAddDialog = true },
-                        label = { Text(stringResource(strings.add)) },
+                            }
+                        },
                     )
+
+                NavigationRail(modifier = Modifier.width(61.dp)) {
+                    Column(modifier = Modifier.fillMaxHeight()) {
+                        LazyColumn(modifier = Modifier.weight(1f, fill = true)) {
+                            items(tabs) { tab ->
+                                NavigationRailItem(
+                                    selected = currentTab == tab,
+                                    icon = {
+                                        when (val icon = tab.getIcon()) {
+                                            is Icon.DrawableRes -> {
+                                                Icon(
+                                                    painter = painterResource(icon.drawableRes),
+                                                    contentDescription = null,
+                                                )
+                                            }
+
+                                            is Icon.VectorIcon -> {
+                                                Icon(imageVector = icon.vector, contentDescription = null)
+                                            }
+
+                                            is Icon.SvgIcon -> {
+                                                AsyncImage(
+                                                    model = icon.file,
+                                                    imageLoader = rememberSvgImageLoader(),
+                                                    contentDescription = null,
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onClick = {
+                                        if (currentTab == tab && currentServiceTab == null) {
+                                            closeProjectDialog = true
+                                        } else {
+                                            selectTab(tab)
+                                        }
+                                    },
+                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                )
+                            }
+
+                            item {
+                                NavigationRailItem(
+                                    selected = false,
+                                    icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
+                                    onClick = { showAddDialog = true },
+                                    label = { Text(stringResource(strings.add)) },
+                                )
+                            }
+                        }
+
+                        HorizontalDivider()
+
+                        Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
+                            serviceTabs.forEach { tab ->
+                                NavigationRailItem(
+                                    selected = currentServiceTab == tab,
+                                    icon = {
+                                        when (val icon = tab.getIcon()) {
+                                            is Icon.DrawableRes -> {
+                                                Icon(
+                                                    painter = painterResource(icon.drawableRes),
+                                                    contentDescription = null,
+                                                )
+                                            }
+
+                                            is Icon.VectorIcon -> {
+                                                Icon(imageVector = icon.vector, contentDescription = null)
+                                            }
+
+                                            is Icon.SvgIcon -> {
+                                                AsyncImage(
+                                                    model = icon.file,
+                                                    imageLoader = rememberSvgImageLoader(),
+                                                    contentDescription = null,
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onClick = { currentServiceTab = tab },
+                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    enabled =
+                                        currentTab != null &&
+                                            isGitRepo((currentTab as FileTreeTab).root.getAbsolutePath()),
+                                )
+                            }
+                        }
+                    }
                 }
 
                 VerticalDivider()
 
                 Crossfade(targetState = currentTab, label = "file tree") { tab ->
-                    if (tab != null) {
-                        tab.Content(modifier = Modifier.weight(1f))
-                    } else {
-                        Column(
-                            modifier = Modifier.fillMaxSize().weight(1f),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Icon(
-                                painter = painterResource(drawables.outline_folder),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(stringResource(strings.no_folder_opened), color = MaterialTheme.colorScheme.onSurface)
+                    if (currentServiceTab == null) {
+                        if (tab != null) {
+                            tab.Content(modifier = Modifier.weight(1f))
+                        } else {
+                            Column(
+                                modifier = Modifier.fillMaxSize().weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Icon(
+                                    painter = painterResource(drawables.outline_folder),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    stringResource(strings.no_folder_opened),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
                         }
                     }
                 }
+
+                Crossfade(targetState = currentServiceTab) { tab -> tab?.Content(modifier = Modifier.weight(1f)) }
 
                 if (showAddDialog) {
                     AddProjectDialog(
@@ -298,6 +443,42 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 onOk = { callback.invoke() },
                             )
                         },
+                        showGitCloneDialog = {
+                            showAddDialog = false
+                            showGitCloneDialog = true
+                        },
+                    )
+                }
+
+                if (showGitCloneDialog) {
+                    DoubleInputDialog(
+                        title = stringResource(strings.clone_repo),
+                        firstInputLabel = stringResource(strings.repo_url),
+                        firstInputValue = repoURL,
+                        onFirstInputValueChange = {
+                            repoURL = it
+                            repoURLError = validateValue(repoURL)
+                        },
+                        secondInputLabel = stringResource(strings.branch),
+                        secondInputValue = repoBranch,
+                        onSecondInputValueChange = {
+                            repoBranch = it
+                            repoBranchError = validateValue(repoBranch)
+                        },
+                        firstErrorMessage = repoURLError,
+                        secondErrorMessage = repoBranchError,
+                        onConfirm = {
+                            showGitCloneDialog = false
+                            cloneGitRepo.launch(null)
+                        },
+                        onDismiss = {
+                            showGitCloneDialog = false
+                            repoURL = ""
+                            repoBranch = "main"
+                            repoURLError = null
+                            repoBranchError = null
+                        },
+                        confirmEnabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
                     )
                 }
 
@@ -323,6 +504,7 @@ private fun AddProjectDialog(
     onAddProject: (FileObject) -> Unit,
     openFolder: ManagedActivityResultLauncher<Uri?, Uri?>,
     showPrivateFileWarning: (onOK: () -> Unit) -> Unit,
+    showGitCloneDialog: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -404,6 +586,17 @@ private fun AddProjectDialog(
                     },
                 )
             }
+
+            // Clone repository option
+            AddDialogItem(
+                icon = Icon.DrawableRes(drawables.git),
+                title = stringResource(strings.clone_repo),
+                description = stringResource(strings.clone_repo_desc),
+                onClick = {
+                    showGitCloneDialog()
+                    onDismiss()
+                },
+            )
 
             // Terminal Home option
             AddDialogItem(

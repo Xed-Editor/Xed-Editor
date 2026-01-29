@@ -36,6 +36,7 @@ composeBom = "2025.11.01"
 coilCompose = "2.7.0"
 navigationCompose = "2.9.6"
 ktfmt = "0.25.0"
+jgit = "7.5.0.202512021534-r"
 
 tsBinding = "4.3.1"
 lsp4j = "0.24.0"
@@ -85,6 +86,7 @@ quickjs-android = { module = "app.cash.quickjs:quickjs-android", version.ref = "
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.2" }
 gson = { module = "com.google.code.gson:gson", version = "2.13.2" }
+jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
