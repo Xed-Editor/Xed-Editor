@@ -24,7 +24,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 class GitViewModel : ViewModel() {
     private var currentRoot = mutableStateOf<File?>(null)
-    var currentBranch by mutableStateOf<String>("")
+    var currentBranch by mutableStateOf("")
     var currentChanges by mutableStateOf<List<GitChange>>(emptyList())
 
     var isLoading by mutableStateOf(false)
@@ -54,10 +54,10 @@ class GitViewModel : ViewModel() {
     private fun Git.currentHead(): String {
         return try {
             repository.branch
-        } catch (e: DetachedHeadException) {
+        } catch (_: DetachedHeadException) {
             val fullCommitId = repository.fullBranch
             if (fullCommitId != null && fullCommitId.length >= 7) {
-                fullCommitId.substring(0, 7)
+                fullCommitId.take(7)
             } else {
                 fullCommitId.toString()
             }
@@ -92,7 +92,7 @@ class GitViewModel : ViewModel() {
                     } else {
                         toast(e.message)
                     }
-                } catch (e: InvalidRemoteException) {
+                } catch (_: InvalidRemoteException) {
                     toast(strings.invalid_repo_url)
                 } catch (e: Exception) {
                     toast(e.message)
