@@ -103,7 +103,7 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun checkoutBranch(branchName: String) {
+    fun checkout(branchName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             try {
@@ -128,7 +128,10 @@ class GitViewModel : ViewModel() {
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
-                withContext(Dispatchers.Main) { isLoading = false }
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    loadChanges()
+                }
                 toast(strings.checkout_complete)
             }
         }
@@ -270,6 +273,29 @@ class GitViewModel : ViewModel() {
                         isLoading = false
                         toast(strings.push_complete)
                     }
+                }
+            }
+        }
+    }
+
+    fun checkoutNew(branchName: String, branchBase: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            Git.open(currentRoot.value).use { git ->
+                if (branchBase.startsWith("$GIT_ORIGIN/")) {
+                    git.checkout().setName(branchName).setStartPoint(branchBase).setCreateBranch(true).call()
+                } else {
+                    git.checkout()
+                        .setName(branchName)
+                        .setStartPoint("refs/heads/$branchBase")
+                        .setCreateBranch(true)
+                        .call()
+                }
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    currentBranch = Git.open(currentRoot.value).currentHead()
+                    loadChanges()
+                    toast(strings.checkout_complete)
                 }
             }
         }

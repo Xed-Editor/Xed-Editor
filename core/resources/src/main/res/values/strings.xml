@@ -652,4 +652,5 @@
     <string name="fetch_complete">Fetch complete</string>
     <string name="commit_complete">Commit complete</string>
     <string name="push_complete">Push complete</string>
+    <string name="new_branch">New branch</string>
 </resources>

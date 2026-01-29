@@ -20,8 +20,6 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -52,6 +50,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rk.components.SingleInputDialog
 import com.rk.components.isPermanentDrawer
 import com.rk.filetree.DrawerTab
 import com.rk.icons.Icon
@@ -63,10 +62,15 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
     override fun Content(modifier: Modifier) {
         var showBranchesMenu by remember { mutableStateOf(false) }
+        var showNewBranchDialog by remember { mutableStateOf(false) }
+
         val commitMessageState = rememberTextFieldState()
         val (amendState, onStateChange) = remember { mutableStateOf(false) }
 
         val interactionSource = remember { MutableInteractionSource() }
+
+        var newBranch by remember { mutableStateOf("") }
+        var newBranchError by remember { mutableStateOf<String?>(null) }
 
         Surface(
             modifier = modifier,
@@ -84,7 +88,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 ) {
                     Box {
                         TextButton(onClick = { showBranchesMenu = true }, enabled = !viewModel.isLoading) {
-                            Icon(painterResource(drawables.git), contentDescription = null)
+                            Icon(painterResource(drawables.branch), contentDescription = null)
                             Spacer(Modifier.size(8.dp))
                             Text(viewModel.currentBranch)
                         }
@@ -100,11 +104,24 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                         }
                                     },
                                     onClick = {
-                                        viewModel.checkoutBranch(branch)
+                                        viewModel.checkout(branch)
                                         showBranchesMenu = false
                                     },
                                 )
                             }
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+                                        Spacer(Modifier.width(12.dp))
+                                        Text(stringResource(strings.new_branch))
+                                    }
+                                },
+                                onClick = {
+                                    showBranchesMenu = false
+                                    showNewBranchDialog = true
+                                },
+                            )
                         }
                     }
 
@@ -139,6 +156,12 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                         text = change.path.substringAfterLast("/"),
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Bold,
+                                        color =
+                                            when (change.type) {
+                                                ChangeType.ADDED -> MaterialTheme.colorScheme.primary
+                                                ChangeType.DELETED -> MaterialTheme.colorScheme.error
+                                                ChangeType.MODIFIED -> MaterialTheme.colorScheme.secondary
+                                            },
                                     )
                                 },
                                 supportingContent = {
@@ -146,23 +169,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                         text = change.path,
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                },
-                                trailingContent = {
-                                    Icon(
-                                        imageVector =
-                                            when (change.type) {
-                                                ChangeType.ADDED -> Icons.Outlined.Add
-                                                ChangeType.DELETED -> Icons.Outlined.Delete
-                                                ChangeType.MODIFIED -> Icons.Outlined.Edit
-                                            },
-                                        contentDescription = null,
-                                        tint =
-                                            when (change.type) {
-                                                ChangeType.ADDED -> MaterialTheme.colorScheme.primary
-                                                ChangeType.DELETED -> MaterialTheme.colorScheme.error
-                                                ChangeType.MODIFIED -> MaterialTheme.colorScheme.secondary
-                                            },
                                     )
                                 },
                                 leadingContent = {
@@ -214,13 +220,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     state = commitMessageState,
                     placeholder = { Text(stringResource(strings.commit_message)) },
                 )
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Button(
                         enabled = !viewModel.isLoading && commitMessageState.text.isNotBlank(),
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             viewModel.commit(
                                 message = commitMessageState.text.toString(),
@@ -241,7 +247,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     }
                     OutlinedButton(
                         enabled = !viewModel.isLoading && commitMessageState.text.isNotBlank(),
-                        modifier = modifier,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             viewModel.commit(
                                 message = commitMessageState.text.toString(),
@@ -263,6 +269,30 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     }
                 }
             }
+        }
+
+        if (showNewBranchDialog) {
+            SingleInputDialog(
+                title = stringResource(id = strings.new_branch),
+                inputLabel = stringResource(id = strings.new_branch),
+                inputValue = newBranch,
+                errorMessage = newBranchError,
+                confirmText = stringResource(strings.ok),
+                onInputValueChange = {
+                    newBranch = it
+                    newBranchError =
+                        when {
+                            newBranch.isBlank() -> strings.value_empty_err.getString()
+                            else -> null
+                        }
+                },
+                onConfirm = { viewModel.checkoutNew(newBranch, viewModel.currentBranch) },
+                onFinish = {
+                    newBranch = ""
+                    newBranchError = null
+                    showNewBranchDialog = false
+                },
+            )
         }
     }
 
