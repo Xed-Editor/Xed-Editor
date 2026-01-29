@@ -19,6 +19,7 @@ class Python() : BaseLspServer() {
     override val languageName: String = "Python"
     override val serverName = "python-lsp-server"
     override val supportedExtensions: List<String> = FileType.PYTHON.extensions
+    override val icon = FileType.PYTHON.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

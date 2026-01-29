@@ -9,13 +9,19 @@ import com.rk.lsp.servers.JSON
 import com.rk.lsp.servers.Python
 import com.rk.lsp.servers.TypeScript
 
-val builtInServer = listOf(Python(), HTML(), CSS(), TypeScript(), Emmet(), JSON(), Bash())
-val externalServers = mutableStateListOf<BaseLspServer>()
-
-object ExtensionLspRegistry {
+object LspRegistry {
     private val mutableServers = mutableStateListOf<BaseLspServer>()
-    val servers: List<BaseLspServer>
+    val extensionServers: List<BaseLspServer>
         get() = mutableServers.toList()
+
+    val builtInServer = listOf(Python(), HTML(), Emmet(), CSS(), TypeScript(), JSON(), Bash())
+    val externalServers = mutableStateListOf<BaseLspServer>()
+
+    fun getForId(id: String): BaseLspServer? {
+        return builtInServer.find { it.id == id }
+            ?: externalServers.find { it.id == id }
+            ?: mutableServers.find { it.id == id }
+    }
 
     fun registerServer(server: BaseLspServer) {
         if (!mutableServers.contains(server)) {

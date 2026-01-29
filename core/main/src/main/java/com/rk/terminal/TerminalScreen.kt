@@ -217,7 +217,7 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Outlined.Delete,
-                                                        contentDescription = null,
+                                                        contentDescription = stringResource(strings.delete),
                                                         modifier = Modifier.size(20.dp),
                                                     )
                                                 }
