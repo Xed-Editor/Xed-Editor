@@ -645,4 +645,6 @@
     <string name="commit_message">Commit message</string>
     <string name="commit">Commit</string>
     <string name="commit_and_push">Commit and push</string>
+    <string name="amend">Amend</string>
+    <string name="no_changes">No changes</string>
 </resources>

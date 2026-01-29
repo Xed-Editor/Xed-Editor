@@ -19,6 +19,7 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
+import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 class GitViewModel : ViewModel() {
@@ -61,6 +62,10 @@ class GitViewModel : ViewModel() {
                 fullCommitId.toString()
             }
         }
+    }
+
+    fun toggleChange(change: GitChange) {
+        currentChanges = currentChanges.map { if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it }
     }
 
     fun cloneRepository(repoURL: String, repoBranch: String, targetDir: File, onComplete: (Boolean) -> Unit) {
@@ -129,7 +134,7 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun pullRepository() {
+    fun pull() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             Git.open(currentRoot.value).use { git ->
@@ -161,7 +166,7 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun fetchRepository() {
+    fun fetch() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             Git.open(currentRoot.value).use { git ->
@@ -202,6 +207,69 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     isLoading = false
                     currentChanges = changes
+                }
+            }
+        }
+    }
+
+    fun commit(message: String, changes: List<GitChange>, isAmend: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            Git.open(currentRoot.value).use { git ->
+                changes.forEach { change ->
+                    when (change.type) {
+                        ChangeType.ADDED -> git.add().addFilepattern(change.path).call()
+                        ChangeType.MODIFIED -> git.add().addFilepattern(change.path).call()
+                        ChangeType.DELETED -> git.rm().addFilepattern(change.path).call()
+                    }
+                }
+                git.commit()
+                    .setAuthor(Settings.git_name, Settings.git_email)
+                    .setCommitter(Settings.git_name, Settings.git_email)
+                    .setMessage(message)
+                    .setAmend(isAmend)
+                    .call()
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    toast(strings.action_done)
+                    loadChanges()
+                }
+            }
+        }
+    }
+
+    fun push(force: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { isLoading = true }
+            Git.open(currentRoot.value).use { git ->
+                val pushResults =
+                    git.push()
+                        .setRemote(GIT_ORIGIN)
+                        .setCredentialsProvider(
+                            UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
+                        )
+                        .setForce(force)
+                        .call()
+                val errorMessage = buildString {
+                    for (result in pushResults) {
+                        for (update in result.remoteUpdates) {
+                            val ref = update.remoteName
+                            val status = update.status
+                            if (status != RemoteRefUpdate.Status.OK && status != RemoteRefUpdate.Status.UP_TO_DATE) {
+                                if (isNotEmpty()) append("; ")
+                                append("$ref: $status")
+                                update.message?.let { append(" ($it)") }
+                            }
+                        }
+                    }
+                }
+                if (errorMessage.isNotEmpty()) {
+                    toast(errorMessage)
+                } else {
+                    withContext(Dispatchers.Main) {
+                        isLoading = false
+                        toast(strings.action_done)
+                    }
                 }
             }
         }
