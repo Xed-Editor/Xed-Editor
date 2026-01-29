@@ -642,4 +642,7 @@
     <string name="account">Account</string>
     <string name="recursive_submodules">Recursive submodules</string>
     <string name="recursive_submodules_desc">Fetch submodules and their dependencies recursively</string>
+    <string name="commit_message">Commit message</string>
+    <string name="commit">Commit</string>
+    <string name="commit_and_push">Commit and push</string>
 </resources>
