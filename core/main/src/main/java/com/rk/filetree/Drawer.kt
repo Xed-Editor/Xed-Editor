@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import coil.compose.AsyncImage
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
@@ -69,7 +70,6 @@ import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.git.GitTab
 import com.rk.icons.Icon
-import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -320,7 +320,28 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             items(tabs) { tab ->
                                 NavigationRailItem(
                                     selected = currentTab == tab,
-                                    icon = { XedIcon(tab.getIcon()) },
+                                    icon = {
+                                        when (val icon = tab.getIcon()) {
+                                            is Icon.DrawableRes -> {
+                                                Icon(
+                                                    painter = painterResource(icon.drawableRes),
+                                                    contentDescription = null,
+                                                )
+                                            }
+
+                                            is Icon.VectorIcon -> {
+                                                Icon(imageVector = icon.vector, contentDescription = null)
+                                            }
+
+                                            is Icon.SvgIcon -> {
+                                                AsyncImage(
+                                                    model = icon.file,
+                                                    imageLoader = rememberSvgImageLoader(),
+                                                    contentDescription = null,
+                                                )
+                                            }
+                                        }
+                                    },
                                     onClick = {
                                         if (currentTab == tab && currentServiceTab == null) {
                                             closeProjectDialog = true
@@ -348,7 +369,28 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             serviceTabs.forEach { tab ->
                                 NavigationRailItem(
                                     selected = currentServiceTab == tab,
-                                    icon = { XedIcon(tab.getIcon()) },
+                                    icon = {
+                                        when (val icon = tab.getIcon()) {
+                                            is Icon.DrawableRes -> {
+                                                Icon(
+                                                    painter = painterResource(icon.drawableRes),
+                                                    contentDescription = null,
+                                                )
+                                            }
+
+                                            is Icon.VectorIcon -> {
+                                                Icon(imageVector = icon.vector, contentDescription = null)
+                                            }
+
+                                            is Icon.SvgIcon -> {
+                                                AsyncImage(
+                                                    model = icon.file,
+                                                    imageLoader = rememberSvgImageLoader(),
+                                                    contentDescription = null,
+                                                )
+                                            }
+                                        }
+                                    },
                                     onClick = { currentServiceTab = tab },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                     enabled =
@@ -436,6 +478,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             repoURLError = null
                             repoBranchError = null
                         },
+                        confirmText = stringResource(strings.ok),
                         confirmEnabled = repoURLError == null && repoBranchError == null && repoURL.isNotBlank(),
                     )
                 }

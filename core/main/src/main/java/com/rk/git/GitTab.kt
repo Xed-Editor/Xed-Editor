@@ -292,6 +292,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     newBranchError = null
                     showNewBranchDialog = false
                 },
+                confirmEnabled = newBranchError == null && newBranch.isNotBlank()
             )
         }
     }
