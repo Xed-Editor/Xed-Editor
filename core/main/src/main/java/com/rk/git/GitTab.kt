@@ -213,7 +213,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     state = commitMessageState,
                     placeholder = { Text(stringResource(strings.commit_message)) },
                 )
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
                         enabled = !viewModel.isLoading && commitMessageState.text.isNotBlank(),
                         modifier = modifier,
