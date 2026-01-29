@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,9 +37,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +58,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import coil.compose.AsyncImage
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
@@ -70,6 +72,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.git.GitTab
 import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -148,7 +151,7 @@ suspend fun restoreProjects() {
     }
 }
 
-suspend fun createServices() {
+fun createServices() {
     serviceTabs.clear()
     serviceTabs.add(GitTab(gitViewModel.get()!!))
 }
@@ -286,7 +289,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 scope.launch {
                                     val loading = LoadingPopup(activity, null).show()
                                     loading.setMessage(strings.cloning.getString())
-                                    var fileObject =
+                                    val fileObject =
                                         it.toFileObject(expectedIsFile = false)
                                             .createChild(
                                                 false,
@@ -305,7 +308,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                                 repoBranchError = null
                                                 loading.hide()
                                                 if (success) {
-                                                    addProject(fileObject!!)
+                                                    addProject(fileObject)
                                                 }
                                             },
                                         )
@@ -314,34 +317,16 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         },
                     )
 
+                val lazyListState = rememberLazyListState()
+                val showHorizontalDivider by remember { derivedStateOf { lazyListState.canScrollForward } }
+
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     Column(modifier = Modifier.fillMaxHeight()) {
-                        LazyColumn(modifier = Modifier.weight(1f, fill = true)) {
+                        LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
                             items(tabs) { tab ->
                                 NavigationRailItem(
                                     selected = currentTab == tab,
-                                    icon = {
-                                        when (val icon = tab.getIcon()) {
-                                            is Icon.DrawableRes -> {
-                                                Icon(
-                                                    painter = painterResource(icon.drawableRes),
-                                                    contentDescription = null,
-                                                )
-                                            }
-
-                                            is Icon.VectorIcon -> {
-                                                Icon(imageVector = icon.vector, contentDescription = null)
-                                            }
-
-                                            is Icon.SvgIcon -> {
-                                                AsyncImage(
-                                                    model = icon.file,
-                                                    imageLoader = rememberSvgImageLoader(),
-                                                    contentDescription = null,
-                                                )
-                                            }
-                                        }
-                                    },
+                                    icon = { XedIcon(tab.getIcon()) },
                                     onClick = {
                                         if (currentTab == tab && currentServiceTab == null) {
                                             closeProjectDialog = true
@@ -350,6 +335,17 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                         }
                                     },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    colors =
+                                        NavigationRailItemDefaults.colors().let {
+                                            if (currentServiceTab == null) it
+                                            else
+                                                it.copy(
+                                                    selectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    selectedIndicatorColor =
+                                                        MaterialTheme.colorScheme.surfaceContainerHighest,
+                                                )
+                                        },
                                 )
                             }
 
@@ -363,39 +359,17 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             }
                         }
 
-                        HorizontalDivider()
+                        if (showHorizontalDivider) HorizontalDivider()
 
                         Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
                             serviceTabs.forEach { tab ->
+                                if (!tab.isSupported()) return@forEach
                                 NavigationRailItem(
                                     selected = currentServiceTab == tab,
-                                    icon = {
-                                        when (val icon = tab.getIcon()) {
-                                            is Icon.DrawableRes -> {
-                                                Icon(
-                                                    painter = painterResource(icon.drawableRes),
-                                                    contentDescription = null,
-                                                )
-                                            }
-
-                                            is Icon.VectorIcon -> {
-                                                Icon(imageVector = icon.vector, contentDescription = null)
-                                            }
-
-                                            is Icon.SvgIcon -> {
-                                                AsyncImage(
-                                                    model = icon.file,
-                                                    imageLoader = rememberSvgImageLoader(),
-                                                    contentDescription = null,
-                                                )
-                                            }
-                                        }
-                                    },
+                                    icon = { XedIcon(icon = tab.getIcon()) },
                                     onClick = { currentServiceTab = tab },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                                    enabled =
-                                        currentTab != null &&
-                                            isGitRepo((currentTab as FileTreeTab).root.getAbsolutePath()),
+                                    enabled = tab.isEnabled(),
                                 )
                             }
                         }

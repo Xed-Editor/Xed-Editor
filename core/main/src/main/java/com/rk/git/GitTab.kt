@@ -1,6 +1,10 @@
 package com.rk.git
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -29,7 +34,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -37,6 +41,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,19 +49,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.SingleInputDialog
+import com.rk.components.getDrawerWidth
 import com.rk.components.isPermanentDrawer
+import com.rk.file.FileType
 import com.rk.filetree.DrawerTab
+import com.rk.filetree.FileTreeTab
+import com.rk.filetree.currentTab
 import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.isGitRepo
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
@@ -72,6 +85,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranch by remember { mutableStateOf("") }
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
+        var changesExpanded by remember { mutableStateOf(true) }
+        val allChangesSelectionState =
+            when {
+                viewModel.currentChanges.all { it.isChecked } -> ToggleableState.On
+                viewModel.currentChanges.none { it.isChecked } -> ToggleableState.Off
+                else -> ToggleableState.Indeterminate
+            }
+
         Surface(
             modifier = modifier,
             color =
@@ -81,9 +102,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     MaterialTheme.colorScheme.surfaceContainerLow
                 },
         ) {
-            Column(modifier = Modifier.fillMaxSize().padding(vertical = 8.dp)) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box {
@@ -141,45 +162,103 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         }
                     }
                 }
+
                 if (viewModel.isLoading) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 } else {
                     HorizontalDivider()
                 }
-                if (viewModel.currentChanges.size > 0) {
-                    LazyColumn(modifier = Modifier.weight(1f, fill = true)) {
-                        items(viewModel.currentChanges) { change ->
-                            ListItem(
-                                modifier = modifier.fillMaxWidth().clickable { viewModel.toggleChange(change) },
-                                headlineContent = {
-                                    Text(
-                                        text = change.path.substringAfterLast("/"),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color =
-                                            when (change.type) {
-                                                ChangeType.ADDED -> MaterialTheme.colorScheme.primary
-                                                ChangeType.DELETED -> MaterialTheme.colorScheme.error
-                                                ChangeType.MODIFIED -> MaterialTheme.colorScheme.secondary
-                                            },
-                                    )
-                                },
-                                supportingContent = {
-                                    Text(
-                                        text = change.path,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                },
-                                leadingContent = {
-                                    Checkbox(
-                                        enabled = !viewModel.isLoading,
-                                        checked = change.isChecked,
-                                        onCheckedChange = { viewModel.toggleChange(change) },
-                                    )
-                                },
+
+                if (viewModel.currentChanges.isNotEmpty()) {
+                    Column(
+                        modifier =
+                            Modifier.fillMaxSize()
+                                .weight(1f)
+                                .padding(top = 8.dp)
+                                .horizontalScroll(rememberScrollState())
+                    ) {
+                        Row(
+                            modifier =
+                                Modifier.width((getDrawerWidth() - 61.dp))
+                                    .combinedClickable(onClick = { changesExpanded = !changesExpanded })
+                                    .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            val rotationDegree by
+                                animateFloatAsState(targetValue = if (!changesExpanded) 0f else 90f, label = "rotation")
+
+                            Icon(
+                                painterResource(drawables.chevron_right),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                modifier = Modifier.size(16.dp).rotate(rotationDegree),
                             )
-                            HorizontalDivider()
+                            Spacer(Modifier.width(4.dp))
+
+                            TriStateCheckbox(
+                                state = allChangesSelectionState,
+                                onClick = {
+                                    if (allChangesSelectionState == ToggleableState.On) {
+                                        viewModel.currentChanges.forEach { viewModel.removeChange(it) }
+                                    } else {
+                                        viewModel.currentChanges.forEach { viewModel.addChange(it) }
+                                    }
+                                },
+                                modifier = Modifier.size(20.dp),
+                            )
+
+                            Spacer(Modifier.width(8.dp))
+
+                            Text(
+                                text = stringResource(strings.changes),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+
+                        AnimatedVisibility(visible = changesExpanded) {
+                            LazyColumn(modifier = Modifier.padding(start = 40.dp)) {
+                                items(viewModel.currentChanges) { change ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier =
+                                            Modifier.width((getDrawerWidth() - 61.dp))
+                                                .clickable { viewModel.toggleChange(change) }
+                                                .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        Checkbox(
+                                            enabled = !viewModel.isLoading,
+                                            checked = change.isChecked,
+                                            onCheckedChange = { viewModel.toggleChange(change) },
+                                            modifier = Modifier.size(20.dp),
+                                        )
+
+                                        val ext = change.path.substringAfterLast(".")
+                                        XedIcon(
+                                            icon = FileType.fromExtension(ext).getIcon(),
+                                            modifier = Modifier.size(20.dp),
+                                        )
+
+                                        Text(
+                                            text = change.path.substringAfterLast("/"),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color =
+                                                when (change.type) {
+                                                    ChangeType.ADDED -> Color.Green
+                                                    ChangeType.DELETED -> MaterialTheme.colorScheme.error
+                                                    ChangeType.MODIFIED -> Color(0xFF86B9F7)
+                                                },
+                                        )
+
+                                        Text(
+                                            text = change.path,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 } else {
@@ -191,7 +270,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
+
                 HorizontalDivider()
+
                 Row(
                     modifier =
                         Modifier.fillMaxWidth()
@@ -215,15 +296,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Text(stringResource(strings.amend))
                 }
                 OutlinedTextField(
-                    enabled = !viewModel.isLoading && viewModel.currentChanges.size > 0,
+                    enabled = !viewModel.isLoading && viewModel.currentChanges.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     state = commitMessageState,
                     placeholder = { Text(stringResource(strings.commit_message)) },
                 )
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+
+                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Button(
                         enabled = !viewModel.isLoading && commitMessageState.text.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
@@ -292,7 +371,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     newBranchError = null
                     showNewBranchDialog = false
                 },
-                confirmEnabled = newBranchError == null && newBranch.isNotBlank()
+                confirmEnabled = newBranchError == null && newBranch.isNotBlank(),
             )
         }
     }
@@ -303,5 +382,11 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
     override fun getIcon(): Icon {
         return Icon.DrawableRes(drawables.git)
+    }
+
+    override fun isSupported(): Boolean {
+        val tab = currentTab ?: return false
+        if (tab !is FileTreeTab) return false
+        return isGitRepo(tab.root.getAbsolutePath())
     }
 }

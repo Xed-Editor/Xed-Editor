@@ -68,6 +68,14 @@ class GitViewModel : ViewModel() {
         currentChanges = currentChanges.map { if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it }
     }
 
+    fun addChange(change: GitChange) {
+        currentChanges = currentChanges.map { if (it.path == change.path) it.copy(isChecked = true) else it }
+    }
+
+    fun removeChange(change: GitChange) {
+        currentChanges = currentChanges.map { if (it.path == change.path) it.copy(isChecked = false) else it }
+    }
+
     fun cloneRepository(repoURL: String, repoBranch: String, targetDir: File, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             var done = false
