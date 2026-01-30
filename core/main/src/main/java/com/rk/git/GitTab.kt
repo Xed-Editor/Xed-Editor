@@ -81,8 +81,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var showBranchesMenu by remember { mutableStateOf(false) }
         var showNewBranchDialog by remember { mutableStateOf(false) }
 
-        val (amendState, onStateChange) = remember { mutableStateOf(false) }
-
         val interactionSource = remember { MutableInteractionSource() }
         val scope = rememberCoroutineScope()
 
@@ -292,25 +290,27 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 HorizontalDivider()
 
                 Row(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .height(40.dp)
-                            .toggleable(
-                                value = amendState,
-                                onValueChange = { onStateChange(!amendState) },
-                                role = Role.Checkbox,
-                                indication = null,
-                                interactionSource = interactionSource,
-                            )
-                            .padding(horizontal = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .toggleable(
+                            value = viewModel.amend,
+                            enabled = !viewModel.isLoading,
+                            onValueChange = { viewModel.amend = it },
+                            role = Role.Checkbox,
+                            indication = null,
+                            interactionSource = interactionSource,
+                        )
+                        .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
+                        checked = viewModel.amend,
                         enabled = !viewModel.isLoading,
-                        checked = amendState,
                         interactionSource = interactionSource,
-                        onCheckedChange = onStateChange,
+                        onCheckedChange = null
                     )
+                    Spacer(Modifier.width(8.dp))
                     Text(stringResource(strings.amend))
                 }
                 OutlinedTextField(
@@ -325,13 +325,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Button(
                         enabled = !viewModel.isLoading && viewModel.commitMessage.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            viewModel.commit(
-                                message = viewModel.commitMessage,
-                                changes = viewModel.currentChanges.filter { it.isChecked },
-                                isAmend = amendState,
-                            )
-                        },
+                        onClick = { viewModel.commit() },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                     ) {
                         Icon(
@@ -347,13 +341,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
-                                viewModel
-                                    .commit(
-                                        message = viewModel.commitMessage,
-                                        changes = viewModel.currentChanges.filter { it.isChecked },
-                                        isAmend = amendState,
-                                    )
-                                    .join()
+                                viewModel.commit().join()
                                 viewModel.push(force = false)
                             }
                         },

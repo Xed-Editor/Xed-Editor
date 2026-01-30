@@ -31,6 +31,7 @@ class GitViewModel : ViewModel() {
     var isLoading by mutableStateOf(false)
 
     var commitMessage by mutableStateOf("")
+    var amend by mutableStateOf(false)
 
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
@@ -239,11 +240,11 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun commit(message: String, changes: List<GitChange>, isAmend: Boolean): Job {
+    fun commit(): Job {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             Git.open(currentRoot.value).use { git ->
-                changes.forEach { change ->
+                currentChanges.filter { it.isChecked }.forEach { change ->
                     when (change.type) {
                         ChangeType.ADDED -> git.add().addFilepattern(change.path).call()
                         ChangeType.MODIFIED -> git.add().addFilepattern(change.path).call()
@@ -253,8 +254,8 @@ class GitViewModel : ViewModel() {
                 git.commit()
                     .setAuthor(Settings.git_name, Settings.git_email)
                     .setCommitter(Settings.git_name, Settings.git_email)
-                    .setMessage(message)
-                    .setAmend(isAmend)
+                    .setMessage(commitMessage)
+                    .setAmend(amend)
                     .call()
                 withContext(Dispatchers.Main) {
                     isLoading = false
