@@ -46,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +58,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rk.activities.main.MainActivity
 import com.rk.components.SingleInputDialog
 import com.rk.components.getDrawerWidth
 import com.rk.components.isPermanentDrawer
@@ -69,7 +71,9 @@ import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.isGitRepo
+import kotlinx.coroutines.launch
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
@@ -81,6 +85,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         val (amendState, onStateChange) = remember { mutableStateOf(false) }
 
         val interactionSource = remember { MutableInteractionSource() }
+        val scope = rememberCoroutineScope()
 
         var newBranch by remember { mutableStateOf("") }
         var newBranchError by remember { mutableStateOf<String?>(null) }
@@ -149,7 +154,19 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Spacer(modifier = Modifier.weight(1f))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { viewModel.pull() }, enabled = !viewModel.isLoading) {
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    viewModel.pull().join()
+                                    MainActivity.instance!!.viewModel.tabs.filterIsInstance<EditorTab>().forEach {
+                                        if (isGitRepo(it.file.getAbsolutePath())) {
+                                            it.refresh()
+                                        }
+                                    }
+                                }
+                            },
+                            enabled = !viewModel.isLoading,
+                        ) {
                             Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
                         }
 
@@ -163,10 +180,12 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     }
                 }
 
-                if (viewModel.isLoading) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                } else {
-                    HorizontalDivider()
+                Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                    if (viewModel.isLoading) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxSize())
+                    } else {
+                        HorizontalDivider(modifier = Modifier.fillMaxSize().height(1.dp))
+                    }
                 }
 
                 if (viewModel.currentChanges.isNotEmpty()) {
@@ -328,13 +347,17 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         enabled = !viewModel.isLoading && commitMessageState.text.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
-                            viewModel.commit(
-                                message = commitMessageState.text.toString(),
-                                changes = viewModel.currentChanges.filter { it.isChecked },
-                                isAmend = amendState,
-                            )
-                            viewModel.push(force = false)
-                            commitMessageState.clearText()
+                            scope.launch {
+                                viewModel
+                                    .commit(
+                                        message = commitMessageState.text.toString(),
+                                        changes = viewModel.currentChanges.filter { it.isChecked },
+                                        isAmend = amendState,
+                                    )
+                                    .join()
+                                viewModel.push(force = false)
+                                commitMessageState.clearText()
+                            }
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                     ) {
@@ -353,7 +376,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         if (showNewBranchDialog) {
             SingleInputDialog(
                 title = stringResource(id = strings.new_branch),
-                inputLabel = stringResource(id = strings.new_branch),
+                inputLabel = stringResource(id = strings.new_branch_label, viewModel.currentBranch),
                 inputValue = newBranch,
                 errorMessage = newBranchError,
                 confirmText = stringResource(strings.ok),

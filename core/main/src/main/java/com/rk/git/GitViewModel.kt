@@ -10,6 +10,7 @@ import com.rk.settings.Settings
 import com.rk.utils.toast
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -145,34 +146,41 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun pull() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun pull(): Job {
+        return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
-            Git.open(currentRoot.value).use { git ->
-                val pullResult =
-                    git.pull()
-                        .setRemote(GIT_ORIGIN)
-                        .setCredentialsProvider(
-                            UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
-                        )
-                        .call()
-                if (!pullResult.isSuccessful) {
-                    val errorMessage = buildString {
-                        pullResult.mergeResult?.let { mergeResult ->
-                            append("Merge status: ${mergeResult.mergeStatus}")
-                            if (!mergeResult.mergeStatus.isSuccessful) {
-                                append(", Conflicts: ${mergeResult.conflicts?.keys?.joinToString() ?: "none"}")
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    val pullResult =
+                        git.pull()
+                            .setRemote(GIT_ORIGIN)
+                            .setCredentialsProvider(
+                                UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
+                            )
+                            .call()
+                    if (!pullResult.isSuccessful) {
+                        val errorMessage = buildString {
+                            pullResult.mergeResult?.let { mergeResult ->
+                                append("Merge status: ${mergeResult.mergeStatus}")
+                                if (!mergeResult.mergeStatus.isSuccessful) {
+                                    append(", Conflicts: ${mergeResult.conflicts?.keys?.joinToString() ?: "none"}")
+                                }
+                            }
+                            pullResult.rebaseResult?.let { rebaseResult ->
+                                if (isNotEmpty()) append("; ")
+                                append("Rebase status: ${rebaseResult.status}")
                             }
                         }
-                        pullResult.rebaseResult?.let { rebaseResult ->
-                            if (isNotEmpty()) append("; ")
-                            append("Rebase status: ${rebaseResult.status}")
-                        }
+                        toast(errorMessage)
                     }
-                    toast(errorMessage)
                 }
-                withContext(Dispatchers.Main) { isLoading = false }
-                toast(strings.pull_complete)
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    toast(strings.pull_complete)
+                }
             }
         }
     }
@@ -180,24 +188,31 @@ class GitViewModel : ViewModel() {
     fun fetch() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
-            Git.open(currentRoot.value).use { git ->
-                git.fetch()
-                    .setRemote(GIT_ORIGIN)
-                    .setCredentialsProvider(
-                        UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
-                    )
-                    .setRecurseSubmodules(
-                        if (Settings.git_recursive_submodules) {
-                            FetchRecurseSubmodulesMode.YES
-                        } else {
-                            FetchRecurseSubmodulesMode.ON_DEMAND
-                        }
-                    )
-                    .setCheckFetchedObjects(true)
-                    .setRemoveDeletedRefs(true)
-                    .call()
-                withContext(Dispatchers.Main) { isLoading = false }
-                toast(strings.fetch_complete)
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    git.fetch()
+                        .setRemote(GIT_ORIGIN)
+                        .setCredentialsProvider(
+                            UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
+                        )
+                        .setRecurseSubmodules(
+                            if (Settings.git_recursive_submodules) {
+                                FetchRecurseSubmodulesMode.YES
+                            } else {
+                                FetchRecurseSubmodulesMode.ON_DEMAND
+                            }
+                        )
+                        .setCheckFetchedObjects(true)
+                        .setRemoveDeletedRefs(true)
+                        .call()
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    toast(strings.fetch_complete)
+                }
             }
         }
     }
@@ -223,8 +238,8 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun commit(message: String, changes: List<GitChange>, isAmend: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun commit(message: String, changes: List<GitChange>, isAmend: Boolean): Job {
+        return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             Git.open(currentRoot.value).use { git ->
                 changes.forEach { change ->
@@ -251,34 +266,42 @@ class GitViewModel : ViewModel() {
 
     fun push(force: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
+            var errorMessage = ""
             withContext(Dispatchers.Main) { isLoading = true }
-            Git.open(currentRoot.value).use { git ->
-                val pushResults =
-                    git.push()
-                        .setRemote(GIT_ORIGIN)
-                        .setCredentialsProvider(
-                            UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
-                        )
-                        .setForce(force)
-                        .call()
-                val errorMessage = buildString {
-                    for (result in pushResults) {
-                        for (update in result.remoteUpdates) {
-                            val ref = update.remoteName
-                            val status = update.status
-                            if (status != RemoteRefUpdate.Status.OK && status != RemoteRefUpdate.Status.UP_TO_DATE) {
-                                if (isNotEmpty()) append("; ")
-                                append("$ref: $status")
-                                update.message?.let { append(" ($it)") }
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    val pushResults =
+                        git.push()
+                            .setRemote(GIT_ORIGIN)
+                            .setCredentialsProvider(
+                                UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
+                            )
+                            .setForce(force)
+                            .call()
+                    errorMessage = buildString {
+                        for (result in pushResults) {
+                            for (update in result.remoteUpdates) {
+                                val ref = update.remoteName
+                                val status = update.status
+                                if (
+                                    status != RemoteRefUpdate.Status.OK && status != RemoteRefUpdate.Status.UP_TO_DATE
+                                ) {
+                                    if (isNotEmpty()) append("; ")
+                                    append("$ref: $status")
+                                    update.message?.let { append(" ($it)") }
+                                }
                             }
                         }
                     }
                 }
-                if (errorMessage.isNotEmpty()) {
-                    toast(errorMessage)
-                } else {
-                    withContext(Dispatchers.Main) {
-                        isLoading = false
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isLoading = false
+                    if (errorMessage.isNotEmpty()) {
+                        toast(errorMessage)
+                    } else {
                         toast(strings.push_complete)
                     }
                 }
