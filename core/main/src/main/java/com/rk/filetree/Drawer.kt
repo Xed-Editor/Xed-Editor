@@ -81,7 +81,7 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialog
-import com.rk.utils.isGitRepo
+import com.rk.utils.findGitRoot
 import com.rk.utils.readObject
 import com.rk.utils.toast
 import com.rk.utils.writeObject
@@ -224,8 +224,12 @@ fun validateValue(value: String): String? {
 fun selectTab(tab: DrawerTab?) {
     currentTab = tab
     currentServiceTab = null
-    if (tab is FileTreeTab && isGitRepo(tab.root.getAbsolutePath())) {
-        gitViewModel.get()?.loadRepository(tab.root.getAbsolutePath())
+    if (tab is FileTreeTab) {
+        val gitRoot = findGitRoot(tab.root.getAbsolutePath())
+        if (gitRoot != null) {
+            gitViewModel.get()?.loadRepository(gitRoot)
+            fileTreeViewModel.get()?.gitChanges = gitViewModel.get()!!.currentChanges
+        }
     }
 }
 

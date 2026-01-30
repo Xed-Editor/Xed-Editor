@@ -33,7 +33,7 @@ class GitViewModel : ViewModel() {
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
         currentBranch = Git.open(currentRoot.value).currentHead()
-        loadChanges()
+        getChanges(currentRoot.value) { changes -> currentChanges = changes }
     }
 
     fun getBranchList(): List<String> {
@@ -139,9 +139,9 @@ class GitViewModel : ViewModel() {
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    loadChanges()
+                    toast(strings.checkout_complete)
+                    getChanges(currentRoot.value) { changes -> currentChanges = changes }
                 }
-                toast(strings.checkout_complete)
             }
         }
     }
@@ -217,23 +217,23 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun loadChanges() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun getChanges(root: File?, onComplete: (List<GitChange>) -> Unit): Job {
+        return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             val changes = mutableListOf<GitChange>()
-            Git.open(currentRoot.value).use { git ->
+            Git.open(root).use { git ->
                 val status = git.status().call()
                 changes.addAll(status.added.map { GitChange(it, ChangeType.ADDED) })
                 changes.addAll(status.changed.map { GitChange(it, ChangeType.MODIFIED) })
+                changes.addAll(status.modified.map { GitChange(it, ChangeType.MODIFIED) })
                 changes.addAll(status.removed.map { GitChange(it, ChangeType.DELETED) })
                 changes.addAll(status.missing.map { GitChange(it, ChangeType.DELETED) })
-                changes.addAll(status.modified.map { GitChange(it, ChangeType.MODIFIED) })
                 changes.addAll(status.untracked.map { GitChange(it, ChangeType.ADDED) })
                 changes.addAll(status.conflicting.map { GitChange(it, ChangeType.MODIFIED) })
-                withContext(Dispatchers.Main) {
-                    isLoading = false
-                    currentChanges = changes
-                }
+            }
+            withContext(Dispatchers.Main) {
+                isLoading = false
+                onComplete(changes)
             }
         }
     }
@@ -258,7 +258,7 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     isLoading = false
                     toast(strings.commit_complete)
-                    loadChanges()
+                    getChanges(currentRoot.value) { changes -> currentChanges = changes }
                 }
             }
         }
@@ -324,9 +324,9 @@ class GitViewModel : ViewModel() {
                 }
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    currentBranch = Git.open(currentRoot.value).currentHead()
-                    loadChanges()
                     toast(strings.checkout_complete)
+                    currentBranch = Git.open(currentRoot.value).currentHead()
+                    getChanges(currentRoot.value) { changes -> currentChanges = changes }
                 }
             }
         }

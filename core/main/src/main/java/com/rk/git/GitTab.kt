@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -51,7 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -72,7 +70,10 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.isGitRepo
+import com.rk.theme.gitAdded
+import com.rk.theme.gitDeleted
+import com.rk.theme.gitModified
+import com.rk.utils.findGitRoot
 import kotlinx.coroutines.launch
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
@@ -159,7 +160,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 scope.launch {
                                     viewModel.pull().join()
                                     MainActivity.instance!!.viewModel.tabs.filterIsInstance<EditorTab>().forEach {
-                                        if (isGitRepo(it.file.getAbsolutePath())) {
+                                        if (findGitRoot(it.file.getAbsolutePath()) != null) {
                                             it.refresh()
                                         }
                                     }
@@ -264,9 +265,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                             style = MaterialTheme.typography.bodyMedium,
                                             color =
                                                 when (change.type) {
-                                                    ChangeType.ADDED -> Color.Green
-                                                    ChangeType.DELETED -> MaterialTheme.colorScheme.error
-                                                    ChangeType.MODIFIED -> Color(0xFF86B9F7)
+                                                    ChangeType.ADDED -> MaterialTheme.colorScheme.gitAdded
+                                                    ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
+                                                    ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
                                                 },
                                         )
 
@@ -331,7 +332,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 changes = viewModel.currentChanges.filter { it.isChecked },
                                 isAmend = amendState,
                             )
-                            commitMessageState.clearText()
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                     ) {
@@ -356,7 +356,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                     )
                                     .join()
                                 viewModel.push(force = false)
-                                commitMessageState.clearText()
                             }
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
@@ -410,6 +409,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     override fun isSupported(): Boolean {
         val tab = currentTab ?: return false
         if (tab !is FileTreeTab) return false
-        return isGitRepo(tab.root.getAbsolutePath())
+        return findGitRoot(tab.root.getAbsolutePath()) != null
     }
 }

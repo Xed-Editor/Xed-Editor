@@ -37,7 +37,7 @@ import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
-import com.rk.activities.main.gitViewModel
+import com.rk.activities.main.fileTreeViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
@@ -61,7 +61,6 @@ import com.rk.settings.support.handleSupport
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
-import com.rk.utils.isGitRepo
 import io.github.rosemoe.sora.text.ContentIO
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
@@ -274,16 +273,16 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                             if (it != null) {
                                 file = it
                                 tabTitle.value = it.getName()
-                                scope.launch { write() }
+                                scope.launch {
+                                    write()
+                                    fileTreeViewModel.get()?.syncGitChanges(file)
+                                }
                             }
                         }
                     }
                 } else {
                     write()
-                }
-
-                if (isGitRepo(file.getAbsolutePath())) {
-                    gitViewModel.get()?.loadChanges()
+                    fileTreeViewModel.get()?.syncGitChanges(file)
                 }
             }
         }

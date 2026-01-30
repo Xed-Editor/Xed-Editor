@@ -36,8 +36,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
+import com.rk.git.ChangeType
 import com.rk.resources.drawables
 import com.rk.settings.ReactiveSettings
+import com.rk.theme.gitAdded
+import com.rk.theme.gitDeleted
+import com.rk.theme.gitModified
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.delay
@@ -61,6 +65,7 @@ fun FileTreeNodeItem(
 
     val isLoading = viewModel.isNodeLoading(node.file)
     val isCut = viewModel.isNodeCut(node.file)
+    val gitChange = viewModel.getGitChange(node.file)
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -154,7 +159,16 @@ fun FileTreeNodeItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color =
+                        when {
+                            gitChange != null ->
+                                when (gitChange.type) {
+                                    ChangeType.ADDED -> MaterialTheme.colorScheme.gitAdded
+                                    ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
+                                    ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
+                                }
+                            else -> MaterialTheme.colorScheme.onSurface
+                        },
                 )
             }
         }

@@ -44,8 +44,8 @@ var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 @Composable
 fun MainActivity.MainContentHost(
     modifier: Modifier = Modifier,
-    fileTreeViewModel: FileTreeViewModel = viewModel(),
     gitViewModel: GitViewModel = viewModel(),
+    fileTreeViewModel: FileTreeViewModel = viewModel(),
 ) {
     com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
     com.rk.activities.main.gitViewModel = WeakReference(gitViewModel)
