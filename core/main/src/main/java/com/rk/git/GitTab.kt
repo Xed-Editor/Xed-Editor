@@ -316,7 +316,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     Text(stringResource(strings.amend))
                 }
                 OutlinedTextField(
-                    enabled = !viewModel.isLoading && viewModel.currentChanges.isNotEmpty(),
+                    enabled = !viewModel.isLoading,
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     state = commitMessageState,
                     placeholder = { Text(stringResource(strings.commit_message)) },
