@@ -398,4 +398,27 @@
     <string name="use_tabs_desc">Χρήση πραγματικού tab (\\t) αντί για κενά για εσοχή</string>
     <string name="language_server">Διακομιστής γλώσσας</string>
     <string name="manage_language_servers">Διαχείριση διακομιστών γλώσσας</string>
+    <string name="open_removable_storage">Άνοιγμα αφαιρούμενου αποθηκευτικού χώρου</string>
+    <string name="debugger">Εντοπισμός Σφαλμάτων</string>
+    <string name="manage_language_servers_desc">Εγκατάσταση, σύνδεση και ρύθμιση διακομιστών γλώσσας</string>
+    <string name="format_on_save">Μορφοποίηση κατά την αποθήκευση</string>
+    <string name="format_on_save_desc">Αυτόματη μορφοποίηση του αρχείου κατά την αποθήκευση</string>
+    <string name="no_language_server">Δεν υπάρχει διαθέσιμος διακομιστής γλώσσας.</string>
+    <string name="developer">Προγραμματιστής</string>
+    <string name="build_info">Πληροφορίες κατασκευής</string>
+    <string name="community">Κοινότητα</string>
+    <string name="failsafe_mode">Λειτουργία ασφαλείας</string>
+    <string name="failsafe_mode_desc">Έναρξη τερματικού σε λειτουργία συντήρησης</string>
+    <string name="render_whitespace">Απόδοση λευκού χώρου</string>
+    <string name="render_whitespace_desc">Απόδοση κενών, στηλοθετών και αλλαγών γραμμής ως ορατά σύμβολα</string>
+    <string name="ask_refresh">Είστε βέβαιοι ότι θέλετε να ανανεώσετε αυτό το έγγραφο; Οποιεσδήποτε μη αποθηκευμένες αλλαγές θα χαθούν.</string>
+    <string name="docs">Έγγραφα Τεκμηρίωσης</string>
+    <string name="docs_desc">Επισκεφθείτε τη σελίδα εγγράφων τεκμηρίωσης.</string>
+    <string name="github_stars">Αστέρια GitHub</string>
+    <string name="api_error">Σφάλμα API</string>
+    <string name="unknown">Άγνωστο</string>
+    <string name="cant_write">Δεν είναι δυνατή η εγγραφή στο αρχείο (δεν υπάρχουν δικαιώματα εγγραφής)</string>
+    <string name="content_update">Αυτό το αρχείο τροποποιήθηκε από άλλη εφαρμογή. Θέλετε να γίνει ανανέωση; Οι μη αποθηκευμένες αλλαγές θα χαθούν.</string>
+    <string name="info_lsp">Οι διακομιστές γλώσσας είναι ξεχωριστές διεργασίες που παρέχουν έξυπνες λειτουργίες, όπως ολοκλήρωση κώδικα, επισήμανση σφαλμάτων και ενσωματωμένα έγγραφα τεκμηρίωσης.</string>
+    <string name="format_document">Μορφοποίηση εγγράφου</string>
 </resources>
