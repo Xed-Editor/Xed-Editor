@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
@@ -82,7 +81,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var showBranchesMenu by remember { mutableStateOf(false) }
         var showNewBranchDialog by remember { mutableStateOf(false) }
 
-        val commitMessageState = rememberTextFieldState()
         val (amendState, onStateChange) = remember { mutableStateOf(false) }
 
         val interactionSource = remember { MutableInteractionSource() }
@@ -318,17 +316,18 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 OutlinedTextField(
                     enabled = !viewModel.isLoading,
                     modifier = Modifier.fillMaxWidth().height(120.dp),
-                    state = commitMessageState,
+                    value = viewModel.commitMessage,
+                    onValueChange = { viewModel.commitMessage = it },
                     placeholder = { Text(stringResource(strings.commit_message)) },
                 )
 
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Button(
-                        enabled = !viewModel.isLoading && commitMessageState.text.isNotBlank(),
+                        enabled = !viewModel.isLoading && viewModel.commitMessage.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             viewModel.commit(
-                                message = commitMessageState.text.toString(),
+                                message = viewModel.commitMessage,
                                 changes = viewModel.currentChanges.filter { it.isChecked },
                                 isAmend = amendState,
                             )
@@ -344,13 +343,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         Text(stringResource(strings.commit), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     OutlinedButton(
-                        enabled = !viewModel.isLoading && commitMessageState.text.isNotBlank(),
+                        enabled = !viewModel.isLoading && viewModel.commitMessage.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
                                 viewModel
                                     .commit(
-                                        message = commitMessageState.text.toString(),
+                                        message = viewModel.commitMessage,
                                         changes = viewModel.currentChanges.filter { it.isChecked },
                                         isAmend = amendState,
                                     )

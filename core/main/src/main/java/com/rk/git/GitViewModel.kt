@@ -30,6 +30,8 @@ class GitViewModel : ViewModel() {
 
     var isLoading by mutableStateOf(false)
 
+    var commitMessage by mutableStateOf("")
+
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
         currentBranch = Git.open(currentRoot.value).currentHead()
