@@ -111,6 +111,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             Icon(painterResource(drawables.branch), contentDescription = null)
                             Spacer(Modifier.size(8.dp))
                             Text(viewModel.currentBranch)
+                            Spacer(Modifier.size(4.dp))
                             Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
                         }
 
@@ -255,12 +256,16 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                             text = fileName,
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = getGitColor(change.type),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
                                         )
 
                                         Text(
                                             text = change.path,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
                                         )
                                     }
                                 }
@@ -280,25 +285,25 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 HorizontalDivider()
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .toggleable(
-                            value = viewModel.amend,
-                            enabled = !viewModel.isLoading,
-                            onValueChange = { viewModel.amend = it },
-                            role = Role.Checkbox,
-                            indication = null,
-                            interactionSource = interactionSource,
-                        )
-                        .padding(horizontal = 8.dp),
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(40.dp)
+                            .toggleable(
+                                value = viewModel.amend,
+                                enabled = !viewModel.isLoading,
+                                onValueChange = { viewModel.amend = it },
+                                role = Role.Checkbox,
+                                indication = null,
+                                interactionSource = interactionSource,
+                            )
+                            .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
                         checked = viewModel.amend,
                         enabled = !viewModel.isLoading,
                         interactionSource = interactionSource,
-                        onCheckedChange = null
+                        onCheckedChange = null,
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(strings.amend))
