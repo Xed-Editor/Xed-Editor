@@ -33,7 +33,6 @@ class GitViewModel : ViewModel() {
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
         currentBranch = Git.open(currentRoot.value).currentHead()
-        getChanges(currentRoot.value) { changes -> currentChanges = changes }
     }
 
     fun getBranchList(): List<String> {
