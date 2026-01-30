@@ -224,6 +224,7 @@ fun validateValue(value: String): String? {
 fun selectTab(tab: DrawerTab?) {
     currentTab = tab
     currentServiceTab = null
+
     if (tab is FileTreeTab) {
         val gitRoot = findGitRoot(tab.root.getAbsolutePath())
         if (gitRoot != null) {

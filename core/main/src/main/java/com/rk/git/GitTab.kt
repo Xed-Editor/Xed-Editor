@@ -60,20 +60,17 @@ import com.rk.activities.main.MainActivity
 import com.rk.components.SingleInputDialog
 import com.rk.components.getDrawerWidth
 import com.rk.components.isPermanentDrawer
-import com.rk.file.FileType
 import com.rk.filetree.DrawerTab
+import com.rk.filetree.FileNameIcon
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.currentTab
 import com.rk.icons.Icon
-import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
-import com.rk.theme.gitAdded
-import com.rk.theme.gitDeleted
-import com.rk.theme.gitModified
 import com.rk.utils.findGitRoot
+import com.rk.utils.getGitColor
 import kotlinx.coroutines.launch
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
@@ -254,21 +251,13 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                             modifier = Modifier.size(20.dp),
                                         )
 
-                                        val ext = change.path.substringAfterLast(".")
-                                        XedIcon(
-                                            icon = FileType.fromExtension(ext).getIcon(),
-                                            modifier = Modifier.size(20.dp),
-                                        )
+                                        val fileName = change.path.substringAfterLast("/")
+                                        FileNameIcon(fileName = fileName, isDirectory = false)
 
                                         Text(
-                                            text = change.path.substringAfterLast("/"),
+                                            text = fileName,
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color =
-                                                when (change.type) {
-                                                    ChangeType.ADDED -> MaterialTheme.colorScheme.gitAdded
-                                                    ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
-                                                    ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
-                                                },
+                                            color = getGitColor(change.type),
                                         )
 
                                         Text(

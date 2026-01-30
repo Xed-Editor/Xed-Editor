@@ -40,10 +40,14 @@ import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
+import com.rk.git.ChangeType
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.currentTheme
+import com.rk.theme.gitAdded
+import com.rk.theme.gitDeleted
+import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
@@ -367,6 +371,20 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 
     drawPath(path = path, color = errorColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round))
 }
+
+@Composable
+fun getGitColor(fileTreeViewModel: FileTreeViewModel, file: FileObject?): Color? {
+    val gitChange = file?.let { fileTreeViewModel.getGitChange(it) } ?: return null
+    return getGitColor(gitChange.type)
+}
+
+@Composable
+fun getGitColor(changeType: ChangeType): Color =
+    when (changeType) {
+        ChangeType.ADDED -> MaterialTheme.colorScheme.gitAdded
+        ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
+        ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
+    }
 
 fun findGitRoot(path: String): String? {
     var dir: File? = File(path)

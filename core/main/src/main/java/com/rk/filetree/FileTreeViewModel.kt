@@ -26,7 +26,7 @@ class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
-    var gitChanges by mutableStateOf(listOf<GitChange>())
+    var gitChanges by mutableStateOf<List<GitChange>>(emptyList())
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
