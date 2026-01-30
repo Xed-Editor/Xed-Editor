@@ -114,6 +114,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             Icon(painterResource(drawables.branch), contentDescription = null)
                             Spacer(Modifier.size(8.dp))
                             Text(viewModel.currentBranch)
+                            Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
                         }
 
                         DropdownMenu(expanded = showBranchesMenu, onDismissRequest = { showBranchesMenu = false }) {
