@@ -244,13 +244,15 @@ class GitViewModel : ViewModel() {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             Git.open(currentRoot.value).use { git ->
-                currentChanges.filter { it.isChecked }.forEach { change ->
-                    when (change.type) {
-                        ChangeType.ADDED -> git.add().addFilepattern(change.path).call()
-                        ChangeType.MODIFIED -> git.add().addFilepattern(change.path).call()
-                        ChangeType.DELETED -> git.rm().addFilepattern(change.path).call()
+                currentChanges
+                    .filter { it.isChecked }
+                    .forEach { change ->
+                        when (change.type) {
+                            ChangeType.ADDED -> git.add().addFilepattern(change.path).call()
+                            ChangeType.MODIFIED -> git.add().addFilepattern(change.path).call()
+                            ChangeType.DELETED -> git.rm().addFilepattern(change.path).call()
+                        }
                     }
-                }
                 git.commit()
                     .setAuthor(Settings.git_name, Settings.git_email)
                     .setCommitter(Settings.git_name, Settings.git_email)

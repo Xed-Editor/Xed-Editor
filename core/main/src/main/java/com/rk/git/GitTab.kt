@@ -211,6 +211,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             Spacer(Modifier.width(4.dp))
 
                             TriStateCheckbox(
+                                enabled = !viewModel.isLoading,
                                 state = allChangesSelectionState,
                                 onClick = {
                                     if (allChangesSelectionState == ToggleableState.On) {
