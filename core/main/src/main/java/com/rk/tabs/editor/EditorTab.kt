@@ -275,14 +275,14 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                                 tabTitle.value = it.getName()
                                 scope.launch {
                                     write()
-                                    fileTreeViewModel.get()?.syncGitChanges(file)
+                                    fileTreeViewModel.get()?.syncGitChanges(file.getAbsolutePath())
                                 }
                             }
                         }
                     }
                 } else {
                     write()
-                    fileTreeViewModel.get()?.syncGitChanges(file)
+                    fileTreeViewModel.get()?.syncGitChanges(file.getAbsolutePath())
                 }
             }
         }

@@ -86,8 +86,8 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    fun syncGitChanges(fileObject: FileObject) {
-        val gitRoot = findGitRoot(fileObject.getAbsolutePath())
+    fun syncGitChanges(path: String) {
+        val gitRoot = findGitRoot(path)
         if (gitRoot != null) {
             gitViewModel.get()?.getChanges(File(gitRoot)) { changes ->
                 gitChanges = changes
@@ -97,7 +97,7 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun updateCache(file: FileObject) {
-        syncGitChanges(file)
+        syncGitChanges(file.getAbsolutePath())
         if (file.isDirectory().not()) {
             return
         }
