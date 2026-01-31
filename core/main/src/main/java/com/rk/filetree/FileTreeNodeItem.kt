@@ -155,7 +155,7 @@ fun FileTreeNodeItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
-                    color = getGitColor(viewModel, node.file) ?: MaterialTheme.colorScheme.onSurface,
+                    color = getGitColor(node.file) ?: MaterialTheme.colorScheme.onSurface,
                 )
             }
         }

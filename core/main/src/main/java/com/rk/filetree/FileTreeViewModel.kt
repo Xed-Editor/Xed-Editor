@@ -8,12 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.gitViewModel
 import com.rk.file.FileObject
-import com.rk.git.GitChange
 import com.rk.settings.Settings
-import com.rk.utils.findGitRoot
-import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,7 +23,6 @@ class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
-    var gitChanges by mutableStateOf<List<GitChange>>(emptyList())
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
@@ -73,10 +68,6 @@ class FileTreeViewModel : ViewModel() {
         return diagnosedNodes[fileObject] ?: -1
     }
 
-    fun getGitChange(fileObject: FileObject): GitChange? {
-        return gitChanges.find { change -> fileObject.getAbsolutePath().contains(change.path) }
-    }
-
     fun toggleNodeExpansion(fileObject: FileObject) {
         val wasExpanded = expandedNodes[fileObject] == true
         expandedNodes[fileObject] = !wasExpanded
@@ -87,18 +78,8 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    fun syncGitChanges(path: String): Job {
-        return viewModelScope.launch {
-            val gitRoot = findGitRoot(path)
-            if (gitRoot != null) {
-                gitViewModel.get()!!.syncChanges(File(gitRoot)).join()
-                gitChanges = gitViewModel.get()!!.changes[gitRoot]!!
-            }
-        }
-    }
-
     fun updateCache(file: FileObject) {
-        syncGitChanges(file.getAbsolutePath())
+        gitViewModel.get()?.syncChanges(file.getAbsolutePath())
         if (file.isDirectory().not()) {
             return
         }

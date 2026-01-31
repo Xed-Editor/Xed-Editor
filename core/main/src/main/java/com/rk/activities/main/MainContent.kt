@@ -349,7 +349,7 @@ private fun TabItemContent(
         }
     }
 
-    val gitColor = getGitColor(fileTreeViewModel, tabState.file)
+    val gitColor = getGitColor(tabState.file)
     val activeColor = gitColor ?: MaterialTheme.colorScheme.primary
     val inactiveColor = gitColor ?: MaterialTheme.colorScheme.onSurfaceVariant
 

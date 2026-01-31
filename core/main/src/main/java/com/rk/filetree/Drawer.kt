@@ -229,7 +229,6 @@ fun selectTab(tab: DrawerTab?) {
         val gitRoot = findGitRoot(tab.root.getAbsolutePath())
         if (gitRoot != null) {
             gitViewModel.get()?.loadRepository(gitRoot)
-            fileTreeViewModel.get()?.syncGitChanges(gitRoot)
         }
     }
 }

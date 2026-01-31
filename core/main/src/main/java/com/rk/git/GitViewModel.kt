@@ -6,8 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rk.file.FileObject
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.findGitRoot
 import com.rk.utils.toast
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +38,7 @@ class GitViewModel : ViewModel() {
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
         currentBranch = Git.open(currentRoot.value).currentHead()
-        syncChanges(currentRoot.value)
+        syncChanges(currentRoot.value!!)
         if (!amends.containsKey(root)) {
             amends[root] = false
         }
@@ -103,6 +105,14 @@ class GitViewModel : ViewModel() {
         amends[currentRoot.value!!.absolutePath] = amend
     }
 
+    fun getChangeType(file: FileObject): ChangeType? {
+        val gitRoot = findGitRoot(file.getAbsolutePath()) ?: return null
+        if (!changes.containsKey(gitRoot)) {
+            syncChanges(file.getAbsolutePath())
+        }
+        return changes[gitRoot]?.find { change -> change.absolutePath == file.getAbsolutePath() }?.type
+    }
+
     fun cloneRepository(repoURL: String, repoBranch: String, targetDir: File, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             var done = false
@@ -166,7 +176,7 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     isLoading = false
                     toast(strings.checkout_complete)
-                    syncChanges(currentRoot.value)
+                    syncChanges(currentRoot.value!!)
                 }
             }
         }
@@ -243,23 +253,46 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun syncChanges(root: File?): Job {
+    fun syncChanges(root: String): Job {
+        return viewModelScope.launch {
+            val gitRoot = findGitRoot(root)
+            if (gitRoot != null) {
+                syncChanges(File(gitRoot)).join()
+            }
+        }
+    }
+
+    fun syncChanges(root: File): Job {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             val newChanges = mutableListOf<GitChange>()
             Git.open(root).use { git ->
                 val status = git.status().call()
-                newChanges.addAll(status.added.map { GitChange(it, ChangeType.ADDED) })
-                newChanges.addAll(status.changed.map { GitChange(it, ChangeType.MODIFIED) })
-                newChanges.addAll(status.modified.map { GitChange(it, ChangeType.MODIFIED) })
-                newChanges.addAll(status.removed.map { GitChange(it, ChangeType.DELETED) })
-                newChanges.addAll(status.missing.map { GitChange(it, ChangeType.DELETED) })
-                newChanges.addAll(status.untracked.map { GitChange(it, ChangeType.ADDED) })
-                newChanges.addAll(status.conflicting.map { GitChange(it, ChangeType.MODIFIED) })
+                fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
+                newChanges.addAll(status.added.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) })
+                newChanges.addAll(status.changed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) })
+                newChanges.addAll(status.modified.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) })
+                newChanges.addAll(status.removed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) })
+                newChanges.addAll(status.missing.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) })
+                newChanges.addAll(status.untracked.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) })
+                newChanges.addAll(
+                    status.conflicting.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
+                )
             }
+            val gitRoot = root.absolutePath
+            val oldChanges = changes[gitRoot]
+            val mergedChanges =
+                if (oldChanges != null) {
+                    val oldMap = oldChanges.associateBy { it.path }
+                    newChanges.map { newChange ->
+                        oldMap[newChange.path]?.let { newChange.copy(isChecked = it.isChecked) } ?: newChange
+                    }
+                } else {
+                    newChanges
+                }
             withContext(Dispatchers.Main) {
                 isLoading = false
-                changes[root!!.absolutePath] = newChanges
+                changes[gitRoot] = mergedChanges
             }
         }
     }
@@ -286,7 +319,7 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     isLoading = false
                     toast(strings.commit_complete)
-                    syncChanges(currentRoot.value)
+                    syncChanges(currentRoot.value!!)
                 }
             }
         }
@@ -354,7 +387,7 @@ class GitViewModel : ViewModel() {
                     isLoading = false
                     toast(strings.checkout_complete)
                     currentBranch = Git.open(currentRoot.value).currentHead()
-                    syncChanges(currentRoot.value)
+                    syncChanges(currentRoot.value!!)
                 }
             }
         }

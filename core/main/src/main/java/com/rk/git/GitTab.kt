@@ -324,7 +324,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Button(
-                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && changes.isNotEmpty(),
+                        enabled =
+                            !viewModel.isLoading &&
+                                commitMessage.isNotBlank() &&
+                                changes.count { change -> change.isChecked } > 0,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.commit() },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
@@ -342,7 +345,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         )
                     }
                     OutlinedButton(
-                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && changes.isNotEmpty(),
+                        enabled =
+                            !viewModel.isLoading &&
+                                commitMessage.isNotBlank() &&
+                                changes.count { change -> change.isChecked } > 0,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {

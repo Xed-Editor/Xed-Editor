@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
+import com.rk.activities.main.gitViewModel
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
 import com.rk.git.ChangeType
@@ -373,9 +374,9 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 }
 
 @Composable
-fun getGitColor(fileTreeViewModel: FileTreeViewModel, file: FileObject?): Color? {
-    val gitChange = file?.let { fileTreeViewModel.getGitChange(it) } ?: return null
-    return getGitColor(gitChange.type)
+fun getGitColor(file: FileObject?): Color? {
+    val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file) } ?: return null
+    return getGitColor(gitChangeType)
 }
 
 @Composable

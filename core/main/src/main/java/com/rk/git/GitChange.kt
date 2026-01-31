@@ -16,4 +16,4 @@
 
 package com.rk.git
 
-data class GitChange(val path: String, val type: ChangeType, val isChecked: Boolean = true)
+data class GitChange(val path: String, val absolutePath: String, val type: ChangeType, val isChecked: Boolean = true)
