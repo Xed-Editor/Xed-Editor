@@ -13,6 +13,7 @@ import com.rk.settings.Settings
 import com.rk.utils.findGitRoot
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -86,12 +87,12 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    fun syncGitChanges(path: String) {
-        val gitRoot = findGitRoot(path)
-        if (gitRoot != null) {
-            gitViewModel.get()?.getChanges(File(gitRoot)) { changes ->
-                gitChanges = changes
-                gitViewModel.get()?.currentChanges = changes
+    fun syncGitChanges(path: String): Job {
+        return viewModelScope.launch {
+            val gitRoot = findGitRoot(path)
+            if (gitRoot != null) {
+                gitViewModel.get()!!.syncChanges(File(gitRoot)).join()
+                gitChanges = gitViewModel.get()!!.currentChanges
             }
         }
     }

@@ -275,7 +275,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                                 tabTitle.value = it.getName()
                                 scope.launch {
                                     write()
-                                    fileTreeViewModel.get()?.syncGitChanges(file.getAbsolutePath())
+                                    fileTreeViewModel.get()!!.syncGitChanges(file.getAbsolutePath()).join()
                                 }
                             }
                         }

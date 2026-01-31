@@ -36,6 +36,7 @@ class GitViewModel : ViewModel() {
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
         currentBranch = Git.open(currentRoot.value).currentHead()
+        syncChanges(currentRoot.value)
     }
 
     fun getBranchList(): List<String> {
@@ -142,7 +143,7 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     isLoading = false
                     toast(strings.checkout_complete)
-                    getChanges(currentRoot.value) { changes -> currentChanges = changes }
+                    syncChanges(currentRoot.value)
                 }
             }
         }
@@ -219,7 +220,7 @@ class GitViewModel : ViewModel() {
         }
     }
 
-    fun getChanges(root: File?, onComplete: (List<GitChange>) -> Unit): Job {
+    fun syncChanges(root: File?): Job {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             val changes = mutableListOf<GitChange>()
@@ -235,7 +236,7 @@ class GitViewModel : ViewModel() {
             }
             withContext(Dispatchers.Main) {
                 isLoading = false
-                onComplete(changes)
+                currentChanges = changes
             }
         }
     }
@@ -262,7 +263,7 @@ class GitViewModel : ViewModel() {
                 withContext(Dispatchers.Main) {
                     isLoading = false
                     toast(strings.commit_complete)
-                    getChanges(currentRoot.value) { changes -> currentChanges = changes }
+                    syncChanges(currentRoot.value)
                 }
             }
         }
@@ -330,7 +331,7 @@ class GitViewModel : ViewModel() {
                     isLoading = false
                     toast(strings.checkout_complete)
                     currentBranch = Git.open(currentRoot.value).currentHead()
-                    getChanges(currentRoot.value) { changes -> currentChanges = changes }
+                    syncChanges(currentRoot.value)
                 }
             }
         }
