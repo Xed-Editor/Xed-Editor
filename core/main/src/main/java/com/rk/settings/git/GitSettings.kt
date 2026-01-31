@@ -10,19 +10,8 @@ import com.rk.components.DoubleInputDialog
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-
-fun validateValue(value: String): String? {
-    return when {
-        value.isBlank() -> {
-            strings.value_empty_err.getString()
-        }
-
-        else -> null
-    }
-}
 
 @Composable
 fun GitSettings() {
@@ -34,11 +23,6 @@ fun GitSettings() {
         var password by remember { mutableStateOf(Settings.git_password) }
         var name by remember { mutableStateOf(Settings.git_name) }
         var email by remember { mutableStateOf(Settings.git_email) }
-
-        var usernameError by remember { mutableStateOf<String?>(null) }
-        var passwordError by remember { mutableStateOf<String?>(null) }
-        var nameError by remember { mutableStateOf<String?>(null) }
-        var emailError by remember { mutableStateOf<String?>(null) }
 
         PreferenceGroup(heading = stringResource(strings.account)) {
             SettingsToggle(
@@ -58,7 +42,14 @@ fun GitSettings() {
             )
         }
 
-        PreferenceGroup {
+        PreferenceGroup(heading = stringResource(strings.repository)) {
+            SettingsToggle(
+                label = stringResource(strings.submodules),
+                description = stringResource(strings.submodules_desc),
+                default = Settings.git_submodules,
+                sideEffect = { Settings.git_submodules = it },
+            )
+
             SettingsToggle(
                 label = stringResource(strings.recursive_submodules),
                 description = stringResource(strings.recursive_submodules_desc),
@@ -72,30 +63,19 @@ fun GitSettings() {
                 title = stringResource(strings.credentials),
                 firstInputLabel = stringResource(strings.username),
                 firstInputValue = username,
-                onFirstInputValueChange = {
-                    username = it
-                    usernameError = validateValue(username)
-                },
+                onFirstInputValueChange = { username = it },
                 secondInputLabel = stringResource(strings.password),
                 secondInputValue = password,
-                onSecondInputValueChange = {
-                    password = it
-                    passwordError = validateValue(password)
-                },
+                onSecondInputValueChange = { password = it },
                 onConfirm = {
-                    Settings.git_username = username.toString()
-                    Settings.git_password = password.toString()
+                    Settings.git_username = username
+                    Settings.git_password = password
                 },
                 onFinish = {
                     username = Settings.git_username
                     password = Settings.git_password
-                    usernameError = null
-                    passwordError = null
                     showCredentialsDialog = false
                 },
-                firstErrorMessage = usernameError,
-                secondErrorMessage = passwordError,
-                confirmEnabled = usernameError == null && passwordError == null && username.isNotBlank(),
             )
         }
 
@@ -104,30 +84,19 @@ fun GitSettings() {
                 title = stringResource(strings.user_data),
                 firstInputLabel = stringResource(strings.name),
                 firstInputValue = name,
-                onFirstInputValueChange = {
-                    name = it
-                    nameError = validateValue(name)
-                },
+                onFirstInputValueChange = { name = it },
                 secondInputLabel = stringResource(strings.email),
                 secondInputValue = email,
-                onSecondInputValueChange = {
-                    email = it
-                    emailError = validateValue(email)
-                },
+                onSecondInputValueChange = { email = it },
                 onConfirm = {
-                    Settings.git_name = name.toString()
-                    Settings.git_email = email.toString()
+                    Settings.git_name = name
+                    Settings.git_email = email
                 },
                 onFinish = {
                     name = Settings.git_name
                     email = Settings.git_email
-                    nameError = null
-                    emailError = null
                     showUserDataDialog = false
                 },
-                firstErrorMessage = nameError,
-                secondErrorMessage = emailError,
-                confirmEnabled = nameError == null && emailError == null && name.isNotBlank(),
             )
         }
     }

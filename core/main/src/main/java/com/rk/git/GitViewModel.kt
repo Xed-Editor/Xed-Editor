@@ -122,6 +122,7 @@ class GitViewModel : ViewModel() {
                         .setURI(repoURL)
                         .setBranch("refs/heads/$repoBranch")
                         .setDirectory(targetDir)
+                        .setCloneSubmodules(Settings.git_submodules)
                         .setCredentialsProvider(
                             UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
                         )

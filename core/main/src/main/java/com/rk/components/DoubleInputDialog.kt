@@ -1,5 +1,6 @@
 package com.rk.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
@@ -62,7 +64,7 @@ fun DoubleInputDialog(
         },
         title = { Text(text = title) },
         text = {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = firstTextFieldValue,
                     singleLine = singleLineMode,
