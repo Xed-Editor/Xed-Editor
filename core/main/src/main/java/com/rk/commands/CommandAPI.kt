@@ -1,14 +1,13 @@
 package com.rk.commands
 
 import android.app.Activity
-import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.editor.Editor
 import com.rk.icons.Icon
 import com.rk.lsp.BaseLspConnector
 import com.rk.tabs.editor.EditorTab
 
-data class CommandContext(val mainActivity: MainActivity, val mainViewModel: MainViewModel)
+data class CommandContext(val mainViewModel: MainViewModel)
 
 data class ActionContext(val currentActivity: Activity)
 
