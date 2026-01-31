@@ -67,6 +67,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.findGitRoot
 import com.rk.utils.getGitColor
@@ -86,9 +87,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
         var changesExpanded by remember { mutableStateOf(true) }
 
-        var changes = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
-        var commitMessage = viewModel.currentRoot.value!!.absolutePath.let { viewModel.commitMessages[it] }
-        var amend = viewModel.currentRoot.value!!.absolutePath.let { viewModel.amends[it] }
+        val changes = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
+        val commitMessage = viewModel.currentRoot.value!!.absolutePath.let { viewModel.commitMessages[it] }
+        val amend = viewModel.currentRoot.value!!.absolutePath.let { viewModel.amends[it] }
 
         val allChangesSelectionState =
             when {
@@ -409,6 +410,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     }
 
     override fun isSupported(): Boolean {
+        if (!InbuiltFeatures.git.state.value) return false
         val tab = currentTab ?: return false
         if (tab !is FileTreeTab) return false
         return findGitRoot(tab.root.getAbsolutePath()) != null

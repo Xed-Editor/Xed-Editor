@@ -660,4 +660,6 @@
     <string name="push_complete">Push complete</string>
     <string name="new_branch">New branch</string>
     <string name="new_branch_label">New branch (based on "%1$s" branch)</string>
+    <string name="git_colorize_files">Colorize file names</string>
+    <string name="git_colorize_files_desc">Colorize file names depending on Git status</string>
 </resources>

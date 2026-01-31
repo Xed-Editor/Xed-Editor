@@ -108,6 +108,7 @@ object Settings {
     var insert_final_newline by CachedPreference("insert_final_newline", true)
     var trim_trailing_whitespace by CachedPreference("trim_trailing_whitespace", true)
     var enable_editorconfig by CachedPreference("enable_editorconfig", true)
+    var git_colorize_names by CachedPreference("git_colorize_names", true)
     var git_submodules by CachedPreference("git_submodules", true)
     var git_recursive_submodules by CachedPreference("git_recursive_submodules", true)
 

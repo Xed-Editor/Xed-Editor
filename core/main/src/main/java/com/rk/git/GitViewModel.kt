@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.findGitRoot
 import com.rk.utils.toast
 import java.io.File
@@ -256,6 +257,8 @@ class GitViewModel : ViewModel() {
 
     fun syncChanges(root: String): Job {
         return viewModelScope.launch {
+            if (!InbuiltFeatures.git.state.value) return@launch
+
             val gitRoot = findGitRoot(root)
             if (gitRoot != null) {
                 syncChanges(File(gitRoot)).join()
@@ -265,6 +268,8 @@ class GitViewModel : ViewModel() {
 
     fun syncChanges(root: File): Job {
         return viewModelScope.launch(Dispatchers.IO) {
+            if (!InbuiltFeatures.git.state.value) return@launch
+
             withContext(Dispatchers.Main) { isLoading = true }
             val newChanges = mutableListOf<GitChange>()
             Git.open(root).use { git ->

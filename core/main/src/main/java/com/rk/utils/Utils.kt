@@ -45,6 +45,7 @@ import com.rk.git.ChangeType
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.theme.currentTheme
 import com.rk.theme.gitAdded
 import com.rk.theme.gitDeleted
@@ -375,6 +376,7 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 
 @Composable
 fun getGitColor(file: FileObject?): Color? {
+    if (!InbuiltFeatures.git.state.value || !Settings.git_colorize_names) return null
     val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file) } ?: return null
     return getGitColor(gitChangeType)
 }

@@ -24,6 +24,15 @@ fun GitSettings() {
         var name by remember { mutableStateOf(Settings.git_name) }
         var email by remember { mutableStateOf(Settings.git_email) }
 
+        PreferenceGroup(heading = stringResource(strings.general)) {
+            SettingsToggle(
+                label = stringResource(strings.git_colorize_files),
+                description = stringResource(strings.git_colorize_files_desc),
+                default = Settings.git_colorize_names,
+                sideEffect = { Settings.git_colorize_names = it },
+            )
+        }
+
         PreferenceGroup(heading = stringResource(strings.account)) {
             SettingsToggle(
                 label = stringResource(strings.credentials),

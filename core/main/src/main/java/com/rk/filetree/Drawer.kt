@@ -225,7 +225,7 @@ fun selectTab(tab: DrawerTab?) {
     currentTab = tab
     currentServiceTab = null
 
-    if (tab is FileTreeTab) {
+    if (tab is FileTreeTab && InbuiltFeatures.git.state.value) {
         val gitRoot = findGitRoot(tab.root.getAbsolutePath())
         if (gitRoot != null) {
             gitViewModel.get()?.loadRepository(gitRoot)
@@ -573,15 +573,17 @@ private fun AddProjectDialog(
             }
 
             // Clone repository option
-            AddDialogItem(
-                icon = Icon.DrawableRes(drawables.git),
-                title = stringResource(strings.clone_repo),
-                description = stringResource(strings.clone_repo_desc),
-                onClick = {
-                    showGitCloneDialog()
-                    onDismiss()
-                },
-            )
+            if (InbuiltFeatures.git.state.value) {
+                AddDialogItem(
+                    icon = Icon.DrawableRes(drawables.git),
+                    title = stringResource(strings.clone_repo),
+                    description = stringResource(strings.clone_repo_desc),
+                    onClick = {
+                        showGitCloneDialog()
+                        onDismiss()
+                    },
+                )
+            }
 
             // Terminal Home option
             AddDialogItem(
