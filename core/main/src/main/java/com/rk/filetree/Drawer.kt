@@ -371,7 +371,13 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 NavigationRailItem(
                                     selected = currentServiceTab == tab,
                                     icon = { XedIcon(icon = tab.getIcon()) },
-                                    onClick = { currentServiceTab = tab },
+                                    onClick = {
+                                        if (currentServiceTab == tab) {
+                                            currentServiceTab = null
+                                        } else {
+                                            currentServiceTab = tab
+                                        }
+                                    },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                     enabled = tab.isEnabled(),
                                 )
