@@ -70,6 +70,7 @@ import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
+import com.rk.git.GitProgressMonitor
 import com.rk.git.GitTab
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
@@ -291,8 +292,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     }
                                     .onFailure { it.printStackTrace() }
                                 scope.launch {
-                                    val loading = LoadingPopup(activity, null).show()
-                                    loading.setMessage(strings.cloning.getString())
+                                    val monitor = GitProgressMonitor(activity)
                                     val fileObject =
                                         it.toFileObject(expectedIsFile = false)
                                             .createChild(
@@ -305,12 +305,12 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                             repoURL = repoURL,
                                             repoBranch = repoBranch,
                                             targetDir = File(fileObject!!.getAbsolutePath()),
+                                            progressMonitor = monitor,
                                             onComplete = { success ->
                                                 repoURL = ""
                                                 repoBranch = "main"
                                                 repoURLError = null
                                                 repoBranchError = null
-                                                loading.hide()
                                                 if (success) {
                                                     addProject(fileObject)
                                                 }
