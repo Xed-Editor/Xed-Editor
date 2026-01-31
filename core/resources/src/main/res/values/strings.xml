@@ -646,6 +646,8 @@
     <string name="commit">Commit</string>
     <string name="commit_and_push">Commit and push</string>
     <string name="amend">Amend</string>
+    <string name="amend_commit">Amend commit</string>
+    <string name="amend_commit_and_push">Amend commit and push</string>
     <string name="no_changes">No changes</string>
     <string name="changes">Changes</string>
     <string name="checkout_complete">Checkout complete</string>

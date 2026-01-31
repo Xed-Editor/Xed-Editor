@@ -85,7 +85,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
         var changesExpanded by remember { mutableStateOf(true) }
-        var changes = viewModel.currentRoot.value?.absolutePath?.let { viewModel.currentChanges[it] } ?: emptyList()
+
+        var changes = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
+        var commitMessage = viewModel.currentRoot.value!!.absolutePath.let { viewModel.commitMessages[it] }
+        var amend = viewModel.currentRoot.value!!.absolutePath.let { viewModel.amends[it] }
 
         val allChangesSelectionState =
             when {
@@ -292,9 +295,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         Modifier.fillMaxWidth()
                             .height(40.dp)
                             .toggleable(
-                                value = viewModel.amend,
+                                value = amend!!,
                                 enabled = !viewModel.isLoading,
-                                onValueChange = { viewModel.amend = it },
+                                onValueChange = { viewModel.toggleAmend(it) },
                                 role = Role.Checkbox,
                                 indication = null,
                                 interactionSource = interactionSource,
@@ -303,7 +306,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
-                        checked = viewModel.amend,
+                        checked = amend,
                         enabled = !viewModel.isLoading,
                         interactionSource = interactionSource,
                         onCheckedChange = null,
@@ -314,14 +317,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 OutlinedTextField(
                     enabled = !viewModel.isLoading,
                     modifier = Modifier.fillMaxWidth().height(120.dp),
-                    value = viewModel.commitMessage,
-                    onValueChange = { viewModel.commitMessage = it },
+                    value = commitMessage!!,
+                    onValueChange = { viewModel.changeCommitMessage(it) },
                     placeholder = { Text(stringResource(strings.commit_message)) },
                 )
 
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Button(
-                        enabled = !viewModel.isLoading && viewModel.commitMessage.isNotBlank(),
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && changes.isNotEmpty(),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.commit() },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
@@ -332,10 +335,14 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             modifier = Modifier.size(ButtonDefaults.IconSize),
                         )
                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(stringResource(strings.commit), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            stringResource(if (amend) strings.amend_commit else strings.commit),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                     OutlinedButton(
-                        enabled = !viewModel.isLoading && viewModel.commitMessage.isNotBlank(),
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && changes.isNotEmpty(),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
@@ -351,7 +358,11 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             modifier = Modifier.size(ButtonDefaults.IconSize),
                         )
                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(stringResource(strings.commit_and_push), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(
+                            stringResource(if (amend) strings.amend_commit_and_push else strings.commit_and_push),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                 }
             }

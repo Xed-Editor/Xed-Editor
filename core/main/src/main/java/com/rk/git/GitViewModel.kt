@@ -27,17 +27,22 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 class GitViewModel : ViewModel() {
     var currentRoot = mutableStateOf<File?>(null)
     var currentBranch by mutableStateOf("")
-    var currentChanges = mutableStateMapOf<String, List<GitChange>>()
+    var changes = mutableStateMapOf<String, List<GitChange>>()
+    var commitMessages = mutableStateMapOf<String, String>()
+    var amends = mutableStateMapOf<String, Boolean>()
 
     var isLoading by mutableStateOf(false)
-
-    var commitMessage by mutableStateOf("")
-    var amend by mutableStateOf(false)
 
     fun loadRepository(root: String) {
         currentRoot.value = File(root)
         currentBranch = Git.open(currentRoot.value).currentHead()
         syncChanges(currentRoot.value)
+        if (!amends.containsKey(root)) {
+            amends[root] = false
+        }
+        if (!commitMessages.containsKey(root)) {
+            commitMessages[root] = ""
+        }
     }
 
     fun getBranchList(): List<String> {
@@ -70,15 +75,32 @@ class GitViewModel : ViewModel() {
     }
 
     fun toggleChange(change: GitChange) {
-        currentChanges[currentRoot.value!!.absolutePath] = currentChanges[currentRoot.value!!.absolutePath]!!.map { if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it }
+        changes[currentRoot.value!!.absolutePath] =
+            changes[currentRoot.value!!.absolutePath]!!.map {
+                if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it
+            }
     }
 
     fun addChange(change: GitChange) {
-        currentChanges[currentRoot.value!!.absolutePath] = currentChanges[currentRoot.value!!.absolutePath]!!.map { if (it.path == change.path) it.copy(isChecked = true) else it }
+        changes[currentRoot.value!!.absolutePath] =
+            changes[currentRoot.value!!.absolutePath]!!.map {
+                if (it.path == change.path) it.copy(isChecked = true) else it
+            }
     }
 
     fun removeChange(change: GitChange) {
-        currentChanges[currentRoot.value!!.absolutePath] = currentChanges[currentRoot.value!!.absolutePath]!!.map { if (it.path == change.path) it.copy(isChecked = false) else it }
+        changes[currentRoot.value!!.absolutePath] =
+            changes[currentRoot.value!!.absolutePath]!!.map {
+                if (it.path == change.path) it.copy(isChecked = false) else it
+            }
+    }
+
+    fun changeCommitMessage(message: String) {
+        commitMessages[currentRoot.value!!.absolutePath] = message
+    }
+
+    fun toggleAmend(amend: Boolean) {
+        amends[currentRoot.value!!.absolutePath] = amend
     }
 
     fun cloneRepository(repoURL: String, repoBranch: String, targetDir: File, onComplete: (Boolean) -> Unit) {
@@ -224,20 +246,20 @@ class GitViewModel : ViewModel() {
     fun syncChanges(root: File?): Job {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
-            val changes = mutableListOf<GitChange>()
+            val newChanges = mutableListOf<GitChange>()
             Git.open(root).use { git ->
                 val status = git.status().call()
-                changes.addAll(status.added.map { GitChange(it, ChangeType.ADDED) })
-                changes.addAll(status.changed.map { GitChange(it, ChangeType.MODIFIED) })
-                changes.addAll(status.modified.map { GitChange(it, ChangeType.MODIFIED) })
-                changes.addAll(status.removed.map { GitChange(it, ChangeType.DELETED) })
-                changes.addAll(status.missing.map { GitChange(it, ChangeType.DELETED) })
-                changes.addAll(status.untracked.map { GitChange(it, ChangeType.ADDED) })
-                changes.addAll(status.conflicting.map { GitChange(it, ChangeType.MODIFIED) })
+                newChanges.addAll(status.added.map { GitChange(it, ChangeType.ADDED) })
+                newChanges.addAll(status.changed.map { GitChange(it, ChangeType.MODIFIED) })
+                newChanges.addAll(status.modified.map { GitChange(it, ChangeType.MODIFIED) })
+                newChanges.addAll(status.removed.map { GitChange(it, ChangeType.DELETED) })
+                newChanges.addAll(status.missing.map { GitChange(it, ChangeType.DELETED) })
+                newChanges.addAll(status.untracked.map { GitChange(it, ChangeType.ADDED) })
+                newChanges.addAll(status.conflicting.map { GitChange(it, ChangeType.MODIFIED) })
             }
             withContext(Dispatchers.Main) {
                 isLoading = false
-                currentChanges[root!!.absolutePath] = changes
+                changes[root!!.absolutePath] = newChanges
             }
         }
     }
@@ -246,7 +268,8 @@ class GitViewModel : ViewModel() {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             Git.open(currentRoot.value).use { git ->
-                currentChanges[currentRoot.value!!.absolutePath]!!.filter { it.isChecked }
+                changes[currentRoot.value!!.absolutePath]!!
+                    .filter { it.isChecked }
                     .forEach { change ->
                         when (change.type) {
                             ChangeType.ADDED -> git.add().addFilepattern(change.path).call()
@@ -257,8 +280,8 @@ class GitViewModel : ViewModel() {
                 git.commit()
                     .setAuthor(Settings.git_name, Settings.git_email)
                     .setCommitter(Settings.git_name, Settings.git_email)
-                    .setMessage(commitMessage)
-                    .setAmend(amend)
+                    .setMessage(commitMessages[currentRoot.value!!.absolutePath])
+                    .setAmend(amends[currentRoot.value!!.absolutePath]!!)
                     .call()
                 withContext(Dispatchers.Main) {
                     isLoading = false
