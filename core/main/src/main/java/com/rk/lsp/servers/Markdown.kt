@@ -17,6 +17,7 @@ class Markdown() : BaseLspServer() {
     override val languageName: String = "Markdown"
     override val serverName = "vscode-markdown-language-server"
     override val supportedExtensions: List<String> = FileType.MARKDOWN.extensions
+    override val icon = FileType.MARKDOWN.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

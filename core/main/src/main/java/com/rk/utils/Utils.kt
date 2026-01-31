@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Build
 import android.telephony.TelephonyManager
 import android.text.Spanned
@@ -37,6 +36,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
@@ -103,6 +103,11 @@ fun isSystemInDarkTheme(ctx: Context): Boolean {
         Configuration.UI_MODE_NIGHT_YES)
 }
 
+/** Parses a string of comma-separated file extensions into a uniform list of extensions (without the dot). */
+fun parseExtensions(input: String): List<String> {
+    return input.split(",").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
+}
+
 inline fun dpToPx(dp: Float, ctx: Context): Int {
     val density = ctx.resources.displayMetrics.density
     return (dp * density).roundToInt()
@@ -124,7 +129,7 @@ fun <K> x(m: MutableCollection<K>, c: Int) {
 }
 
 fun Activity.openUrl(url: String) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     startActivity(intent)
 }
 
@@ -321,11 +326,11 @@ fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, fi
         when (diagnosticSeverity) {
             1 -> {
                 editorColors?.find { it.key == EditorColorScheme.PROBLEM_TYPO }?.color?.let { Color(it) }
-                    ?: Color(0x6600ff11) // TODO: Change to green/yellow status colors later in LSP PR
+                    ?: Color(0x6600ff11) // Color was taken from EditorColorScheme.java
             }
             2 -> {
                 editorColors?.find { it.key == EditorColorScheme.PROBLEM_WARNING }?.color?.let { Color(it) }
-                    ?: Color(0xaafff100) // TODO: Change to green/yellow status colors later in LSP PR
+                    ?: Color(0xaafff100) // Color was taken from EditorColorScheme.java
             }
             3 -> {
                 editorColors?.find { it.key == EditorColorScheme.PROBLEM_ERROR }?.color?.let { Color(it) }

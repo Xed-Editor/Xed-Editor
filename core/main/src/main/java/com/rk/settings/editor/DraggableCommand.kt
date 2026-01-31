@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Icon
 import com.rk.resources.drawables
+import com.rk.resources.strings
 
 @Composable
 fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: () -> Unit) {
@@ -91,7 +93,11 @@ fun DraggableCommand(modifier: Modifier = Modifier, command: Command, onRemove: 
                     }
                 }
             },
-            endWidget = { IconButton(onClick = { onRemove() }) { Icon(imageVector = Icons.Outlined.Delete, null) } },
+            endWidget = {
+                IconButton(onClick = { onRemove() }) {
+                    Icon(imageVector = Icons.Outlined.Delete, stringResource(strings.delete))
+                }
+            },
         )
     }
 }
