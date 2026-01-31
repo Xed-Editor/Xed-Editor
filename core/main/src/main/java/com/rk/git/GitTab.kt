@@ -52,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -59,9 +60,12 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.fileTreeViewModel
 import com.rk.components.SingleInputDialog
+import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.components.isPermanentDrawer
+import com.rk.file.toFileWrapper
 import com.rk.filetree.DrawerTab
 import com.rk.filetree.FileNameIcon
 import com.rk.filetree.FileTreeTab
@@ -72,8 +76,11 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
+import com.rk.utils.drawErrorUnderline
 import com.rk.utils.findGitRoot
 import com.rk.utils.getGitColor
+import com.rk.utils.getUnderlineColor
+import java.io.File
 import kotlinx.coroutines.launch
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
@@ -521,6 +528,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
     @Composable
     private fun ChangesItemList(items: List<GitChange>) {
+        val context = LocalContext.current
+
         LazyColumn(modifier = Modifier.padding(start = 40.dp)) {
             items(items) { change ->
                 Row(
@@ -538,13 +547,17 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         modifier = Modifier.size(20.dp),
                     )
 
+                    val file = File(change.absolutePath).toFileWrapper()
                     val fileName = change.path.substringAfterLast("/")
+
                     FileNameIcon(fileName = fileName, isDirectory = false)
 
+                    val underlineColor = fileTreeViewModel.get()?.let { getUnderlineColor(context, it, file) }
                     Text(
                         text = fileName,
                         style = MaterialTheme.typography.bodyMedium,
                         color = getGitColor(change.type),
+                        modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
