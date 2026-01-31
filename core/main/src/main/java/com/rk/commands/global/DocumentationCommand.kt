@@ -21,7 +21,7 @@ class DocumentationCommand(commandContext: CommandContext) : GlobalCommand(comma
     override fun action(actionContext: ActionContext) {
         val url = "https://xed-editor.github.io/Xed-Docs/"
         val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-        commandContext.mainActivity.startActivity(intent)
+        actionContext.currentActivity.startActivity(intent)
     }
 
     override fun getIcon(): Icon = Icon.VectorIcon(XedIcons.Menu_book)
