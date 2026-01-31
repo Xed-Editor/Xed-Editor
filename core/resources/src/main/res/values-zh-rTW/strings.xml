@@ -639,4 +639,5 @@
     <string name="extension_validation_failed">擴充功能驗證失敗</string>
     <string name="general">一般</string>
     <string name="advanced">進階</string>
+    <string name="open_removable_storage">開放式可移動存儲</string>
 </resources>
