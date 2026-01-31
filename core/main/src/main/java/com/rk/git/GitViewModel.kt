@@ -1,6 +1,7 @@
 package com.rk.git
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -24,9 +25,9 @@ import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 class GitViewModel : ViewModel() {
-    private var currentRoot = mutableStateOf<File?>(null)
+    var currentRoot = mutableStateOf<File?>(null)
     var currentBranch by mutableStateOf("")
-    var currentChanges by mutableStateOf<List<GitChange>>(emptyList())
+    var currentChanges = mutableStateMapOf<String, List<GitChange>>()
 
     var isLoading by mutableStateOf(false)
 
@@ -69,15 +70,15 @@ class GitViewModel : ViewModel() {
     }
 
     fun toggleChange(change: GitChange) {
-        currentChanges = currentChanges.map { if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it }
+        currentChanges[currentRoot.value!!.absolutePath] = currentChanges[currentRoot.value!!.absolutePath]!!.map { if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it }
     }
 
     fun addChange(change: GitChange) {
-        currentChanges = currentChanges.map { if (it.path == change.path) it.copy(isChecked = true) else it }
+        currentChanges[currentRoot.value!!.absolutePath] = currentChanges[currentRoot.value!!.absolutePath]!!.map { if (it.path == change.path) it.copy(isChecked = true) else it }
     }
 
     fun removeChange(change: GitChange) {
-        currentChanges = currentChanges.map { if (it.path == change.path) it.copy(isChecked = false) else it }
+        currentChanges[currentRoot.value!!.absolutePath] = currentChanges[currentRoot.value!!.absolutePath]!!.map { if (it.path == change.path) it.copy(isChecked = false) else it }
     }
 
     fun cloneRepository(repoURL: String, repoBranch: String, targetDir: File, onComplete: (Boolean) -> Unit) {
@@ -236,7 +237,7 @@ class GitViewModel : ViewModel() {
             }
             withContext(Dispatchers.Main) {
                 isLoading = false
-                currentChanges = changes
+                currentChanges[root!!.absolutePath] = changes
             }
         }
     }
@@ -245,8 +246,7 @@ class GitViewModel : ViewModel() {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
             Git.open(currentRoot.value).use { git ->
-                currentChanges
-                    .filter { it.isChecked }
+                currentChanges[currentRoot.value!!.absolutePath]!!.filter { it.isChecked }
                     .forEach { change ->
                         when (change.type) {
                             ChangeType.ADDED -> git.add().addFilepattern(change.path).call()

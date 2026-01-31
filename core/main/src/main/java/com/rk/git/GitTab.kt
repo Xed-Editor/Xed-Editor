@@ -85,10 +85,12 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
         var changesExpanded by remember { mutableStateOf(true) }
+        var changes = viewModel.currentRoot.value?.absolutePath?.let { viewModel.currentChanges[it] } ?: emptyList()
+
         val allChangesSelectionState =
             when {
-                viewModel.currentChanges.all { it.isChecked } -> ToggleableState.On
-                viewModel.currentChanges.none { it.isChecked } -> ToggleableState.Off
+                changes.all { it.isChecked } -> ToggleableState.On
+                changes.none { it.isChecked } -> ToggleableState.Off
                 else -> ToggleableState.Indeterminate
             }
 
@@ -184,7 +186,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     }
                 }
 
-                if (viewModel.currentChanges.isNotEmpty()) {
+                if (changes.isNotEmpty()) {
                     Column(
                         modifier =
                             Modifier.fillMaxSize()
@@ -215,9 +217,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 state = allChangesSelectionState,
                                 onClick = {
                                     if (allChangesSelectionState == ToggleableState.On) {
-                                        viewModel.currentChanges.forEach { viewModel.removeChange(it) }
+                                        changes.forEach { viewModel.removeChange(it) }
                                     } else {
-                                        viewModel.currentChanges.forEach { viewModel.addChange(it) }
+                                        changes.forEach { viewModel.addChange(it) }
                                     }
                                 },
                                 modifier = Modifier.size(20.dp),
@@ -234,7 +236,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
                         AnimatedVisibility(visible = changesExpanded) {
                             LazyColumn(modifier = Modifier.padding(start = 40.dp)) {
-                                items(viewModel.currentChanges) { change ->
+                                items(changes) { change ->
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier =

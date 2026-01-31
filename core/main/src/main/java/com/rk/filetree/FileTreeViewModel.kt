@@ -92,7 +92,7 @@ class FileTreeViewModel : ViewModel() {
             val gitRoot = findGitRoot(path)
             if (gitRoot != null) {
                 gitViewModel.get()!!.syncChanges(File(gitRoot)).join()
-                gitChanges = gitViewModel.get()!!.currentChanges
+                gitChanges = gitViewModel.get()!!.currentChanges[gitRoot]!!
             }
         }
     }
