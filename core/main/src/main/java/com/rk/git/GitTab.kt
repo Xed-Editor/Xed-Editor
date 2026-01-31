@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +42,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -85,18 +88,39 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranch by remember { mutableStateOf("") }
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
-        var changesExpanded by remember { mutableStateOf(true) }
+        val gitChanges = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
+        val hasCheckedChanges by remember { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
 
-        val changes = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
+        var changes by remember { mutableStateOf(listOf<GitChange>()) }
+        var conflicts by remember { mutableStateOf(listOf<GitChange>()) }
+        var untracked by remember { mutableStateOf(listOf<GitChange>()) }
+
+        var changesExpanded by remember { mutableStateOf(true) }
+        var untrackedExpanded by remember { mutableStateOf(true) }
+        var conflictsExpanded by remember { mutableStateOf(true) }
+
+        LaunchedEffect(gitChanges) {
+            val trackedChanges = mutableListOf<GitChange>()
+            val conflictingChanges = mutableListOf<GitChange>()
+            val untrackedChanges = mutableListOf<GitChange>()
+
+            for (change in gitChanges) {
+                when (change.type) {
+                    ChangeType.ADDED,
+                    ChangeType.MODIFIED,
+                    ChangeType.DELETED -> trackedChanges.add(change)
+                    ChangeType.CONFLICTING -> conflictingChanges.add(change)
+                    ChangeType.UNTRACKED -> untrackedChanges.add(change)
+                }
+            }
+
+            changes = trackedChanges
+            conflicts = conflictingChanges
+            untracked = untrackedChanges
+        }
+
         val commitMessage = viewModel.currentRoot.value!!.absolutePath.let { viewModel.commitMessages[it] }
         val amend = viewModel.currentRoot.value!!.absolutePath.let { viewModel.amends[it] }
-
-        val allChangesSelectionState =
-            when {
-                changes.all { it.isChecked } -> ToggleableState.On
-                changes.none { it.isChecked } -> ToggleableState.Off
-                else -> ToggleableState.Indeterminate
-            }
 
         Surface(
             modifier = modifier,
@@ -190,7 +214,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     }
                 }
 
-                if (changes.isNotEmpty()) {
+                if (gitChanges.isNotEmpty()) {
                     Column(
                         modifier =
                             Modifier.fillMaxSize()
@@ -198,86 +222,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                                 .padding(top = 8.dp)
                                 .horizontalScroll(rememberScrollState())
                     ) {
-                        Row(
-                            modifier =
-                                Modifier.width((getDrawerWidth() - 61.dp))
-                                    .combinedClickable(onClick = { changesExpanded = !changesExpanded })
-                                    .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            val rotationDegree by
-                                animateFloatAsState(targetValue = if (!changesExpanded) 0f else 90f, label = "rotation")
-
-                            Icon(
-                                painterResource(drawables.chevron_right),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                modifier = Modifier.size(16.dp).rotate(rotationDegree),
-                            )
-                            Spacer(Modifier.width(4.dp))
-
-                            TriStateCheckbox(
-                                enabled = !viewModel.isLoading,
-                                state = allChangesSelectionState,
-                                onClick = {
-                                    if (allChangesSelectionState == ToggleableState.On) {
-                                        changes.forEach { viewModel.removeChange(it) }
-                                    } else {
-                                        changes.forEach { viewModel.addChange(it) }
-                                    }
-                                },
-                                modifier = Modifier.size(20.dp),
-                            )
-
-                            Spacer(Modifier.width(8.dp))
-
-                            Text(
-                                text = stringResource(strings.changes),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-
-                        AnimatedVisibility(visible = changesExpanded) {
-                            LazyColumn(modifier = Modifier.padding(start = 40.dp)) {
-                                items(changes) { change ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier =
-                                            Modifier.width((getDrawerWidth() - 61.dp))
-                                                .clickable { viewModel.toggleChange(change) }
-                                                .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    ) {
-                                        Checkbox(
-                                            enabled = !viewModel.isLoading,
-                                            checked = change.isChecked,
-                                            onCheckedChange = { viewModel.toggleChange(change) },
-                                            modifier = Modifier.size(20.dp),
-                                        )
-
-                                        val fileName = change.path.substringAfterLast("/")
-                                        FileNameIcon(fileName = fileName, isDirectory = false)
-
-                                        Text(
-                                            text = fileName,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = getGitColor(change.type),
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
-
-                                        Text(
-                                            text = change.path,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded }
+                        ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded }
+                        UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded }
                     }
                 } else {
                     Column(
@@ -325,10 +272,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
                 Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     Button(
-                        enabled =
-                            !viewModel.isLoading &&
-                                commitMessage.isNotBlank() &&
-                                changes.count { change -> change.isChecked } > 0,
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.commit() },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
@@ -346,10 +290,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         )
                     }
                     OutlinedButton(
-                        enabled =
-                            !viewModel.isLoading &&
-                                commitMessage.isNotBlank() &&
-                                changes.count { change -> change.isChecked } > 0,
+                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
@@ -398,6 +339,225 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 },
                 confirmEnabled = newBranchError == null && newBranch.isNotBlank(),
             )
+        }
+    }
+
+    @Composable
+    private fun ColumnScope.ConflictsList(
+        conflicts: List<GitChange>,
+        conflictsExpanded: Boolean,
+        onToggleExpansion: () -> Unit,
+    ) {
+        if (conflicts.isEmpty()) return
+
+        val conflictsSelectionState =
+            when {
+                conflicts.all { it.isChecked } -> ToggleableState.On
+                conflicts.none { it.isChecked } -> ToggleableState.Off
+                else -> ToggleableState.Indeterminate
+            }
+
+        Row(
+            modifier =
+                Modifier.width((getDrawerWidth() - 61.dp))
+                    .combinedClickable(onClick = onToggleExpansion)
+                    .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val rotationDegree by
+                animateFloatAsState(targetValue = if (!conflictsExpanded) 0f else 90f, label = "rotation")
+
+            Icon(
+                painterResource(drawables.chevron_right),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.size(16.dp).rotate(rotationDegree),
+            )
+            Spacer(Modifier.width(4.dp))
+
+            TriStateCheckbox(
+                enabled = !viewModel.isLoading,
+                state = conflictsSelectionState,
+                onClick = {
+                    if (conflictsSelectionState == ToggleableState.On) {
+                        conflicts.forEach { viewModel.removeChange(it) }
+                    } else {
+                        conflicts.forEach { viewModel.addChange(it) }
+                    }
+                },
+                modifier = Modifier.size(20.dp),
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(strings.conflicts),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        AnimatedVisibility(visible = conflictsExpanded) { ChangesItemList(conflicts) }
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    @Composable
+    private fun ColumnScope.ChangesList(
+        changes: List<GitChange>,
+        changesExpanded: Boolean,
+        onToggleExpansion: () -> Unit,
+    ) {
+        if (changes.isEmpty()) return
+
+        val changesSelectionState =
+            when {
+                changes.all { it.isChecked } -> ToggleableState.On
+                changes.none { it.isChecked } -> ToggleableState.Off
+                else -> ToggleableState.Indeterminate
+            }
+
+        Row(
+            modifier =
+                Modifier.width((getDrawerWidth() - 61.dp))
+                    .combinedClickable(onClick = onToggleExpansion)
+                    .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val rotationDegree by
+                animateFloatAsState(targetValue = if (!changesExpanded) 0f else 90f, label = "rotation")
+
+            Icon(
+                painterResource(drawables.chevron_right),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.size(16.dp).rotate(rotationDegree),
+            )
+            Spacer(Modifier.width(4.dp))
+
+            TriStateCheckbox(
+                enabled = !viewModel.isLoading,
+                state = changesSelectionState,
+                onClick = {
+                    if (changesSelectionState == ToggleableState.On) {
+                        changes.forEach { viewModel.removeChange(it) }
+                    } else {
+                        changes.forEach { viewModel.addChange(it) }
+                    }
+                },
+                modifier = Modifier.size(20.dp),
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(strings.changes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        AnimatedVisibility(visible = changesExpanded) { ChangesItemList(changes) }
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    @Composable
+    private fun ColumnScope.UntrackedList(
+        untracked: List<GitChange>,
+        untrackedExpanded: Boolean,
+        onToggleExpansion: () -> Unit,
+    ) {
+        if (untracked.isEmpty()) return
+
+        val untrackedSelectionState =
+            when {
+                untracked.all { it.isChecked } -> ToggleableState.On
+                untracked.none { it.isChecked } -> ToggleableState.Off
+                else -> ToggleableState.Indeterminate
+            }
+
+        Row(
+            modifier =
+                Modifier.width((getDrawerWidth() - 61.dp))
+                    .combinedClickable(onClick = onToggleExpansion)
+                    .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val rotationDegree by
+                animateFloatAsState(targetValue = if (!untrackedExpanded) 0f else 90f, label = "rotation")
+
+            Icon(
+                painterResource(drawables.chevron_right),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                modifier = Modifier.size(16.dp).rotate(rotationDegree),
+            )
+            Spacer(Modifier.width(4.dp))
+
+            TriStateCheckbox(
+                enabled = !viewModel.isLoading,
+                state = untrackedSelectionState,
+                onClick = {
+                    if (untrackedSelectionState == ToggleableState.On) {
+                        untracked.forEach { viewModel.removeChange(it) }
+                    } else {
+                        untracked.forEach { viewModel.addChange(it) }
+                    }
+                },
+                modifier = Modifier.size(20.dp),
+            )
+
+            Spacer(Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(strings.untracked),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        AnimatedVisibility(visible = untrackedExpanded) { ChangesItemList(untracked) }
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    @Composable
+    private fun ChangesItemList(items: List<GitChange>) {
+        LazyColumn(modifier = Modifier.padding(start = 40.dp)) {
+            items(items) { change ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier =
+                        Modifier.width((getDrawerWidth() - 61.dp))
+                            .clickable { viewModel.toggleChange(change) }
+                            .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Checkbox(
+                        enabled = !viewModel.isLoading,
+                        checked = change.isChecked,
+                        onCheckedChange = { viewModel.toggleChange(change) },
+                        modifier = Modifier.size(20.dp),
+                    )
+
+                    val fileName = change.path.substringAfterLast("/")
+                    FileNameIcon(fileName = fileName, isDirectory = false)
+
+                    Text(
+                        text = fileName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = getGitColor(change.type),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+
+                    Text(
+                        text = change.path,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
     }
 

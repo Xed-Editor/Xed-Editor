@@ -653,6 +653,8 @@
     <string name="amend_commit_and_push">Amend commit and push</string>
     <string name="no_changes">No changes</string>
     <string name="changes">Changes</string>
+    <string name="conflicts">Conflicts</string>
+    <string name="untracked">Untracked</string>
     <string name="checkout_complete">Checkout complete</string>
     <string name="pull_complete">Pull complete</string>
     <string name="fetch_complete">Fetch complete</string>

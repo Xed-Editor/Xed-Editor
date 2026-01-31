@@ -18,6 +18,8 @@ package com.rk.git
 
 enum class ChangeType {
     ADDED,
+    UNTRACKED,
     MODIFIED,
     DELETED,
+    CONFLICTING,
 }

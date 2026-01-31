@@ -48,6 +48,7 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.theme.currentTheme
 import com.rk.theme.gitAdded
+import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
 import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
@@ -384,8 +385,10 @@ fun getGitColor(file: FileObject?): Color? {
 @Composable
 fun getGitColor(changeType: ChangeType): Color =
     when (changeType) {
-        ChangeType.ADDED -> MaterialTheme.colorScheme.gitAdded
+        ChangeType.ADDED,
+        ChangeType.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
         ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
+        ChangeType.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
         ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
     }
 

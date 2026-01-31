@@ -280,34 +280,47 @@ class GitViewModel : ViewModel() {
             if (!InbuiltFeatures.git.state.value) return@launch
 
             withContext(Dispatchers.Main) { isLoading = true }
-            val newChanges = mutableListOf<GitChange>()
-            Git.open(root).use { git ->
-                val status = git.status().call()
-                fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
-                newChanges.addAll(status.added.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) })
-                newChanges.addAll(status.changed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) })
-                newChanges.addAll(status.modified.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) })
-                newChanges.addAll(status.removed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) })
-                newChanges.addAll(status.missing.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) })
-                newChanges.addAll(status.untracked.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) })
-                newChanges.addAll(
-                    status.conflicting.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
-                )
-            }
-            val gitRoot = root.absolutePath
-            val oldChanges = changes[gitRoot]
-            val mergedChanges =
-                if (oldChanges != null) {
-                    val oldMap = oldChanges.associateBy { it.path }
-                    newChanges.map { newChange ->
-                        oldMap[newChange.path]?.let { newChange.copy(isChecked = it.isChecked) } ?: newChange
-                    }
-                } else {
-                    newChanges
+            try {
+                val newChanges = mutableListOf<GitChange>()
+                Git.open(root).use { git ->
+                    val status = git.status().call()
+                    fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
+                    newChanges.addAll(status.added.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) })
+                    newChanges.addAll(
+                        status.changed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
+                    )
+                    newChanges.addAll(
+                        status.modified.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
+                    )
+                    newChanges.addAll(
+                        status.removed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) }
+                    )
+                    newChanges.addAll(
+                        status.missing.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) }
+                    )
+                    newChanges.addAll(
+                        status.untracked.map { GitChange(it, fullPath(it).absolutePath, ChangeType.UNTRACKED) }
+                    )
+                    newChanges.addAll(
+                        status.conflicting.map { GitChange(it, fullPath(it).absolutePath, ChangeType.CONFLICTING) }
+                    )
                 }
-            withContext(Dispatchers.Main) {
-                isLoading = false
+                val gitRoot = root.absolutePath
+                val oldChanges = changes[gitRoot]
+                val mergedChanges =
+                    if (oldChanges != null) {
+                        val oldMap = oldChanges.associateBy { it.path }
+                        newChanges.map { newChange ->
+                            oldMap[newChange.path]?.let { newChange.copy(isChecked = it.isChecked) } ?: newChange
+                        }
+                    } else {
+                        newChanges
+                    }
                 changes[gitRoot] = mergedChanges
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
@@ -315,25 +328,32 @@ class GitViewModel : ViewModel() {
     fun commit(): Job {
         return viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
-            Git.open(currentRoot.value).use { git ->
-                changes[currentRoot.value!!.absolutePath]!!
-                    .filter { it.isChecked }
-                    .forEach { change ->
-                        when (change.type) {
-                            ChangeType.ADDED -> git.add().addFilepattern(change.path).call()
-                            ChangeType.MODIFIED -> git.add().addFilepattern(change.path).call()
-                            ChangeType.DELETED -> git.rm().addFilepattern(change.path).call()
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    changes[currentRoot.value!!.absolutePath]!!
+                        .filter { it.isChecked }
+                        .forEach { change ->
+                            when (change.type) {
+                                ChangeType.ADDED -> git.add().addFilepattern(change.path).call()
+                                ChangeType.UNTRACKED -> git.add().addFilepattern(change.path).call()
+                                ChangeType.MODIFIED -> git.add().addFilepattern(change.path).call()
+                                ChangeType.DELETED -> git.rm().addFilepattern(change.path).call()
+                                else -> {}
+                            }
                         }
-                    }
-                git.commit()
-                    .setAuthor(Settings.git_name, Settings.git_email)
-                    .setCommitter(Settings.git_name, Settings.git_email)
-                    .setMessage(commitMessages[currentRoot.value!!.absolutePath])
-                    .setAmend(amends[currentRoot.value!!.absolutePath]!!)
-                    .call()
+                    git.commit()
+                        .setAuthor(Settings.git_name, Settings.git_email)
+                        .setCommitter(Settings.git_name, Settings.git_email)
+                        .setMessage(commitMessages[currentRoot.value!!.absolutePath])
+                        .setAmend(amends[currentRoot.value!!.absolutePath]!!)
+                        .call()
+                    toast(strings.commit_complete)
+                }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    toast(strings.commit_complete)
                     syncChanges(currentRoot.value!!)
                 }
             }
@@ -342,7 +362,6 @@ class GitViewModel : ViewModel() {
 
     fun push(force: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            var errorMessage = ""
             withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
@@ -354,7 +373,7 @@ class GitViewModel : ViewModel() {
                             )
                             .setForce(force)
                             .call()
-                    errorMessage = buildString {
+                    val errorMessage = buildString {
                         for (result in pushResults) {
                             for (update in result.remoteUpdates) {
                                 val ref = update.remoteName
@@ -369,18 +388,16 @@ class GitViewModel : ViewModel() {
                             }
                         }
                     }
-                }
-            } catch (e: Exception) {
-                toast(e.message)
-            } finally {
-                withContext(Dispatchers.Main) {
-                    isLoading = false
                     if (errorMessage.isNotEmpty()) {
                         toast(errorMessage)
                     } else {
                         toast(strings.push_complete)
                     }
                 }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }
@@ -388,19 +405,24 @@ class GitViewModel : ViewModel() {
     fun checkoutNew(branchName: String, branchBase: String) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
-            Git.open(currentRoot.value).use { git ->
-                if (branchBase.startsWith("$GIT_ORIGIN/")) {
-                    git.checkout().setName(branchName).setStartPoint(branchBase).setCreateBranch(true).call()
-                } else {
-                    git.checkout()
-                        .setName(branchName)
-                        .setStartPoint("refs/heads/$branchBase")
-                        .setCreateBranch(true)
-                        .call()
+            try {
+                Git.open(currentRoot.value).use { git ->
+                    if (branchBase.startsWith("$GIT_ORIGIN/")) {
+                        git.checkout().setName(branchName).setStartPoint(branchBase).setCreateBranch(true).call()
+                    } else {
+                        git.checkout()
+                            .setName(branchName)
+                            .setStartPoint("refs/heads/$branchBase")
+                            .setCreateBranch(true)
+                            .call()
+                    }
+                    toast(strings.checkout_complete)
                 }
+            } catch (e: Exception) {
+                toast(e.message)
+            } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    toast(strings.checkout_complete)
                     currentBranch = Git.open(currentRoot.value).currentHead()
                     syncChanges(currentRoot.value!!)
                 }
