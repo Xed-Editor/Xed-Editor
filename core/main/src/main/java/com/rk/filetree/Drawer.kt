@@ -29,20 +29,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,8 +74,8 @@ import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
-import com.rk.git.GitProgressMonitor
 import com.rk.git.GitTab
+import com.rk.git.ProgressCoordinator
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
@@ -79,7 +83,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.LoadingPopup
 import com.rk.utils.application
 import com.rk.utils.dialog
 import com.rk.utils.findGitRoot
@@ -268,8 +271,9 @@ fun DrawerContent(modifier: Modifier = Modifier) {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
                 val scope = rememberCoroutineScope()
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
-
                 var closeProjectDialog by remember { mutableStateOf(false) }
+
+                // Git clone dialog
                 var showGitCloneDialog by remember { mutableStateOf(false) }
 
                 var repoURL by remember { mutableStateOf("") }
@@ -277,6 +281,52 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
                 var repoURLError by remember { mutableStateOf<String?>(null) }
                 var repoBranchError by remember { mutableStateOf<String?>(null) }
+
+                // Git clone progress dialog
+                var showCloneProgressDialog by remember { mutableStateOf(false) }
+                var progress by remember { mutableIntStateOf(0) }
+                var maxProgress by remember { mutableIntStateOf(0) }
+                var message by remember { mutableStateOf(strings.cloning.getString()) }
+
+                val monitor = remember {
+                    object : ProgressCoordinator {
+                        private var cancelled = false
+
+                        override fun start(totalTasks: Int) {}
+
+                        override fun beginTask(title: String?, totalWork: Int) {
+                            message = title ?: strings.cloning.getString()
+                            maxProgress = totalWork
+                            progress = 0
+                        }
+
+                        override fun update(completed: Int) {
+                            progress += completed
+                        }
+
+                        override fun cancel() {
+                            cancelled = true
+                            hideDialog()
+                        }
+
+                        override fun endTask() {}
+
+                        override fun isCancelled(): Boolean = cancelled || Thread.currentThread().isInterrupted
+
+                        override fun showDuration(enabled: Boolean) {}
+
+                        override fun showDialog() {
+                            showCloneProgressDialog = true
+                            progress = 0
+                            maxProgress = 0
+                            message = strings.cloning.getString()
+                        }
+
+                        override fun hideDialog() {
+                            showCloneProgressDialog = false
+                        }
+                    }
+                }
 
                 val cloneGitRepo =
                     rememberLauncherForActivityResult(
@@ -292,7 +342,6 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     }
                                     .onFailure { it.printStackTrace() }
                                 scope.launch {
-                                    val monitor = GitProgressMonitor(activity)
                                     val fileObject =
                                         it.toFileObject(expectedIsFile = false)
                                             .createChild(
@@ -305,7 +354,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                             repoURL = repoURL,
                                             repoBranch = repoBranch,
                                             targetDir = File(fileObject!!.getAbsolutePath()),
-                                            progressMonitor = monitor,
+                                            progressCoordinator = monitor,
                                             onComplete = { success ->
                                                 repoURL = ""
                                                 repoBranch = "main"
@@ -431,6 +480,26 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             showAddDialog = false
                             showGitCloneDialog = true
                         },
+                    )
+                }
+
+                if (showCloneProgressDialog) {
+                    AlertDialog(
+                        title = { Text(stringResource(strings.cloning)) },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                Text(
+                                    text = "$message ($progress/$maxProgress)",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                LinearProgressIndicator(
+                                    progress = { if (maxProgress > 0) progress.toFloat() / maxProgress else 0f }
+                                )
+                            }
+                        },
+                        onDismissRequest = {},
+                        confirmButton = {},
+                        dismissButton = { TextButton({ monitor.cancel() }) { Text(stringResource(strings.cancel)) } },
                     )
                 }
 

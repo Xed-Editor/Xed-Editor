@@ -22,7 +22,6 @@ import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.errors.DetachedHeadException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
-import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
 import org.eclipse.jgit.transport.RemoteRefUpdate
@@ -115,10 +114,18 @@ class GitViewModel : ViewModel() {
         return changes[gitRoot]?.find { change -> change.absolutePath == file.getAbsolutePath() }?.type
     }
 
-    fun cloneRepository(repoURL: String, repoBranch: String, targetDir: File, progressMonitor: GitProgressMonitor, onComplete: (Boolean) -> Unit) {
+    fun cloneRepository(
+        repoURL: String,
+        repoBranch: String,
+        targetDir: File,
+        progressCoordinator: ProgressCoordinator,
+        onComplete: (Boolean) -> Unit,
+    ) {
         viewModelScope.launch {
+            var done = false
             withContext(Dispatchers.IO) {
                 try {
+                    progressCoordinator.showDialog()
                     Git.cloneRepository()
                         .setURI(repoURL)
                         .setBranch("refs/heads/$repoBranch")
@@ -127,8 +134,9 @@ class GitViewModel : ViewModel() {
                         .setCredentialsProvider(
                             UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
                         )
-                        .setProgressMonitor(progressMonitor)
+                        .setProgressMonitor(progressCoordinator)
                         .call()
+                    done = true
                 } catch (e: TransportException) {
                     if (
                         e.message?.contains("Auth", true) == true ||
@@ -144,7 +152,8 @@ class GitViewModel : ViewModel() {
                 } catch (e: Exception) {
                     toast(e.message)
                 } finally {
-                    onComplete(false)
+                    progressCoordinator.hideDialog()
+                    onComplete(done)
                 }
             }
         }
