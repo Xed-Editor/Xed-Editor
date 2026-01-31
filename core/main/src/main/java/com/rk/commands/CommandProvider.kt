@@ -1,6 +1,5 @@
 package com.rk.commands
 
-import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.editor.CopyCommand
 import com.rk.commands.editor.CutCommand
@@ -78,8 +77,7 @@ object CommandProvider {
     lateinit var FormatSelectionCommand: FormatSelectionCommand
 
     fun buildCommands(mainViewModel: MainViewModel) {
-        val mainActivity = MainActivity.instance!!
-        val commandContext = CommandContext(mainActivity, mainViewModel)
+        val commandContext = CommandContext(mainViewModel)
 
         registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
         registerBuiltin(TerminalCommand(commandContext)) { TerminalCommand = it }
