@@ -11,4 +11,8 @@ abstract class DrawerTab : Serializable {
     abstract fun getName(): String
 
     abstract fun getIcon(): Icon
+
+    open fun isSupported(): Boolean = true
+
+    open fun isEnabled(): Boolean = true
 }

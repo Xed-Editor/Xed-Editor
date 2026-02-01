@@ -85,7 +85,7 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
         },
     )
 
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(8.dp))
     OutlinedTextField(
         value = port,
         onValueChange = {
@@ -118,7 +118,7 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
         },
     )
 
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(8.dp))
     OutlinedTextField(
         value = extensions,
         onValueChange = { newValue ->

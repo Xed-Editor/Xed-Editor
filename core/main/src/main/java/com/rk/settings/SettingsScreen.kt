@@ -76,6 +76,15 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.Keybindings.route) },
     )
 
+    if (InbuiltFeatures.git.state.value) {
+        PreferenceCategory(
+            label = stringResource(strings.git),
+            description = stringResource(strings.git_desc),
+            iconResource = drawables.git,
+            onNavigate = { navController.navigate(SettingsRoutes.Git.route) },
+        )
+    }
+
     if (InbuiltFeatures.terminal.state.value) {
         PreferenceCategory(
             label = stringResource(id = strings.terminal),

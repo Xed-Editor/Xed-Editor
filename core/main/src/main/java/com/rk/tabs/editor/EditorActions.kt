@@ -25,17 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
-import com.rk.filetree.rememberSvgImageLoader
-import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings
 import com.rk.terminal.isV
@@ -82,26 +79,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                     modifier = Modifier.size(48.dp),
                     enabled = command.isEnabled(),
                 ) {
-                    when (val icon = command.getIcon()) {
-                        is Icon.DrawableRes -> {
-                            Icon(
-                                painter = painterResource(id = icon.drawableRes),
-                                contentDescription = command.getLabel(),
-                            )
-                        }
-
-                        is Icon.VectorIcon -> {
-                            Icon(imageVector = icon.vector, contentDescription = command.getLabel())
-                        }
-
-                        is Icon.SvgIcon -> {
-                            AsyncImage(
-                                model = icon.file,
-                                imageLoader = rememberSvgImageLoader(),
-                                contentDescription = command.getLabel(),
-                            )
-                        }
-                    }
+                    XedIcon(command.getIcon(), contentDescription = command.getLabel())
                 }
             }
 
@@ -120,28 +98,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                                     command.performCommand(ActionContext(activity!!))
                                     expanded = false
                                 },
-                                leadingIcon = {
-                                    when (val icon = command.getIcon()) {
-                                        is Icon.DrawableRes -> {
-                                            Icon(
-                                                painter = painterResource(id = icon.drawableRes),
-                                                contentDescription = command.getLabel(),
-                                            )
-                                        }
-
-                                        is Icon.VectorIcon -> {
-                                            Icon(imageVector = icon.vector, contentDescription = command.getLabel())
-                                        }
-
-                                        is Icon.SvgIcon -> {
-                                            AsyncImage(
-                                                model = icon.file,
-                                                imageLoader = rememberSvgImageLoader(),
-                                                contentDescription = command.getLabel(),
-                                            )
-                                        }
-                                    }
-                                },
+                                leadingIcon = { XedIcon(command.getIcon(), contentDescription = command.getLabel()) },
                                 trailingIcon = {
                                     val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
                                     val displayKeyCombination = keyCombination?.getDisplayName()

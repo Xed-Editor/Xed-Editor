@@ -45,7 +45,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.rk.commands.Command
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeyAction
@@ -55,9 +54,8 @@ import com.rk.components.InfoBlock
 import com.rk.components.ResetButton
 import com.rk.components.compose.preferences.base.PreferenceLayoutLazyColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Error
-import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -193,32 +191,11 @@ fun KeybindItem(
         horizontalPadding = 24.dp,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                when (val icon = command.getIcon()) {
-                    is Icon.DrawableRes -> {
-                        Icon(
-                            painter = painterResource(id = icon.drawableRes),
-                            contentDescription = command.getLabel(),
-                            modifier = Modifier.padding(end = 8.dp).size(20.dp),
-                        )
-                    }
-
-                    is Icon.VectorIcon -> {
-                        Icon(
-                            imageVector = icon.vector,
-                            contentDescription = command.getLabel(),
-                            modifier = Modifier.padding(end = 8.dp).size(20.dp),
-                        )
-                    }
-
-                    is Icon.SvgIcon -> {
-                        AsyncImage(
-                            model = icon.file,
-                            imageLoader = rememberSvgImageLoader(),
-                            contentDescription = command.getLabel(),
-                            modifier = Modifier.padding(end = 8.dp).size(20.dp),
-                        )
-                    }
-                }
+                XedIcon(
+                    icon = command.getIcon(),
+                    modifier = Modifier.padding(end = 8.dp).size(20.dp),
+                    contentDescription = command.getLabel(),
+                )
 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {

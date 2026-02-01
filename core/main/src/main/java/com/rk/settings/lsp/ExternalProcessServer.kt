@@ -76,7 +76,7 @@ fun ExternalProcessServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServ
         },
     )
 
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(8.dp))
 
     OutlinedTextField(
         value = extensions,

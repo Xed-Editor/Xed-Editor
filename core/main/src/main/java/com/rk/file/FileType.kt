@@ -299,9 +299,18 @@ enum class FileType(
     APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = apk, title = "APK"),
     UNKNOWN(extensions = emptyList(), textmateScope = null, icon = null, title = strings.unknown.getString());
 
-    /** Retrieves the icon for this file type. It returns an icon from the selected icon pack if possible. */
+    /**
+     * Retrieves an icon for this FileType. The icon is not tinted.
+     *
+     * Supports:
+     * - ✔ Icon pack (uses the icon from the icon pack if available, otherwise uses the builtin icon)
+     * - ✘ Tint (applyTint property in icon pack or builtin icon tint)
+     *
+     * @return An [Icon] representing the file type icon.
+     */
     fun getIcon(): Icon {
-        return currentIconPack.value?.getIconFileForExt(extensions.first())?.let { Icon.SvgIcon(it) }
+        val iconPackFile = currentIconPack.value?.getIconFileForFileType(this)
+        return iconPackFile?.let { Icon.SvgIcon(it) }
             ?: icon?.let { Icon.DrawableRes(it) }
             ?: Icon.DrawableRes(drawables.file)
     }

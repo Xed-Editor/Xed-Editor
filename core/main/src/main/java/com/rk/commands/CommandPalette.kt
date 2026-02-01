@@ -38,7 +38,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -48,11 +47,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.rk.components.XedDialog
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.filetree.rememberSvgImageLoader
-import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.Typography
@@ -220,32 +217,11 @@ fun CommandItem(
             verticalPadding = 8.dp,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    when (val icon = command.getIcon()) {
-                        is Icon.DrawableRes -> {
-                            Icon(
-                                painter = painterResource(id = icon.drawableRes),
-                                contentDescription = command.getLabel(),
-                                modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                            )
-                        }
-
-                        is Icon.VectorIcon -> {
-                            Icon(
-                                imageVector = icon.vector,
-                                contentDescription = command.getLabel(),
-                                modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                            )
-                        }
-
-                        is Icon.SvgIcon -> {
-                            AsyncImage(
-                                model = icon.file,
-                                imageLoader = rememberSvgImageLoader(),
-                                contentDescription = command.getLabel(),
-                                modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                            )
-                        }
-                    }
+                    XedIcon(
+                        icon = command.getIcon(),
+                        modifier = Modifier.padding(end = 8.dp).size(16.dp),
+                        contentDescription = command.getLabel(),
+                    )
 
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {

@@ -21,8 +21,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.rk.filetree.rememberSvgImageLoader
 import com.rk.icons.Icon
+import com.rk.icons.rememberSvgImageLoader
 import java.io.File
 
 @Composable

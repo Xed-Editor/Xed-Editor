@@ -24,12 +24,17 @@ fun BasicToggle(
     description: String? = null,
     checked: Boolean,
     onSwitch: (Boolean) -> Unit,
+    startWidget: (@Composable () -> Unit)? = null,
+    endWidget: (@Composable () -> Unit)? = null,
 ) {
     PreferenceSwitch(
         checked = checked,
         description = description,
         onCheckedChange = { onSwitch.invoke(it) },
         label = label,
+        modifier = modifier,
+        startWidget = startWidget,
+        endWidget = endWidget,
     )
 }
 
