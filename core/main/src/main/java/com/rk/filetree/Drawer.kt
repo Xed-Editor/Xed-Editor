@@ -7,11 +7,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.storage.StorageManager
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -230,9 +228,11 @@ fun selectTab(tab: DrawerTab?) {
     currentServiceTab = null
 
     if (tab is FileTreeTab && InbuiltFeatures.git.state.value) {
-        val gitRoot = findGitRoot(tab.root.getAbsolutePath())
-        if (gitRoot != null) {
-            gitViewModel.get()?.loadRepository(gitRoot)
+        GlobalScope.launch(Dispatchers.IO) {
+            val gitRoot = findGitRoot(tab.root.getAbsolutePath())
+            if (gitRoot != null) {
+                gitViewModel.get()?.loadRepository(gitRoot)
+            }
         }
     }
 }
@@ -242,7 +242,6 @@ var isLoading by mutableStateOf(true)
 @Composable
 fun DrawerContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val activity = LocalActivity.current as? AppCompatActivity
     val scope = rememberCoroutineScope()
 
     val openFolder =

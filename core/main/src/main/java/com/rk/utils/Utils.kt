@@ -378,7 +378,7 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 @Composable
 fun getGitColor(file: FileObject?): Color? {
     if (!InbuiltFeatures.git.state.value || !Settings.git_colorize_names) return null
-    val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file) } ?: return null
+    val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file.getAbsolutePath()) } ?: return null
     return getGitColor(gitChangeType)
 }
 
@@ -392,25 +392,16 @@ fun getGitColor(changeType: ChangeType): Color =
         ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
     }
 
-private val gitCache = mutableSetOf<String>()
-
-fun findGitRoot(path: String): String? {
-    val file = File(path)
-    val startDir = if (file.isDirectory) file else file.parentFile ?: return null
-    gitCache
-        .filter { startDir.absolutePath.startsWith(it + File.separator) || startDir.absolutePath == it }
-        .maxByOrNull { it.length }
-        ?.let {
-            return it
+suspend fun findGitRoot(path: String): String? =
+    withContext(Dispatchers.IO) {
+        val file = File(path)
+        var dir: File? = if (file.isDirectory) file else file.parentFile
+        while (dir != null) {
+            val gitDir = File(dir, ".git")
+            if (gitDir.isDirectory) {
+                return@withContext dir.absolutePath
+            }
+            dir = dir.parentFile
         }
-    var dir: File? = startDir
-    while (dir != null) {
-        val gitDir = File(dir, ".git")
-        if (gitDir.isDirectory) {
-            gitCache.add(dir.absolutePath)
-            return dir.absolutePath
-        }
-        dir = dir.parentFile
+        return@withContext null
     }
-    return null
-}

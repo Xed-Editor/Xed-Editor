@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.file.FileObject
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
@@ -115,12 +114,13 @@ class GitViewModel : ViewModel() {
         amends[currentRoot.value!!.absolutePath] = amend
     }
 
-    fun getChangeType(file: FileObject): ChangeType? {
-        val gitRoot = findGitRoot(file.getAbsolutePath()) ?: return null
-        if (!changes.containsKey(gitRoot)) {
-            syncChanges(file.getAbsolutePath())
+    fun getChangeType(path: String): ChangeType? {
+        changes.forEach { (gitRoot, changes) ->
+            if (path.startsWith(gitRoot)) {
+                return changes.find { change -> change.absolutePath == path }?.type
+            }
         }
-        return changes[gitRoot]?.find { change -> change.absolutePath == file.getAbsolutePath() }?.type
+        return null
     }
 
     fun cloneRepository(
