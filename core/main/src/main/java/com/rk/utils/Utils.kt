@@ -392,11 +392,22 @@ fun getGitColor(changeType: ChangeType): Color =
         ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
     }
 
+private val gitCache = mutableSetOf<String>()
+
 fun findGitRoot(path: String): String? {
-    var dir: File? = File(path)
+    val file = File(path)
+    val startDir = if (file.isDirectory) file else file.parentFile ?: return null
+    gitCache
+        .filter { startDir.absolutePath.startsWith(it + File.separator) || startDir.absolutePath == it }
+        .maxByOrNull { it.length }
+        ?.let {
+            return it
+        }
+    var dir: File? = startDir
     while (dir != null) {
         val gitDir = File(dir, ".git")
-        if (gitDir.exists() && gitDir.isDirectory) {
+        if (gitDir.isDirectory) {
+            gitCache.add(dir.absolutePath)
             return dir.absolutePath
         }
         dir = dir.parentFile
