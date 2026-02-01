@@ -37,30 +37,39 @@ class GitViewModel : ViewModel() {
     var isLoading by mutableStateOf(false)
 
     fun loadRepository(root: String) {
-        currentRoot.value = File(root)
-        currentBranch = Git.open(currentRoot.value).currentHead()
-        syncChanges(currentRoot.value!!)
-        if (!amends.containsKey(root)) {
-            amends[root] = false
-        }
-        if (!commitMessages.containsKey(root)) {
-            commitMessages[root] = ""
+        try {
+            currentRoot.value = File(root)
+            currentBranch = Git.open(currentRoot.value).currentHead()
+            syncChanges(currentRoot.value!!)
+            if (!amends.containsKey(root)) {
+                amends[root] = false
+            }
+            if (!commitMessages.containsKey(root)) {
+                commitMessages[root] = ""
+            }
+        } catch (e: Exception) {
+            toast(e.message)
         }
     }
 
     fun getBranchList(): List<String> {
-        return Git.open(currentRoot.value).use { git ->
-            val branches = mutableListOf<String>()
-            val refs = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
-            for (ref in refs) {
-                val name = Repository.shortenRefName(ref.name)
-                branches.add(name)
+        return try {
+            Git.open(currentRoot.value).use { git ->
+                val branches = mutableListOf<String>()
+                val refs = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
+                for (ref in refs) {
+                    val name = Repository.shortenRefName(ref.name)
+                    branches.add(name)
+                }
+                val current = git.currentHead()
+                if (current !in branches) {
+                    branches.add(0, current)
+                }
+                branches
             }
-            val current = git.currentHead()
-            if (current !in branches) {
-                branches.add(0, current)
-            }
-            branches
+        } catch (e: Exception) {
+            toast(e.message)
+            emptyList()
         }
     }
 
