@@ -637,7 +637,7 @@
     <string name="outdated_extension">Это расширение было создано для более старой версии Xed-Editor. Пожалуйста, обратитесь к разработчику за обновлением.</string>
     <string name="outdated_client">Ваша версия Xed-Editor устарела. Пожалуйста, обновите до последней версии, чтобы использовать это расширение.</string>
     <string name="extension_validation_failed">Проверка расширения не пройдена</string>
-    <string name="general">Общий</string>
+    <string name="general">Общие</string>
     <string name="advanced">Дополнительно</string>
     <string name="git_desc">Настроить систему контроля версий</string>
     <string name="credentials">Учётные данные</string>
@@ -667,4 +667,14 @@
     <string name="no_changes">Изменений нет</string>
     <string name="changes">Изменения</string>
     <string name="conflicts">Конфликты</string>
+    <string name="untracked">Неотслеживаемые</string>
+    <string name="checkout_complete">Переключение завершено</string>
+    <string name="pull_complete">Синхронизация завершена</string>
+    <string name="fetch_complete">Получение завершено</string>
+    <string name="commit_complete">Фиксация завершена</string>
+    <string name="push_complete">Отправка завершена</string>
+    <string name="new_branch">Новая ветка</string>
+    <string name="new_branch_label">Новая ветка (на основе ветки %1$s)</string>
+    <string name="git_colorize_files">Окрашивать имена файлов</string>
+    <string name="git_colorize_files_desc">Окрашивать имена файлов в зависимости от статуса Git</string>
 </resources>
