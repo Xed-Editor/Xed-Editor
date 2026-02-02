@@ -39,6 +39,7 @@ import com.rk.components.getDrawerWidth
 import com.rk.resources.drawables
 import com.rk.settings.ReactiveSettings
 import com.rk.utils.drawErrorUnderline
+import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -154,7 +155,7 @@ fun FileTreeNodeItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = getGitColor(node.file) ?: MaterialTheme.colorScheme.onSurface,
                 )
             }
         }

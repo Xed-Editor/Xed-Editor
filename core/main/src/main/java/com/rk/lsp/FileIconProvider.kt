@@ -1,11 +1,9 @@
 package com.rk.lsp
 
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.PictureDrawable
-import com.caverock.androidsvg.SVG
-import com.rk.icons.pack.currentIconPack
+import com.rk.activities.main.MainActivity
+import com.rk.filetree.getDrawableFileIcon
 import io.github.rosemoe.sora.lang.completion.SimpleCompletionIconDrawer
-import java.io.InputStream
 
 /**
  * A custom [io.github.rosemoe.sora.lang.completion.FileIconProvider] that loads file icons from the currently selected
@@ -14,9 +12,9 @@ import java.io.InputStream
  * This provider determines the appropriate icon based on the file name. It retrieves the icon from the
  * `currentIconPack` and renders it as a drawable.
  *
- * @see com.rk.icons.pack.IconPack.getIconFileForExt
+ * @see com.rk.icons.pack.IconPack.getIconFileForName
  */
-class FileIconProvider : io.github.rosemoe.sora.lang.completion.FileIconProvider {
+class FileIconProvider() : io.github.rosemoe.sora.lang.completion.FileIconProvider {
     companion object {
         fun register() {
             SimpleCompletionIconDrawer.globalFileIconProvider = FileIconProvider()
@@ -31,19 +29,7 @@ class FileIconProvider : io.github.rosemoe.sora.lang.completion.FileIconProvider
      * @return A [Drawable] if successful, or null if no icon can be loaded.
      */
     override fun load(src: String, isFolder: Boolean): Drawable? {
-        val iconFile = currentIconPack.value?.getIconFileForName(src, isFolder)
-        return iconFile?.inputStream()?.let { loadSvg(it) }
-    }
-
-    private fun loadSvg(inputStream: InputStream): Drawable? {
-        val svg =
-            try {
-                SVG.getFromInputStream(inputStream)
-            } catch (_: Exception) {
-                return null
-            }
-
-        val picture = svg.renderToPicture()
-        return PictureDrawable(picture)
+        val context = MainActivity.instance ?: return null
+        return getDrawableFileIcon(context, src.substringAfterLast('/'), isFolder)
     }
 }

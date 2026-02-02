@@ -38,12 +38,19 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
+import com.rk.activities.main.gitViewModel
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
+import com.rk.git.ChangeType
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.theme.currentTheme
+import com.rk.theme.gitAdded
+import com.rk.theme.gitConflicted
+import com.rk.theme.gitDeleted
+import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
@@ -367,3 +374,34 @@ fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
 
     drawPath(path = path, color = errorColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round))
 }
+
+@Composable
+fun getGitColor(file: FileObject?): Color? {
+    if (!InbuiltFeatures.git.state.value || !Settings.git_colorize_names) return null
+    val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file.getAbsolutePath()) } ?: return null
+    return getGitColor(gitChangeType)
+}
+
+@Composable
+fun getGitColor(changeType: ChangeType): Color =
+    when (changeType) {
+        ChangeType.ADDED,
+        ChangeType.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
+        ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
+        ChangeType.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
+        ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
+    }
+
+suspend fun findGitRoot(path: String): String? =
+    withContext(Dispatchers.IO) {
+        val file = File(path)
+        var dir: File? = if (file.isDirectory) file else file.parentFile
+        while (dir != null) {
+            val gitDir = File(dir, ".git")
+            if (gitDir.isDirectory) {
+                return@withContext dir.absolutePath
+            }
+            dir = dir.parentFile
+        }
+        return@withContext null
+    }

@@ -11,8 +11,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -26,6 +28,7 @@ import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.file.toFileObject
+import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -56,13 +59,14 @@ object InbuiltFeatures {
     val terminal = Feature(nameRes = strings.terminal_feature, key = "feature_terminal", default = true)
     val debugMode = Feature(nameRes = strings.debug_options, key = "expertMode", default = BuildConfig.DEBUG)
     val extensions = Feature(nameRes = strings.ext, key = "enable_extension", default = true)
+    val git = Feature(nameRes = strings.git, key = "enable_git", default = true)
 }
 
 @Composable
 fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
         val scope = rememberCoroutineScope()
-        val gson = GsonBuilder().setPrettyPrinting().create()
+        val gson = remember { GsonBuilder().setPrettyPrinting().create() }
 
         PreferenceGroup {
             SettingsToggle(
@@ -115,30 +119,65 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
             BasicToggle(
                 label = stringResource(InbuiltFeatures.debugMode.nameRes),
                 checked = InbuiltFeatures.debugMode.state.value,
-            ) {
-                if (it) {
-                    dialog(
-                        context = activity,
-                        title = strings.attention.getString(),
-                        msg = strings.debug_mode_warn.getString(),
-                        onCancel = { InbuiltFeatures.debugMode.setEnable(false) },
-                        onOk = { InbuiltFeatures.debugMode.setEnable(true) },
+                onSwitch = {
+                    if (it) {
+                        dialog(
+                            context = activity,
+                            title = strings.attention.getString(),
+                            msg = strings.debug_mode_warn.getString(),
+                            onCancel = { InbuiltFeatures.debugMode.setEnable(false) },
+                            onOk = { InbuiltFeatures.debugMode.setEnable(true) },
+                        )
+                    } else {
+                        InbuiltFeatures.debugMode.setEnable(false)
+                    }
+                },
+                startWidget = {
+                    Icon(
+                        painter = painterResource(drawables.build),
+                        contentDescription = stringResource(strings.debug_options),
+                        modifier = Modifier.padding(start = 16.dp),
                     )
-                } else {
-                    InbuiltFeatures.debugMode.setEnable(false)
-                }
-            }
+                },
+            )
 
             SettingsToggle(
                 label = stringResource(InbuiltFeatures.terminal.nameRes),
                 default = InbuiltFeatures.terminal.state.value,
                 sideEffect = { InbuiltFeatures.terminal.setEnable(it) },
+                startWidget = {
+                    Icon(
+                        painter = painterResource(drawables.terminal),
+                        contentDescription = stringResource(strings.terminal),
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
+                },
             )
 
             SettingsToggle(
                 label = stringResource(InbuiltFeatures.extensions.nameRes),
                 default = InbuiltFeatures.extensions.state.value,
                 sideEffect = { InbuiltFeatures.extensions.setEnable(it) },
+                startWidget = {
+                    Icon(
+                        painter = painterResource(drawables.extension),
+                        contentDescription = stringResource(strings.ext),
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
+                },
+            )
+
+            SettingsToggle(
+                label = stringResource(InbuiltFeatures.git.nameRes),
+                default = InbuiltFeatures.git.state.value,
+                sideEffect = { InbuiltFeatures.git.setEnable(it) },
+                startWidget = {
+                    Icon(
+                        painter = painterResource(drawables.git),
+                        contentDescription = stringResource(strings.git),
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
+                },
             )
         }
 

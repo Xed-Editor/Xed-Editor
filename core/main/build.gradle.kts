@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.androidsvg.aar)
     implementation(libs.ec4j.core)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.jgit)
     debugImplementation(libs.leakcanary)
     // implementation("androidx.compose.material:material-icons-extended:1.7.8")
 

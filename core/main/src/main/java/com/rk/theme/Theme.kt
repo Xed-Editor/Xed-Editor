@@ -113,3 +113,16 @@ val ColorScheme.onWarningSurface: Color
 
 val ColorScheme.folderSurface: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFC857)) else Color(harmonize(0xFFFAB72D))
+
+// Git change colors
+val ColorScheme.gitAdded: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF81C784)) else Color(harmonize(0xFF2E7D32))
+
+val ColorScheme.gitModified: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF64B5F6)) else Color(harmonize(0xFF1565C0))
+
+val ColorScheme.gitDeleted: Color
+    get() = this.onSurface.copy(alpha = 0.6f)
+
+val ColorScheme.gitConflicted: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFE57373)) else Color(harmonize(0xFFC62828))
