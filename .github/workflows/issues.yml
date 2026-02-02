@@ -28,4 +28,4 @@ jobs:
       - name: Close duplicate issues
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node .github/scripts/close-duplicates.js
+        run: node .github/scripts/close-duplicates.mjs
