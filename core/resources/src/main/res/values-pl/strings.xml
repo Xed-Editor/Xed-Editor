@@ -653,5 +653,9 @@
     <string name="email">Email</string>
     <string name="git_auth_error">Błąd autoryzacji. Sprawdź dane uwierzytelniające</string>
     <string name="invalid_repo_url">Błędny URL repozytorium</string>
-    <string name="pull">Pobierz</string>
+    <string name="pull">Pobierz i scal</string>
+    <string name="submodules">Podmoduły</string>
+    <string name="submodules_desc">Dołącz moduły podczas klonowania repozytorium</string>
+    <string name="recursive_submodules">Rekurencyjne podmoduły</string>
+    <string name="recursive_submodules_desc">Pobierz podmoduły oraz zależności rekurencyjnie</string>
 </resources>
