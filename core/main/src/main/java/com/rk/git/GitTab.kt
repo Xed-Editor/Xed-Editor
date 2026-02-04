@@ -95,7 +95,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
         val gitChanges = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
-        val hasCheckedChanges by remember { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
+        val hasCheckedChanges by remember(gitChanges) { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
 
         var changes by remember { mutableStateOf(listOf<GitChange>()) }
         var conflicts by remember { mutableStateOf(listOf<GitChange>()) }
