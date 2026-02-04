@@ -643,4 +643,15 @@
     <string name="content_property">%s pozycji, łącznie %s</string>
     <string name="general">Ogólne</string>
     <string name="advanced">Zaawansowane</string>
+    <string name="clone_repo_desc">Klonuj zdalne repozytorium</string>
+    <string name="repo_url">URL repozytorium</string>
+    <string name="branch">Gałąź</string>
+    <string name="open_removable_storage">Otwórz zewnętrzną pamięć</string>
+    <string name="value_empty_err">Wartość nie może być pusta</string>
+    <string name="git">Git</string>
+    <string name="password">Hasło</string>
+    <string name="email">Email</string>
+    <string name="git_auth_error">Błąd autoryzacji. Sprawdź dane uwierzytelniające</string>
+    <string name="invalid_repo_url">Błędny URL repozytorium</string>
+    <string name="pull">Pobierz</string>
 </resources>
