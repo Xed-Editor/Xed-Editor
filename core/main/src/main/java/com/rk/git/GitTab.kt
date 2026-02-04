@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,8 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -222,16 +220,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 }
 
                 if (gitChanges.isNotEmpty()) {
-                    Column(
-                        modifier =
-                            Modifier.fillMaxSize()
-                                .weight(1f)
-                                .padding(top = 8.dp)
-                                .horizontalScroll(rememberScrollState())
-                    ) {
-                        ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded }
-                        ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded }
-                        UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded }
+                    LazyColumn(modifier = Modifier.weight(1f, fill = true), state = rememberLazyListState()) {
+                        item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
+                        item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
+                        item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
                     }
                 } else {
                     Column(
@@ -530,8 +522,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     private fun ChangesItemList(items: List<GitChange>) {
         val context = LocalContext.current
 
-        LazyColumn(modifier = Modifier.padding(start = 40.dp)) {
-            items(items) { change ->
+        Column(modifier = Modifier.padding(start = 40.dp)) {
+            items.forEach { change ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
