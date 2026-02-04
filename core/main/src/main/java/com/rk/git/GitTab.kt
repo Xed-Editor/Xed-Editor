@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -88,6 +89,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var showBranchesMenu by remember { mutableStateOf(false) }
         var showNewBranchDialog by remember { mutableStateOf(false) }
 
+        var showPushConfirmDialog by remember { mutableStateOf(false) }
+        var force by remember { mutableStateOf(false) }
+
         val interactionSource = remember { MutableInteractionSource() }
         val scope = rememberCoroutineScope()
 
@@ -95,7 +99,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
         val gitChanges = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
-        val hasCheckedChanges by remember(gitChanges) { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
+        val hasCheckedChanges by
+            remember(gitChanges) { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
 
         var changes by remember { mutableStateOf(listOf<GitChange>()) }
         var conflicts by remember { mutableStateOf(listOf<GitChange>()) }
@@ -220,7 +225,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
                         }
 
-                        IconButton(onClick = { viewModel.push(force = false) }, enabled = !viewModel.isLoading) {
+                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
                             Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
                         }
                     }
@@ -246,6 +251,12 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
+                        Icon(
+                            painter = painterResource(drawables.file),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
@@ -309,7 +320,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         onClick = {
                             scope.launch {
                                 viewModel.commit().join()
-                                viewModel.push(force = false)
+                                showPushConfirmDialog = true
                             }
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
@@ -352,6 +363,71 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     showNewBranchDialog = false
                 },
                 confirmEnabled = newBranchError == null && newBranch.isNotBlank(),
+            )
+        }
+
+        if (showPushConfirmDialog) {
+            val commitCount = viewModel.getCommitCount()
+            AlertDialog(
+                onDismissRequest = {
+                    showPushConfirmDialog = false
+                    force = false
+                },
+                title = { Text(stringResource(strings.push)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            stringResource(
+                                if (commitCount > 0) strings.push_dialog_message_commits
+                                else strings.push_dialog_message_empty,
+                                commitCount,
+                                viewModel.currentBranch,
+                            )
+                        )
+                        if (commitCount > 0) {
+                            Row(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .height(40.dp)
+                                        .toggleable(
+                                            value = force,
+                                            onValueChange = { force = it },
+                                            role = Role.Checkbox,
+                                            indication = null,
+                                            interactionSource = interactionSource,
+                                        )
+                                        .padding(horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Checkbox(checked = force, interactionSource = interactionSource, onCheckedChange = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(strings.push_dialog_checkbox_force))
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        enabled = commitCount > 0,
+                        onClick = {
+                            showPushConfirmDialog = false
+                            viewModel.push(force)
+                            force = false
+                        },
+                    ) {
+                        Text(stringResource(strings.push))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showPushConfirmDialog = false
+                            force = false
+                        }
+                    ) {
+                        Text(stringResource(strings.cancel))
+                    }
+                },
             )
         }
     }
