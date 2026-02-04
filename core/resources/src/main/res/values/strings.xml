@@ -667,5 +667,4 @@
     <string name="push_dialog_message_commits">You are about to push %1$d commit(s) to %2$s. Continue?</string>
     <string name="push_dialog_message_empty">There are no commits to push</string>
     <string name="push_dialog_checkbox_force">Force</string>
-    <string name="remote_tracking_branch_not_found">No remote tracking branch found.</string>
 </resources>
