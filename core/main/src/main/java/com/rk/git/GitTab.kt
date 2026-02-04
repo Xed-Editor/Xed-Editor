@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
@@ -141,13 +142,29 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box {
+                    Box(modifier = Modifier.weight(1f)) {
                         TextButton(onClick = { showBranchesMenu = true }, enabled = !viewModel.isLoading) {
-                            Icon(painterResource(drawables.branch), contentDescription = null)
-                            Spacer(Modifier.size(8.dp))
-                            Text(viewModel.currentBranch)
-                            Spacer(Modifier.size(4.dp))
-                            Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.wrapContentWidth(),
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f, fill = false),
+                                ) {
+                                    Icon(painterResource(drawables.branch), contentDescription = null)
+                                    Spacer(Modifier.size(8.dp))
+                                    Text(
+                                        viewModel.currentBranch,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        softWrap = false,
+                                    )
+                                }
+
+                                Spacer(Modifier.size(4.dp))
+                                Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
+                            }
                         }
 
                         DropdownMenu(expanded = showBranchesMenu, onDismissRequest = { showBranchesMenu = false }) {
@@ -181,8 +198,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.weight(1f))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
