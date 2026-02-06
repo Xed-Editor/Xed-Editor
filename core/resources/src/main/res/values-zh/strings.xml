@@ -658,7 +658,7 @@
     <string name="email">邮箱</string>
     <string name="git_auth_error">授权错误。请检查你的凭据</string>
     <string name="invalid_repo_url">无效的存储库 URL</string>
-    <string name="pull">Pull</string>
+    <string name="pull">拉取</string>
     <string name="account">账号</string>
     <string name="repository">存储库</string>
     <string name="submodules">子模块</string>
@@ -684,4 +684,6 @@
     <string name="new_branch_label">新分支（基于%1$s分支）</string>
     <string name="git_colorize_files">文件名着色</string>
     <string name="git_colorize_files_desc">根据 Git 状态为文件名着色</string>
+    <string name="push">推送</string>
+    <string name="fetch">获取</string>
 </resources>
