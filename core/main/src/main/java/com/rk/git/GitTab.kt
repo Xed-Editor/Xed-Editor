@@ -4,11 +4,13 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -235,12 +238,16 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     if (viewModel.isLoading) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxSize())
                     } else {
-                        HorizontalDivider(modifier = Modifier.fillMaxSize().height(1.dp))
+                        HorizontalDivider()
                     }
                 }
 
                 if (gitChanges.isNotEmpty()) {
-                    LazyColumn(modifier = Modifier.weight(1f, fill = true), state = rememberLazyListState()) {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f, fill = true).horizontalScroll(rememberScrollState()),
+                        state = rememberLazyListState(),
+                        contentPadding = PaddingValues(top = 8.dp),
+                    ) {
                         item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
                         item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
                         item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
