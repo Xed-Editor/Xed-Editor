@@ -684,7 +684,9 @@
     <string name="commit_complete">Commit tamamlandı</string>
     <string name="push_complete">Gönderme tamamlandı</string>
     <string name="new_branch">Yeni dal</string>
-    <string name="new_branch_label">Yeni dal (%1$s dalına dayalı)</string>
+    <string name="new_branch_label">Yeni dal (\'%1$s\' dalına dayalı)</string>
     <string name="git_colorize_files">Dosya adlarını renklendirme</string>
     <string name="git_colorize_files_desc">Git durumuna bağlı olarak dosya adlarını renklendir</string>
+    <string name="push_dialog_message_commits">%1$d commit\'ni \'%2$s\' hedefine göndermek üzeresiniz. Devam edilsin mi?</string>
+    <string name="push_dialog_message_empty">Gönderilecek commit yok</string>
 </resources>
