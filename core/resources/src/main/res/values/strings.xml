@@ -661,10 +661,10 @@
     <string name="commit_complete">Commit complete</string>
     <string name="push_complete">Push complete</string>
     <string name="new_branch">New branch</string>
-    <string name="new_branch_label">New branch (based on "%1$s" branch)</string>
+    <string name="new_branch_label">New branch (based on \'%1$s\' branch)</string>
     <string name="git_colorize_files">Colorize file names</string>
     <string name="git_colorize_files_desc">Colorize file names depending on Git status</string>
-    <string name="push_dialog_message_commits">You are about to push %1$d commit(s) to "%2$s". Continue?</string>
+    <string name="push_dialog_message_commits">You are about to push %1$d commit(s) to \'%2$s\'. Continue?</string>
     <string name="push_dialog_message_empty">There are no commits to push</string>
     <string name="push_dialog_checkbox_force">Force</string>
 </resources>
