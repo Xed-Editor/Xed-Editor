@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,12 +19,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -89,6 +92,9 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var showBranchesMenu by remember { mutableStateOf(false) }
         var showNewBranchDialog by remember { mutableStateOf(false) }
 
+        var showPushConfirmDialog by remember { mutableStateOf(false) }
+        var force by remember { mutableStateOf(false) }
+
         val interactionSource = remember { MutableInteractionSource() }
         val scope = rememberCoroutineScope()
 
@@ -96,7 +102,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         var newBranchError by remember { mutableStateOf<String?>(null) }
 
         val gitChanges = viewModel.currentRoot.value?.absolutePath?.let { viewModel.changes[it] } ?: emptyList()
-        val hasCheckedChanges by remember { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
+        val hasCheckedChanges by
+            remember(gitChanges) { derivedStateOf { gitChanges.count { change -> change.isChecked } > 0 } }
 
         var changes by remember { mutableStateOf(listOf<GitChange>()) }
         var conflicts by remember { mutableStateOf(listOf<GitChange>()) }
@@ -143,13 +150,29 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Box {
+                    Box(modifier = Modifier.weight(1f)) {
                         TextButton(onClick = { showBranchesMenu = true }, enabled = !viewModel.isLoading) {
-                            Icon(painterResource(drawables.branch), contentDescription = null)
-                            Spacer(Modifier.size(8.dp))
-                            Text(viewModel.currentBranch)
-                            Spacer(Modifier.size(4.dp))
-                            Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.wrapContentWidth(),
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f, fill = false),
+                                ) {
+                                    Icon(painterResource(drawables.branch), contentDescription = null)
+                                    Spacer(Modifier.size(8.dp))
+                                    Text(
+                                        viewModel.currentBranch,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        softWrap = false,
+                                    )
+                                }
+
+                                Spacer(Modifier.size(4.dp))
+                                Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
+                            }
                         }
 
                         DropdownMenu(expanded = showBranchesMenu, onDismissRequest = { showBranchesMenu = false }) {
@@ -184,8 +207,6 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         }
                     }
 
-                    Spacer(modifier = Modifier.weight(1f))
-
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
                             onClick = {
@@ -207,7 +228,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
                         }
 
-                        IconButton(onClick = { viewModel.push(force = false) }, enabled = !viewModel.isLoading) {
+                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
                             Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
                         }
                     }
@@ -217,21 +238,19 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     if (viewModel.isLoading) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxSize())
                     } else {
-                        HorizontalDivider(modifier = Modifier.fillMaxSize().height(1.dp))
+                        HorizontalDivider()
                     }
                 }
 
                 if (gitChanges.isNotEmpty()) {
-                    Column(
-                        modifier =
-                            Modifier.fillMaxSize()
-                                .weight(1f)
-                                .padding(top = 8.dp)
-                                .horizontalScroll(rememberScrollState())
+                    LazyColumn(
+                        modifier = Modifier.weight(1f, fill = true).horizontalScroll(rememberScrollState()),
+                        state = rememberLazyListState(),
+                        contentPadding = PaddingValues(top = 8.dp),
                     ) {
-                        ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded }
-                        ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded }
-                        UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded }
+                        item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
+                        item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
+                        item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
                     }
                 } else {
                     Column(
@@ -239,6 +258,12 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
+                        Icon(
+                            painter = painterResource(drawables.file),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
@@ -302,7 +327,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         onClick = {
                             scope.launch {
                                 viewModel.commit().join()
-                                viewModel.push(force = false)
+                                showPushConfirmDialog = true
                             }
                         },
                         contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
@@ -345,6 +370,71 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                     showNewBranchDialog = false
                 },
                 confirmEnabled = newBranchError == null && newBranch.isNotBlank(),
+            )
+        }
+
+        if (showPushConfirmDialog) {
+            val commitCount = viewModel.getCommitCount()
+            AlertDialog(
+                onDismissRequest = {
+                    showPushConfirmDialog = false
+                    force = false
+                },
+                title = { Text(stringResource(strings.push)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            stringResource(
+                                if (commitCount > 0) strings.push_dialog_message_commits
+                                else strings.push_dialog_message_empty,
+                                commitCount,
+                                viewModel.currentBranch,
+                            )
+                        )
+                        if (commitCount > 0) {
+                            Row(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .height(40.dp)
+                                        .toggleable(
+                                            value = force,
+                                            onValueChange = { force = it },
+                                            role = Role.Checkbox,
+                                            indication = null,
+                                            interactionSource = interactionSource,
+                                        )
+                                        .padding(horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Checkbox(checked = force, interactionSource = interactionSource, onCheckedChange = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(strings.push_dialog_checkbox_force))
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        enabled = commitCount > 0,
+                        onClick = {
+                            showPushConfirmDialog = false
+                            viewModel.push(force)
+                            force = false
+                        },
+                    ) {
+                        Text(stringResource(strings.push))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showPushConfirmDialog = false
+                            force = false
+                        }
+                    ) {
+                        Text(stringResource(strings.cancel))
+                    }
+                },
             )
         }
     }
@@ -530,8 +620,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     private fun ChangesItemList(items: List<GitChange>) {
         val context = LocalContext.current
 
-        LazyColumn(modifier = Modifier.padding(start = 40.dp)) {
-            items(items) { change ->
+        Column(modifier = Modifier.padding(start = 40.dp)) {
+            items.forEach { change ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =

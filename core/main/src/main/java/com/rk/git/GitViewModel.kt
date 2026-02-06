@@ -23,6 +23,7 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
+import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
@@ -230,6 +231,16 @@ class GitViewModel : ViewModel() {
                         toast(errorMessage)
                     }
                 }
+            } catch (e: TransportException) {
+                if (
+                    e.message?.contains("Auth", true) == true ||
+                        e.message?.contains("401") == true ||
+                        e.message?.contains("403") == true
+                ) {
+                    toast(strings.git_auth_error)
+                } else {
+                    toast(e.message)
+                }
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
@@ -261,6 +272,16 @@ class GitViewModel : ViewModel() {
                         .setCheckFetchedObjects(true)
                         .setRemoveDeletedRefs(true)
                         .call()
+                }
+            } catch (e: TransportException) {
+                if (
+                    e.message?.contains("Auth", true) == true ||
+                        e.message?.contains("401") == true ||
+                        e.message?.contains("403") == true
+                ) {
+                    toast(strings.git_auth_error)
+                } else {
+                    toast(e.message)
                 }
             } catch (e: Exception) {
                 toast(e.message)
@@ -369,6 +390,30 @@ class GitViewModel : ViewModel() {
         }
     }
 
+    fun getCommitCount(): Int {
+        try {
+            Git.open(currentRoot.value).use { git ->
+                val repo = git.repository
+                val branch = repo.branch
+                val localRef = repo.findRef("refs/heads/$branch")
+                val remoteRef = repo.findRef("refs/remotes/$GIT_ORIGIN/$branch")
+
+                RevWalk(repo).use { walk ->
+                    val localCommit = walk.parseCommit(localRef!!.objectId)
+                    walk.markStart(localCommit)
+                    if (remoteRef != null) {
+                        val remoteCommit = walk.parseCommit(remoteRef.objectId)
+                        walk.markUninteresting(remoteCommit)
+                    }
+                    return walk.count()
+                }
+            }
+        } catch (e: Exception) {
+            toast(e.message)
+            return -1
+        }
+    }
+
     fun push(force: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
@@ -402,6 +447,16 @@ class GitViewModel : ViewModel() {
                     } else {
                         toast(strings.push_complete)
                     }
+                }
+            } catch (e: TransportException) {
+                if (
+                    e.message?.contains("Auth", true) == true ||
+                        e.message?.contains("401") == true ||
+                        e.message?.contains("403") == true
+                ) {
+                    toast(strings.git_auth_error)
+                } else {
+                    toast(e.message)
                 }
             } catch (e: Exception) {
                 toast(e.message)

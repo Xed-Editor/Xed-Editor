@@ -677,4 +677,7 @@
     <string name="new_branch_label">Новая ветка (на основе ветки %1$s)</string>
     <string name="git_colorize_files">Окрашивать имена файлов</string>
     <string name="git_colorize_files_desc">Окрашивать имена файлов в зависимости от статуса Git</string>
+    <string name="push_dialog_message_commits">Вы собираетесь отправить %1$d коммит(ов) в ветку %2$s. Продолжить?</string>
+    <string name="push_dialog_message_empty">Нет коммитов для отправки</string>
+    <string name="push_dialog_checkbox_force">Принудительно</string>
 </resources>
