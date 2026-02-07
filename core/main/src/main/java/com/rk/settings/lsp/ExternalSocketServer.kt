@@ -78,11 +78,10 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
                     )
                 }
             } else null,
-        trailingIcon = {
+        trailingIcon =
             if (hostError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Spacer(Modifier.height(8.dp))
@@ -111,11 +110,10 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
                     )
                 }
             } else null,
-        trailingIcon = {
+        trailingIcon =
             if (portError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Spacer(Modifier.height(8.dp))
@@ -149,11 +147,10 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
                     )
                 }
             } else null,
-        trailingIcon = {
+        trailingIcon =
             if (extensionsError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Row(

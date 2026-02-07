@@ -79,11 +79,16 @@ fun DoubleInputDialog(
                         firstErrorMessage?.let {
                             { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
                         },
-                    trailingIcon = {
+                    trailingIcon =
                         if (firstErrorMessage != null) {
-                            Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-                        }
-                    },
+                            {
+                                Icon(
+                                    XedIcons.Error,
+                                    stringResource(strings.error),
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        } else null,
                     keyboardActions = KeyboardActions(onNext = { secondFocusRequester.requestFocus() }),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
                 )
@@ -102,11 +107,16 @@ fun DoubleInputDialog(
                         secondErrorMessage?.let {
                             { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
                         },
-                    trailingIcon = {
+                    trailingIcon =
                         if (secondErrorMessage != null) {
-                            Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-                        }
-                    },
+                            {
+                                Icon(
+                                    XedIcons.Error,
+                                    stringResource(strings.error),
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        } else null,
                     keyboardActions = KeyboardActions(onDone = { onConfirm() }),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )
