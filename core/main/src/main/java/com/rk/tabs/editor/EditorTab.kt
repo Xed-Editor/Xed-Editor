@@ -396,7 +396,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     editorState.notices.forEach { (id, notice) -> notice(id) }
                 }
 
-                val fileExtension = file.getName().substringAfterLast(".")
+                val fileExtension = file.getName().substringAfterLast(".", "")
                 val intelligentFeatures =
                     IntelligentFeatureRegistry.allFeatures.filter { feature ->
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()

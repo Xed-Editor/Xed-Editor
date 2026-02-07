@@ -23,6 +23,7 @@ class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
+    private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
@@ -78,7 +79,11 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    fun collapseNode(node: FileTreeNode): Pair<FileTreeNode, String> {
+    fun getCollapsedName(node: FileTreeNode): String {
+        return collapsedNameCache[node.file] ?: node.name
+    }
+
+    fun collapseNode(node: FileTreeNode): FileTreeNode {
         var currentNode = node
         var collapsedName = node.name
         while (true) {
@@ -97,7 +102,8 @@ class FileTreeViewModel : ViewModel() {
             collapsedName += "/${child.name}"
             currentNode = child
         }
-        return currentNode to collapsedName
+        collapsedNameCache[node.file] = collapsedName
+        return currentNode
     }
 
     fun updateCache(file: FileObject) {
@@ -105,6 +111,7 @@ class FileTreeViewModel : ViewModel() {
         if (file.isDirectory().not()) {
             return
         }
+        collapsedNameCache.remove(file)
         _loadingStates[file] = true // Mark as loading
         viewModelScope.launch(Dispatchers.IO) {
             try {

@@ -24,10 +24,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -68,8 +66,6 @@ fun FileTreeNodeItem(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var name by remember { mutableStateOf(node.name) }
-
     // Load children when expanded
     LaunchedEffect(node.file, isExpanded) {
         if (isExpanded && node.isDirectory) {
@@ -84,6 +80,17 @@ fun FileTreeNodeItem(
                     viewModel.getNodeChildren(node)
                 } else {
                     emptyList()
+                }
+            }
+        }
+
+    val displayName by
+        remember(ReactiveSettings.compactFoldersDrawer) {
+            derivedStateOf {
+                if (ReactiveSettings.compactFoldersDrawer) {
+                    viewModel.getCollapsedName(node)
+                } else {
+                    node.name
                 }
             }
         }
@@ -154,7 +161,7 @@ fun FileTreeNodeItem(
             val underlineColor = getUnderlineColor(context, viewModel, node.file)
             Row(modifier = Modifier.width((getDrawerWidth() - 61.dp)), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = name,
+                    text = displayName,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -164,40 +171,28 @@ fun FileTreeNodeItem(
             }
         }
 
-        AnimatedVisibility(
-            visible = (ReactiveSettings.compactFoldersDrawer || isExpanded) && node.isDirectory,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
+        AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
             Column {
-                if (ReactiveSettings.compactFoldersDrawer && children.size == 1 && children[0].isDirectory) {
-                    val (collapsedNode, collapsedName) = viewModel.collapseNode(node)
-                    name = collapsedName
-                    viewModel.getNodeChildren(collapsedNode).forEach { childNode ->
-                        key(childNode.file.hashCode()) {
-                            FileTreeNodeItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                node = childNode,
-                                depth = depth + 1,
-                                onFileClick = onFileClick,
-                                onFileLongClick = onFileLongClick,
-                                viewModel = viewModel,
-                            )
-                        }
-                    }
-                } else {
-                    name = node.name
-                    children.forEach { childNode ->
-                        key(childNode.file.hashCode()) {
-                            FileTreeNodeItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                node = childNode,
-                                depth = depth + 1,
-                                onFileClick = onFileClick,
-                                onFileLongClick = onFileLongClick,
-                                viewModel = viewModel,
-                            )
-                        }
+                var displayedChildren = children
+                if (
+                    ReactiveSettings.compactFoldersDrawer &&
+                        displayedChildren.size == 1 &&
+                        displayedChildren[0].isDirectory
+                ) {
+                    val collapsedNode = viewModel.collapseNode(node)
+                    displayedChildren = viewModel.getNodeChildren(collapsedNode)
+                }
+
+                displayedChildren.forEach { childNode ->
+                    key(childNode.file.hashCode()) {
+                        FileTreeNodeItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            node = childNode,
+                            depth = depth + 1,
+                            onFileClick = onFileClick,
+                            onFileLongClick = onFileLongClick,
+                            viewModel = viewModel,
+                        )
                     }
                 }
             }

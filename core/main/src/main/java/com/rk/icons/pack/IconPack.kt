@@ -46,7 +46,7 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
                 }
             } else {
                 // First use fileNames, then fileExtensions, then languageNames, then defaultFile
-                val ext = fileName.substringAfterLast(".")
+                val ext = fileName.substringAfterLast(".", "")
 
                 info.icons.fileNames[fileName.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
                     ?: info.icons.fileExtensions[ext.lowercase()]
