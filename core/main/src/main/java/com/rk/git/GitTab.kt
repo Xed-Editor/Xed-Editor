@@ -85,6 +85,7 @@ import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
 import java.io.File
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
@@ -676,6 +677,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         if (!InbuiltFeatures.git.state.value) return false
         val tab = currentTab ?: return false
         if (tab !is FileTreeTab) return false
-        return tab.root.getAbsolutePath().startsWith(viewModel.currentRoot.value?.absolutePath ?: "")
+        // return tab.root.getAbsolutePath().startsWith(viewModel.currentRoot.value?.absolutePath ?: "")
+        return FileRepositoryBuilder().findGitDir(File(tab.root.getAbsolutePath())).gitDir != null
     }
 }
