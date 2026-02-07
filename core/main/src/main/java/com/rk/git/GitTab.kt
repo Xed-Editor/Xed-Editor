@@ -677,6 +677,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         if (!InbuiltFeatures.git.state.value) return false
         val tab = currentTab ?: return false
         if (tab !is FileTreeTab) return false
-        return FileRepositoryBuilder().findGitDir(File(tab.root.getAbsolutePath())).gitDir != null
+
+        val rootDir = File(tab.root.getAbsolutePath())
+        return FileRepositoryBuilder().findGitDir(rootDir).gitDir != null
     }
 }
