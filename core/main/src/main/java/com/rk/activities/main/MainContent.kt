@@ -166,7 +166,7 @@ fun MainContent(
                                     mainViewModel.setCurrentTabIndex(index)
                                     mainViewModel.removeOtherTabs()
                                 },
-                                onCloseAll = { mainViewModel.closeAllTabs() },
+                                onCloseAll = { mainViewModel.removeAllTabs() },
                                 showFileActionDialog = { fileActionDialog = it },
                             )
                         }

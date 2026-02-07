@@ -178,6 +178,7 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun addProject(tab: DrawerTab, save: Boolean = false) {
     tabs.add(tab)
     selectTab(tab)
@@ -188,25 +189,34 @@ fun addProject(tab: DrawerTab, save: Boolean = false) {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun removeProject(fileObject: FileObject, save: Boolean = false) {
-    val tabToRemove = tabs.find { it is FileTreeTab && it.root == fileObject } ?: return
+    val index = tabs.indexOfFirst { it is FileTreeTab && it.root == fileObject }
+    if (index == -1) return
 
-    if (currentTab == tabToRemove) {
-        selectTab(tabs.firstOrNull { it != tabToRemove })
+    if (currentTab == tabs[index]) {
+        val tabBefore = tabs.getOrNull(index - 1)
+        val tabAfter = tabs.getOrNull(index + 1)
+        selectTab(tabBefore ?: tabAfter)
     }
 
-    tabs.remove(tabToRemove)
+    tabs.removeAt(index)
 
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun removeProject(tab: DrawerTab, save: Boolean = false) {
-    if (currentTab == tab) {
-        selectTab(tabs.firstOrNull { it != tab })
+    val index = tabs.indexOf(tab)
+    if (index == -1) return
+
+    if (currentTab == tabs[index]) {
+        val tabBefore = tabs.getOrNull(index - 1)
+        val tabAfter = tabs.getOrNull(index + 1)
+        selectTab(tabBefore ?: tabAfter)
     }
 
-    tabs.remove(tab)
+    tabs.removeAt(index)
 
     if (save) {
         GlobalScope.launch(Dispatchers.IO) { saveProjects() }
