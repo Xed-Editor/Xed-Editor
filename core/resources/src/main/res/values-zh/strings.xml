@@ -681,9 +681,10 @@
     <string name="commit_complete">提交完成</string>
     <string name="push_complete">推送完成</string>
     <string name="new_branch">新分支</string>
-    <string name="new_branch_label">新分支（基于%1$s分支）</string>
+    <string name="new_branch_label">新分支（基于 \'%1$s\' 分支）</string>
     <string name="git_colorize_files">文件名着色</string>
     <string name="git_colorize_files_desc">根据 Git 状态为文件名着色</string>
     <string name="push">推送</string>
     <string name="fetch">获取</string>
+    <string name="push_dialog_message_commits">您即将向 \'%2$s\' 推送 %1$d 个提交。是否继续？</string>
 </resources>
