@@ -672,4 +672,5 @@
     <string name="compact_folders">Compact folders</string>
     <string name="compact_folders_drawer">Compact folders in drawer</string>
     <string name="compact_folders_drawer_desc">Collapse folders with only one child into a single folder in the drawer</string>
+    <string name="resource_loading_error">Failed to load resource</string>
 </resources>
