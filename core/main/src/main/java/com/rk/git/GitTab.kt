@@ -133,8 +133,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             untracked = untrackedChanges
         }
 
-        val commitMessage = viewModel.currentRoot.value!!.absolutePath.let { viewModel.commitMessages[it] }
-        val amend = viewModel.currentRoot.value!!.absolutePath.let { viewModel.amends[it] }
+        val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
+        val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
 
         Surface(
             modifier = modifier,
