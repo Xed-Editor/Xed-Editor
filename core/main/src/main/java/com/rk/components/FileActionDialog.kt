@@ -202,7 +202,7 @@ fun FileActionDialog(
                 )
 
                 AddDialogItem(
-                    icon = if (file.isFile()) drawables.copy else drawables.paste,
+                    icon = drawables.copy,
                     title = stringResource(strings.copy),
                     // description = stringResource(strings.copy_desc),
                     onClick = {

@@ -110,7 +110,6 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 if (
                     viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null
                 ) {
-
                     val title = "${parent.getName()}/${tabTitle.value}"
                     withContext(Dispatchers.Main) { tabTitle.value = title }
                 }

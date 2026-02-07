@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -20,8 +21,10 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -191,7 +194,16 @@ fun FileTree(
                 }
             }
 
-            Box(modifier = Modifier.horizontalScroll(rememberScrollState()).verticalScroll(rememberScrollState())) {
+            Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                if (false) { // TODO: Add loading indicator (see issue #1085)
+                    LinearProgressIndicator(modifier = Modifier.fillMaxSize())
+                } else {
+                    HorizontalDivider()
+                }
+            }
+
+            Column(modifier = Modifier.horizontalScroll(rememberScrollState()).verticalScroll(rememberScrollState())) {
+                Spacer(modifier = Modifier.height(8.dp))
                 FileTreeNodeItem(
                     modifier = Modifier.fillMaxWidth(),
                     node = rootNode,
