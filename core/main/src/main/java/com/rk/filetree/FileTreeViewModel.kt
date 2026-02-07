@@ -23,6 +23,7 @@ class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
+    private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
@@ -78,11 +79,39 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
+    fun getCollapsedName(node: FileTreeNode): String {
+        return collapsedNameCache[node.file] ?: node.name
+    }
+
+    fun collapseNode(node: FileTreeNode): FileTreeNode {
+        var currentNode = node
+        var collapsedName = node.name
+        while (true) {
+            if (!isNodeExpanded(currentNode.file)) {
+                toggleNodeExpansion(currentNode.file)
+            }
+            loadChildrenForNode(currentNode)
+            val children = getNodeChildren(currentNode)
+            if (children.size != 1) {
+                break
+            }
+            val child = children.first()
+            if (!child.isDirectory) {
+                break
+            }
+            collapsedName += "/${child.name}"
+            currentNode = child
+        }
+        collapsedNameCache[node.file] = collapsedName
+        return currentNode
+    }
+
     fun updateCache(file: FileObject) {
         gitViewModel.get()?.syncChanges(file.getAbsolutePath())
         if (file.isDirectory().not()) {
             return
         }
+        collapsedNameCache.remove(file)
         _loadingStates[file] = true // Mark as loading
         viewModelScope.launch(Dispatchers.IO) {
             try {

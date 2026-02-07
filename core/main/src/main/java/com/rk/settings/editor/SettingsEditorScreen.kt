@@ -340,6 +340,16 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(id = strings.compact_folders_drawer),
+                description = stringResource(id = strings.compact_folders_drawer_desc),
+                default = Settings.compact_folders_drawer,
+                sideEffect = {
+                    Settings.compact_folders_drawer = it
+                    ReactiveSettings.update()
+                },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(id = strings.show_hidden_files_search),
                 description = stringResource(id = strings.show_hidden_files_search_desc),
                 default = Settings.show_hidden_files_search,
