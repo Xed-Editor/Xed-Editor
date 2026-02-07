@@ -44,4 +44,6 @@ sealed class SettingsRoutes(val route: String) {
     data object LspServerDetail : SettingsRoutes("lsp_server_detail")
 
     data object LspServerLogs : SettingsRoutes("lsp_server_logs")
+
+    data object Git : SettingsRoutes("git")
 }

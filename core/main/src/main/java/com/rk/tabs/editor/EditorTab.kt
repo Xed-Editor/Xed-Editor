@@ -36,6 +36,7 @@ import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
+import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.FindingsDialog
 import com.rk.components.SearchPanel
@@ -270,12 +271,16 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                             if (it != null) {
                                 file = it
                                 tabTitle.value = it.getName()
-                                scope.launch { write() }
+                                scope.launch {
+                                    write()
+                                    gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
+                                }
                             }
                         }
                     }
                 } else {
                     write()
+                    gitViewModel.get()?.syncChanges(file.getAbsolutePath())
                 }
             }
         }
@@ -383,7 +388,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     }
 
                     AnimatedVisibility(visible = editorState.isWrapping || editorState.isConnectingLsp) {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeCap = StrokeCap.Butt)
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                     }
 
                     editorState.notices.forEach { (id, notice) -> notice(id) }

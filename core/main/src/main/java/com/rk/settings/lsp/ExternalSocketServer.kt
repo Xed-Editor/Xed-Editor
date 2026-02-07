@@ -50,7 +50,7 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
         },
     )
 
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(8.dp))
     OutlinedTextField(
         value = dialogState.lspPort,
         onValueChange = {
@@ -83,7 +83,7 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
         },
     )
 
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(8.dp))
     OutlinedTextField(
         value = dialogState.lspExtensions,
         onValueChange = { newValue -> dialogState.onExtensionsChange(newValue) },

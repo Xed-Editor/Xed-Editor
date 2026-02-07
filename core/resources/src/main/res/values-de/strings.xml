@@ -641,4 +641,5 @@
     <string name="extension_validation_failed">Validierung der Erweiterung fehlgeschlagen</string>
     <string name="general">Allgemein</string>
     <string name="advanced">Erweitert</string>
+    <string name="open_removable_storage">Wechseldatenträger öffnen</string>
 </resources>

@@ -165,7 +165,7 @@
     <string name="file_name">Jméno souboru</string>
     <string name="save_desc">Uložte vybraný soubor někde jinde</string>
     <string name="cs">Rozlišování velkých a malých písmen</string>
-    <string name="manage_storage">Spravovat uložiště</string>
+    <string name="manage_storage">Spravovat úložiště</string>
     <string name="create_new_file_desc">Vytvořit nový soubor pod vybranou složku</string>
     <string name="enter_path">Napište umístění</string>
     <string name="sponsor">Sponzorovat</string>
@@ -176,14 +176,14 @@
     <string name="ff_path">Umístění ke souboru/složce</string>
     <string name="terminal_desc">Nastavení terminálu</string>
     <string name="manage_editor_font">Spravovat fonty</string>
-    <string name="install_from_storage">Instalovat ze uložiště</string>
+    <string name="install_from_storage">Instalovat ze úložiště</string>
     <string name="default_encoding">Výchozí kódování</string>
     <string name="warning">Upozornění</string>
     <string name="update_av">Nové aktualizace dostupné</string>
     <string name="update_disable">Kontrola aktualizacích vypnutá</string>
     <string name="launch">Spustit</string>
-    <string name="open_internal_storage">Otevřít interní uložiště</string>
-    <string name="internal_storage">Interní uložiště</string>
+    <string name="open_internal_storage">Otevřít interní úložiště</string>
+    <string name="internal_storage">Interní úložiště</string>
     <string name="file_not_loaded">Soubor ještě nebyl načten.</string>
     <string name="experimental_session_restore_warning">Táto funkce je experimentální a může způsobit ztrátu dat</string>
     <string name="terminal_home_desc">Výchozí domovská složka terminálu</string>
@@ -209,7 +209,7 @@
     <string name="txt_word_wrap">Zalamovat txt soubory</string>
     <string name="default_encoding_desc">Výchozí kódování v editoru</string>
     <string name="other">Jiný</string>
-    <string name="add_font_desc">Vyberte TTF font z uložiště</string>
+    <string name="add_font_desc">Vyberte TTF font z úložiště</string>
     <string name="txt_word_wrap_desc">Automaticky zalamuje txt soubory</string>
     <string name="unknown_err">Něco se pokazilo</string>
     <string name="mime">Typ MIME (např. text/plain)</string>
@@ -286,7 +286,7 @@
     <string name="name_empty_err">Jméno nemůže být prázdné</string>
     <string name="disable_virtual_kbd">Vypnout softwarovou klávesnici</string>
     <string name="disable_virtual_kbd_desc">Vypnout softwarovou klávesnici pokud je dostupná fyzická klávesnice</string>
-    <string name="manage_storage_desc">Oprávnění na spravování uložiště</string>
+    <string name="manage_storage_desc">Oprávnění na spravování úložiště</string>
     <string name="lang">Jazyk</string>
     <string name="lang_desc">Nastavení jazyku</string>
     <string name="indian">Indický</string>
@@ -370,7 +370,7 @@
     <string name="unknown">Neznámé</string>
     <string name="cant_write">Nelze zapisovat do souboru (žádná oprávnění zapisování)</string>
     <string name="content_update">Tento soubor byl změněn jinou aplikací. Chcete tento soubor aktualizovat? Neuložené změny budou zahozeny.</string>
-    <string name="storage">Uložiště</string>
+    <string name="storage">Úložiště</string>
     <string name="translate">Přeložit</string>
     <string name="terminal_feature">Terminál a spouštěče</string>
     <string name="folder_name">Jméno složky</string>
@@ -621,4 +621,7 @@
     <string name="icon_pack_install_failed">Instalace sadu ikon selhalo</string>
     <string name="emulate_editor_key">Emulovat stisknutí klávesy</string>
     <string name="select_key">Vyberte kód klávesy</string>
+    <string name="open_removable_storage">Otevřít vyměnitelné úložiště</string>
+    <string name="reset_consent_desc">Znovu zobrazit všechny legální podmínky ohledně této aplikace po dalším spuštěním</string>
+    <string name="reset_consent">Resetovat souhlas</string>
 </resources>

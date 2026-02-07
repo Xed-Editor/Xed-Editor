@@ -55,7 +55,7 @@ fun ExternalProcessServer(dialogState: ExternalLspDialogState) {
         },
     )
 
-    Spacer(Modifier.height(4.dp))
+    Spacer(Modifier.height(8.dp))
 
     OutlinedTextField(
         value = dialogState.lspExtensions,

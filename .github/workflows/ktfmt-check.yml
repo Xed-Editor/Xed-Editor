@@ -1,22 +1,23 @@
-name: Check ktfmt formatting
+name: Auto format Kotlin (ktfmt)
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:   # 👈 Allows manual run from GitHub UI
 
 jobs:
   ktfmt:
-    name: Check ktfmt formatting
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0 # Fetch all tags for comparison
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -28,5 +29,17 @@ jobs:
       - name: Clone submodules
         run: git submodule update --init --recursive
 
-      - name: Run ktfmt check
-        run: ./gradlew ktfmtCheck --no-daemon --quiet
+      - name: Run ktfmt format
+        run: ./gradlew ktfmtFormat --no-daemon
+
+      - name: Commit formatted code
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "style: auto-format Kotlin with ktfmt"
+            git push
+          else
+            echo "No formatting changes"
+          fi

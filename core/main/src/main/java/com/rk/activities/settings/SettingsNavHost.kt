@@ -20,6 +20,7 @@ import com.rk.settings.editor.EditToolbarActions
 import com.rk.settings.editor.EditorFontScreen
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.extension.Extensions
+import com.rk.settings.git.GitSettings
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
 import com.rk.settings.lsp.LspServerDetail
@@ -77,5 +78,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
         composable(SettingsRoutes.Extensions.route) { Extensions() }
+        composable(SettingsRoutes.Git.route) { GitSettings() }
     }
 }

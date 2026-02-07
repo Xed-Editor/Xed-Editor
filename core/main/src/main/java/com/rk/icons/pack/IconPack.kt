@@ -78,4 +78,20 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
 
         return path
     }
+
+    fun getIconFileForFileType(fileType: FileType): File? {
+        val extension = fileType.extensions.firstOrNull()?.lowercase()
+        val typeName = fileType.name.lowercase()
+
+        val path =
+            // First use fileExtensions, then languageNames, then defaultFile
+            extension?.let { info.icons.fileExtensions[it] }?.let { installDir.resolve(it) }?.takeIf { it.exists() }
+                ?: info.icons.languageNames[typeName]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
+                ?: installDir.resolve(info.icons.defaultFile)
+
+        // If no icon was working (even the fallback ones)
+        if (!path.exists()) return null
+
+        return path
+    }
 }

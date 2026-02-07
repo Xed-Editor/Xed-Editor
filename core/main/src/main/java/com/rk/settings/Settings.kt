@@ -109,6 +109,9 @@ object Settings {
     var insert_final_newline by CachedPreference("insert_final_newline", true)
     var trim_trailing_whitespace by CachedPreference("trim_trailing_whitespace", true)
     var enable_editorconfig by CachedPreference("enable_editorconfig", true)
+    var git_colorize_names by CachedPreference("git_colorize_names", true)
+    var git_submodules by CachedPreference("git_submodules", true)
+    var git_recursive_submodules by CachedPreference("git_recursive_submodules", true)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)
@@ -137,6 +140,10 @@ object Settings {
         CachedPreference("current_lang", application!!.resources.configuration.locales[0].language)
     var extra_keys_symbols by CachedPreference("extra_keys_symbols", DEFAULT_EXTRA_KEYS_SYMBOLS)
     var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
+    var git_username by CachedPreference("git_username", "")
+    var git_password by CachedPreference("git_password", "")
+    var git_name by CachedPreference("git_name", "")
+    var git_email by CachedPreference("git_email", "")
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
