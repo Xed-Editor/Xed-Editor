@@ -4,7 +4,6 @@ import android.content.Context
 import com.rk.file.FileObject
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
-import kotlin.String
 import kotlin.random.Random
 
 // DO not put this in lsp registry
@@ -28,7 +27,7 @@ class ExternalProcessServer(
     }
 
     override fun isSupported(file: FileObject): Boolean {
-        val fileExt = file.getName().substringAfterLast(".")
+        val fileExt = file.getName().substringAfterLast(".", "")
         return supportedExtensions.contains(fileExt)
     }
 

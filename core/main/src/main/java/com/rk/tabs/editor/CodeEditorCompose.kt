@@ -276,7 +276,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 setLanguage(langScope)
                 applyMarkdownHighlighting()
 
-                val ext = file.getName().substringAfterLast(".").trim()
+                val ext = file.getName().substringAfterLast(".", "").trim()
 
                 val builtin = getBuiltinServers(ext, context)
                 val external = getExternalServers()

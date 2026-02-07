@@ -71,7 +71,7 @@ class BaseLspConnector(
 
             runCatching {
                     val projectPath = projectFile.getAbsolutePath()
-                    val fileExt = fileObject.getName().substringAfterLast(".")
+                    val fileExt = fileObject.getName().substringAfterLast(".", "")
 
                     val project =
                         projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }

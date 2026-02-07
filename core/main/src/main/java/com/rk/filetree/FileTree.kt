@@ -127,6 +127,22 @@ fun FileTree(
                         DropdownMenuItem(
                             text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(checked = ReactiveSettings.compactFoldersDrawer, onCheckedChange = null)
+                                    Spacer(Modifier.width(12.dp))
+                                    Text(stringResource(strings.compact_folders))
+                                    Spacer(Modifier.width(8.dp))
+                                }
+                            },
+                            onClick = {
+                                Settings.compact_folders_drawer = !Settings.compact_folders_drawer
+                                ReactiveSettings.update()
+                                showOptionsMenu = false
+                            },
+                        )
+
+                        DropdownMenuItem(
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_NAME, onClick = null)
                                     Spacer(Modifier.width(12.dp))
                                     Text(stringResource(strings.sort_by_name))

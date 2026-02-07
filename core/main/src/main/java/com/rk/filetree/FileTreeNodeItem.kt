@@ -84,6 +84,17 @@ fun FileTreeNodeItem(
             }
         }
 
+    val displayName by
+        remember(ReactiveSettings.compactFoldersDrawer) {
+            derivedStateOf {
+                if (ReactiveSettings.compactFoldersDrawer) {
+                    viewModel.getCollapsedName(node)
+                } else {
+                    node.name
+                }
+            }
+        }
+
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
@@ -150,7 +161,7 @@ fun FileTreeNodeItem(
             val underlineColor = getUnderlineColor(context, viewModel, node.file)
             Row(modifier = Modifier.width((getDrawerWidth() - 61.dp)), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = node.name,
+                    text = displayName,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -162,7 +173,17 @@ fun FileTreeNodeItem(
 
         AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
             Column {
-                children.forEach { childNode ->
+                var displayedChildren = children
+                if (
+                    ReactiveSettings.compactFoldersDrawer &&
+                        displayedChildren.size == 1 &&
+                        displayedChildren[0].isDirectory
+                ) {
+                    val collapsedNode = viewModel.collapseNode(node)
+                    displayedChildren = viewModel.getNodeChildren(collapsedNode)
+                }
+
+                displayedChildren.forEach { childNode ->
                     key(childNode.file.hashCode()) {
                         FileTreeNodeItem(
                             modifier = Modifier.fillMaxWidth(),
