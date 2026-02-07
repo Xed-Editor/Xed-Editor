@@ -14,7 +14,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class XML() : BaseLspServer() {
-    override val id: String = "xml-lsp"
+    override val id: String = "xml"
     override val languageName: String = "XML"
     override val serverName = "lemminx"
     override val supportedExtensions: List<String> = FileType.XML.extensions

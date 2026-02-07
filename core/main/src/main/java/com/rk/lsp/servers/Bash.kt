@@ -13,7 +13,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class Bash() : BaseLspServer() {
-    override val id: String = "bash-lsp"
+    override val id: String = "bash"
     override val languageName: String = "Bash"
     override val serverName = "bash-language-server"
     override val supportedExtensions: List<String> = FileType.SHELL.extensions

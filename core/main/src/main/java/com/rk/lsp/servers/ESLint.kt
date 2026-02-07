@@ -13,7 +13,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class ESLint() : BaseLspServer() {
-    override val id: String = "eslint-lsp"
+    override val id: String = "eslint"
     override val languageName: String = "ESLint"
     override val serverName = "vscode-eslint-language-server"
     override val supportedExtensions: List<String> =

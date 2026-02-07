@@ -13,7 +13,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class TypeScript() : BaseLspServer() {
-    override val id: String = "typescript-lsp"
+    override val id: String = "typescript"
     override val languageName: String = "TypeScript"
     override val serverName = "typescript-language-server"
     override val supportedExtensions: List<String> =

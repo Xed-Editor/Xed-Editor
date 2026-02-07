@@ -21,7 +21,7 @@ if ! command_exists node || ! command_exists npm; then
   install_nodejs
 fi
 
-info 'Installing extracted VSCode language extensionServers...'
+info 'Installing extracted VSCode language servers...'
 npm install -g --prefix /usr vscode-langservers-extracted
 
 info 'ESLint language server installed successfully. Please reopen all tabs or restart the app.'

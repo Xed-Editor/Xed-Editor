@@ -14,8 +14,8 @@ import com.rk.extension.ExtensionAPIManager
 import com.rk.extension.ExtensionManager
 import com.rk.extension.loadAllExtensions
 import com.rk.icons.pack.IconPackManager
-import com.rk.lsp.LspPersistence
 import com.rk.lsp.FileIconProvider
+import com.rk.lsp.LspPersistence
 import com.rk.lsp.MarkdownImageProvider
 import com.rk.resources.Res
 import com.rk.settings.Preference

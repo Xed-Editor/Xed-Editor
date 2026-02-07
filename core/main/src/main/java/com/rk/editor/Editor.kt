@@ -9,7 +9,6 @@ import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser

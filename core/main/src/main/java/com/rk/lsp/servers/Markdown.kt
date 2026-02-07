@@ -13,7 +13,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class Markdown() : BaseLspServer() {
-    override val id: String = "markdown-lsp"
+    override val id: String = "markdown"
     override val languageName: String = "Markdown"
     override val serverName = "vscode-markdown-language-server"
     override val supportedExtensions: List<String> = FileType.MARKDOWN.extensions

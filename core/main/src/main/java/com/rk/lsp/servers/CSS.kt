@@ -13,7 +13,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class CSS() : BaseLspServer() {
-    override val id: String = "css-lsp"
+    override val id: String = "css"
     override val languageName: String = "CSS"
     override val serverName = "vscode-css-language-server"
     override val supportedExtensions: List<String> =
