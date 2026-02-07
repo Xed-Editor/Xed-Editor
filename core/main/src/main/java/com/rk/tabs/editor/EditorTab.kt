@@ -147,26 +147,49 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
                             if (hasBinaryChars(editorState.content.toString())) {
                                 editorState.editable = false
-                                showNotice("binary_file") { id ->
-                                    EditorNotice(
-                                        stringResource(strings.binary_file_notice),
-                                        actionButton = {
-                                            IconButton(onClick = { removeNotice(id) }) {
-                                                Icon(
-                                                    painter = painterResource(drawables.close),
-                                                    contentDescription = stringResource(strings.close),
-                                                    tint = MaterialTheme.colorScheme.onSurface,
-                                                )
-                                            }
-                                        },
-                                    )
-                                }
+                                showNotice("binary_file") { id -> BinaryNotice(id) }
                             }
                         }
                         .onFailure { errorDialog(it) }
                 }
             }
         }
+    }
+
+    @Composable
+    private fun BinaryNotice(id: String) {
+        EditorNotice(
+            stringResource(strings.binary_file_notice),
+            actionButton = {
+                IconButton(onClick = { removeNotice(id) }) {
+                    Icon(
+                        painter = painterResource(drawables.close),
+                        contentDescription = stringResource(strings.close),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            },
+        )
+    }
+
+    @Composable
+    private fun EditorConfigNotice(id: String) {
+        EditorNotice(
+            text = stringResource(strings.editorconfig_changed),
+            actionButton = {
+                TextButton(
+                    onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            save()
+                            refreshEditorSettings()
+                            removeNotice(id)
+                        }
+                    }
+                ) {
+                    Text(stringResource(strings.apply))
+                }
+            },
+        )
     }
 
     fun showNotice(id: String, notice: @Composable (String) -> Unit) {
@@ -237,54 +260,59 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
     private val saveMutex = Mutex()
 
-    @OptIn(DelicateCoroutinesApi::class)
-    suspend fun save() =
+    private suspend fun write() {
         withContext(Dispatchers.IO) {
-            saveMutex.withLock {
-                if (Settings.format_on_save && baseLspConnector?.isFormattingSupported() == true) {
-                    formatDocumentSuspend(this@EditorTab)
-                }
-
-                suspend fun write() {
-                    withContext(Dispatchers.IO) {
-                        runCatching {
-                                if (file.canWrite().not()) {
-                                    errorDialog(strings.cant_write)
-                                    return@withContext
-                                }
-
-                                val content = editorState.content.toString()
-                                val normalizedContent = editorState.editor.get()!!.lineEnding.applyOn(content)
-                                file.writeText(normalizedContent, charset)
-
-                                editorState.isDirty = false
-                                baseLspConnector?.notifySave()
-                                Settings.saves += 1
-
-                                MainActivity.instance?.handleSupport()
-                            }
-                            .onFailure { errorDialog(it) }
+            runCatching {
+                    if (!file.canWrite()) {
+                        errorDialog(strings.cant_write)
+                        return@withContext
                     }
-                }
 
-                if (isTemp) {
-                    MainActivity.instance?.apply {
-                        fileManager.createNewFile(mimeType = "*/*", title = file.getName()) {
-                            if (it != null) {
-                                file = it
-                                tabTitle.value = it.getName()
-                                scope.launch {
-                                    write()
-                                    gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
-                                }
+                    val content = editorState.content.toString()
+                    val normalizedContent = editorState.editor.get()!!.lineEnding.applyOn(content)
+                    file.writeText(normalizedContent, charset)
+
+                    editorState.isDirty = false
+                    baseLspConnector?.notifySave()
+                }
+                .onFailure { errorDialog(it) }
+        }
+    }
+
+    suspend fun quickSave() =
+        saveMutex.withLock {
+            if (isTemp) return@withLock
+            write()
+            gitViewModel.get()?.syncChanges(file.getAbsolutePath())
+        }
+
+    suspend fun save() =
+        saveMutex.withLock {
+            if (Settings.format_on_save && baseLspConnector?.isFormattingSupported() == true) {
+                formatDocumentSuspend(this@EditorTab)
+            }
+
+            if (isTemp) {
+                MainActivity.instance?.apply {
+                    fileManager.createNewFile(mimeType = "*/*", title = file.getName()) {
+                        if (it != null) {
+                            file = it
+                            tabTitle.value = it.getName()
+                            scope.launch {
+                                write()
+                                gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
                             }
                         }
                     }
-                } else {
-                    write()
-                    gitViewModel.get()?.syncChanges(file.getAbsolutePath())
                 }
+                return@withLock
             }
+
+            write()
+            gitViewModel.get()?.syncChanges(file.getAbsolutePath())
+
+            Settings.saves += 1
+            MainActivity.instance?.handleSupport()
         }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -408,34 +436,19 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                     parentTab = this@EditorTab,
                     intelligentFeatures = intelligentFeatures,
                     onTextChange = {
-                        if (Settings.auto_save) {
+                        if (Settings.auto_save && !isTemp) {
                             scope.launch(Dispatchers.IO) {
-                                save()
+                                quickSave()
                                 saveMutex.lock()
-                                delay(400)
+                                delay(Settings.auto_save_delay)
                                 saveMutex.unlock()
                             }
+                        } else {
+                            editorState.isDirty = true
                         }
 
                         if (file.getName() == ".editorconfig" && Settings.enable_editorconfig) {
-                            showNotice("editorconfig_changed") { id ->
-                                EditorNotice(
-                                    stringResource(strings.editorconfig_changed),
-                                    actionButton = {
-                                        TextButton(
-                                            onClick = {
-                                                scope.launch {
-                                                    save()
-                                                    refreshEditorSettings()
-                                                    removeNotice(id)
-                                                }
-                                            }
-                                        ) {
-                                            Text(stringResource(strings.apply))
-                                        }
-                                    },
-                                )
-                            }
+                            showNotice("editorconfig_changed") { id -> EditorConfigNotice(id) }
                         }
                     },
                 )

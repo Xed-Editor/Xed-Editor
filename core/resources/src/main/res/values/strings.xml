@@ -147,6 +147,8 @@
     <string name="extra_keys_desc">Show extra keys above the keyboard</string>
     <string name="auto_save">Auto save</string>
     <string name="auto_save_desc">Automatically save file</string>
+    <string name="auto_save_delay">Auto save delay</string>
+    <string name="auto_save_delay_desc">Delay in milliseconds between auto saves</string>
     <string name="interval_in_ms">Interval in milliseconds</string>
     <string name="value_invalid">Invalid value</string>
     <string name="value_small">Value too small</string>
