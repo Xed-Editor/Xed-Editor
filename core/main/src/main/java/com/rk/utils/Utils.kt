@@ -396,5 +396,6 @@ fun getGitColor(changeType: ChangeType): Color =
 suspend fun findGitRoot(path: String): String? =
     withContext(Dispatchers.IO) {
         val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
-        FileRepositoryBuilder().findGitDir(startDir).gitDir?.parentFile?.absolutePath
+        val repo = FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()
+        repo?.workTree?.canonicalPath
     }
