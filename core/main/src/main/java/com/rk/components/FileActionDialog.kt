@@ -381,6 +381,14 @@ fun FileActionDialog(
                     if (parentFile != null) {
                         fileTreeViewModel.updateCache(file.getParentFile()!!)
                     }
+
+                    MainActivity.instance?.viewModel?.also { viewModel ->
+                        viewModel.tabs.forEachIndexed { index, tab ->
+                            if (tab.file == file) {
+                                viewModel.removeTab(index)
+                            }
+                        }
+                    }
                 }
                 showDeleteDialog = false
                 // showXedDialog = true
