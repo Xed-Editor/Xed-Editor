@@ -518,7 +518,7 @@
     <string name="no_results">Результаты не найдены</string>
     <string name="results">Найдено %d вхождений</string>
     <string name="enter_name">Введите название</string>
-    <string name="show_hidden_files_drawer">Показать скрытые файлы в ящике</string>
+    <string name="show_hidden_files_drawer">Показать скрытые файлы в боковой панели</string>
     <string name="show_hidden_files_drawer_desc">Показывать скрытые файлы или папки, такие как .git, в боковой панели</string>
     <string name="show_hidden_files_search">Показывать скрытые файлы в поиске</string>
     <string name="show_hidden_files_search_desc">Показывать скрытые файлы и папки в результатах поиска</string>
@@ -680,4 +680,7 @@
     <string name="push_dialog_message_commits">Вы собираетесь отправить %1$d коммит(ов) в ветку %2$s. Продолжить?</string>
     <string name="push_dialog_message_empty">Нет коммитов для отправки</string>
     <string name="push_dialog_checkbox_force">Принудительно</string>
+    <string name="compact_folders">Сворачивать папки</string>
+    <string name="compact_folders_drawer">Сворачивать папки в боковой панели</string>
+    <string name="compact_folders_drawer_desc">Сворачивать папки с единственной вложенной папкой в боковой панели</string>
 </resources>

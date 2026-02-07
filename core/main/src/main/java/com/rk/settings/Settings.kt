@@ -37,6 +37,7 @@ object ReactiveSettings {
     var extraKeySymbols by mutableStateOf(Settings.extra_keys_symbols)
     var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
     var showHiddenFilesDrawer by mutableStateOf(Settings.show_hidden_files_drawer)
+    var compactFoldersDrawer by mutableStateOf(Settings.compact_folders_drawer)
 
     fun update() {
         toolbarActionIds = Settings.action_items
@@ -46,6 +47,7 @@ object ReactiveSettings {
         extraKeySymbols = Settings.extra_keys_symbols
         extraKeysBackground = Settings.extra_keys_bg
         showHiddenFilesDrawer = Settings.show_hidden_files_drawer
+        compactFoldersDrawer = Settings.compact_folders_drawer
     }
 }
 
@@ -92,6 +94,7 @@ object Settings {
     var theme_flipper by CachedPreference("theme_flipper", false)
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
+    var compact_folders_drawer by CachedPreference("compact_folders_drawer", true)
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
     var show_tab_icons by CachedPreference("show_tab_icons", true)
     var split_extra_keys by CachedPreference("split_extra_keys", false)

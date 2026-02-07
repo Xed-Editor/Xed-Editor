@@ -667,4 +667,7 @@
     <string name="push_dialog_message_commits">You are about to push %1$d commit(s) to \'%2$s\'. Continue?</string>
     <string name="push_dialog_message_empty">There are no commits to push</string>
     <string name="push_dialog_checkbox_force">Force</string>
+    <string name="compact_folders">Compact folders</string>
+    <string name="compact_folders_drawer">Compact folders in drawer</string>
+    <string name="compact_folders_drawer_desc">Collapse folders with only one child into a single folder in the drawer</string>
 </resources>

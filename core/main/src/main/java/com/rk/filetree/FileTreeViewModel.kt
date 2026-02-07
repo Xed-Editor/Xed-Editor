@@ -78,6 +78,28 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
+    fun collapseNode(node: FileTreeNode): Pair<FileTreeNode, String> {
+        var currentNode = node
+        var collapsedName = node.name
+        while (true) {
+            if (!isNodeExpanded(currentNode.file)) {
+                toggleNodeExpansion(currentNode.file)
+            }
+            loadChildrenForNode(currentNode)
+            val children = getNodeChildren(currentNode)
+            if (children.size != 1) {
+                break
+            }
+            val child = children.first()
+            if (!child.isDirectory) {
+                break
+            }
+            collapsedName += "/${child.name}"
+            currentNode = child
+        }
+        return currentNode to collapsedName
+    }
+
     fun updateCache(file: FileObject) {
         gitViewModel.get()?.syncChanges(file.getAbsolutePath())
         if (file.isDirectory().not()) {
