@@ -63,6 +63,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -394,14 +395,7 @@ fun getGitColor(changeType: ChangeType): Color =
 
 suspend fun findGitRoot(path: String): String? =
     withContext(Dispatchers.IO) {
-        val file = File(path)
-        var dir: File? = if (file.isDirectory) file else file.parentFile
-        while (dir != null) {
-            val gitDir = File(dir, ".git")
-            if (gitDir.isDirectory) {
-                return@withContext dir.absolutePath
-            }
-            dir = dir.parentFile
-        }
-        return@withContext null
+        val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
+        val repo = FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()
+        repo?.workTree?.canonicalPath
     }

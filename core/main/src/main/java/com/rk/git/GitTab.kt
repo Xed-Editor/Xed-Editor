@@ -85,6 +85,7 @@ import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
 import java.io.File
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
@@ -133,8 +134,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             untracked = untrackedChanges
         }
 
-        val commitMessage = viewModel.currentRoot.value!!.absolutePath.let { viewModel.commitMessages[it] }
-        val amend = viewModel.currentRoot.value!!.absolutePath.let { viewModel.amends[it] }
+        val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
+        val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
 
         Surface(
             modifier = modifier,
@@ -676,6 +677,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         if (!InbuiltFeatures.git.state.value) return false
         val tab = currentTab ?: return false
         if (tab !is FileTreeTab) return false
-        return tab.root.getAbsolutePath().startsWith(viewModel.currentRoot.value?.absolutePath ?: "")
+
+        val rootDir = File(tab.root.getAbsolutePath())
+        return FileRepositoryBuilder().findGitDir(rootDir).gitDir != null
     }
 }

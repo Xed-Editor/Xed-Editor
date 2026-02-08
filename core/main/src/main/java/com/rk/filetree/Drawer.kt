@@ -83,7 +83,6 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.dialog
-import com.rk.utils.findGitRoot
 import com.rk.utils.readObject
 import com.rk.utils.toast
 import com.rk.utils.writeObject
@@ -226,15 +225,6 @@ fun validateValue(value: String): String? {
 fun selectTab(tab: DrawerTab?) {
     currentTab = tab
     currentServiceTab = null
-
-    if (tab is FileTreeTab && InbuiltFeatures.git.state.value) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val gitRoot = findGitRoot(tab.root.getAbsolutePath())
-            if (gitRoot != null) {
-                gitViewModel.get()?.loadRepository(gitRoot)
-            }
-        }
-    }
 }
 
 var isLoading by mutableStateOf(true)
