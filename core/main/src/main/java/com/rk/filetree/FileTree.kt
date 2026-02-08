@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -204,14 +205,16 @@ fun FileTree(
 
             Column(modifier = Modifier.horizontalScroll(rememberScrollState()).verticalScroll(rememberScrollState())) {
                 Spacer(modifier = Modifier.height(8.dp))
-                FileTreeNodeItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    node = rootNode,
-                    depth = 0,
-                    onFileClick = { rootNode.onFileClick(it) },
-                    onFileLongClick = { rootNode.onFileLongClick(it) },
-                    viewModel = viewModel,
-                )
+                key(rootNode.file.hashCode(), rootNode.name) {
+                    FileTreeNodeItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        node = rootNode,
+                        depth = 0,
+                        onFileClick = { rootNode.onFileClick(it) },
+                        onFileLongClick = { rootNode.onFileLongClick(it) },
+                        viewModel = viewModel,
+                    )
+                }
             }
         }
     }

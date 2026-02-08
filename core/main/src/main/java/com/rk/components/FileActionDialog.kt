@@ -236,12 +236,29 @@ fun FileActionDialog(
                         // description = stringResource(strings.paste_desc),
                         onClick = {
                             scope.launch {
+                                val isCut = FileOperations.isCut
                                 val clipboardFile = FileOperations.clipboard!!
                                 val clipboardParentFile = clipboardFile.getParentFile()
-                                pasteFile(context, clipboardFile, file, isCut = FileOperations.isCut)
+                                pasteFile(
+                                    context = context,
+                                    sourceFile = clipboardFile,
+                                    destinationFolder = file,
+                                    isCut = isCut,
+                                )
+
+                                if (FileOperations.isCut) {
+                                    MainActivity.instance?.apply {
+                                        val targetTab =
+                                            viewModel.tabs.find { it is EditorTab && it.file == clipboardFile }
+                                                as? EditorTab
+                                        targetTab?.file = file.getChildForName(clipboardFile.getName())
+                                    }
+                                }
+
                                 fileTreeViewModel.updateCache(file)
                                 fileTreeViewModel.updateCache(clipboardParentFile!!)
                                 fileTreeViewModel.unmarkNodeAsCut(clipboardFile)
+
                                 // showXedDialog = true
                                 onDismissRequest()
                             }
@@ -335,8 +352,13 @@ fun FileActionDialog(
             onConfirm = {
                 val newName = renameValue
                 scope.launch {
-                    val success = file.renameTo(newName)
+                    val oldPath = file.getAbsolutePath()
+                    val tabsToRename =
+                        MainActivity.instance?.viewModel?.tabs?.filterIsInstance<EditorTab>()?.filter {
+                            it.file.getAbsolutePath() == oldPath
+                        } ?: emptyList()
 
+                    val success = file.renameTo(newName)
                     if (!success) {
                         toast(strings.rename_failed)
                         return@launch
@@ -345,11 +367,9 @@ fun FileActionDialog(
                     val parentFile = file.getParentFile() ?: return@launch
                     fileTreeViewModel.updateCache(parentFile)
 
-                    MainActivity.instance?.apply {
-                        val targetTab = viewModel.tabs.find { it is EditorTab && it.file == file } as? EditorTab
-
-                        targetTab?.tabTitle?.value = newName
-                        targetTab?.file = parentFile.getChildForName(newName)
+                    tabsToRename.forEach {
+                        it.tabTitle.value = newName
+                        it.file = parentFile.getChildForName(newName)
                     }
                 }
 
@@ -380,6 +400,10 @@ fun FileActionDialog(
                     val parentFile = file.getParentFile()
                     if (parentFile != null) {
                         fileTreeViewModel.updateCache(file.getParentFile()!!)
+                    }
+
+                    if (file == root) {
+                        removeProject(file, true)
                     }
 
                     MainActivity.instance?.viewModel?.also { viewModel ->

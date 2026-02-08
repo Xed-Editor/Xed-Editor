@@ -40,6 +40,7 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.findGitRoot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class FileTreeTab(val root: FileObject) : DrawerTab() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -150,5 +151,13 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
     override fun hashCode(): Int {
         return root.hashCode()
+    }
+
+    override fun isSupported(): Boolean {
+        if (runBlocking { !root.exists() } || !root.isDirectory()) {
+            removeProject(this@FileTreeTab, true)
+            return false
+        }
+        return true
     }
 }

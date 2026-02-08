@@ -376,6 +376,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                     Column(modifier = Modifier.fillMaxHeight()) {
                         LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
                             items(tabs) { tab ->
+                                if (!tab.isSupported()) return@items
                                 NavigationRailItem(
                                     selected = currentTab == tab,
                                     icon = { XedIcon(tab.getIcon()) },
@@ -398,6 +399,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                                         MaterialTheme.colorScheme.surfaceContainerHighest,
                                                 )
                                         },
+                                    enabled = tab.isEnabled(),
                                 )
                             }
 
