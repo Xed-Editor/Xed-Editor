@@ -72,7 +72,7 @@ import com.rk.file.toFileWrapper
 import com.rk.filetree.DrawerTab
 import com.rk.filetree.FileNameIcon
 import com.rk.filetree.FileTreeTab
-import com.rk.filetree.currentTab
+import com.rk.filetree.currentDrawerTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -675,7 +675,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
     override fun isSupported(): Boolean {
         if (!InbuiltFeatures.git.state.value) return false
-        val tab = currentTab ?: return false
+        val tab = currentDrawerTab ?: return false
         if (tab !is FileTreeTab) return false
 
         val rootDir = File(tab.root.getAbsolutePath())

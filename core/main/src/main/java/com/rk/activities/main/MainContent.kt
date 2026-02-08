@@ -53,7 +53,7 @@ import com.rk.file.FileObject
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.FileTreeViewModel
-import com.rk.filetree.currentTab
+import com.rk.filetree.currentDrawerTab
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -190,7 +190,7 @@ fun MainContent(
             if (fileActionDialog != null) {
                 FileActionDialog(
                     file = fileActionDialog!!,
-                    root = (currentTab as? FileTreeTab)?.root,
+                    root = (currentDrawerTab as? FileTreeTab)?.root,
                     onDismissRequest = { fileActionDialog = null },
                     fileTreeContext = false,
                     fileTreeViewModel = fileTreeViewModel,

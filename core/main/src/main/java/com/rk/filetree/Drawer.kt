@@ -95,60 +95,68 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-private val mutex = Mutex()
+object DrawerPersistence {
+    private val saveMutex = Mutex()
 
-suspend fun saveProjects() {
-    mutex.withLock {
-        val file = FileWrapper(application!!.filesDir.child("projects"))
-        val serializableList = ArrayList(tabs)
-        file.writeObject(serializableList)
+    private const val DRAWER_TABS = "drawerTabs"
+    private const val CURRENT_DRAWER_TAB = "currentDrawerTab"
+    private const val EXPANDED_FILE_TREE_NODES = "expandedFileTree"
 
-        val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
-        if (currentTab != null) {
-            currentTabFile.writeObject(currentTab!!)
-        } else {
-            currentTabFile.delete()
+    suspend fun saveState() {
+        saveMutex.withLock {
+            val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
+            val serializableList = ArrayList(drawerTabs)
+            file.writeObject(serializableList)
+
+            val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
+            if (currentDrawerTab != null) {
+                currentTabFile.writeObject(currentDrawerTab!!)
+            } else {
+                currentTabFile.delete()
+            }
+
+            val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
+            fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
         }
-
-        val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
-        fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
     }
-}
 
-suspend fun restoreProjects() {
-    mutex.withLock {
-        runCatching {
-                val loadedTabs =
-                    withContext(Dispatchers.IO) {
-                        val file = FileWrapper(application!!.filesDir.child("projects"))
+    suspend fun restoreState() {
+        saveMutex.withLock {
+            runCatching {
+                    val loadedTabs =
+                        withContext(Dispatchers.IO) {
+                            val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
 
-                        if (file.exists() && file.canRead()) {
-                            file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
-                        } else {
-                            emptyList()
+                            if (file.exists() && file.canRead()) {
+                                file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
+                            } else {
+                                emptyList()
+                            }
                         }
+
+                    // Update the existing state list on Main thread
+                    withContext(Dispatchers.Main) {
+                        drawerTabs.clear()
+                        drawerTabs.addAll(loadedTabs)
                     }
 
-                // Update the existing state list on Main thread
-                withContext(Dispatchers.Main) {
-                    tabs.clear()
-                    tabs.addAll(loadedTabs)
-                }
+                    val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
+                    if (currentTabFile.exists() && currentTabFile.canRead()) {
+                        selectTab(currentTabFile.readObject() as DrawerTab)
+                    }
 
-                val currentTabFile = FileWrapper(application!!.filesDir.child("currentTab"))
-                if (currentTabFile.exists() && currentTabFile.canRead()) {
-                    selectTab(currentTabFile.readObject() as DrawerTab)
+                    val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
+                    if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
+                        fileTreeViewModel
+                            .get()
+                            ?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
+                    }
                 }
-
-                val expandedNodeFile = FileWrapper(application!!.filesDir.child("expanded_filetree_nodes"))
-                if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
-                    fileTreeViewModel.get()?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
+                .onFailure {
+                    it.printStackTrace()
+                    toast(strings.project_restore_failed)
                 }
-            }
-            .onFailure {
-                it.printStackTrace()
-                toast(strings.project_restore_failed)
-            }
+        }
     }
 }
 
@@ -157,68 +165,68 @@ fun createServices() {
     serviceTabs.add(GitTab(gitViewModel.get()!!))
 }
 
-var tabs = mutableStateListOf<DrawerTab>()
+var drawerTabs = mutableStateListOf<DrawerTab>()
 var serviceTabs = mutableStateListOf<DrawerTab>()
-var currentTab by mutableStateOf<DrawerTab?>(null)
+var currentDrawerTab by mutableStateOf<DrawerTab?>(null)
 var currentServiceTab by mutableStateOf<DrawerTab?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(fileObject: FileObject, save: Boolean = false) {
-    val alreadyExistingProject = tabs.find { it is FileTreeTab && it.root == fileObject }
+    val alreadyExistingProject = drawerTabs.find { it is FileTreeTab && it.root == fileObject }
     if (alreadyExistingProject != null) {
         selectTab(alreadyExistingProject)
         return
     }
     val tab = FileTreeTab(fileObject)
-    tabs.add(tab)
+    drawerTabs.add(tab)
     selectTab(tab)
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(tab: DrawerTab, save: Boolean = false) {
-    tabs.add(tab)
+    drawerTabs.add(tab)
     selectTab(tab)
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 
 @OptIn(DelicateCoroutinesApi::class)
 fun removeProject(fileObject: FileObject, save: Boolean = false) {
-    val index = tabs.indexOfFirst { it is FileTreeTab && it.root == fileObject }
+    val index = drawerTabs.indexOfFirst { it is FileTreeTab && it.root == fileObject }
     if (index == -1) return
 
-    if (currentTab == tabs[index]) {
-        val tabBefore = tabs.getOrNull(index - 1)
-        val tabAfter = tabs.getOrNull(index + 1)
+    if (currentDrawerTab == drawerTabs[index]) {
+        val tabBefore = drawerTabs.getOrNull(index - 1)
+        val tabAfter = drawerTabs.getOrNull(index + 1)
         selectTab(tabBefore ?: tabAfter)
     }
 
-    tabs.removeAt(index)
+    drawerTabs.removeAt(index)
 
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 
 @OptIn(DelicateCoroutinesApi::class)
 fun removeProject(tab: DrawerTab, save: Boolean = false) {
-    val index = tabs.indexOf(tab)
+    val index = drawerTabs.indexOf(tab)
     if (index == -1) return
 
-    if (currentTab == tabs[index]) {
-        val tabBefore = tabs.getOrNull(index - 1)
-        val tabAfter = tabs.getOrNull(index + 1)
+    if (currentDrawerTab == drawerTabs[index]) {
+        val tabBefore = drawerTabs.getOrNull(index - 1)
+        val tabAfter = drawerTabs.getOrNull(index + 1)
         selectTab(tabBefore ?: tabAfter)
     }
 
-    tabs.removeAt(index)
+    drawerTabs.removeAt(index)
 
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { saveProjects() }
+        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 
@@ -233,7 +241,7 @@ fun validateValue(value: String): String? {
 }
 
 fun selectTab(tab: DrawerTab?) {
-    currentTab = tab
+    currentDrawerTab = tab
     currentServiceTab = null
 }
 
@@ -375,13 +383,13 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     Column(modifier = Modifier.fillMaxHeight()) {
                         LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
-                            items(tabs) { tab ->
+                            items(drawerTabs) { tab ->
                                 if (!tab.isSupported()) return@items
                                 NavigationRailItem(
-                                    selected = currentTab == tab,
+                                    selected = currentDrawerTab == tab,
                                     icon = { XedIcon(tab.getIcon()) },
                                     onClick = {
-                                        if (currentTab == tab && currentServiceTab == null) {
+                                        if (currentDrawerTab == tab && currentServiceTab == null) {
                                             closeProjectDialog = true
                                         } else {
                                             selectTab(tab)
@@ -438,7 +446,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
                 VerticalDivider()
 
-                Crossfade(targetState = currentTab, label = "file tree") { tab ->
+                Crossfade(targetState = currentDrawerTab, label = "file tree") { tab ->
                     if (currentServiceTab == null) {
                         if (tab != null) {
                             tab.Content(modifier = Modifier.weight(1f))
@@ -537,12 +545,12 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                     )
                 }
 
-                if (closeProjectDialog && currentTab != null) {
+                if (closeProjectDialog && currentDrawerTab != null) {
                     CloseConfirmationDialog(
-                        projectName = currentTab!!.getName(),
+                        projectName = currentDrawerTab!!.getName(),
                         onConfirm = {
                             closeProjectDialog = false
-                            removeProject(currentTab!!)
+                            removeProject(currentDrawerTab!!)
                         },
                         onDismiss = { closeProjectDialog = false },
                     )

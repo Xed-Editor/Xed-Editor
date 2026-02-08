@@ -6,12 +6,15 @@ import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
+import com.rk.file.toFileWrapper
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 object UpdateManager {
     private fun deleteCommonFiles() =
@@ -169,6 +172,20 @@ object UpdateManager {
                     Preference.removeKey("extra_keys")
                     if (oldExtraKeys != DEFAULT_EXTRA_KEYS_SYMBOLS) {
                         Preference.setString("extra_keys_symbols", oldExtraKeys)
+                    }
+                }
+
+                if (lastVersionCode <= 81) {
+                    GlobalScope.launch {
+                        runCatching {
+                            application!!.filesDir.child("projects").toFileWrapper().renameTo("drawerTabs")
+                            application!!.filesDir.child("currentTab").toFileWrapper().renameTo("currentDrawerTab")
+                            application!!
+                                .filesDir
+                                .child("expanded_filetree_nodes")
+                                .toFileWrapper()
+                                .renameTo("expandedFileTree")
+                        }
                     }
                 }
 

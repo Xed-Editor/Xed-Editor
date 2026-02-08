@@ -37,9 +37,9 @@ import com.rk.file.FileWrapper
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.FileTreeViewModel
 import com.rk.filetree.addProject
+import com.rk.filetree.drawerTabs
 import com.rk.filetree.getAppropriateName
 import com.rk.filetree.removeProject
-import com.rk.filetree.tabs
 import com.rk.icons.CreateNewFile
 import com.rk.icons.CreateNewFolder
 import com.rk.icons.XedIcons
@@ -279,7 +279,7 @@ fun FileActionDialog(
                     )
                 }
 
-                if (fileTreeContext && file.isDirectory() && !tabs.any { it is FileTreeTab && it.root == file }) {
+                if (fileTreeContext && file.isDirectory() && !drawerTabs.any { it is FileTreeTab && it.root == file }) {
                     AddDialogItem(
                         icon = drawables.folder_code,
                         title = stringResource(strings.open_as_project),

@@ -24,6 +24,7 @@ fun BasicToggle(
     description: String? = null,
     checked: Boolean,
     onSwitch: (Boolean) -> Unit,
+    enabled: Boolean = true,
     startWidget: (@Composable () -> Unit)? = null,
     endWidget: (@Composable () -> Unit)? = null,
 ) {
@@ -32,6 +33,7 @@ fun BasicToggle(
         description = description,
         onCheckedChange = { onSwitch.invoke(it) },
         label = label,
+        enabled = enabled,
         modifier = modifier,
         startWidget = startWidget,
         endWidget = endWidget,

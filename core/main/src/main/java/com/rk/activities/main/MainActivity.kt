@@ -43,7 +43,7 @@ import com.rk.commands.KeybindingsManager
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
-import com.rk.filetree.saveProjects
+import com.rk.filetree.DrawerPersistence
 import com.rk.resources.getFilledString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         isPaused = true
         GlobalScope.launch(Dispatchers.IO) {
             SessionManager.saveSession(viewModel.tabs.toList(), viewModel.currentTabIndex)
-            saveProjects()
+            DrawerPersistence.saveState()
             foregroundListener.values.forEach { it.invoke(false) }
         }
         super.onPause()

@@ -39,7 +39,7 @@ import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
-import com.rk.filetree.currentTab
+import com.rk.filetree.currentDrawerTab
 import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
@@ -82,9 +82,9 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         }
     }
 
-    if (fileSearchDialog && currentTab is FileTreeTab) {
+    if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
         FileSearchDialog(
-            projectFile = (currentTab as FileTreeTab).root,
+            projectFile = (currentDrawerTab as FileTreeTab).root,
             onFinish = { fileSearchDialog = false },
             onSelect = { projectFile, fileObject ->
                 scope.launch {
@@ -99,10 +99,10 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         )
     }
 
-    if (codeSearchDialog && currentTab is FileTreeTab) {
+    if (codeSearchDialog && currentDrawerTab is FileTreeTab) {
         CodeSearchDialog(
             viewModel = viewModel,
-            projectFile = (currentTab as FileTreeTab).root,
+            projectFile = (currentDrawerTab as FileTreeTab).root,
             onFinish = { codeSearchDialog = false },
         )
     }

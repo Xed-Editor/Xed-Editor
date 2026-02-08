@@ -45,10 +45,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-data class Feature(val nameRes: Int, val key: String, val default: Boolean, val onChange: ((Boolean) -> Unit)? = null) {
-    val state: MutableState<Boolean> by lazy { mutableStateOf(Preference.getBoolean(key, default)) }
+data class Feature(
+    val nameRes: Int,
+    val key: String,
+    val default: Boolean,
+    val onChange: ((Boolean) -> Unit)? = null,
+    val supported: Boolean = true,
+) {
+    val state: MutableState<Boolean> by lazy { mutableStateOf(supported && Preference.getBoolean(key, default)) }
 
     fun setEnable(enable: Boolean) {
+        if (!supported) return
+
         Preference.setBoolean(key, enable)
         state.value = enable
         onChange?.invoke(enable)
@@ -57,9 +65,15 @@ data class Feature(val nameRes: Int, val key: String, val default: Boolean, val 
 
 object InbuiltFeatures {
     val terminal = Feature(nameRes = strings.terminal_feature, key = "feature_terminal", default = true)
-    val debugMode = Feature(nameRes = strings.debug_options, key = "expertMode", default = BuildConfig.DEBUG)
+    val debugMode = Feature(nameRes = strings.debug_options, key = "debug_mode", default = BuildConfig.DEBUG)
     val extensions = Feature(nameRes = strings.ext, key = "enable_extension", default = true)
-    val git = Feature(nameRes = strings.git, key = "enable_git", default = true)
+    val git =
+        Feature(
+            nameRes = strings.git,
+            key = "enable_git",
+            default = true,
+            supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU,
+        )
 }
 
 @Composable
@@ -139,6 +153,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         modifier = Modifier.padding(start = 16.dp),
                     )
                 },
+                enabled = InbuiltFeatures.debugMode.supported,
             )
 
             SettingsToggle(
@@ -152,6 +167,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         modifier = Modifier.padding(start = 16.dp),
                     )
                 },
+                isEnabled = InbuiltFeatures.terminal.supported,
             )
 
             SettingsToggle(
@@ -165,6 +181,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         modifier = Modifier.padding(start = 16.dp),
                     )
                 },
+                isEnabled = InbuiltFeatures.extensions.supported,
             )
 
             SettingsToggle(
@@ -178,6 +195,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         modifier = Modifier.padding(start = 16.dp),
                     )
                 },
+                isEnabled = InbuiltFeatures.git.supported,
             )
         }
 

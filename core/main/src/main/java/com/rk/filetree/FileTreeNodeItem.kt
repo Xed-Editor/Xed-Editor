@@ -24,8 +24,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -84,6 +86,16 @@ fun FileTreeNodeItem(
             }
         }
 
+    var displayedChildren by remember { mutableStateOf(children) }
+    LaunchedEffect(children, ReactiveSettings.compactFoldersDrawer) {
+        displayedChildren =
+            if (ReactiveSettings.compactFoldersDrawer && children.size == 1 && children[0].isDirectory) {
+                val collapsedNode = viewModel.collapseNode(node)
+                viewModel.getNodeChildren(collapsedNode)
+            } else children
+        println(displayedChildren)
+    }
+
     val displayName by
         remember(ReactiveSettings.compactFoldersDrawer) {
             derivedStateOf {
@@ -109,10 +121,10 @@ fun FileTreeNodeItem(
                                     onFileClick(node)
                                 }
                             }
-                            viewModel.selectedFile[(currentTab as FileTreeTab).root] = node.file
+                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root] = node.file
                         },
                         onLongClick = {
-                            viewModel.selectedFile[(currentTab as FileTreeTab).root] = node.file
+                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root] = node.file
                             scope.launch {
                                 delay(50)
                                 onFileLongClick(node)
@@ -120,7 +132,7 @@ fun FileTreeNodeItem(
                         },
                     )
                     .then(
-                        if (viewModel.selectedFile[(currentTab as? FileTreeTab)?.root] == node.file && !isCut) {
+                        if (viewModel.selectedFile[(currentDrawerTab as? FileTreeTab)?.root] == node.file && !isCut) {
                             Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
                         } else {
                             Modifier
@@ -173,16 +185,6 @@ fun FileTreeNodeItem(
 
         AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
             Column {
-                var displayedChildren = children
-                if (
-                    ReactiveSettings.compactFoldersDrawer &&
-                        displayedChildren.size == 1 &&
-                        displayedChildren[0].isDirectory
-                ) {
-                    val collapsedNode = viewModel.collapseNode(node)
-                    displayedChildren = viewModel.getNodeChildren(collapsedNode)
-                }
-
                 displayedChildren.forEach { childNode ->
                     key(childNode.file.hashCode(), childNode.name) {
                         FileTreeNodeItem(
