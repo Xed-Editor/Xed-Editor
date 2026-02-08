@@ -72,7 +72,7 @@ import com.rk.file.toFileWrapper
 import com.rk.filetree.DrawerTab
 import com.rk.filetree.FileNameIcon
 import com.rk.filetree.FileTreeTab
-import com.rk.filetree.currentTab
+import com.rk.filetree.currentDrawerTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -85,6 +85,7 @@ import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
 import java.io.File
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     @Composable
@@ -133,8 +134,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
             untracked = untrackedChanges
         }
 
-        val commitMessage = viewModel.currentRoot.value!!.absolutePath.let { viewModel.commitMessages[it] }
-        val amend = viewModel.currentRoot.value!!.absolutePath.let { viewModel.amends[it] }
+        val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
+        val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
 
         Surface(
             modifier = modifier,
@@ -674,8 +675,10 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
 
     override fun isSupported(): Boolean {
         if (!InbuiltFeatures.git.state.value) return false
-        val tab = currentTab ?: return false
+        val tab = currentDrawerTab ?: return false
         if (tab !is FileTreeTab) return false
-        return tab.root.getAbsolutePath().startsWith(viewModel.currentRoot.value?.absolutePath ?: "")
+
+        val rootDir = File(tab.root.getAbsolutePath())
+        return FileRepositoryBuilder().findGitDir(rootDir).gitDir != null
     }
 }

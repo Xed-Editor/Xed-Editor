@@ -47,6 +47,6 @@ class HTML() : BaseLspServer() {
     }
 
     override fun isSupported(file: FileObject): Boolean {
-        return supportedExtensions.contains(file.getName().substringAfterLast("."))
+        return supportedExtensions.contains(file.getName().substringAfterLast(".", ""))
     }
 }

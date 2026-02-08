@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,8 +59,12 @@ fun SettingsEditorScreen(navController: NavController) {
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
+        var showAutoSaveDialog by remember { mutableStateOf(false) }
+        var autoSaveDelayValue by remember { mutableStateOf(Settings.tab_size.toString()) }
+        var autoSaveDelayError by remember { mutableStateOf<String?>(null) }
+
         var showSortingModeDialog by remember { mutableStateOf(false) }
-        var sortingModeValue by remember { mutableStateOf(Settings.sort_mode) }
+        var sortingModeValue by remember { mutableIntStateOf(Settings.sort_mode) }
 
         if (InbuiltFeatures.terminal.state.value) {
             PreferenceGroup(heading = stringResource(strings.language_server)) {
@@ -347,6 +352,16 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(id = strings.compact_folders_drawer),
+                description = stringResource(id = strings.compact_folders_drawer_desc),
+                default = Settings.compact_folders_drawer,
+                sideEffect = {
+                    Settings.compact_folders_drawer = it
+                    ReactiveSettings.update()
+                },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(id = strings.show_hidden_files_search),
                 description = stringResource(id = strings.show_hidden_files_search_desc),
                 default = Settings.show_hidden_files_search,
@@ -400,6 +415,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.auto_save_desc),
                 default = Settings.auto_save,
                 sideEffect = { Settings.auto_save = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.auto_save_delay),
+                description = stringResource(id = strings.auto_save_delay_desc),
+                showSwitch = false,
+                sideEffect = { showAutoSaveDialog = true },
             )
 
             EditorSettingsToggle(
@@ -494,6 +516,35 @@ fun SettingsEditorScreen(navController: NavController) {
                     tabSizeValue = Settings.tab_size.toString()
                     tabSizeError = null
                     showTabSizeDialog = false
+                },
+            )
+        }
+
+        if (showAutoSaveDialog) {
+            SingleInputDialog(
+                title = stringResource(id = strings.auto_save_delay),
+                inputLabel = stringResource(id = strings.auto_save_delay),
+                inputValue = autoSaveDelayValue,
+                errorMessage = autoSaveDelayError,
+                onInputValueChange = {
+                    autoSaveDelayValue = it
+                    autoSaveDelayError = null
+                    if (autoSaveDelayValue.toIntOrNull() == null) {
+                        autoSaveDelayError = context.getString(strings.value_invalid)
+                    } else if (autoSaveDelayValue.toInt() > 4000) {
+                        autoSaveDelayError = context.getString(strings.value_large)
+                    } else if (autoSaveDelayValue.toInt() < 5) {
+                        autoSaveDelayError = context.getString(strings.value_small)
+                    }
+                },
+                onConfirm = {
+                    Settings.auto_save_delay = autoSaveDelayValue.toLong()
+                    refreshEditorSettings()
+                },
+                onFinish = {
+                    autoSaveDelayValue = Settings.auto_save_delay.toString()
+                    autoSaveDelayError = null
+                    showAutoSaveDialog = false
                 },
             )
         }

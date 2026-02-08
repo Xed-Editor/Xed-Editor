@@ -37,6 +37,7 @@ object ReactiveSettings {
     var extraKeySymbols by mutableStateOf(Settings.extra_keys_symbols)
     var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
     var showHiddenFilesDrawer by mutableStateOf(Settings.show_hidden_files_drawer)
+    var compactFoldersDrawer by mutableStateOf(Settings.compact_folders_drawer)
 
     fun update() {
         toolbarActionIds = Settings.action_items
@@ -46,6 +47,7 @@ object ReactiveSettings {
         extraKeySymbols = Settings.extra_keys_symbols
         extraKeysBackground = Settings.extra_keys_bg
         showHiddenFilesDrawer = Settings.show_hidden_files_drawer
+        compactFoldersDrawer = Settings.compact_folders_drawer
     }
 }
 
@@ -72,7 +74,6 @@ object Settings {
     var is_selected_font_asset by CachedPreference("is_font_asset", false)
     var smooth_tabs by CachedPreference("smooth_tab", false)
     var actual_tabs by CachedPreference("actual_tab", false)
-    var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
     var hide_soft_keyboard_if_hardware by CachedPreference("always_show_soft_keyboard", true)
     var ignore_storage_permission by CachedPreference("ignore_storage_permission", false)
     var github by CachedPreference("github", true)
@@ -92,6 +93,7 @@ object Settings {
     var theme_flipper by CachedPreference("theme_flipper", false)
     var format_on_save by CachedPreference("format_on_save", false)
     var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
+    var compact_folders_drawer by CachedPreference("compact_folders_drawer", true)
     var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
     var show_tab_icons by CachedPreference("show_tab_icons", true)
     var split_extra_keys by CachedPreference("split_extra_keys", false)
@@ -118,6 +120,7 @@ object Settings {
     var editor_text_size by CachedPreference("text_size", 14)
     var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
+    var auto_save_delay by CachedPreference("auto_save_delay", 400L)
 
     var user_declined_value by CachedPreference("user_declined_value", false)
     var user_said_maybe_later by CachedPreference("user_said_maybe_later", false)

@@ -48,11 +48,10 @@ fun ExternalProcessServer(dialogState: ExternalLspDialogState) {
                     )
                 }
             } else null,
-        trailingIcon = {
-            if (dialogState.externalError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+        trailingIcon =
+            if (error != null) {
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Spacer(Modifier.height(8.dp))
@@ -73,10 +72,9 @@ fun ExternalProcessServer(dialogState: ExternalLspDialogState) {
                     )
                 }
             } else null,
-        trailingIcon = {
-            if (dialogState.extensionsError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+        trailingIcon =
+            if (extensionsError != null) {
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 }

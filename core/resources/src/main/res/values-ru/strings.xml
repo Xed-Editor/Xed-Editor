@@ -518,7 +518,7 @@
     <string name="no_results">Результаты не найдены</string>
     <string name="results">Найдено %d вхождений</string>
     <string name="enter_name">Введите название</string>
-    <string name="show_hidden_files_drawer">Показать скрытые файлы в ящике</string>
+    <string name="show_hidden_files_drawer">Показать скрытые файлы в боковой панели</string>
     <string name="show_hidden_files_drawer_desc">Показывать скрытые файлы или папки, такие как .git, в боковой панели</string>
     <string name="show_hidden_files_search">Показывать скрытые файлы в поиске</string>
     <string name="show_hidden_files_search_desc">Показывать скрытые файлы и папки в результатах поиска</string>
@@ -674,10 +674,17 @@
     <string name="commit_complete">Фиксация завершена</string>
     <string name="push_complete">Отправка завершена</string>
     <string name="new_branch">Новая ветка</string>
-    <string name="new_branch_label">Новая ветка (на основе ветки %1$s)</string>
+    <string name="new_branch_label">Новая ветка (на основе ветки \'%1$s\')</string>
     <string name="git_colorize_files">Окрашивать имена файлов</string>
     <string name="git_colorize_files_desc">Окрашивать имена файлов в зависимости от статуса Git</string>
     <string name="push_dialog_message_commits">Вы собираетесь отправить %1$d коммит(ов) в ветку %2$s. Продолжить?</string>
     <string name="push_dialog_message_empty">Нет коммитов для отправки</string>
     <string name="push_dialog_checkbox_force">Принудительно</string>
+    <string name="compact_folders">Сворачивать папки</string>
+    <string name="compact_folders_drawer">Сворачивать папки в боковой панели</string>
+    <string name="compact_folders_drawer_desc">Сворачивать папки с единственной вложенной папкой в боковой панели</string>
+    <string name="auto_save_delay">Интервал автосохранения</string>
+    <string name="auto_save_delay_desc">Интервал между автосохранениями (в миллисекундах)</string>
+    <string name="actions">Действия</string>
+    <string name="resource_loading_error">Не удалось загрузить ресурс</string>
 </resources>

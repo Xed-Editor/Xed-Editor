@@ -124,7 +124,6 @@ fun KeybindingsScreen() {
                         },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 placeholder = { Text(stringResource(strings.search_keybinds)) },
-                trailingIcon = {},
             )
         }
 

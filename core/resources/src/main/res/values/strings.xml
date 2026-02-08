@@ -147,6 +147,8 @@
     <string name="extra_keys_desc">Show extra keys above the keyboard</string>
     <string name="auto_save">Auto save</string>
     <string name="auto_save_desc">Automatically save file</string>
+    <string name="auto_save_delay">Auto save delay</string>
+    <string name="auto_save_delay_desc">Delay in milliseconds between auto saves</string>
     <string name="interval_in_ms">Interval in milliseconds</string>
     <string name="value_invalid">Invalid value</string>
     <string name="value_small">Value too small</string>
@@ -195,7 +197,7 @@
     <string name="about_desc">About Xed-Editor</string>
     <string name="version">Version</string>
     <string name="version_code">Version code</string>
-    <string name="github">GitHub</string>
+    <string name="github" translatable="false">GitHub</string>
     <string name="github_desc">Star it on GitHub 🤩</string>
     <string name="telegram">Telegram group</string>
     <string name="telegram_desc">Report issues, feature requests etc.</string>
@@ -651,7 +653,7 @@
     <string name="extension_validation_failed">Extension validation failed</string>
     <string name="general">General</string>
     <string name="advanced">Advanced</string>
-    <string name="git">Git</string>
+    <string name="git" translatable="false">Git</string>
     <string name="git_desc">Configure version control system</string>
     <string name="credentials">Credentials</string>
     <string name="credentials_desc">Credentials for accessing remote repositories</string>
@@ -693,4 +695,8 @@
     <string name="push_dialog_message_commits">You are about to push %1$d commit(s) to \'%2$s\'. Continue?</string>
     <string name="push_dialog_message_empty">There are no commits to push</string>
     <string name="push_dialog_checkbox_force">Force</string>
+    <string name="compact_folders">Compact folders</string>
+    <string name="compact_folders_drawer">Compact folders in drawer</string>
+    <string name="compact_folders_drawer_desc">Collapse folders with only one child into a single folder in the drawer</string>
+    <string name="resource_loading_error">Failed to load resource</string>
 </resources>

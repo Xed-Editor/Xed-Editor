@@ -1,6 +1,7 @@
 package com.rk.filetree
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,6 +24,8 @@ class FileTreeViewModel : ViewModel() {
     var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
+    private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
+    private var fileOperationsCount by mutableIntStateOf(0)
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
@@ -30,6 +33,24 @@ class FileTreeViewModel : ViewModel() {
 
     fun setExpandedNodes(map: Map<FileObject, Boolean>) {
         map.forEach { expandedNodes[it.key] = it.value }
+    }
+
+    suspend fun withFileOperation(block: suspend () -> Unit) {
+        registerFileOperation()
+        block()
+        unregisterFileOperation()
+    }
+
+    fun registerFileOperation() {
+        fileOperationsCount++
+    }
+
+    fun unregisterFileOperation() {
+        fileOperationsCount--
+    }
+
+    fun isFileOperationInProgress(): Boolean {
+        return fileOperationsCount > 0
     }
 
     private val cutNode = mutableStateOf<FileObject?>(null)
@@ -78,11 +99,39 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
+    fun getCollapsedName(node: FileTreeNode): String {
+        return collapsedNameCache[node.file] ?: node.name
+    }
+
+    suspend fun collapseNode(node: FileTreeNode): FileTreeNode {
+        var currentNode = node
+        var collapsedName = node.name
+        while (true) {
+            if (!isNodeExpanded(currentNode.file)) {
+                toggleNodeExpansion(currentNode.file)
+            }
+            loadChildrenForNodeSynchronous(currentNode)
+            val children = getNodeChildren(currentNode)
+            if (children.size != 1) {
+                break
+            }
+            val child = children.first()
+            if (!child.isDirectory) {
+                break
+            }
+            collapsedName += "/${child.name}"
+            currentNode = child
+        }
+        collapsedNameCache[node.file] = collapsedName
+        return currentNode
+    }
+
     fun updateCache(file: FileObject) {
         gitViewModel.get()?.syncChanges(file.getAbsolutePath())
         if (file.isDirectory().not()) {
             return
         }
+        collapsedNameCache.remove(file)
         _loadingStates[file] = true // Mark as loading
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -138,11 +187,6 @@ class FileTreeViewModel : ViewModel() {
         // If already in cache, don't reload
         if (fileListCache.containsKey(node.file)) {
             _loadingStates[node.file] = false
-
-            //            //a bit unnecessary but it auto refresh files when loading from cache
-            //            viewModelScope.launch(Dispatchers.IO) {
-            //                updateCache(node.file)
-            //            }
             return
         }
 
@@ -171,6 +215,39 @@ class FileTreeViewModel : ViewModel() {
             } catch (_: Exception) {
                 _loadingStates[node.file] = false
             }
+        }
+    }
+
+    suspend fun loadChildrenForNodeSynchronous(node: FileTreeNode) {
+        // If already in cache, don't reload
+        if (fileListCache.containsKey(node.file)) {
+            _loadingStates[node.file] = false
+            return
+        }
+
+        // Set loading state
+        _loadingStates[node.file] = true
+
+        try {
+            // Safely access file listing
+            val fileList =
+                try {
+                    node.file.listFiles()
+                } catch (_: Exception) {
+                    _loadingStates[node.file] = false
+                    return
+                }
+
+            // Process files
+            val sortedFiles = getSortedFiles(fileList)
+
+            fileListCache[node.file] = sortedFiles
+            viewModelScope.launch {
+                delay(300)
+                _loadingStates[node.file] = false
+            }
+        } catch (_: Exception) {
+            _loadingStates[node.file] = false
         }
     }
 

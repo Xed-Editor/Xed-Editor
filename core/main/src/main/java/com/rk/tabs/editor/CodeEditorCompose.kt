@@ -154,7 +154,6 @@ fun EditorTab.CodeEditor(
                             }
 
                             if (!state.updateLock.isLocked) {
-                                state.isDirty = true
                                 editorState.updateUndoRedo()
                                 onTextChange.invoke()
                             }
@@ -241,7 +240,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 setLanguage(langScope)
                 applyMarkdownHighlighting()
 
-                val ext = file.getName().substringAfterLast(".").trim()
+                val ext = file.getName().substringAfterLast(".", "").trim()
 
                 val builtin = getBuiltinServers(ext, context)
                 val external = getExternalServers()

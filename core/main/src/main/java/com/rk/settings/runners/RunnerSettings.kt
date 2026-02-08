@@ -265,15 +265,16 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                                         )
                                     }
                                 } else null,
-                            trailingIcon = {
+                            trailingIcon =
                                 if (nameError != null) {
-                                    Icon(
-                                        XedIcons.Error,
-                                        stringResource(strings.error),
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
-                                }
-                            },
+                                    {
+                                        Icon(
+                                            XedIcons.Error,
+                                            stringResource(strings.error),
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
+                                    }
+                                } else null,
                             enabled = isEditingExisting == null, // Disable name editing for existing runners
                             readOnly = isEditingExisting != null,
                         )
@@ -297,15 +298,16 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                                         )
                                     }
                                 } else null,
-                            trailingIcon = {
+                            trailingIcon =
                                 if (regexError != null) {
-                                    Icon(
-                                        XedIcons.Error,
-                                        stringResource(strings.error),
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
-                                }
-                            },
+                                    {
+                                        Icon(
+                                            XedIcons.Error,
+                                            stringResource(strings.error),
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
+                                    }
+                                } else null,
                         )
 
                         LaunchedEffect(showDialog) {

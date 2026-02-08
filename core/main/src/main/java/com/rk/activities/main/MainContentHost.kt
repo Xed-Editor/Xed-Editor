@@ -25,10 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
+import com.rk.filetree.DrawerPersistence
 import com.rk.filetree.FileTreeViewModel
 import com.rk.filetree.createServices
 import com.rk.filetree.isLoading
-import com.rk.filetree.restoreProjects
 import com.rk.git.GitViewModel
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -159,7 +159,7 @@ fun MainActivity.MainContentHost(
             val sheetContent: @Composable ColumnScope.() -> Unit = {
                 LaunchedEffect(Unit) {
                     isLoading = true
-                    restoreProjects()
+                    DrawerPersistence.restoreState()
                     createServices()
                     isLoading = false
                 }

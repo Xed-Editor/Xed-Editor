@@ -26,7 +26,7 @@ class ExternalSocketServer(val host: String, val port: Int, override val support
     }
 
     override fun isSupported(file: FileObject): Boolean {
-        val fileExt = file.getName().substringAfterLast(".")
+        val fileExt = file.getName().substringAfterLast(".", "")
         return supportedExtensions.contains(fileExt)
     }
 

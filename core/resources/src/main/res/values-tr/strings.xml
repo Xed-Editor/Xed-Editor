@@ -689,4 +689,8 @@
     <string name="git_colorize_files_desc">Git durumuna bağlı olarak dosya adlarını renklendir</string>
     <string name="push_dialog_message_commits">%1$d commit\'ni \'%2$s\' hedefine göndermek üzeresiniz. Devam edilsin mi?</string>
     <string name="push_dialog_message_empty">Gönderilecek commit yok</string>
+    <string name="push_dialog_checkbox_force">Zorla</string>
+    <string name="compact_folders">Sıkıştırılmış klasörler</string>
+    <string name="compact_folders_drawer">Çekmecede klasörleri sıkıştır</string>
+    <string name="compact_folders_drawer_desc">Çekmecedeki tek bir alt klasöre sahip klasörleri tek bir klasörde birleştirin</string>
 </resources>

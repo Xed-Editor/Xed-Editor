@@ -25,7 +25,7 @@ class ExternalProcessServer(val command: String, override val supportedExtension
     }
 
     override fun isSupported(file: FileObject): Boolean {
-        val fileExt = file.getName().substringAfterLast(".")
+        val fileExt = file.getName().substringAfterLast(".", "")
         return supportedExtensions.contains(fileExt)
     }
 

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -20,8 +21,10 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
@@ -29,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -127,6 +131,22 @@ fun FileTree(
                         DropdownMenuItem(
                             text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Checkbox(checked = ReactiveSettings.compactFoldersDrawer, onCheckedChange = null)
+                                    Spacer(Modifier.width(12.dp))
+                                    Text(stringResource(strings.compact_folders))
+                                    Spacer(Modifier.width(8.dp))
+                                }
+                            },
+                            onClick = {
+                                Settings.compact_folders_drawer = !Settings.compact_folders_drawer
+                                ReactiveSettings.update()
+                                showOptionsMenu = false
+                            },
+                        )
+
+                        DropdownMenuItem(
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     RadioButton(selected = viewModel.sortMode == SortMode.SORT_BY_NAME, onClick = null)
                                     Spacer(Modifier.width(12.dp))
                                     Text(stringResource(strings.sort_by_name))
@@ -175,15 +195,26 @@ fun FileTree(
                 }
             }
 
-            Box(modifier = Modifier.horizontalScroll(rememberScrollState()).verticalScroll(rememberScrollState())) {
-                FileTreeNodeItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    node = rootNode,
-                    depth = 0,
-                    onFileClick = { rootNode.onFileClick(it) },
-                    onFileLongClick = { rootNode.onFileLongClick(it) },
-                    viewModel = viewModel,
-                )
+            Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                if (viewModel.isFileOperationInProgress()) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxSize())
+                } else {
+                    HorizontalDivider()
+                }
+            }
+
+            Column(modifier = Modifier.horizontalScroll(rememberScrollState()).verticalScroll(rememberScrollState())) {
+                Spacer(modifier = Modifier.height(8.dp))
+                key(rootNode.file.hashCode(), rootNode.name) {
+                    FileTreeNodeItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        node = rootNode,
+                        depth = 0,
+                        onFileClick = { rootNode.onFileClick(it) },
+                        onFileLongClick = { rootNode.onFileLongClick(it) },
+                        viewModel = viewModel,
+                    )
+                }
             }
         }
     }

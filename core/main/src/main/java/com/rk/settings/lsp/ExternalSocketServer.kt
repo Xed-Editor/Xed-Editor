@@ -43,11 +43,10 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
                     )
                 }
             } else null,
-        trailingIcon = {
-            if (dialogState.hostError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+        trailingIcon =
+            if (hostError != null) {
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Spacer(Modifier.height(8.dp))
@@ -76,11 +75,10 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
                     )
                 }
             } else null,
-        trailingIcon = {
-            if (dialogState.portError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+        trailingIcon =
+            if (portError != null) {
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Spacer(Modifier.height(8.dp))
@@ -100,10 +98,9 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
                     )
                 }
             } else null,
-        trailingIcon = {
-            if (dialogState.extensionsError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+        trailingIcon =
+            if (extensionsError != null) {
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 }

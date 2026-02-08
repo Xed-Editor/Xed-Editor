@@ -98,7 +98,7 @@ suspend fun generateSnippet(
         val rangeStartTrimmed = range.start.character - leadingWhitespace
         val rangeEndTrimmed = range.end.character - leadingWhitespace
 
-        val fileExt = targetFile.getName().substringAfterLast(".")
+        val fileExt = targetFile.getName().substringAfterLast(".", "")
 
         val highlightedSpanned =
             MarkdownCodeHighlighterRegistry.global.highlightAsync(
