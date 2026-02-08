@@ -92,7 +92,8 @@
             android:exported="false" />
         <activity
             android:name="com.rk.runner.runners.web.markdown.MDViewer"
-            android:exported="false" />
+            android:exported="false"
+            tools:ignore="Instantiatable" />
         <activity
             android:name="com.rk.activities.terminal.Terminal"
             android:exported="true"
