@@ -244,6 +244,8 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
     fun refresh() {
         scope.launch(Dispatchers.IO) {
+            if (!file.exists() || !file.canRead()) return@launch
+
             val newContent = file.getInputStream().use { ContentIO.createFrom(it, charset) }
 
             withContext(Dispatchers.Main) {
