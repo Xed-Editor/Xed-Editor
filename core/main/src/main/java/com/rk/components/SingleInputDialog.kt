@@ -75,11 +75,16 @@ fun SingleInputDialog(
                                 )
                             }
                         } else null,
-                    trailingIcon = {
+                    trailingIcon =
                         if (errorMessage != null) {
-                            Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-                        }
-                    },
+                            {
+                                Icon(
+                                    XedIcons.Error,
+                                    stringResource(strings.error),
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        } else null,
                     keyboardActions = KeyboardActions(onDone = { onConfirm() }, onSearch = { onConfirm() }),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )

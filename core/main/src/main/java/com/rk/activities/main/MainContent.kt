@@ -166,7 +166,7 @@ fun MainContent(
                                     mainViewModel.setCurrentTabIndex(index)
                                     mainViewModel.removeOtherTabs()
                                 },
-                                onCloseAll = { mainViewModel.closeAllTabs() },
+                                onCloseAll = { mainViewModel.removeAllTabs() },
                                 showFileActionDialog = { fileActionDialog = it },
                             )
                         }
@@ -189,7 +189,6 @@ fun MainContent(
 
             if (fileActionDialog != null) {
                 FileActionDialog(
-                    modifier = Modifier,
                     file = fileActionDialog!!,
                     root = (currentTab as? FileTreeTab)?.root,
                     onDismissRequest = { fileActionDialog = null },

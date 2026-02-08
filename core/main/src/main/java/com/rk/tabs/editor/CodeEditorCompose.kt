@@ -189,7 +189,6 @@ fun EditorTab.CodeEditor(
                             }
 
                             if (!state.updateLock.isLocked) {
-                                state.isDirty = true
                                 editorState.updateUndoRedo()
                                 onTextChange.invoke()
                             }

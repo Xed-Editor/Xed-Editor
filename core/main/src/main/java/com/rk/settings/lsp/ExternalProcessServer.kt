@@ -69,11 +69,10 @@ fun ExternalProcessServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServ
             if (error != null) {
                 { Text(text = error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.fillMaxWidth()) }
             } else null,
-        trailingIcon = {
+        trailingIcon =
             if (error != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Spacer(Modifier.height(8.dp))
@@ -108,11 +107,10 @@ fun ExternalProcessServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServ
                     )
                 }
             } else null,
-        trailingIcon = {
+        trailingIcon =
             if (extensionsError != null) {
-                Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error)
-            }
-        },
+                { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
+            } else null,
     )
 
     Row(

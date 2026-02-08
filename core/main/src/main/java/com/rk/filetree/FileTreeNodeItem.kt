@@ -184,7 +184,7 @@ fun FileTreeNodeItem(
                 }
 
                 displayedChildren.forEach { childNode ->
-                    key(childNode.file.hashCode()) {
+                    key(childNode.file.hashCode(), childNode.name) {
                         FileTreeNodeItem(
                             modifier = Modifier.fillMaxWidth(),
                             node = childNode,

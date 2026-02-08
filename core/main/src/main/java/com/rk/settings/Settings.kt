@@ -74,7 +74,6 @@ object Settings {
     var is_selected_font_asset by CachedPreference("is_font_asset", false)
     var smooth_tabs by CachedPreference("smooth_tab", false)
     var actual_tabs by CachedPreference("actual_tab", false)
-    var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
     var hide_soft_keyboard_if_hardware by CachedPreference("always_show_soft_keyboard", true)
     var ignore_storage_permission by CachedPreference("ignore_storage_permission", false)
     var github by CachedPreference("github", true)
@@ -120,6 +119,7 @@ object Settings {
     var editor_text_size by CachedPreference("text_size", 14)
     var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
+    var auto_save_delay by CachedPreference("auto_save_delay", 400L)
 
     var user_declined_value by CachedPreference("user_declined_value", false)
     var user_said_maybe_later by CachedPreference("user_said_maybe_later", false)

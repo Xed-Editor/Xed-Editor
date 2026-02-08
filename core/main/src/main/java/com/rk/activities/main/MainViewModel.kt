@@ -343,8 +343,7 @@ class MainViewModel : ViewModel() {
     fun removeTab(index: Int): Boolean {
         if (index !in tabs.indices) return false
 
-        (tabs[index] as? EditorTab)?.onTabRemoved()
-
+        tabs[index].onTabRemoved()
         tabs.removeAt(index)
 
         currentTabIndex =
@@ -372,6 +371,11 @@ class MainViewModel : ViewModel() {
 
         val currentTab = tabs[currentTabIndex]
 
+        tabs.forEach {
+            if (it != currentTab) {
+                it.onTabRemoved()
+            }
+        }
         tabs.clear()
         tabs.add(currentTab)
         currentTabIndex = 0
@@ -384,10 +388,12 @@ class MainViewModel : ViewModel() {
      *
      * @return true if any tabs were closed, false if no tabs existed
      */
-    fun closeAllTabs(): Boolean {
+    fun removeAllTabs(): Boolean {
         if (tabs.isEmpty()) {
             return false
         }
+
+        tabs.forEach { it.onTabRemoved() }
 
         tabs.clear()
         currentTabIndex = 0

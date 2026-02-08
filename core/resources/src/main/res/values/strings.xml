@@ -147,6 +147,8 @@
     <string name="extra_keys_desc">Show extra keys above the keyboard</string>
     <string name="auto_save">Auto save</string>
     <string name="auto_save_desc">Automatically save file</string>
+    <string name="auto_save_delay">Auto save delay</string>
+    <string name="auto_save_delay_desc">Delay in milliseconds between auto saves</string>
     <string name="interval_in_ms">Interval in milliseconds</string>
     <string name="value_invalid">Invalid value</string>
     <string name="value_small">Value too small</string>
@@ -670,4 +672,5 @@
     <string name="compact_folders">Compact folders</string>
     <string name="compact_folders_drawer">Compact folders in drawer</string>
     <string name="compact_folders_drawer_desc">Collapse folders with only one child into a single folder in the drawer</string>
+    <string name="resource_loading_error">Failed to load resource</string>
 </resources>
