@@ -93,7 +93,6 @@ fun FileTreeNodeItem(
                 val collapsedNode = viewModel.collapseNode(node)
                 viewModel.getNodeChildren(collapsedNode)
             } else children
-        println(displayedChildren)
     }
 
     val displayName by
