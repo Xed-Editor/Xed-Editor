@@ -21,6 +21,7 @@ import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.errors.DetachedHeadException
 import org.eclipse.jgit.api.errors.InvalidRemoteException
 import org.eclipse.jgit.api.errors.TransportException
+import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode
 import org.eclipse.jgit.revwalk.RevWalk
@@ -138,7 +139,7 @@ class GitViewModel : ViewModel() {
                     progressCoordinator.showDialog()
                     Git.cloneRepository()
                         .setURI(repoURL)
-                        .setBranch("refs/heads/$repoBranch")
+                        .setBranch(BRANCH_PREFIX + repoBranch)
                         .setDirectory(targetDir)
                         .setCloneSubmodules(Settings.git_submodules)
                         .setCredentialsProvider(
@@ -177,7 +178,7 @@ class GitViewModel : ViewModel() {
                     if (branchName.startsWith("$GIT_ORIGIN/")) {
                         val localBranchName = branchName.removePrefix("$GIT_ORIGIN/")
                         val existingBranches = git.branchList().call().map { it.name }
-                        if ("refs/heads/$localBranchName" !in existingBranches) {
+                        if (BRANCH_PREFIX + localBranchName !in existingBranches) {
                             git.checkout()
                                 .setCreateBranch(true)
                                 .setName(localBranchName)
@@ -395,8 +396,8 @@ class GitViewModel : ViewModel() {
             Git.open(currentRoot.value).use { git ->
                 val repo = git.repository
                 val branch = repo.branch
-                val localRef = repo.findRef("refs/heads/$branch")
-                val remoteRef = repo.findRef("refs/remotes/$GIT_ORIGIN/$branch")
+                val localRef = repo.findRef(BRANCH_PREFIX + branch)
+                val remoteRef = repo.findRef("$REMOTE_PREFIX$GIT_ORIGIN/$branch")
 
                 RevWalk(repo).use { walk ->
                     val localCommit = walk.parseCommit(localRef!!.objectId)
@@ -476,7 +477,7 @@ class GitViewModel : ViewModel() {
                     } else {
                         git.checkout()
                             .setName(branchName)
-                            .setStartPoint("refs/heads/$branchBase")
+                            .setStartPoint(BRANCH_PREFIX + branchBase)
                             .setCreateBranch(true)
                             .call()
                     }
@@ -495,6 +496,8 @@ class GitViewModel : ViewModel() {
     }
 
     companion object {
-        private const val GIT_ORIGIN = "origin"
+        private const val BRANCH_PREFIX = Constants.R_HEADS // refs/heads/
+        private const val REMOTE_PREFIX = Constants.R_REMOTES // refs/remotes/
+        private const val GIT_ORIGIN = Constants.DEFAULT_REMOTE_NAME // origin
     }
 }

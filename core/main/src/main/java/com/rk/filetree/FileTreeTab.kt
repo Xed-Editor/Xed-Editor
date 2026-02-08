@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
+import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.FileActionDialog
 import com.rk.components.codeSearchDialog
@@ -34,6 +36,8 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.findGitRoot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -45,6 +49,15 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         var searchDialog by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val mainViewModel = MainActivity.instance?.viewModel
+
+        LaunchedEffect(root) {
+            if (InbuiltFeatures.git.state.value) {
+                val gitRoot = findGitRoot(root.getAbsolutePath())
+                if (gitRoot != null) {
+                    gitViewModel.get()?.loadRepository(gitRoot)
+                }
+            }
+        }
 
         FileTree(
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
