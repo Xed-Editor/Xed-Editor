@@ -13,10 +13,11 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class Emmet() : BaseLspServer() {
-    override val id: String = "emmet-lsp"
+    override val id: String = "emmet"
     override val languageName: String = "Emmet"
     override val serverName = "emmet-language-server"
     override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
+    override val icon = FileType.HTML.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

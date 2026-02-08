@@ -27,6 +27,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object DeveloperOptions : SettingsRoutes("developer_options")
 
+    data object AppLogs : SettingsRoutes("app_logs")
+
     data object Support : SettingsRoutes("support")
 
     data object LanguageScreen : SettingsRoutes("language")
@@ -38,6 +40,10 @@ sealed class SettingsRoutes(val route: String) {
     data object Themes : SettingsRoutes("theme")
 
     data object LspSettings : SettingsRoutes("lsp_settings")
+
+    data object LspServerDetail : SettingsRoutes("lsp_server_detail")
+
+    data object LspServerLogs : SettingsRoutes("lsp_server_logs")
 
     data object Git : SettingsRoutes("git")
 }

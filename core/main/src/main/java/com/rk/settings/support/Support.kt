@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -114,7 +113,7 @@ fun Support(modifier: Modifier = Modifier) {
                 },
                 sideEffect = {
                     val url = "https://buymeacoffee.com/rohitkushvaha01"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
                     Settings.donated = true
                 },

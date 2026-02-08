@@ -1,6 +1,5 @@
 package com.rk.tabs.editor
 
-import android.widget.HorizontalScrollView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -19,7 +18,6 @@ import org.ec4j.core.ResourceProperties
 
 data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
-    var arrowKeys: WeakReference<HorizontalScrollView?> = WeakReference(null)
     var rootView: WeakReference<ConstraintLayout?> = WeakReference(null)
 
     var content = initialContent
@@ -69,6 +67,6 @@ data class CodeEditorState(val initialContent: Content? = null) {
         canRedo = editor.get()?.canRedo() ?: false
     }
 
-    val lspDialogMutex by lazy { Mutex() }
     var isWrapping by mutableStateOf(false)
+    var isConnectingLsp by mutableStateOf(false)
 }
