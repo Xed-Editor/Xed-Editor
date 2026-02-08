@@ -1,6 +1,7 @@
 package com.rk.filetree
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,6 +25,7 @@ class FileTreeViewModel : ViewModel() {
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
     private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
+    private var fileOperationsCount by mutableIntStateOf(0)
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
@@ -31,6 +33,24 @@ class FileTreeViewModel : ViewModel() {
 
     fun setExpandedNodes(map: Map<FileObject, Boolean>) {
         map.forEach { expandedNodes[it.key] = it.value }
+    }
+
+    suspend fun withFileOperation(block: suspend () -> Unit) {
+        registerFileOperation()
+        block()
+        unregisterFileOperation()
+    }
+
+    fun registerFileOperation() {
+        fileOperationsCount++
+    }
+
+    fun unregisterFileOperation() {
+        fileOperationsCount--
+    }
+
+    fun isFileOperationInProgress(): Boolean {
+        return fileOperationsCount > 0
     }
 
     private val cutNode = mutableStateOf<FileObject?>(null)

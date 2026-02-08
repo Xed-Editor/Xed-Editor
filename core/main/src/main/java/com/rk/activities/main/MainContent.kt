@@ -189,7 +189,6 @@ fun MainContent(
 
             if (fileActionDialog != null) {
                 FileActionDialog(
-                    modifier = Modifier,
                     file = fileActionDialog!!,
                     root = (currentTab as? FileTreeTab)?.root,
                     onDismissRequest = { fileActionDialog = null },

@@ -196,7 +196,7 @@ fun FileTree(
             }
 
             Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-                if (false) { // TODO: Add loading indicator (see issue #1085)
+                if (viewModel.isFileOperationInProgress()) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxSize())
                 } else {
                     HorizontalDivider()

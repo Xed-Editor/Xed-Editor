@@ -83,7 +83,6 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
         if (fileActionDialog != null && currentTab != null) {
             FileActionDialog(
-                modifier = Modifier,
                 file = fileActionDialog!!,
                 root = root,
                 onDismissRequest = { fileActionDialog = null },
