@@ -81,7 +81,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
             onSearchClick = { searchDialog = true },
         )
 
-        if (fileActionDialog != null && currentTab != null) {
+        if (fileActionDialog != null && currentDrawerTab != null) {
             FileActionDialog(
                 file = fileActionDialog!!,
                 root = root,
