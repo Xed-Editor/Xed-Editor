@@ -693,4 +693,7 @@
     <string name="compact_folders">Sıkıştırılmış klasörler</string>
     <string name="compact_folders_drawer">Çekmecede klasörleri sıkıştır</string>
     <string name="compact_folders_drawer_desc">Çekmecedeki tek bir alt klasöre sahip klasörleri tek bir klasörde birleştirin</string>
+    <string name="auto_save_delay">Otomatik kaydetme gecikmesi</string>
+    <string name="auto_save_delay_desc">Otomatik kaydetmeler arasındaki gecikme süresi (milisaniye cinsinden)</string>
+    <string name="resource_loading_error">Kaynak yüklenemedi</string>
 </resources>
