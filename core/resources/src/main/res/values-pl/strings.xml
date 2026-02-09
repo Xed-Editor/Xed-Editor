@@ -670,7 +670,7 @@
     <string name="commit_complete">Zatwierdzenie zakończone</string>
     <string name="push_complete">Publikacja zakończona</string>
     <string name="new_branch">Nowa gałąź</string>
-    <string name="new_branch_label">Nowa gałąź (bazująca na %1$s gałęzi)</string>
+    <string name="new_branch_label">Nowa gałąź (bazująca na \'%1$s\' gałęzi)</string>
     <string name="git_colorize_files">Koloruj nazwy plików</string>
     <string name="git_colorize_files_desc">Koloruj nazwy plików bazując na statusie</string>
     <string name="git_desc">Konfiguruj system kontroli wersji</string>
@@ -687,4 +687,13 @@
     <string name="commit">Zatwierdź</string>
     <string name="commit_and_push">Zatwierdź i publikuj</string>
     <string name="amend">Zmień</string>
+    <string name="auto_save_delay">Czas automatycznego zapisywania</string>
+    <string name="auto_save_delay_desc">Czas w milisekundach pomiędzy automatycznymi zapisami</string>
+    <string name="push_dialog_message_commits">Zamierzasz opublikować zatwierdzenie/a %1$d do \'%2$s\'. Kontunuować?</string>
+    <string name="push_dialog_message_empty">Brak zatwierdzeń do opublikowania</string>
+    <string name="push_dialog_checkbox_force">Wymuś</string>
+    <string name="compact_folders">Katalogi kompaktowe</string>
+    <string name="compact_folders_drawer">Katalogi kompaktowe w szufladzie</string>
+    <string name="compact_folders_drawer_desc">Zwiń katalogi z jednym podkatalogiem w jeden katalog w szufladzie</string>
+    <string name="resource_loading_error">Nie udało się wczytać zasobu</string>
 </resources>
