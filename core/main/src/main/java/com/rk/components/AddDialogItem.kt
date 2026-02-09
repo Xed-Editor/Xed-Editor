@@ -76,6 +76,8 @@ fun AddDialogItem(icon: Icon, title: String, description: String? = null, onClic
         is Icon.SvgIcon -> {
             AddDialogItem(svgFile = icon.file, title = title, description = description, onClick = onClick)
         }
+
+        else -> throw IllegalArgumentException("Text icons are not supported in dialog items.")
     }
 }
 

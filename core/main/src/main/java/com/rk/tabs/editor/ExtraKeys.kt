@@ -11,9 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -23,16 +21,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
+import com.rk.commands.ToggleableCommand
 import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.settings.ReactiveSettings
 
-private data class ExtraKey(val label: String, val icon: Icon? = null, val enabled: Boolean, val onClick: () -> Unit)
+private data class ExtraKey(
+    val label: String,
+    val icon: Icon,
+    val isOn: Boolean = false,
+    val enabled: Boolean,
+    val onClick: () -> Unit,
+)
 
 @Composable
 fun ExtraKeys(editorTab: EditorTab) {
@@ -43,7 +47,8 @@ fun ExtraKeys(editorTab: EditorTab) {
         commands.map { command ->
             ExtraKey(
                 label = command.getLabel(),
-                icon = command.getIcon(),
+                icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
+                isOn = command is ToggleableCommand && command.isOn(),
                 enabled = command.isEnabled() && command.isSupported(),
                 onClick = { command.performCommand(ActionContext(MainActivity.instance!!)) },
             )
@@ -55,7 +60,7 @@ fun ExtraKeys(editorTab: EditorTab) {
         symbols.map {
             ExtraKey(
                 label = it.toString(),
-                icon = null,
+                icon = Icon.TextIcon(it.toString()),
                 enabled = isEditable,
                 onClick = {
                     val editor = editorTab.editorState.editor.get() ?: return@ExtraKey
@@ -96,6 +101,15 @@ private fun KeyRow(extraKeys: List<ExtraKey>) {
 @Composable
 private fun KeyButton(key: ExtraKey) {
     val hapticFeedback = LocalHapticFeedback.current
+
+    val keyContentColor =
+        when {
+            key.isOn && key.enabled -> MaterialTheme.colorScheme.primary
+            key.isOn -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            key.enabled -> MaterialTheme.colorScheme.onSurface
+            else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+        }
+
     Box(
         contentAlignment = Alignment.Center,
         modifier =
@@ -118,41 +132,11 @@ private fun KeyButton(key: ExtraKey) {
                     },
                 ),
     ) {
-        when (val icon = key.icon) {
-            is Icon.DrawableRes -> {
-                Icon(
-                    painter = painterResource(id = icon.drawableRes),
-                    contentDescription = key.label,
-                    modifier = Modifier.size(16.dp),
-                    tint =
-                        if (key.enabled) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                )
-            }
-
-            is Icon.VectorIcon -> {
-                Icon(
-                    imageVector = icon.vector,
-                    contentDescription = key.label,
-                    modifier = Modifier.size(16.dp),
-                    tint =
-                        if (key.enabled) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                )
-            }
-            else -> {
-                Text(
-                    text = key.label,
-                    fontFamily = FontFamily.Monospace,
-                    color =
-                        if (key.enabled) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                        },
-                    maxLines = 1,
-                )
-            }
-        }
+        XedIcon(
+            icon = key.icon,
+            modifier = Modifier.size(16.dp),
+            contentDescription = key.label,
+            tint = keyContentColor,
+        )
     }
 }

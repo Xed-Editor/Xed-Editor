@@ -60,7 +60,7 @@ fun SettingsEditorScreen(navController: NavController) {
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
         var showAutoSaveDialog by remember { mutableStateOf(false) }
-        var autoSaveDelayValue by remember { mutableStateOf(Settings.tab_size.toString()) }
+        var autoSaveDelayValue by remember { mutableStateOf(Settings.auto_save_delay.toString()) }
         var autoSaveDelayError by remember { mutableStateOf<String?>(null) }
 
         var showSortingModeDialog by remember { mutableStateOf(false) }

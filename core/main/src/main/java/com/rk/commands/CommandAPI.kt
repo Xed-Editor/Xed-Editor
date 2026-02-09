@@ -38,11 +38,13 @@ abstract class Command(val commandContext: CommandContext) {
 
     abstract fun getIcon(): Icon
 
+    open val preferText: Boolean = false
+
     open val childCommands: List<Command> = emptyList()
 
     open fun getChildSearchPlaceholder(): String? = null
 
-    open val sectionEndsBelow: Boolean = false
+    open val sectionId: Int = 0
     open val defaultKeybinds: KeyCombination? = null
 
     /** Executes this command's action, or opens a submenu if [childCommands] are present. */
@@ -62,9 +64,10 @@ abstract class Command(val commandContext: CommandContext) {
         isEnabled: () -> Boolean = { this.isEnabled() },
         isSupported: () -> Boolean = { this.isSupported() },
         icon: () -> Icon = { this.getIcon() },
+        preferText: Boolean = this.preferText,
         childCommands: List<Command> = this.childCommands,
         childSearchPlaceholder: () -> String? = { this.getChildSearchPlaceholder() },
-        sectionEndsBelow: Boolean = this.sectionEndsBelow,
+        sectionId: Int = this.sectionId,
         defaultKeybinds: KeyCombination? = this.defaultKeybinds,
     ): Command {
         return object : Command(commandContext) {
@@ -76,19 +79,21 @@ abstract class Command(val commandContext: CommandContext) {
 
             override fun action(actionContext: ActionContext) = action(actionContext)
 
+            override fun isEnabled(): Boolean = isEnabled()
+
             override fun isSupported(): Boolean = isSupported()
 
-            override fun isEnabled(): Boolean = isEnabled()
+            override fun getIcon(): Icon = icon()
+
+            override val preferText: Boolean = preferText
 
             override val childCommands: List<Command> = childCommands
 
             override fun getChildSearchPlaceholder(): String? = childSearchPlaceholder()
 
-            override val sectionEndsBelow: Boolean = sectionEndsBelow
+            override val sectionId: Int = sectionId
 
             override val defaultKeybinds: KeyCombination? = defaultKeybinds
-
-            override fun getIcon(): Icon = icon()
         }
     }
 
@@ -101,6 +106,10 @@ abstract class Command(val commandContext: CommandContext) {
     }
 
     override fun hashCode(): Int = id.hashCode()
+}
+
+interface ToggleableCommand {
+    fun isOn(): Boolean
 }
 
 abstract class GlobalCommand(commandContext: CommandContext) : Command(commandContext)
