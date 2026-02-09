@@ -49,7 +49,7 @@ fun ExternalProcessServer(dialogState: ExternalLspDialogState) {
                 }
             } else null,
         trailingIcon =
-            if (error != null) {
+            if (dialogState.externalError != null) {
                 { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
             } else null,
     )
@@ -73,7 +73,7 @@ fun ExternalProcessServer(dialogState: ExternalLspDialogState) {
                 }
             } else null,
         trailingIcon =
-            if (extensionsError != null) {
+            if (dialogState.extensionsError != null) {
                 { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
             } else null,
     )

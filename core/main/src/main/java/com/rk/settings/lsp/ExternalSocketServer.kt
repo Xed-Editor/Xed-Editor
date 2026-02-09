@@ -44,7 +44,7 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
                 }
             } else null,
         trailingIcon =
-            if (hostError != null) {
+            if (dialogState.hostError != null) {
                 { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
             } else null,
     )
@@ -76,7 +76,7 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
                 }
             } else null,
         trailingIcon =
-            if (portError != null) {
+            if (dialogState.portError != null) {
                 { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
             } else null,
     )
@@ -99,7 +99,7 @@ fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
                 }
             } else null,
         trailingIcon =
-            if (extensionsError != null) {
+            if (dialogState.extensionsError != null) {
                 { Icon(XedIcons.Error, stringResource(strings.error), tint = MaterialTheme.colorScheme.error) }
             } else null,
     )
