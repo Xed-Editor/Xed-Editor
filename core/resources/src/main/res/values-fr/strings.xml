@@ -687,7 +687,16 @@
     <string name="commit_complete">Commit terminé</string>
     <string name="push_complete">Push terminé</string>
     <string name="new_branch">Nouvelle branche</string>
-    <string name="new_branch_label">Nouvelle branche (basée sur la branche %1$s)</string>
+    <string name="new_branch_label">Nouvelle branche (basée sur la branche \'%1$s\')</string>
     <string name="git_colorize_files">Colorer les noms de fichier</string>
     <string name="git_colorize_files_desc">Colorie les noms de fichier selon leur statut dans Git</string>
+    <string name="auto_save_delay">Intervalle de sauvegarde auto</string>
+    <string name="auto_save_delay_desc">Durée en millisecondes entre sauvegardes automatiques</string>
+    <string name="push_dialog_message_commits">Vous êtes sur le point de pousser %1$d commit(s) vers \'%2$s\'. Continuer ?</string>
+    <string name="push_dialog_message_empty">Il n\'y a aucun commit à pousser</string>
+    <string name="push_dialog_checkbox_force">Forcer</string>
+    <string name="compact_folders">Replier les dossiers</string>
+    <string name="compact_folders_drawer">Replier les dossiers dans le tiroir</string>
+    <string name="compact_folders_drawer_desc">Replier les dossiers n\'ayant qu\'un élément comme un seul dossier dans le tiroir</string>
+    <string name="resource_loading_error">Échec du chargement de la ressource</string>
 </resources>
