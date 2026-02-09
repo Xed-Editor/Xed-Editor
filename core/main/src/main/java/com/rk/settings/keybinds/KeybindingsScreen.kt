@@ -211,14 +211,12 @@ fun KeybindItem(
             }
         },
         endWidget = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = keyCombination?.getDisplayName() ?: stringResource(strings.none_set),
-                    fontFamily = FontFamily.Monospace,
-                    style = Typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
+            Text(
+                text = keyCombination?.getDisplayName() ?: stringResource(strings.none_set),
+                fontFamily = FontFamily.Monospace,
+                style = Typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
         },
     )
 }

@@ -13,10 +13,11 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
 class HTML() : BaseLspServer() {
-    override val id: String = "html-lsp"
+    override val id: String = "html"
     override val languageName: String = "HTML"
     override val serverName = "vscode-html-language-server"
     override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
+    override val icon = FileType.HTML.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

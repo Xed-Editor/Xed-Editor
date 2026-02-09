@@ -15,10 +15,11 @@ import com.rk.lsp.LspConnectionConfig
 import org.eclipse.lsp4j.DidChangeConfigurationParams
 
 class Python() : BaseLspServer() {
-    override val id: String = "python-lsp"
+    override val id: String = "python"
     override val languageName: String = "Python"
     override val serverName = "python-lsp-server"
     override val supportedExtensions: List<String> = FileType.PYTHON.extensions
+    override val icon = FileType.PYTHON.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

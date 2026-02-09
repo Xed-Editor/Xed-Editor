@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -64,7 +65,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                         title = strings.force_crash.getString(),
                         msg = strings.force_crash_confirm.getString(),
                         onCancel = {},
-                        onOk = { Thread { throw HarmlessException("Force Crash") }.start() },
+                        onOk = { Thread { throw HarmlessException("Force crash") }.start() },
                     )
                 },
             )
@@ -129,6 +130,14 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     Settings.shown_disclaimer = false
                     toast(strings.restart_required)
                 },
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.view_logs),
+                description = stringResource(strings.view_app_logs),
+                default = false,
+                showSwitch = false,
+                onClick = { navController.navigate(SettingsRoutes.AppLogs.route) },
             )
         }
     }
