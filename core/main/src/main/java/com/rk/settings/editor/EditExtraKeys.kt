@@ -56,7 +56,7 @@ import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
 
 const val DEFAULT_EXTRA_KEYS_COMMANDS =
-    "global.command_palette|editor.emulate_key.tab|editor.emulate_key.dpad_left|editor.emulate_key.dpad_up|editor.emulate_key.dpad_right|editor.emulate_key.dpad_down"
+    "global.command_palette|editor.emulate_key.tab|editor.emulate_key.shift|editor.emulate_key.dpad_left|editor.emulate_key.dpad_up|editor.emulate_key.dpad_right|editor.emulate_key.dpad_down"
 const val DEFAULT_EXTRA_KEYS_SYMBOLS = "()\"{}[];"
 
 @Composable
