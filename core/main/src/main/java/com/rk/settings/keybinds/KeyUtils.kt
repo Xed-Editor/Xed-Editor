@@ -1,11 +1,27 @@
 package com.rk.settings.keybinds
 
 import android.view.KeyEvent
+import com.rk.icons.Icon
 import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
 
 data object KeyUtils {
     fun getKeyDisplayName(keyCode: Int): String {
         when (keyCode) {
+            KeyEvent.KEYCODE_SHIFT_LEFT,
+            KeyEvent.KEYCODE_SHIFT_RIGHT,
+            KeyEvent.META_SHIFT_ON -> return strings.shift.getString()
+            KeyEvent.KEYCODE_CTRL_LEFT,
+            KeyEvent.KEYCODE_CTRL_RIGHT,
+            KeyEvent.META_CTRL_ON -> return strings.ctrl.getString()
+            KeyEvent.KEYCODE_ALT_LEFT,
+            KeyEvent.KEYCODE_ALT_RIGHT,
+            KeyEvent.META_ALT_ON -> return strings.alt.getString()
+            KeyEvent.KEYCODE_META_LEFT,
+            KeyEvent.KEYCODE_META_RIGHT,
+            KeyEvent.META_META_ON -> return "Meta"
+
             KeyEvent.KEYCODE_DPAD_DOWN -> return "Arrow Down"
             KeyEvent.KEYCODE_DPAD_UP -> return "Arrow Up"
             KeyEvent.KEYCODE_DPAD_LEFT -> return "Arrow Left"
@@ -68,21 +84,24 @@ data object KeyUtils {
         return KeyEvent.keyCodeFromString("KEYCODE_${keyName}")
     }
 
-    fun getKeyIcon(keyCode: Int): Int {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_DOWN -> drawables.kbd_arrow_down
-            KeyEvent.KEYCODE_DPAD_UP -> drawables.kbd_arrow_up
-            KeyEvent.KEYCODE_DPAD_LEFT -> drawables.kbd_arrow_left
-            KeyEvent.KEYCODE_DPAD_RIGHT -> drawables.kbd_arrow_right
-            KeyEvent.KEYCODE_DEL -> drawables.backspace
-            KeyEvent.KEYCODE_FORWARD_DEL -> drawables.backspace_mirrored
-            KeyEvent.KEYCODE_TAB -> drawables.kbd_tab
-            else -> drawables.keyboard
-        }
+    fun getKeyIcon(keyCode: Int): Icon {
+        return Icon.DrawableRes(
+            when (keyCode) {
+                KeyEvent.KEYCODE_SHIFT_LEFT -> drawables.shift
+                KeyEvent.KEYCODE_DPAD_DOWN -> drawables.kbd_arrow_down
+                KeyEvent.KEYCODE_DPAD_UP -> drawables.kbd_arrow_up
+                KeyEvent.KEYCODE_DPAD_LEFT -> drawables.kbd_arrow_left
+                KeyEvent.KEYCODE_DPAD_RIGHT -> drawables.kbd_arrow_right
+                KeyEvent.KEYCODE_DEL -> drawables.backspace
+                KeyEvent.KEYCODE_FORWARD_DEL -> drawables.backspace_mirrored
+                KeyEvent.KEYCODE_TAB -> drawables.kbd_tab
+                else -> drawables.keyboard
+            }
+        )
     }
 
-    fun isModifierKey(event: KeyEvent): Boolean =
-        event.keyCode in
+    fun isModifierKey(keyCode: Int): Boolean {
+        return keyCode in
             listOf(
                 KeyEvent.KEYCODE_CTRL_LEFT,
                 KeyEvent.KEYCODE_CTRL_RIGHT,
@@ -93,7 +112,13 @@ data object KeyUtils {
                 KeyEvent.KEYCODE_ALT_LEFT,
                 KeyEvent.KEYCODE_ALT_RIGHT,
                 KeyEvent.META_ALT_ON,
+                KeyEvent.KEYCODE_META_LEFT,
+                KeyEvent.KEYCODE_META_RIGHT,
+                KeyEvent.META_META_ON,
             )
+    }
+
+    fun isModifierKey(event: KeyEvent): Boolean = isModifierKey(event.keyCode)
 
     fun isModifierKey(event: androidx.compose.ui.input.key.KeyEvent): Boolean = isModifierKey(event.nativeKeyEvent)
 }

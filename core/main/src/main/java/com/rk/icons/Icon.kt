@@ -9,4 +9,6 @@ sealed class Icon {
     class VectorIcon(val vector: ImageVector) : Icon()
 
     class SvgIcon(val file: File) : Icon()
+
+    class TextIcon(val text: String) : Icon()
 }

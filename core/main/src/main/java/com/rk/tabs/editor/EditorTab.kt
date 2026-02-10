@@ -490,7 +490,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
     @Composable
     override fun RowScope.Actions() {
-        EditorActions(modifier = Modifier.Companion, viewModel = viewModel)
+        EditorToolbarActions(viewModel = viewModel)
     }
 
     override val showGlobalActions: Boolean = false

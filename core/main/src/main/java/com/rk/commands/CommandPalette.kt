@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -93,6 +95,8 @@ fun CommandPalette(
             }
         }
 
+    val groupedCommands = filteredCommands.groupBy { it.sectionId }
+
     val offsetY = with(LocalDensity.current) { (1f - progress) * 100.dp.toPx() }
 
     XedDialog(
@@ -143,21 +147,27 @@ fun CommandPalette(
                 },
             ) { isSubpage ->
                 LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
-                    items(items = filteredCommands, key = { it.id }) { command ->
-                        Box(modifier = Modifier.animateItem()) {
-                            val isRecentlyUsed = command == lastUsedCommand
-                            CommandItem(
-                                command,
-                                isRecentlyUsed,
-                                searchQuery,
-                                onDismissRequest,
-                                onNavigateToChildren = { placeholder, commands ->
-                                    childCommands = commands
-                                    placeholderOverride = placeholder
-                                    searchQuery = ""
-                                },
-                                isSubpage = isSubpage,
-                            )
+                    groupedCommands.forEach { (index, commands) ->
+                        items(items = commands, key = { it.id }) { command ->
+                            Box(modifier = Modifier.animateItem()) {
+                                val isRecentlyUsed = command == lastUsedCommand
+                                CommandItem(
+                                    command,
+                                    isRecentlyUsed,
+                                    searchQuery,
+                                    onDismissRequest,
+                                    onNavigateToChildren = { placeholder, commands ->
+                                        childCommands = commands
+                                        placeholderOverride = placeholder
+                                        searchQuery = ""
+                                    },
+                                    isSubpage = isSubpage,
+                                )
+                            }
+                        }
+
+                        if (index != groupedCommands.keys.last()) {
+                            item { HorizontalDivider() }
                         }
                     }
                 }
@@ -221,6 +231,10 @@ fun CommandItem(
                         icon = command.getIcon(),
                         modifier = Modifier.padding(end = 8.dp).size(16.dp),
                         contentDescription = command.getLabel(),
+                        tint =
+                            if (command is ToggleableCommand && command.isOn()) {
+                                MaterialTheme.colorScheme.primary
+                            } else LocalContentColor.current,
                     )
 
                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -231,6 +245,12 @@ fun CommandItem(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.weight(1f),
+                                color =
+                                    if (command is ToggleableCommand && command.isOn()) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        Color.Unspecified
+                                    },
                             )
                             if (recentlyUsed) {
                                 Text(
@@ -278,9 +298,5 @@ fun CommandItem(
                 }
             },
         )
-
-        if (command.sectionEndsBelow) {
-            HorizontalDivider()
-        }
     }
 }

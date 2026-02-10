@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import com.rk.components.GlobalActions
+import com.rk.components.GlobalToolbarActions
 import com.rk.components.isPermanentDrawer
 import com.rk.resources.strings
 import com.rk.terminal.isV
@@ -50,7 +50,7 @@ fun XedTopBar(
             }
         },
         actions = {
-            GlobalActions(viewModel)
+            GlobalToolbarActions(viewModel)
 
             if (viewModel.tabs.isNotEmpty()) {
                 val tab =
