@@ -36,7 +36,7 @@ composeBom = "2025.11.01"
 coilCompose = "2.7.0"
 navigationCompose = "2.9.6"
 ktfmt = "0.25.0"
-jgit = "7.5.0.202512021534-r"
+jgit = "6.6.1.202309021850-r"
 
 tsBinding = "4.3.1"
 lsp4j = "0.24.0"
