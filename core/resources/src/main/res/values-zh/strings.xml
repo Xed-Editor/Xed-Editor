@@ -687,4 +687,12 @@
     <string name="push">推送</string>
     <string name="fetch">获取</string>
     <string name="push_dialog_message_commits">您即将向 \'%2$s\' 推送 %1$d 个提交。是否继续？</string>
+    <string name="auto_save_delay">自动保存延迟</string>
+    <string name="auto_save_delay_desc">自动保存之间的延迟时间（毫秒）</string>
+    <string name="push_dialog_message_empty">目前没有要推送的提交</string>
+    <string name="push_dialog_checkbox_force">强制</string>
+    <string name="compact_folders">紧凑文件夹</string>
+    <string name="compact_folders_drawer">在侧滑栏中以紧凑形式呈现文件夹</string>
+    <string name="compact_folders_drawer_desc">将只有一个子文件的目录在侧边栏中合并显示</string>
+    <string name="resource_loading_error">加载资源失败</string>
 </resources>
