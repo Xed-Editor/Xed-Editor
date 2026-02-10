@@ -86,7 +86,7 @@ class EmulateKeyCommand(commandContext: CommandContext) : EditorCommand(commandC
             object : EditorCommand(commandContext), ToggleableCommand {
                 override val id: String = "editor.emulate_key.${keyDisplayName.lowercase()}"
 
-                override val preferText: Boolean = true
+                override val preferText: Boolean = metaEvent.keyCode != KeyEvent.KEYCODE_SHIFT_LEFT
 
                 override fun getLabel(): String = keyDisplayName
 

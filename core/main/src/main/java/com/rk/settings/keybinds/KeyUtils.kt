@@ -87,6 +87,7 @@ data object KeyUtils {
     fun getKeyIcon(keyCode: Int): Icon {
         return Icon.DrawableRes(
             when (keyCode) {
+                KeyEvent.KEYCODE_SHIFT_LEFT -> drawables.shift
                 KeyEvent.KEYCODE_DPAD_DOWN -> drawables.kbd_arrow_down
                 KeyEvent.KEYCODE_DPAD_UP -> drawables.kbd_arrow_up
                 KeyEvent.KEYCODE_DPAD_LEFT -> drawables.kbd_arrow_left
