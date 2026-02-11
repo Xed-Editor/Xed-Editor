@@ -87,24 +87,19 @@ fun FileTreeNodeItem(
         }
 
     var displayedChildren by remember { mutableStateOf(children) }
+    var displayName by remember { mutableStateOf(node.name) }
+
     LaunchedEffect(children, ReactiveSettings.compactFoldersDrawer) {
         displayedChildren =
             if (ReactiveSettings.compactFoldersDrawer && children.size == 1 && children[0].isDirectory) {
                 val collapsedNode = viewModel.collapseNode(node)
                 viewModel.getNodeChildren(collapsedNode)
             } else children
+        displayName =
+            if (ReactiveSettings.compactFoldersDrawer && isExpanded) {
+                viewModel.getCollapsedName(node)
+            } else node.name
     }
-
-    val displayName by
-        remember(ReactiveSettings.compactFoldersDrawer) {
-            derivedStateOf {
-                if (ReactiveSettings.compactFoldersDrawer) {
-                    viewModel.getCollapsedName(node)
-                } else {
-                    node.name
-                }
-            }
-        }
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
