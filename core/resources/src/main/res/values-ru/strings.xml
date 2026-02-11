@@ -687,4 +687,8 @@
     <string name="auto_save_delay_desc">Интервал между автосохранениями (в миллисекундах)</string>
     <string name="actions">Действия</string>
     <string name="resource_loading_error">Не удалось загрузить ресурс</string>
+    <string name="terminate_all_sessions">Завершать все сеансы</string>
+    <string name="terminate_all_sessions_desc">Принудительно завершать все сеансы терминала при закрытии приложения</string>
+    <string name="use">Открыть с помощью…</string>
+    <string name="default_option">По умолчанию</string>
 </resources>
