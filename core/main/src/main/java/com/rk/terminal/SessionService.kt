@@ -149,7 +149,7 @@ class SessionService : Service() {
                 updateNotification()
             }
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
 
     private fun createNotification(): Notification {
@@ -174,7 +174,7 @@ class SessionService : Service() {
         val wakelockPendingIntent =
             PendingIntent.getService(
                 this,
-                1,
+                2,
                 wakeLockIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
