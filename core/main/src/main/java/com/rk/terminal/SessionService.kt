@@ -98,7 +98,7 @@ class SessionService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
-        if (Settings.terminate_sessions_on_exit){
+        if (Settings.terminate_sessions_on_exit) {
             actionExit()
         }
     }
@@ -125,7 +125,7 @@ class SessionService : Service() {
 
     var wakeLock: PowerManager.WakeLock? = null
 
-    private fun actionExit(){
+    private fun actionExit() {
         sessions.forEach { s -> s.value.finishIfRunning() }
         if (deamonRunning) {
             deamonRunning = false

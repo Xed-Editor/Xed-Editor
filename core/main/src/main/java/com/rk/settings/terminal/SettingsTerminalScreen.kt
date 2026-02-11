@@ -254,10 +254,12 @@ fun SettingsTerminalScreen() {
         }
 
         PreferenceGroup {
-            SettingsToggle(label = stringResource(strings.terminate_all_sessions), description = stringResource(
-                strings.terminate_all_sessions_desc), default = Settings.terminate_sessions_on_exit, sideEffect = {
-                Settings.terminate_sessions_on_exit = it
-            })
+            SettingsToggle(
+                label = stringResource(strings.terminate_all_sessions),
+                description = stringResource(strings.terminate_all_sessions_desc),
+                default = Settings.terminate_sessions_on_exit,
+                sideEffect = { Settings.terminate_sessions_on_exit = it },
+            )
 
             SettingsToggle(
                 label = stringResource(strings.project_as_wk),
