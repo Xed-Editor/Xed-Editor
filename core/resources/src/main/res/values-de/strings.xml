@@ -694,4 +694,6 @@
     <string name="compact_folders_drawer">Kompakte Ordner im Drawer</string>
     <string name="compact_folders_drawer_desc">Ordner mit nur einem Unterordner im Drawer zu einem Ordner zusammenfassen</string>
     <string name="resource_loading_error">Ressource konnte nicht geladen werden</string>
+    <string name="terminate_all_sessions">Alle Sitzungen beenden</string>
+    <string name="terminate_all_sessions_desc">Alle Terminal-Sitzungen beim Schließen der App beenden</string>
 </resources>
