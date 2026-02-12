@@ -696,4 +696,6 @@
     <string name="auto_save_delay">Otomatik kaydetme gecikmesi</string>
     <string name="auto_save_delay_desc">Otomatik kaydetmeler arasındaki gecikme süresi (milisaniye cinsinden)</string>
     <string name="resource_loading_error">Kaynak yüklenemedi</string>
+    <string name="terminate_all_sessions">Tüm oturumları sonlandır</string>
+    <string name="terminate_all_sessions_desc">Uygulama kapatıldığında tüm terminal oturumlarını sonlandır</string>
 </resources>
