@@ -85,8 +85,9 @@ ensure_packages_once() {
     if export DEBIAN_FRONTEND=noninteractive && \
        apt update -y && \
        apt install -y "${MISSING[@]}"; then
-        touch "$marker_file"
-        info "Packages installed."
+       touch "$marker_file"
+       clear
+       info "Setup complete."
     else
         error "Failed to install packages."
         return 1
