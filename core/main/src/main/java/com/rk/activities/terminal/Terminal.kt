@@ -15,7 +15,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -323,43 +322,27 @@ class Terminal : AppCompatActivity() {
         }
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-
             val context = LocalContext.current
             val activity = context as? Activity
 
             DisposableEffect(Unit) {
                 activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-                onDispose {
-                    activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                }
+                onDispose { activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
             }
-
 
             if (installNextStage == null) {
                 if (needsDownload) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    ) {
-
+                    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                         Column(
                             modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-
-                            Text(
-                                text = progressText,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                            Text(text = progressText, style = MaterialTheme.typography.bodyLarge)
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            LinearProgressIndicator(
-                                progress = { progress },
-                                modifier = Modifier.fillMaxWidth(0.8f)
-                            )
+                            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(0.8f))
 
                             if (totalBytes > 0) {
                                 val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
@@ -373,18 +356,13 @@ class Terminal : AppCompatActivity() {
                             }
                         }
 
-
                         Text(
                             text = stringResource(strings.warn_dont_leave_setup),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 8.dp)
+                            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp),
                         )
                     }
-
-
                 }
             } else {
                 TerminalScreen(terminalActivity = this@Terminal)
