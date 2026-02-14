@@ -8,11 +8,16 @@ export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 source "$LOCAL/bin/utils"
 
+echo 'Acquire::Languages "none";' | sudo tee /etc/apt/apt.conf.d/99translations
+
 if dpkg -l | grep -q "^ii  coreutils-from-uutils"; then
     info "uutils coreutils detected."
+
+    apt update -q
+
     info "Removing coreutils-from-uutils..."
 
-    apt-get -y --allow-remove-essential remove coreutils-from-uutils || {
+    apt-get --allow-remove-essential remove coreutils-from-uutils rust-coreutils -y || {
         error "Failed to remove uutils."
         exit 1
     }
