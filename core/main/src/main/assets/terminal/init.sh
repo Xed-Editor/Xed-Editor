@@ -2,7 +2,29 @@
 force_color_prompt=yes
 shopt -s checkwinsize
 
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$LOCAL/bin:$PATH
+export SHELL="bash"
+export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
+
 source "$LOCAL/bin/utils"
+
+if dpkg -l | grep -q "^ii  coreutils-from-uutils"; then
+    info "uutils coreutils detected."
+    info "Removing coreutils-from-uutils..."
+
+    apt-get -y --allow-remove-essential remove coreutils-from-uutils || {
+        error "Failed to remove uutils."
+        exit 1
+    }
+
+    info "Installing GNU coreutils..."
+
+    apt-get -y install coreutils-from-gnu || {
+        error "Failed to install GNU coreutils."
+        exit 1
+    }
+
+fi
 
 # Set timezone
 CONTAINER_TIMEZONE="UTC"  # or any timezone like "Asia/Kolkata"
@@ -16,48 +38,12 @@ echo "$CONTAINER_TIMEZONE" > /etc/timezone
 # Reconfigure tzdata to apply without prompts
 DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata >/dev/null 2>&1
 
-ALPINE_DIR="$LOCAL/alpine"
-RETAINED_FILE="$ALPINE_DIR/.retained"
-
-if [ -d "$ALPINE_DIR" ]; then
-  if [ -f "$RETAINED_FILE" ]; then
-    :
-  else
-    info "Detected existing Alpine installation"
-    printf "\nXed-editor has now migrated from Alpine to Ubuntu for better compatibility and support.\n\n"
-
-    if confirm "Do you want to migrate your home data from Alpine to Ubuntu?"; then
-      info "Migrating data..."
-      mkdir -p "/home/alpine-data"
-      cp -r "$ALPINE_DIR/root" "/home/alpine-data/"
-      cp -r "$ALPINE_DIR/home" "/home/alpine-data/"
-
-      info "Data migration completed."
-    else
-      warn "Skipped data migration."
-    fi
-
-    if confirm "Do you want to delete the Alpine installation to free up space?"; then
-      info "Deleting Alpine installation..."
-      xed exec rm -rf "$ALPINE_DIR"
-      info "Alpine has been removed."
-    else
-      warn "Alpine installation retained."
-      touch "$RETAINED_FILE"
-    fi
-  fi
-fi
-
 
 if [[ -f ~/.bashrc ]]; then
     # shellcheck disable=SC1090
     source ~/.bashrc
 fi
 
-
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$LOCAL/bin:$PATH
-export SHELL="bash"
-export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 ensure_packages_once() {
     local marker_file="/.cache/.packages_ensured"
@@ -136,5 +122,3 @@ fi
 
 # shellcheck disable=SC2164
 cd "$WKDIR" || cd $HOME
-
-
