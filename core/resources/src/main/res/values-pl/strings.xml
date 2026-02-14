@@ -698,4 +698,5 @@
     <string name="resource_loading_error">Nie udało się wczytać zasobu</string>
     <string name="terminate_all_sessions">Zakończ wszystkie sesje</string>
     <string name="terminate_all_sessions_desc">Zakończ wszystkie sesje podczas zamykania aplikacji</string>
+    <string name="warn_dont_leave_setup">⚠ Nie zamykaj aplikacji podczas konfigurowania</string>
 </resources>
