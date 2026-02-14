@@ -436,8 +436,8 @@ private const val proot_aarch64 = "https://raw.githubusercontent.com/Xed-Editor/
 private const val proot_x86_64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
 
 private const val sandbox_arm =
-    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-26.04-base-armhf.tar.gz"
+    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-25.10-base-armhf.tar.gz"
 private const val sandbox_aarch64 =
-    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-26.04-base-arm64.tar.gz"
+    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-25.10-base-arm64.tar.gz"
 private const val sandbox_x86_64 =
-    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-26.04-base-amd64.tar.gz"
+    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-25.10-base-amd64.tar.gz"
