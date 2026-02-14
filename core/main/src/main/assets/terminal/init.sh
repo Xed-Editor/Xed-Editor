@@ -8,7 +8,10 @@ export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 source "$LOCAL/bin/utils"
 
-echo 'Acquire::Languages "none";' | sudo tee /etc/apt/apt.conf.d/99translations
+if [ ! -f /etc/apt/apt.conf.d/99translations ]; then
+    echo 'Acquire::Languages "none";' > /etc/apt/apt.conf.d/99translations
+fi
+
 
 if dpkg -l | grep -q "^ii  coreutils-from-uutils"; then
     info "uutils coreutils detected."
@@ -32,7 +35,7 @@ if dpkg -l | grep -q "^ii  coreutils-from-uutils"; then
 fi
 
 # Set timezone
-CONTAINER_TIMEZONE="UTC"  # or any timezone like "Asia/Kolkata"
+CONTAINER_TIMEZONE="UTC"
 
 # Symlink /etc/localtime to the desired timezone
 ln -snf "/usr/share/zoneinfo/$CONTAINER_TIMEZONE" /etc/localtime
