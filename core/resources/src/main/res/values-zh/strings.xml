@@ -695,4 +695,7 @@
     <string name="compact_folders_drawer">在侧滑栏中以紧凑形式呈现文件夹</string>
     <string name="compact_folders_drawer_desc">将只有一个子文件的目录在侧边栏中合并显示</string>
     <string name="resource_loading_error">加载资源失败</string>
+    <string name="terminate_all_sessions">终止所有会话</string>
+    <string name="terminate_all_sessions_desc">应用程序关闭时终止所有终端会话</string>
+    <string name="warn_dont_leave_setup">⚠ 设置过程中请勿离开此屏幕</string>
 </resources>
