@@ -26,6 +26,14 @@ class SearchViewModel : ViewModel() {
         return isIndexing[projectRoot] ?: false
     }
 
+    data class IndexingStats(val totalFiles: Int, val databaseSize: Long)
+
+    suspend fun getStats(context: Context, projectRoot: FileObject): IndexingStats {
+        val totalFiles = getDatabase(context, projectRoot).fileMetaDao().getAll().size
+        val databaseSize = IndexDatabase.getDatabaseSize(context, projectRoot)
+        return IndexingStats(totalFiles, databaseSize)
+    }
+
     private fun getDatabase(context: Context, projectRoot: FileObject): IndexDatabase {
         return IndexDatabase.getDatabase(context, projectRoot)
     }
@@ -298,6 +306,8 @@ class SearchViewModel : ViewModel() {
     }
 
     suspend fun index(context: Context, projectRoot: FileObject) {
+        isIndexing[projectRoot] = true
+
         val database = getDatabase(context, projectRoot)
         val codeLineDao = database.codeIndexDao()
         val fileMetaDao = database.fileMetaDao()
@@ -309,7 +319,6 @@ class SearchViewModel : ViewModel() {
         val newFileMetas = mutableListOf<FileMeta>()
 
         try {
-            isIndexing[projectRoot] = true
             indexRecursively(projectRoot, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
             updateIndex(database, indexedFiles, pathsToKeep, codeLineDao, fileMetaDao, newCodeLines, newFileMetas)
         } finally {
@@ -321,6 +330,8 @@ class SearchViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val databases = IndexDatabase.findDatabasesFor(file)
             for (database in databases) {
+                isIndexing[database.projectRoot] = true
+
                 val codeLineDao = database.codeIndexDao()
                 val fileMetaDao = database.fileMetaDao()
 
@@ -331,7 +342,6 @@ class SearchViewModel : ViewModel() {
                 val newFileMetas = mutableListOf<FileMeta>()
 
                 try {
-                    isIndexing[database.projectRoot] = true
                     if (file == database.projectRoot) {
                         indexRecursively(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
                     } else {

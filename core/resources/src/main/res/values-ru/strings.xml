@@ -432,8 +432,8 @@
     <string name="go_to_definition">Перейти к определению</string>
     <string name="go_to_references">Перейти к источникам</string>
     <string name="rename_symbol">Переименовать символ</string>
-    <string name="go_to_definition_desc">Выберите одно из определений %d, чтобы перейти к их расположению.</string>
-    <string name="go_to_references_desc">Выберите один из источников %d, чтобы перейти к его расположению.</string>
+    <string name="go_to_definition_desc">Выберите одно из определений %s, чтобы перейти к их расположению.</string>
+    <string name="go_to_references_desc">Выберите один из источников %s, чтобы перейти к его расположению.</string>
     <string name="no_definitions_found">Определения не найдены.</string>
     <string name="no_references_found">Ссылки не найдены.</string>
     <string name="find_definitions_error">Не удается найти определения.</string>
@@ -516,7 +516,7 @@
     <string name="enter_code_snippet">Введите фрагмент кода</string>
     <string name="enter_query_to_search">Введите поисковый запрос для поиска в файлах</string>
     <string name="no_results">Результаты не найдены</string>
-    <string name="results">Найдено %d вхождений</string>
+    <string name="results">Найдено %s вхождений</string>
     <string name="enter_name">Введите название</string>
     <string name="show_hidden_files_drawer">Показать скрытые файлы в боковой панели</string>
     <string name="show_hidden_files_drawer_desc">Показывать скрытые файлы или папки, такие как .git, в боковой панели</string>

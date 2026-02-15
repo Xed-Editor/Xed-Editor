@@ -438,8 +438,8 @@
     <string name="rename_symbol">மறுபெயரிடு அடையாளம்</string>
     <string name="format_document">ஆவணத்தை வடிவமைக்கவும்</string>
     <string name="format_selection">வடிவமைப்பு தேர்வு</string>
-    <string name="go_to_definition_desc">அவற்றின் இருப்பிடத்திற்குச் செல்ல %d வரையறைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்.</string>
-    <string name="go_to_references_desc">அவற்றின் இருப்பிடத்திற்குச் செல்ல %d குறிப்புகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="go_to_definition_desc">அவற்றின் இருப்பிடத்திற்குச் செல்ல %s வரையறைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="go_to_references_desc">அவற்றின் இருப்பிடத்திற்குச் செல்ல %s குறிப்புகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்.</string>
     <string name="no_definitions_found">வரையறைகள் இல்லை.</string>
     <string name="no_references_found">குறிப்புகள் எதுவும் இல்லை.</string>
     <string name="find_definitions_error">வரையறைகளைக் கண்டுபிடிக்க முடியவில்லை.</string>
@@ -513,7 +513,7 @@
     <string name="enter_code_snippet">குறியீடு துணுக்கை உள்ளிடவும்</string>
     <string name="enter_query_to_search">கோப்புகளில் தேட தேடல் வினவலை உள்ளிடவும்</string>
     <string name="no_results">முடிவுகள் எதுவும் கிடைக்கவில்லை</string>
-    <string name="results">%d முடிவுகள் கிடைத்தன</string>
+    <string name="results">%s முடிவுகள் கிடைத்தன</string>
     <string name="enter_name">ஒரு பெயரை உள்ளிடவும்</string>
     <string name="show_hidden_files_drawer">டிராயரில் மறைக்கப்பட்ட கோப்புகளைக் காட்டு</string>
     <string name="show_hidden_files_drawer_desc">மறைக்கப்பட்ட கோப்புகள் அல்லது .git போன்ற கோப்புறைகளை டிராயரில் காட்டு</string>

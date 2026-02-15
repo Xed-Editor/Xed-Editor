@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.FlowPreview
 
 @OptIn(FlowPreview::class)
@@ -113,6 +115,8 @@ fun CodeSearchDialog(
                 if (searchViewModel.isIndexing(projectFile) || isSearching) {
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
                 }
+                val numberFormatter = rememberNumberFormatter()
+                val resultCount by remember { derivedStateOf { numberFormatter.format(searchResults.size) } }
                 Text(
                     stringResource(
                             when {
@@ -121,7 +125,7 @@ fun CodeSearchDialog(
                                 else -> strings.no_results
                             }
                         )
-                        .fillPlaceholders(searchResults.size)
+                        .fillPlaceholders(resultCount)
                 )
             }
 

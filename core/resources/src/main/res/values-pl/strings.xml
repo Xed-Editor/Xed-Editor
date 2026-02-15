@@ -431,8 +431,8 @@
     <string name="go_to_definition">Przejdź do definic}i</string>
     <string name="go_to_references">Przejdź do referencji</string>
     <string name="rename_symbol">Zmień nazwę symbolu</string>
-    <string name="go_to_definition_desc">Wybierz jedną z %d definicji, aby przejść do lokalizacji.</string>
-    <string name="go_to_references_desc">Wybierz jedną z %d referencji, aby przejść do lokalizacji.</string>
+    <string name="go_to_definition_desc">Wybierz jedną z %s definicji, aby przejść do lokalizacji.</string>
+    <string name="go_to_references_desc">Wybierz jedną z %s referencji, aby przejść do lokalizacji.</string>
     <string name="no_definitions_found">Nie znaleziono definicji.</string>
     <string name="no_references_found">Nie znaleziono referencji.</string>
     <string name="find_definitions_error">Nie można znaleść definicji.</string>
@@ -513,7 +513,7 @@
     <string name="enter_code_snippet">Wprowadź fragment kodu</string>
     <string name="enter_query_to_search">Wprowadź zapytanie aby wyszukać w plikach</string>
     <string name="no_results">Brak wyników</string>
-    <string name="results">Znaleziono: %d</string>
+    <string name="results">Znaleziono: %s</string>
     <string name="enter_name">Wprowadź nazwę</string>
     <string name="show_hidden_files_drawer">Pokaż ukryte pliki w szufladzie</string>
     <string name="show_hidden_files_drawer_desc">Pokaż ukryte pliki oraz foldery jak .git w szufladzie</string>

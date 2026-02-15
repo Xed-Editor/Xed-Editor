@@ -97,5 +97,9 @@ abstract class IndexDatabase : RoomDatabase() {
 
             return databases
         }
+
+        fun getDatabaseSize(context: Context, projectRoot: FileObject): Long {
+            return context.getDatabasePath("index_database_${projectRoot.hashCode()}").length()
+        }
     }
 }

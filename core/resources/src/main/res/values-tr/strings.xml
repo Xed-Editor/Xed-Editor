@@ -431,8 +431,8 @@
     <string name="go_to_definition">Tanıma git</string>
     <string name="go_to_references">Referanslara git</string>
     <string name="rename_symbol">Sembolü yeniden adlandır</string>
-    <string name="go_to_definition_desc">Konumuna gitmek için %d tanımdan birini seçin.</string>
-    <string name="go_to_references_desc">Konumuna gitmek için %d referansından birini seçin.</string>
+    <string name="go_to_definition_desc">Konumuna gitmek için %s tanımdan birini seçin.</string>
+    <string name="go_to_references_desc">Konumuna gitmek için %s referansından birini seçin.</string>
     <string name="no_definitions_found">Herhangi bir tanım bulunamadı.</string>
     <string name="no_references_found">Herhangi bir referans bulunamadı.</string>
     <string name="find_definitions_error">Tanımlar bulunamadı.</string>
@@ -511,7 +511,7 @@
     <string name="enter_code_snippet">Kod parçacığı girin</string>
     <string name="enter_query_to_search">Dosyalarda bulmak için bir arama sorgusu girin</string>
     <string name="no_results">Sonuç bulunamadı</string>
-    <string name="results">%d sonuç bulundu</string>
+    <string name="results">%s sonuç bulundu</string>
     <string name="enter_name">Ad giriniz</string>
     <string name="show_hidden_files_drawer">Gizli dosyaları çekmecede göster</string>
     <string name="show_hidden_files_drawer_desc">Gizli dosya veya klasörleri (.git gibi) çekmecede göster</string>

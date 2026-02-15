@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -56,6 +57,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -430,4 +432,19 @@ private val binaryExtensions: Set<String> =
 
 fun isBinaryExtension(fileExt: String): Boolean {
     return fileExt.lowercase() in binaryExtensions
+}
+
+fun formatFileSize(bytes: Long): String {
+    if (bytes < 1024) return "$bytes B"
+    val kb = bytes / 1024.0
+    if (kb < 1024) return String.format(Locale.getDefault(), "%.1f KB", kb)
+    val mb = kb / 1024.0
+    if (mb < 1024) return String.format(Locale.getDefault(), "%.1f MB", mb)
+    val gb = mb / 1024.0
+    return String.format(Locale.getDefault(), "%.1f GB", gb)
+}
+
+@Composable
+fun rememberNumberFormatter(): NumberFormat {
+    return remember { NumberFormat.getInstance() }
 }

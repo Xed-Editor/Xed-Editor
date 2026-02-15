@@ -442,7 +442,7 @@
     <string name="desktop_mode_desc">Zlehčuje využívání aplikace pro tablety a stolní obrazovky</string>
     <string name="built_in">Vestavěný</string>
     <string name="go_to_definition">Jít k definici</string>
-    <string name="go_to_definition_desc">Vyberte jednu z(e) %d definic pro přesun k její umístění.</string>
+    <string name="go_to_definition_desc">Vyberte jednu z(e) %s definic pro přesun k její umístění.</string>
     <string name="address">Adresa</string>
     <string name="invalid_address">Neplatná adresa</string>
     <string name="select_all">Vybrat vše</string>
@@ -497,7 +497,7 @@
     <string name="enter_code_snippet">Zadejte úryvek zdrojového kódu</string>
     <string name="enter_query_to_search">Zadejte dotaz ke hledání v souborech</string>
     <string name="no_results">Žádné výsledky nenalezeny</string>
-    <string name="results">%d výsledků nalezeno/ných</string>
+    <string name="results">%s výsledků nalezeno/ných</string>
     <string name="enter_name">Zadejte jméno</string>
     <string name="show_hidden_files_drawer">Zobrazovat skryté soubory ve postranním panelu</string>
     <string name="show_hidden_files_drawer_desc">Zobrazovat skryté soubory nebo složky jako .git ve postranním panelu</string>

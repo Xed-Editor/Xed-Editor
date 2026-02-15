@@ -24,6 +24,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,11 +52,14 @@ import com.rk.file.UriWrapper
 import com.rk.file.sandboxHomeDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
+import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.findGitRoot
+import com.rk.utils.formatFileSize
+import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -136,6 +140,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     @Composable
     @OptIn(ExperimentalMaterial3Api::class)
     private fun SearchDialog(onDismiss: () -> Unit, enableIndexing: Boolean, toggleIndexing: (Boolean) -> Unit) {
+        val context = LocalContext.current
+
         ModalBottomSheet(onDismissRequest = onDismiss) {
             Column(
                 modifier =
@@ -178,11 +184,32 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                                 color = contentColor,
                             )
 
-                            Text(
-                                text = stringResource(strings.index_project_desc),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = contentColor,
-                            )
+                            val numberFormatter = rememberNumberFormatter()
+                            var totalFiles by remember { mutableStateOf("0") }
+                            var databaseSize by remember { mutableStateOf(formatFileSize(0)) }
+
+                            val isIndexing by remember {
+                                derivedStateOf { searchViewModel.get()?.isIndexing(root) == true }
+                            }
+                            LaunchedEffect(isIndexing) {
+                                if (enableIndexing) {
+                                    val stats = searchViewModel.get()?.getStats(context, root)
+                                    totalFiles = numberFormatter.format(stats?.totalFiles ?: 0)
+                                    databaseSize = formatFileSize(stats?.databaseSize ?: 0)
+                                }
+                            }
+
+                            val desc =
+                                when {
+                                    !enableIndexing -> stringResource(strings.index_project_desc)
+                                    isIndexing -> stringResource(strings.indexing)
+                                    else -> {
+                                        stringResource(strings.indexing_stats)
+                                            .fillPlaceholders(totalFiles, databaseSize)
+                                    }
+                                }
+
+                            Text(text = desc, style = MaterialTheme.typography.bodySmall, color = contentColor)
                         }
 
                         Switch(

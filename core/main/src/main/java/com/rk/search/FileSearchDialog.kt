@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.utils.getGitColor
+import com.rk.utils.rememberNumberFormatter
 import java.io.File
 
 @Composable
@@ -100,6 +102,8 @@ fun FileSearchDialog(
                 if (searchViewModel.isIndexing(projectFile) || isSearching) {
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
                 }
+                val numberFormatter = rememberNumberFormatter()
+                val resultCount by remember { derivedStateOf { numberFormatter.format(searchResults.size) } }
                 Text(
                     stringResource(
                             when {
@@ -108,7 +112,7 @@ fun FileSearchDialog(
                                 else -> strings.no_results
                             }
                         )
-                        .fillPlaceholders(searchResults.size)
+                        .fillPlaceholders(resultCount)
                 )
             }
 

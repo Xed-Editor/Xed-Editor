@@ -438,8 +438,8 @@
     <string name="rename_symbol">renombrar símbolo</string>
     <string name="format_document">Formato de documento</string>
     <string name="format_selection">Formato de selección</string>
-    <string name="go_to_definition_desc">Seleccione una de las %d definiciones para navegar a su lugar.</string>
-    <string name="go_to_references_desc">Seleccione una de las %d referencias para navegar a su lugar.</string>
+    <string name="go_to_definition_desc">Seleccione una de las %s definiciones para navegar a su lugar.</string>
+    <string name="go_to_references_desc">Seleccione una de las %s referencias para navegar a su lugar.</string>
     <string name="no_definitions_found">Ninguna definición encontrada.</string>
     <string name="no_references_found">Ninguna referencia encontrada.</string>
     <string name="find_definitions_error">No es capaz de encontrar definiciones.</string>
@@ -505,7 +505,7 @@
     <string name="enter_code_snippet">Introduzca un retal de código</string>
     <string name="enter_query_to_search">Introduzca una solicitud de búsqueda para encontrar en archivos</string>
     <string name="no_results">Ningún resultado encontrado</string>
-    <string name="results">%d resultados encontrados</string>
+    <string name="results">%s resultados encontrados</string>
     <string name="enter_name">Introduzca un nombre</string>
     <string name="show_hidden_files_drawer">Muestra archivos ocultos dentro del cajón</string>
     <string name="show_hidden_files_drawer_desc">Muestra archivos ocultos o carpetas como .git en el cajón</string>
