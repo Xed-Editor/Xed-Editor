@@ -297,7 +297,7 @@ class SearchViewModel : ViewModel() {
         return fileText
     }
 
-    suspend fun index(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject) {
+    suspend fun index(context: Context, projectRoot: FileObject) {
         val database = getDatabase(context, projectRoot)
         val codeLineDao = database.codeIndexDao()
         val fileMetaDao = database.fileMetaDao()
@@ -310,20 +310,47 @@ class SearchViewModel : ViewModel() {
 
         try {
             isIndexing[projectRoot] = true
-            indexRecursively(mainViewModel, projectRoot, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
-
-            database.withTransaction {
-                val deletedPaths = indexedFiles.keys - pathsToKeep
-                deletedPaths.forEach { path ->
-                    codeLineDao.deleteByPath(path)
-                    fileMetaDao.deleteByPath(path)
-                }
-
-                codeLineDao.insertAll(newCodeLines)
-                fileMetaDao.insertAll(newFileMetas)
-            }
+            indexRecursively(projectRoot, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+            updateIndex(database, indexedFiles, pathsToKeep, codeLineDao, fileMetaDao, newCodeLines, newFileMetas)
         } finally {
             isIndexing[projectRoot] = false
+        }
+    }
+
+    fun syncIndex(file: FileObject) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val databases = IndexDatabase.findDatabasesFor(file)
+            for (database in databases) {
+                val codeLineDao = database.codeIndexDao()
+                val fileMetaDao = database.fileMetaDao()
+
+                val indexedFiles = fileMetaDao.getAll().associateBy { it.path }
+                val pathsToKeep = mutableSetOf<String>()
+
+                val newCodeLines = mutableListOf<CodeLine>()
+                val newFileMetas = mutableListOf<FileMeta>()
+
+                try {
+                    isIndexing[database.projectRoot] = true
+                    if (file == database.projectRoot) {
+                        indexRecursively(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+                    } else {
+                        indexFile(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+                    }
+
+                    updateIndex(
+                        database,
+                        indexedFiles.filter { it.key.startsWith(file.getAbsolutePath()) },
+                        pathsToKeep,
+                        codeLineDao,
+                        fileMetaDao,
+                        newCodeLines,
+                        newFileMetas,
+                    )
+                } finally {
+                    isIndexing[database.projectRoot] = false
+                }
+            }
         }
     }
 
@@ -331,8 +358,28 @@ class SearchViewModel : ViewModel() {
         IndexDatabase.removeDatabase(context, projectRoot)
     }
 
+    private suspend fun updateIndex(
+        database: IndexDatabase,
+        indexedFiles: Map<String, FileMeta>,
+        pathsToKeep: MutableSet<String>,
+        codeLineDao: CodeLineDao,
+        fileMetaDao: FileMetaDao,
+        newCodeLines: MutableList<CodeLine>,
+        newFileMetas: MutableList<FileMeta>,
+    ) {
+        database.withTransaction {
+            val deletedPaths = indexedFiles.keys - pathsToKeep
+            deletedPaths.forEach { path ->
+                codeLineDao.deleteByPath(path)
+                fileMetaDao.deleteByPath(path)
+            }
+
+            codeLineDao.insertAll(newCodeLines)
+            fileMetaDao.insertAll(newFileMetas)
+        }
+    }
+
     private suspend fun indexRecursively(
-        mainViewModel: MainViewModel,
         parent: FileObject,
         indexedFiles: Map<String, FileMeta>,
         pathsToKeep: MutableSet<String>,
@@ -343,53 +390,58 @@ class SearchViewModel : ViewModel() {
         val childFiles = parent.listFiles()
 
         for (file in childFiles) {
-            val isHidden = file.getName().startsWith(".") || isResultHidden
-            if (isHidden && !Settings.show_hidden_files_search) continue
+            indexFile(file, indexedFiles, pathsToKeep, codeLineResults, fileMetaResults, isResultHidden)
+        }
+    }
 
-            val path = file.getAbsolutePath()
-            val lastModified = file.lastModified()
+    private suspend fun indexFile(
+        file: FileObject,
+        indexedFiles: Map<String, FileMeta>,
+        pathsToKeep: MutableSet<String>,
+        codeLineResults: MutableList<CodeLine>,
+        fileMetaResults: MutableList<FileMeta>,
+        isResultHidden: Boolean = false,
+    ) {
+        val isHidden = file.getName().startsWith(".") || isResultHidden
+        if (isHidden && !Settings.show_hidden_files_search) return
 
-            val indexedFile = indexedFiles[path]
-            val isFileModified =
-                indexedFile == null || indexedFile.lastModified != lastModified || indexedFile.size != file.length()
-            if (!isFileModified) {
-                pathsToKeep += path
-                if (!file.isDirectory()) continue
-            } else {
-                fileMetaResults.add(
-                    FileMeta(path = path, fileName = file.getName(), lastModified = lastModified, size = file.length())
+        val path = file.getAbsolutePath()
+        val lastModified = file.lastModified()
+
+        val indexedFile = indexedFiles[path]
+        val isFileModified =
+            indexedFile == null || indexedFile.lastModified != lastModified || indexedFile.size != file.length()
+        if (!isFileModified) {
+            pathsToKeep += path
+            if (!file.isDirectory()) return
+        } else {
+            fileMetaResults.add(
+                FileMeta(path = path, fileName = file.getName(), lastModified = lastModified, size = file.length())
+            )
+        }
+
+        if (file.isDirectory()) {
+            indexRecursively(
+                parent = file,
+                indexedFiles = indexedFiles,
+                pathsToKeep = pathsToKeep,
+                codeLineResults = codeLineResults,
+                fileMetaResults = fileMetaResults,
+                isResultHidden = isHidden,
+            )
+            return
+        }
+
+        val fileText = getFileContentOrNull(file) ?: return
+
+        val lines = fileText.lines()
+        lines.forEachIndexed { lineIndex, line ->
+            val maxLength = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
+            val chunks = line.chunked(maxLength)
+            chunks.forEachIndexed { chunkIndex, chunk ->
+                codeLineResults.add(
+                    CodeLine(content = chunk, path = path, lineNumber = lineIndex, chunkStart = chunkIndex * maxLength)
                 )
-            }
-
-            if (file.isDirectory()) {
-                indexRecursively(
-                    mainViewModel = mainViewModel,
-                    parent = file,
-                    indexedFiles = indexedFiles,
-                    pathsToKeep = pathsToKeep,
-                    codeLineResults = codeLineResults,
-                    fileMetaResults = fileMetaResults,
-                    isResultHidden = isHidden,
-                )
-                continue
-            }
-
-            val fileText = getFileContentOrNull(file) ?: continue
-
-            val lines = fileText.lines()
-            lines.forEachIndexed { lineIndex, line ->
-                val maxLength = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
-                val chunks = line.chunked(maxLength)
-                chunks.forEachIndexed { chunkIndex, chunk ->
-                    codeLineResults.add(
-                        CodeLine(
-                            content = chunk,
-                            path = path,
-                            lineNumber = lineIndex,
-                            chunkStart = chunkIndex * maxLength,
-                        )
-                    )
-                }
             }
         }
     }

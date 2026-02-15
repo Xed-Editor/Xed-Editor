@@ -38,6 +38,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
+import com.rk.activities.main.searchViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
@@ -284,6 +285,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
         saveMutex.withLock {
             if (isTemp) return@withLock
             write()
+            searchViewModel.get()?.syncIndex(file)
             gitViewModel.get()?.syncChanges(file.getAbsolutePath())
         }
 
@@ -301,6 +303,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                             tabTitle.value = it.getName()
                             scope.launch {
                                 write()
+                                searchViewModel.get()?.syncIndex(file)
                                 gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
                             }
                         }
@@ -310,6 +313,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
             }
 
             write()
+            searchViewModel.get()?.syncIndex(file)
             gitViewModel.get()?.syncChanges(file.getAbsolutePath())
 
             Settings.saves += 1

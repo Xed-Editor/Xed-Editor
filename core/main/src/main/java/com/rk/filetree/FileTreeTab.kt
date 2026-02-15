@@ -85,7 +85,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
         LaunchedEffect(enableIndexing) {
             if (enableIndexing) {
-                launch(Dispatchers.IO) { searchViewModel.get()?.index(context, mainViewModel!!, root) }
+                launch(Dispatchers.IO) { searchViewModel.get()?.index(context, root) }
             } else {
                 launch(Dispatchers.IO) { searchViewModel.get()?.deleteIndex(context, root) }
             }

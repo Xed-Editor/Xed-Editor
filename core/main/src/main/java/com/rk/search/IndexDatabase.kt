@@ -58,6 +58,8 @@ abstract class IndexDatabase : RoomDatabase() {
 
     abstract fun fileMetaDao(): FileMetaDao
 
+    lateinit var projectRoot: FileObject
+
     companion object {
         @Volatile private var INSTANCES = mutableMapOf<FileObject, IndexDatabase>()
 
@@ -71,6 +73,7 @@ abstract class IndexDatabase : RoomDatabase() {
                                 "index_database_${projectRoot.hashCode()}",
                             )
                             .build()
+                    instance.projectRoot = projectRoot
                     INSTANCES[projectRoot] = instance
                     instance
                 }
@@ -80,6 +83,19 @@ abstract class IndexDatabase : RoomDatabase() {
             INSTANCES[projectRoot]?.close()
             INSTANCES.remove(projectRoot)
             context.deleteDatabase("index_database_${projectRoot.hashCode()}")
+        }
+
+        suspend fun findDatabasesFor(file: FileObject): List<IndexDatabase> {
+            var startFile: FileObject? = file
+            val databases = mutableListOf<IndexDatabase>()
+
+            while (startFile != null) {
+                val database = INSTANCES[startFile]
+                database?.let { databases.add(it) }
+                startFile = startFile.getParentFile()
+            }
+
+            return databases
         }
     }
 }
