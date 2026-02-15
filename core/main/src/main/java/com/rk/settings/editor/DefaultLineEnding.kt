@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,6 +26,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.LineSeparator
+import kotlinx.coroutines.launch
 
 enum class LineEnding(
     val label: String,
@@ -55,6 +57,8 @@ enum class LineEnding(
 
 @Composable
 fun DefaultLineEnding(modifier: Modifier = Modifier) {
+    val scope = rememberCoroutineScope()
+
     PreferenceLayout(label = stringResource(strings.line_ending), backArrowVisible = true) {
         var selectedEnding by remember { mutableStateOf(Settings.line_ending) }
 
@@ -71,7 +75,7 @@ fun DefaultLineEnding(modifier: Modifier = Modifier) {
                         modifier.clickable(indication = ripple(), interactionSource = interaction) {
                             selectedEnding = ending.value
                             Settings.line_ending = ending.value
-                            refreshEditorSettings()
+                            scope.launch { refreshEditorSettings() }
                         },
                     contentModifier = Modifier.fillMaxHeight(),
                     title = { Text(fontWeight = FontWeight.Bold, text = ending.label) },

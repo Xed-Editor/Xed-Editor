@@ -208,7 +208,12 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
             applySettings()
 
             loadEditorConfig()
-            editorState.editorConfigLoaded?.await()?.let { applySettings() }
+            editorState.editorConfigLoaded?.await()?.let { applySettings(it) }
+
+            val isTxtFile = file.getName().endsWith(".txt")
+            if (Settings.word_wrap_text && isTxtFile) {
+                setWordwrap(true, true, true)
+            }
         }
     }
 

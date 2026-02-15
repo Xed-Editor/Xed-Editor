@@ -8,8 +8,10 @@ import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.activities.main.SessionManager
 import com.rk.crashhandler.CrashHandler
-import com.rk.editor.Editor
+import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
+import com.rk.editor.KeywordManager
+import com.rk.editor.LanguageManager
 import com.rk.extension.ExtensionAPIManager
 import com.rk.extension.ExtensionManager
 import com.rk.extension.loadAllExtensions
@@ -83,7 +85,11 @@ class App : Application() {
 
             launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
 
-            launch { Editor.initGrammarRegistry() }
+            launch { LanguageManager.initGrammarRegistry() }
+
+            launch { KeywordManager.initKeywordRegistry(this@App) }
+
+            launch { CodeHighlighter.registerMarkdownCodeHighlighter(this@App) }
 
             launch(Dispatchers.IO) { SessionManager.preloadSession() }
 

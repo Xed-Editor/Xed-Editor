@@ -120,6 +120,7 @@ class BaseLspConnector(
                     launch { servers.forEach { it.connectionSuccess(this@BaseLspConnector) } }
                 }
                 .onFailure {
+                    // TODO: Why do we set the language here?
                     codeEditor.setLanguage(textMateScope)
                     it.printStackTrace()
                     toast(it.message)
