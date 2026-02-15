@@ -680,4 +680,5 @@
     <string name="index_project">Index project</string>
     <string name="index_project_desc">Indexing can improve search times for large projects</string>
     <string name="always_index_projects">Always index projects</string>
+    <string name="warn_dont_leave_setup">⚠ Do not leave this screen while setup is in progress</string>
 </resources>

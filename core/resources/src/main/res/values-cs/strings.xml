@@ -116,7 +116,7 @@
     <string name="save_exit">Uložit a ukončit</string>
     <string name="restart_to_apply">Prosím restartujte aplikaci pro použití nových nastavení</string>
     <string name="restart">Restart</string>
-    <string name="refresh">Načíst</string>
+    <string name="refresh">Znovu načíst</string>
     <string name="dir_example">Jméno (např. Test)</string>
     <string name="create">Vytvořit</string>
     <string name="already_exists">Soubor už existuje s tímto jménem</string>
@@ -666,4 +666,10 @@
     <string name="fetch">Fetchovat</string>
     <string name="checkout_complete">Přepnutí větvě dokončeno</string>
     <string name="untracked">Nesledováno</string>
+    <string name="terminate_all_sessions">Ukončit všechny relace</string>
+    <string name="terminate_all_sessions_desc">Ukončit všechny relace v terminálu pokud je aplikace uzavřena</string>
+    <string name="resource_loading_error">Selhalo načtení prostředku</string>
+    <string name="compact_folders">Sbalit složky</string>
+    <string name="compact_folders_drawer">Sbalit složky ve postranním panelu</string>
+    <string name="compact_folders_drawer_desc">Sbalit složky s jenom jedním potomkem do jedné šložky v postranním panelu</string>
 </resources>

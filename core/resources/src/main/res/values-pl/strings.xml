@@ -305,7 +305,7 @@
     <string name="error">Błąd</string>
     <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
     <string name="open_file_desc">Wybierz plik, aby edytować go bezpośrednio</string>
-    <string name="internal_storage">Pamięć wewnętrzna</string>
+    <string name="internal_storage">Pamięć urządzenia</string>
     <string name="open_internal_storage">Otwórz pamięć wewnętrzną</string>
     <string name="add">Dodaj</string>
     <string name="already_opened">Plik jest już otwarty</string>
@@ -646,7 +646,7 @@
     <string name="clone_repo_desc">Klonuj zdalne repozytorium</string>
     <string name="repo_url">URL repozytorium</string>
     <string name="branch">Gałąź</string>
-    <string name="open_removable_storage">Otwórz zewnętrzną pamięć</string>
+    <string name="open_removable_storage">Otwórz pamięć zewnętrzną</string>
     <string name="value_empty_err">Wartość nie może być pusta</string>
     <string name="git">Git</string>
     <string name="password">Hasło</string>
@@ -698,4 +698,5 @@
     <string name="resource_loading_error">Nie udało się wczytać zasobu</string>
     <string name="terminate_all_sessions">Zakończ wszystkie sesje</string>
     <string name="terminate_all_sessions_desc">Zakończ wszystkie sesje podczas zamykania aplikacji</string>
+    <string name="warn_dont_leave_setup">⚠ Nie zamykaj aplikacji podczas konfigurowania</string>
 </resources>
