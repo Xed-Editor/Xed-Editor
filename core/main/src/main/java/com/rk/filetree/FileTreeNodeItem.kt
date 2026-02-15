@@ -96,7 +96,7 @@ fun FileTreeNodeItem(
                 viewModel.getNodeChildren(collapsedNode)
             } else children
         displayName =
-            if (ReactiveSettings.compactFoldersDrawer && isExpanded) {
+            if (ReactiveSettings.compactFoldersDrawer) {
                 viewModel.getCollapsedName(node)
             } else node.name
     }

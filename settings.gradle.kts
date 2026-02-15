@@ -10,7 +10,10 @@ pluginManagement {
 
         maven("https://repo.eclipse.org/content/groups/releases/")
     }
-    plugins { kotlin("jvm") version "2.2.20" }
+    plugins {
+        kotlin("jvm") version "2.2.20"
+        id("com.google.devtools.ksp") version "2.3.4" apply false
+    }
 }
 
 plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0" }

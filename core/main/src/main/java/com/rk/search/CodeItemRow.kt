@@ -1,4 +1,4 @@
-package com.rk.components
+package com.rk.search
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -22,15 +22,17 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
+import com.rk.file.FileObject
 import kotlinx.coroutines.launch
 
 data class CodeItem(
     val snippet: AnnotatedString,
-    val fileName: String,
+    val file: FileObject,
     val isHidden: Boolean = false,
     val highlightStart: Int = 0,
     val line: Int,
     val column: Int,
+    val opened: Boolean = false,
     val onClick: () -> Unit,
 )
 
@@ -40,7 +42,7 @@ fun CodeItemRow(item: CodeItem, onClick: () -> Unit) {
 
     Row(
         modifier =
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).padding(12.dp).addIf(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable(onClick = onClick).padding(8.dp).addIf(
                 item.isHidden
             ) {
                 alpha(0.5f)
@@ -54,7 +56,7 @@ fun CodeItemRow(item: CodeItem, onClick: () -> Unit) {
                 fontFamily = FontFamily.Monospace,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 onTextLayout = { layoutResult ->
                     if (item.highlightStart < layoutResult.layoutInput.text.length) {
                         val box = layoutResult.getBoundingBox(item.highlightStart)
@@ -69,6 +71,10 @@ fun CodeItemRow(item: CodeItem, onClick: () -> Unit) {
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        Text(text = "${item.line}:${item.column}", style = MaterialTheme.typography.bodySmall)
+        Text(
+            text = "${item.line}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        )
     }
 }

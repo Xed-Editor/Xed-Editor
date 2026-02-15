@@ -432,8 +432,8 @@
     <string name="go_to_definition">定義へ移動</string>
     <string name="go_to_references">参照へ移動</string>
     <string name="rename_symbol">シンボル名の変更</string>
-    <string name="go_to_definition_desc">%d個の定義の中から1つを選択し、その場所へ移動してください。</string>
-    <string name="go_to_references_desc">%d個の参照の中から1つを選択し、その場所へ移動してください。</string>
+    <string name="go_to_definition_desc">%s個の定義の中から1つを選択し、その場所へ移動してください。</string>
+    <string name="go_to_references_desc">%s個の参照の中から1つを選択し、その場所へ移動してください。</string>
     <string name="no_definitions_found">定義が見つかりません。</string>
     <string name="no_references_found">参照が見つかりません。</string>
     <string name="find_definitions_error">定義を見つけられません。</string>

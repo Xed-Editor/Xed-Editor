@@ -39,8 +39,9 @@ import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.formatFileSize
+import com.rk.utils.rememberNumberFormatter
 import java.text.DateFormat
-import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.launch
@@ -115,7 +116,7 @@ fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
 fun GeneralProperties(file: FileObject) {
     var size by remember { mutableStateOf(formatFileSize(0)) }
     var itemsCount by remember { mutableStateOf("0") }
-    val numberFormatter = remember { NumberFormat.getNumberInstance() }
+    val numberFormatter = rememberNumberFormatter()
 
     val lastModified =
         DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault())
@@ -179,14 +180,4 @@ private fun getPseudoPermissions(file: FileObject): String {
     val w = if (file.canWrite()) "w" else "-"
     val x = if (file.canExecute()) "x" else "-"
     return "$type$r$w$x"
-}
-
-private fun formatFileSize(bytes: Long): String {
-    if (bytes < 1024) return "$bytes B"
-    val kb = bytes / 1024.0
-    if (kb < 1024) return String.format(Locale.getDefault(), "%.1f KB", kb)
-    val mb = kb / 1024.0
-    if (mb < 1024) return String.format(Locale.getDefault(), "%.1f MB", mb)
-    val gb = mb / 1024.0
-    return String.format(Locale.getDefault(), "%.1f GB", gb)
 }
