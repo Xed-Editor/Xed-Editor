@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.rk.XedConstants
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -218,11 +219,11 @@ class Terminal : AppCompatActivity() {
                             DownloadFile(
                                 url =
                                     if (abi.contains("x86_64")) {
-                                        talloc_x86_64
+                                        XedConstants.TALLOC_X64
                                     } else if (abi.contains("arm64-v8a")) {
-                                        talloc_aarch64
+                                        XedConstants.TALLOC_ARM64
                                     } else if (abi.contains("armeabi-v7a")) {
-                                        talloc_arm
+                                        XedConstants.TALLOC_ARM
                                     } else {
                                         throw RuntimeException("Unsupported CPU")
                                     },
@@ -231,11 +232,11 @@ class Terminal : AppCompatActivity() {
                             DownloadFile(
                                 url =
                                     if (abi.contains("x86_64")) {
-                                        proot_x86_64
+                                        XedConstants.PROOT_X64
                                     } else if (abi.contains("arm64-v8a")) {
-                                        proot_aarch64
+                                        XedConstants.PROOT_ARM64
                                     } else if (abi.contains("armeabi-v7a")) {
-                                        proot_arm
+                                        XedConstants.PROOT_ARM
                                     } else {
                                         throw RuntimeException("Unsupported CPU")
                                     },
@@ -249,11 +250,11 @@ class Terminal : AppCompatActivity() {
                         DownloadFile(
                             url =
                                 if (abi.contains("x86_64")) {
-                                    sandbox_x86_64
+                                    XedConstants.ROOTFS_X64
                                 } else if (abi.contains("arm64-v8a")) {
-                                    sandbox_aarch64
+                                    XedConstants.ROOTFS_ARM64
                                 } else if (abi.contains("armeabi-v7a")) {
-                                    sandbox_arm
+                                    XedConstants.ROOTFS_ARM
                                 } else {
                                     throw RuntimeException("Unsupported CPU")
                                 },
@@ -439,7 +440,7 @@ class Terminal : AppCompatActivity() {
                     throw Exception("Failed to download file: ${response.code}")
                 }
 
-                val body = response.body ?: throw Exception("Empty response body")
+                val body = response.body
                 val totalBytes = body.contentLength()
 
                 var downloadedBytes = 0L
@@ -460,19 +461,3 @@ class Terminal : AppCompatActivity() {
         }
     }
 }
-
-private const val talloc_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/libtalloc.so.2"
-private const val talloc_aarch64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/libtalloc.so.2"
-private const val talloc_x86_64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/libtalloc.so.2"
-private const val proot_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/proot"
-private const val proot_aarch64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
-private const val proot_x86_64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
-
-private const val sandbox_arm =
-    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-25.10-base-armhf.tar.gz"
-private const val sandbox_aarch64 =
-    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-25.10-base-arm64.tar.gz"
-private const val sandbox_x86_64 =
-    "https://github.com/Xed-Editor/Karbon-PackagesX/releases/download/ubuntu/ubuntu-base-25.10-base-amd64.tar.gz"

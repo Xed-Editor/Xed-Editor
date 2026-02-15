@@ -8,34 +8,8 @@ export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 source "$LOCAL/bin/utils"
 
-if [ ! -f /etc/apt/apt.conf.d/99translations ]; then
-    echo 'Acquire::Languages "none";' > /etc/apt/apt.conf.d/99translations
-fi
-
-
-if dpkg -l | grep -q "^ii  coreutils-from-uutils"; then
-    info "uutils coreutils detected."
-
-    apt update -q
-
-    info "Removing coreutils-from-uutils..."
-
-    apt-get --allow-remove-essential remove coreutils-from-uutils rust-coreutils -y || {
-        error "Failed to remove uutils."
-        exit 1
-    }
-
-    info "Installing GNU coreutils..."
-
-    apt-get -y install coreutils-from-gnu || {
-        error "Failed to install GNU coreutils."
-        exit 1
-    }
-
-fi
-
 # Set timezone
-CONTAINER_TIMEZONE="UTC"
+CONTAINER_TIMEZONE="UTC"  # or any timezone like "Asia/Kolkata"
 
 # Symlink /etc/localtime to the desired timezone
 ln -snf "/usr/share/zoneinfo/$CONTAINER_TIMEZONE" /etc/localtime
