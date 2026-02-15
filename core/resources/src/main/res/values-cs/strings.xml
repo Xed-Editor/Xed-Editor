@@ -495,7 +495,7 @@
     <string name="theme_name_missing">Soubor JSON neudává platné jméno téma. Prosím přidejte platné jméno a zkuste to znovu.</string>
     <string name="theme_version_missing">Soubor JSON neudává platnou cílovou verzi. Prosím přidejte platnou cílovou verzi a zkuste to znovu.</string>
     <string name="enter_code_snippet">Zadejte úryvek zdrojového kódu</string>
-    <string name="empty_code_results">Zadejte dotaz ke hledání v souborech</string>
+    <string name="enter_query_to_search">Zadejte dotaz ke hledání v souborech</string>
     <string name="no_results">Žádné výsledky nenalezeny</string>
     <string name="results">%d výsledků nalezeno/ných</string>
     <string name="enter_name">Zadejte jméno</string>

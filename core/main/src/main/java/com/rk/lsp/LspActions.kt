@@ -1,16 +1,9 @@
 package com.rk.lsp
 
 import android.content.Context
-import android.graphics.Typeface
 import android.net.Uri
-import android.text.Spannable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.core.net.toUri
 import com.rk.activities.main.MainViewModel
-import com.rk.components.CodeItem
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.sandboxDir
@@ -20,21 +13,17 @@ import com.rk.file.toFileWrapper
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.search.CodeItem
+import com.rk.search.SnippetBuilder
 import com.rk.tabs.editor.EditorTab
-import com.rk.theme.currentTheme
-import com.rk.utils.getSelectionColor
-import com.rk.utils.isDarkTheme
-import com.rk.utils.toAnnotatedString
 import com.rk.utils.toast
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.getOption
-import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
 import io.github.rosemoe.sora.widget.component.TextActionItem
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,66 +53,6 @@ fun fixHomeLocation(context: Context, uri: String): String {
         }
 
     return fixedPath?.let { Uri.fromFile(it).toString() } ?: uri
-}
-
-/**
- * Generates a text portion of the line in the provided file that contains the range.
- *
- * The text of the range is printed bold. The code is highlighted with the help of the
- * [MarkdownCodeHighlighterRegistry].
- *
- * @return An [AnnotatedString] containing the highlighted code.
- */
-suspend fun generateSnippet(
-    viewModel: MainViewModel,
-    context: Context,
-    targetFile: FileObject,
-    range: Range,
-): AnnotatedString {
-    return withContext(Dispatchers.IO) {
-        val openedTab = viewModel.tabs.find { it is EditorTab && it.file == targetFile } as? EditorTab
-
-        // Only read file if it's not already opened as a tab
-        val lines =
-            if (openedTab != null) {
-                openedTab.editorState.editor.get()?.text.toString().lines()
-            } else {
-                targetFile.readText()?.lines() ?: emptyList()
-            }
-
-        val targetLine = lines[range.start.line]
-        val trimmedTargetLine = targetLine.trim()
-        val leadingWhitespace = targetLine.indexOf(trimmedTargetLine)
-
-        val rangeStartTrimmed = range.start.character - leadingWhitespace
-        val rangeEndTrimmed = range.end.character - leadingWhitespace
-
-        val fileExt = targetFile.getName().substringAfterLast(".", "")
-
-        val highlightedSpanned =
-            MarkdownCodeHighlighterRegistry.global.highlightAsync(
-                code = trimmedTargetLine,
-                language = fileExt,
-                codeTypeface = Typeface.MONOSPACE,
-            )
-
-        val highlightedAnnotated = (highlightedSpanned as? Spannable)?.toAnnotatedString() ?: highlightedSpanned
-
-        val editorColors =
-            if (isDarkTheme(context)) {
-                currentTheme.value?.darkEditorColors
-            } else {
-                currentTheme.value?.lightEditorColors
-            }
-        val selectionColor =
-            editorColors?.find { it.key == EditorColorScheme.SELECTED_TEXT_BACKGROUND }?.color?.let { Color(it) }
-                ?: getSelectionColor()
-
-        buildAnnotatedString {
-            append(highlightedAnnotated)
-            addStyle(style = SpanStyle(background = selectionColor), start = rangeStartTrimmed, end = rangeEndTrimmed)
-        }
-    }
 }
 
 suspend fun MainViewModel.goToTabAndSelect(file: FileObject, range: Range) {
@@ -164,8 +93,9 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
 
                 // If multiple definitions exist, ask user which one to view
                 withContext(Dispatchers.Main) {
+                    val snippetBuilder = SnippetBuilder(context)
                     editorState.findingsItems =
-                        definitions.mapIndexed { index, definition ->
+                        List(definitions.size) { index ->
                             val range =
                                 if (eitherDefinitions.isLeft) eitherDefinitions.left[index].range
                                 else eitherDefinitions.right[index].targetSelectionRange
@@ -179,8 +109,8 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                                 if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
                             CodeItem(
-                                snippet = generateSnippet(viewModel, context, targetFile, range),
-                                fileName = targetFile.getName(),
+                                snippet = snippetBuilder.generateLspSnippet(viewModel, targetFile, range),
+                                file = targetFile,
                                 highlightStart = range.start.character,
                                 line = range.start.line + 1,
                                 column = range.start.character + 1,
@@ -228,10 +158,11 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
 
                 // If multiple references exist, ask user which one to view
                 withContext(Dispatchers.Main) {
+                    val snippetBuilder = SnippetBuilder(context)
                     editorState.findingsItems =
-                        references.mapIndexed { index, reference ->
-                            val range = references[index]!!.range
-                            var uriString = references[index]!!.uri
+                        references.mapNotNull { reference ->
+                            val range = reference?.range ?: return@mapNotNull null
+                            var uriString = reference.uri
                             uriString = fixHomeLocation(context, uriString)
 
                             val uri = uriString.toUri()
@@ -239,8 +170,8 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                                 if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
                             CodeItem(
-                                snippet = generateSnippet(viewModel, context, targetFile, range),
-                                fileName = targetFile.getName(),
+                                snippet = snippetBuilder.generateLspSnippet(viewModel, targetFile, range),
+                                file = targetFile,
                                 line = range.start.line + 1,
                                 column = range.start.character + 1,
                                 onClick = { scope.launch { viewModel.goToTabAndSelect(targetFile, range) } },

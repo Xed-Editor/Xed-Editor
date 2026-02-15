@@ -516,7 +516,7 @@
     <string name="theme_name_missing">JSON 檔未指定有效的主題名稱。請新增後再試一次。</string>
     <string name="theme_version_missing">JSON 檔未指定有效的目標版本。請新增後再試一次。</string>
     <string name="enter_code_snippet">輸入程式碼片段</string>
-    <string name="empty_code_results">請輸入搜尋關鍵字以在檔案中查找</string>
+    <string name="enter_query_to_search">請輸入搜尋關鍵字以在檔案中查找</string>
     <string name="no_results">找不到任何結果</string>
     <string name="results">找到 %d 個結果</string>
     <string name="enter_name">請輸入名稱</string>

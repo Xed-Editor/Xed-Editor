@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.activities.main.gitViewModel
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import com.rk.filetree.FileTreeViewModel
 import com.rk.git.ChangeType
 import com.rk.resources.getString
@@ -399,3 +400,34 @@ suspend fun findGitRoot(path: String): String? =
         val repo = FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()
         repo?.workTree?.canonicalPath
     }
+
+fun hasBinaryChars(text: String): Boolean {
+    val threshold = 0.3
+    val checkedCharacters = 1024
+
+    val checkText = text.take(checkedCharacters)
+    val total = checkText.length
+    if (total == 0) return false
+
+    val binarySymbolsCount =
+        checkText.count { c ->
+            (c.code < 32 && c.code != 9 && c.code != 10 && c.code != 12 && c.code != 13) || c.code > 126
+        }
+
+    // If the amount of binary chars in the file content is over 30%
+    return binarySymbolsCount.toDouble() / total > threshold
+}
+
+private val binaryExtensions: Set<String> =
+    (FileType.IMAGE.extensions +
+            FileType.AUDIO.extensions +
+            FileType.VIDEO.extensions +
+            FileType.ARCHIVE.extensions +
+            FileType.APK.extensions +
+            FileType.EXECUTABLE.extensions)
+        .map { it.lowercase() }
+        .toSet()
+
+fun isBinaryExtension(fileExt: String): Boolean {
+    return fileExt.lowercase() in binaryExtensions
+}

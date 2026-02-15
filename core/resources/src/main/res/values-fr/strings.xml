@@ -512,7 +512,7 @@
     <string name="theme_name_missing">Le fichier JSON ne contient pas de nom d\'un thème valide. Ajoutez-en une, s\'il vous plait, et réessayez.</string>
     <string name="theme_version_missing">Le fichier JSON ne contient pas de version de cible valide. Ajoutez-en une, s\'il vous plait, et réessayez.</string>
     <string name="enter_code_snippet">Entrez un extrait de code</string>
-    <string name="empty_code_results">Entrez une requête à rechercher dans des fichiers</string>
+    <string name="enter_query_to_search">Entrez une requête à rechercher dans des fichiers</string>
     <string name="no_results">Aucun résultat trouvé</string>
     <string name="results">%d résultats trouvés</string>
     <string name="enter_name">Entrez un nom</string>

@@ -506,7 +506,7 @@
     <string name="theme_name_missing">JSON file does not specify a valid theme name. Please add one and try again.</string>
     <string name="theme_version_missing">JSON file does not specify a valid target version. Please add one and try again.</string>
     <string name="enter_code_snippet">Enter a code snippet</string>
-    <string name="empty_code_results">Enter a search query to find in files</string>
+    <string name="enter_query_to_search">Enter a search query to find in files</string>
     <string name="no_results">No results found</string>
     <string name="results">%d results found</string>
     <string name="enter_name">Enter a name</string>
@@ -675,4 +675,9 @@
     <string name="resource_loading_error">Failed to load resource</string>
     <string name="terminate_all_sessions">Terminate all sessions</string>
     <string name="terminate_all_sessions_desc">Kill all terminal sessions when app is closed</string>
+    <string name="indexing">Indexing…</string>
+    <string name="file_name_opened">%s (Open)</string>
+    <string name="index_project">Index project</string>
+    <string name="index_project_desc">Indexing can improve search times for large projects</string>
+    <string name="always_index_projects">Always index projects</string>
 </resources>

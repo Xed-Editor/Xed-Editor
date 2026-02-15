@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.searchViewModel
 import com.rk.components.isPermanentDrawer
 import com.rk.file.FileObject
 import com.rk.resources.getString
@@ -196,7 +197,7 @@ fun FileTree(
             }
 
             Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-                if (viewModel.isFileOperationInProgress()) {
+                if (viewModel.isFileOperationInProgress() || searchViewModel.get()?.isIndexing(rootNode.file) == true) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxSize())
                 } else {
                     HorizontalDivider()

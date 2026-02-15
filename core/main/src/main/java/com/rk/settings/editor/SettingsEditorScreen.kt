@@ -362,6 +362,13 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(strings.index_project),
+                description = stringResource(strings.always_index_projects),
+                default = Settings.always_index_projects,
+                sideEffect = { Settings.always_index_projects = it },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(strings.auto_open_new_files),
                 description = stringResource(strings.auto_open_new_files_desc),
                 default = Settings.auto_open_new_files,

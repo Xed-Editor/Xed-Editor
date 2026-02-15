@@ -510,7 +510,7 @@
     <string name="theme_name_missing">JSON 文件中未指定有效的主题名称。请添加主题名称后重试。</string>
     <string name="theme_version_missing">JSON 文件未指定有效的目标版本。请添加目标版本并重试。</string>
     <string name="enter_code_snippet">输入代码片段</string>
-    <string name="empty_code_results">输入搜索查询以在文件中查找</string>
+    <string name="enter_query_to_search">输入搜索查询以在文件中查找</string>
     <string name="no_results">未找到结果</string>
     <string name="results">找到 %d 个结果</string>
     <string name="enter_name">输入名称</string>

@@ -511,7 +511,7 @@
     <string name="theme_name_missing">சாதொபொகு கோப்பு சரியான கருப்பொருள் பெயரைக் குறிப்பிடவில்லை. ஒன்றைச் சேர்த்து மீண்டும் முயற்சிக்கவும்.</string>
     <string name="theme_version_missing">சாதொபொகு கோப்பு சரியான இலக்கு பதிப்பைக் குறிப்பிடவில்லை. ஒன்றைச் சேர்த்து மீண்டும் முயற்சிக்கவும்.</string>
     <string name="enter_code_snippet">குறியீடு துணுக்கை உள்ளிடவும்</string>
-    <string name="empty_code_results">கோப்புகளில் தேட தேடல் வினவலை உள்ளிடவும்</string>
+    <string name="enter_query_to_search">கோப்புகளில் தேட தேடல் வினவலை உள்ளிடவும்</string>
     <string name="no_results">முடிவுகள் எதுவும் கிடைக்கவில்லை</string>
     <string name="results">%d முடிவுகள் கிடைத்தன</string>
     <string name="enter_name">ஒரு பெயரை உள்ளிடவும்</string>

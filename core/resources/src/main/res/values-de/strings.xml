@@ -516,7 +516,7 @@
     <string name="theme_name_missing">Die JSON-Datei enthält keinen gültigen Thema-Namen. Bitte füge einen hinzu und versuche es erneut.</string>
     <string name="theme_version_missing">Die JSON-Datei enthält keine gültige Zielversion. Bitte füge eine hinzu und versuche es erneut.</string>
     <string name="enter_code_snippet">Codeausschnitt eingeben</string>
-    <string name="empty_code_results">Gib eine Suchanfrage ein, um in Dateien zu suchen</string>
+    <string name="enter_query_to_search">Gib eine Suchanfrage ein, um in Dateien zu suchen</string>
     <string name="no_results">Keine Ergebnisse gefunden</string>
     <string name="results">%d Ergebnisse gefunden</string>
     <string name="enter_name">Name eingeben</string>

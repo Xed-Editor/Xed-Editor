@@ -509,7 +509,7 @@
     <string name="theme_name_missing">JSON dosyası geçerli bir tema adı belirtmiyor. Lütfen bir tane ekleyin ve tekrar deneyin.</string>
     <string name="theme_version_missing">JSON dosyası geçerli bir hedef sürüm belirtmiyor. Lütfen bir tane ekleyin ve tekrar deneyin.</string>
     <string name="enter_code_snippet">Kod parçacığı girin</string>
-    <string name="empty_code_results">Dosyalarda bulmak için bir arama sorgusu girin</string>
+    <string name="enter_query_to_search">Dosyalarda bulmak için bir arama sorgusu girin</string>
     <string name="no_results">Sonuç bulunamadı</string>
     <string name="results">%d sonuç bulundu</string>
     <string name="enter_name">Ad giriniz</string>

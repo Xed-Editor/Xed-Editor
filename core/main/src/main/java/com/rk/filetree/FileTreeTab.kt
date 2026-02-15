@@ -1,15 +1,27 @@
 package com.rk.filetree
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,13 +29,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.gitViewModel
+import com.rk.activities.main.searchViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.FileActionDialog
 import com.rk.components.codeSearchDialog
@@ -35,6 +52,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.findGitRoot
@@ -48,7 +66,12 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     override fun Content(modifier: Modifier) {
         var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
         var searchDialog by remember { mutableStateOf(false) }
+        var enableIndexing by remember {
+            mutableStateOf(Preference.getBoolean("enable_indexing_${root.hashCode()}", Settings.always_index_projects))
+        }
+
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
         val mainViewModel = MainActivity.instance?.viewModel
 
         LaunchedEffect(root) {
@@ -57,6 +80,14 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 if (gitRoot != null) {
                     gitViewModel.get()?.loadRepository(gitRoot)
                 }
+            }
+        }
+
+        LaunchedEffect(enableIndexing) {
+            if (enableIndexing) {
+                launch(Dispatchers.IO) { searchViewModel.get()?.index(context, mainViewModel!!, root) }
+            } else {
+                launch(Dispatchers.IO) { searchViewModel.get()?.deleteIndex(context, root) }
             }
         }
 
@@ -91,19 +122,86 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         }
 
         if (searchDialog) {
-            SearchDialog { searchDialog = false }
+            SearchDialog(
+                { searchDialog = false },
+                enableIndexing,
+                { newValue ->
+                    enableIndexing = newValue
+                    Preference.setBoolean("enable_indexing_${root.hashCode()}", newValue)
+                },
+            )
         }
     }
 
     @Composable
     @OptIn(ExperimentalMaterial3Api::class)
-    private fun SearchDialog(onDismiss: () -> Unit) {
+    private fun SearchDialog(onDismiss: () -> Unit, enableIndexing: Boolean, toggleIndexing: (Boolean) -> Unit) {
         ModalBottomSheet(onDismissRequest = onDismiss) {
             Column(
                 modifier =
                     Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
                         .verticalScroll(rememberScrollState())
             ) {
+                val surfaceColor by
+                    animateColorAsState(
+                        if (enableIndexing) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surfaceContainerHigh
+                    )
+
+                Surface(
+                    shape = MaterialTheme.shapes.large,
+                    color = surfaceColor,
+                    modifier = Modifier.clickable(onClick = { toggleIndexing(!enableIndexing) }),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(16.dp),
+                    ) {
+                        val contentColor by
+                            animateColorAsState(
+                                if (enableIndexing) MaterialTheme.colorScheme.onPrimaryContainer
+                                else MaterialTheme.colorScheme.onSurface
+                            )
+
+                        androidx.compose.material3.Icon(
+                            painter = painterResource(drawables.bolt),
+                            contentDescription = null,
+                            tint = contentColor,
+                            modifier = Modifier.size(24.dp),
+                        )
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(strings.index_project),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = contentColor,
+                            )
+
+                            Text(
+                                text = stringResource(strings.index_project_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = contentColor,
+                            )
+                        }
+
+                        Switch(
+                            modifier = Modifier.height(24.dp),
+                            checked = enableIndexing,
+                            onCheckedChange = toggleIndexing,
+                            colors =
+                                SwitchDefaults.colors()
+                                    .copy(
+                                        uncheckedThumbColor = MaterialTheme.colorScheme.background,
+                                        uncheckedTrackColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                                        uncheckedBorderColor = Color.Transparent,
+                                    ),
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 AddDialogItem(
                     icon = Icons.Outlined.Search,
                     title = stringResource(strings.search_file_folder),

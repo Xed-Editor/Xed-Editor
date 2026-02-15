@@ -514,7 +514,7 @@
     <string name="theme_name_missing">В файле JSON не указано допустимое имя темы. Пожалуйста, добавьте один и повторите попытку.</string>
     <string name="theme_version_missing">В файле JSON не указана допустимая целевая версия. Пожалуйста, добавьте один и повторите попытку.</string>
     <string name="enter_code_snippet">Введите фрагмент кода</string>
-    <string name="empty_code_results">Введите поисковый запрос для поиска в файлах</string>
+    <string name="enter_query_to_search">Введите поисковый запрос для поиска в файлах</string>
     <string name="no_results">Результаты не найдены</string>
     <string name="results">Найдено %d вхождений</string>
     <string name="enter_name">Введите название</string>

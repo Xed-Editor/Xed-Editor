@@ -1,4 +1,4 @@
-package com.rk.components
+package com.rk.search
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.horizontalScroll
@@ -52,7 +52,7 @@ import io.github.rosemoe.sora.widget.EditorSearcher
 import java.util.regex.PatternSyntaxException
 
 @Composable
-fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
+fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
     val editor = editorState.editor
     val focusRequester = remember { FocusRequester() }
 
@@ -137,7 +137,7 @@ fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
                             )
                         }
 
-                        StyledTextField(
+                        _root_ide_package_.com.rk.components.StyledTextField(
                             modifier =
                                 Modifier.weight(1f)
                                     .height(42.dp)
@@ -271,7 +271,7 @@ fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
                         Row(Modifier.fillMaxWidth()) {
                             Spacer(Modifier.width(48.dp))
 
-                            StyledTextField(
+                            _root_ide_package_.com.rk.components.StyledTextField(
                                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp).height(42.dp),
                                 value = editorState.replaceKeyword,
                                 onValueChange = { editorState.replaceKeyword = it },

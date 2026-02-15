@@ -511,7 +511,7 @@
     <string name="theme_name_missing">Plik JSON nie posiada prawidłowej nazwy motywu. Proszę, dodaj nazwę oraz spróbuj ponownie.</string>
     <string name="theme_version_missing">Plik JSON nie określa prawidłowej wersji. Proszę, określ wersję oraz spróbuj ponownie.</string>
     <string name="enter_code_snippet">Wprowadź fragment kodu</string>
-    <string name="empty_code_results">Wprowadź zapytanie aby wyszukać w plikach</string>
+    <string name="enter_query_to_search">Wprowadź zapytanie aby wyszukać w plikach</string>
     <string name="no_results">Brak wyników</string>
     <string name="results">Znaleziono: %d</string>
     <string name="enter_name">Wprowadź nazwę</string>

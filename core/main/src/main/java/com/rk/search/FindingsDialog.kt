@@ -1,4 +1,4 @@
-package com.rk.components
+package com.rk.search
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +19,7 @@ import com.rk.resources.strings
 
 @Composable
 fun FindingsDialog(title: String, description: String, codeItems: List<CodeItem>, onFinish: () -> Unit) {
-    val grouped = codeItems.groupBy { it.fileName }
+    val grouped = codeItems.groupBy { it.file.getName() }
 
     AlertDialog(
         onDismissRequest = onFinish,

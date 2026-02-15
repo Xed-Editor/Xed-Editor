@@ -39,10 +39,7 @@ import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
-import com.rk.components.FindingsDialog
-import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
-import com.rk.components.hasBinaryChars
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileType
@@ -54,6 +51,8 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.currentRunner
+import com.rk.search.EditorSearchPanel
+import com.rk.search.FindingsDialog
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditorSettings
@@ -61,6 +60,7 @@ import com.rk.settings.support.handleSupport
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
+import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.ContentIO
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
@@ -413,7 +413,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 }
 
                 Column(modifier = Modifier.animateContentSize()) {
-                    SearchPanel(editorState = editorState)
+                    EditorSearchPanel(editorState = editorState)
                     if (editorState.isSearching) {
                         HorizontalDivider()
                     }
