@@ -155,10 +155,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                                 ),
                             trailingIcon = {
                                 Box {
-                                    IconButton(
-                                        modifier = Modifier.height(24.dp),
-                                        onClick = { editorState.showOptionsMenu = true },
-                                    ) {
+                                    IconButton(onClick = { editorState.showOptionsMenu = true }) {
                                         Icon(imageVector = Icons.Outlined.MoreVert, stringResource(strings.more))
                                     }
 

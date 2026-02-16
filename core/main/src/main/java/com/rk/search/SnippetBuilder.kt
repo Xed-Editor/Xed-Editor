@@ -8,11 +8,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.rk.activities.main.MainViewModel
+import com.rk.editor.ThemeManager
 import com.rk.file.FileObject
 import com.rk.tabs.editor.EditorTab
-import com.rk.theme.currentTheme
-import com.rk.utils.getSelectionColor
-import com.rk.utils.isDarkTheme
 import com.rk.utils.toAnnotatedString
 import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
@@ -51,20 +49,14 @@ class SnippetBuilder(private val context: Context) {
 
             val highlightedAnnotated = (highlightedSpanned as? Spannable)?.toAnnotatedString() ?: highlightedSpanned
 
-            val editorColors =
-                if (isDarkTheme(context)) {
-                    currentTheme.value?.darkEditorColors
-                } else {
-                    currentTheme.value?.lightEditorColors
-                }
-            val selectionColor =
-                editorColors?.find { it.key == EditorColorScheme.SELECTED_TEXT_BACKGROUND }?.color?.let { Color(it) }
-                    ?: getSelectionColor()
+            val colorScheme = ThemeManager.createColorScheme(context)
+            val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
+            val backgroundColor = Color(background)
 
             buildAnnotatedString {
                 append(highlightedAnnotated)
                 addStyle(
-                    style = SpanStyle(background = selectionColor),
+                    style = SpanStyle(background = backgroundColor),
                     start = rangeStartTrimmed,
                     end = rangeEndTrimmed,
                 )
@@ -114,20 +106,14 @@ class SnippetBuilder(private val context: Context) {
 
             val highlightedAnnotated = (highlightedSpanned as? Spannable)?.toAnnotatedString() ?: highlightedSpanned
 
-            val editorColors =
-                if (isDarkTheme(context)) {
-                    currentTheme.value?.darkEditorColors
-                } else {
-                    currentTheme.value?.lightEditorColors
-                }
-            val selectionColor =
-                editorColors?.find { it.key == EditorColorScheme.SELECTED_TEXT_BACKGROUND }?.color?.let { Color(it) }
-                    ?: getSelectionColor()
+            val colorScheme = ThemeManager.createColorScheme(context)
+            val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
+            val backgroundColor = Color(background)
 
             buildAnnotatedString {
                 append(highlightedAnnotated)
                 addStyle(
-                    style = SpanStyle(background = selectionColor),
+                    style = SpanStyle(background = backgroundColor),
                     start = rangeStartTrimmed,
                     end = rangeEndTrimmed,
                 )

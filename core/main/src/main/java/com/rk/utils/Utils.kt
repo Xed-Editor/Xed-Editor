@@ -1,6 +1,5 @@
 package com.rk.utils
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -23,7 +22,6 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -279,20 +277,6 @@ fun Spanned.toAnnotatedString(): AnnotatedString {
         }
     }
     return builder.toAnnotatedString()
-}
-
-private var selectionColor = Color.Unspecified
-
-@SuppressLint("ComposableNaming")
-@Composable
-fun preloadSelectionColor() {
-    val selectionColors = LocalTextSelectionColors.current
-    val selectionBackground = selectionColors.backgroundColor
-    selectionColor = selectionBackground
-}
-
-fun getSelectionColor(): Color {
-    return selectionColor
 }
 
 // Helper function copied from
