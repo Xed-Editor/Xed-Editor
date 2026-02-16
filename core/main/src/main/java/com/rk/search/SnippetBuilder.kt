@@ -27,14 +27,14 @@ class SnippetBuilder(private val context: Context) {
      * The text of the range is printed with the selection color. The code is highlighted with the help of the
      * [MarkdownCodeHighlighterRegistry].
      *
-     * @return An [AnnotatedString] containing the highlighted code.
+     * @return A [Pair] containing the [AnnotatedString] and the start index of the highlighted text.
      */
     suspend fun generateSnippet(
         text: String,
         highlightStart: Int,
         highlightEnd: Int,
         fileExt: String,
-    ): AnnotatedString {
+    ): Pair<AnnotatedString, Int> {
         return withContext(Dispatchers.Default) {
             val trimmedTargetLine = text.trim()
             val leadingWhitespace = text.indexOf(trimmedTargetLine)
@@ -68,7 +68,7 @@ class SnippetBuilder(private val context: Context) {
                     start = rangeStartTrimmed,
                     end = rangeEndTrimmed,
                 )
-            }
+            } to rangeStartTrimmed
         }
     }
 
@@ -78,9 +78,13 @@ class SnippetBuilder(private val context: Context) {
      * The text of the range is printed with the selection color. The code is highlighted with the help of the
      * [MarkdownCodeHighlighterRegistry].
      *
-     * @return An [AnnotatedString] containing the highlighted code.
+     * @return A [Pair] containing the [AnnotatedString] and the start index of the highlighted text.
      */
-    suspend fun generateLspSnippet(viewModel: MainViewModel, targetFile: FileObject, range: Range): AnnotatedString {
+    suspend fun generateLspSnippet(
+        viewModel: MainViewModel,
+        targetFile: FileObject,
+        range: Range,
+    ): Pair<AnnotatedString, Int> {
         return withContext(Dispatchers.IO) {
             val openedTab = viewModel.tabs.find { it is EditorTab && it.file == targetFile } as? EditorTab
 
@@ -127,7 +131,7 @@ class SnippetBuilder(private val context: Context) {
                     start = rangeStartTrimmed,
                     end = rangeEndTrimmed,
                 )
-            }
+            } to rangeStartTrimmed
         }
     }
 }

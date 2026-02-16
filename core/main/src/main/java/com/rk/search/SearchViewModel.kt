@@ -1,7 +1,10 @@
 package com.rk.search
 
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
@@ -9,10 +12,12 @@ import com.rk.activities.main.MainViewModel
 import com.rk.file.FileObject
 import com.rk.file.toFileWrapper
 import com.rk.settings.Settings
+import com.rk.settings.editor.LineEnding
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.hasBinaryChars
 import com.rk.utils.isBinaryExtension
 import java.io.File
+import java.nio.charset.Charset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -21,6 +26,99 @@ import kotlinx.coroutines.withContext
 
 class SearchViewModel : ViewModel() {
     private var isIndexing = mutableStateMapOf<FileObject, Boolean>()
+
+    // File search dialog
+    var fileSearchQuery by mutableStateOf("")
+
+    // Code search dialog
+    var codeSearchQuery by mutableStateOf("")
+    var codeReplaceQuery by mutableStateOf("")
+    var showOptionsMenu by mutableStateOf(false)
+    var ignoreCase by mutableStateOf(true)
+    var searchRegex by mutableStateOf(false)
+    var searchWholeWord by mutableStateOf(false)
+    var isReplaceShown by mutableStateOf(false)
+        private set
+
+    fun toggleReplaceShown() {
+        isReplaceShown = !isReplaceShown
+    }
+
+    fun replaceIn(context: Context, mainViewModel: MainViewModel, codeItem: CodeItem, onSuccess: (CodeItem?) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            var lineAfterReplacing: String? = null
+            if (codeItem.isOpen) {
+                val tab =
+                    mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == codeItem.file }
+                        ?: return@launch
+                val editor = tab.editorState.editor.get() ?: return@launch
+
+                val lineIndex = codeItem.line
+                val startCol = codeItem.column
+                val endCol = codeItem.column + codeSearchQuery.length
+
+                withContext(Dispatchers.Main) {
+                    editor.text.replace(lineIndex, startCol, lineIndex, endCol, codeReplaceQuery)
+                    lineAfterReplacing = editor.text.getLineString(lineIndex)
+                }
+            } else {
+                val content = codeItem.file.readText() ?: return@launch
+                val lines = content.lines().toMutableList()
+
+                val lineIndex = codeItem.line
+                val startCol = codeItem.column
+                val endCol = codeItem.column + codeSearchQuery.length
+
+                val line = lines.getOrNull(lineIndex) ?: return@launch
+                val newLine = line.replaceRange(startCol, endCol, codeReplaceQuery)
+                lines[lineIndex] = newLine
+                lineAfterReplacing = newLine
+
+                val charset = Charset.forName(Settings.encoding)
+                val lineEnding = LineEnding.detect(content)
+
+                val normalizedContent = lines.joinToString(lineEnding.char)
+                codeItem.file.writeText(normalizedContent, charset)
+            }
+
+            val charIndex = lineAfterReplacing!!.indexOf(codeSearchQuery, ignoreCase = true)
+            if (charIndex == -1) {
+                onSuccess(null)
+                return@launch
+            }
+
+            val snippetResult =
+                SnippetBuilder(context)
+                    .generateSnippet(
+                        text = lineAfterReplacing!!,
+                        highlightStart = charIndex,
+                        highlightEnd = charIndex + codeSearchQuery.length,
+                        fileExt = codeItem.file.getName().substringAfterLast("."),
+                    )
+
+            val newCodeItem =
+                CodeItem(
+                    snippet = snippetResult.first,
+                    highlightStart = snippetResult.second,
+                    file = codeItem.file,
+                    line = codeItem.line,
+                    column = charIndex,
+                    isOpen = codeItem.isOpen,
+                    onClick = {
+                        viewModelScope.launch {
+                            mainViewModel.goToTabAndSelect(
+                                file = codeItem.file,
+                                lineStart = codeItem.line,
+                                charStart = charIndex,
+                                lineEnd = codeItem.line,
+                                charEnd = charIndex + codeSearchQuery.length,
+                            )
+                        }
+                    },
+                )
+            onSuccess(newCodeItem)
+        }
+    }
 
     fun isIndexing(projectRoot: FileObject): Boolean {
         return isIndexing[projectRoot] ?: false
@@ -99,7 +197,7 @@ class SearchViewModel : ViewModel() {
                 val charIndex = line.indexOf(query, ignoreCase = true)
                 if (charIndex == -1) return@forEachIndexed
 
-                val snippet =
+                val snippetResult =
                     SnippetBuilder(context)
                         .generateSnippet(
                             text = line,
@@ -110,11 +208,12 @@ class SearchViewModel : ViewModel() {
 
                 val codeItem =
                     CodeItem(
-                        snippet = snippet,
+                        snippet = snippetResult.first,
+                        highlightStart = snippetResult.second,
                         file = tab.file,
                         line = lineIndex,
                         column = charIndex,
-                        opened = true,
+                        isOpen = true,
                         onClick = {
                             viewModelScope.launch {
                                 mainViewModel.goToTabAndSelect(
@@ -175,7 +274,7 @@ class SearchViewModel : ViewModel() {
                 val absoluteCharIndex = result.chunkStart + charIndex
 
                 val file = File(result.path).toFileWrapper()
-                val snippet =
+                val snippetResult =
                     SnippetBuilder(context)
                         .generateSnippet(
                             text = result.content,
@@ -186,7 +285,8 @@ class SearchViewModel : ViewModel() {
 
                 val codeItem =
                     CodeItem(
-                        snippet = snippet,
+                        snippet = snippetResult.first,
+                        highlightStart = snippetResult.second,
                         file = file,
                         line = result.lineNumber,
                         column = absoluteCharIndex,
@@ -242,7 +342,7 @@ class SearchViewModel : ViewModel() {
                     if (charIndex == -1) return@forEachIndexed
                     val absoluteCharIndex = (chunkIndex * maxLength) + charIndex
 
-                    val snippet =
+                    val snippetResult =
                         SnippetBuilder(context)
                             .generateSnippet(
                                 text = chunk,
@@ -253,7 +353,8 @@ class SearchViewModel : ViewModel() {
 
                     val codeItem =
                         CodeItem(
-                            snippet = snippet,
+                            snippet = snippetResult.first,
+                            highlightStart = snippetResult.second,
                             file = file,
                             line = lineIndex,
                             column = absoluteCharIndex,

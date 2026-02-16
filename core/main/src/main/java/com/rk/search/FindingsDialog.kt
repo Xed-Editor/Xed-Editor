@@ -1,6 +1,7 @@
 package com.rk.search
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -57,7 +58,7 @@ fun FindingsDialog(title: String, description: String, codeItems: List<CodeItem>
 
                                 Text(
                                     text =
-                                        if (codeItems.first().opened) {
+                                        if (codeItems.first().isOpen) {
                                             stringResource(strings.file_name_opened)
                                                 .fillPlaceholders(fileObject.getName())
                                         } else {
@@ -72,6 +73,7 @@ fun FindingsDialog(title: String, description: String, codeItems: List<CodeItem>
                         items(codeItems) { item ->
                             CodeItemRow(
                                 item = item,
+                                paddingValues = PaddingValues(),
                                 onClick = {
                                     item.onClick()
                                     onFinish()

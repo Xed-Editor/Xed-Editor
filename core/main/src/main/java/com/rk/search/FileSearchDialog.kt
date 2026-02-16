@@ -60,7 +60,6 @@ fun FileSearchDialog(
     onFinish: () -> Unit,
     onSelect: (FileObject, FileObject) -> Unit,
 ) {
-    var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
     var isSearching by remember { mutableStateOf(false) }
@@ -68,13 +67,13 @@ fun FileSearchDialog(
 
     val context = LocalContext.current
 
-    LaunchedEffect(searchViewModel.isIndexing(projectFile), searchQuery) {
+    LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.fileSearchQuery) {
         isSearching = true
         val results =
             searchViewModel.searchFileName(
                 context = context,
                 projectRoot = projectFile,
-                query = searchQuery,
+                query = searchViewModel.fileSearchQuery,
                 useIndex =
                     Preference.getBoolean("enable_indexing_${projectFile.hashCode()}", Settings.always_index_projects),
             )
@@ -86,8 +85,8 @@ fun FileSearchDialog(
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
         Column(modifier = Modifier.animateContentSize().height(screenHeight * 0.8f)) {
             TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+                value = searchViewModel.fileSearchQuery,
+                onValueChange = { searchViewModel.fileSearchQuery = it },
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),

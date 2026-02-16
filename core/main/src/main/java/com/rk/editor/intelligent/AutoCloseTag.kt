@@ -11,9 +11,9 @@ object AutoCloseTag : IntelligentFeature() {
 
     override val triggerCharacters: List<Char> = listOf('>', '/')
 
-    val OPEN_TAG_REGEX = Regex("<([_a-zA-Z][a-zA-Z0-9:\\-_.]*)(?:\\s+[^<>]*?[^\\s/<>=]+?)*?\\s?(/|>)$")
+    private val OPEN_TAG_REGEX = Regex("<([_a-zA-Z][a-zA-Z0-9:\\-_.]*)(?:\\s+[^<>]*?[^\\s/<>=]+?)*?\\s?(/|>)$")
 
-    val selfClosingTags =
+    private val selfClosingTags =
         listOf(
             "area",
             "base",

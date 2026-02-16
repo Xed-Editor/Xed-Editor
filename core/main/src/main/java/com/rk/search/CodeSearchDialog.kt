@@ -1,7 +1,9 @@
 package com.rk.search
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,13 +16,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -31,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
@@ -56,23 +71,22 @@ import kotlinx.coroutines.FlowPreview
 @OptIn(FlowPreview::class)
 @Composable
 fun CodeSearchDialog(
-    viewModel: MainViewModel,
+    mainViewModel: MainViewModel,
     searchViewModel: SearchViewModel,
     projectFile: FileObject,
     onFinish: () -> Unit,
 ) {
-    var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 
     var isSearching by remember { mutableStateOf(false) }
     val searchResults = remember { mutableStateListOf<CodeItem>() }
 
-    var groupedResults by remember { mutableStateOf<Map<FileObject, List<CodeItem>>>(emptyMap()) }
+    val groupedResults by remember { derivedStateOf { searchResults.groupBy { it.file } } }
 
     val context = LocalContext.current
 
-    LaunchedEffect(searchViewModel.isIndexing(projectFile), searchQuery) {
-        if (searchQuery.isBlank()) {
+    LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.codeSearchQuery) {
+        if (searchViewModel.codeSearchQuery.isBlank()) {
             searchResults.clear()
             isSearching = false
             return@LaunchedEffect
@@ -84,8 +98,8 @@ fun CodeSearchDialog(
             .searchCode(
                 context = context,
                 projectRoot = projectFile,
-                query = searchQuery,
-                mainViewModel = viewModel,
+                query = searchViewModel.codeSearchQuery,
+                mainViewModel = mainViewModel,
                 useIndex =
                     Preference.getBoolean("enable_indexing_${projectFile.hashCode()}", Settings.always_index_projects),
             )
@@ -93,24 +107,120 @@ fun CodeSearchDialog(
         isSearching = false
     }
 
-    LaunchedEffect(searchResults.size) { groupedResults = searchResults.groupBy { it.file } }
-
     val screenHeight = LocalWindowInfo.current.containerSize.height.dp
+
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
         Column(modifier = Modifier.animateContentSize().height(screenHeight * 0.8f)) {
             TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+                value = searchViewModel.codeSearchQuery,
+                onValueChange = { searchViewModel.codeSearchQuery = it },
                 maxLines = 1,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                leadingIcon = {
+                    IconButton(modifier = Modifier, onClick = { searchViewModel.toggleReplaceShown() }) {
+                        Icon(
+                            imageVector =
+                                if (searchViewModel.isReplaceShown) {
+                                    Icons.Outlined.KeyboardArrowUp
+                                } else {
+                                    Icons.Outlined.KeyboardArrowDown
+                                },
+                            null,
+                        )
+                    }
+                },
+                trailingIcon = {
+                    Box {
+                        IconButton(onClick = { searchViewModel.showOptionsMenu = true }) {
+                            Icon(imageVector = Icons.Outlined.MoreVert, stringResource(strings.more))
+                        }
+
+                        DropdownMenu(
+                            expanded = searchViewModel.showOptionsMenu,
+                            onDismissRequest = { searchViewModel.showOptionsMenu = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Checkbox(checked = searchViewModel.ignoreCase, onCheckedChange = null)
+                                        Spacer(Modifier.width(12.dp))
+                                        Text(stringResource(strings.ignore_case))
+                                        Spacer(Modifier.width(8.dp))
+                                    }
+                                },
+                                onClick = {
+                                    searchViewModel.ignoreCase = !searchViewModel.ignoreCase
+                                    searchViewModel.showOptionsMenu = false
+                                },
+                            )
+
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Checkbox(checked = searchViewModel.searchRegex, onCheckedChange = null)
+                                        Spacer(Modifier.width(12.dp))
+                                        Text(stringResource(strings.regex))
+                                        Spacer(Modifier.width(8.dp))
+                                    }
+                                },
+                                onClick = {
+                                    val newValue = !searchViewModel.searchRegex
+                                    searchViewModel.searchRegex = newValue
+                                    searchViewModel.showOptionsMenu = false
+                                    if (newValue) {
+                                        searchViewModel.searchWholeWord = false
+                                    }
+                                },
+                            )
+
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Checkbox(checked = searchViewModel.searchWholeWord, onCheckedChange = null)
+                                        Spacer(Modifier.width(12.dp))
+                                        Text(stringResource(strings.whole_word))
+                                        Spacer(Modifier.width(8.dp))
+                                    }
+                                },
+                                onClick = {
+                                    val newValue = !searchViewModel.searchWholeWord
+                                    searchViewModel.searchWholeWord = newValue
+                                    searchViewModel.showOptionsMenu = false
+                                    if (newValue) {
+                                        searchViewModel.searchRegex = false
+                                    }
+                                },
+                            )
+                        }
+                    }
+                },
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction =
+                            if (searchViewModel.isReplaceShown) {
+                                ImeAction.Next
+                            } else {
+                                ImeAction.Search
+                            }
+                    ),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                placeholder = { Text(text = stringResource(strings.enter_code_snippet)) },
+                placeholder = { Text(text = stringResource(strings.search)) },
             )
+
+            if (searchViewModel.isReplaceShown) {
+                TextField(
+                    value = searchViewModel.codeReplaceQuery,
+                    onValueChange = { searchViewModel.codeReplaceQuery = it },
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    placeholder = { Text(text = stringResource(strings.replace)) },
+                )
+            }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(top = 16.dp, start = 16.dp, bottom = 0.dp, end = 16.dp),
+                modifier = Modifier.padding(16.dp),
             ) {
                 if (searchViewModel.isIndexing(projectFile) || isSearching) {
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
@@ -131,15 +241,33 @@ fun CodeSearchDialog(
 
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
-            if (searchQuery.isNotEmpty()) {
-                LazyColumn(modifier = Modifier.padding(all = 16.dp)) {
-                    groupedResults.forEach { (fileObject, codeItems) ->
+            fun replace(codeItem: CodeItem) {
+                searchViewModel.replaceIn(context, mainViewModel, codeItem) {
+                    val index = searchResults.indexOf(codeItem)
+                    if (index == -1) return@replaceIn
+
+                    if (it == null) {
+                        searchResults.removeAt(index)
+                    } else {
+                        searchResults[index] = it
+                    }
+                }
+            }
+
+            if (searchViewModel.codeSearchQuery.isNotEmpty()) {
+                LazyColumn {
+                    groupedResults.entries.forEachIndexed { index, (fileObject, codeItems) ->
                         item {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier =
                                     Modifier.addIf(codeItems.first().isHidden) { alpha(0.5f) }
-                                        .padding(top = 8.dp, bottom = 4.dp),
+                                        .padding(
+                                            start = 16.dp,
+                                            end = 8.dp,
+                                            top = if (index > 0) 16.dp else 0.dp,
+                                            bottom = 4.dp,
+                                        ),
                             ) {
                                 FileIcon(file = fileObject, iconTint = MaterialTheme.colorScheme.primary)
 
@@ -147,7 +275,7 @@ fun CodeSearchDialog(
 
                                 Text(
                                     text =
-                                        if (codeItems.first().opened) {
+                                        if (codeItems.first().isOpen) {
                                             stringResource(strings.file_name_opened)
                                                 .fillPlaceholders(fileObject.getName())
                                         } else {
@@ -155,13 +283,52 @@ fun CodeSearchDialog(
                                         },
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.weight(1f),
                                 )
+
+                                if (searchViewModel.isReplaceShown) {
+                                    CompositionLocalProvider(
+                                        LocalContentColor provides MaterialTheme.colorScheme.primary
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier =
+                                                Modifier.clip(ButtonDefaults.shape)
+                                                    .clickable { codeItems.forEach { replace(it) } }
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                                        ) {
+                                            Text(
+                                                text = stringResource(strings.replace_all),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                            )
+
+                                            Spacer(Modifier.width(4.dp))
+
+                                            Icon(
+                                                painter = painterResource(drawables.arrow_downward),
+                                                contentDescription = stringResource(strings.replace),
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
 
                         items(codeItems) { codeItem ->
                             CodeItemRow(
                                 item = codeItem,
+                                leadingIcon =
+                                    if (searchViewModel.isReplaceShown) {
+                                        {
+                                            Icon(
+                                                painter = painterResource(drawables.find_replace),
+                                                contentDescription = stringResource(strings.replace),
+                                                modifier =
+                                                    Modifier.clip(RoundedCornerShape(8.dp))
+                                                        .clickable(onClick = { replace(codeItem) }),
+                                            )
+                                        }
+                                    } else null,
                                 onClick = {
                                     codeItem.onClick()
                                     onFinish()
@@ -169,8 +336,6 @@ fun CodeSearchDialog(
                             )
                         }
                     }
-
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
                 }
             } else {
                 Column(
