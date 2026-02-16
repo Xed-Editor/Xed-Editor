@@ -422,4 +422,22 @@
     <string name="info_lsp">Οι διακομιστές γλώσσας είναι ξεχωριστές διεργασίες που παρέχουν έξυπνες λειτουργίες, όπως ολοκλήρωση κώδικα, επισήμανση σφαλμάτων και ενσωματωμένα έγγραφα τεκμηρίωσης.</string>
     <string name="format_document">Μορφοποίηση εγγράφου</string>
     <string name="format_document_error">Μη δυνατή η μορφοποίηση του εγγράφου.</string>
+    <string name="clone_repo_desc">Κλωνοποίηση απομακρυσμένου αποθετηρίου</string>
+    <string name="repo_url">URL Αποθετηρίου</string>
+    <string name="auto_save_delay">Καθυστέρηση αυτόματης αποθήκευσης</string>
+    <string name="auto_save_delay_desc">Καθυστέρηση σε χιλιοστά του δευτερολέπτου μεταξύ αυτόματων αποθηκεύσεων</string>
+    <string name="value_empty_err">Η τιμή δεν μπορεί να είναι κενή</string>
+    <string name="experimental_lsp">Οι διακομιστές γλώσσας είναι πειραματικοί και ενδέχεται να μη λειτουργούν σωστά.</string>
+    <string name="storage">Αποθηκευτικός χώρος</string>
+    <string name="support">Υποστήριξη</string>
+    <string name="translate">Μετάφραση</string>
+    <string name="terminal_feature">Τερματικό και runners</string>
+    <string name="folder_name">Όνομα φακέλου</string>
+    <string name="invalid_characters">Μη έγκυροι χαρακτήρες</string>
+    <string name="script_show_input_dialog">Εμφάνιση διαλόγου εισαγωγής</string>
+    <string name="properties">Ιδιότητες</string>
+    <string name="rename_folder">Μετονομασία φακέλου</string>
+    <string name="ignore_case">Αγνόηση πεζών-κεφαλαίων</string>
+    <string name="regex">Regex</string>
+    <string name="whole_word">Ολόκληρη λέξη</string>
 </resources>

@@ -701,4 +701,5 @@
     <string name="resource_loading_error">Échec du chargement de la ressource</string>
     <string name="terminate_all_sessions">Fermer toutes les sessions</string>
     <string name="terminate_all_sessions_desc">Ferme toutes les sessions du terminal lorsque l\'on quitte l\'application</string>
+    <string name="warn_dont_leave_setup">⚠ Ne quittez pas cet écran pendant la mise en place</string>
 </resources>
