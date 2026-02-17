@@ -49,6 +49,7 @@ import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.FileActionDialog
 import com.rk.components.compose.utils.addIf
+import com.rk.editor.preloadSelectionColor
 import com.rk.file.FileObject
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeTab
@@ -75,6 +76,7 @@ fun MainContent(
 ) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
+    preloadSelectionColor()
 
     Column(Modifier.fillMaxSize().padding(innerPadding)) {
         if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {

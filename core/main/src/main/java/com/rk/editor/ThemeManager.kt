@@ -1,6 +1,9 @@
 package com.rk.editor
 
 import android.content.Context
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
@@ -8,6 +11,7 @@ import com.rk.settings.Settings
 import com.rk.theme.currentTheme
 import com.rk.utils.isDarkTheme
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
+import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
@@ -15,6 +19,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
+
+private var selectionColor: Color? = null
+
+@Suppress("ComposableNaming")
+@Composable
+fun preloadSelectionColor() {
+    val selectionColors = LocalTextSelectionColors.current
+    val selectionBackground = selectionColors.backgroundColor
+    selectionColor = selectionBackground
+}
+
+fun getSelectionColor(): Color? {
+    return selectionColor
+}
 
 object ThemeManager {
     private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
@@ -54,6 +72,7 @@ object ThemeManager {
                     )
             }
 
+        ThemeRegistry.getInstance().loadTheme(themeModel)
         TextMateColorScheme.create(themeModel).also {
             colorSchemeCache[cacheKey] = it
             return it

@@ -9,6 +9,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.rk.activities.main.MainViewModel
 import com.rk.editor.ThemeManager
+import com.rk.editor.getSelectionColor
 import com.rk.file.FileObject
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toAnnotatedString
@@ -48,9 +49,13 @@ class SnippetBuilder(private val context: Context) {
 
             val highlightedAnnotated = (highlightedSpanned as? Spannable)?.toAnnotatedString() ?: highlightedSpanned
 
-            val colorScheme = ThemeManager.createColorScheme(context)
-            val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
-            val backgroundColor = Color(background)
+            val backgroundColor =
+                getSelectionColor()
+                    ?: run {
+                        val colorScheme = ThemeManager.createColorScheme(context)
+                        val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
+                        Color(background)
+                    }
 
             Snippet(
                 text =
@@ -88,38 +93,12 @@ class SnippetBuilder(private val context: Context) {
                 }
 
             val targetLine = lines[range.start.line]
-            val trimmedTargetLine = targetLine.trim()
-            val leadingWhitespace = targetLine.indexOf(trimmedTargetLine)
-
-            val rangeStartTrimmed = range.start.character - leadingWhitespace
-            val rangeEndTrimmed = range.end.character - leadingWhitespace
 
             val fileExt = targetFile.getName().substringAfterLast(".", "")
-
-            val highlightedSpanned =
-                MarkdownCodeHighlighterRegistry.global.highlightAsync(
-                    code = trimmedTargetLine,
-                    language = fileExt,
-                    codeTypeface = Typeface.MONOSPACE,
-                )
-
-            val highlightedAnnotated = (highlightedSpanned as? Spannable)?.toAnnotatedString() ?: highlightedSpanned
-
-            val colorScheme = ThemeManager.createColorScheme(context)
-            val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
-            val backgroundColor = Color(background)
-
-            Snippet(
-                text =
-                    buildAnnotatedString {
-                        append(highlightedAnnotated)
-                        addStyle(
-                            style = SpanStyle(background = backgroundColor),
-                            start = rangeStartTrimmed,
-                            end = rangeEndTrimmed,
-                        )
-                    },
-                highlight = Highlight(rangeStartTrimmed, rangeEndTrimmed),
+            return@withContext generateSnippet(
+                text = targetLine,
+                highlight = Highlight(range.start.character, range.end.character),
+                fileExt = fileExt,
             )
         }
     }
