@@ -431,8 +431,8 @@
     <string name="rename_symbol">Rename symbol</string>
     <string name="format_document">Format document</string>
     <string name="format_selection">Format selection</string>
-    <string name="go_to_definition_desc">Select one of the %d definitions to navigate to their location.</string>
-    <string name="go_to_references_desc">Select one of the %d references to navigate to their location.</string>
+    <string name="go_to_definition_desc">Select one of the %s definitions to navigate to their location.</string>
+    <string name="go_to_references_desc">Select one of the %s references to navigate to their location.</string>
     <string name="no_definitions_found">No definitions found.</string>
     <string name="no_references_found">No references found.</string>
     <string name="find_definitions_error">Unable to find definitions.</string>
@@ -506,9 +506,9 @@
     <string name="theme_name_missing">JSON file does not specify a valid theme name. Please add one and try again.</string>
     <string name="theme_version_missing">JSON file does not specify a valid target version. Please add one and try again.</string>
     <string name="enter_code_snippet">Enter a code snippet</string>
-    <string name="empty_code_results">Enter a search query to find in files</string>
+    <string name="enter_query_to_search">Enter a search query to find in files</string>
     <string name="no_results">No results found</string>
-    <string name="results">%d results found</string>
+    <string name="results">%s results found</string>
     <string name="enter_name">Enter a name</string>
     <string name="show_hidden_files">Show hidden files</string>
     <string name="show_hidden_files_drawer">Show hidden files in drawer</string>
@@ -675,5 +675,13 @@
     <string name="resource_loading_error">Failed to load resource</string>
     <string name="terminate_all_sessions">Terminate all sessions</string>
     <string name="terminate_all_sessions_desc">Kill all terminal sessions when app is closed</string>
+    <string name="indexing">Indexing…</string>
+    <string name="file_name_opened">%s (Open)</string>
+    <string name="index_project">Index project</string>
+    <string name="index_project_desc">Indexing can improve search times for large projects</string>
+    <string name="always_index_projects">Always index projects</string>
     <string name="warn_dont_leave_setup">⚠ Do not leave this screen while setup is in progress</string>
+    <string name="indexing_stats">%1$s files indexed, database size %2$s</string>
+    <string name="exclude_files">Exclude files</string>
+    <string name="exclude_files_regex">Exclude files regex (e.g. .*(?&lt;!\\.py))</string>
 </resources>

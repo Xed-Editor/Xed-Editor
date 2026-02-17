@@ -15,4 +15,8 @@ abstract class DrawerTab : Serializable {
     open fun isSupported(): Boolean = true
 
     open fun isEnabled(): Boolean = true
+
+    open fun onAdded() {}
+
+    open fun onRemoved() {}
 }

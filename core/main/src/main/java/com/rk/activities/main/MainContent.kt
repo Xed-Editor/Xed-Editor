@@ -49,6 +49,7 @@ import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.FileActionDialog
 import com.rk.components.compose.utils.addIf
+import com.rk.editor.preloadSelectionColor
 import com.rk.file.FileObject
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeTab
@@ -63,13 +64,11 @@ import com.rk.utils.dialog
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
-import com.rk.utils.preloadSelectionColor
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
-    modifier: Modifier = Modifier,
     innerPadding: PaddingValues,
     mainViewModel: MainViewModel,
     fileTreeViewModel: FileTreeViewModel,
@@ -77,7 +76,6 @@ fun MainContent(
 ) {
     val scope = rememberCoroutineScope()
     var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
-
     preloadSelectionColor()
 
     Column(Modifier.fillMaxSize().padding(innerPadding)) {

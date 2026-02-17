@@ -438,8 +438,8 @@
     <string name="rename_symbol">Преименуване на символ</string>
     <string name="format_document">Формат на документ</string>
     <string name="format_selection">Избор на формат</string>
-    <string name="go_to_definition_desc">Изберете едно от %d определения, за да навигирате до тяхното местоположение.</string>
-    <string name="go_to_references_desc">Изберете една от %d препратки, за да навигирате до местоположението ѝ.</string>
+    <string name="go_to_definition_desc">Изберете едно от %s определения, за да навигирате до тяхното местоположение.</string>
+    <string name="go_to_references_desc">Изберете една от %s препратки, за да навигирате до местоположението ѝ.</string>
     <string name="no_definitions_found">Не са намерени определения.</string>
     <string name="no_references_found">Не са намерени препратки.</string>
     <string name="find_definitions_error">Невъзможно да намеря определения.</string>

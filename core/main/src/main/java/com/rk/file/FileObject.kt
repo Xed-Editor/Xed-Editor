@@ -83,7 +83,7 @@ suspend fun FileObject.copyToTempDir() = run {
     file
 }
 
-suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
     if (this.toString().startsWith("http")) {
         return NetWrapper(URL(toString()))
     }
@@ -105,6 +105,6 @@ suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
     return UriWrapper(this, !expectedIsFile)
 }
 
-private suspend fun needsUriFallback(): Boolean {
+private fun needsUriFallback(): Boolean {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()
 }

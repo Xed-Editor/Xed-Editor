@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,23 +26,20 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.LineSeparator
+import kotlinx.coroutines.launch
 
-enum class LineEnding(
-    val label: String,
-    val value: String,
-    val regex: Regex,
-    val replacement: String,
-    val type: LineSeparator,
-) {
-    LF("LF (Linux)", "lf", "(\\r\\n|\\r)".toRegex(), "\n", LineSeparator.LF),
-    CR("CR (macOS)", "cr", "[\\r\\n]".toRegex(), "\r\n", LineSeparator.CR),
-    CRLF("CRLF (Windows)", "crlf", "(\\r\\n|\\n)".toRegex(), "\r", LineSeparator.CRLF);
+enum class LineEnding(val label: String, val value: String, val char: String, val type: LineSeparator) {
+    LF("LF (Linux)", "lf", "\n", LineSeparator.LF),
+    CR("CR (macOS)", "cr", "\r", LineSeparator.CR),
+    CRLF("CRLF (Windows)", "crlf", "\r\n", LineSeparator.CRLF);
 
     fun applyOn(text: String): String {
-        return text.replace(regex, replacement)
+        return text.replace(REPLACE_REGEX, char)
     }
 
     companion object {
+        private val REPLACE_REGEX = "(\\r\\n|\\r|\\n)".toRegex()
+
         fun fromValue(value: String): LineEnding? {
             return when (value) {
                 "lf" -> LF
@@ -50,11 +48,21 @@ enum class LineEnding(
                 else -> null
             }
         }
+
+        fun detect(text: String): LineEnding {
+            return when {
+                text.contains(CRLF.char) -> CRLF
+                text.contains(CR.char) -> CR
+                else -> LF
+            }
+        }
     }
 }
 
 @Composable
 fun DefaultLineEnding(modifier: Modifier = Modifier) {
+    val scope = rememberCoroutineScope()
+
     PreferenceLayout(label = stringResource(strings.line_ending), backArrowVisible = true) {
         var selectedEnding by remember { mutableStateOf(Settings.line_ending) }
 
@@ -71,7 +79,7 @@ fun DefaultLineEnding(modifier: Modifier = Modifier) {
                         modifier.clickable(indication = ripple(), interactionSource = interaction) {
                             selectedEnding = ending.value
                             Settings.line_ending = ending.value
-                            refreshEditorSettings()
+                            scope.launch { refreshEditorSettings() }
                         },
                     contentModifier = Modifier.fillMaxHeight(),
                     title = { Text(fontWeight = FontWeight.Bold, text = ending.label) },

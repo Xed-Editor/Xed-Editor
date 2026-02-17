@@ -1,6 +1,5 @@
 package com.rk.utils
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -23,9 +22,9 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -40,6 +39,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.activities.main.gitViewModel
 import com.rk.file.FileObject
+import com.rk.file.FileType
 import com.rk.filetree.FileTreeViewModel
 import com.rk.git.ChangeType
 import com.rk.resources.getString
@@ -55,6 +55,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -278,20 +279,6 @@ fun Spanned.toAnnotatedString(): AnnotatedString {
     return builder.toAnnotatedString()
 }
 
-private var selectionColor = Color.Unspecified
-
-@SuppressLint("ComposableNaming")
-@Composable
-fun preloadSelectionColor() {
-    val selectionColors = LocalTextSelectionColors.current
-    val selectionBackground = selectionColors.backgroundColor
-    selectionColor = selectionBackground
-}
-
-fun getSelectionColor(): Color {
-    return selectionColor
-}
-
 // Helper function copied from
 // https://github.com/MohamedRejeb/compose-dnd/blob/65d48ed0f0bd83a0b01263b7e046864bdd4a9048/sample/common/src/commonMain/kotlin/utils/ScrollUtils.kt
 suspend fun handleLazyListScroll(lazyListState: LazyListState, dropIndex: Int): Unit = coroutineScope {
@@ -399,3 +386,49 @@ suspend fun findGitRoot(path: String): String? =
         val repo = FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()
         repo?.workTree?.canonicalPath
     }
+
+fun hasBinaryChars(text: String): Boolean {
+    val threshold = 0.3
+    val checkedCharacters = 1024
+
+    val checkText = text.take(checkedCharacters)
+    val total = checkText.length
+    if (total == 0) return false
+
+    val binarySymbolsCount =
+        checkText.count { c ->
+            (c.code < 32 && c.code != 9 && c.code != 10 && c.code != 12 && c.code != 13) || c.code > 126
+        }
+
+    // If the amount of binary chars in the file content is over 30%
+    return binarySymbolsCount.toDouble() / total > threshold
+}
+
+private val binaryExtensions: Set<String> =
+    (FileType.IMAGE.extensions +
+            FileType.AUDIO.extensions +
+            FileType.VIDEO.extensions +
+            FileType.ARCHIVE.extensions +
+            FileType.APK.extensions +
+            FileType.EXECUTABLE.extensions)
+        .map { it.lowercase() }
+        .toSet()
+
+fun isBinaryExtension(fileExt: String): Boolean {
+    return fileExt.lowercase() in binaryExtensions
+}
+
+fun formatFileSize(bytes: Long): String {
+    if (bytes < 1024) return "$bytes B"
+    val kb = bytes / 1024.0
+    if (kb < 1024) return String.format(Locale.getDefault(), "%.1f KB", kb)
+    val mb = kb / 1024.0
+    if (mb < 1024) return String.format(Locale.getDefault(), "%.1f MB", mb)
+    val gb = mb / 1024.0
+    return String.format(Locale.getDefault(), "%.1f GB", gb)
+}
+
+@Composable
+fun rememberNumberFormatter(): NumberFormat {
+    return remember { NumberFormat.getInstance() }
+}

@@ -7,9 +7,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.rk.components.CodeItem
 import com.rk.editor.Editor
 import com.rk.runner.RunnerImpl
+import com.rk.search.CodeItem
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.Content
 import java.lang.ref.WeakReference

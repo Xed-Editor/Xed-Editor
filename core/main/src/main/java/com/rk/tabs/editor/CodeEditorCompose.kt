@@ -25,7 +25,6 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.editor.intelligent.IntelligentFeature
-import com.rk.file.FileType
 import com.rk.lsp.BaseLspConnector
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.builtInServer
@@ -40,7 +39,6 @@ import com.rk.settings.Settings
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.info
-import com.rk.utils.logError
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
@@ -110,9 +108,9 @@ fun EditorTab.CodeEditor(
                         info("New Editor instance")
 
                         editable = state.editable
-                        if (Settings.word_wrap_text && !isWordwrap) {
-                            val isTextFile = file.getName().endsWith(".txt")
-                            setWordwrap(isTextFile, true, true)
+                        val isTxtFile = file.getName().endsWith(".txt")
+                        if (Settings.word_wrap_text && isTxtFile) {
+                            setWordwrap(true, true, true)
                         }
                         id = View.generateViewId()
                         layoutParams = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 0)
@@ -151,7 +149,7 @@ fun EditorTab.CodeEditor(
                             }
                         }
 
-                        scope.launch { state.editorConfigLoaded?.await()?.let { applySettings() } }
+                        scope.launch { state.editorConfigLoaded?.await()?.let { applySettings(it) } }
 
                         subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
                             val viewModel = fileTreeViewModel.get()
@@ -267,19 +265,19 @@ fun EditorTab.CodeEditor(
 }
 
 fun EditorTab.applyHighlightingAndConnectLSP() {
-    if (editorState.editor.get() == null) return
+    val editor = editorState.editor.get() ?: return
 
-    with(editorState.editor.get()!!) {
+    with(editor) {
         editorState.textmateScope?.let { langScope ->
             scope.launch(Dispatchers.IO) {
                 setLanguage(langScope)
-                applyMarkdownHighlighting()
 
                 val ext = file.getName().substringAfterLast(".", "").trim()
 
                 val builtin = getBuiltinServers(ext, context)
                 val external = getExternalServers()
-                if (builtin.isEmpty() && external.isEmpty()) return@launch
+                val servers = builtin + external
+                if (servers.isEmpty()) return@launch
 
                 val parentFile =
                     file.getParentFile()
@@ -293,17 +291,12 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                         projectFile = parentFile,
                         fileObject = file,
                         codeEditor = editorState.editor.get()!!,
-                        servers = external + builtin,
+                        servers = servers,
                     )
 
                 parentFile.let {
                     info("Trying to connect...")
-                    val textMateScope = FileType.getTextmateScopeFromName(file.getName())
-                    if (textMateScope != null) {
-                        baseLspConnector?.connect(textMateScope)
-                    } else {
-                        logError("TextMate scope is null")
-                    }
+                    baseLspConnector?.connect(langScope)
                     info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
                 }
             }

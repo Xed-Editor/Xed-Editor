@@ -432,8 +432,8 @@
     <string name="go_to_definition">Aller à la définition</string>
     <string name="go_to_references">Aller aux références</string>
     <string name="rename_symbol">Renommer un symbole</string>
-    <string name="go_to_definition_desc">Sélectionner l\'une des %d définitions pour aller à sa position.</string>
-    <string name="go_to_references_desc">Sélectionner l\'une des %d référence pour aller à sa position.</string>
+    <string name="go_to_definition_desc">Sélectionner l\'une des %s définitions pour aller à sa position.</string>
+    <string name="go_to_references_desc">Sélectionner l\'une des %s référence pour aller à sa position.</string>
     <string name="no_definitions_found">Aucune définition trouvée.</string>
     <string name="no_references_found">Aucune référence trouvée.</string>
     <string name="find_definitions_error">Impossible de trouver des définitions.</string>
@@ -512,9 +512,9 @@
     <string name="theme_name_missing">Le fichier JSON ne contient pas de nom d\'un thème valide. Ajoutez-en une, s\'il vous plait, et réessayez.</string>
     <string name="theme_version_missing">Le fichier JSON ne contient pas de version de cible valide. Ajoutez-en une, s\'il vous plait, et réessayez.</string>
     <string name="enter_code_snippet">Entrez un extrait de code</string>
-    <string name="empty_code_results">Entrez une requête à rechercher dans des fichiers</string>
+    <string name="enter_query_to_search">Entrez une requête à rechercher dans des fichiers</string>
     <string name="no_results">Aucun résultat trouvé</string>
-    <string name="results">%d résultats trouvés</string>
+    <string name="results">%s résultats trouvés</string>
     <string name="enter_name">Entrez un nom</string>
     <string name="show_hidden_files_drawer">Affiche les fichiers cachés du dossier</string>
     <string name="show_hidden_files_drawer_desc">Affiche les fichiers ou répertoires cachés (comme .git) du dossier</string>

@@ -1,4 +1,4 @@
-package com.rk.components
+package com.rk.search
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.horizontalScroll
@@ -44,6 +44,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.rk.components.StyledTextField
 import com.rk.resources.strings
 import com.rk.tabs.editor.CodeEditorState
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
@@ -52,7 +53,7 @@ import io.github.rosemoe.sora.widget.EditorSearcher
 import java.util.regex.PatternSyntaxException
 
 @Composable
-fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
+fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
     val editor = editorState.editor
     val focusRequester = remember { FocusRequester() }
 
@@ -72,7 +73,7 @@ fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
                 editor.get()?.searcher?.search(query, searchOptions)
                 hasSearchError = false
                 isSearchingInternal = true
-            } catch (e: PatternSyntaxException) {
+            } catch (_: PatternSyntaxException) {
                 hasSearchError = true
                 isSearchingInternal = false
             }
@@ -154,10 +155,7 @@ fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
                                 ),
                             trailingIcon = {
                                 Box {
-                                    IconButton(
-                                        modifier = Modifier.height(24.dp),
-                                        onClick = { editorState.showOptionsMenu = true },
-                                    ) {
+                                    IconButton(onClick = { editorState.showOptionsMenu = true }) {
                                         Icon(imageVector = Icons.Outlined.MoreVert, stringResource(strings.more))
                                     }
 
@@ -168,10 +166,8 @@ fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
                                         DropdownMenuItem(
                                             text = {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Checkbox(
-                                                        checked = editorState.ignoreCase,
-                                                        onCheckedChange = { editorState.ignoreCase = it },
-                                                    )
+                                                    Checkbox(checked = editorState.ignoreCase, onCheckedChange = null)
+                                                    Spacer(Modifier.width(12.dp))
                                                     Text(stringResource(strings.ignore_case))
                                                     Spacer(Modifier.width(8.dp))
                                                 }
@@ -185,15 +181,8 @@ fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
                                         DropdownMenuItem(
                                             text = {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Checkbox(
-                                                        checked = editorState.searchRegex,
-                                                        onCheckedChange = {
-                                                            editorState.searchRegex = it
-                                                            if (it) {
-                                                                editorState.searchWholeWord = false
-                                                            }
-                                                        },
-                                                    )
+                                                    Checkbox(checked = editorState.searchRegex, onCheckedChange = null)
+                                                    Spacer(Modifier.width(12.dp))
                                                     Text(stringResource(strings.regex))
                                                     Spacer(Modifier.width(8.dp))
                                                 }
@@ -213,13 +202,9 @@ fun SearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifier) {
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                                     Checkbox(
                                                         checked = editorState.searchWholeWord,
-                                                        onCheckedChange = {
-                                                            editorState.searchWholeWord = it
-                                                            if (it) {
-                                                                editorState.searchRegex = false
-                                                            }
-                                                        },
+                                                        onCheckedChange = null,
                                                     )
+                                                    Spacer(Modifier.width(12.dp))
                                                     Text(stringResource(strings.whole_word))
                                                     Spacer(Modifier.width(8.dp))
                                                 }

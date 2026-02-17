@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ktfmt)
 
+    id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.2.20"
 }
 
@@ -117,6 +118,9 @@ dependencies {
     implementation(libs.jgit)
     debugImplementation(libs.leakcanary)
     // implementation("androidx.compose.material:material-icons-extended:1.7.8")
+
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
 
     // Modules
     implementation(project(":editor"))
