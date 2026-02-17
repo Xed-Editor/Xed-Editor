@@ -38,7 +38,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainViewModel
+import com.rk.components.SingleInputDialog
 import com.rk.components.XedDialog
 import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
@@ -77,8 +80,17 @@ fun CodeSearchDialog(
     val context = LocalContext.current
     val screenHeight = LocalWindowInfo.current.containerSize.height.dp
 
-    LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.codeSearchQuery) {
+    LaunchedEffect(
+        searchViewModel.isIndexing(projectFile),
+        searchViewModel.codeSearchQuery,
+        searchViewModel.ignoreCase,
+        searchViewModel.excludedFilesText,
+    ) {
         searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
+    }
+
+    if (searchViewModel.showExcludeFilesDialog) {
+        ExcludeFilesDialog(searchViewModel)
     }
 
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
@@ -128,38 +140,14 @@ fun CodeSearchDialog(
                             DropdownMenuItem(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Checkbox(checked = searchViewModel.searchRegex, onCheckedChange = null)
                                         Spacer(Modifier.width(12.dp))
-                                        Text(stringResource(strings.regex))
+                                        Text(stringResource(strings.exclude_files))
                                         Spacer(Modifier.width(8.dp))
                                     }
                                 },
                                 onClick = {
-                                    val newValue = !searchViewModel.searchRegex
-                                    searchViewModel.searchRegex = newValue
+                                    searchViewModel.showExcludeFilesDialog = true
                                     searchViewModel.showOptionsMenu = false
-                                    if (newValue) {
-                                        searchViewModel.searchWholeWord = false
-                                    }
-                                },
-                            )
-
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Checkbox(checked = searchViewModel.searchWholeWord, onCheckedChange = null)
-                                        Spacer(Modifier.width(12.dp))
-                                        Text(stringResource(strings.whole_word))
-                                        Spacer(Modifier.width(8.dp))
-                                    }
-                                },
-                                onClick = {
-                                    val newValue = !searchViewModel.searchWholeWord
-                                    searchViewModel.searchWholeWord = newValue
-                                    searchViewModel.showOptionsMenu = false
-                                    if (newValue) {
-                                        searchViewModel.searchRegex = false
-                                    }
                                 },
                             )
                         }
@@ -334,4 +322,18 @@ fun CodeSearchDialog(
             }
         }
     }
+}
+
+@Composable
+fun ExcludeFilesDialog(searchViewModel: SearchViewModel) {
+    var excludeFilesText by remember { mutableStateOf(searchViewModel.excludedFilesText) }
+
+    SingleInputDialog(
+        title = stringResource(id = strings.exclude_files),
+        inputLabel = stringResource(id = strings.exclude_files_regex),
+        inputValue = excludeFilesText,
+        onInputValueChange = { excludeFilesText = it },
+        onConfirm = { searchViewModel.excludedFilesText = excludeFilesText },
+        onFinish = { searchViewModel.showExcludeFilesDialog = false },
+    )
 }

@@ -40,6 +40,9 @@ class SearchViewModel : ViewModel() {
     var fileSearchJob by mutableStateOf<Job?>(null)
 
     // Code search dialog
+    var excludedFilesText by mutableStateOf(".*\\/node_modules\\/.+")
+    var showExcludeFilesDialog by mutableStateOf(false)
+
     var isSearchingCode by mutableStateOf(false)
     val codeSearchResults = mutableStateListOf<CodeItem>()
     val groupedCodeResults by derivedStateOf { codeSearchResults.groupBy { it.file } }
@@ -49,8 +52,6 @@ class SearchViewModel : ViewModel() {
     var codeReplaceQuery by mutableStateOf("")
     var showOptionsMenu by mutableStateOf(false)
     var ignoreCase by mutableStateOf(true)
-    var searchRegex by mutableStateOf(false)
-    var searchWholeWord by mutableStateOf(false)
     var isReplaceShown by mutableStateOf(false)
         private set
 
@@ -246,12 +247,18 @@ class SearchViewModel : ViewModel() {
         query: String,
         useIndex: Boolean = true,
     ): Flow<CodeItem> = flow {
+        val excludedFilesRegex = Regex(excludedFilesText)
+
         // Search in opened tabs
         val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
-        val excludedFiles = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
+        val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
+
         for (tab in openedEditorTabs) {
+            if (excludedFilesRegex.matches(tab.file.getCanonicalPath())) continue
+
             val editor = tab.editorState.editor.get()
-            editor?.text.toString().lines().forEachIndexed { lineIndex, line ->
+            val editorText = editor?.text.toString()
+            editorText.lines().forEachIndexed { lineIndex, line ->
                 val indices = findAllIndices(line, query, ignoreCase = ignoreCase)
                 for (index in indices) {
                     currentCoroutineContext().ensureActive()
@@ -278,7 +285,8 @@ class SearchViewModel : ViewModel() {
                 mainViewModel = mainViewModel,
                 parent = projectRoot,
                 query = query,
-                excludedFiles = excludedFiles,
+                openPaths = openPaths,
+                excludedFilesRegex = excludedFilesRegex,
                 emit = ::emit,
             )
         } else {
@@ -287,7 +295,8 @@ class SearchViewModel : ViewModel() {
                 mainViewModel = mainViewModel,
                 projectRoot = projectRoot,
                 query = query,
-                excludedFiles = excludedFiles,
+                openPaths = openPaths,
+                excludedFilesRegex = excludedFilesRegex,
                 emit = ::emit,
             )
         }
@@ -298,7 +307,8 @@ class SearchViewModel : ViewModel() {
         mainViewModel: MainViewModel,
         projectRoot: FileObject,
         query: String,
-        excludedFiles: Set<String>,
+        openPaths: Set<String>,
+        excludedFilesRegex: Regex,
         emit: suspend (CodeItem) -> Unit,
     ) {
         var resultLimit = 5
@@ -316,7 +326,8 @@ class SearchViewModel : ViewModel() {
             if (results.isEmpty()) break
 
             for (result in results) {
-                if (result.path in excludedFiles) continue
+                if (result.path in openPaths) continue
+                if (excludedFilesRegex.matches(result.path)) continue
 
                 val indices = findAllIndices(result.content, query, ignoreCase = ignoreCase)
                 for (index in indices) {
@@ -347,20 +358,31 @@ class SearchViewModel : ViewModel() {
         mainViewModel: MainViewModel,
         parent: FileObject,
         query: String,
-        excludedFiles: Set<String>,
+        openPaths: Set<String>,
         emit: suspend (CodeItem) -> Unit,
+        excludedFilesRegex: Regex,
         isResultHidden: Boolean = false,
     ) {
         val childFiles = parent.listFiles()
 
         for (file in childFiles) {
-            if (file.getAbsolutePath() in excludedFiles) continue
+            if (excludedFilesRegex.matches(file.getCanonicalPath())) continue
+            if (file.getAbsolutePath() in openPaths) continue
 
             val isHidden = file.getName().startsWith(".") || isResultHidden
             if (isHidden && !Settings.show_hidden_files_search) continue
 
             if (file.isDirectory()) {
-                searchCodeWithoutIndex(context, mainViewModel, file, query, excludedFiles, emit, isResultHidden)
+                searchCodeWithoutIndex(
+                    context,
+                    mainViewModel,
+                    file,
+                    query,
+                    openPaths,
+                    emit,
+                    excludedFilesRegex,
+                    isResultHidden,
+                )
                 continue
             }
 

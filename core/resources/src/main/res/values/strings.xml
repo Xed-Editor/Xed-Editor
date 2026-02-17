@@ -682,4 +682,6 @@
     <string name="always_index_projects">Always index projects</string>
     <string name="warn_dont_leave_setup">⚠ Do not leave this screen while setup is in progress</string>
     <string name="indexing_stats">%1$s files indexed, database size %2$s</string>
+    <string name="exclude_files">Exclude files</string>
+    <string name="exclude_files_regex">Exclude files regex (e.g. .*(?&lt;!\\.py))</string>
 </resources>
