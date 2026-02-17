@@ -284,4 +284,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         }
         return true
     }
+
+    override fun onRemoved() {
+        searchViewModel.get()?.deleteIndex(MainActivity.instance!!, root)
+    }
 }

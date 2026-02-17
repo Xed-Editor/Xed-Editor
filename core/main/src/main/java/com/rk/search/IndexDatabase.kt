@@ -24,6 +24,8 @@ interface FileMetaDao {
     @Query("SELECT * FROM files WHERE fileName LIKE '%' || :prefix || '%'")
     suspend fun search(prefix: String): List<FileMeta>
 
+    @Query("SELECT COUNT(*) FROM files") suspend fun getCount(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertAll(files: List<FileMeta>)
 
     @Query("DELETE FROM files WHERE path = :path") suspend fun deleteByPath(path: String)

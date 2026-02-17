@@ -170,7 +170,7 @@ class SearchViewModel : ViewModel() {
     data class IndexingStats(val totalFiles: Int, val databaseSize: Long)
 
     suspend fun getStats(context: Context, projectRoot: FileObject): IndexingStats {
-        val totalFiles = getDatabase(context, projectRoot).fileMetaDao().getAll().size
+        val totalFiles = getDatabase(context, projectRoot).fileMetaDao().getCount()
         val databaseSize = IndexDatabase.getDatabaseSize(context, projectRoot)
         return IndexingStats(totalFiles, databaseSize)
     }
