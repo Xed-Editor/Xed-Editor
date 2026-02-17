@@ -45,6 +45,11 @@ interface CodeLineDao {
     @Query("SELECT * FROM code_index WHERE content LIKE '%' || :query || '%' LIMIT :limit OFFSET :offset")
     suspend fun search(query: String, limit: Int, offset: Int): List<CodeLine>
 
+    @Query(
+        "SELECT * FROM code_index WHERE content LIKE '%' || :query || '%' COLLATE BINARY LIMIT :limit OFFSET :offset"
+    )
+    suspend fun searchCaseSensitive(query: String, limit: Int, offset: Int): List<CodeLine>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertAll(lines: List<CodeLine>)
 
     @Query("DELETE FROM code_index WHERE path = :path") suspend fun deleteByPath(path: String)

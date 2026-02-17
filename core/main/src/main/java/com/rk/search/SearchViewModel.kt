@@ -224,7 +224,7 @@ class SearchViewModel : ViewModel() {
         return results
     }
 
-    private fun findAllIndices(text: String, query: String, ignoreCase: Boolean = true): List<Int> {
+    private fun findAllIndices(text: String, query: String, ignoreCase: Boolean): List<Int> {
         val indices = mutableListOf<Int>()
         var currentIndex = 0
 
@@ -252,7 +252,7 @@ class SearchViewModel : ViewModel() {
         for (tab in openedEditorTabs) {
             val editor = tab.editorState.editor.get()
             editor?.text.toString().lines().forEachIndexed { lineIndex, line ->
-                val indices = findAllIndices(line, query, ignoreCase = true)
+                val indices = findAllIndices(line, query, ignoreCase = ignoreCase)
                 for (index in indices) {
                     currentCoroutineContext().ensureActive()
                     emit(
@@ -307,13 +307,18 @@ class SearchViewModel : ViewModel() {
         val dao = getDatabase(context, projectRoot).codeIndexDao()
 
         while (true) {
-            val results = dao.search(query, resultLimit, offset)
+            val results =
+                if (ignoreCase) {
+                    dao.search(query, resultLimit, offset)
+                } else {
+                    dao.searchCaseSensitive(query, resultLimit, offset)
+                }
             if (results.isEmpty()) break
 
             for (result in results) {
                 if (result.path in excludedFiles) continue
 
-                val indices = findAllIndices(result.content, query, ignoreCase = true)
+                val indices = findAllIndices(result.content, query, ignoreCase = ignoreCase)
                 for (index in indices) {
                     val absoluteCharIndex = result.chunkStart + index
                     val file = File(result.path).toFileWrapper()
@@ -365,7 +370,7 @@ class SearchViewModel : ViewModel() {
             lines.forEachIndexed { lineIndex, line ->
                 val chunks = line.chunked(MAX_CHUNK_SIZE)
                 chunks.forEachIndexed { chunkIndex, chunk ->
-                    val indices = findAllIndices(chunk, query, ignoreCase = true)
+                    val indices = findAllIndices(chunk, query, ignoreCase = ignoreCase)
                     for (index in indices) {
                         val absoluteCharIndex = (chunkIndex * MAX_CHUNK_SIZE) + index
                         currentCoroutineContext().ensureActive()
