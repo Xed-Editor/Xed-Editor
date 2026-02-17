@@ -38,10 +38,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -64,11 +61,8 @@ import com.rk.filetree.FileIcon
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
-import com.rk.settings.Preference
-import com.rk.settings.Settings
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
@@ -80,64 +74,12 @@ fun CodeSearchDialog(
     onFinish: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
-
-    var isSearching by remember { mutableStateOf(false) }
-    val searchResults = remember { mutableStateListOf<CodeItem>() }
-
-    val groupedResults by remember { derivedStateOf { searchResults.groupBy { it.file } } }
-
     val context = LocalContext.current
-
-    var searchJob by remember { mutableStateOf<Job?>(null) }
-
-    /** Cancels any running search */
-    fun cancelSearch() {
-        searchJob?.cancel()
-        searchJob = null
-
-        searchResults.clear()
-        isSearching = false
-    }
-
-    /** Executes a search */
-    fun launchSearch() {
-        cancelSearch()
-
-        if (searchViewModel.codeSearchQuery.isBlank()) {
-            searchResults.clear()
-            return
-        }
-
-        searchJob =
-            searchViewModel.viewModelScope.launch {
-                isSearching = true
-
-                try {
-                    searchViewModel
-                        .searchCode(
-                            context = context,
-                            projectRoot = projectFile,
-                            query = searchViewModel.codeSearchQuery,
-                            mainViewModel = mainViewModel,
-                            useIndex =
-                                Preference.getBoolean(
-                                    "enable_indexing_${projectFile.hashCode()}",
-                                    Settings.always_index_projects,
-                                ),
-                        )
-                        .collect { searchResults.add(it) }
-                } finally {
-                    isSearching = false
-                }
-            }
-    }
+    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
 
     LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.codeSearchQuery) {
-        launchSearch()
-        return@LaunchedEffect
+        searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
     }
-
-    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
 
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
         Column(modifier = Modifier.animateContentSize().height(screenHeight * 0.8f)) {
@@ -252,16 +194,18 @@ fun CodeSearchDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(16.dp),
             ) {
-                if (searchViewModel.isIndexing(projectFile) || isSearching) {
+                if (searchViewModel.isIndexing(projectFile) || searchViewModel.isSearchingCode) {
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
                 }
                 val numberFormatter = rememberNumberFormatter()
-                val resultCount by remember { derivedStateOf { numberFormatter.format(searchResults.size) } }
+                val resultCount by remember {
+                    derivedStateOf { numberFormatter.format(searchViewModel.codeSearchResults.size) }
+                }
                 Text(
                     stringResource(
                             when {
                                 searchViewModel.isIndexing(projectFile) -> strings.indexing
-                                searchResults.isNotEmpty() -> strings.results
+                                searchViewModel.codeSearchResults.isNotEmpty() -> strings.results
                                 else -> strings.no_results
                             }
                         )
@@ -273,21 +217,21 @@ fun CodeSearchDialog(
 
             fun replace(codeItem: CodeItem) {
                 searchViewModel.viewModelScope.launch {
-                    searchViewModel.replaceIn(mainViewModel, codeItem, ::launchSearch)
+                    searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
                 }
             }
 
             fun replaceAll(codeItems: List<CodeItem>) {
                 searchViewModel.viewModelScope.launch {
                     for (codeItem in codeItems) {
-                        searchViewModel.replaceIn(mainViewModel, codeItem, ::launchSearch)
+                        searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
                     }
                 }
             }
 
             if (searchViewModel.codeSearchQuery.isNotEmpty()) {
                 LazyColumn {
-                    groupedResults.entries.forEachIndexed { index, (fileObject, codeItems) ->
+                    searchViewModel.groupedCodeResults.entries.forEachIndexed { index, (fileObject, codeItems) ->
                         item {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -345,7 +289,7 @@ fun CodeSearchDialog(
                             }
                         }
 
-                        items(codeItems) { codeItem ->
+                        items(items = codeItems) { codeItem ->
                             CodeItemRow(
                                 item = codeItem,
                                 leadingIcon =

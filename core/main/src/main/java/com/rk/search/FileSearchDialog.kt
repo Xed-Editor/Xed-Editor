@@ -22,9 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -47,8 +45,6 @@ import com.rk.filetree.FileIcon
 import com.rk.filetree.getAppropriateName
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
-import com.rk.settings.Preference
-import com.rk.settings.Settings
 import com.rk.utils.getGitColor
 import com.rk.utils.rememberNumberFormatter
 import java.io.File
@@ -61,24 +57,10 @@ fun FileSearchDialog(
     onSelect: (FileObject, FileObject) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
-
-    var isSearching by remember { mutableStateOf(false) }
-    var searchResults by remember { mutableStateOf<List<FileMeta>>(emptyList()) }
-
     val context = LocalContext.current
 
     LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.fileSearchQuery) {
-        isSearching = true
-        val results =
-            searchViewModel.searchFileName(
-                context = context,
-                projectRoot = projectFile,
-                query = searchViewModel.fileSearchQuery,
-                useIndex =
-                    Preference.getBoolean("enable_indexing_${projectFile.hashCode()}", Settings.always_index_projects),
-            )
-        searchResults = results
-        isSearching = false
+        searchViewModel.launchFileSearch(context, projectFile)
     }
 
     val screenHeight = LocalWindowInfo.current.containerSize.height.dp
@@ -98,16 +80,18 @@ fun FileSearchDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(top = 16.dp, start = 16.dp, bottom = 0.dp, end = 16.dp),
             ) {
-                if (searchViewModel.isIndexing(projectFile) || isSearching) {
+                if (searchViewModel.isIndexing(projectFile) || searchViewModel.isSearchingFiles) {
                     CircularProgressIndicator(modifier = Modifier.size(9.dp), strokeWidth = 2.dp)
                 }
                 val numberFormatter = rememberNumberFormatter()
-                val resultCount by remember { derivedStateOf { numberFormatter.format(searchResults.size) } }
+                val resultCount by remember {
+                    derivedStateOf { numberFormatter.format(searchViewModel.fileSearchResults.size) }
+                }
                 Text(
                     stringResource(
                             when {
                                 searchViewModel.isIndexing(projectFile) -> strings.indexing
-                                searchResults.isNotEmpty() -> strings.results
+                                searchViewModel.fileSearchResults.isNotEmpty() -> strings.results
                                 else -> strings.no_results
                             }
                         )
@@ -118,7 +102,7 @@ fun FileSearchDialog(
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
             LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
-                items(items = searchResults, key = { it }) { codeLine ->
+                items(items = searchViewModel.fileSearchResults, key = { it }) { codeLine ->
                     Box(modifier = Modifier.animateItem()) {
                         SearchItem(File(codeLine.path).toFileWrapper(), projectFile, onFinish, onSelect)
                     }

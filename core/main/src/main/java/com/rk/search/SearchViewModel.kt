@@ -1,7 +1,9 @@
 package com.rk.search
 
 import android.content.Context
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +13,7 @@ import androidx.room.withTransaction
 import com.rk.activities.main.MainViewModel
 import com.rk.file.FileObject
 import com.rk.file.toFileWrapper
+import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.LineEnding
 import com.rk.tabs.editor.EditorTab
@@ -19,10 +22,11 @@ import com.rk.utils.isBinaryExtension
 import java.io.File
 import java.nio.charset.Charset
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -31,8 +35,16 @@ class SearchViewModel : ViewModel() {
 
     // File search dialog
     var fileSearchQuery by mutableStateOf("")
+    var isSearchingFiles by mutableStateOf(false)
+    var fileSearchResults by mutableStateOf<List<FileMeta>>(emptyList())
+    var fileSearchJob by mutableStateOf<Job?>(null)
 
     // Code search dialog
+    var isSearchingCode by mutableStateOf(false)
+    val codeSearchResults = mutableStateListOf<CodeItem>()
+    val groupedCodeResults by derivedStateOf { codeSearchResults.groupBy { it.file } }
+    var codeSearchJob by mutableStateOf<Job?>(null)
+
     var codeSearchQuery by mutableStateOf("")
     var codeReplaceQuery by mutableStateOf("")
     var showOptionsMenu by mutableStateOf(false)
@@ -46,11 +58,77 @@ class SearchViewModel : ViewModel() {
         private const val MAX_CHUNK_SIZE = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
     }
 
+    fun cancelFileSearch() {
+        fileSearchJob?.cancel()
+        fileSearchJob = null
+        isSearchingFiles = false
+    }
+
+    fun launchFileSearch(context: Context, projectRoot: FileObject) {
+        cancelFileSearch()
+
+        isSearchingFiles = true
+        fileSearchJob =
+            viewModelScope.launch {
+                fileSearchResults =
+                    searchFileName(
+                        context = context,
+                        projectRoot = projectRoot,
+                        query = fileSearchQuery,
+                        useIndex =
+                            Preference.getBoolean(
+                                "enable_indexing_${projectRoot.hashCode()}",
+                                Settings.always_index_projects,
+                            ),
+                    )
+                isSearchingFiles = false
+            }
+    }
+
+    /** Cancels any running search */
+    fun cancelCodeSearch() {
+        codeSearchJob?.cancel()
+        codeSearchJob = null
+
+        codeSearchResults.clear()
+        isSearchingCode = false
+    }
+
+    /** Executes a search */
+    fun launchCodeSearch(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject) {
+        cancelCodeSearch()
+
+        if (codeSearchQuery.isBlank()) {
+            codeSearchResults.clear()
+            return
+        }
+
+        codeSearchJob =
+            viewModelScope.launch {
+                isSearchingCode = true
+
+                searchCode(
+                        context = context,
+                        projectRoot = projectRoot,
+                        query = codeSearchQuery,
+                        mainViewModel = mainViewModel,
+                        useIndex =
+                            Preference.getBoolean(
+                                "enable_indexing_${projectRoot.hashCode()}",
+                                Settings.always_index_projects,
+                            ),
+                    )
+                    .collect { codeSearchResults.add(it) }
+
+                isSearchingCode = false
+            }
+    }
+
     fun toggleReplaceShown() {
         isReplaceShown = !isReplaceShown
     }
 
-    suspend fun replaceIn(mainViewModel: MainViewModel, codeItem: CodeItem, onFinished: suspend () -> Unit) {
+    suspend fun replaceIn(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject, codeItem: CodeItem) {
         withContext(Dispatchers.IO) {
             val lineIndex = codeItem.line
             val startCol = codeItem.column
@@ -80,7 +158,7 @@ class SearchViewModel : ViewModel() {
                 codeItem.file.writeText(normalizedContent, charset)
             }
 
-            onFinished()
+            launchCodeSearch(context, mainViewModel, projectRoot)
         }
     }
 
@@ -167,7 +245,7 @@ class SearchViewModel : ViewModel() {
         projectRoot: FileObject,
         query: String,
         useIndex: Boolean = true,
-    ): Flow<CodeItem> = channelFlow {
+    ): Flow<CodeItem> = flow {
         // Search in opened tabs
         val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
         val excludedFiles = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
@@ -177,7 +255,7 @@ class SearchViewModel : ViewModel() {
                 val indices = findAllIndices(line, query, ignoreCase = true)
                 for (index in indices) {
                     currentCoroutineContext().ensureActive()
-                    send(
+                    emit(
                         createCodeItem(
                             context = context,
                             mainViewModel = mainViewModel,
@@ -201,7 +279,7 @@ class SearchViewModel : ViewModel() {
                 parent = projectRoot,
                 query = query,
                 excludedFiles = excludedFiles,
-                send = ::send,
+                emit = ::emit,
             )
         } else {
             searchCodeWithIndex(
@@ -210,7 +288,7 @@ class SearchViewModel : ViewModel() {
                 projectRoot = projectRoot,
                 query = query,
                 excludedFiles = excludedFiles,
-                send = ::send,
+                emit = ::emit,
             )
         }
     }
@@ -221,7 +299,7 @@ class SearchViewModel : ViewModel() {
         projectRoot: FileObject,
         query: String,
         excludedFiles: Set<String>,
-        send: suspend (CodeItem) -> Unit,
+        emit: suspend (CodeItem) -> Unit,
     ) {
         var resultLimit = 5
         var offset = 0
@@ -241,7 +319,7 @@ class SearchViewModel : ViewModel() {
                     val file = File(result.path).toFileWrapper()
 
                     currentCoroutineContext().ensureActive()
-                    send(
+                    emit(
                         createCodeItem(
                             context = context,
                             mainViewModel = mainViewModel,
@@ -265,7 +343,7 @@ class SearchViewModel : ViewModel() {
         parent: FileObject,
         query: String,
         excludedFiles: Set<String>,
-        send: suspend (CodeItem) -> Unit,
+        emit: suspend (CodeItem) -> Unit,
         isResultHidden: Boolean = false,
     ) {
         val childFiles = parent.listFiles()
@@ -277,7 +355,7 @@ class SearchViewModel : ViewModel() {
             if (isHidden && !Settings.show_hidden_files_search) continue
 
             if (file.isDirectory()) {
-                searchCodeWithoutIndex(context, mainViewModel, file, query, excludedFiles, send, isResultHidden)
+                searchCodeWithoutIndex(context, mainViewModel, file, query, excludedFiles, emit, isResultHidden)
                 continue
             }
 
@@ -291,7 +369,7 @@ class SearchViewModel : ViewModel() {
                     for (index in indices) {
                         val absoluteCharIndex = (chunkIndex * MAX_CHUNK_SIZE) + index
                         currentCoroutineContext().ensureActive()
-                        send(
+                        emit(
                             createCodeItem(
                                 context = context,
                                 mainViewModel = mainViewModel,
