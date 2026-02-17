@@ -80,9 +80,7 @@ fun CodeItemRow(
                     if (highlightStart < layoutResult.layoutInput.text.length) {
                         val box = layoutResult.getBoundingBox(highlightStart)
                         val targetScroll = (box.left - 16f).toInt().coerceAtLeast(0)
-                        if (scrollState.value == 0) {
-                            scope.launch { scrollState.scrollTo(targetScroll) }
-                        }
+                        scope.launch { scrollState.scrollTo(targetScroll) }
                     }
                 },
             )

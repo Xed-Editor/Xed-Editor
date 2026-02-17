@@ -140,6 +140,7 @@ fun CodeSearchDialog(
                             DropdownMenuItem(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(painter = painterResource(drawables.edit), contentDescription = null)
                                         Spacer(Modifier.width(12.dp))
                                         Text(stringResource(strings.exclude_files))
                                         Spacer(Modifier.width(8.dp))
