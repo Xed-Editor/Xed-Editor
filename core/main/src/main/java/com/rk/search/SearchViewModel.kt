@@ -19,6 +19,8 @@ import com.rk.utils.isBinaryExtension
 import java.io.File
 import java.nio.charset.Charset
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
@@ -40,39 +42,36 @@ class SearchViewModel : ViewModel() {
     var isReplaceShown by mutableStateOf(false)
         private set
 
+    companion object {
+        private const val MAX_CHUNK_SIZE = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
+    }
+
     fun toggleReplaceShown() {
         isReplaceShown = !isReplaceShown
     }
 
-    fun replaceIn(context: Context, mainViewModel: MainViewModel, codeItem: CodeItem, onSuccess: (CodeItem?) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
-            var lineAfterReplacing: String? = null
+    suspend fun replaceIn(mainViewModel: MainViewModel, codeItem: CodeItem, onFinished: suspend () -> Unit) {
+        withContext(Dispatchers.IO) {
+            val lineIndex = codeItem.line
+            val startCol = codeItem.column
+            val endCol = codeItem.column + codeSearchQuery.length
+
             if (codeItem.isOpen) {
                 val tab =
                     mainViewModel.tabs.filterIsInstance<EditorTab>().find { tab -> tab.file == codeItem.file }
-                        ?: return@launch
-                val editor = tab.editorState.editor.get() ?: return@launch
-
-                val lineIndex = codeItem.line
-                val startCol = codeItem.column
-                val endCol = codeItem.column + codeSearchQuery.length
+                        ?: return@withContext
+                val editor = tab.editorState.editor.get() ?: return@withContext
 
                 withContext(Dispatchers.Main) {
                     editor.text.replace(lineIndex, startCol, lineIndex, endCol, codeReplaceQuery)
-                    lineAfterReplacing = editor.text.getLineString(lineIndex)
                 }
             } else {
-                val content = codeItem.file.readText() ?: return@launch
+                val content = codeItem.file.readText() ?: return@withContext
                 val lines = content.lines().toMutableList()
 
-                val lineIndex = codeItem.line
-                val startCol = codeItem.column
-                val endCol = codeItem.column + codeSearchQuery.length
-
-                val line = lines.getOrNull(lineIndex) ?: return@launch
+                val line = lines.getOrNull(lineIndex) ?: return@withContext
                 val newLine = line.replaceRange(startCol, endCol, codeReplaceQuery)
                 lines[lineIndex] = newLine
-                lineAfterReplacing = newLine
 
                 val charset = Charset.forName(Settings.encoding)
                 val lineEnding = LineEnding.detect(content)
@@ -81,42 +80,7 @@ class SearchViewModel : ViewModel() {
                 codeItem.file.writeText(normalizedContent, charset)
             }
 
-            val charIndex = lineAfterReplacing!!.indexOf(codeSearchQuery, ignoreCase = true)
-            if (charIndex == -1) {
-                onSuccess(null)
-                return@launch
-            }
-
-            val snippetResult =
-                SnippetBuilder(context)
-                    .generateSnippet(
-                        text = lineAfterReplacing!!,
-                        highlightStart = charIndex,
-                        highlightEnd = charIndex + codeSearchQuery.length,
-                        fileExt = codeItem.file.getName().substringAfterLast("."),
-                    )
-
-            val newCodeItem =
-                CodeItem(
-                    snippet = snippetResult.first,
-                    highlightStart = snippetResult.second,
-                    file = codeItem.file,
-                    line = codeItem.line,
-                    column = charIndex,
-                    isOpen = codeItem.isOpen,
-                    onClick = {
-                        viewModelScope.launch {
-                            mainViewModel.goToTabAndSelect(
-                                file = codeItem.file,
-                                lineStart = codeItem.line,
-                                charStart = charIndex,
-                                lineEnd = codeItem.line,
-                                charEnd = charIndex + codeSearchQuery.length,
-                            )
-                        }
-                    },
-                )
-            onSuccess(newCodeItem)
+            onFinished()
         }
     }
 
@@ -182,6 +146,21 @@ class SearchViewModel : ViewModel() {
         return results
     }
 
+    private fun findAllIndices(text: String, query: String, ignoreCase: Boolean = true): List<Int> {
+        val indices = mutableListOf<Int>()
+        var currentIndex = 0
+
+        while (currentIndex < text.length) {
+            val index = text.indexOf(query, currentIndex, ignoreCase)
+            if (index == -1) break
+
+            indices.add(index)
+            currentIndex = index + 1
+        }
+
+        return indices
+    }
+
     fun searchCode(
         context: Context,
         mainViewModel: MainViewModel,
@@ -189,47 +168,32 @@ class SearchViewModel : ViewModel() {
         query: String,
         useIndex: Boolean = true,
     ): Flow<CodeItem> = channelFlow {
+        // Search in opened tabs
         val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
         val excludedFiles = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
         for (tab in openedEditorTabs) {
             val editor = tab.editorState.editor.get()
             editor?.text.toString().lines().forEachIndexed { lineIndex, line ->
-                val charIndex = line.indexOf(query, ignoreCase = true)
-                if (charIndex == -1) return@forEachIndexed
-
-                val snippetResult =
-                    SnippetBuilder(context)
-                        .generateSnippet(
+                val indices = findAllIndices(line, query, ignoreCase = true)
+                for (index in indices) {
+                    currentCoroutineContext().ensureActive()
+                    send(
+                        createCodeItem(
+                            context = context,
+                            mainViewModel = mainViewModel,
                             text = line,
-                            highlightStart = charIndex,
-                            highlightEnd = charIndex + query.length,
-                            fileExt = tab.file.getName().substringAfterLast("."),
+                            charIndex = index,
+                            query = query,
+                            file = tab.file,
+                            lineIndex = lineIndex,
+                            isOpen = true,
                         )
-
-                val codeItem =
-                    CodeItem(
-                        snippet = snippetResult.first,
-                        highlightStart = snippetResult.second,
-                        file = tab.file,
-                        line = lineIndex,
-                        column = charIndex,
-                        isOpen = true,
-                        onClick = {
-                            viewModelScope.launch {
-                                mainViewModel.goToTabAndSelect(
-                                    file = tab.file,
-                                    lineStart = lineIndex,
-                                    charStart = charIndex,
-                                    lineEnd = lineIndex,
-                                    charEnd = charIndex + query.length,
-                                )
-                            }
-                        },
                     )
-                send(codeItem)
+                }
             }
         }
 
+        // Search through other files
         if (!useIndex) {
             searchCodeWithoutIndex(
                 context = context,
@@ -270,39 +234,25 @@ class SearchViewModel : ViewModel() {
 
             for (result in results) {
                 if (result.path in excludedFiles) continue
-                val charIndex = result.content.indexOf(query, ignoreCase = true)
-                val absoluteCharIndex = result.chunkStart + charIndex
 
-                val file = File(result.path).toFileWrapper()
-                val snippetResult =
-                    SnippetBuilder(context)
-                        .generateSnippet(
+                val indices = findAllIndices(result.content, query, ignoreCase = true)
+                for (index in indices) {
+                    val absoluteCharIndex = result.chunkStart + index
+                    val file = File(result.path).toFileWrapper()
+
+                    currentCoroutineContext().ensureActive()
+                    send(
+                        createCodeItem(
+                            context = context,
+                            mainViewModel = mainViewModel,
                             text = result.content,
-                            highlightStart = absoluteCharIndex,
-                            highlightEnd = absoluteCharIndex + query.length,
-                            fileExt = file.getName().substringAfterLast("."),
+                            charIndex = absoluteCharIndex,
+                            query = query,
+                            file = file,
+                            lineIndex = result.lineNumber,
                         )
-
-                val codeItem =
-                    CodeItem(
-                        snippet = snippetResult.first,
-                        highlightStart = snippetResult.second,
-                        file = file,
-                        line = result.lineNumber,
-                        column = absoluteCharIndex,
-                        onClick = {
-                            viewModelScope.launch {
-                                mainViewModel.goToTabAndSelect(
-                                    file = file,
-                                    lineStart = result.lineNumber,
-                                    charStart = absoluteCharIndex,
-                                    lineEnd = result.lineNumber,
-                                    charEnd = absoluteCharIndex + query.length,
-                                )
-                            }
-                        },
                     )
-                send(codeItem)
+                }
             }
             offset += resultLimit
             resultLimit = 20
@@ -335,45 +285,67 @@ class SearchViewModel : ViewModel() {
 
             val lines = fileText.lines()
             lines.forEachIndexed { lineIndex, line ->
-                val maxLength = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
-                val chunks = line.chunked(maxLength)
+                val chunks = line.chunked(MAX_CHUNK_SIZE)
                 chunks.forEachIndexed { chunkIndex, chunk ->
-                    val charIndex = chunk.indexOf(query, ignoreCase = true)
-                    if (charIndex == -1) return@forEachIndexed
-                    val absoluteCharIndex = (chunkIndex * maxLength) + charIndex
-
-                    val snippetResult =
-                        SnippetBuilder(context)
-                            .generateSnippet(
+                    val indices = findAllIndices(chunk, query, ignoreCase = true)
+                    for (index in indices) {
+                        val absoluteCharIndex = (chunkIndex * MAX_CHUNK_SIZE) + index
+                        currentCoroutineContext().ensureActive()
+                        send(
+                            createCodeItem(
+                                context = context,
+                                mainViewModel = mainViewModel,
                                 text = chunk,
-                                highlightStart = absoluteCharIndex,
-                                highlightEnd = absoluteCharIndex + query.length,
-                                fileExt = file.getName().substringAfterLast(".", ""),
+                                charIndex = absoluteCharIndex,
+                                query = query,
+                                file = file,
+                                lineIndex = lineIndex,
                             )
-
-                    val codeItem =
-                        CodeItem(
-                            snippet = snippetResult.first,
-                            highlightStart = snippetResult.second,
-                            file = file,
-                            line = lineIndex,
-                            column = absoluteCharIndex,
-                            onClick = {
-                                viewModelScope.launch {
-                                    mainViewModel.goToTabAndSelect(
-                                        file = file,
-                                        lineStart = lineIndex,
-                                        charStart = absoluteCharIndex,
-                                        lineEnd = lineIndex,
-                                        charEnd = absoluteCharIndex + query.length,
-                                    )
-                                }
-                            },
                         )
-                    send(codeItem)
+                    }
                 }
             }
         }
+    }
+
+    private suspend fun createCodeItem(
+        context: Context,
+        mainViewModel: MainViewModel,
+        text: String,
+        charIndex: Int,
+        query: String,
+        file: FileObject,
+        lineIndex: Int,
+        isOpen: Boolean = false,
+    ): CodeItem {
+        val snippetResult =
+            SnippetBuilder(context)
+                .generateSnippet(
+                    text = text,
+                    highlight = Highlight(charIndex, charIndex + query.length),
+                    fileExt = file.getName().substringAfterLast(".", ""),
+                )
+
+        val codeItem =
+            CodeItem(
+                snippet = snippetResult,
+                file = file,
+                line = lineIndex,
+                column = charIndex,
+                isOpen = isOpen,
+                onClick = {
+                    viewModelScope.launch {
+                        mainViewModel.goToTabAndSelect(
+                            file = file,
+                            lineStart = lineIndex,
+                            charStart = charIndex,
+                            lineEnd = lineIndex,
+                            charEnd = charIndex + query.length,
+                        )
+                    }
+                },
+            )
+        return codeItem
     }
 
     /**
@@ -547,11 +519,15 @@ class SearchViewModel : ViewModel() {
 
         val lines = fileText.lines()
         lines.forEachIndexed { lineIndex, line ->
-            val maxLength = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
-            val chunks = line.chunked(maxLength)
+            val chunks = line.chunked(MAX_CHUNK_SIZE)
             chunks.forEachIndexed { chunkIndex, chunk ->
                 codeLineResults.add(
-                    CodeLine(content = chunk, path = path, lineNumber = lineIndex, chunkStart = chunkIndex * maxLength)
+                    CodeLine(
+                        content = chunk,
+                        path = path,
+                        lineNumber = lineIndex,
+                        chunkStart = chunkIndex * MAX_CHUNK_SIZE,
+                    )
                 )
             }
         }

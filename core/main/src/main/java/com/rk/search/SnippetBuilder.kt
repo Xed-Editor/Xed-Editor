@@ -18,6 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.Range
 
+data class Snippet(val text: AnnotatedString, val highlight: Highlight)
+
+data class Highlight(val startIndex: Int, val endIndex: Int)
+
 class SnippetBuilder(private val context: Context) {
     /**
      * Generates a text portion of the provided text line that contains the range.
@@ -27,18 +31,13 @@ class SnippetBuilder(private val context: Context) {
      *
      * @return A [Pair] containing the [AnnotatedString] and the start index of the highlighted text.
      */
-    suspend fun generateSnippet(
-        text: String,
-        highlightStart: Int,
-        highlightEnd: Int,
-        fileExt: String,
-    ): Pair<AnnotatedString, Int> {
+    suspend fun generateSnippet(text: String, highlight: Highlight, fileExt: String): Snippet {
         return withContext(Dispatchers.Default) {
             val trimmedTargetLine = text.trim()
             val leadingWhitespace = text.indexOf(trimmedTargetLine)
 
-            val rangeStartTrimmed = highlightStart - leadingWhitespace
-            val rangeEndTrimmed = highlightEnd - leadingWhitespace
+            val rangeStartTrimmed = highlight.startIndex - leadingWhitespace
+            val rangeEndTrimmed = highlight.endIndex - leadingWhitespace
 
             val highlightedSpanned =
                 MarkdownCodeHighlighterRegistry.global.highlightAsync(
@@ -53,14 +52,18 @@ class SnippetBuilder(private val context: Context) {
             val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
             val backgroundColor = Color(background)
 
-            buildAnnotatedString {
-                append(highlightedAnnotated)
-                addStyle(
-                    style = SpanStyle(background = backgroundColor),
-                    start = rangeStartTrimmed,
-                    end = rangeEndTrimmed,
-                )
-            } to rangeStartTrimmed
+            Snippet(
+                text =
+                    buildAnnotatedString {
+                        append(highlightedAnnotated)
+                        addStyle(
+                            style = SpanStyle(background = backgroundColor),
+                            start = rangeStartTrimmed,
+                            end = rangeEndTrimmed,
+                        )
+                    },
+                highlight = Highlight(rangeStartTrimmed, rangeEndTrimmed),
+            )
         }
     }
 
@@ -72,11 +75,7 @@ class SnippetBuilder(private val context: Context) {
      *
      * @return A [Pair] containing the [AnnotatedString] and the start index of the highlighted text.
      */
-    suspend fun generateLspSnippet(
-        viewModel: MainViewModel,
-        targetFile: FileObject,
-        range: Range,
-    ): Pair<AnnotatedString, Int> {
+    suspend fun generateLspSnippet(viewModel: MainViewModel, targetFile: FileObject, range: Range): Snippet {
         return withContext(Dispatchers.IO) {
             val openedTab = viewModel.tabs.find { it is EditorTab && it.file == targetFile } as? EditorTab
 
@@ -110,14 +109,18 @@ class SnippetBuilder(private val context: Context) {
             val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
             val backgroundColor = Color(background)
 
-            buildAnnotatedString {
-                append(highlightedAnnotated)
-                addStyle(
-                    style = SpanStyle(background = backgroundColor),
-                    start = rangeStartTrimmed,
-                    end = rangeEndTrimmed,
-                )
-            } to rangeStartTrimmed
+            Snippet(
+                text =
+                    buildAnnotatedString {
+                        append(highlightedAnnotated)
+                        addStyle(
+                            style = SpanStyle(background = backgroundColor),
+                            start = rangeStartTrimmed,
+                            end = rangeEndTrimmed,
+                        )
+                    },
+                highlight = Highlight(rangeStartTrimmed, rangeEndTrimmed),
+            )
         }
     }
 }

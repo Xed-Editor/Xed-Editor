@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,10 +26,9 @@ import com.rk.file.FileObject
 import kotlinx.coroutines.launch
 
 data class CodeItem(
-    val snippet: AnnotatedString,
+    val snippet: Snippet,
     val file: FileObject,
     val isHidden: Boolean = false,
-    val highlightStart: Int = 0,
     val line: Int,
     val column: Int,
     val isOpen: Boolean = false,
@@ -61,7 +59,7 @@ fun CodeItemRow(
         val widthInDp = with(density) { layoutResult.size.width.toDp() }
 
         Text(
-            text = "${item.line}",
+            text = "${item.line + 1}",
             style = style,
             maxLines = 1,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
@@ -72,14 +70,15 @@ fun CodeItemRow(
         val scrollState = rememberScrollState()
         Row(modifier = Modifier.weight(1f).padding(vertical = 8.dp).horizontalScroll(scrollState)) {
             Text(
-                text = item.snippet,
+                text = item.snippet.text,
                 fontFamily = FontFamily.Monospace,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = style,
                 onTextLayout = { layoutResult ->
-                    if (item.highlightStart < layoutResult.layoutInput.text.length) {
-                        val box = layoutResult.getBoundingBox(item.highlightStart)
+                    val highlightStart = item.snippet.highlight.startIndex
+                    if (highlightStart < layoutResult.layoutInput.text.length) {
+                        val box = layoutResult.getBoundingBox(highlightStart)
                         val targetScroll = (box.left - 16f).toInt().coerceAtLeast(0)
                         if (scrollState.value == 0) {
                             scope.launch { scrollState.scrollTo(targetScroll) }

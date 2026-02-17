@@ -110,11 +110,10 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
 
                             val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
                             CodeItem(
-                                snippet = snippetResult.first,
-                                highlightStart = snippetResult.second,
+                                snippet = snippetResult,
                                 file = targetFile,
-                                line = range.start.line + 1,
-                                column = range.start.character + 1,
+                                line = range.start.line,
+                                column = range.start.character,
                                 onClick = { scope.launch { viewModel.goToTabAndSelect(targetFile, range) } },
                             )
                         }
@@ -172,11 +171,10 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
 
                             val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
                             CodeItem(
-                                snippet = snippetResult.first,
-                                highlightStart = snippetResult.second,
+                                snippet = snippetResult,
                                 file = targetFile,
-                                line = range.start.line + 1,
-                                column = range.start.character + 1,
+                                line = range.start.line,
+                                column = range.start.character,
                                 onClick = { scope.launch { viewModel.goToTabAndSelect(targetFile, range) } },
                             )
                         }

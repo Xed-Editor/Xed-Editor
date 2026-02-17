@@ -55,6 +55,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
 import com.rk.components.compose.utils.addIf
@@ -67,6 +68,8 @@ import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
 @Composable
@@ -85,26 +88,53 @@ fun CodeSearchDialog(
 
     val context = LocalContext.current
 
-    LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.codeSearchQuery) {
+    var searchJob by remember { mutableStateOf<Job?>(null) }
+
+    /** Cancels any running search */
+    fun cancelSearch() {
+        searchJob?.cancel()
+        searchJob = null
+
+        searchResults.clear()
+        isSearching = false
+    }
+
+    /** Executes a search */
+    fun launchSearch() {
+        cancelSearch()
+
         if (searchViewModel.codeSearchQuery.isBlank()) {
             searchResults.clear()
-            isSearching = false
-            return@LaunchedEffect
+            return
         }
 
-        isSearching = true
-        searchResults.clear()
-        searchViewModel
-            .searchCode(
-                context = context,
-                projectRoot = projectFile,
-                query = searchViewModel.codeSearchQuery,
-                mainViewModel = mainViewModel,
-                useIndex =
-                    Preference.getBoolean("enable_indexing_${projectFile.hashCode()}", Settings.always_index_projects),
-            )
-            .collect { searchResults.add(it) }
-        isSearching = false
+        searchJob =
+            searchViewModel.viewModelScope.launch {
+                isSearching = true
+
+                try {
+                    searchViewModel
+                        .searchCode(
+                            context = context,
+                            projectRoot = projectFile,
+                            query = searchViewModel.codeSearchQuery,
+                            mainViewModel = mainViewModel,
+                            useIndex =
+                                Preference.getBoolean(
+                                    "enable_indexing_${projectFile.hashCode()}",
+                                    Settings.always_index_projects,
+                                ),
+                        )
+                        .collect { searchResults.add(it) }
+                } finally {
+                    isSearching = false
+                }
+            }
+    }
+
+    LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.codeSearchQuery) {
+        launchSearch()
+        return@LaunchedEffect
     }
 
     val screenHeight = LocalWindowInfo.current.containerSize.height.dp
@@ -242,14 +272,15 @@ fun CodeSearchDialog(
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
             fun replace(codeItem: CodeItem) {
-                searchViewModel.replaceIn(context, mainViewModel, codeItem) {
-                    val index = searchResults.indexOf(codeItem)
-                    if (index == -1) return@replaceIn
+                searchViewModel.viewModelScope.launch {
+                    searchViewModel.replaceIn(mainViewModel, codeItem, ::launchSearch)
+                }
+            }
 
-                    if (it == null) {
-                        searchResults.removeAt(index)
-                    } else {
-                        searchResults[index] = it
+            fun replaceAll(codeItems: List<CodeItem>) {
+                searchViewModel.viewModelScope.launch {
+                    for (codeItem in codeItems) {
+                        searchViewModel.replaceIn(mainViewModel, codeItem, ::launchSearch)
                     }
                 }
             }
@@ -294,7 +325,7 @@ fun CodeSearchDialog(
                                             verticalAlignment = Alignment.CenterVertically,
                                             modifier =
                                                 Modifier.clip(ButtonDefaults.shape)
-                                                    .clickable { codeItems.forEach { replace(it) } }
+                                                    .clickable { replaceAll(codeItems) }
                                                     .padding(horizontal = 6.dp, vertical = 2.dp),
                                         ) {
                                             Text(
