@@ -667,7 +667,7 @@
     <string name="submodules">Alt modüller</string>
     <string name="submodules_desc">Bir depoyu klonlarken alt modülleri dahil et</string>
     <string name="recursive_submodules">Özyinelemeli alt modüller</string>
-    <string name="recursive_submodules_desc">Alt modülleri ve onların bağımlılıklarını özyinelemeli olarak getir</string>
+    <string name="recursive_submodules_desc">Alt modülleri ve bağımlılıklarını özyinelemeli olarak getir</string>
     <string name="commit_message">Commit mesajı</string>
     <string name="commit">Commit</string>
     <string name="commit_and_push">Commit ve gönder</string>
