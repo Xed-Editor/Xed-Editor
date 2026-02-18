@@ -699,4 +699,7 @@
     <string name="terminate_all_sessions">Zakończ wszystkie sesje</string>
     <string name="terminate_all_sessions_desc">Zakończ wszystkie sesje podczas zamykania aplikacji</string>
     <string name="warn_dont_leave_setup">⚠ Nie zamykaj aplikacji podczas konfigurowania</string>
+    <string name="indexing">Indeksowanie…</string>
+    <string name="file_name_opened">%s (Otwarty)</string>
+    <string name="index_project">Indeksuj projekt</string>
 </resources>
