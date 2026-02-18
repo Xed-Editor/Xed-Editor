@@ -691,4 +691,13 @@
     <string name="terminate_all_sessions_desc">Принудительно завершать все сеансы терминала при закрытии приложения</string>
     <string name="use">Открыть с помощью…</string>
     <string name="default_option">По умолчанию</string>
+    <string name="indexing">Индексация…</string>
+    <string name="file_name_opened">%s (Открыт)</string>
+    <string name="index_project">Индексировать проект</string>
+    <string name="index_project_desc">Индексация позволяет сократить время поиска в крупных проектах</string>
+    <string name="always_index_projects">Всегда выполнять индексацию проектов</string>
+    <string name="warn_dont_leave_setup">⚠ Не покидайте этот экран, пока выполняется настройка</string>
+    <string name="indexing_stats">Проиндексировано файлов: %1$s, размер базы данных: %2$s</string>
+    <string name="exclude_files">Исключить файлы</string>
+    <string name="exclude_files_regex">Регулярка для исключаемых файлов (например, .*(?&lt;!.py))</string>
 </resources>
