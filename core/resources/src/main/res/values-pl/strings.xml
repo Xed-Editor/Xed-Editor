@@ -702,4 +702,9 @@
     <string name="indexing">Indeksowanie…</string>
     <string name="file_name_opened">%s (Otwarty)</string>
     <string name="index_project">Indeksuj projekt</string>
+    <string name="index_project_desc">Indeksowanie może skrócić czas wyszukiwania dla większych projektów</string>
+    <string name="always_index_projects">Zawsze indeksuj projekt</string>
+    <string name="indexing_stats">Zindeksowane pliki: %1$s Rozmiar bazy danych: %2$s</string>
+    <string name="exclude_files">Wyklucz pliki</string>
+    <string name="exclude_files_regex">Wyrażenie regularne wykluczenia plików (np. .*(?&lt;!\\.py))</string>
 </resources>
