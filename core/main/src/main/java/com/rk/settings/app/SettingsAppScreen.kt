@@ -67,13 +67,7 @@ object InbuiltFeatures {
     val terminal = Feature(nameRes = strings.terminal_feature, key = "feature_terminal", default = true)
     val debugMode = Feature(nameRes = strings.debug_options, key = "debug_mode", default = BuildConfig.DEBUG)
     val extensions = Feature(nameRes = strings.ext, key = "enable_extension", default = true)
-    val git =
-        Feature(
-            nameRes = strings.git,
-            key = "enable_git",
-            default = true,
-            supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU,
-        )
+    val git = Feature(nameRes = strings.git, key = "enable_git", default = true)
 }
 
 @Composable

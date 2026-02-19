@@ -2,6 +2,10 @@
 force_color_prompt=yes
 shopt -s checkwinsize
 
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$LOCAL/bin:$PATH
+export SHELL="bash"
+export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
+
 source "$LOCAL/bin/utils"
 
 # Set timezone
@@ -16,48 +20,12 @@ echo "$CONTAINER_TIMEZONE" > /etc/timezone
 # Reconfigure tzdata to apply without prompts
 DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata >/dev/null 2>&1
 
-ALPINE_DIR="$LOCAL/alpine"
-RETAINED_FILE="$ALPINE_DIR/.retained"
-
-if [ -d "$ALPINE_DIR" ]; then
-  if [ -f "$RETAINED_FILE" ]; then
-    :
-  else
-    info "Detected existing Alpine installation"
-    printf "\nXed-editor has now migrated from Alpine to Ubuntu for better compatibility and support.\n\n"
-
-    if confirm "Do you want to migrate your home data from Alpine to Ubuntu?"; then
-      info "Migrating data..."
-      mkdir -p "/home/alpine-data"
-      cp -r "$ALPINE_DIR/root" "/home/alpine-data/"
-      cp -r "$ALPINE_DIR/home" "/home/alpine-data/"
-
-      info "Data migration completed."
-    else
-      warn "Skipped data migration."
-    fi
-
-    if confirm "Do you want to delete the Alpine installation to free up space?"; then
-      info "Deleting Alpine installation..."
-      xed exec rm -rf "$ALPINE_DIR"
-      info "Alpine has been removed."
-    else
-      warn "Alpine installation retained."
-      touch "$RETAINED_FILE"
-    fi
-  fi
-fi
-
 
 if [[ -f ~/.bashrc ]]; then
     # shellcheck disable=SC1090
     source ~/.bashrc
 fi
 
-
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$LOCAL/bin:$PATH
-export SHELL="bash"
-export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] \\$ "
 
 ensure_packages_once() {
     local marker_file="/.cache/.packages_ensured"
@@ -91,8 +59,9 @@ ensure_packages_once() {
     if export DEBIAN_FRONTEND=noninteractive && \
        apt update -y && \
        apt install -y "${MISSING[@]}"; then
-        touch "$marker_file"
-        info "Packages installed."
+       touch "$marker_file"
+       clear
+       info "Setup complete."
     else
         error "Failed to install packages."
         return 1
@@ -136,5 +105,3 @@ fi
 
 # shellcheck disable=SC2164
 cd "$WKDIR" || cd $HOME
-
-

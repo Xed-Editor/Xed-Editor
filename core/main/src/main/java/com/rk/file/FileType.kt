@@ -49,6 +49,7 @@ private val yaml = drawables.yaml
 private val zig = drawables.zig
 private val git = drawables.git
 private val diff = drawables.diff
+private val cmake = drawables.cmake
 
 // TODO: Add icon for FileType.POWERSHELL
 // TODO: Add icon for FileType.EXECUTABLE
@@ -69,6 +70,7 @@ private val diff = drawables.diff
  * - Alternative names used in Markdown code blocks.
  *
  * @property extensions A list of file extensions associated with this file type (without the leading dot).
+ * @property names An optional list of file names associated with this file type.
  * @property textmateScope The TextMate scope string used for syntax highlighting (e.g., "source.kt"). Null if not
  *   applicable.
  * @property icon The resource ID of the default icon for this file type. Null if no icon is available.
@@ -79,11 +81,12 @@ private val diff = drawables.diff
  *   (e.g., ```javascript).
  */
 enum class FileType(
-    var extensions: List<String>,
-    var textmateScope: String?,
-    var icon: Int?,
-    var iconOverride: Map<String, Int>? = null,
-    var title: String,
+    val extensions: List<String>,
+    val names: List<String>? = null,
+    val textmateScope: String?,
+    val icon: Int?,
+    val iconOverride: Map<String, Int>? = null,
+    val title: String,
     /**
      * Language identifiers used in Markdown code blocks. Should only include additional names that are not included in
      * the extensions list.
@@ -240,6 +243,13 @@ enum class FileType(
     ),
     SMALI(extensions = listOf("smali"), textmateScope = "source.smali", icon = null, title = "Smali"),
     ASSEMBLY(extensions = listOf("asm"), textmateScope = "source.asm", icon = null, title = "Assembly"),
+    CMAKE(
+        extensions = emptyList(),
+        names = listOf("cmakelists.txt"),
+        textmateScope = "source.cmake",
+        icon = cmake,
+        title = "CMake",
+    ),
 
     // Data Files
     SQL(extensions = listOf("sql", "dsql", "sqllite"), textmateScope = "source.sql", icon = sql, title = "SQL"),
@@ -316,21 +326,15 @@ enum class FileType(
     }
 
     companion object {
+        fun fromFileName(name: String): FileType {
+            val normalized = name.lowercase()
+            val fileExt = normalized.substringAfterLast('.', "")
+            return entries.firstOrNull { it.names != null && normalized in it.names } ?: fromExtension(fileExt)
+        }
+
         fun fromExtension(ext: String): FileType {
             val normalized = ext.lowercase().removePrefix(".")
             return entries.firstOrNull { normalized in it.extensions } ?: UNKNOWN
-        }
-
-        fun getTextmateScopeFromName(name: String): String? {
-            when (name) {
-                "CmakeLists.txt" -> {
-                    return "source.cmake"
-                }
-                else -> {
-                    val ext = name.substringAfterLast('.', "")
-                    return FileType.fromExtension(ext).textmateScope
-                }
-            }
         }
 
         fun fromMarkdownName(name: String): FileType {

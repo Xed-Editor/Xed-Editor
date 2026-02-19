@@ -37,11 +37,9 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
+import com.rk.activities.main.searchViewModel
 import com.rk.components.AddDialogItem
-import com.rk.components.FindingsDialog
-import com.rk.components.SearchPanel
 import com.rk.components.SingleInputDialog
-import com.rk.components.hasBinaryChars
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileType
@@ -53,6 +51,8 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.currentRunner
+import com.rk.search.EditorSearchPanel
+import com.rk.search.FindingsDialog
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditorSettings
@@ -60,6 +60,7 @@ import com.rk.settings.support.handleSupport
 import com.rk.tabs.base.Tab
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
+import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.ContentIO
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
@@ -131,7 +132,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
             editorState.editable = !Settings.read_only_default && file.canWrite()
             if (editorState.textmateScope == null) {
-                editorState.textmateScope = FileType.getTextmateScopeFromName(file.getName())
+                editorState.textmateScope = FileType.fromFileName(file.getName()).textmateScope
             }
 
             loadEditorConfig()
@@ -205,7 +206,12 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
             applySettings()
 
             loadEditorConfig()
-            editorState.editorConfigLoaded?.await()?.let { applySettings() }
+            editorState.editorConfigLoaded?.await()?.let { applySettings(it) }
+
+            val isTxtFile = file.getName().endsWith(".txt")
+            if (Settings.word_wrap_text && isTxtFile) {
+                setWordwrap(true, true, true)
+            }
         }
     }
 
@@ -282,6 +288,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
         saveMutex.withLock {
             if (isTemp) return@withLock
             write()
+            searchViewModel.get()?.syncIndex(file)
             gitViewModel.get()?.syncChanges(file.getAbsolutePath())
         }
 
@@ -299,6 +306,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                             tabTitle.value = it.getName()
                             scope.launch {
                                 write()
+                                searchViewModel.get()?.syncIndex(file)
                                 gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
                             }
                         }
@@ -308,6 +316,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
             }
 
             write()
+            searchViewModel.get()?.syncIndex(file)
             gitViewModel.get()?.syncChanges(file.getAbsolutePath())
 
             Settings.saves += 1
@@ -411,7 +420,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 }
 
                 Column(modifier = Modifier.animateContentSize()) {
-                    SearchPanel(editorState = editorState)
+                    EditorSearchPanel(editorState = editorState)
                     if (editorState.isSearching) {
                         HorizontalDivider()
                     }
@@ -488,7 +497,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
     @Composable
     override fun RowScope.Actions() {
-        EditorActions(modifier = Modifier.Companion, viewModel = viewModel)
+        EditorToolbarActions(viewModel = viewModel)
     }
 
     override val showGlobalActions: Boolean = false

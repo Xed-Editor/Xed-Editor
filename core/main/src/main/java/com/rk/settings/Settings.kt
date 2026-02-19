@@ -84,6 +84,7 @@ object Settings {
     var expose_home_dir by CachedPreference("expose_home_dir", false)
     var verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
     var project_as_pwd by CachedPreference("project_as_pwd", true)
+    var terminate_sessions_on_exit by CachedPreference("terminate_sessions_on_exit", false)
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
@@ -114,6 +115,7 @@ object Settings {
     var git_colorize_names by CachedPreference("git_colorize_names", true)
     var git_submodules by CachedPreference("git_submodules", true)
     var git_recursive_submodules by CachedPreference("git_recursive_submodules", true)
+    var always_index_projects by CachedPreference("always_index_projects", false)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)

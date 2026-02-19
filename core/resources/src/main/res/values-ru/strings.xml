@@ -432,8 +432,8 @@
     <string name="go_to_definition">Перейти к определению</string>
     <string name="go_to_references">Перейти к источникам</string>
     <string name="rename_symbol">Переименовать символ</string>
-    <string name="go_to_definition_desc">Выберите одно из определений %d, чтобы перейти к их расположению.</string>
-    <string name="go_to_references_desc">Выберите один из источников %d, чтобы перейти к его расположению.</string>
+    <string name="go_to_definition_desc">Выберите одно из определений %s, чтобы перейти к их расположению.</string>
+    <string name="go_to_references_desc">Выберите один из источников %s, чтобы перейти к его расположению.</string>
     <string name="no_definitions_found">Определения не найдены.</string>
     <string name="no_references_found">Ссылки не найдены.</string>
     <string name="find_definitions_error">Не удается найти определения.</string>
@@ -514,9 +514,9 @@
     <string name="theme_name_missing">В файле JSON не указано допустимое имя темы. Пожалуйста, добавьте один и повторите попытку.</string>
     <string name="theme_version_missing">В файле JSON не указана допустимая целевая версия. Пожалуйста, добавьте один и повторите попытку.</string>
     <string name="enter_code_snippet">Введите фрагмент кода</string>
-    <string name="empty_code_results">Введите поисковый запрос для поиска в файлах</string>
+    <string name="enter_query_to_search">Введите поисковый запрос для поиска в файлах</string>
     <string name="no_results">Результаты не найдены</string>
-    <string name="results">Найдено %d вхождений</string>
+    <string name="results">Найдено %s вхождений</string>
     <string name="enter_name">Введите название</string>
     <string name="show_hidden_files_drawer">Показать скрытые файлы в боковой панели</string>
     <string name="show_hidden_files_drawer_desc">Показывать скрытые файлы или папки, такие как .git, в боковой панели</string>
@@ -687,4 +687,17 @@
     <string name="auto_save_delay_desc">Интервал между автосохранениями (в миллисекундах)</string>
     <string name="actions">Действия</string>
     <string name="resource_loading_error">Не удалось загрузить ресурс</string>
+    <string name="terminate_all_sessions">Завершать все сеансы</string>
+    <string name="terminate_all_sessions_desc">Принудительно завершать все сеансы терминала при закрытии приложения</string>
+    <string name="use">Открыть с помощью…</string>
+    <string name="default_option">По умолчанию</string>
+    <string name="indexing">Индексация…</string>
+    <string name="file_name_opened">%s (Открыт)</string>
+    <string name="index_project">Индексировать проект</string>
+    <string name="index_project_desc">Индексация позволяет сократить время поиска в крупных проектах</string>
+    <string name="always_index_projects">Всегда выполнять индексацию проектов</string>
+    <string name="warn_dont_leave_setup">⚠ Не покидайте этот экран, пока выполняется настройка</string>
+    <string name="indexing_stats">Проиндексировано файлов: %1$s, размер базы данных: %2$s</string>
+    <string name="exclude_files">Исключить файлы</string>
+    <string name="exclude_files_regex">Регулярка для исключаемых файлов (например, .*(?&lt;!.py))</string>
 </resources>

@@ -36,7 +36,7 @@ composeBom = "2025.11.01"
 coilCompose = "2.7.0"
 navigationCompose = "2.9.6"
 ktfmt = "0.25.0"
-jgit = "7.5.0.202512021534-r"
+jgit = "6.6.1.202309021850-r"
 
 tsBinding = "4.3.1"
 lsp4j = "0.24.0"
@@ -54,6 +54,8 @@ androidsvgAar = "1.4"
 ec4jCore = "1.2.0"
 coilSvg = "2.7.0"
 kotlinxSerializationJson = "1.9.0"
+roomRuntime = "2.8.4"
+roomCompiler = "2.8.4"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
@@ -137,6 +139,8 @@ androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-p
 androidsvg-aar = { group = "com.caverock", name = "androidsvg-aar", version.ref = "androidsvgAar" }
 ec4j-core = { group = "org.ec4j.core", name = "ec4j-core", version.ref = "ec4jCore" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

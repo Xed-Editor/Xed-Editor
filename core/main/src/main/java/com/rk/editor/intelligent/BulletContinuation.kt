@@ -11,11 +11,11 @@ object BulletContinuation : IntelligentFeature() {
 
     override val supportedExtensions: List<String> = FileType.MARKDOWN.extensions
 
-    val QUOTE_REGEX = Regex("^> ")
-    val LIST_WHITESPACE_REGEX = Regex("^\\s*([-+*]|[0-9]+[.)]) +(\\[[ x]] +)?")
-    val LIST_REGEX = Regex("^([-+*]|[0-9]+[.)])( +\\[[ x]])?\$")
-    val UL_LIST_REGEX = Regex("^((\\s*[-+*] +)(\\[[ x]] +)?)")
-    val OL_LIST_REGEX = Regex("^(\\s*)([0-9]+)([.)])( +)((\\[[ x]] +)?)")
+    private val QUOTE_REGEX = Regex("^> ")
+    private val LIST_WHITESPACE_REGEX = Regex("^\\s*([-+*]|[0-9]+[.)]) +(\\[[ x]] +)?")
+    private val LIST_REGEX = Regex("^([-+*]|[0-9]+[.)])( +\\[[ x]])?\$")
+    private val UL_LIST_REGEX = Regex("^((\\s*[-+*] +)(\\[[ x]] +)?)")
+    private val OL_LIST_REGEX = Regex("^(\\s*)([0-9]+)([.)])( +)((\\[[ x]] +)?)")
 
     override fun handleKeyEvent(event: EditorKeyEvent, editor: Editor) {
         if (event.action != KeyEvent.ACTION_DOWN) return

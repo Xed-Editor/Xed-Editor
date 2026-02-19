@@ -178,6 +178,7 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
         return
     }
     val tab = FileTreeTab(fileObject)
+    tab.onAdded()
     drawerTabs.add(tab)
     selectTab(tab)
     if (save) {
@@ -187,6 +188,7 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun addProject(tab: DrawerTab, save: Boolean = false) {
+    tab.onAdded()
     drawerTabs.add(tab)
     selectTab(tab)
     if (save) {
@@ -205,6 +207,7 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
         selectTab(tabBefore ?: tabAfter)
     }
 
+    drawerTabs[index].onRemoved()
     drawerTabs.removeAt(index)
 
     if (save) {
@@ -223,6 +226,7 @@ fun removeProject(tab: DrawerTab, save: Boolean = false) {
         selectTab(tabBefore ?: tabAfter)
     }
 
+    drawerTabs[index].onRemoved()
     drawerTabs.removeAt(index)
 
     if (save) {
@@ -232,10 +236,7 @@ fun removeProject(tab: DrawerTab, save: Boolean = false) {
 
 fun validateValue(value: String): String? {
     return when {
-        value.isBlank() -> {
-            strings.value_empty_err.getString()
-        }
-
+        value.isBlank() -> strings.value_empty_err.getString()
         else -> null
     }
 }

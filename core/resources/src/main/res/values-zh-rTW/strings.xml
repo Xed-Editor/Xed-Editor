@@ -431,8 +431,8 @@
     <string name="go_to_definition">前往定義</string>
     <string name="go_to_references">前往參考</string>
     <string name="rename_symbol">重新命名符號</string>
-    <string name="go_to_definition_desc">選擇其中 %d 個定義之一以導覽至其位置。</string>
-    <string name="go_to_references_desc">選擇其中 %d 個參考之一以導覽至其位置。</string>
+    <string name="go_to_definition_desc">選擇其中 %s 個定義之一以導覽至其位置。</string>
+    <string name="go_to_references_desc">選擇其中 %s 個參考之一以導覽至其位置。</string>
     <string name="no_definitions_found">找不到任何定義。</string>
     <string name="no_references_found">找不到任何參考。</string>
     <string name="find_definitions_error">無法找到定義。</string>
@@ -516,9 +516,9 @@
     <string name="theme_name_missing">JSON 檔未指定有效的主題名稱。請新增後再試一次。</string>
     <string name="theme_version_missing">JSON 檔未指定有效的目標版本。請新增後再試一次。</string>
     <string name="enter_code_snippet">輸入程式碼片段</string>
-    <string name="empty_code_results">請輸入搜尋關鍵字以在檔案中查找</string>
+    <string name="enter_query_to_search">請輸入搜尋關鍵字以在檔案中查找</string>
     <string name="no_results">找不到任何結果</string>
-    <string name="results">找到 %d 個結果</string>
+    <string name="results">找到 %s 個結果</string>
     <string name="enter_name">請輸入名稱</string>
     <string name="show_hidden_files_drawer">在側邊欄顯示隱藏檔案</string>
     <string name="show_hidden_files_drawer_desc">在側邊欄中顯示隱藏檔案或資料夾（例如 .git）</string>

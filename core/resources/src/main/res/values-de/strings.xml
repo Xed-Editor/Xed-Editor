@@ -431,8 +431,8 @@
     <string name="go_to_definition">Gehe zur Definition</string>
     <string name="go_to_references">Gehe zu Referenzen</string>
     <string name="rename_symbol">Symbol umbenennen</string>
-    <string name="go_to_definition_desc">Wähle eine der %d Definitionen aus, um zu ihrem Standort zu navigieren.</string>
-    <string name="go_to_references_desc">Wähle eine der %d Referenzen aus, um zu ihrem Standort zu navigieren.</string>
+    <string name="go_to_definition_desc">Wähle eine der %s Definitionen aus, um zu ihrem Standort zu navigieren.</string>
+    <string name="go_to_references_desc">Wähle eine der %s Referenzen aus, um zu ihrem Standort zu navigieren.</string>
     <string name="no_definitions_found">Keine Definitionen gefunden.</string>
     <string name="no_references_found">Keine Referenzen gefunden.</string>
     <string name="find_definitions_error">Definitionen konnten nicht gefunden werden.</string>
@@ -516,9 +516,9 @@
     <string name="theme_name_missing">Die JSON-Datei enthält keinen gültigen Thema-Namen. Bitte füge einen hinzu und versuche es erneut.</string>
     <string name="theme_version_missing">Die JSON-Datei enthält keine gültige Zielversion. Bitte füge eine hinzu und versuche es erneut.</string>
     <string name="enter_code_snippet">Codeausschnitt eingeben</string>
-    <string name="empty_code_results">Gib eine Suchanfrage ein, um in Dateien zu suchen</string>
+    <string name="enter_query_to_search">Gib eine Suchanfrage ein, um in Dateien zu suchen</string>
     <string name="no_results">Keine Ergebnisse gefunden</string>
-    <string name="results">%d Ergebnisse gefunden</string>
+    <string name="results">%s Ergebnisse gefunden</string>
     <string name="enter_name">Name eingeben</string>
     <string name="show_hidden_files_drawer">Versteckte Dateien im Drawer anzeigen</string>
     <string name="show_hidden_files_drawer_desc">Versteckte Dateien oder Ordner wie .git im Drawer anzeigen</string>
@@ -694,4 +694,7 @@
     <string name="compact_folders_drawer">Kompakte Ordner im Drawer</string>
     <string name="compact_folders_drawer_desc">Ordner mit nur einem Unterordner im Drawer zu einem Ordner zusammenfassen</string>
     <string name="resource_loading_error">Ressource konnte nicht geladen werden</string>
+    <string name="terminate_all_sessions">Alle Sitzungen beenden</string>
+    <string name="terminate_all_sessions_desc">Alle Terminal-Sitzungen beim Schließen der App beenden</string>
+    <string name="warn_dont_leave_setup">⚠ Verlasse diesen Bildschirm nicht, während die Einrichtung läuft</string>
 </resources>

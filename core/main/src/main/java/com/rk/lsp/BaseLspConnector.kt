@@ -159,6 +159,7 @@ class BaseLspConnector(
                         }
                     }
                     .onFailure {
+                        // TODO: Why do we set the language here?
                         codeEditor.setLanguage(textMateScope)
                         it.printStackTrace()
                     }
@@ -317,7 +318,7 @@ class BaseLspConnector(
 
     @Throws(Exception::class)
     suspend fun requestDefinition(editor: CodeEditor): Either<List<Location>, List<LocationLink>> {
-        return withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.IO) {
             lspEditor!!
                 .languageServerWrapper
                 .requestManager!!
@@ -339,7 +340,7 @@ class BaseLspConnector(
 
     @Throws(Exception::class)
     suspend fun requestReferences(editor: CodeEditor): List<Location?> {
-        return withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.IO) {
             lspEditor!!
                 .languageServerWrapper
                 .requestManager!!
@@ -362,7 +363,7 @@ class BaseLspConnector(
 
     @Throws(Exception::class)
     suspend fun requestRenameSymbol(editor: CodeEditor, newName: String): WorkspaceEdit {
-        return withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.IO) {
             lspEditor!!
                 .languageServerWrapper
                 .requestManager!!
@@ -387,7 +388,7 @@ class BaseLspConnector(
     suspend fun requestPrepareRenameSymbol(
         editor: CodeEditor
     ): Either3<Range?, PrepareRenameResult?, PrepareRenameDefaultBehavior?>? {
-        return withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.IO) {
             lspEditor!!
                 .languageServerWrapper
                 .requestManager!!

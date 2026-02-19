@@ -12,12 +12,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
@@ -30,22 +30,22 @@ import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.editor.KeywordManager
 import com.rk.filetree.SortMode
 import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import kotlin.random.Random.Default.nextInt
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
 
         var showTextSizeDialog by remember { mutableStateOf(false) }
         var textSizeValue by remember { mutableStateOf(Settings.editor_text_size.toString()) }
@@ -60,7 +60,7 @@ fun SettingsEditorScreen(navController: NavController) {
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
         var showAutoSaveDialog by remember { mutableStateOf(false) }
-        var autoSaveDelayValue by remember { mutableStateOf(Settings.tab_size.toString()) }
+        var autoSaveDelayValue by remember { mutableStateOf(Settings.auto_save_delay.toString()) }
         var autoSaveDelayError by remember { mutableStateOf<String?>(null) }
 
         var showSortingModeDialog by remember { mutableStateOf(false) }
@@ -145,7 +145,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     wordWrapTxt.value = it
                     Settings.word_wrap_text = it
-                    toast(strings.restart_required)
                 },
             )
 
@@ -247,9 +246,24 @@ fun SettingsEditorScreen(navController: NavController) {
                 label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),
                 default = Settings.textmate_suggestions,
-                sideEffect = {
-                    Settings.textmate_suggestions = it
-                    toast(strings.restart_required)
+                sideEffect = { newValue ->
+                    Settings.textmate_suggestions = newValue
+
+                    scope.launch {
+                        MainActivity.instance?.apply {
+                            viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                                val scope = tab.editorState.textmateScope ?: return@forEach
+                                val language = tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage
+
+                                if (newValue) {
+                                    val keywords = KeywordManager.getKeywords(scope)
+                                    keywords?.let { language?.setCompleterKeywords(it.toTypedArray()) }
+                                } else {
+                                    language?.setCompleterKeywords(null)
+                                }
+                            }
+                        }
+                    }
                 },
             )
 
@@ -269,10 +283,9 @@ fun SettingsEditorScreen(navController: NavController) {
                     Settings.actual_tabs = it
 
                     MainActivity.instance?.apply {
-                        viewModel.tabs.forEach { tab ->
-                            if (tab is EditorTab) {
-                                (tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage)?.useTab(it)
-                            }
+                        viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                            val language = tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage
+                            language?.useTab(it)
                         }
                     }
                 },
@@ -369,6 +382,13 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(strings.index_project),
+                description = stringResource(strings.always_index_projects),
+                default = Settings.always_index_projects,
+                sideEffect = { Settings.always_index_projects = it },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(strings.auto_open_new_files),
                 description = stringResource(strings.auto_open_new_files_desc),
                 default = Settings.auto_open_new_files,
@@ -430,7 +450,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.enable_editorconfig,
                 sideEffect = {
                     Settings.enable_editorconfig = it
-                    refreshEditorSettings()
+                    scope.launch { refreshEditorSettings() }
                 },
             )
         }
@@ -452,7 +472,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.line_spacing = lineSpacingValue.toFloat()
-                    refreshEditorSettings()
+                    scope.launch { refreshEditorSettings() }
                 },
                 onFinish = {
                     lineSpacingValue = Settings.line_spacing.toString()
@@ -481,7 +501,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.editor_text_size = textSizeValue.toInt()
-                    refreshEditorSettings()
+                    scope.launch { refreshEditorSettings() }
                 },
                 onFinish = {
                     textSizeValue = Settings.editor_text_size.toString()
@@ -510,7 +530,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.tab_size = tabSizeValue.toInt()
-                    refreshEditorSettings()
+                    scope.launch { refreshEditorSettings() }
                 },
                 onFinish = {
                     tabSizeValue = Settings.tab_size.toString()
@@ -539,7 +559,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.auto_save_delay = autoSaveDelayValue.toLong()
-                    refreshEditorSettings()
+                    scope.launch { refreshEditorSettings() }
                 },
                 onFinish = {
                     autoSaveDelayValue = Settings.auto_save_delay.toString()
@@ -640,11 +660,11 @@ fun refreshEditors() {
     }
 }
 
-fun refreshEditorSettings() {
+suspend fun refreshEditorSettings() {
     MainActivity.instance?.apply {
         viewModel.tabs.forEach {
             if (it is EditorTab) {
-                lifecycleScope.launch(Dispatchers.IO) { it.reapplyEditorSettings() }
+                it.reapplyEditorSettings()
             }
         }
     }

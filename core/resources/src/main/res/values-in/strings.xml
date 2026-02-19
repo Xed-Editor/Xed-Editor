@@ -433,8 +433,8 @@
     <string name="go_to_definition">Pergi ke definisi</string>
     <string name="go_to_references">Pergi ke referensi</string>
     <string name="rename_symbol">Ubah nama simbol</string>
-    <string name="go_to_definition_desc">Pilih salah satu dari %d definisi untuk menuju ke lokasinya.</string>
-    <string name="go_to_references_desc">Pilih salah satu dari %d referensi untuk menuju ke lokasinya.</string>
+    <string name="go_to_definition_desc">Pilih salah satu dari %s definisi untuk menuju ke lokasinya.</string>
+    <string name="go_to_references_desc">Pilih salah satu dari %s referensi untuk menuju ke lokasinya.</string>
     <string name="no_definitions_found">Tidak ditemukan definisi.</string>
     <string name="no_references_found">Tidak ditemukan referensi.</string>
     <string name="find_definitions_error">Tidak dapat menemukan definisi.</string>
@@ -515,9 +515,9 @@
     <string name="theme_name_missing">Berkas JSON tidak menentukan nama tema yang sah. Silakan tambahkan nama tema yang sah dan coba lagi.</string>
     <string name="theme_version_missing">Berkas JSON tidak menentukan versi target yang sah. Silakan tambahkan satu dan coba lagi.</string>
     <string name="enter_code_snippet">Masukkan potongan kode</string>
-    <string name="empty_code_results">Masukkan kata kunci pencarian untuk mencari dalam berkas</string>
+    <string name="enter_query_to_search">Masukkan kata kunci pencarian untuk mencari dalam berkas</string>
     <string name="no_results">Tidak ada hasil yang ditemukan</string>
-    <string name="results">%d hasil ditemukan</string>
+    <string name="results">%s hasil ditemukan</string>
     <string name="enter_name">Masukkan nama</string>
     <string name="show_hidden_files_drawer">Tampilkan berkas tersembunyi di rak</string>
     <string name="show_hidden_files_drawer_desc">Tampilkan berkas atau folder tersembunyi seperti .git di rak</string>
@@ -690,4 +690,6 @@
     <string name="compact_folders_drawer">Ringkaskan folder di laci navigasi</string>
     <string name="compact_folders_drawer_desc">Gabungkan folder yang hanya memiliki satu anak menjadi satu folder di laci navigasi</string>
     <string name="resource_loading_error">Gagal memuat sumber daya</string>
+    <string name="terminate_all_sessions">Hentikan semua sesi</string>
+    <string name="terminate_all_sessions_desc">Matikan semua sesi terminal saat aplikasi ditutup</string>
 </resources>

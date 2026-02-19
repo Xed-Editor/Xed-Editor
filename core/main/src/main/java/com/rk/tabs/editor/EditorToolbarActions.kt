@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -15,6 +14,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -32,6 +34,8 @@ import com.rk.activities.main.MainViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
+import com.rk.commands.ToggleableCommand
+import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.settings.ReactiveSettings
@@ -41,7 +45,7 @@ import com.rk.utils.x
 import kotlin.math.min
 
 @Composable
-fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
@@ -78,8 +82,20 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
                     onClick = { command.performCommand(ActionContext(activity!!)) },
                     modifier = Modifier.size(48.dp),
                     enabled = command.isEnabled(),
+                    colors =
+                        IconButtonDefaults.iconButtonColors().let {
+                            if (command is ToggleableCommand && command.isOn())
+                                it.copy(
+                                    contentColor = MaterialTheme.colorScheme.primary,
+                                    disabledContentColor = MaterialTheme.colorScheme.primary,
+                                )
+                            else it
+                        },
                 ) {
-                    XedIcon(command.getIcon(), contentDescription = command.getLabel())
+                    XedIcon(
+                        icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
+                        contentDescription = command.getLabel(),
+                    )
                 }
             }
 
@@ -91,28 +107,49 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, viewModel: MainViewMod
 
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         dropdownActions.forEach { command ->
+                            val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
+                            val displayKeyCombination = keyCombination?.getDisplayName()
+
                             DropdownMenuItem(
                                 enabled = command.isEnabled(),
-                                text = { Text(command.getLabel()) },
+                                text = {
+                                    Text(
+                                        text = command.getLabel(),
+                                        color =
+                                            if (command is ToggleableCommand && command.isOn()) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                Color.Unspecified
+                                            },
+                                    )
+                                },
                                 onClick = {
                                     command.performCommand(ActionContext(activity!!))
                                     expanded = false
                                 },
-                                leadingIcon = { XedIcon(command.getIcon(), contentDescription = command.getLabel()) },
-                                trailingIcon = {
-                                    val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
-                                    val displayKeyCombination = keyCombination?.getDisplayName()
-                                    displayKeyCombination?.let {
-                                        Text(
-                                            modifier = Modifier.padding(start = 4.dp),
-                                            text = it,
-                                            maxLines = 1,
-                                            fontFamily = FontFamily.Monospace,
-                                            style = Typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
+                                leadingIcon = {
+                                    XedIcon(
+                                        command.getIcon(),
+                                        contentDescription = command.getLabel(),
+                                        tint =
+                                            if (command is ToggleableCommand && command.isOn()) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else LocalContentColor.current,
+                                    )
                                 },
+                                trailingIcon =
+                                    displayKeyCombination?.let {
+                                        {
+                                            Text(
+                                                modifier = Modifier.padding(start = 4.dp),
+                                                text = it,
+                                                maxLines = 1,
+                                                fontFamily = FontFamily.Monospace,
+                                                style = Typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    },
                             )
                         }
                     }

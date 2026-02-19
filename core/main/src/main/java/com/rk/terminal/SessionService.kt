@@ -17,6 +17,7 @@ import com.rk.activities.terminal.Terminal
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -95,6 +96,13 @@ class SessionService : Service() {
         super.onDestroy()
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        if (Settings.terminate_sessions_on_exit) {
+            actionExit()
+        }
+    }
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
@@ -117,15 +125,19 @@ class SessionService : Service() {
 
     var wakeLock: PowerManager.WakeLock? = null
 
+    private fun actionExit() {
+        sessions.forEach { s -> s.value.finishIfRunning() }
+        if (deamonRunning) {
+            deamonRunning = false
+        }
+        stopSelf()
+    }
+
     @SuppressLint("WakelockTimeout", "Wakelock")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "ACTION_EXIT" -> {
-                sessions.forEach { s -> s.value.finishIfRunning() }
-                if (deamonRunning) {
-                    deamonRunning = false
-                }
-                stopSelf()
+                actionExit()
             }
 
             "ACTION_WAKE_LOCK" -> {
@@ -137,7 +149,7 @@ class SessionService : Service() {
                 updateNotification()
             }
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
 
     private fun createNotification(): Notification {
@@ -162,7 +174,7 @@ class SessionService : Service() {
         val wakelockPendingIntent =
             PendingIntent.getService(
                 this,
-                1,
+                2,
                 wakeLockIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )

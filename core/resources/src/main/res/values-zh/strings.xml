@@ -431,8 +431,8 @@
     <string name="go_to_definition">转到定义</string>
     <string name="go_to_references">转到引用</string>
     <string name="rename_symbol">重命名符号</string>
-    <string name="go_to_definition_desc">从 %d 个定义中选择一个，以导航到其位置。</string>
-    <string name="go_to_references_desc">从 %d 个引用中选择一个，以导航到其位置。</string>
+    <string name="go_to_definition_desc">从 %s 个定义中选择一个，以导航到其位置。</string>
+    <string name="go_to_references_desc">从 %s 个引用中选择一个，以导航到其位置。</string>
     <string name="no_definitions_found">未找到定义。</string>
     <string name="no_references_found">未找到引用。</string>
     <string name="find_definitions_error">无法找到定义。</string>
@@ -510,9 +510,9 @@
     <string name="theme_name_missing">JSON 文件中未指定有效的主题名称。请添加主题名称后重试。</string>
     <string name="theme_version_missing">JSON 文件未指定有效的目标版本。请添加目标版本并重试。</string>
     <string name="enter_code_snippet">输入代码片段</string>
-    <string name="empty_code_results">输入搜索查询以在文件中查找</string>
+    <string name="enter_query_to_search">输入搜索查询以在文件中查找</string>
     <string name="no_results">未找到结果</string>
-    <string name="results">找到 %d 个结果</string>
+    <string name="results">找到 %s 个结果</string>
     <string name="enter_name">输入名称</string>
     <string name="show_hidden_files_drawer">在侧滑栏中显示隐藏的文件</string>
     <string name="show_hidden_files_drawer_desc">在侧滑栏中显示隐藏的文件或目录，例如 .git 文件夹</string>
@@ -687,4 +687,15 @@
     <string name="push">推送</string>
     <string name="fetch">获取</string>
     <string name="push_dialog_message_commits">您即将向 \'%2$s\' 推送 %1$d 个提交。是否继续？</string>
+    <string name="auto_save_delay">自动保存延迟</string>
+    <string name="auto_save_delay_desc">自动保存之间的延迟时间（毫秒）</string>
+    <string name="push_dialog_message_empty">目前没有要推送的提交</string>
+    <string name="push_dialog_checkbox_force">强制</string>
+    <string name="compact_folders">紧凑文件夹</string>
+    <string name="compact_folders_drawer">在侧滑栏中以紧凑形式呈现文件夹</string>
+    <string name="compact_folders_drawer_desc">将只有一个子文件的目录在侧边栏中合并显示</string>
+    <string name="resource_loading_error">加载资源失败</string>
+    <string name="terminate_all_sessions">终止所有会话</string>
+    <string name="terminate_all_sessions_desc">应用程序关闭时终止所有终端会话</string>
+    <string name="warn_dont_leave_setup">⚠ 设置过程中请勿离开此屏幕</string>
 </resources>

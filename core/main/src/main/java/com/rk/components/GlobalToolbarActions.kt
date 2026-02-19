@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -30,7 +29,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
-import com.rk.activities.settings.SettingsActivity
+import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
 import com.rk.file.FileObject
@@ -44,6 +43,8 @@ import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.search.CodeSearchDialog
+import com.rk.search.FileSearchDialog
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.errorDialog
@@ -57,33 +58,34 @@ var codeSearchDialog by mutableStateOf(false)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RowScope.GlobalActions(viewModel: MainViewModel) {
+fun GlobalToolbarActions(viewModel: MainViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
-        IconButton(onClick = { addDialog = true }) { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) }
+        val newFileCommand = CommandProvider.NewFileCommand
+        val terminalCommand = CommandProvider.TerminalCommand
+        val settingsCommand = CommandProvider.SettingsCommand
+
+        IconButton(onClick = { newFileCommand.action(ActionContext(context as Activity)) }) {
+            Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+        }
 
         if (InbuiltFeatures.terminal.state.value) {
-            val terminalAction = CommandProvider.TerminalCommand
-            IconButton(onClick = { terminalAction.action(ActionContext(context as Activity)) }) {
+            IconButton(onClick = { terminalCommand.action(ActionContext(context as Activity)) }) {
                 Icon(painter = painterResource(drawables.terminal), contentDescription = null)
             }
         }
 
-        IconButton(
-            onClick = {
-                val intent = Intent(context, SettingsActivity::class.java)
-                context.startActivity(intent)
-            }
-        ) {
+        IconButton(onClick = { settingsCommand.action(ActionContext(context as Activity)) }) {
             Icon(imageVector = Icons.Outlined.Settings, contentDescription = null)
         }
     }
 
     if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
         FileSearchDialog(
+            searchViewModel = searchViewModel.get()!!,
             projectFile = (currentDrawerTab as FileTreeTab).root,
             onFinish = { fileSearchDialog = false },
             onSelect = { projectFile, fileObject ->
@@ -101,7 +103,8 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
 
     if (codeSearchDialog && currentDrawerTab is FileTreeTab) {
         CodeSearchDialog(
-            viewModel = viewModel,
+            mainViewModel = viewModel,
+            searchViewModel = searchViewModel.get()!!,
             projectFile = (currentDrawerTab as FileTreeTab).root,
             onFinish = { codeSearchDialog = false },
         )

@@ -116,7 +116,7 @@
     <string name="save_exit">Uložit a ukončit</string>
     <string name="restart_to_apply">Prosím restartujte aplikaci pro použití nových nastavení</string>
     <string name="restart">Restart</string>
-    <string name="refresh">Načíst</string>
+    <string name="refresh">Znovu načíst</string>
     <string name="dir_example">Jméno (např. Test)</string>
     <string name="create">Vytvořit</string>
     <string name="already_exists">Soubor už existuje s tímto jménem</string>
@@ -442,7 +442,7 @@
     <string name="desktop_mode_desc">Zlehčuje využívání aplikace pro tablety a stolní obrazovky</string>
     <string name="built_in">Vestavěný</string>
     <string name="go_to_definition">Jít k definici</string>
-    <string name="go_to_definition_desc">Vyberte jednu z(e) %d definic pro přesun k její umístění.</string>
+    <string name="go_to_definition_desc">Vyberte jednu z(e) %s definic pro přesun k její umístění.</string>
     <string name="address">Adresa</string>
     <string name="invalid_address">Neplatná adresa</string>
     <string name="select_all">Vybrat vše</string>
@@ -495,9 +495,9 @@
     <string name="theme_name_missing">Soubor JSON neudává platné jméno téma. Prosím přidejte platné jméno a zkuste to znovu.</string>
     <string name="theme_version_missing">Soubor JSON neudává platnou cílovou verzi. Prosím přidejte platnou cílovou verzi a zkuste to znovu.</string>
     <string name="enter_code_snippet">Zadejte úryvek zdrojového kódu</string>
-    <string name="empty_code_results">Zadejte dotaz ke hledání v souborech</string>
+    <string name="enter_query_to_search">Zadejte dotaz ke hledání v souborech</string>
     <string name="no_results">Žádné výsledky nenalezeny</string>
-    <string name="results">%d výsledků nalezeno/ných</string>
+    <string name="results">%s výsledků nalezeno/ných</string>
     <string name="enter_name">Zadejte jméno</string>
     <string name="show_hidden_files_drawer">Zobrazovat skryté soubory ve postranním panelu</string>
     <string name="show_hidden_files_drawer_desc">Zobrazovat skryté soubory nebo složky jako .git ve postranním panelu</string>
@@ -666,4 +666,10 @@
     <string name="fetch">Fetchovat</string>
     <string name="checkout_complete">Přepnutí větvě dokončeno</string>
     <string name="untracked">Nesledováno</string>
+    <string name="terminate_all_sessions">Ukončit všechny relace</string>
+    <string name="terminate_all_sessions_desc">Ukončit všechny relace v terminálu pokud je aplikace uzavřena</string>
+    <string name="resource_loading_error">Selhalo načtení prostředku</string>
+    <string name="compact_folders">Sbalit složky</string>
+    <string name="compact_folders_drawer">Sbalit složky ve postranním panelu</string>
+    <string name="compact_folders_drawer_desc">Sbalit složky s jenom jedním potomkem do jedné šložky v postranním panelu</string>
 </resources>

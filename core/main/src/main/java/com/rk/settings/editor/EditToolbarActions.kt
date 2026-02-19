@@ -169,6 +169,7 @@ private fun CommandSelectionDialog(commandIds: SnapshotStateList<String>, onDism
     CommandPalette(progress = 1f, commands = dialogCommands, lastUsedCommand = null) { onDismiss() }
 }
 
+// TODO: Duplicate method
 @Composable
 private fun patchChildCommands(
     command: Command,
@@ -186,7 +187,7 @@ private fun patchChildCommands(
                 saveOrder(commandIds)
             }
 
-            override val sectionEndsBelow: Boolean = true
+            override val sectionId: Int = 0
 
             override fun isEnabled(): Boolean = !commandIds.contains(command.id)
 
@@ -202,6 +203,7 @@ private fun patchChildCommands(
                 },
                 isEnabled = { !commandIds.contains(command.id) },
                 isSupported = { true },
+                sectionId = command.sectionId + 1,
             )
         }
     )
