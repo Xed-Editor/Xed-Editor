@@ -395,7 +395,7 @@
     <string name="manage_language_servers_desc">Install, connect and configure language servers</string>
     <string name="format_on_save">Format on save</string>
     <string name="format_on_save_desc">Format the file automatically when saved</string>
-    <string name="no_language_server">No language server available.</string>
+    <string name="no_language_server">No language server installed.</string>
     <string name="developer">Developer</string>
     <string name="build_info">Build info</string>
     <string name="community">Community</string>
@@ -562,9 +562,13 @@
     <string name="complete_on_enter_desc">Select the first completion item on enter for software keyboard</string>
     <string name="status_info">Status: %s</string>
     <string name="status_connected">Connected</string>
-    <string name="status_connecting">Connecting…</string>
+    <string name="status_starting">Starting…</string>
     <string name="status_not_running">Not running</string>
-    <string name="supported_extensions">Supported extensions: %s</string>
+    <string name="status_crashed">Crashed</string>
+    <string name="status_timeout">Timeout</string>
+    <string name="status_restarting">Restarting…</string>
+    <string name="status_stopping">Stopping…</string>
+    <string name="supported_extensions">Extensions: %s</string>
     <string name="features">Features</string>
     <string name="hover_information">Hover information</string>
     <string name="hover_information_desc">Show documentation on hover</string>
@@ -699,4 +703,29 @@
     <string name="compact_folders_drawer">Compact folders in drawer</string>
     <string name="compact_folders_drawer_desc">Collapse folders with only one child into a single folder in the drawer</string>
     <string name="resource_loading_error">Failed to load resource</string>
+    <string name="instances">Instances</string>
+    <string name="stop">Stop</string>
+    <string name="instance_not_found">Instance not found.</string>
+    <string name="offline">Offline</string>
+    <string name="time_just_now">Just now</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="one">%d second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="one">%d minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="time_hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <string name="manage">Manage</string>
+    <string name="no_instances">No instances</string>
+    <string name="uptime">Uptime: %s</string>
+    <string name="lsp_connection_error">Unable to connect to language server</string>
 </resources>

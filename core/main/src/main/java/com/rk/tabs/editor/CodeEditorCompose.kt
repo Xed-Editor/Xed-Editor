@@ -310,7 +310,7 @@ private fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspS
         val snackbarHost = snackbarHostStateRef.get() ?: return@launch
         val result =
             snackbarHost.showSnackbar(
-                message = strings.ask_lsp_install.getFilledString(context, server.languageName),
+                message = strings.ask_lsp_install.getFilledString(server.languageName, context),
                 actionLabel = strings.install.getString(),
                 duration = SnackbarDuration.Long,
             )

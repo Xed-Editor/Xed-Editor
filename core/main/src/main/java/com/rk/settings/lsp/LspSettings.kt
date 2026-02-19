@@ -46,7 +46,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspPersistence
 import com.rk.lsp.LspRegistry
-import com.rk.lsp.getConnectionColor
+import com.rk.lsp.getDominantStatusColor
 import com.rk.lsp.servers.ExternalProcessServer
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.resources.getString
@@ -181,7 +181,7 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
 
 @Composable
 private fun LanguageServerIcon(server: BaseLspServer, i: Int) {
-    BadgedBox(badge = { server.getConnectionColor()?.let { color -> Badge(containerColor = color) } }) {
+    BadgedBox(badge = { server.getDominantStatusColor()?.let { color -> Badge(containerColor = color) } }) {
         Icon(modifier = Modifier.padding(start = 16.dp), painter = painterResource(i), contentDescription = null)
     }
 }

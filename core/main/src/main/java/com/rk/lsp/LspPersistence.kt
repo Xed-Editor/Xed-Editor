@@ -16,6 +16,8 @@ data class SavedLspConfig(
 ) : Serializable
 
 object LspPersistence {
+    // TODO: Do not save in settings but in separate file (maybe also without GSON, not only here, but with native java
+    // serialization)
     private const val KEY_EXTERNAL_LSP = "saved_external_servers"
     private val gson = Gson()
 

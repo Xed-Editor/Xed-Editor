@@ -69,12 +69,17 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             LspServerDetail(navController, server)
         }
         composable(
-            "${SettingsRoutes.LspServerLogs.route}/{serverId}",
-            arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
+            "${SettingsRoutes.LspServerLogs.route}/{serverId}/{instanceId}",
+            arguments =
+                listOf(
+                    navArgument("serverId", builder = { type = NavType.StringType }),
+                    navArgument("instanceId", builder = { type = NavType.StringType }),
+                ),
         ) { backStackEntry ->
             val serverId = backStackEntry.arguments?.getString("serverId")!!
             val server = LspRegistry.getForId(serverId)!!
-            LspServerLogs(server)
+            val instanceId = backStackEntry.arguments?.getString("instanceId")!!
+            LspServerLogs(server, instanceId)
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
         composable(SettingsRoutes.Extensions.route) { Extensions() }
