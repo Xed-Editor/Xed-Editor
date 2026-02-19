@@ -65,13 +65,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class FileTreeTab(val root: FileObject) : DrawerTab() {
+    val indexingPreferenceKey
+        get() = "enable_indexing_${root.hashCode()}"
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content(modifier: Modifier) {
         var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
         var searchDialog by remember { mutableStateOf(false) }
         var enableIndexing by remember {
-            mutableStateOf(Preference.getBoolean("enable_indexing_${root.hashCode()}", Settings.always_index_projects))
+            mutableStateOf(Preference.getBoolean(indexingPreferenceKey, Settings.always_index_projects))
         }
 
         val scope = rememberCoroutineScope()
@@ -131,7 +134,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 enableIndexing,
                 { newValue ->
                     enableIndexing = newValue
-                    Preference.setBoolean("enable_indexing_${root.hashCode()}", newValue)
+                    Preference.setBoolean(indexingPreferenceKey, newValue)
                 },
             )
         }
@@ -286,6 +289,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     }
 
     override fun onRemoved() {
+        Preference.removeKey(indexingPreferenceKey)
         searchViewModel.get()?.deleteIndex(MainActivity.instance!!, root)
     }
 }
