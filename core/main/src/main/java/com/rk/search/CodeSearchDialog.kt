@@ -93,6 +93,25 @@ fun CodeSearchDialog(
         ExcludeFilesDialog(searchViewModel)
     }
 
+    fun replace(codeItem: CodeItem) {
+        searchViewModel.viewModelScope.launch {
+            searchViewModel.replaceIn(mainViewModel, codeItem)
+            searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
+        }
+    }
+
+    fun replaceAll(codeItems: List<CodeItem>) {
+        val itemsBackwards =
+            codeItems.toList().sortedWith(compareByDescending<CodeItem> { it.line }.thenByDescending { it.column })
+
+        searchViewModel.viewModelScope.launch {
+            for (codeItem in itemsBackwards) {
+                searchViewModel.replaceIn(mainViewModel, codeItem)
+            }
+            searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
+        }
+    }
+
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
         Column(modifier = Modifier.animateContentSize().height(screenHeight * 0.8f)) {
             TextField(
@@ -175,6 +194,14 @@ fun CodeSearchDialog(
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     placeholder = { Text(text = stringResource(strings.replace)) },
+                    trailingIcon = {
+                        IconButton(onClick = { replaceAll(searchViewModel.codeSearchResults) }) {
+                            Icon(
+                                painter = painterResource(drawables.find_replace),
+                                contentDescription = stringResource(strings.replace),
+                            )
+                        }
+                    },
                 )
             }
 
@@ -203,20 +230,6 @@ fun CodeSearchDialog(
             }
 
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
-
-            fun replace(codeItem: CodeItem) {
-                searchViewModel.viewModelScope.launch {
-                    searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
-                }
-            }
-
-            fun replaceAll(codeItems: List<CodeItem>) {
-                searchViewModel.viewModelScope.launch {
-                    for (codeItem in codeItems) {
-                        searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
-                    }
-                }
-            }
 
             if (searchViewModel.codeSearchQuery.isNotEmpty()) {
                 LazyColumn {
