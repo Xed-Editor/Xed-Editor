@@ -30,13 +30,15 @@ class LoadingPopup(private val activity: AppCompatActivity?, hideAfterMillis: Lo
 
     init {
         if (activity != null) {
-            dialog = MaterialAlertDialogBuilder(activity).setView(createComposeView()).setCancelable(false).create()
+            activity.runOnUiThread {
+                dialog = MaterialAlertDialogBuilder(activity).setView(createComposeView()).setCancelable(false).create()
 
-            hideAfterMillis?.let { delayMillis ->
-                show()
-                activity.lifecycleScope.launch {
-                    delay(delayMillis)
-                    hide()
+                hideAfterMillis?.let { delayMillis ->
+                    show()
+                    activity.lifecycleScope.launch {
+                        delay(delayMillis)
+                        hide()
+                    }
                 }
             }
         } else {
