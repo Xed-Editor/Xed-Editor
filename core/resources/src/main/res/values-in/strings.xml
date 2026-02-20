@@ -692,4 +692,13 @@
     <string name="resource_loading_error">Gagal memuat sumber daya</string>
     <string name="terminate_all_sessions">Hentikan semua sesi</string>
     <string name="terminate_all_sessions_desc">Matikan semua sesi terminal saat aplikasi ditutup</string>
+    <string name="indexing">Mengindeks…</string>
+    <string name="file_name_opened">%s (Buka)</string>
+    <string name="index_project">Indeks proyek</string>
+    <string name="index_project_desc">Pengindeksan dapat mempercepat waktu pencarian untuk proyek besar</string>
+    <string name="always_index_projects">Selalu indeks proyek</string>
+    <string name="warn_dont_leave_setup">⚠ Jangan tinggalkan layar ini selama proses pengaturan sedang berlangsung</string>
+    <string name="indexing_stats">%1$s berkas terindeks, ukuran database %2$s</string>
+    <string name="exclude_files">Kecualikan berkas</string>
+    <string name="exclude_files_regex">Kecualikan berkas regex (misalnya .*(?&lt;!\\.py))</string>
 </resources>
