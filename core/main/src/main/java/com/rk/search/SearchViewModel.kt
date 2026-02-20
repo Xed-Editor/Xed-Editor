@@ -129,11 +129,12 @@ class SearchViewModel : ViewModel() {
         isReplaceShown = !isReplaceShown
     }
 
-    suspend fun replaceIn(context: Context, mainViewModel: MainViewModel, projectRoot: FileObject, codeItem: CodeItem) {
+    suspend fun replaceIn(mainViewModel: MainViewModel, codeItem: CodeItem) {
         withContext(Dispatchers.IO) {
             val lineIndex = codeItem.line
             val startCol = codeItem.column
-            val endCol = codeItem.column + codeSearchQuery.length
+            val diff = codeItem.snippet.highlight.endIndex - codeItem.snippet.highlight.startIndex
+            val endCol = codeItem.column + diff
 
             if (codeItem.isOpen) {
                 val tab =
@@ -158,8 +159,6 @@ class SearchViewModel : ViewModel() {
                 val normalizedContent = lines.joinToString(lineEnding.char)
                 codeItem.file.writeText(normalizedContent, charset)
             }
-
-            launchCodeSearch(context, mainViewModel, projectRoot)
         }
     }
 
