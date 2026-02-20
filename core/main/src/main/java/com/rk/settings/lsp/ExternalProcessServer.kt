@@ -29,6 +29,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.servers.ExternalProcessServer
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.parseExtensions
 import com.rk.utils.toast
 
 @Composable
@@ -40,10 +41,6 @@ fun ExternalProcessServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServ
 
     val confirmEnabled by remember {
         derivedStateOf { error == null && extensionsError == null && command.isNotBlank() && extensions.isNotBlank() }
-    }
-
-    fun parseExtensions(input: String): List<String> {
-        return input.split(",").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
     }
 
     Text(

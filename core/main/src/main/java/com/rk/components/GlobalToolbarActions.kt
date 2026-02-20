@@ -92,6 +92,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                 scope.launch {
                     if (fileObject.isFile()) {
                         viewModel.newTab(fileObject = fileObject, checkDuplicate = true, switchToTab = true)
+                        navigationDrawerState.get()?.close()
                     } else {
                         fileTreeViewModel.get()?.goToFolder(projectFile, fileObject)
                         navigationDrawerState.get()!!.open()

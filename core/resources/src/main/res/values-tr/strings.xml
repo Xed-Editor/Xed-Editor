@@ -706,5 +706,4 @@
     <string name="always_index_projects">Her zaman projeleri dizinle</string>
     <string name="indexing_stats">%1$s dosya indekslendi, veritabanı boyutu %2$s</string>
     <string name="exclude_files">Dosyaları hariç tut</string>
-    <string name="exclude_files_regex">Dosya hariç tutma regex\'i (örn. .*(?&lt;!\\.py))</string>
 </resources>

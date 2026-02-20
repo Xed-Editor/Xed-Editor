@@ -37,3 +37,21 @@ fun EditorNotice(text: String, actionButton: @Composable (() -> Unit)? = null) {
         }
     }
 }
+
+@Composable
+fun EditorNotice(text: @Composable () -> Unit, actionButton: @Composable (() -> Unit)? = null) {
+    Box(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHigh)) {
+        Column {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                text()
+                actionButton?.invoke()
+            }
+
+            HorizontalDivider()
+        }
+    }
+}

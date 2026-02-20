@@ -432,3 +432,7 @@ fun formatFileSize(bytes: Long): String {
 fun rememberNumberFormatter(): NumberFormat {
     return remember { NumberFormat.getInstance() }
 }
+
+fun parseExtensions(input: String): List<String> {
+    return input.split(",", " ").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
+}

@@ -30,6 +30,7 @@ import com.rk.lsp.BaseLspServer
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.parseExtensions
 import com.rk.utils.toast
 
 @Composable
@@ -49,10 +50,6 @@ fun ExternalSocketServer(modifier: Modifier = Modifier, onConfirm: (BaseLspServe
                 port.isNotBlank() &&
                 extensions.isNotBlank()
         }
-    }
-
-    fun parseExtensions(input: String): List<String> {
-        return input.split(",").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
     }
 
     OutlinedTextField(

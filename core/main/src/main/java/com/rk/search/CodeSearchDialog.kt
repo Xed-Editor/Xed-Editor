@@ -64,6 +64,7 @@ import com.rk.filetree.FileIcon
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
@@ -84,12 +85,12 @@ fun CodeSearchDialog(
         searchViewModel.isIndexing(projectFile),
         searchViewModel.codeSearchQuery,
         searchViewModel.ignoreCase,
-        searchViewModel.excludedFilesText,
+        searchViewModel.fileMaskText,
     ) {
         searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
     }
 
-    if (searchViewModel.showExcludeFilesDialog) {
+    if (searchViewModel.showFileMaskDialog) {
         ExcludeFilesDialog(searchViewModel)
     }
 
@@ -161,12 +162,12 @@ fun CodeSearchDialog(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(painter = painterResource(drawables.edit), contentDescription = null)
                                         Spacer(Modifier.width(12.dp))
-                                        Text(stringResource(strings.exclude_files))
+                                        Text(stringResource(strings.file_mask))
                                         Spacer(Modifier.width(8.dp))
                                     }
                                 },
                                 onClick = {
-                                    searchViewModel.showExcludeFilesDialog = true
+                                    searchViewModel.showFileMaskDialog = true
                                     searchViewModel.showOptionsMenu = false
                                 },
                             )
@@ -195,7 +196,10 @@ fun CodeSearchDialog(
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     placeholder = { Text(text = stringResource(strings.replace)) },
                     trailingIcon = {
-                        IconButton(onClick = { replaceAll(searchViewModel.codeSearchResults) }) {
+                        IconButton(
+                            enabled = searchViewModel.codeSearchResults.isNotEmpty(),
+                            onClick = { replaceAll(searchViewModel.codeSearchResults) },
+                        ) {
                             Icon(
                                 painter = painterResource(drawables.find_replace),
                                 contentDescription = stringResource(strings.replace),
@@ -340,14 +344,20 @@ fun CodeSearchDialog(
 
 @Composable
 fun ExcludeFilesDialog(searchViewModel: SearchViewModel) {
-    var excludeFilesText by remember { mutableStateOf(searchViewModel.excludedFilesText) }
+    var fileMaskText by remember { mutableStateOf(searchViewModel.fileMaskText) }
 
     SingleInputDialog(
-        title = stringResource(id = strings.exclude_files),
-        inputLabel = stringResource(id = strings.exclude_files_regex),
-        inputValue = excludeFilesText,
-        onInputValueChange = { excludeFilesText = it },
-        onConfirm = { searchViewModel.excludedFilesText = excludeFilesText },
-        onFinish = { searchViewModel.showExcludeFilesDialog = false },
+        title = stringResource(id = strings.file_mask),
+        inputLabel = stringResource(id = strings.file_mask_hint),
+        inputValue = fileMaskText,
+        onInputValueChange = { fileMaskText = it },
+        onConfirm = {
+            searchViewModel.fileMaskText = fileMaskText
+            Settings.file_mask = fileMaskText
+        },
+        onFinish = {
+            searchViewModel.fileMaskText = Settings.file_mask
+            searchViewModel.showFileMaskDialog = false
+        },
     )
 }

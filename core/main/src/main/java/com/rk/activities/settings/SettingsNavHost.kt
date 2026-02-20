@@ -2,8 +2,10 @@ package com.rk.activities.settings
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.settings.SettingsScreen
 import com.rk.settings.about.AboutScreen
@@ -14,6 +16,7 @@ import com.rk.settings.editor.DefaultLineEnding
 import com.rk.settings.editor.EditExtraKeys
 import com.rk.settings.editor.EditToolbarActions
 import com.rk.settings.editor.EditorFontScreen
+import com.rk.settings.editor.ExcludeFiles
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.extension.Extensions
 import com.rk.settings.git.GitSettings
@@ -47,6 +50,13 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.DefaultLineEnding.route) { DefaultLineEnding() }
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
         composable(SettingsRoutes.ExtraKeys.route) { EditExtraKeys() }
+        composable(
+            "${SettingsRoutes.ExcludeFiles.route}/{isDrawer}",
+            arguments = listOf(navArgument("isDrawer", builder = { type = NavType.BoolType })),
+        ) {
+            val isDrawer = it.arguments?.getBoolean("isDrawer")!!
+            ExcludeFiles(isDrawer)
+        }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
         composable(SettingsRoutes.Support.route) { Support() }
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }

@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.navigationDrawerState
 import com.rk.activities.terminal.Terminal
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
@@ -451,7 +452,10 @@ fun FileActionDialog(
                                 }
 
                                 if (isNewFile && newChild != null && Settings.auto_open_new_files) {
-                                    MainActivity.instance?.viewModel?.newTab(newChild)
+                                    MainActivity.instance
+                                        ?.viewModel
+                                        ?.newTab(newChild, checkDuplicate = true, switchToTab = true)
+                                    navigationDrawerState.get()?.close()
                                 }
                             } else {
                                 val msg = if (isNewFile) strings.file_already_exists else strings.folder_already_exists

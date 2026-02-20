@@ -699,5 +699,4 @@
     <string name="warn_dont_leave_setup">⚠ Не покидайте этот экран, пока выполняется настройка</string>
     <string name="indexing_stats">Проиндексировано файлов: %1$s, размер базы данных: %2$s</string>
     <string name="exclude_files">Исключить файлы</string>
-    <string name="exclude_files_regex">Регулярка для исключаемых файлов (например, .*(?&lt;!.py))</string>
 </resources>
