@@ -11,7 +11,6 @@ import com.rk.editor.Editor
 import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialog
 import com.rk.utils.errorDialog
@@ -20,11 +19,12 @@ import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.languageserver.ServerStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.ShutdownReason
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
+import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.EventHandler
 import io.github.rosemoe.sora.lsp.editor.LspEditor
-import io.github.rosemoe.sora.lsp.editor.LspEditorEventListener
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.LspProject
+import io.github.rosemoe.sora.lsp.events.AsyncEventListener
 import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -57,6 +57,44 @@ import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.messages.Either3
 
+/**
+ * A utility object to temporarily prevent specific LSP servers from being used for a project.
+ *
+ * This is useful in scenarios where a server needs to be disabled on-demand without permanently removing its
+ * configuration. For example, a user might want to temporarily stop a server that is causing issues.
+ *
+ * When a server is "prevented" via `register()`:
+ * 1. It is added to a list of prevented servers for the given project.
+ * 2. Its current [LanguageServerDefinition] is cached.
+ * 3. The definition is then removed from the `LspProject`, effectively disabling it.
+ *
+ * `unregister()` reverses this process by restoring the cached definition to the project.
+ */
+object DefinitionPrevention {
+    private val preventedServers = ConcurrentHashMap<LspProject, List<BaseLspServer>>()
+    private val cachedDefinitions = ConcurrentHashMap<LspProject, Map<BaseLspServer, LanguageServerDefinition>>()
+
+    fun register(project: LspProject, server: BaseLspServer) {
+        preventedServers[project] = preventedServers[project]?.plus(server) ?: listOf(server)
+        server.supportedExtensions.firstOrNull()?.let {
+            val currentDefinition = project.getServerDefinition(it, server.serverName) ?: return@let
+            cachedDefinitions[project] =
+                cachedDefinitions[project]?.plus(server to currentDefinition) ?: mapOf(server to currentDefinition)
+        }
+        server.supportedExtensions.forEach { project.removeServerDefinition(it, server.serverName) }
+    }
+
+    fun unregister(project: LspProject, server: BaseLspServer) {
+        preventedServers[project] = preventedServers[project]?.minus(server) ?: listOf()
+        cachedDefinitions[project]?.get(server)?.let { project.addServerDefinition(it) }
+        cachedDefinitions[project]?.minus(server)?.let { cachedDefinitions[project] = it }
+    }
+
+    fun isServerPrevented(project: LspProject, server: BaseLspServer): Boolean {
+        return preventedServers[project]?.contains(server) ?: false
+    }
+}
+
 class BaseLspConnector(
     private val projectFile: FileObject,
     private val fileObject: FileObject,
@@ -76,95 +114,85 @@ class BaseLspConnector(
 
     suspend fun connect(textMateScope: String) =
         withContext(Dispatchers.IO) {
-            if (servers.any { !it.isSupported(fileObject) }) {
+            if (isConnected()) {
+                info("LSP servers already connected skipping...")
                 return@withContext
             }
 
             editorTab.editorState.isConnectingLsp = true
 
+            val projectPath = projectFile.getAbsolutePath()
+            val fileExt = fileObject.getExtension()
+
+            val project = projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }
+
+            servers.forEach { server ->
+                val isForceStopped = DefinitionPrevention.isServerPrevented(project, server)
+                if (!isForceStopped && project.getServerDefinition(fileExt, server.serverName) == null) {
+                    val serverDef = server.createServerDefinition(this@withContext, fileExt, project)
+                    try {
+                        project.addServerDefinition(serverDef)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            lspEditor =
+                withContext(Dispatchers.Main) {
+                    project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
+                        wrapperLanguage = TextMateLanguage.create(textMateScope, false)
+                        editor = codeEditor
+                        isEnableInlayHint = true
+                    }
+                }
+
+            launch { servers.forEach { it.beforeConnect() } }
+
             try {
-                val projectPath = projectFile.getAbsolutePath()
-                val fileExt = fileObject.getName().substringAfterLast(".", "")
-
-                val project = projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }
-
-                servers.forEach { server ->
-                    if (project.getServerDefinition(fileExt, server.serverName) == null) {
-                        val serverDef = server.createServerDefinition(this@withContext, fileExt, project)
-                        try {
-                            project.addServerDefinition(serverDef)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-
-                lspEditor =
-                    withContext(Dispatchers.Main) {
-                        project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
-                            wrapperLanguage = TextMateLanguage.create(textMateScope, false)
-                            editor = codeEditor
-                            isEnableInlayHint = true
-                        }
-                    }
-
-                if (isConnected()) {
-                    info("LSP servers already connected skipping...")
-                    return@withContext
-                }
-
-                launch { servers.forEach { it.beforeConnect() } }
-
-                runCatching {
-                        lspEditor!!.connectWithTimeout()
-                        lspEditor!!
-                            .requestManager
-                            .didChangeWorkspaceFolders(
-                                DidChangeWorkspaceFoldersParams().apply {
-                                    event =
-                                        WorkspaceFoldersChangeEvent().apply {
-                                            added = listOf(WorkspaceFolder(projectPath, projectFile.getName()))
-                                        }
+                lspEditor!!.connectWithTimeout()
+                lspEditor!!
+                    .requestManager
+                    .didChangeWorkspaceFolders(
+                        DidChangeWorkspaceFoldersParams().apply {
+                            event =
+                                WorkspaceFoldersChangeEvent().apply {
+                                    added = listOf(WorkspaceFolder(projectPath, projectFile.getName()))
                                 }
-                            )
-                        lspEditor!!.openDocument()
-
-                        lspEditor!!.eventListener = LspEditorEventListener { _, _, _ ->
-                            val failedConnections =
-                                servers.filter { server ->
-                                    server.instances.any { instance ->
-                                        val isCrashed = instance.status == LspConnectionStatus.CRASHED
-                                        val isTimeout = instance.status == LspConnectionStatus.TIMEOUT
-                                        instance.lspProject == project && (isCrashed || isTimeout)
-                                    }
-                                }
-
-                            if (failedConnections.isNotEmpty()) {
-                                launch {
-                                    val snackbarHost = snackbarHostStateRef.get() ?: return@launch
-                                    val result =
-                                        snackbarHost.showSnackbar(
-                                            message = strings.lsp_connection_error.getString(),
-                                            actionLabel = strings.manage.getString(),
-                                            duration = SnackbarDuration.Short,
-                                        )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        val activity = MainActivity.instance!!
-                                        val intent = Intent(activity, SettingsActivity::class.java)
-                                        intent.putExtra("route", SettingsRoutes.LspSettings.route)
-                                        activity.startActivity(intent)
-                                    }
-                                }
-                            }
                         }
-                    }
-                    .onFailure {
-                        // TODO: Why do we set the language here?
-                        codeEditor.setLanguage(textMateScope)
-                        it.printStackTrace()
-                    }
+                    )
+                lspEditor!!.openDocument()
+            } catch (e: Exception) {
+                e.printStackTrace()
             } finally {
                 editorTab.editorState.isConnectingLsp = false
+
+                val failedConnections =
+                    servers.filter { server ->
+                        server.instances.any { instance ->
+                            val isCrashed = instance.status == LspConnectionStatus.CRASHED
+                            val isTimeout = instance.status == LspConnectionStatus.TIMEOUT
+                            instance.lspProject == project && (isCrashed || isTimeout)
+                        }
+                    }
+
+                if (failedConnections.isNotEmpty()) {
+                    launch {
+                        val snackbarHost = snackbarHostStateRef.get() ?: return@launch
+                        val result =
+                            snackbarHost.showSnackbar(
+                                message = strings.lsp_connection_error.getString(),
+                                actionLabel = strings.manage.getString(),
+                                duration = SnackbarDuration.Short,
+                            )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            val activity = MainActivity.instance!!
+                            val intent = Intent(activity, SettingsActivity::class.java)
+                            intent.putExtra("route", SettingsRoutes.LspSettings.route)
+                            activity.startActivity(intent)
+                        }
+                    }
+                }
             }
         }
 
@@ -179,29 +207,29 @@ class BaseLspConnector(
                 serverConnectProvider = ServerConnectProvider { getConnectionConfig().providerFactory().create() },
                 name = serverName,
                 extensionsOverride = supportedExtensions,
-                expectedCapabilitiesOverride =
-                    ServerCapabilities().apply {
-                        if (!Preference.getBoolean("lsp_${id}_hover", true)) {
-                            hoverProvider = Either.forLeft(false)
-                        }
-                        if (!Preference.getBoolean("lsp_${id}_signature_help", true)) {
-                            signatureHelpProvider = null
-                        }
-                        if (!Preference.getBoolean("lsp_${id}_inlay_hints", true)) {
-                            inlayHintProvider = Either.forLeft(false)
-                        }
-                        if (!Preference.getBoolean("lsp_${id}_completion", true)) {
-                            completionProvider = null
-                        }
-                        if (!Preference.getBoolean("lsp_${id}_diagnostics", true)) {
-                            diagnosticProvider = null
-                        }
-                        if (!Preference.getBoolean("lsp_${id}_formatting", true)) {
-                            documentFormattingProvider = Either.forLeft(false)
-                            documentRangeFormattingProvider = Either.forLeft(false)
-                            documentOnTypeFormattingProvider = null
-                        }
-                    },
+                // expectedCapabilitiesOverride =
+                //     ServerCapabilities().apply {
+                //         if (!Preference.getBoolean("lsp_${id}_hover", true)) {
+                //             hoverProvider = Either.forLeft(false)
+                //         }
+                //         if (!Preference.getBoolean("lsp_${id}_signature_help", true)) {
+                //             signatureHelpProvider = null
+                //         }
+                //         if (!Preference.getBoolean("lsp_${id}_inlay_hints", true)) {
+                //             inlayHintProvider = Either.forLeft(false)
+                //         }
+                //         if (!Preference.getBoolean("lsp_${id}_completion", true)) {
+                //             completionProvider = null
+                //         }
+                //         if (!Preference.getBoolean("lsp_${id}_diagnostics", true)) {
+                //             diagnosticProvider = null
+                //         }
+                //         if (!Preference.getBoolean("lsp_${id}_formatting", true)) {
+                //             documentFormattingProvider = Either.forLeft(false)
+                //             documentRangeFormattingProvider = Either.forLeft(false)
+                //             documentOnTypeFormattingProvider = null
+                //         }
+                //     },
             ) {
             val instance =
                 BaseLspServerInstance(
@@ -219,8 +247,14 @@ class BaseLspConnector(
             override val eventListener: EventHandler.EventListener
                 get() =
                     object : EventHandler.EventListener {
+                        override fun onEventException(eventListener: AsyncEventListener, exception: Exception) {
+                            instance.addLog(LspLogEntry(MessageType.Error, "Event ${eventListener.eventName} failed"))
+                            exception.localizedMessage?.let { message ->
+                                instance.addLog(LspLogEntry(MessageType.Error, message))
+                            }
+                        }
+
                         override fun onHandlerException(exception: Exception) {
-                            scope.launch { connectionFailure(exception.message) }
                             exception.cause?.localizedMessage?.let { message ->
                                 instance.addLog(LspLogEntry(MessageType.Error, message))
                             }
@@ -252,8 +286,16 @@ class BaseLspConnector(
 
                         override fun onStatusChange(newStatus: ServerStatus, oldStatus: ServerStatus) {
                             if (newStatus == ServerStatus.INITIALIZED) {
-                                scope.launch { connectionSuccess(this@BaseLspConnector) }
+                                scope.launch { onInitialize(this@BaseLspConnector) }
                             }
+
+                            // TODO: Think about this
+                            //                            if (newStatus is ServerStatus.STOPPED && newStatus.reason ==
+                            // ShutdownReason.UNUSED) {
+                            //                                removeInstance(instance)
+                            //                                supportedExtensions.forEach {
+                            // lspProject.removeServerDefinition(it, serverName) }
+                            //                            }
 
                             if (newStatus == ServerStatus.STARTED) {
                                 instance.startupTime = System.currentTimeMillis()
@@ -274,10 +316,19 @@ class BaseLspConnector(
                                 }
                             instance.addLog(LspLogEntry(MessageType.Info, statusMessage))
 
+                            if (
+                                oldStatus is ServerStatus.STOPPED &&
+                                    oldStatus.reason == ShutdownReason.RESTART &&
+                                    newStatus is ServerStatus.STARTING
+                            ) {
+                                instance.status = LspConnectionStatus.RESTARTING
+                                return
+                            }
+
                             instance.status =
                                 when (newStatus) {
                                     ServerStatus.IDLE -> LspConnectionStatus.NOT_RUNNING
-                                    ServerStatus.INITIALIZED -> LspConnectionStatus.CONNECTED
+                                    ServerStatus.INITIALIZED -> LspConnectionStatus.RUNNING
                                     ServerStatus.STARTED,
                                     ServerStatus.STARTING -> LspConnectionStatus.STARTING
                                     is ServerStatus.STOPPING -> {
@@ -422,6 +473,29 @@ class BaseLspConnector(
         runCatching {
                 lspEditor?.disposeAsync()
                 lspEditor = null
+
+                //                val lspProject = projectCache[projectFile.getAbsolutePath()] ?: return@runCatching
+                //                val instances =
+                //                    servers
+                //                        .mapNotNull { server ->
+                //                            server.instances.find { instance -> instance.lspProject == lspProject }
+                //                        }
+                //                        .filter { instance ->
+                //                            instance.status == LspConnectionStatus.NOT_RUNNING ||
+                //                                instance.status == LspConnectionStatus.CRASHED ||
+                //                                instance.status == LspConnectionStatus.TIMEOUT
+                //                        }
+                //                        .filter { instance ->
+                //                            lspProject.getEditors().none {
+                // instance.server.supportedExtensions.contains(it.fileExt) }
+                //                        }
+                //                instances.forEach { instance ->
+                //                    DefinitionPrevention.unregister(lspProject, instance.server)
+                //                    instance.server.removeInstance(instance)
+                //                    instance.server.supportedExtensions.forEach {
+                //                        lspProject.removeServerDefinition(it, instance.server.serverName)
+                //                    }
+                //                }
             }
             .onFailure { it.printStackTrace() }
     }

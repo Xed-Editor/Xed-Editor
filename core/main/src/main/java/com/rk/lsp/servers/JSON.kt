@@ -4,7 +4,6 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -12,7 +11,7 @@ import com.rk.file.sandboxDir
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
-class JSON() : BaseLspServer() {
+class JSON : BaseLspServer() {
     override val id: String = "json"
     override val languageName: String = "JSON"
     override val serverName = "vscode-json-language-server"
@@ -44,9 +43,5 @@ class JSON() : BaseLspServer() {
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/vscode-json-language-server", "--stdio"))
-    }
-
-    override fun isSupported(file: FileObject): Boolean {
-        return supportedExtensions.contains(file.getName().substringAfterLast(".", ""))
     }
 }

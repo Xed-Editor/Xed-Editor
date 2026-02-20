@@ -232,17 +232,24 @@ private fun InstanceCard(instance: BaseLspServerInstance, navController: NavHost
                     }
                 }
 
-                IconButton(onClick = { scope.launch { instance.restart() } }) {
-                    Icon(
-                        painter = painterResource(drawables.restart),
-                        contentDescription = stringResource(strings.restart),
-                    )
+                val isRunning =
+                    instance.status != LspConnectionStatus.NOT_RUNNING &&
+                        instance.status != LspConnectionStatus.CRASHED &&
+                        instance.status != LspConnectionStatus.TIMEOUT
+                if (isRunning) {
+                    IconButton(onClick = { scope.launch { instance.restart() } }) {
+                        Icon(
+                            painter = painterResource(drawables.restart),
+                            contentDescription = stringResource(strings.restart),
+                        )
+                    }
+                } else {
+                    IconButton(onClick = { scope.launch { instance.start() } }) {
+                        Icon(painter = painterResource(drawables.run), contentDescription = stringResource(strings.run))
+                    }
                 }
 
-                IconButton(
-                    onClick = { scope.launch { instance.stop() } },
-                    enabled = instance.status != LspConnectionStatus.NOT_RUNNING,
-                ) {
+                IconButton(onClick = { scope.launch { instance.stop() } }, enabled = isRunning) {
                     Icon(painter = painterResource(drawables.stop), contentDescription = stringResource(strings.stop))
                 }
             }

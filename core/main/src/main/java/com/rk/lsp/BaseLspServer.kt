@@ -34,7 +34,7 @@ import org.eclipse.lsp4j.MessageType
 enum class LspConnectionStatus {
     NOT_RUNNING,
     STARTING,
-    CONNECTED,
+    RUNNING,
     STOPPING,
     CRASHED,
     TIMEOUT,
@@ -53,7 +53,7 @@ fun BaseLspServerInstance.getStatusColor(): Color? {
             status == LspConnectionStatus.STOPPING
     ) {
         MaterialTheme.colorScheme.yellowStatus
-    } else if (status == LspConnectionStatus.CONNECTED) {
+    } else if (status == LspConnectionStatus.RUNNING) {
         MaterialTheme.colorScheme.greenStatus
     } else null
 }
@@ -65,8 +65,10 @@ fun BaseLspServerInstance.getStatusText(): String {
     else if (hasError) stringResource(strings.error)
     else if (status == LspConnectionStatus.STARTING) stringResource(strings.status_starting)
     else if (status == LspConnectionStatus.RESTARTING) stringResource(strings.status_restarting)
-    else if (status == LspConnectionStatus.CONNECTED) stringResource(strings.status_connected)
+    else if (status == LspConnectionStatus.RUNNING) stringResource(strings.status_running)
     else if (status == LspConnectionStatus.STOPPING) stringResource(strings.status_stopping)
+    else if (DefinitionPrevention.isServerPrevented(lspProject, server))
+        stringResource(strings.status_not_running_forced)
     else stringResource(strings.status_not_running)
 }
 
@@ -86,10 +88,10 @@ fun BaseLspServerInstance.StatusIcon() {
             status == LspConnectionStatus.STOPPING -> {
             CircularProgressIndicator(modifier = Modifier.size(24.dp))
         }
-        status == LspConnectionStatus.CONNECTED -> {
+        status == LspConnectionStatus.RUNNING -> {
             Icon(
                 imageVector = Icons.Outlined.CheckCircle,
-                contentDescription = stringResource(strings.status_connected),
+                contentDescription = stringResource(strings.status_running),
                 tint = MaterialTheme.colorScheme.greenStatus,
                 modifier = Modifier.size(32.dp),
             )
@@ -110,7 +112,7 @@ fun BaseLspServer.getDominantStatusColor(): Color? {
         LspConnectionStatus.STARTING,
         LspConnectionStatus.RESTARTING,
         LspConnectionStatus.STOPPING -> MaterialTheme.colorScheme.yellowStatus
-        LspConnectionStatus.CONNECTED -> MaterialTheme.colorScheme.greenStatus
+        LspConnectionStatus.RUNNING -> MaterialTheme.colorScheme.greenStatus
         else -> null
     }
 }
@@ -147,24 +149,18 @@ data class BaseLspServerInstance(
             }
     }
 
-    fun removeDefinition() {
-        return server.supportedExtensions.firstOrNull()?.let {
-            lspProject.removeServerDefinition(it, server.serverName)
-        }
-            ?: run {
-                hasError = true
-                addLog(LspLogEntry(MessageType.Error, "Language server definition not found..."))
-            }
-    }
-
     /** Stops this language server instance */
     suspend fun stop() {
         withContext(Dispatchers.IO) {
             addLog(LspLogEntry(MessageType.Info, "User stopped language server instance..."))
             val wrapper = getWrapper() ?: return@withContext
             hasError = false
-            removeDefinition()
-            wrapper.stop(true)
+            DefinitionPrevention.register(lspProject, server)
+            try {
+                wrapper.stop(true)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -174,7 +170,26 @@ data class BaseLspServerInstance(
             addLog(LspLogEntry(MessageType.Info, "User restarted language server instance..."))
             val wrapper = getWrapper() ?: return@withContext
             hasError = false
-            wrapper.restartAndReconnect()
+            try {
+                wrapper.restartAndReconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /** Starts this language server instance */
+    suspend fun start() {
+        withContext(Dispatchers.IO) {
+            addLog(LspLogEntry(MessageType.Info, "User started language server instance..."))
+            val wrapper = getWrapper() ?: return@withContext
+            hasError = false
+            DefinitionPrevention.unregister(lspProject, server)
+            try {
+                wrapper.start()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 }
@@ -198,13 +213,13 @@ abstract class BaseLspServer {
 
     open suspend fun beforeConnect() {}
 
-    open suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    open suspend fun connectionFailure(msg: String?) {}
+    open suspend fun onInitialize(lspConnector: BaseLspConnector) {}
 
     open fun getInitializationOptions(uri: URI?): Any? = null
 
-    abstract fun isSupported(file: FileObject): Boolean
+    open fun isSupported(file: FileObject): Boolean {
+        return supportedExtensions.contains(file.getExtension().lowercase())
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

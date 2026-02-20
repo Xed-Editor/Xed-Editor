@@ -30,6 +30,10 @@ class NetWrapper(private val url: URL) : FileObject {
         return url.path.substringAfterLast('/', "")
     }
 
+    override fun getExtension(): String {
+        return MimeTypeMap.getFileExtensionFromUrl(url.toString())
+    }
+
     override suspend fun getParentFile(): FileObject? {
         val path = url.path
         val parent = path.substringBeforeLast('/', "")

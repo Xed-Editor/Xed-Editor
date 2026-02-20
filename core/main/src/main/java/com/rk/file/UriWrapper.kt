@@ -61,6 +61,8 @@ class UriWrapper : FileObject {
 
     override fun getName(): String = file.name ?: "Invalid"
 
+    override fun getExtension(): String = MimeTypeMap.getFileExtensionFromUrl(file.uri.toString())
+
     override suspend fun getParentFile(): FileObject? = file.parentFile?.let { UriWrapper(it) }
 
     override suspend fun exists(): Boolean = file.exists()

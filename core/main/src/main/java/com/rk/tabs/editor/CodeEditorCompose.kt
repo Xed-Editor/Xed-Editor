@@ -237,9 +237,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
             scope.launch(Dispatchers.IO) {
                 setLanguage(langScope)
 
-                val ext = file.getName().substringAfterLast(".", "").trim()
-
-                val builtin = getBuiltinServers(ext, context)
+                val builtin = getBuiltinServers(context)
                 val external = getExternalServers()
                 val servers = builtin + external
                 if (servers.isEmpty()) return@launch
@@ -270,9 +268,8 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
     }
 }
 
-private fun EditorTab.getBuiltinServers(ext: String, context: Context): List<BaseLspServer> {
-    val servers =
-        LspRegistry.builtInServer.filter { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
+private fun EditorTab.getBuiltinServers(context: Context): List<BaseLspServer> {
+    val servers = LspRegistry.builtInServer.filter { it.isSupported(file) }
     val supportedServers = mutableListOf<BaseLspServer>()
 
     servers.forEach { server ->
@@ -283,11 +280,6 @@ private fun EditorTab.getBuiltinServers(ext: String, context: Context): List<Bas
         if (!server.isInstalled(context)) {
             info("Server is not installed")
             showServerInstallDialog(context, server)
-            return@forEach
-        }
-
-        if (!server.isSupported(file)) {
-            info("This server: ${server.serverName} does not support this file")
             return@forEach
         }
 

@@ -4,7 +4,6 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileObject
 import com.rk.file.FileType
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -12,7 +11,7 @@ import com.rk.file.sandboxDir
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
 
-class ESLint() : BaseLspServer() {
+class ESLint : BaseLspServer() {
     override val id: String = "eslint"
     override val languageName: String = "ESLint"
     override val serverName = "vscode-eslint-language-server"
@@ -50,9 +49,5 @@ class ESLint() : BaseLspServer() {
         return LspConnectionConfig.Process(
             arrayOf("/usr/bin/node", "/usr/bin/vscode-eslint-language-server", "--stdio")
         )
-    }
-
-    override fun isSupported(file: FileObject): Boolean {
-        return supportedExtensions.contains(file.getName().substringAfterLast(".", ""))
     }
 }

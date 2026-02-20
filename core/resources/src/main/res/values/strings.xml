@@ -561,9 +561,10 @@
     <string name="complete_on_enter">Complete on enter</string>
     <string name="complete_on_enter_desc">Select the first completion item on enter for software keyboard</string>
     <string name="status_info">Status: %s</string>
-    <string name="status_connected">Connected</string>
+    <string name="status_running">Running</string>
     <string name="status_starting">Starting…</string>
     <string name="status_not_running">Not running</string>
+    <string name="status_not_running_forced">Not running (forced)</string>
     <string name="status_crashed">Crashed</string>
     <string name="status_timeout">Timeout</string>
     <string name="status_restarting">Restarting…</string>
