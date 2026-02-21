@@ -31,6 +31,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,11 +55,13 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.utils.parseExtensions
 import com.rk.utils.toast
+import kotlinx.coroutines.launch
 
 @Composable
-fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
+fun LspSettings(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf<Int?>(null) }
+    val scope = rememberCoroutineScope()
 
     PreferenceLayout(
         label = stringResource(strings.manage_language_servers),
@@ -90,7 +93,14 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
                         showSwitch = true,
                         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
                         startWidget = server.icon?.let { { LanguageServerIcon(server, it) } },
-                        sideEffect = { Preference.setBoolean("lsp_${server.id}", it) },
+                        sideEffect = {
+                            if (it) {
+                                scope.launch { server.connectAllSuitableEditors() }
+                            } else {
+                                scope.launch { server.disconnectAllInstances() }
+                            }
+                            Preference.setBoolean("lsp_${server.id}", it)
+                        },
                     )
                 }
             }
@@ -111,7 +121,14 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
                         showSwitch = true,
                         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
                         startWidget = server.icon?.let { { LanguageServerIcon(server, it) } },
-                        sideEffect = { Preference.setBoolean("lsp_${server.id}", it) },
+                        sideEffect = {
+                            if (it) {
+                                scope.launch { server.connectAllSuitableEditors() }
+                            } else {
+                                scope.launch { server.disconnectAllInstances() }
+                            }
+                            Preference.setBoolean("lsp_${server.id}", it)
+                        },
                     )
                 }
             }
@@ -144,6 +161,7 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
 
                                 IconButton(
                                     onClick = {
+                                        scope.launch { server.disconnectAllInstances() }
                                         LspRegistry.externalServers.remove(server)
                                         LspPersistence.saveServers()
                                     }
@@ -168,8 +186,10 @@ fun LspSettings(modifier: Modifier = Modifier, navController: NavController) {
                 onConfirm = { server, replaceIndex ->
                     if (replaceIndex == -1) {
                         LspRegistry.externalServers.add(server)
+                        scope.launch { server.connectAllSuitableEditors() }
                     } else {
                         LspRegistry.externalServers[replaceIndex] = server
+                        scope.launch { server.restartAllInstances() }
                     }
                     LspPersistence.saveServers()
                 },

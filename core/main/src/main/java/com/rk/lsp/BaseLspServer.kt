@@ -17,10 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rk.activities.main.MainActivity
 import com.rk.file.FileObject
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
+import com.rk.tabs.editor.EditorTab
+import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
 import com.rk.theme.yellowStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.LanguageServerWrapper
@@ -33,12 +36,12 @@ import org.eclipse.lsp4j.MessageType
 
 enum class LspConnectionStatus {
     NOT_RUNNING,
-    STARTING,
     RUNNING,
+    STARTING,
     STOPPING,
+    RESTARTING,
     CRASHED,
     TIMEOUT,
-    RESTARTING,
 }
 
 data class LspLogEntry(val level: MessageType, val message: String, val timestamp: Long = System.currentTimeMillis())
@@ -154,7 +157,6 @@ data class BaseLspServerInstance(
         withContext(Dispatchers.IO) {
             addLog(LspLogEntry(MessageType.Info, "User stopped language server instance..."))
             val wrapper = getWrapper() ?: return@withContext
-            hasError = false
             DefinitionPrevention.register(lspProject, server)
             try {
                 wrapper.stop(true)
@@ -169,7 +171,6 @@ data class BaseLspServerInstance(
         withContext(Dispatchers.IO) {
             addLog(LspLogEntry(MessageType.Info, "User restarted language server instance..."))
             val wrapper = getWrapper() ?: return@withContext
-            hasError = false
             try {
                 wrapper.restartAndReconnect()
             } catch (e: Exception) {
@@ -178,11 +179,15 @@ data class BaseLspServerInstance(
         }
     }
 
-    /** Starts this language server instance */
-    suspend fun start() {
-        withContext(Dispatchers.IO) {
+    /**
+     * Starts this language server instance
+     *
+     * @return List of editors that were reconnected
+     */
+    suspend fun start(): List<EditorTab> {
+        return withContext(Dispatchers.IO) {
             addLog(LspLogEntry(MessageType.Info, "User started language server instance..."))
-            val wrapper = getWrapper() ?: return@withContext
+            val wrapper = getWrapper() ?: return@withContext emptyList()
             hasError = false
             DefinitionPrevention.unregister(lspProject, server)
             try {
@@ -190,11 +195,65 @@ data class BaseLspServerInstance(
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+
+            val reconnectedEditors = mutableListOf<EditorTab>()
+            reconnect(reconnectedEditors)
+            return@withContext reconnectedEditors
+        }
+    }
+
+    private fun reconnect(reconnectedEditors: MutableList<EditorTab>) {
+        val editors = lspProject.getEditors()
+        val filteredEditors = editors.filter { server.supportedExtensions.contains(it.fileExt) }
+        filteredEditors.forEach { editor ->
+            val matchingEditorTab =
+                MainActivity.instance!!.viewModel.run {
+                    tabs.filterIsInstance<EditorTab>().find { it.editorState.editor.get() == editor.editor }
+                } ?: return@forEach
+            matchingEditorTab.applyHighlightingAndConnectLSP()
+            reconnectedEditors.add(matchingEditorTab)
+        }
+    }
+
+    suspend fun disconnect() {
+        withContext(Dispatchers.IO) {
+            val wrapper = getWrapper() ?: return@withContext
+            server.supportedExtensions.forEach { lspProject.removeServerDefinition(it, server.serverName) }
+            lspProject.getEditors().forEach { wrapper.disconnect(it) }
         }
     }
 }
 
 abstract class BaseLspServer {
+    //    suspend fun startAllInstances(): List<EditorTab> {
+    //        val connectedEditors = mutableListOf<EditorTab>()
+    //        instances.forEach { connectedEditors.addAll(it.start()) }
+    //        return connectedEditors
+    //    }
+    //
+    //    suspend fun stopAllInstances() {
+    //        instances.forEach { it.stop() }
+    //    }
+
+    suspend fun disconnectAllInstances() {
+        instances.forEach { it.disconnect() }
+    }
+
+    suspend fun restartAllInstances() {
+        instances.forEach { it.restart() }
+    }
+
+    fun connectAllSuitableEditors(excludedEditors: List<EditorTab> = emptyList()) {
+        val suitableTabs =
+            MainActivity.instance!!.viewModel.run {
+                tabs.filterIsInstance<EditorTab>().filter {
+                    !excludedEditors.contains(it) &&
+                        this@BaseLspServer.supportedExtensions.contains(it.file.getExtension())
+                }
+            }
+        suitableTabs.forEach { it.applyHighlightingAndConnectLSP() }
+    }
+
     var instances = mutableStateListOf<BaseLspServerInstance>()
 
     fun addInstance(instance: BaseLspServerInstance) {
