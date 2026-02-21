@@ -698,4 +698,12 @@
     <string name="terminate_all_sessions">终止所有会话</string>
     <string name="terminate_all_sessions_desc">应用程序关闭时终止所有终端会话</string>
     <string name="warn_dont_leave_setup">⚠ 设置过程中请勿离开此屏幕</string>
+    <string name="indexing">索引中…</string>
+    <string name="file_name_opened">%s（打开）</string>
+    <string name="index_project">索引项目</string>
+    <string name="index_project_desc">索引可以提高大型项目的搜索速度</string>
+    <string name="always_index_projects">始终索引项目</string>
+    <string name="indexing_stats">已索引 %1$s 个文件，数据库大小 %2$s</string>
+    <string name="exclude_files">排除文件</string>
+    <string name="exclude_files_regex">排除文件正则表达式（例如 .*(?&lt;!\\.py)）</string>
 </resources>
