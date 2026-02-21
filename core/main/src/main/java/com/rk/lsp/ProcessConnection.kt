@@ -13,6 +13,10 @@ import kotlinx.coroutines.runBlocking
 
 class ProcessConnection(private val cmd: Array<String>) : StreamConnectionProvider {
 
+    //note: adding this to fix compile may need changes in future
+    override val isClosed: Boolean
+        get() =  process?.isAlive?.not() == true
+
     private var process: Process? = null
 
     override val inputStream: InputStream

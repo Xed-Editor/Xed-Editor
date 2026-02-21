@@ -33,18 +33,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rk.exec.ShellUtils
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
+import com.rk.file.FileWrapper
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
+import kotlinx.coroutines.Dispatchers
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
+import java.util.concurrent.TimeUnit
 
 data class ContentProgress(val totalSize: Long, val totalItems: Long)
 
@@ -158,8 +164,22 @@ fun GeneralProperties(file: FileObject) {
 @Composable
 fun AdvancedProperties(file: FileObject) {
     InfoRow(stringResource(strings.permissions), getPseudoPermissions(file))
-    if (InbuiltFeatures.debugMode.state.value) {
-        InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
+    InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
+
+    if (file is FileWrapper && file.isFile()){
+        var fileInfo by remember { mutableStateOf(strings.loading.getString()) }
+        InfoRow(label = "file",fileInfo)
+
+        LaunchedEffect(file) {
+            val result = withContext(Dispatchers.IO) {
+                ShellUtils.run("file", file.getAbsolutePath())
+            }
+
+            if (result.exitCode == 0) {
+                fileInfo = result.output.removePrefix(file.getAbsolutePath())
+                    .removePrefix(file.getCanonicalPath()).removePrefix(":")
+            }
+        }
     }
 }
 
