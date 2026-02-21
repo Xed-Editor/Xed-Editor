@@ -40,17 +40,14 @@ import com.rk.file.FileWrapper
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.formatFileSize
 import com.rk.utils.rememberNumberFormatter
-import kotlinx.coroutines.Dispatchers
 import java.text.DateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
-import java.util.concurrent.TimeUnit
 
 data class ContentProgress(val totalSize: Long, val totalItems: Long)
 
@@ -166,18 +163,19 @@ fun AdvancedProperties(file: FileObject) {
     InfoRow(stringResource(strings.permissions), getPseudoPermissions(file))
     InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
 
-    if (file is FileWrapper && file.isFile()){
+    if (file is FileWrapper && file.isFile()) {
         var fileInfo by remember { mutableStateOf(strings.loading.getString()) }
-        InfoRow(label = "file",fileInfo)
+        InfoRow(label = "file", fileInfo)
 
         LaunchedEffect(file) {
-            val result = withContext(Dispatchers.IO) {
-                ShellUtils.run("file", file.getAbsolutePath())
-            }
+            val result = withContext(Dispatchers.IO) { ShellUtils.run("file", file.getAbsolutePath()) }
 
             if (result.exitCode == 0) {
-                fileInfo = result.output.removePrefix(file.getAbsolutePath())
-                    .removePrefix(file.getCanonicalPath()).removePrefix(":")
+                fileInfo =
+                    result.output
+                        .removePrefix(file.getAbsolutePath())
+                        .removePrefix(file.getCanonicalPath())
+                        .removePrefix(":")
             }
         }
     }
