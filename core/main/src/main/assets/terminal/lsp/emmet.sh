@@ -21,7 +21,7 @@ if ! command_exists node || ! command_exists npm; then
   install_nodejs
 fi
 
-info 'Installing emmet language server...'
+info 'Installing Emmet language server...'
 npm install -g --prefix /usr @olrtg/emmet-language-server
 
-info 'Emmet language server installed successfully. Please reopen all tabs or restart the app.'
+info 'Emmet language server installed successfully.'

@@ -44,10 +44,13 @@ import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
 import com.rk.filetree.DrawerPersistence
+import com.rk.lsp.LspRegistry
 import com.rk.resources.getFilledString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.support.handleSupport
+import com.rk.tabs.editor.EditorTab
+import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
@@ -82,6 +85,8 @@ class MainActivity : AppCompatActivity() {
             SessionManager.saveSession(viewModel.tabs.toList(), viewModel.currentTabIndex)
             DrawerPersistence.saveState()
             foregroundListener.values.forEach { it.invoke(false) }
+
+            LspRegistry.updateConfiguration(this@MainActivity)
         }
         super.onPause()
     }
@@ -95,6 +100,15 @@ class MainActivity : AppCompatActivity() {
             foregroundListener.values.forEach { it.invoke(true) }
             delay(1000)
             handleSupport()
+
+            val lspConfigChanges = LspRegistry.getConfigurationChanges(this@MainActivity)
+            if (lspConfigChanges.isNotEmpty()) {
+                val affectedExtensions = lspConfigChanges.flatMap { it.supportedExtensions }
+                viewModel.tabs
+                    .filterIsInstance<EditorTab>()
+                    .filter { affectedExtensions.contains(it.file.getExtension()) }
+                    .forEach { tab -> tab.applyHighlightingAndConnectLSP() }
+            }
         }
     }
 

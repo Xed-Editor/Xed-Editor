@@ -24,4 +24,4 @@ fi
 info 'Installing extracted VSCode language servers...'
 npm install -g --prefix /usr vscode-langservers-extracted
 
-info 'CSS language server installed successfully. Please reopen all tabs or restart the app.'
+info 'CSS language server installed successfully.'
