@@ -702,4 +702,12 @@
     <string name="terminate_all_sessions">Fermer toutes les sessions</string>
     <string name="terminate_all_sessions_desc">Ferme toutes les sessions du terminal lorsque l\'on quitte l\'application</string>
     <string name="warn_dont_leave_setup">⚠ Ne quittez pas cet écran pendant la mise en place</string>
+    <string name="exclude_files_regex">Regex d\'exclusion de fichiers (ex. .*&lt;!\\.py))</string>
+    <string name="indexing">Indexation…</string>
+    <string name="file_name_opened">%s (Ouvert)</string>
+    <string name="index_project">Indexer le projet</string>
+    <string name="index_project_desc">L\'indexation peut améliorer les temps de recherche pour les projets volumineux</string>
+    <string name="always_index_projects">Indexer tous les projets</string>
+    <string name="indexing_stats">%1$s fichiers indexés, taille de la BD %2$s</string>
+    <string name="exclude_files">Exclure des fichiers</string>
 </resources>
