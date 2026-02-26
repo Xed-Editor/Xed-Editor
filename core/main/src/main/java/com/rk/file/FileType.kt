@@ -177,7 +177,7 @@ enum class FileType(
         title = "Ruby",
         markdownNames = listOf("ruby"),
     ),
-    LUA(extensions = listOf("lua"), textmateScope = "source.lua", icon = lua, title = "Lua"),
+    LUA(extensions = listOf("lua","luau"), textmateScope = "source.lua", icon = lua, title = "Lua"),
     GO(extensions = listOf("go"), textmateScope = "source.go", icon = go, title = "Go"),
     PHP(extensions = listOf("php"), textmateScope = "source.php", icon = php, title = "PHP"),
     RUST(
