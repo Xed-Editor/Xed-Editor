@@ -689,4 +689,12 @@
     <string name="drawer">Cajón</string>
     <string name="third_party_ext_content">Esta aplicación es compatible con extensiones de terceros desarrolladas por terceros. Estas extensiones pueden:\n• Acceder y modificar tus archivos y datos\n• Ejecutar código arbitrario en tu sistema\n• Contener errores, vulnerabilidades o código malicioso\n• Provocar inestabilidad o fallos del sistema\n• Poner en riesgo tu seguridad o privacidad\n\nNo revisamos, avalamos ni nos responsabilizamos de ninguna extensión de terceros. Instalas y utilizas las extensiones bajo tu propia responsabilidad. No nos hacemos responsables de ningún daño, pérdida de datos o problemas de seguridad causados por extensiones de terceros.</string>
     <string name="warn_dont_leave_setup">⚠ No abandone esta pantalla mientras la configuración está en curso</string>
+    <string name="indexing">Indexando…</string>
+    <string name="file_name_opened">%s (abierto)</string>
+    <string name="index_project">Indexar proyecto</string>
+    <string name="index_project_desc">Indexar puede mejorar los tiempos de búsqueda para proyectos grandes</string>
+    <string name="always_index_projects">Siempre indexar proyectos</string>
+    <string name="indexing_stats">%1$s archivos indexados, el tamaño de la base de datos es %2$s</string>
+    <string name="exclude_files">Excluir archivos</string>
+    <string name="exclude_files_regex">Excluir archivos regex (ej. .*(?&lt;!\\.py))</string>
 </resources>
