@@ -23,6 +23,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object ExtraKeys : SettingsRoutes("extra_keys")
 
+    data object ExcludeFiles : SettingsRoutes("exclude_files")
+
     data object Extensions : SettingsRoutes("extensions")
 
     data object DeveloperOptions : SettingsRoutes("developer_options")

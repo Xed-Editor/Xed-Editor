@@ -40,13 +40,37 @@ fun NextScreenCard(
     @DrawableRes iconRes: Int? = null,
     startIconTint: Color = LocalContentColor.current,
 ) {
+    NextScreenCard(
+        modifier = modifier,
+        label = label,
+        description = description,
+        isEnabled = isEnabled,
+        icon = icon,
+        iconRes = iconRes,
+        startIconTint = startIconTint,
+        onClick = { navController?.navigate(route.route) },
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun NextScreenCard(
+    modifier: Modifier = Modifier,
+    label: String,
+    description: String? = null,
+    onClick: () -> Unit,
+    isEnabled: Boolean = true,
+    icon: ImageVector? = null,
+    @DrawableRes iconRes: Int? = null,
+    startIconTint: Color = LocalContentColor.current,
+) {
     PreferenceTemplate(
         modifier =
             modifier.combinedClickable(
                 enabled = isEnabled,
                 indication = ripple(),
                 interactionSource = remember { MutableInteractionSource() },
-                onClick = { navController?.navigate(route.route) },
+                onClick = onClick,
             ),
         contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
@@ -57,7 +81,7 @@ fun NextScreenCard(
             Icon(
                 modifier = Modifier.padding(16.dp),
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                contentDescription = route.route,
+                contentDescription = label,
             )
         },
         startWidget = {

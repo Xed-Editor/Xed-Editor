@@ -1,5 +1,6 @@
 package com.rk.filetree
 
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -10,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.file.FileObject
+import com.rk.search.GlobExcluder
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -27,6 +30,8 @@ class FileTreeViewModel : ViewModel() {
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
     private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
     private var fileOperationsCount by mutableIntStateOf(0)
+
+    private val excluder by derivedStateOf { GlobExcluder(ReactiveSettings.excludedFilesDrawer) }
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
@@ -147,7 +152,7 @@ class FileTreeViewModel : ViewModel() {
                     }
 
                 // Process files
-                val sortedFiles = getSortedFiles(fileList)
+                val sortedFiles = sortAndFilterFiles(fileList)
 
                 fileListCache[file] = sortedFiles
 
@@ -207,7 +212,7 @@ class FileTreeViewModel : ViewModel() {
                     }
 
                 // Process files
-                val sortedFiles = getSortedFiles(fileList)
+                val sortedFiles = sortAndFilterFiles(fileList)
 
                 fileListCache[node.file] = sortedFiles
                 viewModelScope.launch {
@@ -241,7 +246,7 @@ class FileTreeViewModel : ViewModel() {
                 }
 
             // Process files
-            val sortedFiles = getSortedFiles(fileList)
+            val sortedFiles = sortAndFilterFiles(fileList)
 
             fileListCache[node.file] = sortedFiles
             viewModelScope.launch {
@@ -265,7 +270,7 @@ class FileTreeViewModel : ViewModel() {
         return fileSizes
     }
 
-    private suspend fun getSortedFiles(fileObjects: List<FileObject>): List<FileTreeNode> {
+    private suspend fun sortAndFilterFiles(fileObjects: List<FileObject>): List<FileTreeNode> {
         val fileSizes = calculateFileSizes(fileObjects)
 
         return fileObjects
@@ -281,6 +286,7 @@ class FileTreeViewModel : ViewModel() {
                         }
                     }
             )
+            .filter { !excluder.isExcluded(it.getAbsolutePath()) }
             .map { it.toFileTreeNode() }
     }
 }

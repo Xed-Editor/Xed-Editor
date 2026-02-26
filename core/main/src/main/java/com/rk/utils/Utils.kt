@@ -112,11 +112,6 @@ fun isSystemInDarkTheme(ctx: Context): Boolean {
         Configuration.UI_MODE_NIGHT_YES)
 }
 
-/** Parses a string of comma-separated file extensions into a uniform list of extensions (without the dot). */
-fun parseExtensions(input: String): List<String> {
-    return input.split(",").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
-}
-
 inline fun dpToPx(dp: Float, ctx: Context): Int {
     val density = ctx.resources.displayMetrics.density
     return (dp * density).roundToInt()
@@ -436,4 +431,9 @@ fun formatFileSize(bytes: Long): String {
 @Composable
 fun rememberNumberFormatter(): NumberFormat {
     return remember { NumberFormat.getInstance() }
+}
+
+/** Parses a string of comma or space-separated file extensions into a uniform list of extensions (without the dot). */
+fun parseExtensions(input: String): List<String> {
+    return input.split(",", " ").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
 }

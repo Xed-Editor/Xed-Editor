@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import com.rk.filetree.SortMode
 import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
+import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
+import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_SEARCH
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
 import com.rk.theme.blueberry
@@ -38,6 +40,8 @@ object ReactiveSettings {
     var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
     var showHiddenFilesDrawer by mutableStateOf(Settings.show_hidden_files_drawer)
     var compactFoldersDrawer by mutableStateOf(Settings.compact_folders_drawer)
+    var excludedFilesSearch by mutableStateOf(Settings.excluded_files_search)
+    var excludedFilesDrawer by mutableStateOf(Settings.excluded_files_drawer)
 
     fun update() {
         toolbarActionIds = Settings.action_items
@@ -48,6 +52,8 @@ object ReactiveSettings {
         extraKeysBackground = Settings.extra_keys_bg
         showHiddenFilesDrawer = Settings.show_hidden_files_drawer
         compactFoldersDrawer = Settings.compact_folders_drawer
+        excludedFilesSearch = Settings.excluded_files_search
+        excludedFilesDrawer = Settings.excluded_files_drawer
     }
 }
 
@@ -149,6 +155,11 @@ object Settings {
     var git_password by CachedPreference("git_password", "")
     var git_name by CachedPreference("git_name", "")
     var git_email by CachedPreference("git_email", "")
+    var excluded_files_search by
+        CachedPreference("excluded_files_search", DEFAULT_EXCLUDED_FILES_SEARCH.joinToString("\n"))
+    var excluded_files_drawer by
+        CachedPreference("excluded_files_drawer", DEFAULT_EXCLUDED_FILES_DRAWER.joinToString("\n"))
+    var file_mask by CachedPreference("file_mask", "")
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)

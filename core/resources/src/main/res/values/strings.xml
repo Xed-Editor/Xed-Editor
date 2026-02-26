@@ -395,7 +395,7 @@
     <string name="manage_language_servers_desc">Install, connect and configure language servers</string>
     <string name="format_on_save">Format on save</string>
     <string name="format_on_save_desc">Format the file automatically when saved</string>
-    <string name="no_language_server">No language server installed.</string>
+    <string name="no_language_server">No language server available.</string>
     <string name="developer">Developer</string>
     <string name="build_info">Build info</string>
     <string name="community">Community</string>
@@ -711,6 +711,7 @@
     <string name="index_project">Index project</string>
     <string name="index_project_desc">Indexing can improve search times for large projects</string>
     <string name="always_index_projects">Always index projects</string>
+    <string name="always_index_projects_desc">Index projects automatically by default. This may consume a significant amount of device storage.</string>
     <string name="warn_dont_leave_setup">⚠ Do not leave this screen while setup is in progress</string>
     <string name="indexing_stats">%1$s files indexed, database size %2$s</string>
     <string name="exclude_files">Exclude files</string>
@@ -741,4 +742,11 @@
     <string name="uptime">Uptime: %s</string>
     <string name="lsp_connection_error">Unable to connect to language server</string>
     <string name="lsp_restart_required">Restart language server to apply changes</string>
+    <string name="exclude_files_drawer">Exclude files in drawer</string>
+    <string name="exclude_files_drawer_desc">Change files to exclude from file tree</string>
+    <string name="exclude_files_search">Exclude files in search</string>
+    <string name="exclude_files_search_desc">Exclude files from indexing. This can improve search times for large projects.</string>
+    <string name="file_mask">File mask</string>
+    <string name="file_mask_hint">File mask (e.g. .js, .ts)</string>
+    <string name="glob_docs">Learn how to use glob patterns</string>
 </resources>

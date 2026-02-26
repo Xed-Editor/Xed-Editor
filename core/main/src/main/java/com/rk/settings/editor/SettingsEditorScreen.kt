@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.activities.settings.settingsNavController
 import com.rk.components.EditorSettingsToggle
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
@@ -364,6 +365,12 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
             )
 
+            NextScreenCard(
+                label = stringResource(strings.exclude_files_drawer),
+                description = stringResource(strings.exclude_files_drawer_desc),
+                onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/true") },
+            )
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.compact_folders_drawer),
                 description = stringResource(id = strings.compact_folders_drawer_desc),
@@ -382,10 +389,16 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(strings.index_project),
-                description = stringResource(strings.always_index_projects),
+                label = stringResource(strings.always_index_projects),
+                description = stringResource(strings.always_index_projects_desc),
                 default = Settings.always_index_projects,
                 sideEffect = { Settings.always_index_projects = it },
+            )
+
+            NextScreenCard(
+                label = stringResource(strings.exclude_files_search),
+                description = stringResource(strings.exclude_files_search_desc),
+                onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/false") },
             )
 
             EditorSettingsToggle(
