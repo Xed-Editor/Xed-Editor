@@ -136,7 +136,11 @@ fun ExtensionCard(
                                     contentColor = MaterialTheme.colorScheme.onError,
                                 ),
                         ) {
-                            Icon(Icons.Outlined.Delete, contentDescription = null, Modifier.size(18.dp))
+                            Icon(
+                                Icons.Outlined.Delete,
+                                contentDescription = stringResource(strings.delete),
+                                Modifier.size(18.dp),
+                            )
                             Spacer(Modifier.width(6.dp))
                             Text(stringResource(strings.uninstall))
                         }

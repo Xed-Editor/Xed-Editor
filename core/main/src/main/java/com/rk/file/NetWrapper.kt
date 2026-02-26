@@ -8,6 +8,8 @@ import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.Charset
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class NetWrapper(private val url: URL) : FileObject {
     private fun openConnection(): HttpURLConnection {
@@ -26,6 +28,10 @@ class NetWrapper(private val url: URL) : FileObject {
 
     override fun getName(): String {
         return url.path.substringAfterLast('/', "")
+    }
+
+    override fun getExtension(): String {
+        return MimeTypeMap.getFileExtensionFromUrl(url.toString())
     }
 
     override suspend fun getParentFile(): FileObject? {
@@ -59,7 +65,7 @@ class NetWrapper(private val url: URL) : FileObject {
     }
 
     override suspend fun getInputStream(): InputStream {
-        return url.openStream()
+        return withContext(Dispatchers.IO) { url.openStream() }
     }
 
     override suspend fun getOutPutStream(append: Boolean): OutputStream {

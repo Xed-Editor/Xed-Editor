@@ -2,12 +2,16 @@ package com.rk.activities.settings
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.rk.animations.NavigationAnimationTransitions
+import com.rk.lsp.LspRegistry
 import com.rk.settings.SettingsScreen
 import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
+import com.rk.settings.debugOptions.AppLogs
 import com.rk.settings.debugOptions.DeveloperOptions
 import com.rk.settings.editor.DefaultEncoding
 import com.rk.settings.editor.DefaultLineEnding
@@ -19,6 +23,8 @@ import com.rk.settings.extension.Extensions
 import com.rk.settings.git.GitSettings
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
+import com.rk.settings.lsp.LspServerDetail
+import com.rk.settings.lsp.LspServerLogs
 import com.rk.settings.lsp.LspSettings
 import com.rk.settings.runners.HtmlRunnerSettings
 import com.rk.settings.runners.RunnerSettings
@@ -48,11 +54,33 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
         composable(SettingsRoutes.ExtraKeys.route) { EditExtraKeys() }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
+        composable(SettingsRoutes.AppLogs.route) { AppLogs() }
         composable(SettingsRoutes.Support.route) { Support() }
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
         composable(SettingsRoutes.Runners.route) { RunnerSettings(navController = navController) }
         composable(SettingsRoutes.HtmlRunner.route) { HtmlRunnerSettings() }
-        composable(SettingsRoutes.LspSettings.route) { LspSettings() }
+        composable(SettingsRoutes.LspSettings.route) { LspSettings(navController = navController) }
+        composable(
+            "${SettingsRoutes.LspServerDetail.route}/{serverId}",
+            arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
+        ) { backStackEntry ->
+            val serverId = backStackEntry.arguments?.getString("serverId")!!
+            val server = LspRegistry.getForId(serverId)!!
+            LspServerDetail(navController, server)
+        }
+        composable(
+            "${SettingsRoutes.LspServerLogs.route}/{serverId}/{instanceId}",
+            arguments =
+                listOf(
+                    navArgument("serverId", builder = { type = NavType.StringType }),
+                    navArgument("instanceId", builder = { type = NavType.StringType }),
+                ),
+        ) { backStackEntry ->
+            val serverId = backStackEntry.arguments?.getString("serverId")!!
+            val server = LspRegistry.getForId(serverId)!!
+            val instanceId = backStackEntry.arguments?.getString("instanceId")!!
+            LspServerLogs(server, instanceId)
+        }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
         composable(SettingsRoutes.Extensions.route) { Extensions() }
         composable(SettingsRoutes.Git.route) { GitSettings() }

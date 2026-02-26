@@ -55,6 +55,10 @@ class FileWrapper(var file: File) : FileObject {
         return file.name
     }
 
+    override fun getExtension(): String {
+        return file.extension
+    }
+
     override suspend fun getParentFile(): FileObject? =
         withContext(Dispatchers.IO) {
             return@withContext file.parentFile?.let { FileWrapper(it) }

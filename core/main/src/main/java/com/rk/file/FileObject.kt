@@ -22,6 +22,8 @@ interface FileObject : Serializable {
 
     fun getName(): String
 
+    fun getExtension(): String
+
     suspend fun getParentFile(): FileObject?
 
     suspend fun exists(): Boolean

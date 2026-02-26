@@ -209,7 +209,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                                 iconPackManager.uninstallIconPack(id)
                             }
                         ) {
-                            Icon(imageVector = Icons.Outlined.Delete, null)
+                            Icon(imageVector = Icons.Outlined.Delete, stringResource(strings.delete))
                         }
                     },
                 )
