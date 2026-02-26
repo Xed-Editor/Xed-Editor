@@ -395,7 +395,7 @@
     <string name="use_tabs_desc">Einen echten Tab (\\t) statt Leerzeichen für Einrückungen verwenden</string>
     <string name="saved">Datei gespeichert</string>
     <string name="lsp_settings">LSP-Einstellungen</string>
-    <string name="no_language_server">Kein Sprachserver verfügbar.</string>
+    <string name="no_language_server">Kein Sprachserver installiert.</string>
     <string name="developer">Entwickler</string>
     <string name="build_info">Build-Informationen</string>
     <string name="community">Community</string>
@@ -697,4 +697,68 @@
     <string name="terminate_all_sessions">Alle Sitzungen beenden</string>
     <string name="terminate_all_sessions_desc">Alle Terminal-Sitzungen beim Schließen der App beenden</string>
     <string name="warn_dont_leave_setup">⚠ Verlasse diesen Bildschirm nicht, während die Einrichtung läuft</string>
+    <string name="logs">Logs</string>
+    <string name="view_logs">Logs anzeigen</string>
+    <string name="view_app_logs">Anwendungs-Logs anzeigen</string>
+    <string name="view_lsp_logs">Sprachserver-Logs anzeigen</string>
+    <string name="logs_too_long">Logs sind zu lang</string>
+    <string name="logs_too_long_desc">Die Logdatei, die du melden möchtest, ist zu lang. Bitte füge die kopierte Logdatei manuell in den Bericht ein.</string>
+    <string name="complete_on_enter">Bei Enter vervollständigen</string>
+    <string name="complete_on_enter_desc">Den ersten Vorschlag beim Drücken von Enter auf der Software-Tastatur auswählen</string>
+    <string name="status_info">Status: %s</string>
+    <string name="status_running">Läuft</string>
+    <string name="status_starting">Wird gestartet…</string>
+    <string name="status_not_running">Läuft nicht</string>
+    <string name="status_not_running_forced">Läuft nicht (erzwungen)</string>
+    <string name="status_crashed">Abgestürzt</string>
+    <string name="status_timeout">Zeitüberschreitung</string>
+    <string name="status_restarting">Wird neu gestartet…</string>
+    <string name="status_stopping">Wird gestoppt…</string>
+    <string name="supported_extensions">Erweiterungen: %s</string>
+    <string name="features">Funktionen</string>
+    <string name="hover_information">Hover-Informationen</string>
+    <string name="hover_information_desc">Dokumentation beim Hover anzeigen</string>
+    <string name="signature_help">Signatur-Hilfe</string>
+    <string name="signature_help_desc">Parameter-Informationen anzeigen</string>
+    <string name="inlay_hints">Inlay-Hinweise</string>
+    <string name="inlay_hints_desc">Inline-Hinweise anzeigen (z. B. Parameter, Typen und Farbvorschauen)</string>
+    <string name="code_completion">Code-Vervollständigung</string>
+    <string name="code_completion_desc">Autovervollständigungs-Vorschläge aktivieren</string>
+    <string name="diagnostics">Diagnosen</string>
+    <string name="diagnostics_desc">Fehler und Warnungen anzeigen</string>
+    <string name="formatting">Formatierung</string>
+    <string name="formatting_desc">Dokumentformatierung aktivieren</string>
+    <string name="indexing">Indizierung…</string>
+    <string name="file_name_opened">%s (Geöffnet)</string>
+    <string name="index_project">Projekt indizieren</string>
+    <string name="index_project_desc">Indizierung kann die Suchzeiten bei großen Projekten verbessern</string>
+    <string name="always_index_projects">Projekte immer indizieren</string>
+    <string name="indexing_stats">%1$s Dateien indiziert, Datenbankgröße %2$s</string>
+    <string name="exclude_files">Dateien ausschließen</string>
+    <string name="instances">Instanzen</string>
+    <string name="stop">Stoppen</string>
+    <string name="instance_not_found">Instanz nicht gefunden.</string>
+    <string name="offline">Offline</string>
+    <string name="time_just_now">Gerade eben</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="one">Vor %d Sekunde</item>
+        <item quantity="other">Vor %d Sekunden</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="one">Vor %d Minute</item>
+        <item quantity="other">Vor %d Minuten</item>
+    </plurals>
+    <plurals name="time_hours_ago">
+        <item quantity="one">Vor %d Stunde</item>
+        <item quantity="other">Vor %d Stunden</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="one">Vor %d Tag</item>
+        <item quantity="other">Vor %d Tagen</item>
+    </plurals>
+    <string name="manage">Verwalten</string>
+    <string name="no_instances">Keine Instanzen</string>
+    <string name="uptime">Betriebszeit: %s</string>
+    <string name="lsp_connection_error">Verbindung zum Sprachserver konnte nicht hergestellt werden</string>
+    <string name="lsp_restart_required">Sprachserver neu starten, um Änderungen anzuwenden</string>
 </resources>
