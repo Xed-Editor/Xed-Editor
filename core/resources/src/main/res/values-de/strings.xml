@@ -395,7 +395,7 @@
     <string name="use_tabs_desc">Einen echten Tab (\\t) statt Leerzeichen für Einrückungen verwenden</string>
     <string name="saved">Datei gespeichert</string>
     <string name="lsp_settings">LSP-Einstellungen</string>
-    <string name="no_language_server">Kein Sprachserver installiert.</string>
+    <string name="no_language_server">Kein Sprachserver verfügbar.</string>
     <string name="developer">Entwickler</string>
     <string name="build_info">Build-Informationen</string>
     <string name="community">Community</string>
