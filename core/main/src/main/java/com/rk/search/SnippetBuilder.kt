@@ -94,7 +94,7 @@ class SnippetBuilder(private val context: Context) {
 
             val targetLine = lines[range.start.line]
 
-            val fileExt = targetFile.getName().substringAfterLast(".", "")
+            val fileExt = targetFile.getExtension()
             return@withContext generateSnippet(
                 text = targetLine,
                 highlight = Highlight(range.start.character, range.end.character),

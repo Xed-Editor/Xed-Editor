@@ -22,7 +22,7 @@ if ! command_exists node || ! command_exists npm; then
   install_nodejs
 fi
 
-info 'Installing typescript language server...'
+info 'Installing TypeScript language server...'
 npm install -g --prefix /usr typescript typescript-language-server
 
-info 'TypeScript language server installed successfully. Please reopen all tabs or restart the app.'
+info 'TypeScript language server installed successfully.'

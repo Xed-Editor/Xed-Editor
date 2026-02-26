@@ -432,7 +432,7 @@ class SearchViewModel : ViewModel() {
                 .generateSnippet(
                     text = text,
                     highlight = Highlight(charIndex, charIndex + query.length),
-                    fileExt = file.getName().substringAfterLast(".", ""),
+                    fileExt = file.getExtension(),
                 )
 
         val codeItem =
@@ -469,7 +469,7 @@ class SearchViewModel : ViewModel() {
         if (file.length() > 10_000_000) return null
 
         // Do not search in file if it's likely to be binary (file extension based detection)
-        val ext = file.getName().substringAfterLast(".", "")
+        val ext = file.getExtension()
         if (isBinaryExtension(ext)) return null
 
         val fileText =

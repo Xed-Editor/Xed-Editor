@@ -21,10 +21,10 @@ if ! command_exists node || ! command_exists npm; then
   install_nodejs
 fi
 
-info 'Installing bash language server...'
+info 'Installing Bash language server...'
 npm install -g --prefix /usr bash-language-server
 
 info 'Installing ShellCheck...'
 apt install -y shellcheck
 
-info 'Bash language server installed successfully. Please reopen all tabs or restart the app.'
+info 'Bash language server installed successfully.'

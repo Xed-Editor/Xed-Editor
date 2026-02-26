@@ -569,7 +569,7 @@
     <string name="extra_key_bg_desc">Ek tuşlar için arka planı göster</string>
     <string name="actions">Eylemler</string>
     <string name="enjoying_xed">Xed-Editor\'ü beğeniyor musun?</string>
-    <string name="support_message">Xed ile %s dosya kaydettiniz ve %s kez kod çalıştırdınız.\n\nBu uygulamayı ücretsiz ve gizlilik odaklı tutan tek geliştiriciyim. Eğer Xed kod yazmanızı kolaylaştırdıysa, geliştirmesine destek olmayı düşünür müsünüz?\n\nDesteğiniz bana yardımcı olur:\n• Özellikleri daha hızlı geliştirmeme\n• Xed\'i sonsuza dek reklamsız tutmama\n• Hatalara hızla yanıt vermeme</string>
+    <string name="support_message">Xed ile %s dosya kaydettiniz ve kodu %s kez çalıştırdınız.\n\nBu uygulamayı ücretsiz ve gizlilik odaklı tutan tek bir geliştiriciyim. Xed kod yazmanızı kolaylaştırdıysa, geliştirilmesini desteklemeyi düşünür müsünüz?\n\nDesteğiniz bana şunlarda yardımcı olur:\n• Özellikleri daha hızlı geliştirmek\n• Xed\'i sonsuza dek reklamsız tutmak\n• Hatalara hızlı yanıt vermek</string>
     <string name="yes_support">Evet, destekleyeceğim! ❤️</string>
     <string name="remind_me">Daha sonra hatırlat</string>
     <string name="not_for_me">Hayır teşekkürler</string>

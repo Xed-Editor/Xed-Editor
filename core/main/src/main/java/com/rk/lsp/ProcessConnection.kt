@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
 
 class ProcessConnection(private val cmd: Array<String>) : StreamConnectionProvider {
-
     private var process: Process? = null
 
     override val inputStream: InputStream
@@ -20,6 +19,9 @@ class ProcessConnection(private val cmd: Array<String>) : StreamConnectionProvid
 
     override val outputStream: OutputStream
         get() = process?.outputStream ?: throw IllegalStateException("Process not running")
+
+    override val isClosed: Boolean
+        get() = process == null || process?.isAlive == false
 
     override fun start() {
         if (process != null) return

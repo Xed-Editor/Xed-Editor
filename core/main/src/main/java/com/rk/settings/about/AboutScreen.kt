@@ -1,7 +1,6 @@
 package com.rk.settings.about
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.padding
@@ -56,7 +55,7 @@ fun AboutScreen() {
                 default = false,
                 sideEffect = {
                     val url = "https://github.com/RohitKushvaha01"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
                 },
                 showSwitch = false,

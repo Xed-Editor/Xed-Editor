@@ -24,4 +24,4 @@ fi
 info 'Installing extracted VSCode language servers...'
 npm install -g --prefix /usr vscode-langservers-extracted
 
-info 'JSON language server installed successfully. Please reopen all tabs or restart the app.'
+info 'JSON language server installed successfully.'
