@@ -11,11 +11,13 @@ import com.rk.editor.Editor
 import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialog
 import com.rk.utils.errorDialog
 import com.rk.utils.info
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import io.github.rosemoe.sora.lsp.client.languageserver.LspFeature
 import io.github.rosemoe.sora.lsp.client.languageserver.ServerStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.ShutdownReason
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
@@ -207,29 +209,7 @@ class BaseLspConnector(
                 serverConnectProvider = ServerConnectProvider { getConnectionConfig().providerFactory().create() },
                 name = serverName,
                 extensionsOverride = supportedExtensions,
-                // expectedCapabilitiesOverride =
-                //     ServerCapabilities().apply {
-                //         if (!Preference.getBoolean("lsp_${id}_hover", true)) {
-                //             hoverProvider = Either.forLeft(false)
-                //         }
-                //         if (!Preference.getBoolean("lsp_${id}_signature_help", true)) {
-                //             signatureHelpProvider = null
-                //         }
-                //         if (!Preference.getBoolean("lsp_${id}_inlay_hints", true)) {
-                //             inlayHintProvider = Either.forLeft(false)
-                //         }
-                //         if (!Preference.getBoolean("lsp_${id}_completion", true)) {
-                //             completionProvider = null
-                //         }
-                //         if (!Preference.getBoolean("lsp_${id}_diagnostics", true)) {
-                //             diagnosticProvider = null
-                //         }
-                //         if (!Preference.getBoolean("lsp_${id}_formatting", true)) {
-                //             documentFormattingProvider = Either.forLeft(false)
-                //             documentRangeFormattingProvider = Either.forLeft(false)
-                //             documentOnTypeFormattingProvider = null
-                //         }
-                //     },
+                expectedCapabilitiesOverride = expectedCapabilities,
             ) {
             val instance =
                 BaseLspServerInstance(
@@ -238,6 +218,28 @@ class BaseLspConnector(
                         projectRoot = projectFile,
                     )
                     .also { addInstance(it) }
+
+            override val disabledFeatures: Set<LspFeature>
+                get() = buildSet {
+                    if (!Preference.getBoolean("lsp_${id}_hover", true)) {
+                        add(LspFeature.Hover)
+                    }
+                    if (!Preference.getBoolean("lsp_${id}_signature_help", true)) {
+                        add(LspFeature.SignatureHelp)
+                    }
+                    if (!Preference.getBoolean("lsp_${id}_inlay_hints", true)) {
+                        add(LspFeature.InlayHint)
+                    }
+                    if (!Preference.getBoolean("lsp_${id}_completion", true)) {
+                        add(LspFeature.Completion)
+                    }
+                    if (!Preference.getBoolean("lsp_${id}_diagnostics", true)) {
+                        add(LspFeature.Diagnostics)
+                    }
+                    if (!Preference.getBoolean("lsp_${id}_formatting", true)) {
+                        add(LspFeature.Formatting)
+                    }
+                }
 
             override fun getInitializationOptions(uri: URI?): Any? =
                 this@createServerDefinition.getInitializationOptions(uri)
@@ -289,7 +291,8 @@ class BaseLspConnector(
                                 scope.launch { onInitialize(this@BaseLspConnector) }
                             }
 
-                            // TODO: Think about this
+                            // TODO: Consider when instances should be removed
+
                             //                            if (newStatus is ServerStatus.STOPPED && newStatus.reason ==
                             // ShutdownReason.UNUSED) {
                             //                                removeInstance(instance)

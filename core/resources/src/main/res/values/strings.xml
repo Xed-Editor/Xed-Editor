@@ -740,4 +740,5 @@
     <string name="no_instances">No instances</string>
     <string name="uptime">Uptime: %s</string>
     <string name="lsp_connection_error">Unable to connect to language server</string>
+    <string name="lsp_restart_required">Restart language server to apply changes</string>
 </resources>

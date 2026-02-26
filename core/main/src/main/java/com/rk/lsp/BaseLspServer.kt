@@ -33,6 +33,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
+import org.eclipse.lsp4j.ServerCapabilities
 
 enum class LspConnectionStatus {
     NOT_RUNNING,
@@ -225,15 +226,15 @@ data class BaseLspServerInstance(
 }
 
 abstract class BaseLspServer {
-    //    suspend fun startAllInstances(): List<EditorTab> {
-    //        val connectedEditors = mutableListOf<EditorTab>()
-    //        instances.forEach { connectedEditors.addAll(it.start()) }
-    //        return connectedEditors
-    //    }
-    //
-    //    suspend fun stopAllInstances() {
-    //        instances.forEach { it.stop() }
-    //    }
+    suspend fun startAllInstances(): List<EditorTab> {
+        val connectedEditors = mutableListOf<EditorTab>()
+        instances.forEach { connectedEditors.addAll(it.start()) }
+        return connectedEditors
+    }
+
+    suspend fun stopAllInstances() {
+        instances.forEach { it.stop() }
+    }
 
     suspend fun disconnectAllInstances() {
         instances.forEach { it.disconnect() }
@@ -289,6 +290,8 @@ abstract class BaseLspServer {
     }
 
     override fun hashCode(): Int = id.hashCode()
+
+    open val expectedCapabilities: ServerCapabilities? = null
 
     abstract val id: String
     abstract val languageName: String

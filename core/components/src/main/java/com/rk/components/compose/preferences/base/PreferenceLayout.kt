@@ -58,6 +58,7 @@ fun PreferenceLayout(
     fab: (@Composable () -> Unit) = {},
     actions: @Composable RowScope.() -> Unit = {},
     bottomBar: @Composable () -> Unit = { BottomSpacer() },
+    snackbarHost: @Composable () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
     PreferenceScaffold(
@@ -68,6 +69,7 @@ fun PreferenceLayout(
         actions = actions,
         bottomBar = bottomBar,
         fab = fab,
+        snackbarHost = snackbarHost,
     ) {
         PreferenceColumn(
             contentPadding = it,
@@ -103,6 +105,7 @@ fun PreferenceLayoutLazyColumn(
     backArrowVisible: Boolean = true,
     state: LazyListState = rememberLazyListState(),
     actions: @Composable RowScope.() -> Unit = {},
+    snackbarHost: @Composable () -> Unit = {},
     content: LazyListScope.() -> Unit,
 ) {
     PreferenceScaffold(
@@ -110,6 +113,7 @@ fun PreferenceLayoutLazyColumn(
         label = label,
         isExpandedScreen = isExpandedScreen,
         actions = actions,
+        snackbarHost = snackbarHost,
     ) {
         PreferenceLazyColumn(
             contentPadding = it,

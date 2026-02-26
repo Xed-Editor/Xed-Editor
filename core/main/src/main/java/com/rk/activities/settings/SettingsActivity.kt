@@ -4,8 +4,10 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rk.file.FileManager
@@ -15,6 +17,7 @@ import com.rk.utils.toast
 import java.lang.ref.WeakReference
 
 var settingsNavController = WeakReference<NavController?>(null)
+var snackbarHostStateRef: WeakReference<SnackbarHostState?> = WeakReference(null)
 
 class SettingsActivity : AppCompatActivity() {
     val fileManager = FileManager(this)
@@ -38,6 +41,9 @@ class SettingsActivity : AppCompatActivity() {
                     val navController = rememberNavController()
                     settingsNavController = WeakReference(navController)
                     SettingsNavHost(activity = this@SettingsActivity, navController = navController)
+
+                    val snackbarHostState = remember { SnackbarHostState() }
+                    LaunchedEffect(snackbarHostState) { snackbarHostStateRef = WeakReference(snackbarHostState) }
 
                     LaunchedEffect(intent) {
                         if (intent.hasExtra("route")) {

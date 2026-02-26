@@ -15,6 +15,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.rk.activities.settings.snackbarHostStateRef
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
@@ -48,13 +52,18 @@ import com.rk.resources.getString
 import com.rk.resources.plurals
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
-    PreferenceLayout(label = server.languageName) {
+    PreferenceLayout(
+        label = server.languageName,
+        snackbarHost = { snackbarHostStateRef.get()?.let { SnackbarHost(hostState = it) } },
+    ) {
         Surface(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             shape = MaterialTheme.shapes.large,
@@ -118,49 +127,83 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
         }
 
         PreferenceGroup(heading = stringResource(strings.features)) {
-            SettingsToggle(
+            LspFeatureToggle(
                 label = stringResource(strings.hover_information),
                 description = stringResource(strings.hover_information_desc),
-                default = Preference.getBoolean("lsp_${server.id}_hover", true),
-                sideEffect = { Preference.setBoolean("lsp_${server.id}_hover", it) },
+                preferenceId = "lsp_${server.id}_hover",
+                server = server,
             )
 
-            SettingsToggle(
+            LspFeatureToggle(
                 label = stringResource(strings.signature_help),
                 description = stringResource(strings.signature_help_desc),
-                default = Preference.getBoolean("lsp_${server.id}_signature_help", true),
-                sideEffect = { Preference.setBoolean("lsp_${server.id}_signature_help", it) },
+                preferenceId = "lsp_${server.id}_signature_help",
+                server = server,
             )
 
-            SettingsToggle(
+            LspFeatureToggle(
                 label = stringResource(strings.inlay_hints),
                 description = stringResource(strings.inlay_hints_desc),
-                default = Preference.getBoolean("lsp_${server.id}_inlay_hints", true),
-                sideEffect = { Preference.setBoolean("lsp_${server.id}_inlay_hints", it) },
+                preferenceId = "lsp_${server.id}_inlay_hints",
+                server = server,
             )
 
-            SettingsToggle(
+            LspFeatureToggle(
                 label = stringResource(strings.code_completion),
                 description = stringResource(strings.code_completion_desc),
-                default = Preference.getBoolean("lsp_${server.id}_completion", true),
-                sideEffect = { Preference.setBoolean("lsp_${server.id}_completion", it) },
+                preferenceId = "lsp_${server.id}_completion",
+                server = server,
             )
 
-            SettingsToggle(
+            LspFeatureToggle(
                 label = stringResource(strings.diagnostics),
                 description = stringResource(strings.diagnostics_desc),
-                default = Preference.getBoolean("lsp_${server.id}_diagnostics", true),
-                sideEffect = { Preference.setBoolean("lsp_${server.id}_diagnostics", it) },
+                preferenceId = "lsp_${server.id}_diagnostics",
+                server = server,
             )
 
-            SettingsToggle(
+            LspFeatureToggle(
                 label = stringResource(strings.formatting),
                 description = stringResource(strings.formatting_desc),
-                default = Preference.getBoolean("lsp_${server.id}_formatting", true),
-                sideEffect = { Preference.setBoolean("lsp_${server.id}_formatting", it) },
+                preferenceId = "lsp_${server.id}_formatting",
+                server = server,
             )
         }
     }
+}
+
+@Composable
+private fun LspFeatureToggle(label: String, description: String? = null, preferenceId: String, server: BaseLspServer) {
+    val scope = rememberCoroutineScope()
+    SettingsToggle(
+        label = label,
+        description = description,
+        default = Preference.getBoolean(preferenceId, true),
+        sideEffect = {
+            Preference.setBoolean(preferenceId, it)
+            showRestartRequirement(scope, server)
+        },
+    )
+}
+
+private var snackbarJob: Job? = null
+
+private fun showRestartRequirement(scope: CoroutineScope, server: BaseLspServer) {
+    if (snackbarJob?.isActive == true) return
+
+    snackbarJob =
+        scope.launch {
+            val snackbarHost = snackbarHostStateRef.get() ?: return@launch
+            val result =
+                snackbarHost.showSnackbar(
+                    message = strings.lsp_restart_required.getString(),
+                    actionLabel = strings.restart.getString(),
+                    duration = SnackbarDuration.Indefinite,
+                )
+            if (result == SnackbarResult.ActionPerformed) {
+                server.restartAllInstances()
+            }
+        }
 }
 
 @Composable
