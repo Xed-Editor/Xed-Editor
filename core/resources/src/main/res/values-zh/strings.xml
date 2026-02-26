@@ -25,7 +25,7 @@
     <string name="oled">纯黑主题</string>
     <string name="word_wrap">自动换行</string>
     <string name="restart">重新启动</string>
-    <string name="refresh">重载</string>
+    <string name="refresh">重载文件</string>
     <string name="dir_example">名称（例如：测试）</string>
     <string name="create">创建</string>
     <string name="ask_enter_name">请输入一个名称</string>
@@ -379,7 +379,7 @@
     <string name="force_crash_confirm">确定要触发应用崩溃吗？可能会导致应用无响应。</string>
     <string name="memory_usage">获取已用内存</string>
     <string name="anr_watchdog_desc">如果发现 Xed‐Editor 处在未响应状态并持续 5 秒钟，就终止其运行</string>
-    <string name="anr_watchdog">ANR Watchdog</string>
+    <string name="anr_watchdog">监听应用是否 ANR</string>
     <string name="debugger_not_allowed">调试器在正式发布版本不可用</string>
     <string name="capturing_logcat">抓取 Logcat 中…</string>
     <string name="logcat_saved">文件 logcat.txt 已保存在终端主目录</string>
@@ -706,4 +706,65 @@
     <string name="indexing_stats">已索引 %1$s 个文件，数据库大小 %2$s</string>
     <string name="exclude_files">排除文件</string>
     <string name="exclude_files_regex">排除文件正则表达式（例如 .*(?&lt;!\\.py)）</string>
+    <string name="logs">日志</string>
+    <string name="view_logs">查看日志</string>
+    <string name="view_app_logs">查看应用程序日志</string>
+    <string name="view_lsp_logs">查看语言服务器日志</string>
+    <string name="logs_too_long">日志太长了</string>
+    <string name="logs_too_long_desc">无法直接上传过长的日志，请通过手动粘贴的方式提交。</string>
+    <string name="complete_on_enter">回车以确认</string>
+    <string name="complete_on_enter_desc">软键盘回车时是否选中首个补全项</string>
+    <string name="status_info">状态: %s</string>
+    <string name="status_running">运行中</string>
+    <string name="status_starting">正在启动…</string>
+    <string name="status_not_running">未运行</string>
+    <string name="status_not_running_forced">未运行（强制停止）</string>
+    <string name="status_crashed">已崩溃</string>
+    <string name="status_timeout">超时</string>
+    <string name="status_restarting">重启中…</string>
+    <string name="status_stopping">停止中…</string>
+    <string name="supported_extensions">扩展: %s</string>
+    <string name="features">功能</string>
+    <plurals name="time_hours_ago">
+        <item quantity="other">%d小时前</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="other">%d天前</item>
+    </plurals>
+    <string name="manage">管理</string>
+    <string name="no_instances">无实例</string>
+    <string name="uptime">运行时间:%s</string>
+    <string name="lsp_connection_error">无法与语言服务器连接</string>
+    <string name="lsp_restart_required">重新启动语言服务器以应用改动</string>
+    <string name="hover_information">悬停提示</string>
+    <string name="hover_information_desc">悬停时显示文档</string>
+    <string name="signature_help">签名帮助</string>
+    <string name="signature_help_desc">显示参数信息</string>
+    <string name="inlay_hints">内联提示</string>
+    <string name="inlay_hints_desc">显示内联提示 (例如方法参数、类型和颜色预览)</string>
+    <string name="code_completion">代码补全</string>
+    <string name="code_completion_desc">启用代码补全建议</string>
+    <string name="diagnostics">代码诊断</string>
+    <string name="diagnostics_desc">显示代码错误与警告</string>
+    <string name="formatting">格式化</string>
+    <string name="formatting_desc">启用代码格式化</string>
+    <string name="always_index_projects_desc">默认自动索引项目。这可能会占用大量的设备存储空间。</string>
+    <string name="instances">实例</string>
+    <string name="stop">停止</string>
+    <string name="instance_not_found">实例未找到。</string>
+    <string name="offline">离线</string>
+    <string name="time_just_now">现在</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="other">%d秒前</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="other">%d分钟前</item>
+    </plurals>
+    <string name="exclude_files_drawer">不显示侧边栏中的文件</string>
+    <string name="exclude_files_drawer_desc">更改文件树过滤规则</string>
+    <string name="exclude_files_search">在搜索中排除文件</string>
+    <string name="exclude_files_search_desc">从索引中排除文件。这可以缩短大型项目的搜索时间。</string>
+    <string name="file_mask">文件匹配符</string>
+    <string name="file_mask_hint">文件匹配符(例如:js, .ts)</string>
+    <string name="glob_docs">了解如何使用 Glob 模式</string>
 </resources>
