@@ -238,8 +238,9 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 setLanguage(langScope)
 
                 val builtin = getBuiltinServers(context)
+                val extension = getExtensionServers()
                 val external = getExternalServers()
-                val servers = builtin + external
+                val servers = builtin + extension + external
                 if (servers.isEmpty()) return@launch
 
                 val parentFile =
@@ -303,6 +304,10 @@ private fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspS
             server.install(context)
         }
     }
+}
+
+private fun EditorTab.getExtensionServers(): List<BaseLspServer> {
+    return LspRegistry.extensionServers.filter { server -> server.isSupported(file) }
 }
 
 private fun EditorTab.getExternalServers(): List<BaseLspServer> {
