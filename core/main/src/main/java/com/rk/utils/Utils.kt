@@ -392,16 +392,17 @@ fun hasBinaryChars(text: String): Boolean {
     val checkedCharacters = 1024
 
     val checkText = text.take(checkedCharacters)
-    val total = checkText.length
-    if (total == 0) return false
+    if (checkText.isEmpty()) return false
 
-    val binarySymbolsCount =
-        checkText.count { c ->
-            (c.code < 32 && c.code != 9 && c.code != 10 && c.code != 12 && c.code != 13) || c.code > 126
-        }
+    // Null character
+    if (checkText.any { it.code == 0 }) return true
 
-    // If the amount of binary chars in the file content is over 30%
-    return binarySymbolsCount.toDouble() / total > threshold
+    // Amount of unusual control characters
+    val unusualCharCount =
+        checkText.count { c -> c.isISOControl() && c.code != 9 && c.code != 10 && c.code != 12 && c.code != 13 }
+
+    // If the amount of unusual control chars in the file content is over 30%
+    return unusualCharCount.toDouble() / checkText.length > threshold
 }
 
 private val binaryExtensions: Set<String> =
