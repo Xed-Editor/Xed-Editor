@@ -761,4 +761,13 @@
     <string name="uptime">Betriebszeit: %s</string>
     <string name="lsp_connection_error">Verbindung zum Sprachserver konnte nicht hergestellt werden</string>
     <string name="lsp_restart_required">Sprachserver neu starten, um Änderungen anzuwenden</string>
+    <string name="always_index_projects_desc">Projekte standardmäßig automatisch indizieren. Dies kann eine erhebliche Menge an Gerätespeicher verbrauchen.</string>
+    <string name="exclude_files_regex">Regex zum Ausschließen von Dateien (z. B. .*(?&lt;!\\.py))</string>
+    <string name="exclude_files_drawer">Dateien im Drawer ausschließen</string>
+    <string name="exclude_files_drawer_desc">Dateien ändern, die vom Dateibaum ausgeschlossen werden sollen</string>
+    <string name="exclude_files_search">Dateien in der Suche ausschließen</string>
+    <string name="exclude_files_search_desc">Dateien von der Indizierung ausschließen. Dies kann die Suchzeiten bei großen Projekten verbessern.</string>
+    <string name="file_mask">Dateimaske</string>
+    <string name="file_mask_hint">Dateimaske (z. B. .js, .ts)</string>
+    <string name="glob_docs">Erfahre, wie man Glob-Muster verwendet</string>
 </resources>
