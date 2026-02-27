@@ -34,12 +34,13 @@ import kotlinx.coroutines.withContext
 
 class SearchViewModel : ViewModel() {
     private var isIndexing = mutableStateMapOf<FileObject, Boolean>()
+    private var indexJob: Job? = null
 
     // File search dialog
     var fileSearchQuery by mutableStateOf("")
     var isSearchingFiles by mutableStateOf(false)
     var fileSearchResults by mutableStateOf<List<FileMeta>>(emptyList())
-    var fileSearchJob by mutableStateOf<Job?>(null)
+    private var fileSearchJob: Job? = null
 
     // Code search dialog
     var showFileMaskDialog by mutableStateOf(false)
@@ -50,7 +51,7 @@ class SearchViewModel : ViewModel() {
     var isSearchingCode by mutableStateOf(false)
     val codeSearchResults = mutableStateListOf<CodeItem>()
     val groupedCodeResults by derivedStateOf { codeSearchResults.groupBy { it.file } }
-    var codeSearchJob by mutableStateOf<Job?>(null)
+    private var codeSearchJob: Job? = null
 
     var codeSearchQuery by mutableStateOf("")
     var codeReplaceQuery by mutableStateOf("")
@@ -61,6 +62,18 @@ class SearchViewModel : ViewModel() {
 
     companion object {
         private const val MAX_CHUNK_SIZE = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
+    }
+
+    fun cleanupJobs(projectRoot: FileObject) {
+        fileSearchJob?.cancel()
+        fileSearchJob = null
+
+        codeSearchJob?.cancel()
+        codeSearchJob = null
+
+        indexJob?.cancel()
+        indexJob = null
+        isIndexing.remove(projectRoot)
     }
 
     fun matchesFileMask(fileExt: String): Boolean {
@@ -263,7 +276,7 @@ class SearchViewModel : ViewModel() {
         val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
 
         for (tab in openedEditorTabs) {
-            val fileExt = tab.file.getName().substringAfterLast(".", "")
+            val fileExt = tab.file.getExtension()
             if (!matchesFileMask(fileExt)) continue
 
             val editor = tab.editorState.editor.get()
@@ -336,7 +349,7 @@ class SearchViewModel : ViewModel() {
                 if (result.path in openPaths) continue
 
                 val file = File(result.path).toFileWrapper()
-                val fileExt = file.getName().substringAfterLast(".", "")
+                val fileExt = file.getExtension()
                 if (!matchesFileMask(fileExt)) continue
 
                 val indices = findAllIndices(result.content, query, ignoreCase = ignoreCase)
@@ -377,7 +390,7 @@ class SearchViewModel : ViewModel() {
             val path = file.getAbsolutePath()
             if (path in openPaths) continue
 
-            val fileExt = file.getName().substringAfterLast(".", "")
+            val fileExt = file.getExtension()
             if (file.isFile() && !matchesFileMask(fileExt)) continue
 
             if (excluder.isExcluded(path)) continue
@@ -509,44 +522,46 @@ class SearchViewModel : ViewModel() {
     }
 
     fun syncIndex(file: FileObject) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val databases = IndexDatabase.findDatabasesFor(file)
-            for (database in databases) {
-                isIndexing[database.projectRoot] = true
+        indexJob =
+            viewModelScope.launch(Dispatchers.IO) {
+                val databases = IndexDatabase.findDatabasesFor(file)
+                for (database in databases) {
+                    isIndexing[database.projectRoot] = true
 
-                val codeLineDao = database.codeIndexDao()
-                val fileMetaDao = database.fileMetaDao()
+                    val codeLineDao = database.codeIndexDao()
+                    val fileMetaDao = database.fileMetaDao()
 
-                val indexedFiles = fileMetaDao.getAll().associateBy { it.path }
-                val pathsToKeep = mutableSetOf<String>()
+                    val indexedFiles = fileMetaDao.getAll().associateBy { it.path }
+                    val pathsToKeep = mutableSetOf<String>()
 
-                val newCodeLines = mutableListOf<CodeLine>()
-                val newFileMetas = mutableListOf<FileMeta>()
+                    val newCodeLines = mutableListOf<CodeLine>()
+                    val newFileMetas = mutableListOf<FileMeta>()
 
-                try {
-                    if (file == database.projectRoot) {
-                        indexRecursively(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
-                    } else {
-                        indexFile(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+                    try {
+                        if (file == database.projectRoot) {
+                            indexRecursively(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+                        } else {
+                            indexFile(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+                        }
+
+                        updateIndex(
+                            database,
+                            indexedFiles.filter { it.key.startsWith(file.getAbsolutePath()) },
+                            pathsToKeep,
+                            codeLineDao,
+                            fileMetaDao,
+                            newCodeLines,
+                            newFileMetas,
+                        )
+                    } finally {
+                        isIndexing[database.projectRoot] = false
                     }
-
-                    updateIndex(
-                        database,
-                        indexedFiles.filter { it.key.startsWith(file.getAbsolutePath()) },
-                        pathsToKeep,
-                        codeLineDao,
-                        fileMetaDao,
-                        newCodeLines,
-                        newFileMetas,
-                    )
-                } finally {
-                    isIndexing[database.projectRoot] = false
                 }
             }
-        }
     }
 
     fun deleteIndex(context: Context, projectRoot: FileObject) {
+        cleanupJobs(projectRoot)
         IndexDatabase.removeDatabase(context, projectRoot)
     }
 
@@ -559,6 +574,8 @@ class SearchViewModel : ViewModel() {
         newCodeLines: MutableList<CodeLine>,
         newFileMetas: MutableList<FileMeta>,
     ) {
+        currentCoroutineContext().ensureActive()
+
         database.withTransaction {
             val deletedPaths = indexedFiles.keys - pathsToKeep
             deletedPaths.forEach { path ->
@@ -582,6 +599,7 @@ class SearchViewModel : ViewModel() {
         val childFiles = parent.listFiles()
 
         for (file in childFiles) {
+            currentCoroutineContext().ensureActive()
             indexFile(file, indexedFiles, pathsToKeep, codeLineResults, fileMetaResults, isResultHidden)
         }
     }
@@ -632,6 +650,7 @@ class SearchViewModel : ViewModel() {
         lines.forEachIndexed { lineIndex, line ->
             val chunks = line.chunked(MAX_CHUNK_SIZE)
             chunks.forEachIndexed { chunkIndex, chunk ->
+                currentCoroutineContext().ensureActive()
                 codeLineResults.add(
                     CodeLine(
                         content = chunk,
