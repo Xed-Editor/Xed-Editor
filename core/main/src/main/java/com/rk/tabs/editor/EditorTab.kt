@@ -145,13 +145,18 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
                             if (hasBinaryChars(editorState.content.toString())) {
                                 editorState.editable = false
-                                showNotice("binary_file") { id -> BinaryNotice(id) }
+                                showNotice(BINARY_NOTICE_KEY) { id -> BinaryNotice(id) }
                             }
                         }
                         .onFailure { errorDialog(it) }
                 }
             }
         }
+    }
+
+    companion object {
+        const val BINARY_NOTICE_KEY = "binary_file"
+        const val EDITORCONFIG_NOTICE_KEY = "editorconfig_changed"
     }
 
     @Composable
@@ -456,7 +461,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                         }
 
                         if (file.getName() == ".editorconfig" && Settings.enable_editorconfig) {
-                            showNotice("editorconfig_changed") { id -> EditorConfigNotice(id) }
+                            showNotice(EDITORCONFIG_NOTICE_KEY) { id -> EditorConfigNotice(id) }
                         }
                     },
                 )
