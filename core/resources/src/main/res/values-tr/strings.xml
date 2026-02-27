@@ -706,4 +706,42 @@
     <string name="always_index_projects">Her zaman projeleri dizinle</string>
     <string name="indexing_stats">%1$s dosya indekslendi, veritabanı boyutu %2$s</string>
     <string name="exclude_files">Dosyaları hariç tut</string>
+    <string name="exclude_files_regex">Dosyaları hariç tutma regex\'i (ör. .*(?&lt;!.py))</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="one">%d saniye önce</item>
+        <item quantity="other">%d saniye önce</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="one">%d dakika önce</item>
+        <item quantity="other">%d dakika önce</item>
+    </plurals>
+    <plurals name="time_hours_ago">
+        <item quantity="one">%d saat önce</item>
+        <item quantity="other">%d saat önce</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="one">%d gün önce</item>
+        <item quantity="other">%d gün önce</item>
+    </plurals>
+    <string name="logs">Günlükler</string>
+    <string name="view_logs">Günlükleri görüntüle</string>
+    <string name="view_app_logs">Uygulama günlüklerini görüntüle</string>
+    <string name="view_lsp_logs">Dil sunucusu günlüklerini görüntüle</string>
+    <string name="logs_too_long">Günlükler çok uzun</string>
+    <string name="logs_too_long_desc">Raporlamak istediğiniz günlük dosyası çok uzun. Lütfen kopyalanan günlük dosyasını rapora manuel olarak yapıştırın.</string>
+    <string name="complete_on_enter">Enter tuşuna basınca tamamla</string>
+    <string name="complete_on_enter_desc">Yazılım klavyesi için Enter\'a basıldığında ilk tamamlama öğesini seç</string>
+    <string name="status_info">Durum: %s</string>
+    <string name="status_running">Çalışıyor</string>
+    <string name="status_starting">Başlatılıyor</string>
+    <string name="status_not_running">Çalışmıyor</string>
+    <string name="status_not_running_forced">Çalışmıyor (zorlandı)</string>
+    <string name="status_crashed">Çöktü</string>
+    <string name="status_timeout">Zaman aşımı</string>
+    <string name="status_restarting">Yeniden başlatılıyor…</string>
+    <string name="status_stopping">Durduruluyor…</string>
+    <string name="supported_extensions">Eklentiler: %s</string>
+    <string name="features">Özellikler</string>
+    <string name="hover_information">Vurgulu bilgi</string>
+    <string name="hover_information_desc">Vurgulu belgeleri göster</string>
 </resources>
