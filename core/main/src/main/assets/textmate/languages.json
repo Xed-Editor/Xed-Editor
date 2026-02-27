@@ -91,6 +91,12 @@
       "languageConfiguration": "textmate/python/language-configuration.json"
     },
     {
+      "grammar": "textmate/r/syntaxes/r.tmLanguage.json",
+      "name": "R",
+      "scopeName": "source.r",
+      "languageConfiguration": "textmate/r/language-configuration.json"
+    },
+    {
       "grammar": "textmate/ruby/syntaxes/ruby.tmLanguage.json",
       "name": "ruby",
       "scopeName": "source.ruby",

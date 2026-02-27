@@ -4,7 +4,7 @@ import com.rk.commands.Command
 import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
-import com.rk.file.FileType
+import com.rk.file.FileTypeManager
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -20,7 +20,7 @@ class SyntaxHighlightingCommand(commandContext: CommandContext) : EditorCommand(
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.edit_note)
 
     override val childCommands: List<Command> by lazy {
-        FileType.entries
+        FileTypeManager.allTypes()
             .filter { it.textmateScope != null }
             .map { fileType ->
                 object : EditorCommand(commandContext) {

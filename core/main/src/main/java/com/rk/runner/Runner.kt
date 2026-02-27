@@ -1,8 +1,8 @@
 package com.rk.runner
 
 import android.content.Context
+import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
-import com.rk.file.FileType
 import com.rk.icons.Icon
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
@@ -40,8 +40,8 @@ object Runner {
     val runnerBuilders = mutableListOf<RunnerBuilder>()
 
     init {
-        val htmlExtensions = FileType.HTML.extensions.joinToString("|")
-        val markdownExtensions = FileType.MARKDOWN.extensions.joinToString("|")
+        val htmlExtensions = BuiltinFileType.HTML.extensions.joinToString("|")
+        val markdownExtensions = BuiltinFileType.MARKDOWN.extensions.joinToString("|")
 
         runnerBuilders.apply {
             add(

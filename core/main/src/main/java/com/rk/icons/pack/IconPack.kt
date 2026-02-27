@@ -2,6 +2,7 @@ package com.rk.icons.pack
 
 import com.rk.file.FileObject
 import com.rk.file.FileType
+import com.rk.file.FileTypeManager
 import java.io.File
 import kotlinx.serialization.Serializable
 
@@ -52,7 +53,7 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
                     ?: info.icons.fileExtensions[ext.lowercase()]
                         ?.let { installDir.resolve(it) }
                         ?.takeIf { it.exists() }
-                    ?: info.icons.languageNames[FileType.fromExtension(ext).name.lowercase()]
+                    ?: info.icons.languageNames[FileTypeManager.fromExtension(ext).name.lowercase()]
                         ?.let { installDir.resolve(it) }
                         ?.takeIf { it.exists() }
                     ?: installDir.resolve(info.icons.defaultFile)
@@ -68,7 +69,7 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
         val path =
             // First use fileExtensions, then languageNames, then defaultFile
             info.icons.fileExtensions[fileExtension.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
-                ?: info.icons.languageNames[FileType.fromExtension(fileExtension).name.lowercase()]
+                ?: info.icons.languageNames[FileTypeManager.fromExtension(fileExtension).name.lowercase()]
                     ?.let { installDir.resolve(it) }
                     ?.takeIf { it.exists() }
                 ?: installDir.resolve(info.icons.defaultFile)

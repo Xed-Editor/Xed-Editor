@@ -27,7 +27,7 @@ import androidx.core.net.toUri
 import com.rk.activities.settings.SettingsActivity
 import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.XedTheme
@@ -91,7 +91,7 @@ fun LogScreen(logText: String, issueTitle: String, copyLabel: String) {
                             colorScheme = colorScheme,
                         )
 
-                        scope.launch { setLanguage(FileType.LOG.textmateScope!!) }
+                        scope.launch { setLanguage(BuiltinFileType.LOG.textmateScope!!) }
                     }
                 },
                 update = { editor -> editor.setText(logText) },

@@ -2,8 +2,8 @@ package com.rk.runner.runners.web.markdown
 
 import android.content.Context
 import android.content.Intent
+import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
-import com.rk.file.FileType
 import com.rk.icons.Icon
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -26,7 +26,7 @@ class MarkdownRunner : RunnerImpl() {
     }
 
     override fun getIcon(context: Context): Icon {
-        return Icon.DrawableRes(FileType.MARKDOWN.icon!!)
+        return Icon.DrawableRes(BuiltinFileType.MARKDOWN.icon!!)
     }
 
     override suspend fun isRunning(): Boolean {

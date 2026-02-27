@@ -1,5 +1,7 @@
 package com.rk.file
 
+import com.rk.file.BuiltinFileType.UNKNOWN
+import com.rk.file.BuiltinFileType.entries
 import com.rk.icons.Icon
 import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
@@ -50,8 +52,9 @@ private val zig = drawables.zig
 private val git = drawables.git
 private val diff = drawables.diff
 private val cmake = drawables.cmake
+private val powershell = drawables.powershell
+private val r = drawables.r
 
-// TODO: Add icon for FileType.POWERSHELL
 // TODO: Add icon for FileType.EXECUTABLE
 // TODO: Add icon for FileType.PASCAL
 // TODO: Add icon for FileType.ASSEMBLY
@@ -60,39 +63,107 @@ private val cmake = drawables.cmake
 // TODO: Add icon for FileType.ROCQ
 
 /**
- * Represents various file types supported by the application.
+ * Interface representing a file type and its associated metadata.
  *
- * This enum provides metadata for each file type, including:
- * - Associated file extensions.
- * - TextMate grammar scope for syntax highlighting.
- * - Display icons (and potential overrides based on specific extensions).
- * - Human-readable titles.
- * - Alternative names used in Markdown code blocks.
+ * This interface defines the contract for identifying files and providing syntax highlighting information.
  *
  * @property extensions A list of file extensions associated with this file type (without the leading dot).
- * @property names An optional list of file names associated with this file type.
+ * @property names An optional list of specific file names associated with this file type (e.g., "cmakelists.txt").
  * @property textmateScope The TextMate scope string used for syntax highlighting (e.g., "source.kt"). Null if not
  *   applicable.
  * @property icon The resource ID of the default icon for this file type. Null if no icon is available.
- * @property iconOverride A map of specific extensions to specific icon resource IDs. Useful when a single file type
- *   encompasses different formats that need distinct icons (e.g., Gradle vs Groovy).
+ * @property iconOverride A map of specific extensions to specific icon resource IDs for fine-grained icon control.
+ * @property name The short identifier name of the file type.
  * @property title A human-readable title for the file type.
- * @property markdownNames A list of additional language identifiers often used in Markdown code blocks
- *   (e.g., ```javascript).
+ * @property markdownNames A list of language identifiers used in Markdown code blocks.
  */
-enum class FileType(
-    val extensions: List<String>,
-    val names: List<String>? = null,
-    val textmateScope: String?,
-    val icon: Int?,
-    val iconOverride: Map<String, Int>? = null,
-    val title: String,
+interface FileType {
+    val extensions: List<String>
+    val names: List<String>?
+        get() = null
+
+    val textmateScope: String?
+    val icon: Int?
+    val iconOverride: Map<String, Int>?
+        get() = null
+
+    val name: String
+
+    val title: String
     /**
      * Language identifiers used in Markdown code blocks. Should only include additional names that are not included in
      * the extensions list.
      */
-    val markdownNames: List<String> = emptyList(),
-) {
+    val markdownNames: List<String>
+        get() = emptyList()
+
+    /**
+     * Retrieves an icon for this FileType. The icon is not tinted.
+     *
+     * Supports:
+     * - ✔ Icon pack (uses the icon from the icon pack if available, otherwise uses the builtin icon)
+     * - ✘ Tint (applyTint property in icon pack or builtin icon tint)
+     *
+     * @return An [Icon] representing the file type icon.
+     */
+    fun getIcon(): Icon {
+        val iconPackFile = currentIconPack.value?.getIconFileForFileType(this)
+        return iconPackFile?.let { Icon.SvgIcon(it) }
+            ?: icon?.let { Icon.DrawableRes(it) }
+            ?: Icon.DrawableRes(drawables.file)
+    }
+}
+
+/**
+ * Manager responsible for handling file type registration and resolution.
+ *
+ * This object maintains a registry of both built-in [BuiltinFileType]s and dynamically registered [FileType]s via
+ * extensions. It provides utility methods to identify a file's type based on its name, extension, or Markdown language
+ * identifier.
+ */
+object FileTypeManager {
+    private val dynamicRegistry = mutableListOf<FileType>()
+
+    /** Register a new file type dynamically. */
+    fun register(fileType: FileType) {
+        dynamicRegistry.add(fileType)
+    }
+
+    /** Get all dynamically registered file types + built-in file types together */
+    fun allTypes(): List<FileType> = entries + dynamicRegistry
+
+    fun fromFileName(name: String): FileType {
+        val normalized = name.lowercase()
+        val fileExt = normalized.substringAfterLast('.', "")
+        return allTypes().firstOrNull { it.names != null && normalized in it.names!! } ?: fromExtension(fileExt)
+    }
+
+    fun fromExtension(ext: String): FileType {
+        val normalized = ext.lowercase().removePrefix(".")
+        return allTypes().firstOrNull { normalized in it.extensions } ?: UNKNOWN
+    }
+
+    fun fromMarkdownName(name: String): FileType {
+        val normalized = name.lowercase()
+        return allTypes().firstOrNull { normalized in it.extensions || normalized in it.markdownNames } ?: UNKNOWN
+    }
+
+    fun knowsExtension(ext: String): Boolean {
+        val normalized = ext.lowercase().removePrefix(".")
+        return allTypes().any { normalized in it.extensions }
+    }
+}
+
+/** Enum representing all built-in [FileType]s in Xed-Editor. */
+enum class BuiltinFileType(
+    override val extensions: List<String>,
+    override val names: List<String>? = null,
+    override val textmateScope: String?,
+    override val icon: Int?,
+    override val iconOverride: Map<String, Int>? = null,
+    override val title: String,
+    override val markdownNames: List<String> = emptyList(),
+) : FileType {
     // Web languages
     JAVASCRIPT(
         extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"),
@@ -237,7 +308,7 @@ enum class FileType(
     POWERSHELL(
         extensions = listOf("ps1", "psm1", "psd1"),
         textmateScope = "source.powershell",
-        icon = null,
+        icon = powershell,
         title = "PowerShell",
         markdownNames = listOf("powershell", "ps"),
     ),
@@ -250,6 +321,7 @@ enum class FileType(
         icon = cmake,
         title = "CMake",
     ),
+    R(extensions = listOf("r"), textmateScope = "source.r", icon = r, title = "R", markdownNames = listOf("r")),
 
     // Data Files
     SQL(extensions = listOf("sql", "dsql", "sqllite"), textmateScope = "source.sql", icon = sql, title = "SQL"),
@@ -307,44 +379,5 @@ enum class FileType(
         title = "Executable",
     ),
     APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = apk, title = "APK"),
-    UNKNOWN(extensions = emptyList(), textmateScope = null, icon = null, title = strings.unknown.getString());
-
-    /**
-     * Retrieves an icon for this FileType. The icon is not tinted.
-     *
-     * Supports:
-     * - ✔ Icon pack (uses the icon from the icon pack if available, otherwise uses the builtin icon)
-     * - ✘ Tint (applyTint property in icon pack or builtin icon tint)
-     *
-     * @return An [Icon] representing the file type icon.
-     */
-    fun getIcon(): Icon {
-        val iconPackFile = currentIconPack.value?.getIconFileForFileType(this)
-        return iconPackFile?.let { Icon.SvgIcon(it) }
-            ?: icon?.let { Icon.DrawableRes(it) }
-            ?: Icon.DrawableRes(drawables.file)
-    }
-
-    companion object {
-        fun fromFileName(name: String): FileType {
-            val normalized = name.lowercase()
-            val fileExt = normalized.substringAfterLast('.', "")
-            return entries.firstOrNull { it.names != null && normalized in it.names } ?: fromExtension(fileExt)
-        }
-
-        fun fromExtension(ext: String): FileType {
-            val normalized = ext.lowercase().removePrefix(".")
-            return entries.firstOrNull { normalized in it.extensions } ?: UNKNOWN
-        }
-
-        fun fromMarkdownName(name: String): FileType {
-            val normalized = name.lowercase()
-            return entries.firstOrNull { normalized in it.extensions || normalized in it.markdownNames } ?: UNKNOWN
-        }
-
-        fun knowsExtension(ext: String): Boolean {
-            val normalized = ext.lowercase().removePrefix(".")
-            return entries.any { normalized in it.extensions }
-        }
-    }
+    UNKNOWN(extensions = emptyList(), textmateScope = null, icon = null, title = strings.unknown.getString()),
 }

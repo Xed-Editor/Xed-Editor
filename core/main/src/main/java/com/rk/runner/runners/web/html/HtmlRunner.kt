@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
+import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
-import com.rk.file.FileType
 import com.rk.icons.Icon
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -53,7 +53,7 @@ class HtmlRunner() : RunnerImpl() {
     }
 
     override fun getIcon(context: Context): Icon {
-        return Icon.DrawableRes(FileType.HTML.icon!!)
+        return Icon.DrawableRes(BuiltinFileType.HTML.icon!!)
     }
 
     override suspend fun isRunning(): Boolean = httpServer?.isAlive == true

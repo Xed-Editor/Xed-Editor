@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.caverock.androidsvg.SVG
 import com.rk.file.FileObject
-import com.rk.file.FileType
+import com.rk.file.FileTypeManager
 import com.rk.icons.pack.currentIconPack
 import com.rk.icons.rememberSvgImageLoader
 import com.rk.resources.drawables
@@ -183,7 +183,7 @@ private fun getBuiltInFileIcon(fileName: String): Int =
 
         else -> {
             val ext = fileName.substringAfterLast('.', "")
-            val type = FileType.fromExtension(ext)
+            val type = FileTypeManager.fromExtension(ext)
             type.iconOverride?.get(ext) ?: type.icon ?: plain_file
         }
     }
