@@ -42,7 +42,7 @@ import com.rk.components.AddDialogItem
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
 import com.rk.file.FileObject
-import com.rk.file.FileType
+import com.rk.file.FileTypeManager
 import com.rk.file.child
 import com.rk.icons.Icon
 import com.rk.lsp.BaseLspConnector
@@ -132,7 +132,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
             editorState.editable = !Settings.read_only_default && file.canWrite()
             if (editorState.textmateScope == null) {
-                editorState.textmateScope = FileType.fromFileName(file.getName()).textmateScope
+                editorState.textmateScope = FileTypeManager.fromFileName(file.getName()).textmateScope
             }
 
             loadEditorConfig()

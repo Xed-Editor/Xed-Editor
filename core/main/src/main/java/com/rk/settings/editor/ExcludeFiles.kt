@@ -32,7 +32,7 @@ import androidx.core.net.toUri
 import com.rk.components.ResetButton
 import com.rk.editor.Editor
 import com.rk.editor.ThemeManager
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -182,7 +182,7 @@ fun ExcludeFiles(isDrawer: Boolean) {
                                 setColorScheme(ThemeManager.createColorScheme(context))
                                 getColorScheme().setColor(EditorColorScheme.TEXT_NORMAL, colorScheme.onSurface.toArgb())
 
-                                setLanguage(FileType.LOG.textmateScope!!)
+                                setLanguage(BuiltinFileType.LOG.textmateScope!!)
                             }
                             //                        setThemeColors(
                             //                            isDarkMode = isDarkMode,

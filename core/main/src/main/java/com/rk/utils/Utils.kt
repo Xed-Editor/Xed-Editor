@@ -38,8 +38,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
 import com.rk.activities.main.gitViewModel
+import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
-import com.rk.file.FileType
 import com.rk.filetree.FileTreeViewModel
 import com.rk.git.ChangeType
 import com.rk.resources.getString
@@ -406,12 +406,12 @@ fun hasBinaryChars(text: String): Boolean {
 }
 
 private val binaryExtensions: Set<String> =
-    (FileType.IMAGE.extensions +
-            FileType.AUDIO.extensions +
-            FileType.VIDEO.extensions +
-            FileType.ARCHIVE.extensions +
-            FileType.APK.extensions +
-            FileType.EXECUTABLE.extensions)
+    (BuiltinFileType.IMAGE.extensions +
+            BuiltinFileType.AUDIO.extensions +
+            BuiltinFileType.VIDEO.extensions +
+            BuiltinFileType.ARCHIVE.extensions +
+            BuiltinFileType.APK.extensions +
+            BuiltinFileType.EXECUTABLE.extensions)
         .map { it.lowercase() }
         .toSet()
 

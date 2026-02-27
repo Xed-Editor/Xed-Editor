@@ -4,7 +4,7 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxHomeDir
@@ -17,8 +17,8 @@ class Python : BaseLspServer() {
     override val id: String = "python"
     override val languageName: String = "Python"
     override val serverName = "python-lsp-server"
-    override val supportedExtensions: List<String> = FileType.PYTHON.extensions
-    override val icon = FileType.PYTHON.icon
+    override val supportedExtensions: List<String> = BuiltinFileType.PYTHON.extensions
+    override val icon = BuiltinFileType.PYTHON.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

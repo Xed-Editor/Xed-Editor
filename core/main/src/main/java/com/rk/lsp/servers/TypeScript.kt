@@ -4,7 +4,7 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
@@ -16,11 +16,11 @@ class TypeScript : BaseLspServer() {
     override val languageName: String = "TypeScript"
     override val serverName = "typescript-language-server"
     override val supportedExtensions: List<String> =
-        FileType.JAVASCRIPT.extensions +
-            FileType.TYPESCRIPT.extensions +
-            FileType.JSX.extensions +
-            FileType.TSX.extensions
-    override val icon = FileType.TYPESCRIPT.icon
+        BuiltinFileType.JAVASCRIPT.extensions +
+            BuiltinFileType.TYPESCRIPT.extensions +
+            BuiltinFileType.JSX.extensions +
+            BuiltinFileType.TSX.extensions
+    override val icon = BuiltinFileType.TYPESCRIPT.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

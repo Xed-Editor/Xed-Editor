@@ -4,7 +4,7 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
@@ -16,8 +16,8 @@ class CSS : BaseLspServer() {
     override val languageName: String = "CSS"
     override val serverName = "vscode-css-language-server"
     override val supportedExtensions: List<String> =
-        FileType.CSS.extensions + FileType.SCSS.extensions + FileType.LESS.extensions
-    override val icon = FileType.CSS.icon
+        BuiltinFileType.CSS.extensions + BuiltinFileType.SCSS.extensions + BuiltinFileType.LESS.extensions
+    override val icon = BuiltinFileType.CSS.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

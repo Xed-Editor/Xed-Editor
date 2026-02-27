@@ -1,13 +1,13 @@
 package com.rk.editor.intelligent
 
 import com.rk.editor.Editor
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.settings.Settings
 
 object AutoCloseTag : IntelligentFeature() {
     override val id: String = "html.auto_close_tag"
 
-    override val supportedExtensions: List<String> = FileType.HTML.extensions + FileType.HTMX.extensions
+    override val supportedExtensions: List<String> = BuiltinFileType.HTML.extensions + BuiltinFileType.HTMX.extensions
 
     override val triggerCharacters: List<Char> = listOf('>', '/')
 

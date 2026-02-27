@@ -4,7 +4,7 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
@@ -15,8 +15,8 @@ class JSON : BaseLspServer() {
     override val id: String = "json"
     override val languageName: String = "JSON"
     override val serverName = "vscode-json-language-server"
-    override val supportedExtensions: List<String> = FileType.JSON.extensions
-    override val icon = FileType.JSON.icon
+    override val supportedExtensions: List<String> = BuiltinFileType.JSON.extensions
+    override val icon = BuiltinFileType.JSON.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

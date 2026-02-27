@@ -4,7 +4,7 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
@@ -16,8 +16,8 @@ class XML : BaseLspServer() {
     override val id: String = "xml"
     override val languageName: String = "XML"
     override val serverName = "lemminx"
-    override val supportedExtensions: List<String> = FileType.XML.extensions
-    override val icon = FileType.XML.icon
+    override val supportedExtensions: List<String> = BuiltinFileType.XML.extensions
+    override val icon = BuiltinFileType.XML.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {

@@ -4,7 +4,7 @@ import android.content.Context
 import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
 import com.rk.exec.launchInternalTerminal
-import com.rk.file.FileType
+import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
@@ -15,8 +15,8 @@ class Bash : BaseLspServer() {
     override val id: String = "bash"
     override val languageName: String = "Bash"
     override val serverName = "bash-language-server"
-    override val supportedExtensions: List<String> = FileType.SHELL.extensions
-    override val icon = FileType.SHELL.icon
+    override val supportedExtensions: List<String> = BuiltinFileType.SHELL.extensions
+    override val icon = BuiltinFileType.SHELL.icon
 
     override fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
