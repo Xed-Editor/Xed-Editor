@@ -22,7 +22,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -31,7 +30,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import com.rk.components.ResetButton
 import com.rk.editor.Editor
-import com.rk.editor.ThemeManager
 import com.rk.file.BuiltinFileType
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -42,7 +40,6 @@ import com.rk.tabs.editor.EditorNotice
 import com.rk.theme.XedTheme
 import com.rk.utils.isSystemInDarkTheme
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
 
@@ -178,17 +175,13 @@ fun ExcludeFiles(isDrawer: Boolean) {
                                 ReactiveSettings.update()
                             }
 
-                            scope.launch {
-                                setColorScheme(ThemeManager.createColorScheme(context))
-                                getColorScheme().setColor(EditorColorScheme.TEXT_NORMAL, colorScheme.onSurface.toArgb())
+                            setThemeColors(
+                                isDarkMode = isDarkMode,
+                                selectionColors = selectionColors,
+                                colorScheme = colorScheme,
+                            )
 
-                                setLanguage(BuiltinFileType.LOG.textmateScope!!)
-                            }
-                            //                        setThemeColors(
-                            //                            isDarkMode = isDarkMode,
-                            //                            selectionColors = selectionColors,
-                            //                            colorScheme = colorScheme,
-                            //                        )
+                            scope.launch { setLanguage(BuiltinFileType.IGNORE.textmateScope!!) }
                         }
                     },
                 )
