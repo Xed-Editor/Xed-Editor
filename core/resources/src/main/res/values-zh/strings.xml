@@ -711,7 +711,7 @@
     <string name="view_app_logs">查看应用程序日志</string>
     <string name="view_lsp_logs">查看语言服务器日志</string>
     <string name="logs_too_long">日志太长了</string>
-    <string name="logs_too_long_desc">无法直接上传过长的日志，请通过手动粘贴的方式提交。</string>
+    <string name="logs_too_long_desc">您要提交的日志文件过大。请通过手动粘贴的方式提交。</string>
     <string name="complete_on_enter">回车以确认</string>
     <string name="complete_on_enter_desc">软键盘回车时是否选中首个补全项</string>
     <string name="status_info">状态: %s</string>
@@ -765,6 +765,6 @@
     <string name="exclude_files_search">在搜索中排除文件</string>
     <string name="exclude_files_search_desc">从索引中排除文件。这可以缩短大型项目的搜索时间。</string>
     <string name="file_mask">文件匹配符</string>
-    <string name="file_mask_hint">文件匹配符(例如:js, .ts)</string>
+    <string name="file_mask_hint">文件匹配符（例如 .js、.ts）</string>
     <string name="glob_docs">了解如何使用 Glob 模式</string>
 </resources>
