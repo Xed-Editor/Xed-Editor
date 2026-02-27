@@ -238,7 +238,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 setLanguage(langScope)
 
                 val builtin = getBuiltinServers(context)
-                val extension = getExtensionServers()
+                val extension = getExtensionServers(context)
                 val external = getExternalServers()
                 val servers = builtin + extension + external
                 if (servers.isEmpty()) return@launch
@@ -271,27 +271,10 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
 
 private fun EditorTab.getBuiltinServers(context: Context): List<BaseLspServer> {
     val servers = LspRegistry.builtInServer.filter { it.isSupported(file) }
-    val supportedServers = mutableListOf<BaseLspServer>()
-
-    servers.forEach { server ->
-        if (!Preference.getBoolean("lsp_${server.id}", true)) {
-            return@forEach
-        }
-
-        if (!server.isInstalled(context)) {
-            info("Server is not installed")
-            showServerInstallDialog(context, server)
-            return@forEach
-        }
-
-        supportedServers.add(server)
-        return@forEach
-    }
-
-    return supportedServers
+    return findActiveLspServers(servers, context)
 }
 
-private fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspServer) {
+private fun EditorTab.promptLspInstall(context: Context, server: BaseLspServer) {
     scope.launch {
         val snackbarHost = snackbarHostStateRef.get() ?: return@launch
         val result =
@@ -306,8 +289,30 @@ private fun EditorTab.showServerInstallDialog(context: Context, server: BaseLspS
     }
 }
 
-private fun EditorTab.getExtensionServers(): List<BaseLspServer> {
-    return LspRegistry.extensionServers.filter { server -> server.isSupported(file) }
+private fun EditorTab.getExtensionServers(context: Context): List<BaseLspServer> {
+    val servers = LspRegistry.extensionServers.filter { server -> server.isSupported(file) }
+    return findActiveLspServers(servers, context)
+}
+
+private fun EditorTab.findActiveLspServers(servers: List<BaseLspServer>, context: Context): MutableList<BaseLspServer> {
+    val matchedServers = mutableListOf<BaseLspServer>()
+
+    servers.forEach { server ->
+        if (!Preference.getBoolean("lsp_${server.id}", true)) {
+            return@forEach
+        }
+
+        if (!server.isInstalled(context)) {
+            info("Server is not installed")
+            promptLspInstall(context, server)
+            return@forEach
+        }
+
+        matchedServers.add(server)
+        return@forEach
+    }
+
+    return matchedServers
 }
 
 private fun EditorTab.getExternalServers(): List<BaseLspServer> {
