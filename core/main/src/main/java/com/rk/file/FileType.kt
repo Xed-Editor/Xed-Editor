@@ -50,8 +50,9 @@ private val zig = drawables.zig
 private val git = drawables.git
 private val diff = drawables.diff
 private val cmake = drawables.cmake
+private val powershell = drawables.powershell
+private val r = drawables.r
 
-// TODO: Add icon for FileType.POWERSHELL
 // TODO: Add icon for FileType.EXECUTABLE
 // TODO: Add icon for FileType.PASCAL
 // TODO: Add icon for FileType.ASSEMBLY
@@ -237,7 +238,7 @@ enum class FileType(
     POWERSHELL(
         extensions = listOf("ps1", "psm1", "psd1"),
         textmateScope = "source.powershell",
-        icon = null,
+        icon = powershell,
         title = "PowerShell",
         markdownNames = listOf("powershell", "ps"),
     ),
@@ -250,6 +251,7 @@ enum class FileType(
         icon = cmake,
         title = "CMake",
     ),
+    R(extensions = listOf("r"), textmateScope = "source.r", icon = r, title = "R", markdownNames = listOf("r")),
 
     // Data Files
     SQL(extensions = listOf("sql", "dsql", "sqllite"), textmateScope = "source.sql", icon = sql, title = "SQL"),
