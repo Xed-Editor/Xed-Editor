@@ -749,8 +749,8 @@
     <string name="file_mask">File mask</string>
     <string name="file_mask_hint">File mask (e.g. .js, .ts)</string>
     <string name="glob_docs">Learn how to use glob patterns</string>
-    <string name="disable_bin_files">Disable Binary files</string>
-    <string name="disable_bin_files_desc">Make binary files read only by default</string>
-    <string name="oom_prediction">OOM Prediction</string>
+    <string name="detect_bin_files">Detect binary files</string>
+    <string name="detect_bin_files_desc">Open binary files in read-only mode by default</string>
+    <string name="oom_prediction">OOM prediction</string>
     <string name="oom_prediction_desc">Show out of memory dialog</string>
 </resources>

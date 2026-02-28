@@ -59,8 +59,8 @@ object ReactiveSettings {
 
 // NOTE: USE snake_case FOR KEYS!
 object Settings {
-    var disable_bin_files by CachedPreference("disable_bin_files", false)
-    var oom_prediction by CachedPreference("disable_oom_prediction", false)
+    var detect_bin_files by CachedPreference("detect_bin_files", true)
+    var oom_prediction by CachedPreference("disable_oom_prediction", true)
 
     var read_only_default by CachedPreference("read_only_default", false)
     var shown_disclaimer by CachedPreference("shown_disclaimer", false)
