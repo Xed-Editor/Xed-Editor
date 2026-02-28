@@ -709,19 +709,19 @@
     <string name="exclude_files_regex">Dosyaları hariç tutma regex\'i (ör. .*(?&lt;!.py))</string>
     <plurals name="time_seconds_ago">
         <item quantity="one">%d saniye önce</item>
-        <item quantity="other">%d saniye önce</item>
+        <item quantity="other">%d saniyee önce</item>
     </plurals>
     <plurals name="time_minutes_ago">
         <item quantity="one">%d dakika önce</item>
-        <item quantity="other">%d dakika önce</item>
+        <item quantity="other">%d dakikaa önce</item>
     </plurals>
     <plurals name="time_hours_ago">
         <item quantity="one">%d saat önce</item>
-        <item quantity="other">%d saat önce</item>
+        <item quantity="other">%d saatt önce</item>
     </plurals>
     <plurals name="time_days_ago">
         <item quantity="one">%d gün önce</item>
-        <item quantity="other">%d gün önce</item>
+        <item quantity="other">%d günn önce</item>
     </plurals>
     <string name="logs">Günlükler</string>
     <string name="view_logs">Günlükleri görüntüle</string>
@@ -772,4 +772,8 @@
     <string name="file_mask">Dosya uzantısı</string>
     <string name="file_mask_hint">Dosya uzantısı (örneğin .js, .ts)</string>
     <string name="glob_docs">Glob kalıplarını nasıl kullanacağınızı öğrenin</string>
+    <string name="detect_bin_files">İkili dosyaları algıla</string>
+    <string name="detect_bin_files_desc">Varsayılan olarak ikili dosyaları salt okunur modda açın</string>
+    <string name="oom_prediction">OOM tahmini</string>
+    <string name="oom_prediction_desc">Bellek yetersizliği iletişim kutusunu göster</string>
 </resources>
