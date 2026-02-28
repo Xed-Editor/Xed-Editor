@@ -55,8 +55,8 @@ fun fixHomeLocation(context: Context, uri: String): String {
     return fixedPath?.let { Uri.fromFile(it).toString() } ?: uri
 }
 
-suspend fun MainViewModel.goToTabAndSelect(file: FileObject, range: Range) {
-    goToTabAndSelect(file, range.start.line, range.start.character, range.end.line, range.end.character)
+suspend fun MainViewModel.goToTabAndSelect(file: FileObject, projectRoot: FileObject?, range: Range) {
+    goToTabAndSelect(file, projectRoot, range.start.line, range.start.character, range.end.line, range.end.character)
 }
 
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
@@ -87,7 +87,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { viewModel.goToTabAndSelect(targetFile, range) }
+                    scope.launch { viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range) }
                     return@launch
                 }
 
@@ -114,7 +114,11 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                                 file = targetFile,
                                 line = range.start.line,
                                 column = range.start.character,
-                                onClick = { scope.launch { viewModel.goToTabAndSelect(targetFile, range) } },
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range)
+                                    }
+                                },
                             )
                         }
                 }
@@ -152,7 +156,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { viewModel.goToTabAndSelect(targetFile, range) }
+                    scope.launch { viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range) }
                     return@launch
                 }
 
@@ -175,7 +179,11 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                                 file = targetFile,
                                 line = range.start.line,
                                 column = range.start.character,
-                                onClick = { scope.launch { viewModel.goToTabAndSelect(targetFile, range) } },
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range)
+                                    }
+                                },
                             )
                         }
                 }

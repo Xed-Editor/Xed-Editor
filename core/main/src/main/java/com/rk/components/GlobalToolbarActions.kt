@@ -91,7 +91,12 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
             onSelect = { projectFile, fileObject ->
                 scope.launch {
                     if (fileObject.isFile()) {
-                        viewModel.newTab(fileObject = fileObject, checkDuplicate = true, switchToTab = true)
+                        viewModel.newTab(
+                            fileObject = fileObject,
+                            projectRoot = projectFile,
+                            checkDuplicate = true,
+                            switchToTab = true,
+                        )
                         drawerStateRef.get()?.close()
                     } else {
                         fileTreeViewModel.get()?.goToFolder(projectFile, fileObject)
@@ -148,7 +153,12 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                             fileManager.createNewFile(mimeType = "*/*", title = "newfile.txt") {
                                 if (it != null) {
                                     lifecycleScope.launch {
-                                        viewModel.newTab(it, checkDuplicate = true, switchToTab = true)
+                                        viewModel.newTab(
+                                            it,
+                                            projectRoot = null,
+                                            checkDuplicate = true,
+                                            switchToTab = true,
+                                        )
                                     }
                                 }
                             }
@@ -165,6 +175,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                                     viewModel.newTab(
                                         it.toFileObject(expectedIsFile = true),
                                         checkDuplicate = true,
+                                        projectRoot = null,
                                         switchToTab = true,
                                     )
                                 }
@@ -223,7 +234,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                 DefaultScope.launch(Dispatchers.IO) {
                     tempFileNameDialog = false
                     tempFile.createFileIfNot()
-                    viewModel.newTab(tempFile, switchToTab = true)
+                    viewModel.newTab(tempFile, projectRoot = null, switchToTab = true)
                 }
             },
             onDismiss = { tempFileNameDialog = false },

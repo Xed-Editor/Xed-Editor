@@ -37,6 +37,7 @@ import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.utils.dpToPx
 import com.rk.utils.info
+import com.rk.utils.logWarn
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
@@ -54,7 +55,6 @@ import kotlinx.coroutines.withContext
 fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
-    parentTab: EditorTab,
     intelligentFeatures: List<IntelligentFeature>,
     onTextChange: () -> Unit,
 ) {
@@ -101,7 +101,7 @@ fun EditorTab.CodeEditor(
 
                         state.editor = WeakReference(this)
 
-                        val lspActions = createLspTextActions(scope, context, viewModel, parentTab)
+                        val lspActions = createLspTextActions(scope, context, viewModel, this@CodeEditor)
                         lspActions.forEach { registerTextAction(it) }
 
                         scope.launch(Dispatchers.IO) {
@@ -243,27 +243,27 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 val servers = builtin + extension + external
                 if (servers.isEmpty()) return@launch
 
-                val parentFile =
-                    file.getParentFile()
+                val projectFile =
+                    projectRoot
                         ?: run {
-                            info("File has no parent directory")
+                            logWarn(
+                                "File ${file.getName()} has no suitable project root. Skipping language server connection."
+                            )
                             return@launch
                         }
 
                 baseLspConnector =
                     BaseLspConnector(
-                        projectFile = parentFile,
+                        projectFile = projectFile,
                         fileObject = file,
-                        codeEditor = editorState.editor.get()!!,
+                        codeEditor = this@with,
                         editorTab = this@applyHighlightingAndConnectLSP,
                         servers = servers,
                     )
 
-                parentFile.let {
-                    info("Trying to connect language server...")
-                    baseLspConnector?.connect(langScope)
-                    info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
-                }
+                info("Trying to connect language servers...")
+                baseLspConnector?.connect(langScope)
+                info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
             }
         }
     }
@@ -303,7 +303,7 @@ private fun EditorTab.findActiveLspServers(servers: List<BaseLspServer>, context
         }
 
         if (!server.isInstalled(context)) {
-            info("Server is not installed")
+            info("Server ${server.id} is not installed")
             promptLspInstall(context, server)
             return@forEach
         }

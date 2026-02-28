@@ -293,6 +293,7 @@ class SearchViewModel : ViewModel() {
                             charIndex = index,
                             query = query,
                             file = tab.file,
+                            projectRoot = projectRoot,
                             lineIndex = lineIndex,
                             isOpen = true,
                         )
@@ -307,6 +308,7 @@ class SearchViewModel : ViewModel() {
                 context = context,
                 mainViewModel = mainViewModel,
                 parent = projectRoot,
+                projectRoot = projectRoot,
                 query = query,
                 openPaths = openPaths,
                 emit = ::emit,
@@ -365,6 +367,7 @@ class SearchViewModel : ViewModel() {
                             charIndex = absoluteCharIndex,
                             query = query,
                             file = file,
+                            projectRoot = projectRoot,
                             lineIndex = result.lineNumber,
                         )
                     )
@@ -379,6 +382,7 @@ class SearchViewModel : ViewModel() {
         context: Context,
         mainViewModel: MainViewModel,
         parent: FileObject,
+        projectRoot: FileObject,
         query: String,
         openPaths: Set<String>,
         emit: suspend (CodeItem) -> Unit,
@@ -399,7 +403,16 @@ class SearchViewModel : ViewModel() {
             if (isHidden && !Settings.show_hidden_files_search) continue
 
             if (file.isDirectory()) {
-                searchCodeWithoutIndex(context, mainViewModel, file, query, openPaths, emit, isResultHidden)
+                searchCodeWithoutIndex(
+                    context = context,
+                    mainViewModel = mainViewModel,
+                    parent = file,
+                    projectRoot = projectRoot,
+                    query = query,
+                    openPaths = openPaths,
+                    emit = emit,
+                    isResultHidden = isResultHidden,
+                )
                 continue
             }
 
@@ -421,6 +434,7 @@ class SearchViewModel : ViewModel() {
                                 charIndex = absoluteCharIndex,
                                 query = query,
                                 file = file,
+                                projectRoot = projectRoot,
                                 lineIndex = lineIndex,
                             )
                         )
@@ -437,6 +451,7 @@ class SearchViewModel : ViewModel() {
         charIndex: Int,
         query: String,
         file: FileObject,
+        projectRoot: FileObject,
         lineIndex: Int,
         isOpen: Boolean = false,
     ): CodeItem {
@@ -459,6 +474,7 @@ class SearchViewModel : ViewModel() {
                     viewModelScope.launch {
                         mainViewModel.goToTabAndSelect(
                             file = file,
+                            projectRoot = projectRoot,
                             lineStart = lineIndex,
                             charStart = charIndex,
                             lineEnd = lineIndex,
