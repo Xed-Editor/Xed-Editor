@@ -678,4 +678,49 @@
     <string name="index_project_desc">Indexování může zlepšit celkový čas hledání v velkých projektech</string>
     <string name="always_index_projects">Vždy indexovat projekty</string>
     <string name="always_index_projects_desc">Výchoze indexovat projekty automaticky. Toto může využít větší část úložistě v zařízení.</string>
+    <string name="warn_dont_leave_setup">⚠ Neopouštějte aktuální obrazovku, probíhá nastavení aplikace</string>
+    <string name="indexing_stats">%1$s soubor(y/ů) indexováno, velikost databáze %2$s</string>
+    <string name="exclude_files">Vyloučit soubory</string>
+    <string name="exclude_files_regex">Vyloučit soubory pomocí regexu (např. *(?&lt;!\\.py))</string>
+    <string name="stop">Zastavit</string>
+    <string name="offline">Offline</string>
+    <string name="time_just_now">Právě teď</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="one">před %d sekundou</item>
+        <item quantity="few">před %d sekundami</item>
+        <item quantity="many">před %d sekundami</item>
+        <item quantity="other">před %d sekundami</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="one">před %d minutou</item>
+        <item quantity="few">před %d minutami</item>
+        <item quantity="many">před %d minutami</item>
+        <item quantity="other">před %d minutami</item>
+    </plurals>
+    <plurals name="time_hours_ago">
+        <item quantity="one">před %d hodinou</item>
+        <item quantity="few">před %d hodinami</item>
+        <item quantity="many">před %d hodinami</item>
+        <item quantity="other">před %d hodinami</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="one">před %d dnem</item>
+        <item quantity="few">před %d dny</item>
+        <item quantity="many">před %d dny</item>
+        <item quantity="other">před %d dny</item>
+    </plurals>
+    <string name="manage">Spravovat</string>
+    <string name="uptime">Doba spuštění: %s</string>
+    <string name="lsp_connection_error">Nelze se připojit k jazykovém serveru</string>
+    <string name="lsp_restart_required">Restartujte jazykový server pro použití změn</string>
+    <string name="exclude_files_drawer">Vyloučit soubory v postranním panelu</string>
+    <string name="exclude_files_drawer_desc">Změnit seznam souborů pro vyloučení z stromu souborů</string>
+    <string name="exclude_files_search">Vyloučit soubory v hledání</string>
+    <string name="status_timeout">Časový limit vypršel</string>
+    <string name="exclude_files_search_desc">Vyloučit soubory z indexování. Toto může zlepšit celkový čas hledání pro velké projekty.</string>
+    <string name="glob_docs">Naučit se jak používat vzory glob</string>
+    <string name="disable_bin_files">Vypnout upravování binárních souborů</string>
+    <string name="disable_bin_files_desc">Výchoze zapnout čtecí režim pro binární soubory</string>
+    <string name="oom_prediction">Zajistění OOM dialogu</string>
+    <string name="oom_prediction_desc">Zobrazit OOM (Out Of Memory) dialog</string>
 </resources>
