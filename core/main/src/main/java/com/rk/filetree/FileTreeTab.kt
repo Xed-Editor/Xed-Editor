@@ -106,7 +106,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 if (node.isFile) {
                     scope.launch(Dispatchers.IO) {
                         if (node.file.isFile()) {
-                            mainViewModel?.newTab(node.file, switchToTab = true)
+                            mainViewModel?.newTab(node.file, projectRoot = root, switchToTab = true)
                         }
 
                         if (Settings.keep_drawer_locked.not()) {

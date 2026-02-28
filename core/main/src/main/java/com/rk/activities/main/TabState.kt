@@ -7,6 +7,7 @@ sealed interface TabState : Serializable
 
 data class EditorTabState(
     val fileObject: FileObject,
+    val projectRoot: FileObject?,
     val cursor: EditorCursorState,
     val scrollX: Int,
     val scrollY: Int,

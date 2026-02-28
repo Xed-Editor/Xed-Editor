@@ -454,7 +454,12 @@ fun FileActionDialog(
                                 if (isNewFile && newChild != null && Settings.auto_open_new_files) {
                                     MainActivity.instance
                                         ?.viewModel
-                                        ?.newTab(newChild, checkDuplicate = true, switchToTab = true)
+                                        ?.newTab(
+                                            newChild,
+                                            projectRoot = root,
+                                            checkDuplicate = true,
+                                            switchToTab = true,
+                                        )
                                     drawerStateRef.get()?.close()
                                 }
                             } else {

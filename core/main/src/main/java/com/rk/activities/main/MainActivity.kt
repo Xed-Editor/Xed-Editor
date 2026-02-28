@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             val file = uri.toFileObject(expectedIsFile = true)
 
             viewModel.sessionRestored.await()
-            viewModel.newTab(file, switchToTab = true)
+            viewModel.newTab(file, projectRoot = null, switchToTab = true)
             setIntent(Intent())
         }
     }

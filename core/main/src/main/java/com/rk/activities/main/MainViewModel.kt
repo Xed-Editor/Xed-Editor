@@ -175,12 +175,22 @@ class MainViewModel : ViewModel() {
      * @param checkDuplicate If `true`, focus an existing tab for the file instead of opening a new one.
      * @param switchToTab If `true`, make the new or existing tab the active one.
      */
-    suspend fun newTab(fileObject: FileObject, checkDuplicate: Boolean = true, switchToTab: Boolean = false) =
+    suspend fun newTab(
+        fileObject: FileObject,
+        projectRoot: FileObject? = null,
+        checkDuplicate: Boolean = true,
+        switchToTab: Boolean = false,
+    ) =
         withContext(Dispatchers.IO) {
             val function = suspend {
                 val tab = TabRegistry.getTab(fileObject)
                 if (tab == null) {
-                    newEditorTab(file = fileObject, checkDuplicate = checkDuplicate, switchToTab = switchToTab)
+                    newEditorTab(
+                        file = fileObject,
+                        projectRoot = projectRoot,
+                        checkDuplicate = checkDuplicate,
+                        switchToTab = switchToTab,
+                    )
                 } else {
                     openTab(tab = tab, switchToTab = switchToTab)
                 }
@@ -251,6 +261,7 @@ class MainViewModel : ViewModel() {
         val editorTab =
             newEditorTab(
                 file = editorState.fileObject,
+                projectRoot = editorState.projectRoot,
                 checkDuplicate = checkDuplicate,
                 switchToTab = switchToTab,
                 openTab = openTab,
@@ -291,6 +302,7 @@ class MainViewModel : ViewModel() {
      */
     private suspend fun newEditorTab(
         file: FileObject,
+        projectRoot: FileObject? = null,
         checkDuplicate: Boolean = true,
         switchToTab: Boolean = false,
         openTab: Boolean = true,
@@ -307,7 +319,7 @@ class MainViewModel : ViewModel() {
 
             return@withContext withContext(Dispatchers.Main) {
                 mutex.withLock {
-                    val editorTab = EditorTab(file = file, viewModel = this@MainViewModel)
+                    val editorTab = EditorTab(file = file, projectRoot = projectRoot, viewModel = this@MainViewModel)
 
                     if (openTab) tabs.add(editorTab)
                     if (openTab && switchToTab) {
@@ -422,8 +434,15 @@ class MainViewModel : ViewModel() {
     }
 
     /** Go to or open tab that contains the range and select it. */
-    suspend fun goToTabAndSelect(file: FileObject, lineStart: Int, charStart: Int, lineEnd: Int, charEnd: Int) {
-        withContext(Dispatchers.Main) { newTab(file, switchToTab = true) }
+    suspend fun goToTabAndSelect(
+        file: FileObject,
+        projectRoot: FileObject?,
+        lineStart: Int,
+        charStart: Int,
+        lineEnd: Int,
+        charEnd: Int,
+    ) {
+        withContext(Dispatchers.Main) { newTab(file, projectRoot = projectRoot, switchToTab = true) }
 
         val targetTab = tabs.filterIsInstance<EditorTab>().find { it.file == file }
 

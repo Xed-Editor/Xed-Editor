@@ -39,6 +39,7 @@ import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.filetree.getAppropriateName
 import com.rk.lsp.BaseLspServer
 import com.rk.lsp.BaseLspServerInstance
 import com.rk.lsp.LspConnectionStatus
@@ -223,7 +224,7 @@ private fun InstanceCard(instance: BaseLspServerInstance, navController: NavHost
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = instance.projectRoot.getName(), style = MaterialTheme.typography.titleMedium)
+                    Text(text = instance.projectRoot.getAppropriateName(), style = MaterialTheme.typography.titleMedium)
                     Text(
                         text = instance.projectRoot.getAbsolutePath(),
                         style = MaterialTheme.typography.bodyMedium,

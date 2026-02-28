@@ -126,7 +126,7 @@ class BaseLspConnector(
             val projectPath = projectFile.getAbsolutePath()
             val fileExt = fileObject.getExtension()
 
-            val project = projectCache.computeIfAbsent(projectPath) { LspProject(projectFile.getAbsolutePath()) }
+            val project = projectCache.computeIfAbsent(projectPath) { LspProject(projectPath) }
 
             servers.forEach { server ->
                 val isForceStopped = DefinitionPrevention.isServerPrevented(project, server)
@@ -159,7 +159,8 @@ class BaseLspConnector(
                         DidChangeWorkspaceFoldersParams().apply {
                             event =
                                 WorkspaceFoldersChangeEvent().apply {
-                                    added = listOf(WorkspaceFolder(projectPath, projectFile.getName()))
+                                    added =
+                                        listOf(WorkspaceFolder(projectFile.toUri().toString(), projectFile.getName()))
                                 }
                         }
                     )

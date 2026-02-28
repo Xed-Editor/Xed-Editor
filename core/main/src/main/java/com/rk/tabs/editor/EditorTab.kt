@@ -85,7 +85,8 @@ import org.ec4j.core.ResourcePropertiesService
 import org.ec4j.core.model.PropertyType
 
 @OptIn(DelicateCoroutinesApi::class)
-open class EditorTab(override var file: FileObject, val viewModel: MainViewModel) : Tab() {
+open class EditorTab(override var file: FileObject, var projectRoot: FileObject?, val viewModel: MainViewModel) :
+    Tab() {
     val isTemp: Boolean
         get() {
             return file.getAbsolutePath().startsWith(getTempDir().child("temp_editor").absolutePath)
@@ -129,6 +130,8 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
     init {
         scope.launch {
             if (!file.exists() || !file.canRead()) return@launch
+
+            projectRoot = projectRoot ?: file.getParentFile()
 
             editorState.editable = !Settings.read_only_default && file.canWrite()
             if (editorState.textmateScope == null) {
@@ -446,7 +449,6 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
                 CodeEditor(
                     modifier = Modifier.weight(1f),
                     state = editorState,
-                    parentTab = this@EditorTab,
                     intelligentFeatures = intelligentFeatures,
                     onTextChange = {
                         if (Settings.auto_save && !isTemp) {
@@ -487,6 +489,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
         val editor = editorState.editor.get() ?: return null
         return EditorTabState(
             fileObject = file,
+            projectRoot = projectRoot,
             cursor =
                 EditorCursorState(
                     lineLeft = editor.cursor.leftLine,
