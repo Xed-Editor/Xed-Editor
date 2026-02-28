@@ -187,7 +187,7 @@ class MainViewModel : ViewModel() {
             }
 
             val coroutineScope = this
-            if (expectOOM(fileObject.length())) {
+            if (Settings.oom_prediction && expectOOM(fileObject.length())) {
                 dialog(
                     title = strings.attention.getString(),
                     msg = strings.tab_memory_warning.getString(),

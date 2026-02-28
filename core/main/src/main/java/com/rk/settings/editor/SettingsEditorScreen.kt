@@ -159,6 +159,19 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
             EditorSettingsToggle(
+                label = stringResource(strings.disable_bin_files),
+                description = stringResource(strings.disable_bin_files_desc),
+                default = Settings.disable_bin_files,
+                sideEffect = { Settings.disable_bin_files = it },
+            )
+
+            EditorSettingsToggle(
+                label =  stringResource(strings.oom_prediction),
+                description = stringResource(strings.oom_prediction_desc),
+                default = Settings.oom_prediction,
+                sideEffect = { Settings.oom_prediction = it },
+            )
+            EditorSettingsToggle(
                 label = stringResource(strings.disable_virtual_kbd),
                 description = stringResource(strings.disable_virtual_kbd_desc),
                 default = Settings.hide_soft_keyboard_if_hardware,

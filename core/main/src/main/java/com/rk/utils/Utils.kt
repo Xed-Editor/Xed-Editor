@@ -172,7 +172,7 @@ fun expectOOM(requiredMemBytes: Long): Boolean {
     val freeMemory = runtime.freeMemory()
     val usedMemory = allocatedMemory - freeMemory
     val availableMemory = maxMemory - usedMemory
-    val safetyBuffer = 32L * 1024 * 1024 // 32MB
+    val safetyBuffer = 8L * 1024 * 1024 // 8MB
     val requiredMemory = requiredMemBytes + safetyBuffer
 
     return requiredMemory > availableMemory

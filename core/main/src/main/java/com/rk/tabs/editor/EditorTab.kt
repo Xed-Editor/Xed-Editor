@@ -137,7 +137,7 @@ open class EditorTab(override var file: FileObject, val viewModel: MainViewModel
 
             loadEditorConfig()
 
-            if (editorState.content == null) {
+            if (Settings.disable_bin_files && editorState.content == null) {
                 withContext(Dispatchers.IO) {
                     runCatching {
                             editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
