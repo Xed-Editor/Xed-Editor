@@ -672,4 +672,10 @@
     <string name="compact_folders">Sbalit složky</string>
     <string name="compact_folders_drawer">Sbalit složky ve postranním panelu</string>
     <string name="compact_folders_drawer_desc">Sbalit složky s jenom jedním potomkem do jedné šložky v postranním panelu</string>
+    <string name="indexing">Indexování…</string>
+    <string name="file_name_opened">%s (Otevřeno)</string>
+    <string name="index_project">Indexovat projekt</string>
+    <string name="index_project_desc">Indexování může zlepšit celkový čas hledání v velkých projektech</string>
+    <string name="always_index_projects">Vždy indexovat projekty</string>
+    <string name="always_index_projects_desc">Výchoze indexovat projekty automaticky. Toto může využít větší část úložistě v zařízení.</string>
 </resources>
