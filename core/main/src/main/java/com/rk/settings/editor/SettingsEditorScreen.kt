@@ -159,10 +159,10 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
             EditorSettingsToggle(
-                label = stringResource(strings.disable_bin_files),
-                description = stringResource(strings.disable_bin_files_desc),
-                default = Settings.disable_bin_files,
-                sideEffect = { Settings.disable_bin_files = it },
+                label = stringResource(strings.detect_bin_files),
+                description = stringResource(strings.detect_bin_files),
+                default = Settings.detect_bin_files,
+                sideEffect = { Settings.detect_bin_files = it },
             )
 
             EditorSettingsToggle(
@@ -171,6 +171,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.oom_prediction,
                 sideEffect = { Settings.oom_prediction = it },
             )
+
             EditorSettingsToggle(
                 label = stringResource(strings.disable_virtual_kbd),
                 description = stringResource(strings.disable_virtual_kbd_desc),

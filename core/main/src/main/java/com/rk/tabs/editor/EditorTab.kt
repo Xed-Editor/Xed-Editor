@@ -140,13 +140,13 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
             loadEditorConfig()
 
-            if (Settings.disable_bin_files && editorState.content == null) {
+            if (editorState.content == null) {
                 withContext(Dispatchers.IO) {
                     runCatching {
                             editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
                             editorState.contentLoaded.complete(Unit)
 
-                            if (hasBinaryChars(editorState.content.toString())) {
+                            if (Settings.detect_bin_files && hasBinaryChars(editorState.content.toString())) {
                                 editorState.editable = false
                                 showNotice(BINARY_NOTICE_KEY) { id -> BinaryNotice(id) }
                             }
