@@ -440,4 +440,6 @@
     <string name="ignore_case">Αγνόηση πεζών-κεφαλαίων</string>
     <string name="regex">Regex</string>
     <string name="whole_word">Ολόκληρη λέξη</string>
+    <string name="branch">Κλάδος</string>
+    <string name="flavor">Παραλλαγή</string>
 </resources>
