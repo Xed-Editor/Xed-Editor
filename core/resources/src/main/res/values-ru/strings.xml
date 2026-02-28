@@ -777,4 +777,6 @@
     <string name="disable_bin_files_desc">Сделать бинарные файлы доступными только для чтения по умолчанию</string>
     <string name="oom_prediction">Прогнозирование OOM</string>
     <string name="oom_prediction_desc">Показывать окно ошибки нехватки памяти</string>
+    <string name="detect_bin_files_desc">По умолчанию открывать бинарные файлы в режиме \"только для чтения\"</string>
+    <string name="detect_bin_files">Определять бинарные файлы</string>
 </resources>
