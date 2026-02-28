@@ -166,7 +166,7 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label =  stringResource(strings.oom_prediction),
+                label = stringResource(strings.oom_prediction),
                 description = stringResource(strings.oom_prediction_desc),
                 default = Settings.oom_prediction,
                 sideEffect = { Settings.oom_prediction = it },
