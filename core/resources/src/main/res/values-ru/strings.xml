@@ -699,4 +699,16 @@
     <string name="warn_dont_leave_setup">⚠ Не покидайте этот экран, пока выполняется настройка</string>
     <string name="indexing_stats">Проиндексировано файлов: %1$s, размер базы данных: %2$s</string>
     <string name="exclude_files">Исключить файлы</string>
+    <string name="logs">Журнал</string>
+    <string name="view_logs">Посмотреть журнал</string>
+    <string name="view_app_logs">Посмотреть журнал приложения</string>
+    <string name="view_lsp_logs">Посмотреть журнал языкового сервера</string>
+    <string name="logs_too_long">Журнал слишком длинный</string>
+    <string name="logs_too_long_desc">Файл журнала, который вы пытались отправить, слишком большой. Пожалуйста, вставьте скопированный файл журнала вручную в отчёт.</string>
+    <string name="complete_on_enter">Завершать при нажатии Enter</string>
+    <string name="complete_on_enter_desc">Выбирать первый элемент автозаполнения при нажатии Enter на программной клавиатуре</string>
+    <string name="status_info">Статус: %s</string>
+    <string name="status_running">Запущено</string>
+    <string name="status_starting">Запуск…</string>
+    <string name="status_not_running">Не запущено</string>
 </resources>
