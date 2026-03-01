@@ -124,12 +124,13 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                 Column(Modifier.weight(1f).fillMaxWidth()) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         IconButton(
+                            enabled = editorState.editable,
                             modifier = Modifier,
                             onClick = { editorState.isReplaceShown = !editorState.isReplaceShown },
                         ) {
                             Icon(
                                 imageVector =
-                                    if (editorState.isReplaceShown) {
+                                    if (editorState.isReplaceShown && editorState.editable) {
                                         Icons.Outlined.KeyboardArrowUp
                                     } else {
                                         Icons.Outlined.KeyboardArrowDown
@@ -230,7 +231,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                             keyboardOptions =
                                 KeyboardOptions(
                                     imeAction =
-                                        if (editorState.isReplaceShown) {
+                                        if (editorState.isReplaceShown && editorState.editable) {
                                             ImeAction.Next
                                         } else {
                                             ImeAction.Search
@@ -252,7 +253,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
 
                     Spacer(Modifier.height(2.dp))
 
-                    if (editorState.isReplaceShown) {
+                    if (editorState.isReplaceShown && editorState.editable) {
                         Row(Modifier.fillMaxWidth()) {
                             Spacer(Modifier.width(48.dp))
 
@@ -288,7 +289,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                         Text(stringResource(strings.go_next).uppercase())
                     }
 
-                    if (editorState.isReplaceShown) {
+                    if (editorState.isReplaceShown && editorState.editable) {
                         TextButton(
                             enabled = isSearchingInternal,
                             onClick = { editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword) },

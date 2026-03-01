@@ -483,7 +483,6 @@
     <string name="disable">Disable</string>
     <string name="calculating">Calculating…</string>
     <string name="permissions">Permissions</string>
-    <string name="lsp_process_desc">The terminal\'s initialization scripts, e.g., /initrc and .bashrc, will not run before this command.</string>
     <string name="command">Command</string>
     <string name="empty_command">Empty command</string>
     <string name="socket">Socket</string>
@@ -753,4 +752,5 @@
     <string name="detect_bin_files_desc">Open binary files in read-only mode by default</string>
     <string name="oom_prediction">OOM prediction</string>
     <string name="oom_prediction_desc">Show out of memory dialog</string>
+    <string name="debug">Debug</string>
 </resources>

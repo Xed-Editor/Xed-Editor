@@ -1,7 +1,6 @@
 package com.rk.editor
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
 import android.util.AttributeSet
@@ -12,13 +11,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.rk.settings.Settings
 import com.rk.settings.editor.LineEnding
-import com.rk.theme.currentTheme
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.TextActionItem
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -42,6 +39,21 @@ class Editor : CodeEditor {
     var lineEnding = LineEnding.LF
     var insertFinalNewline = false
     var trimTrailingWhitespace = false
+
+    data class PatchArgs(
+        val isDarkMode: Boolean,
+        val editorSurface: Int,
+        val surfaceContainer: Int,
+        val highSurfaceContainer: Int,
+        val onSurface: Int,
+        val colorPrimary: Int,
+        val selectionBg: Int,
+        val handleColor: Int,
+        val gutterColor: Int,
+        val currentLine: Int,
+        val dividerColor: Int,
+        val errorColor: Int,
+    )
 
     init {
         applyFont()
@@ -95,109 +107,27 @@ class Editor : CodeEditor {
         dividerColor: Int,
         errorColor: Int,
     ) {
-        updateColors { colorScheme ->
-            with(colorScheme) {
-                setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+        val patchArgs =
+            PatchArgs(
+                isDarkMode,
+                editorSurface,
+                surfaceContainer,
+                highSurfaceContainer,
+                onSurface,
+                colorPrimary,
+                selectionBg,
+                handleColor,
+                gutterColor,
+                currentLine,
+                dividerColor,
+                errorColor,
+            )
 
-                fun EditorColorScheme.setColors(color: Int, vararg types: Int) {
-                    types.forEach { setColor(it, color) }
-                }
-
-                setColors(editorSurface, EditorColorScheme.WHOLE_BACKGROUND)
-
-                setColors(
-                    surfaceContainer,
-                    EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND,
-                    EditorColorScheme.COMPLETION_WND_BACKGROUND,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,
-                    EditorColorScheme.SIGNATURE_BACKGROUND,
-                    EditorColorScheme.HOVER_BACKGROUND,
-                    EditorColorScheme.LINE_NUMBER_PANEL,
-                )
-
-                setColors(highSurfaceContainer, EditorColorScheme.COMPLETION_WND_ITEM_CURRENT)
-
-                setColors(
-                    onSurface,
-                    EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR,
-                    EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY,
-                    EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG,
-                    EditorColorScheme.SIGNATURE_TEXT_NORMAL,
-                    EditorColorScheme.HOVER_TEXT_NORMAL,
-                    EditorColorScheme.LINE_NUMBER,
-                    EditorColorScheme.LINE_NUMBER_CURRENT,
-                )
-
-                setColors(handleColor, EditorColorScheme.SELECTION_HANDLE)
-                setColors(
-                    selectionBg,
-                    EditorColorScheme.SELECTION_INSERT,
-                    EditorColorScheme.MATCHED_TEXT_BACKGROUND,
-                    EditorColorScheme.SELECTED_TEXT_BACKGROUND,
-                )
-                setColors(
-                    colorPrimary,
-                    EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
-                    EditorColorScheme.HIGHLIGHTED_DELIMITERS_BORDER,
-                    EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
-                    EditorColorScheme.HOVER_TEXT_HIGHLIGHTED,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION,
-                    EditorColorScheme.COMPLETION_WND_TEXT_MATCHED,
-                )
-
-                setColors(setAlpha(onSurface, 0.6f), EditorColorScheme.BLOCK_LINE_CURRENT)
-                setColors(setAlpha(onSurface, 0.4f), EditorColorScheme.NON_PRINTABLE_CHAR, EditorColorScheme.BLOCK_LINE)
-                setColors(setAlpha(onSurface, 0.3f), EditorColorScheme.SCROLL_BAR_THUMB)
-                setColors(setAlpha(onSurface, 0.2f), EditorColorScheme.SCROLL_BAR_THUMB_PRESSED)
-
-                setColors(currentLine, EditorColorScheme.CURRENT_LINE)
-                setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
-                setColors(
-                    dividerColor,
-                    EditorColorScheme.LINE_DIVIDER,
-                    EditorColorScheme.STICKY_SCROLL_DIVIDER,
-                    EditorColorScheme.COMPLETION_WND_CORNER,
-                    EditorColorScheme.SIGNATURE_BORDER,
-                    EditorColorScheme.HOVER_BORDER,
-                )
-
-                setColors(errorColor, EditorColorScheme.PROBLEM_ERROR)
-
-                val editorColors =
-                    if (isDarkMode) {
-                        currentTheme.value?.darkEditorColors
-                    } else {
-                        currentTheme.value?.lightEditorColors
-                    }
-
-                if (editorColors.isNullOrEmpty().not()) {
-                    editorColors.forEach { setColor(it.key, it.color) }
-                }
-            }
-        }
-    }
-
-    private fun setAlpha(color: Int, factor: Float): Int {
-        val a = Color.alpha(color)
-        val r = Color.red(color)
-        val g = Color.green(color)
-        val b = Color.blue(color)
-
-        val newAlpha = (a * factor).toInt().coerceIn(0, 255)
-        return Color.argb(newAlpha, r, g, b)
-    }
-
-    private fun updateColors(postAndPreColor: (EditorColorScheme) -> Unit) {
-        postAndPreColor(colorScheme)
-
-        scope.launch(Dispatchers.IO) {
-            val createdColorScheme = ThemeManager.createColorScheme(context)
-            withContext(Dispatchers.Main) {
-                colorScheme = createdColorScheme
-                postAndPreColor(createdColorScheme)
-            }
+        XedColorScheme.applyPatchesTo(colorScheme, patchArgs) // pre-apply patches
+        scope.launch {
+            // TextMate color scheme with patches
+            val createdColorScheme = ThemeManager.createColorScheme(context, patchArgs)
+            withContext(Dispatchers.Main) { colorScheme = createdColorScheme }
         }
     }
 
@@ -331,7 +261,7 @@ class Editor : CodeEditor {
                 keywords?.let { language.setCompleterKeywords(it.toTypedArray()) }
             }
 
-            setEditorLanguage(language)
+            withContext(Dispatchers.Main) { setEditorLanguage(language) }
         }
     }
 

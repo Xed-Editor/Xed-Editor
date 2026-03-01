@@ -12,7 +12,7 @@ object CodeHighlighter {
                 FileTypeManager.fromMarkdownName(languageName).textmateScope ?: return@withEditorHighlighter null
 
             val language = LanguageManager.createLanguageBlocking(context, textmateScope)
-            val colorScheme = ThemeManager.createColorSchemeBlocking(context)
+            val colorScheme = ThemeManager.createColorSchemeBlocking(context, null)
             language to colorScheme
         }
     }

@@ -3,7 +3,6 @@ package com.rk.settings.lsp
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -19,12 +18,6 @@ import com.rk.resources.strings
 
 @Composable
 fun ExternalProcessServer(dialogState: ExternalLspDialogState) {
-    Text(
-        modifier = Modifier.padding(8.dp),
-        text = stringResource(strings.lsp_process_desc),
-        style = MaterialTheme.typography.bodySmall,
-    )
-
     OutlinedTextField(
         value = dialogState.lspCommand,
         onValueChange = {

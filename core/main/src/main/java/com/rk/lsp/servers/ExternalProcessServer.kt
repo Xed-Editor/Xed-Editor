@@ -20,7 +20,9 @@ class ExternalProcessServer(val command: String, override val supportedExtension
     override fun install(context: Context) {}
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("bash", "-c", command))
+        return LspConnectionConfig.Process(
+            arrayOf("bash", "-c", "[ -f ~/.bashrc ] && source ~/.bashrc; [ -f /initrc ] && source /initrc; $command")
+        )
     }
 
     override fun toString(): String {

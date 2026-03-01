@@ -176,7 +176,7 @@ suspend fun Terminal.getPwd(): String {
                 val parent = it.file.getParentFile()
                 if (parent != null && parent is FileWrapper) {
                     return if (Settings.sandbox) {
-                        parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
+                        parent.getAbsolutePath().removePrefix(localDir().absolutePath)
                     } else {
                         parent.getAbsolutePath()
                     }
@@ -189,7 +189,7 @@ suspend fun Terminal.getPwd(): String {
                 val parent = it.file.getParentFile()
                 if (parent != null && parent is FileWrapper) {
                     return if (Settings.sandbox) {
-                        parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
+                        parent.getAbsolutePath().removePrefix(localDir().absolutePath)
                     } else {
                         parent.getAbsolutePath()
                     }

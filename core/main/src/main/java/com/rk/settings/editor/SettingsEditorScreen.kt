@@ -160,7 +160,7 @@ fun SettingsEditorScreen(navController: NavController) {
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
             EditorSettingsToggle(
                 label = stringResource(strings.detect_bin_files),
-                description = stringResource(strings.detect_bin_files),
+                description = stringResource(strings.detect_bin_files_desc),
                 default = Settings.detect_bin_files,
                 sideEffect = { Settings.detect_bin_files = it },
             )

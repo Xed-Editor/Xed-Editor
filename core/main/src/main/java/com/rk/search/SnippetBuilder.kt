@@ -52,7 +52,7 @@ class SnippetBuilder(private val context: Context) {
             val backgroundColor =
                 getSelectionColor()
                     ?: run {
-                        val colorScheme = ThemeManager.createColorScheme(context)
+                        val colorScheme = ThemeManager.createColorScheme(context, null)
                         val background = colorScheme.getColor(EditorColorScheme.MATCHED_TEXT_BACKGROUND)
                         Color(background)
                     }

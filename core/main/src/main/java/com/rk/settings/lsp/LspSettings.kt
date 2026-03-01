@@ -183,13 +183,16 @@ fun LspSettings(navController: NavController) {
                     showDialog = false
                     editingIndex = null
                 },
-                onConfirm = { server, replaceIndex ->
+                onConfirm = { newServer, replaceIndex ->
                     if (replaceIndex == -1) {
-                        LspRegistry.externalServers.add(server)
-                        scope.launch { server.connectAllSuitableEditors() }
+                        LspRegistry.externalServers.add(newServer)
+                        scope.launch { newServer.connectAllSuitableEditors() }
                     } else {
-                        LspRegistry.externalServers[replaceIndex] = server
-                        scope.launch { server.restartAllInstances() }
+                        val oldServer = LspRegistry.externalServers[replaceIndex]
+                        scope.launch { oldServer.disconnectAllInstances() }
+
+                        LspRegistry.externalServers[replaceIndex] = newServer
+                        scope.launch { newServer.connectAllSuitableEditors() }
                     }
                     LspPersistence.saveServers()
                 },
