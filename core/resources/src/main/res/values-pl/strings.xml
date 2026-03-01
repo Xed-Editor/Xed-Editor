@@ -712,4 +712,25 @@
     <string name="view_app_logs">Wyświetl logi aplikacji</string>
     <string name="view_lsp_logs">Wyświetl logi serwerów językowych</string>
     <string name="logs_too_long">Logi za długie</string>
+    <string name="status_starting">Rozpoczynanie…</string>
+    <string name="status_not_running">Nie uruchomiony</string>
+    <string name="status_not_running_forced">Nie uruchomiony (Wymuszenie)</string>
+    <string name="status_crashed">Uległ awarii</string>
+    <string name="status_timeout">Przerwa</string>
+    <string name="status_restarting">Uruchamianie ponownie…</string>
+    <string name="status_stopping">Zatrzymywanie…</string>
+    <string name="supported_extensions">Rozśzerzenia: %s</string>
+    <string name="features">Funkcje</string>
+    <string name="hover_information">Informacje po najechaniu</string>
+    <string name="hover_information_desc">Pokaż dokumentacje wyświetlaną po najechaniu kursorem</string>
+    <string name="signature_help">Podpowiedź parametrów</string>
+    <string name="signature_help_desc">Pokaż informacje o paramatrach</string>
+    <string name="inlay_hints">Podpowiedź w kodzie</string>
+    <string name="inlay_hints_desc">Pokaż podpowiedzi bezpośrenio w kodzie (np. parametry, typy, podglądy kolorów)</string>
+    <string name="code_completion">Uzupełnianie kodu</string>
+    <string name="code_completion_desc">Włącz sugestie autouzupełniania</string>
+    <string name="diagnostics">Diagnostyka</string>
+    <string name="diagnostics_desc">Pokaż błędy oraz ostrzeżenia</string>
+    <string name="formatting">Formatowanie</string>
+    <string name="formatting_desc">Włącz formatowanie dokumentów</string>
 </resources>
