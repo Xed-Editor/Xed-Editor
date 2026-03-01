@@ -770,4 +770,9 @@
     <string name="file_mask">Dateimaske</string>
     <string name="file_mask_hint">Dateimaske (z. B. .js, .ts)</string>
     <string name="glob_docs">Erfahre, wie man Glob-Muster verwendet</string>
+    <string name="detect_bin_files">Binärdateien erkennen</string>
+    <string name="detect_bin_files_desc">Binärdateien standardmäßig im schreibgeschützten Modus öffnen</string>
+    <string name="oom_prediction">OOM-Vorhersage</string>
+    <string name="oom_prediction_desc">Out-of-Memory-Dialog anzeigen</string>
+    <string name="debug">Debug</string>
 </resources>
