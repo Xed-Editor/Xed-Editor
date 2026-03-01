@@ -707,4 +707,9 @@
     <string name="indexing_stats">Zindeksowane pliki: %1$s Rozmiar bazy danych: %2$s</string>
     <string name="exclude_files">Wyklucz pliki</string>
     <string name="exclude_files_regex">Wyrażenie regularne wykluczenia plików (np. .*(?&lt;!\\.py))</string>
+    <string name="logs">Logi</string>
+    <string name="view_logs">Wyświetl logi</string>
+    <string name="view_app_logs">Wyświetl logi aplikacji</string>
+    <string name="view_lsp_logs">Wyświetl logi serwerów językowych</string>
+    <string name="logs_too_long">Logi za długie</string>
 </resources>
