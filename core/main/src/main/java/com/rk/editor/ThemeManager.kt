@@ -11,7 +11,6 @@ import com.rk.settings.Settings
 import com.rk.theme.currentTheme
 import com.rk.utils.isDarkTheme
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
-import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
@@ -37,49 +36,51 @@ fun getSelectionColor(): Color? {
 object ThemeManager {
     private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
 
-    suspend fun createColorScheme(context: Context): TextMateColorScheme {
-        val cacheKey = getCacheKey(context)
+    suspend fun createColorScheme(context: Context, patchArgs: Editor.PatchArgs?) =
+        withContext(Dispatchers.IO) {
+            val cacheKey = getCacheKey(context)
 
-        colorSchemeCache[cacheKey]?.let {
-            return it
-        }
-
-        val darkTheme = isDarkTheme(context)
-        val amoled = Settings.amoled
-
-        val themeModel =
-            when {
-                darkTheme && amoled ->
-                    buildThemeModel(
-                        context = context,
-                        basePath = TEXTMATE_AMOLED_PREFIX + DARCULA_THEME,
-                        baseName = DARCULA_THEME,
-                        darkTheme = true,
-                    )
-                darkTheme ->
-                    buildThemeModel(
-                        context = context,
-                        basePath = TEXTMATE_PREFIX + DARCULA_THEME,
-                        baseName = DARCULA_THEME,
-                        darkTheme = true,
-                    )
-                else ->
-                    buildThemeModel(
-                        context = context,
-                        basePath = TEXTMATE_PREFIX + QUIETLIGHT_THEME,
-                        baseName = QUIETLIGHT_THEME,
-                        darkTheme = false,
-                    )
+            colorSchemeCache[cacheKey]?.let {
+                return@withContext it
             }
 
-        ThemeRegistry.getInstance().loadTheme(themeModel)
-        TextMateColorScheme.create(themeModel).also {
-            colorSchemeCache[cacheKey] = it
-            return it
-        }
-    }
+            val darkTheme = isDarkTheme(context)
+            val amoled = Settings.amoled
 
-    fun createColorSchemeBlocking(context: Context): TextMateColorScheme = runBlocking { createColorScheme(context) }
+            val themeModel =
+                when {
+                    darkTheme && amoled ->
+                        buildThemeModel(
+                            context = context,
+                            basePath = TEXTMATE_AMOLED_PREFIX + DARCULA_THEME,
+                            baseName = DARCULA_THEME,
+                            darkTheme = true,
+                        )
+                    darkTheme ->
+                        buildThemeModel(
+                            context = context,
+                            basePath = TEXTMATE_PREFIX + DARCULA_THEME,
+                            baseName = DARCULA_THEME,
+                            darkTheme = true,
+                        )
+                    else ->
+                        buildThemeModel(
+                            context = context,
+                            basePath = TEXTMATE_PREFIX + QUIETLIGHT_THEME,
+                            baseName = QUIETLIGHT_THEME,
+                            darkTheme = false,
+                        )
+                }
+
+            XedColorScheme(patchArgs, themeModel).also {
+                colorSchemeCache[cacheKey] = it
+                return@withContext it
+            }
+        }
+
+    fun createColorSchemeBlocking(context: Context, patchArgs: Editor.PatchArgs?): TextMateColorScheme = runBlocking {
+        createColorScheme(context, patchArgs)
+    }
 
     /**
      * Build a [io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel] by applying the user's theme onto a

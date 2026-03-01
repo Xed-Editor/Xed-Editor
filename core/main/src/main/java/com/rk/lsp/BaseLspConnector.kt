@@ -36,7 +36,9 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.eclipse.lsp4j.DefinitionParams
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
 import org.eclipse.lsp4j.Location
@@ -204,21 +206,23 @@ class BaseLspConnector(
         fileExt: String,
         lspProject: LspProject,
     ): CustomLanguageServerDefinition {
+        val instance =
+            BaseLspServerInstance(
+                    server = this@createServerDefinition,
+                    lspProject = lspProject,
+                    projectRoot = projectFile,
+                )
+                .also { addInstance(it) }
+
         return object :
             CustomLanguageServerDefinition(
                 ext = fileExt,
-                serverConnectProvider = ServerConnectProvider { getConnectionConfig().providerFactory().create() },
+                serverConnectProvider =
+                    ServerConnectProvider { getConnectionConfig().providerFactory().create(instance) },
                 name = serverName,
                 extensionsOverride = supportedExtensions,
                 expectedCapabilitiesOverride = expectedCapabilities,
             ) {
-            val instance =
-                BaseLspServerInstance(
-                        server = this@createServerDefinition,
-                        lspProject = lspProject,
-                        projectRoot = projectFile,
-                    )
-                    .also { addInstance(it) }
 
             override val disabledFeatures: Set<LspFeature>
                 get() = buildSet {
@@ -362,8 +366,9 @@ class BaseLspConnector(
         return lspEditor?.eventManager
     }
 
-    fun getCapabilities(): ServerCapabilities? {
-        return runCatching { lspEditor?.languageServerWrapper?.getServerCapabilities() }.getOrNull()
+    fun getCapabilities(): ServerCapabilities? = runBlocking {
+        if (!isConnected()) return@runBlocking null
+        withTimeoutOrNull(100) { runCatching { lspEditor?.requestManager?.capabilities }.getOrNull() }
     }
 
     fun isGoToDefinitionSupported(): Boolean {
@@ -380,7 +385,7 @@ class BaseLspConnector(
                 .requestManager!!
                 .definition(
                     DefinitionParams(
-                        TextDocumentIdentifier(fileObject.getAbsolutePath()),
+                        TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     )
                 )!!
@@ -402,7 +407,7 @@ class BaseLspConnector(
                 .requestManager!!
                 .references(
                     ReferenceParams(
-                        TextDocumentIdentifier(fileObject.getAbsolutePath()),
+                        TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                         ReferenceContext(true),
                     )
@@ -425,7 +430,7 @@ class BaseLspConnector(
                 .requestManager!!
                 .rename(
                     RenameParams(
-                        TextDocumentIdentifier(fileObject.getAbsolutePath()),
+                        TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                         newName,
                     )
@@ -450,7 +455,7 @@ class BaseLspConnector(
                 .requestManager!!
                 .prepareRename(
                     PrepareRenameParams(
-                        TextDocumentIdentifier(fileObject.getAbsolutePath()),
+                        TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     )
                 )!!

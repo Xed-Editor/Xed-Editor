@@ -22,6 +22,8 @@ import com.rk.file.FileObject
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
+import com.rk.settings.debugOptions.LogEntry
+import com.rk.settings.debugOptions.LogLevel
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
@@ -45,7 +47,19 @@ enum class LspConnectionStatus {
     TIMEOUT,
 }
 
-data class LspLogEntry(val level: MessageType, val message: String, val timestamp: Long = System.currentTimeMillis())
+private fun MessageType.toLogLevel() =
+    when (this) {
+        MessageType.Error -> LogLevel.ERROR
+        MessageType.Warning -> LogLevel.WARN
+        MessageType.Info -> LogLevel.INFO
+        MessageType.Log -> LogLevel.DEBUG
+    }
+
+data class LspLogEntry(val level: MessageType, val message: String, val timestamp: Long = System.currentTimeMillis()) {
+    fun toLogEntry(): LogEntry {
+        return LogEntry(level = level.toLogLevel(), message = message, timestamp = timestamp)
+    }
+}
 
 @Composable
 fun BaseLspServerInstance.getStatusColor(): Color? {
@@ -130,7 +144,7 @@ data class BaseLspServerInstance(
 
     var status by mutableStateOf(LspConnectionStatus.NOT_RUNNING)
     var startupTime by mutableLongStateOf(-1)
-    val logs = mutableStateListOf<LspLogEntry>()
+    private val logs = mutableStateListOf<LspLogEntry>()
     var hasError by mutableStateOf(false)
 
     fun addLog(messageParams: MessageParams) {
@@ -141,6 +155,10 @@ data class BaseLspServerInstance(
         if (lspLogEntry.level == MessageType.Error) hasError = true
         logs.add(lspLogEntry)
     }
+
+    fun getLspLogs() = logs.toList()
+
+    fun getLogs() = getLspLogs().map { it.toLogEntry() }
 
     fun getWrapper(): LanguageServerWrapper? {
         return server.supportedExtensions.firstOrNull()?.let {
