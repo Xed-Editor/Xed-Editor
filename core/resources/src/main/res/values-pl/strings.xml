@@ -702,7 +702,7 @@
     <string name="indexing">Indeksowanie…</string>
     <string name="file_name_opened">%s (Otwarty)</string>
     <string name="index_project">Indeksuj projekty</string>
-    <string name="index_project_desc">Indeksowanie może skrócić czas wyszukiwania dla większych projektów</string>
+    <string name="index_project_desc">Indeksowanie może skrócić czas wyszukiwania większych projektów</string>
     <string name="always_index_projects">Zawsze indeksuj projekty</string>
     <string name="indexing_stats">Zindeksowane pliki: %1$s Rozmiar bazy danych: %2$s</string>
     <string name="exclude_files">Wyklucz pliki</string>
@@ -733,4 +733,56 @@
     <string name="diagnostics_desc">Pokaż błędy oraz ostrzeżenia</string>
     <string name="formatting">Formatowanie</string>
     <string name="formatting_desc">Włącz formatowanie dokumentów</string>
+    <string name="glob_docs">Naucz się używać wzorców glob</string>
+    <string name="detect_bin_files">Wykryj pliki binarne</string>
+    <string name="detect_bin_files_desc">Otwieraj pliki binarne w trybie tylko do odczytu domyślnie</string>
+    <string name="oom_prediction">Przewidywanie braku pamięci</string>
+    <string name="oom_prediction_desc">Pokaż dialog brak pamięci</string>
+    <string name="debug">Debug</string>
+    <string name="logs_too_long_desc">Plik dziennika jest za długi, aby zgłosić. Prosze, wklej ręcznie plik dziennika do zgłoszenia.</string>
+    <string name="complete_on_enter">Uzupełnianie klawiszem Enter</string>
+    <string name="complete_on_enter_desc">Wybierz pierwszy element uzupełnianiania po naciśnięciu klawisza Enter</string>
+    <string name="status_info">Stan: %s</string>
+    <string name="status_running">Uruchomiony</string>
+    <string name="always_index_projects_desc">Indeksuj projekty automatycznie domyślnie. Może użyć znaczacą ilość pamięci wewnętrznej.</string>
+    <string name="instances">Instancje</string>
+    <string name="stop">Zatrzymaj</string>
+    <string name="instance_not_found">Nie znaleziono instancji.</string>
+    <string name="offline">Rozłączono</string>
+    <string name="time_just_now">Teraz</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="one">%d sekunda</item>
+        <item quantity="few">%d sekundy</item>
+        <item quantity="many">%d sekund</item>
+        <item quantity="other">%d sekund</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="one">%d minuta</item>
+        <item quantity="few">%d minuty</item>
+        <item quantity="many">%d minut</item>
+        <item quantity="other">%d minut</item>
+    </plurals>
+    <plurals name="time_hours_ago">
+        <item quantity="one">%d godzina</item>
+        <item quantity="few">%d godziny</item>
+        <item quantity="many">%d godzin</item>
+        <item quantity="other">%d godzin</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="one">%d dzień</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="many">%d dni</item>
+        <item quantity="other">%d dni</item>
+    </plurals>
+    <string name="manage">Zarządzaj</string>
+    <string name="no_instances">Brak instancji</string>
+    <string name="uptime">Czas pracy: %s</string>
+    <string name="lsp_connection_error">Nie można połączyć się z serwerem jezykowym</string>
+    <string name="lsp_restart_required">Uruchom ponownie serwer językowy, aby zastosować zmiany</string>
+    <string name="exclude_files_drawer">Wyklucz pliki w szufladzie</string>
+    <string name="exclude_files_drawer_desc">Zmień pliki do wykluczenia z drzewa plików</string>
+    <string name="exclude_files_search">Wyklucz pliki z wyszukiwarki</string>
+    <string name="exclude_files_search_desc">Wyklucz pliki z indeksowania. Może skrócić czas wyszukiwania większych projektów.</string>
+    <string name="file_mask">Wzorzec nazwy pliku</string>
+    <string name="file_mask_hint">Wzorzec nazwy pliku (np. .js, .ts)</string>
 </resources>
