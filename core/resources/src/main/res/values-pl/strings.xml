@@ -733,7 +733,7 @@
     <string name="diagnostics_desc">Pokaż błędy oraz ostrzeżenia</string>
     <string name="formatting">Formatowanie</string>
     <string name="formatting_desc">Włącz formatowanie dokumentów</string>
-    <string name="glob_docs">Naucz się używać wzorców glob</string>
+    <string name="glob_docs">Naucz się używać wzorów dopasowania ścieżek</string>
     <string name="detect_bin_files">Wykryj pliki binarne</string>
     <string name="detect_bin_files_desc">Otwieraj pliki binarne w trybie tylko do odczytu domyślnie</string>
     <string name="oom_prediction">Przewidywanie braku pamięci</string>
