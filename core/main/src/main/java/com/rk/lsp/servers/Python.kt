@@ -1,26 +1,28 @@
 package com.rk.lsp.servers
 
 import android.content.Context
-import com.rk.exec.TerminalCommand
+import com.rk.exec.PipxUtils
 import com.rk.exec.isTerminalInstalled
-import com.rk.exec.launchInternalTerminal
 import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxHomeDir
-import com.rk.lsp.BaseLspConnector
-import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
+import com.rk.lsp.LspConnector
+import com.rk.lsp.ScriptedLspServer
 import org.eclipse.lsp4j.DidChangeConfigurationParams
 
-class Python : BaseLspServer() {
+object Python : ScriptedLspServer() {
     override val id: String = "python"
     override val languageName: String = "Python"
     override val serverName = "python-lsp-server"
-    override val supportedExtensions: List<String> = BuiltinFileType.PYTHON.extensions
+    override val supportedExtensions = BuiltinFileType.PYTHON.extensions
     override val icon = BuiltinFileType.PYTHON.icon
 
-    override fun isInstalled(context: Context): Boolean {
+    override val installScript = localBinDir().child("lsp/python")
+    override val installId = "Python language server"
+
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
@@ -28,26 +30,15 @@ class Python : BaseLspServer() {
         return sandboxHomeDir().child(".local/share/pipx/venvs/python-lsp-server/bin/pylsp").exists()
     }
 
-    override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/python")
-
-        launchInternalTerminal(
-            context = context,
-            terminalCommand =
-                TerminalCommand(
-                    exe = "/bin/bash",
-                    args = arrayOf(installSH.absolutePath),
-                    id = "python-lsp-installer",
-                    env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
-                ),
-        )
+    override suspend fun isUpdatable(context: Context): Boolean {
+        return PipxUtils.hasUpdate(serverName)
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(arrayOf("/home/.local/share/pipx/venvs/python-lsp-server/bin/pylsp"))
     }
 
-    override suspend fun onInitialize(lspConnector: BaseLspConnector) {
+    override suspend fun onInitialize(lspConnector: LspConnector) {
         val requestManager = lspConnector.lspEditor!!.requestManager
 
         val params =

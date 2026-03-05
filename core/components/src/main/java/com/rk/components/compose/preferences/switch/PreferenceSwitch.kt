@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 
@@ -37,6 +38,7 @@ fun PreferenceSwitch(
     label: String,
     modifier: Modifier = Modifier,
     description: String? = null,
+    singleLineDescription: Boolean = false,
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
@@ -66,7 +68,15 @@ fun PreferenceSwitch(
             ),
         contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
-        description = { description?.let { Text(text = it) } },
+        description = {
+            description?.let {
+                Text(
+                    text = it,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = if (singleLineDescription) 1 else Int.MAX_VALUE,
+                )
+            }
+        },
         startWidget = startWidget,
         endWidget = {
             Row(verticalAlignment = Alignment.CenterVertically) {

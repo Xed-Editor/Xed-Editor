@@ -1,49 +1,38 @@
 package com.rk.lsp.servers
 
 import android.content.Context
-import com.rk.exec.TerminalCommand
+import com.rk.exec.NpmUtils
 import com.rk.exec.isTerminalInstalled
-import com.rk.exec.launchInternalTerminal
 import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
+import com.rk.lsp.ScriptedLspServer
 
-class Markdown : BaseLspServer() {
+object Markdown : ScriptedLspServer() {
     override val id: String = "markdown"
     override val languageName: String = "Markdown"
     override val serverName = "vscode-markdown-language-server"
-    override val supportedExtensions: List<String> = BuiltinFileType.MARKDOWN.extensions
+    override val supportedExtensions = BuiltinFileType.MARKDOWN.extensions
     override val icon = BuiltinFileType.MARKDOWN.icon
 
-    override fun isInstalled(context: Context): Boolean {
+    override val installScript = localBinDir().child("lsp/markdown")
+    override val installId = "Markdown language server"
+
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
 
-        return sandboxDir().child("/usr/bin/vscode-markdown-language-server").exists()
+        return sandboxDir().child("/usr/bin/$serverName").exists()
     }
 
-    override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/markdown")
-
-        launchInternalTerminal(
-            context = context,
-            terminalCommand =
-                TerminalCommand(
-                    exe = "/bin/bash",
-                    args = arrayOf(installSH.absolutePath),
-                    id = "markdown-lsp-installer",
-                    env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
-                ),
-        )
+    override suspend fun isUpdatable(context: Context): Boolean {
+        return NpmUtils.hasUpdate("vscode-langservers-extracted")
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(
-            arrayOf("/usr/bin/node", "/usr/bin/vscode-markdown-language-server", "--stdio")
-        )
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/$serverName", "--stdio"))
     }
 }

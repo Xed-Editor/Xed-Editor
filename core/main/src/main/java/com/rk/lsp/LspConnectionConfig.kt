@@ -3,10 +3,10 @@ package com.rk.lsp
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 
 fun interface ConnectionProviderFactory {
-    fun create(instance: BaseLspServerInstance): BaseLspConnectionProvider
+    fun create(instance: LspServerInstance): BaseLspConnectionProvider
 }
 
-abstract class BaseLspConnectionProvider(protected val instance: BaseLspServerInstance) : StreamConnectionProvider
+abstract class BaseLspConnectionProvider(protected val instance: LspServerInstance) : StreamConnectionProvider
 
 sealed interface LspConnectionConfig {
     fun providerFactory(): ConnectionProviderFactory

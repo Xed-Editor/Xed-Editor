@@ -25,9 +25,9 @@ import com.rk.activities.main.snackbarHostStateRef
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.editor.intelligent.IntelligentFeature
-import com.rk.lsp.BaseLspConnector
-import com.rk.lsp.BaseLspServer
+import com.rk.lsp.LspConnector
 import com.rk.lsp.LspRegistry
+import com.rk.lsp.LspServer
 import com.rk.lsp.createLspTextActions
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
@@ -252,8 +252,8 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                             return@launch
                         }
 
-                baseLspConnector =
-                    BaseLspConnector(
+                lspConnector =
+                    LspConnector(
                         projectFile = projectFile,
                         fileObject = file,
                         codeEditor = this@with,
@@ -262,19 +262,19 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                     )
 
                 info("Trying to connect language servers...")
-                baseLspConnector?.connect(langScope)
-                info("isConnected : ${baseLspConnector?.isConnected() ?: false}")
+                lspConnector?.connect(langScope)
+                info("isConnected : ${lspConnector?.isConnected() ?: false}")
             }
         }
     }
 }
 
-private fun EditorTab.getBuiltinServers(context: Context): List<BaseLspServer> {
+private suspend fun EditorTab.getBuiltinServers(context: Context): List<LspServer> {
     val servers = LspRegistry.builtInServer.filter { it.isSupported(file) }
     return findActiveLspServers(servers, context)
 }
 
-private fun EditorTab.promptLspInstall(context: Context, server: BaseLspServer) {
+private fun EditorTab.promptLspInstall(context: Context, server: LspServer) {
     scope.launch {
         val snackbarHost = snackbarHostStateRef.get() ?: return@launch
         val result =
@@ -289,13 +289,28 @@ private fun EditorTab.promptLspInstall(context: Context, server: BaseLspServer) 
     }
 }
 
-private fun EditorTab.getExtensionServers(context: Context): List<BaseLspServer> {
+private fun EditorTab.promptLspUpdate(context: Context, server: LspServer) {
+    scope.launch {
+        val snackbarHost = snackbarHostStateRef.get() ?: return@launch
+        val result =
+            snackbarHost.showSnackbar(
+                message = strings.ask_lsp_update.getFilledString(server.languageName, context),
+                actionLabel = strings.update.getString(),
+                duration = SnackbarDuration.Long,
+            )
+        if (result == SnackbarResult.ActionPerformed) {
+            server.update(context)
+        }
+    }
+}
+
+private suspend fun EditorTab.getExtensionServers(context: Context): List<LspServer> {
     val servers = LspRegistry.extensionServers.filter { server -> server.isSupported(file) }
     return findActiveLspServers(servers, context)
 }
 
-private fun EditorTab.findActiveLspServers(servers: List<BaseLspServer>, context: Context): MutableList<BaseLspServer> {
-    val matchedServers = mutableListOf<BaseLspServer>()
+private suspend fun EditorTab.findActiveLspServers(servers: List<LspServer>, context: Context): MutableList<LspServer> {
+    val matchedServers = mutableListOf<LspServer>()
 
     servers.forEach { server ->
         if (!Preference.getBoolean("lsp_${server.id}", true)) {
@@ -308,6 +323,11 @@ private fun EditorTab.findActiveLspServers(servers: List<BaseLspServer>, context
             return@forEach
         }
 
+        if (server.isUpdatable(context)) {
+            info("Server ${server.id} is updatable")
+            promptLspUpdate(context, server)
+        }
+
         matchedServers.add(server)
         return@forEach
     }
@@ -315,6 +335,6 @@ private fun EditorTab.findActiveLspServers(servers: List<BaseLspServer>, context
     return matchedServers
 }
 
-private fun EditorTab.getExternalServers(): List<BaseLspServer> {
+private fun EditorTab.getExternalServers(): List<LspServer> {
     return LspRegistry.externalServers.filter { server -> server.isSupported(file) }
 }

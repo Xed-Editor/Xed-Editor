@@ -350,6 +350,7 @@
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
     <string name="ask_lsp_install">Would you like to install \'%s\' language server?</string>
+    <string name="ask_lsp_update">Would you like to update \'%s\' language server?</string>
     <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_terminal">Uninstall terminal</string>
@@ -753,4 +754,5 @@
     <string name="oom_prediction">OOM prediction</string>
     <string name="oom_prediction_desc">Show out of memory dialog</string>
     <string name="debug">Debug</string>
+    <string name="restart_all">Restart all</string>
 </resources>

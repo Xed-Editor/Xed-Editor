@@ -1,47 +1,38 @@
 package com.rk.lsp.servers
 
 import android.content.Context
-import com.rk.exec.TerminalCommand
+import com.rk.exec.NpmUtils
 import com.rk.exec.isTerminalInstalled
-import com.rk.exec.launchInternalTerminal
 import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
+import com.rk.lsp.ScriptedLspServer
 
-class Emmet : BaseLspServer() {
+object Emmet : ScriptedLspServer() {
     override val id: String = "emmet"
     override val languageName: String = "Emmet"
     override val serverName = "emmet-language-server"
-    override val supportedExtensions: List<String> = BuiltinFileType.HTML.extensions + BuiltinFileType.HTMX.extensions
+    override val supportedExtensions = BuiltinFileType.HTML.extensions + BuiltinFileType.HTMX.extensions
     override val icon = BuiltinFileType.HTML.icon
 
-    override fun isInstalled(context: Context): Boolean {
+    override val installScript = localBinDir().child("lsp/emmet")
+    override val installId = "Emmet language server"
+
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
 
-        return sandboxDir().child("/usr/bin/emmet-language-server").exists()
+        return sandboxDir().child("/usr/bin/$serverName").exists()
     }
 
-    override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/emmet")
-
-        launchInternalTerminal(
-            context = context,
-            terminalCommand =
-                TerminalCommand(
-                    exe = "/bin/bash",
-                    args = arrayOf(installSH.absolutePath),
-                    id = "emmet-lsp-installer",
-                    env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
-                ),
-        )
+    override suspend fun isUpdatable(context: Context): Boolean {
+        return NpmUtils.hasUpdate("@olrtg/emmet-language-server")
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/emmet-language-server", "--stdio"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/$serverName", "--stdio"))
     }
 }

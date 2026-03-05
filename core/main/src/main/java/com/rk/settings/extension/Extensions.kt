@@ -56,7 +56,6 @@ import com.rk.utils.errorDialog
 import com.rk.utils.openUrl
 import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -91,14 +90,21 @@ fun Extensions(modifier: Modifier = Modifier) {
 
                         if (exists && canRead && isZip) {
                             withContext(Dispatchers.Main) {
-                                loading = LoadingPopup(activity, null).show()
+                                loading = LoadingPopup(activity).show()
                                 loading.setMessage(strings.installing.getString())
                             }
 
                             val result = extensionManager.installExtension(fileObject)
 
                             withContext(Dispatchers.Main) {
-                                handleInstallResult(result, activity)
+                                handleInstallResult(result, activity) { ext ->
+                                    scope.launch(Dispatchers.Default) {
+                                        ext.load(application!!).onFailure {
+                                            errorDialog(it.message ?: "Unexpected error", activity)
+                                        }
+                                    }
+                                }
+
                                 loading?.hide()
                             }
                         } else {
@@ -192,6 +198,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                         }
 
                         ExtensionCard(
+                            modifier = Modifier.padding(16.dp),
                             extension = extension,
                             installState = installState,
                             onInstallClick = {
@@ -213,17 +220,12 @@ fun Extensions(modifier: Modifier = Modifier) {
                                             installState = InstallState.Installed
 
                                             scope.launch(Dispatchers.Default) {
-                                                ext.load(application!!)
-                                                    .onSuccess {
-                                                        // success
-                                                    }
-                                                    .onFailure {
-                                                        errorDialog(it.message ?: "Unexpected error", activity)
-                                                    }
+                                                ext.load(application!!).onFailure {
+                                                    errorDialog(it.message ?: "Unexpected error", activity)
+                                                }
                                             }
                                         }
 
-                                        delay(100)
                                         loadingPopup.hide()
                                     }
                                     .onFailure { err ->
@@ -232,10 +234,9 @@ fun Extensions(modifier: Modifier = Modifier) {
                                     }
                             },
                             onUninstallClick = {
-                                extensionManager
-                                    .uninstallExtension(extension.id)
-                                    .onSuccess {}
-                                    .onFailure { errorDialog(it, activity) }
+                                extensionManager.uninstallExtension(extension.id).onFailure {
+                                    errorDialog(it, activity)
+                                }
                                 installState = InstallState.Idle
                             },
                             onLongPress = {},

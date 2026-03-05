@@ -30,9 +30,6 @@ import io.github.rosemoe.sora.lsp.events.AsyncEventListener
 import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.widget.CodeEditor
-import java.net.URI
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,6 +57,9 @@ import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.messages.Either3
+import java.net.URI
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 /**
  * A utility object to temporarily prevent specific LSP servers from being used for a project.
@@ -75,10 +75,10 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either3
  * `unregister()` reverses this process by restoring the cached definition to the project.
  */
 object DefinitionPrevention {
-    private val preventedServers = ConcurrentHashMap<LspProject, List<BaseLspServer>>()
-    private val cachedDefinitions = ConcurrentHashMap<LspProject, Map<BaseLspServer, LanguageServerDefinition>>()
+    private val preventedServers = ConcurrentHashMap<LspProject, List<LspServer>>()
+    private val cachedDefinitions = ConcurrentHashMap<LspProject, Map<LspServer, LanguageServerDefinition>>()
 
-    fun register(project: LspProject, server: BaseLspServer) {
+    fun register(project: LspProject, server: LspServer) {
         preventedServers[project] = preventedServers[project]?.plus(server) ?: listOf(server)
         server.supportedExtensions.firstOrNull()?.let {
             val currentDefinition = project.getServerDefinition(it, server.serverName) ?: return@let
@@ -88,23 +88,23 @@ object DefinitionPrevention {
         server.supportedExtensions.forEach { project.removeServerDefinition(it, server.serverName) }
     }
 
-    fun unregister(project: LspProject, server: BaseLspServer) {
+    fun unregister(project: LspProject, server: LspServer) {
         preventedServers[project] = preventedServers[project]?.minus(server) ?: listOf()
         cachedDefinitions[project]?.get(server)?.let { project.addServerDefinition(it) }
         cachedDefinitions[project]?.minus(server)?.let { cachedDefinitions[project] = it }
     }
 
-    fun isServerPrevented(project: LspProject, server: BaseLspServer): Boolean {
+    fun isServerPrevented(project: LspProject, server: LspServer): Boolean {
         return preventedServers[project]?.contains(server) ?: false
     }
 }
 
-class BaseLspConnector(
+class LspConnector(
     private val projectFile: FileObject,
     private val fileObject: FileObject,
     private val codeEditor: Editor,
     private val editorTab: EditorTab,
-    private val servers: List<BaseLspServer>,
+    private val servers: List<LspServer>,
 ) {
     var lspEditor: LspEditor? = null
 
@@ -201,17 +201,13 @@ class BaseLspConnector(
             }
         }
 
-    private fun BaseLspServer.createServerDefinition(
+    private fun LspServer.createServerDefinition(
         scope: CoroutineScope,
         fileExt: String,
         lspProject: LspProject,
     ): CustomLanguageServerDefinition {
         val instance =
-            BaseLspServerInstance(
-                    server = this@createServerDefinition,
-                    lspProject = lspProject,
-                    projectRoot = projectFile,
-                )
+            LspServerInstance(server = this@createServerDefinition, lspProject = lspProject, projectRoot = projectFile)
                 .also { addInstance(it) }
 
         return object :
@@ -293,7 +289,7 @@ class BaseLspConnector(
 
                         override fun onStatusChange(newStatus: ServerStatus, oldStatus: ServerStatus) {
                             if (newStatus == ServerStatus.INITIALIZED) {
-                                scope.launch { onInitialize(this@BaseLspConnector) }
+                                scope.launch { onInitialize(this@LspConnector) }
                             }
 
                             // TODO: Consider when instances should be removed

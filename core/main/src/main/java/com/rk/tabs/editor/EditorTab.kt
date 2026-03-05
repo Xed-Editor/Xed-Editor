@@ -45,7 +45,7 @@ import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
 import com.rk.file.child
 import com.rk.icons.Icon
-import com.rk.lsp.BaseLspConnector
+import com.rk.lsp.LspConnector
 import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -93,7 +93,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         }
 
     private var charset = Charset.forName(Settings.encoding)
-    var baseLspConnector: BaseLspConnector? = null
+    var lspConnector: LspConnector? = null
 
     override val icon: ImageVector
         get() = Icons.Outlined.Edit
@@ -124,7 +124,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         editorState.content = null
         editorState.editor.get()?.setText("")
         editorState.editor.get()?.release()
-        GlobalScope.launch(Dispatchers.IO) { baseLspConnector?.disconnect() }
+        GlobalScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
     }
 
     init {
@@ -286,7 +286,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     file.writeText(normalizedContent, charset)
 
                     editorState.isDirty = false
-                    baseLspConnector?.notifySave()
+                    lspConnector?.notifySave()
                 }
                 .onFailure { errorDialog(it) }
         }
@@ -302,7 +302,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
     suspend fun save() =
         saveMutex.withLock {
-            if (Settings.format_on_save && baseLspConnector?.isFormattingSupported() == true) {
+            if (Settings.format_on_save && lspConnector?.isFormattingSupported() == true) {
                 formatDocumentSuspend(this@EditorTab)
             }
 

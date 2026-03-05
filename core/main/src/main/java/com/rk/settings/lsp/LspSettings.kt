@@ -30,11 +30,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,12 +46,13 @@ import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspPersistence
 import com.rk.lsp.LspRegistry
+import com.rk.lsp.LspServer
 import com.rk.lsp.getDominantStatusColor
 import com.rk.lsp.servers.ExternalProcessServer
 import com.rk.lsp.servers.ExternalSocketServer
+import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -62,6 +65,7 @@ fun LspSettings(navController: NavController) {
     var showDialog by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf<Int?>(null) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     PreferenceLayout(
         label = stringResource(strings.manage_language_servers),
@@ -90,6 +94,7 @@ fun LspSettings(navController: NavController) {
                         label = server.languageName,
                         default = Preference.getBoolean("lsp_${server.id}", false),
                         description = server.serverName,
+                        singleLineDescription = true,
                         showSwitch = true,
                         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
                         startWidget = server.icon?.let { { LanguageServerIcon(server, it) } },
@@ -100,6 +105,37 @@ fun LspSettings(navController: NavController) {
                                 scope.launch { server.disconnectAllInstances() }
                             }
                             Preference.setBoolean("lsp_${server.id}", it)
+                        },
+                        endWidget = {
+                            val status by
+                                produceState(LspInstallationAction.LOADING) {
+                                    value =
+                                        when {
+                                            !server.isInstalled(context) -> LspInstallationAction.INSTALL
+                                            server.isUpdatable(context) -> LspInstallationAction.UPDATE
+                                            else -> LspInstallationAction.UNINSTALL
+                                        }
+                                }
+
+                            when (status) {
+                                LspInstallationAction.INSTALL -> {
+                                    IconButton(onClick = { server.install(context) }) {
+                                        Icon(
+                                            painter = painterResource(drawables.download),
+                                            contentDescription = stringResource(strings.download),
+                                        )
+                                    }
+                                }
+                                LspInstallationAction.UPDATE -> {
+                                    IconButton(onClick = { server.update(context) }) {
+                                        Icon(
+                                            painter = painterResource(drawables.update),
+                                            contentDescription = stringResource(strings.update),
+                                        )
+                                    }
+                                }
+                                else -> {}
+                            }
                         },
                     )
                 }
@@ -118,6 +154,7 @@ fun LspSettings(navController: NavController) {
                         label = server.languageName,
                         default = Preference.getBoolean("lsp_${server.id}", false),
                         description = server.serverName,
+                        singleLineDescription = true,
                         showSwitch = true,
                         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
                         startWidget = server.icon?.let { { LanguageServerIcon(server, it) } },
@@ -141,6 +178,7 @@ fun LspSettings(navController: NavController) {
                         label = server.languageName,
                         default = true,
                         description = server.serverName,
+                        singleLineDescription = true,
                         showSwitch = false,
                         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
                         startWidget = server.icon?.let { { LanguageServerIcon(server, it) } },
@@ -203,7 +241,7 @@ fun LspSettings(navController: NavController) {
 }
 
 @Composable
-private fun LanguageServerIcon(server: BaseLspServer, i: Int) {
+private fun LanguageServerIcon(server: LspServer, i: Int) {
     BadgedBox(badge = { server.getDominantStatusColor()?.let { color -> Badge(containerColor = color) } }) {
         Icon(modifier = Modifier.padding(start = 16.dp), painter = painterResource(i), contentDescription = null)
     }
@@ -257,7 +295,7 @@ class ExternalLspDialogState {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer, Int) -> Unit, editingIndex: Int?) {
+private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (LspServer, Int) -> Unit, editingIndex: Int?) {
     val socketLabel = stringResource(strings.socket)
     val processLabel = stringResource(strings.process)
     var selected by remember { mutableStateOf(socketLabel) }
@@ -291,7 +329,7 @@ private fun ExternalLSP(onDismiss: () -> Unit, onConfirm: (BaseLspServer, Int) -
             TextButton(
                 onClick = {
                     runCatching {
-                            var server: BaseLspServer? = null
+                            var server: LspServer? = null
                             when (selected) {
                                 socketLabel ->
                                     server =

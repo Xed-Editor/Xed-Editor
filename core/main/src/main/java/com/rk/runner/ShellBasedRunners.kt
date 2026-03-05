@@ -6,7 +6,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.DefaultScope
 import com.rk.exec.TerminalCommand
-import com.rk.exec.launchInternalTerminal
+import com.rk.exec.launchTerminal
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.createFileIfNot
@@ -69,7 +69,7 @@ object ShellBasedRunners {
 data class ShellBasedRunner(private val name: String, val regex: String) : RunnerImpl() {
     override suspend fun run(context: Context, fileObject: FileObject) {
         val script = runnerDir().child("${name}.sh").createFileIfNot()
-        launchInternalTerminal(
+        launchTerminal(
             context,
             TerminalCommand(
                 exe = "/bin/bash",

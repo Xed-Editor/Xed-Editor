@@ -8,7 +8,7 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import org.eclipse.lsp4j.MessageType
 
-class SocketConnection(private val port: Int, private val host: String? = null, instance: BaseLspServerInstance) :
+class SocketConnection(private val port: Int, private val host: String? = null, instance: LspServerInstance) :
     BaseLspConnectionProvider(instance) {
 
     private var socket: Socket? = null

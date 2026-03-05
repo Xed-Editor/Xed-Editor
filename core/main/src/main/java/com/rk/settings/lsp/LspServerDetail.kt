@@ -1,6 +1,7 @@
 package com.rk.settings.lsp
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,8 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,11 +31,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,9 +49,9 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.filetree.getAppropriateName
-import com.rk.lsp.BaseLspServer
-import com.rk.lsp.BaseLspServerInstance
 import com.rk.lsp.LspConnectionStatus
+import com.rk.lsp.LspServer
+import com.rk.lsp.LspServerInstance
 import com.rk.lsp.StatusIcon
 import com.rk.lsp.getStatusColor
 import com.rk.lsp.getStatusText
@@ -58,9 +67,78 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+enum class LspInstallationAction {
+    UPDATE,
+    INSTALL,
+    UNINSTALL,
+    LOADING,
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
+fun LspServerDetail(navController: NavHostController, server: LspServer) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    @Composable
+    fun RestartAllButton(enabled: Boolean) {
+        Button(enabled = enabled, onClick = { scope.launch { server.restartAllInstances() } }) {
+            Icon(painter = painterResource(drawables.restart), contentDescription = stringResource(strings.restart))
+            Spacer(Modifier.width(12.dp))
+            Text(stringResource(strings.restart_all))
+        }
+    }
+
+    @Composable
+    fun UninstallButton() {
+        if (!server.canBeUninstalled) return
+
+        FilledTonalButton(
+            onClick = { server.uninstall(context) },
+            colors =
+                ButtonDefaults.filledTonalButtonColors()
+                    .copy(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    ),
+        ) {
+            Icon(imageVector = Icons.Outlined.Delete, contentDescription = stringResource(strings.uninstall))
+            Spacer(Modifier.width(12.dp))
+            Text(stringResource(strings.uninstall))
+        }
+    }
+
+    @Composable
+    fun UpdateButton() {
+        FilledTonalButton(onClick = { server.update(context) }) {
+            Icon(painter = painterResource(drawables.update), contentDescription = stringResource(strings.update))
+            Spacer(Modifier.width(12.dp))
+            Text(stringResource(strings.update))
+        }
+    }
+
+    @Composable
+    fun DownloadButton() {
+        FilledTonalButton(onClick = { server.install(context) }) {
+            Icon(painter = painterResource(drawables.download), contentDescription = stringResource(strings.download))
+            Spacer(Modifier.width(12.dp))
+            Text(stringResource(strings.install))
+        }
+    }
+
+    @Composable
+    fun LspFeatureToggle(label: String, description: String? = null, preferenceId: String, server: LspServer) {
+        SettingsToggle(
+            label = label,
+            description = description,
+            default = Preference.getBoolean(preferenceId, true),
+            sideEffect = {
+                Preference.setBoolean(preferenceId, it)
+                showRestartRequirement(scope, server)
+            },
+        )
+    }
+
     PreferenceLayout(
         label = server.languageName,
         snackbarHost = { snackbarHostStateRef.get()?.let { SnackbarHost(hostState = it) } },
@@ -101,6 +179,36 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+        }
+
+        val status by
+            produceState(LspInstallationAction.LOADING) {
+                if (server.isInstalled(context)) {
+                    value = LspInstallationAction.UNINSTALL
+                    if (server.isUpdatable(context)) {
+                        value = LspInstallationAction.UPDATE
+                    }
+                } else {
+                    value = LspInstallationAction.INSTALL
+                }
+            }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+        ) {
+            val hasRunningInstances = server.instances.map { it.status }.contains(LspConnectionStatus.RUNNING)
+            RestartAllButton(hasRunningInstances)
+
+            when (status) {
+                LspInstallationAction.LOADING -> {}
+                LspInstallationAction.INSTALL -> DownloadButton()
+                LspInstallationAction.UPDATE -> {
+                    UpdateButton()
+                    UninstallButton()
+                }
+                LspInstallationAction.UNINSTALL -> UninstallButton()
             }
         }
 
@@ -173,23 +281,9 @@ fun LspServerDetail(navController: NavHostController, server: BaseLspServer) {
     }
 }
 
-@Composable
-private fun LspFeatureToggle(label: String, description: String? = null, preferenceId: String, server: BaseLspServer) {
-    val scope = rememberCoroutineScope()
-    SettingsToggle(
-        label = label,
-        description = description,
-        default = Preference.getBoolean(preferenceId, true),
-        sideEffect = {
-            Preference.setBoolean(preferenceId, it)
-            showRestartRequirement(scope, server)
-        },
-    )
-}
-
 private var snackbarJob: Job? = null
 
-private fun showRestartRequirement(scope: CoroutineScope, server: BaseLspServer) {
+private fun showRestartRequirement(scope: CoroutineScope, server: LspServer) {
     if (snackbarJob?.isActive == true) return
 
     snackbarJob =
@@ -208,7 +302,7 @@ private fun showRestartRequirement(scope: CoroutineScope, server: BaseLspServer)
 }
 
 @Composable
-private fun InstanceCard(instance: BaseLspServerInstance, navController: NavHostController) {
+private fun InstanceCard(instance: LspServerInstance, navController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     Surface(

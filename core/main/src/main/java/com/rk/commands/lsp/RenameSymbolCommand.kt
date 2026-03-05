@@ -21,7 +21,7 @@ class RenameSymbolCommand(commandContext: CommandContext) : LspCommand(commandCo
     }
 
     override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.baseLspConnector.isRenameSymbolSupported()
+        return lspNonActionContext.lspConnector.isRenameSymbolSupported()
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.manage_search)

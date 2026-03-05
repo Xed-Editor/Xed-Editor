@@ -4,7 +4,7 @@ import android.app.Activity
 import com.rk.activities.main.MainViewModel
 import com.rk.editor.Editor
 import com.rk.icons.Icon
-import com.rk.lsp.BaseLspConnector
+import com.rk.lsp.LspConnector
 import com.rk.tabs.editor.EditorTab
 
 data class CommandContext(val mainViewModel: MainViewModel)
@@ -19,10 +19,10 @@ data class LspActionContext(
     val currentActivity: Activity,
     val editorTab: EditorTab,
     val editor: Editor,
-    val baseLspConnector: BaseLspConnector?,
+    val lspConnector: LspConnector?,
 )
 
-data class LspNonActionContext(val editorTab: EditorTab, val baseLspConnector: BaseLspConnector)
+data class LspNonActionContext(val editorTab: EditorTab, val lspConnector: LspConnector)
 
 abstract class Command(val commandContext: CommandContext) {
     abstract val id: String
@@ -144,7 +144,7 @@ abstract class LspCommand(commandContext: CommandContext) : EditorCommand(comman
     final override fun action(editorActionContext: EditorActionContext) {
         val currentTab = editorActionContext.editorTab
         val editor = editorActionContext.editor
-        val baseLspConnector = currentTab.baseLspConnector
+        val baseLspConnector = currentTab.lspConnector
         action(LspActionContext(editorActionContext.currentActivity, currentTab, editor, baseLspConnector))
     }
 
@@ -152,13 +152,13 @@ abstract class LspCommand(commandContext: CommandContext) : EditorCommand(comman
 
     final override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean {
         val currentTab = editorNonActionContext.editorTab
-        val baseLspConnector = currentTab.baseLspConnector ?: return false
+        val baseLspConnector = currentTab.lspConnector ?: return false
         return isSupported(LspNonActionContext(currentTab, baseLspConnector))
     }
 
     final override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {
         val currentTab = editorNonActionContext.editorTab
-        val baseLspConnector = currentTab.baseLspConnector ?: return false
+        val baseLspConnector = currentTab.lspConnector ?: return false
         return isEnabled(LspNonActionContext(currentTab, baseLspConnector))
     }
 

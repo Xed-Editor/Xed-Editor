@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.eclipse.lsp4j.MessageType
 
-class ProcessConnection(private val cmd: Array<String>, instance: BaseLspServerInstance) :
+class ProcessConnection(private val cmd: Array<String>, instance: LspServerInstance) :
     BaseLspConnectionProvider(instance) {
 
     private var process: Process? = null

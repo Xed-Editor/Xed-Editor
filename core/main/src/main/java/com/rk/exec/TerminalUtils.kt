@@ -28,7 +28,7 @@ suspend fun isTerminalWorking(): Boolean =
         return@withContext process.waitFor() == 0
     }
 
-fun launchInternalTerminal(context: Context, terminalCommand: TerminalCommand) {
+fun launchTerminal(context: Context, terminalCommand: TerminalCommand) {
     showTerminalNotice(activity = MainActivity.instance!!) {
         pendingCommand = terminalCommand
         context.startActivity(Intent(context, Terminal::class.java))

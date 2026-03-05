@@ -1,47 +1,38 @@
 package com.rk.lsp.servers
 
 import android.content.Context
-import com.rk.exec.TerminalCommand
+import com.rk.exec.NpmUtils
 import com.rk.exec.isTerminalInstalled
-import com.rk.exec.launchInternalTerminal
 import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
+import com.rk.lsp.ScriptedLspServer
 
-class Bash : BaseLspServer() {
+object Bash : ScriptedLspServer() {
     override val id: String = "bash"
     override val languageName: String = "Bash"
     override val serverName = "bash-language-server"
-    override val supportedExtensions: List<String> = BuiltinFileType.SHELL.extensions
+    override val supportedExtensions = BuiltinFileType.SHELL.extensions
     override val icon = BuiltinFileType.SHELL.icon
 
-    override fun isInstalled(context: Context): Boolean {
+    override val installScript = localBinDir().child("lsp/bash")
+    override val installId = "Bash language server"
+
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
 
-        return sandboxDir().child("/usr/bin/bash-language-server").exists()
+        return sandboxDir().child("/usr/bin/$serverName").exists()
     }
 
-    override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/bash")
-
-        launchInternalTerminal(
-            context = context,
-            terminalCommand =
-                TerminalCommand(
-                    exe = "/bin/bash",
-                    args = arrayOf(installSH.absolutePath),
-                    id = "bash-lsp-installer",
-                    env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
-                ),
-        )
+    override suspend fun isUpdatable(context: Context): Boolean {
+        return NpmUtils.hasUpdate(serverName)
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/bash-language-server", "start"))
+        return LspConnectionConfig.Process(arrayOf("/usr/bin/node", "/usr/bin/$serverName", "start"))
     }
 }
