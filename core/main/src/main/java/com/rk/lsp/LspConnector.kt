@@ -89,9 +89,20 @@ object DefinitionPrevention {
     }
 
     fun unregister(project: LspProject, server: LspServer) {
-        preventedServers[project] = preventedServers[project]?.minus(server) ?: listOf()
+        val remainingServers = preventedServers[project]?.minus(server) ?: emptyList()
+        if (remainingServers.isEmpty()) {
+            preventedServers.remove(project)
+        } else {
+            preventedServers[project] = remainingServers
+        }
+
         cachedDefinitions[project]?.get(server)?.let { project.addServerDefinition(it) }
-        cachedDefinitions[project]?.minus(server)?.let { cachedDefinitions[project] = it }
+        val remainingDefinitions = cachedDefinitions[project]?.minus(server) ?: emptyMap()
+        if (remainingDefinitions.isEmpty()) {
+            cachedDefinitions.remove(project)
+        } else {
+            cachedDefinitions[project] = remainingDefinitions
+        }
     }
 
     fun isServerPrevented(project: LspProject, server: LspServer): Boolean {
