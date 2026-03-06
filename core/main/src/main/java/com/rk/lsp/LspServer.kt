@@ -44,20 +44,20 @@ abstract class ScriptedLspServer : LspServer() {
 abstract class LspServer {
     suspend fun startAllInstances(): List<EditorTab> {
         val connectedEditors = mutableListOf<EditorTab>()
-        instances.forEach { connectedEditors.addAll(it.start()) }
+        _instances.forEach { connectedEditors.addAll(it.start()) }
         return connectedEditors
     }
 
     suspend fun stopAllInstances() {
-        instances.forEach { it.stop() }
+        _instances.forEach { it.stop() }
     }
 
     suspend fun disconnectAllInstances() {
-        instances.forEach { it.disconnect() }
+        _instances.forEach { it.disconnect() }
     }
 
     suspend fun restartAllInstances() {
-        instances.forEach { it.restart() }
+        _instances.forEach { it.restart() }
     }
 
     fun connectAllSuitableEditors(excludedEditors: List<EditorTab> = emptyList()) {
@@ -70,14 +70,16 @@ abstract class LspServer {
         suitableTabs.forEach { it.applyHighlightingAndConnectLSP() }
     }
 
-    var instances = mutableStateListOf<LspServerInstance>()
+    private val _instances = mutableStateListOf<LspServerInstance>()
+    val instances: List<LspServerInstance>
+        get() = _instances.toList()
 
     fun addInstance(instance: LspServerInstance) {
-        instances.add(instance)
+        _instances.add(instance)
     }
 
     fun removeInstance(instance: LspServerInstance) {
-        instances.remove(instance)
+        _instances.remove(instance)
     }
 
     abstract suspend fun isInstalled(context: Context): Boolean

@@ -19,6 +19,7 @@ object XML : ScriptedLspServer() {
     override val installScript = localBinDir().child("lsp/xml")
     override val installId = "XML language server"
 
+    // Has to be manually updated when a new version is released (Don't forgot to also update xml.sh)
     const val LATEST_VERSION = "0.31.0"
 
     override suspend fun isInstalled(context: Context): Boolean {
@@ -30,7 +31,8 @@ object XML : ScriptedLspServer() {
     }
 
     override suspend fun isUpdatable(context: Context): Boolean {
-        val currentVersion = sandboxHomeDir().child(".lsp/lemminx/version.txt").readText().trim()
+        val versionFile = sandboxHomeDir().child(".lsp/lemminx/version.txt")
+        val currentVersion = runCatching { versionFile.readText().trim() }.getOrNull()
         return currentVersion != LATEST_VERSION
     }
 
