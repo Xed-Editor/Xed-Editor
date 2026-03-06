@@ -2,23 +2,32 @@ package com.rk.lsp.servers
 
 import android.content.Context
 import com.rk.file.FileTypeManager
-import com.rk.lsp.BaseLspServer
 import com.rk.lsp.LspConnectionConfig
+import com.rk.lsp.LspServer
 import kotlin.random.Random
 
 // DO not put this in lsp registry
 class ExternalSocketServer(val host: String, val port: Int, override val supportedExtensions: List<String>) :
-    BaseLspServer() {
+    LspServer() {
     override val languageName = supportedExtensions.firstOrNull()?.let { FileTypeManager.fromExtension(it).title } ?: ""
-    override val id: String = "${supportedExtensions.firstOrNull()}_${Random.nextInt()}"
-    override val serverName: String = "$host:$port"
+    override val id = "${supportedExtensions.firstOrNull()}_${Random.nextInt()}"
+    override val serverName = "$host:$port"
     override val icon = supportedExtensions.firstOrNull()?.let { FileTypeManager.fromExtension(it).icon }
+    override val canBeUninstalled = false
 
-    override fun isInstalled(context: Context): Boolean {
+    override suspend fun isInstalled(context: Context): Boolean {
         return true
     }
 
     override fun install(context: Context) {}
+
+    override fun uninstall(context: Context) {}
+
+    override suspend fun isUpdatable(context: Context): Boolean {
+        return false
+    }
+
+    override fun update(context: Context) {}
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Socket(host = host, port = port)

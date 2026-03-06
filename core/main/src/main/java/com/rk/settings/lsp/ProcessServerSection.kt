@@ -17,7 +17,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 
 @Composable
-fun ExternalProcessServer(dialogState: ExternalLspDialogState) {
+fun ProcessServerSection(dialogState: ExternalLspDialogState) {
     OutlinedTextField(
         value = dialogState.lspCommand,
         onValueChange = {

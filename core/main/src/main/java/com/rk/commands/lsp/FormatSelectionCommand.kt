@@ -21,7 +21,7 @@ class FormatSelectionCommand(commandContext: CommandContext) : LspCommand(comman
     }
 
     override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.baseLspConnector.isRangeFormattingSupported()
+        return lspNonActionContext.lspConnector.isRangeFormattingSupported()
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)

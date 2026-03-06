@@ -1,6 +1,5 @@
 package com.rk.lsp
 
-import android.content.Context
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -30,12 +29,10 @@ import com.rk.theme.greenStatus
 import com.rk.theme.yellowStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.LanguageServerWrapper
 import io.github.rosemoe.sora.lsp.editor.LspProject
-import java.net.URI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.MessageParams
 import org.eclipse.lsp4j.MessageType
-import org.eclipse.lsp4j.ServerCapabilities
 
 enum class LspConnectionStatus {
     NOT_RUNNING,
@@ -53,6 +50,7 @@ private fun MessageType.toLogLevel() =
         MessageType.Warning -> LogLevel.WARN
         MessageType.Info -> LogLevel.INFO
         MessageType.Log -> LogLevel.DEBUG
+        MessageType.Debug -> LogLevel.DEBUG
     }
 
 data class LspLogEntry(val level: MessageType, val message: String, val timestamp: Long = System.currentTimeMillis()) {
@@ -61,85 +59,7 @@ data class LspLogEntry(val level: MessageType, val message: String, val timestam
     }
 }
 
-@Composable
-fun BaseLspServerInstance.getStatusColor(): Color? {
-    return if (status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError) {
-        MaterialTheme.colorScheme.error
-    } else if (
-        status == LspConnectionStatus.STARTING ||
-            status == LspConnectionStatus.RESTARTING ||
-            status == LspConnectionStatus.STOPPING
-    ) {
-        MaterialTheme.colorScheme.yellowStatus
-    } else if (status == LspConnectionStatus.RUNNING) {
-        MaterialTheme.colorScheme.greenStatus
-    } else null
-}
-
-@Composable
-fun BaseLspServerInstance.getStatusText(): String {
-    return if (status == LspConnectionStatus.CRASHED) stringResource(strings.status_crashed)
-    else if (status == LspConnectionStatus.TIMEOUT) stringResource(strings.status_timeout)
-    else if (hasError) stringResource(strings.error)
-    else if (status == LspConnectionStatus.STARTING) stringResource(strings.status_starting)
-    else if (status == LspConnectionStatus.RESTARTING) stringResource(strings.status_restarting)
-    else if (status == LspConnectionStatus.RUNNING) stringResource(strings.status_running)
-    else if (status == LspConnectionStatus.STOPPING) stringResource(strings.status_stopping)
-    else if (DefinitionPrevention.isServerPrevented(lspProject, server))
-        stringResource(strings.status_not_running_forced)
-    else stringResource(strings.status_not_running)
-}
-
-@Composable
-fun BaseLspServerInstance.StatusIcon() {
-    when {
-        status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError -> {
-            Icon(
-                imageVector = XedIcons.Error,
-                contentDescription = stringResource(strings.error),
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(32.dp),
-            )
-        }
-        status == LspConnectionStatus.STARTING ||
-            status == LspConnectionStatus.RESTARTING ||
-            status == LspConnectionStatus.STOPPING -> {
-            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-        }
-        status == LspConnectionStatus.RUNNING -> {
-            Icon(
-                imageVector = Icons.Outlined.CheckCircle,
-                contentDescription = stringResource(strings.status_running),
-                tint = MaterialTheme.colorScheme.greenStatus,
-                modifier = Modifier.size(32.dp),
-            )
-        }
-        status == LspConnectionStatus.NOT_RUNNING -> {}
-    }
-}
-
-@Composable
-fun BaseLspServer.getDominantStatusColor(): Color? {
-    val hasAnyError = instances.any { it.hasError }
-    if (hasAnyError) return MaterialTheme.colorScheme.error
-
-    val dominantStatus = instances.maxByOrNull { it.status.ordinal }?.status ?: LspConnectionStatus.NOT_RUNNING
-    return when (dominantStatus) {
-        LspConnectionStatus.CRASHED,
-        LspConnectionStatus.TIMEOUT -> MaterialTheme.colorScheme.error
-        LspConnectionStatus.STARTING,
-        LspConnectionStatus.RESTARTING,
-        LspConnectionStatus.STOPPING -> MaterialTheme.colorScheme.yellowStatus
-        LspConnectionStatus.RUNNING -> MaterialTheme.colorScheme.greenStatus
-        else -> null
-    }
-}
-
-data class BaseLspServerInstance(
-    val server: BaseLspServer,
-    internal val lspProject: LspProject,
-    val projectRoot: FileObject,
-) {
+data class LspServerInstance(val server: LspServer, internal val lspProject: LspProject, val projectRoot: FileObject) {
     val id = "${server.id}_${projectRoot.getAbsolutePath().hashCode()}"
 
     var status by mutableStateOf(LspConnectionStatus.NOT_RUNNING)
@@ -243,77 +163,60 @@ data class BaseLspServerInstance(
     }
 }
 
-abstract class BaseLspServer {
-    suspend fun startAllInstances(): List<EditorTab> {
-        val connectedEditors = mutableListOf<EditorTab>()
-        instances.forEach { connectedEditors.addAll(it.start()) }
-        return connectedEditors
+@Composable
+fun LspServerInstance.getStatusColor(): Color? {
+    return if (status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError) {
+        MaterialTheme.colorScheme.error
+    } else if (
+        status == LspConnectionStatus.STARTING ||
+            status == LspConnectionStatus.RESTARTING ||
+            status == LspConnectionStatus.STOPPING
+    ) {
+        MaterialTheme.colorScheme.yellowStatus
+    } else if (status == LspConnectionStatus.RUNNING) {
+        MaterialTheme.colorScheme.greenStatus
+    } else null
+}
+
+@Composable
+fun LspServerInstance.getStatusText(): String {
+    return when {
+        status == LspConnectionStatus.CRASHED -> stringResource(strings.status_crashed)
+        status == LspConnectionStatus.TIMEOUT -> stringResource(strings.status_timeout)
+        hasError -> stringResource(strings.error)
+        status == LspConnectionStatus.STARTING -> stringResource(strings.status_starting)
+        status == LspConnectionStatus.RESTARTING -> stringResource(strings.status_restarting)
+        status == LspConnectionStatus.RUNNING -> stringResource(strings.status_running)
+        status == LspConnectionStatus.STOPPING -> stringResource(strings.status_stopping)
+        DefinitionPrevention.isServerPrevented(lspProject, server) -> stringResource(strings.status_not_running_forced)
+        else -> stringResource(strings.status_not_running)
     }
+}
 
-    suspend fun stopAllInstances() {
-        instances.forEach { it.stop() }
+@Composable
+fun LspServerInstance.StatusIcon() {
+    when {
+        status == LspConnectionStatus.CRASHED || status == LspConnectionStatus.TIMEOUT || hasError -> {
+            Icon(
+                imageVector = XedIcons.Error,
+                contentDescription = stringResource(strings.error),
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(32.dp),
+            )
+        }
+        status == LspConnectionStatus.STARTING ||
+            status == LspConnectionStatus.RESTARTING ||
+            status == LspConnectionStatus.STOPPING -> {
+            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+        }
+        status == LspConnectionStatus.RUNNING -> {
+            Icon(
+                imageVector = Icons.Outlined.CheckCircle,
+                contentDescription = stringResource(strings.status_running),
+                tint = MaterialTheme.colorScheme.greenStatus,
+                modifier = Modifier.size(32.dp),
+            )
+        }
+        status == LspConnectionStatus.NOT_RUNNING -> {}
     }
-
-    suspend fun disconnectAllInstances() {
-        instances.forEach { it.disconnect() }
-    }
-
-    suspend fun restartAllInstances() {
-        instances.forEach { it.restart() }
-    }
-
-    fun connectAllSuitableEditors(excludedEditors: List<EditorTab> = emptyList()) {
-        val suitableTabs =
-            MainActivity.instance!!.viewModel.run {
-                tabs.filterIsInstance<EditorTab>().filter {
-                    !excludedEditors.contains(it) &&
-                        this@BaseLspServer.supportedExtensions.contains(it.file.getExtension())
-                }
-            }
-        suitableTabs.forEach { it.applyHighlightingAndConnectLSP() }
-    }
-
-    var instances = mutableStateListOf<BaseLspServerInstance>()
-
-    fun addInstance(instance: BaseLspServerInstance) {
-        instances.add(instance)
-    }
-
-    fun removeInstance(instance: BaseLspServerInstance) {
-        instances.remove(instance)
-    }
-
-    abstract fun isInstalled(context: Context): Boolean
-
-    abstract fun install(context: Context)
-
-    abstract fun getConnectionConfig(): LspConnectionConfig
-
-    open suspend fun beforeConnect() {}
-
-    open suspend fun onInitialize(lspConnector: BaseLspConnector) {}
-
-    open fun getInitializationOptions(uri: URI?): Any? = null
-
-    open fun isSupported(file: FileObject): Boolean {
-        return supportedExtensions.contains(file.getExtension().lowercase())
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as BaseLspServer
-        return id == other.id
-    }
-
-    override fun hashCode(): Int = id.hashCode()
-
-    open val expectedCapabilities: ServerCapabilities? = null
-
-    abstract val id: String
-    abstract val languageName: String
-    abstract val serverName: String
-    abstract val supportedExtensions: List<String>
-    abstract val icon: Int?
 }

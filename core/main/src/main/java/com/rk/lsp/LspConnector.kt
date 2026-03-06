@@ -75,10 +75,10 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either3
  * `unregister()` reverses this process by restoring the cached definition to the project.
  */
 object DefinitionPrevention {
-    private val preventedServers = ConcurrentHashMap<LspProject, List<BaseLspServer>>()
-    private val cachedDefinitions = ConcurrentHashMap<LspProject, Map<BaseLspServer, LanguageServerDefinition>>()
+    private val preventedServers = ConcurrentHashMap<LspProject, List<LspServer>>()
+    private val cachedDefinitions = ConcurrentHashMap<LspProject, Map<LspServer, LanguageServerDefinition>>()
 
-    fun register(project: LspProject, server: BaseLspServer) {
+    fun register(project: LspProject, server: LspServer) {
         preventedServers[project] = preventedServers[project]?.plus(server) ?: listOf(server)
         server.supportedExtensions.firstOrNull()?.let {
             val currentDefinition = project.getServerDefinition(it, server.serverName) ?: return@let
@@ -88,23 +88,34 @@ object DefinitionPrevention {
         server.supportedExtensions.forEach { project.removeServerDefinition(it, server.serverName) }
     }
 
-    fun unregister(project: LspProject, server: BaseLspServer) {
-        preventedServers[project] = preventedServers[project]?.minus(server) ?: listOf()
+    fun unregister(project: LspProject, server: LspServer) {
+        val remainingServers = preventedServers[project]?.minus(server) ?: emptyList()
+        if (remainingServers.isEmpty()) {
+            preventedServers.remove(project)
+        } else {
+            preventedServers[project] = remainingServers
+        }
+
         cachedDefinitions[project]?.get(server)?.let { project.addServerDefinition(it) }
-        cachedDefinitions[project]?.minus(server)?.let { cachedDefinitions[project] = it }
+        val remainingDefinitions = cachedDefinitions[project]?.minus(server) ?: emptyMap()
+        if (remainingDefinitions.isEmpty()) {
+            cachedDefinitions.remove(project)
+        } else {
+            cachedDefinitions[project] = remainingDefinitions
+        }
     }
 
-    fun isServerPrevented(project: LspProject, server: BaseLspServer): Boolean {
+    fun isServerPrevented(project: LspProject, server: LspServer): Boolean {
         return preventedServers[project]?.contains(server) ?: false
     }
 }
 
-class BaseLspConnector(
+class LspConnector(
     private val projectFile: FileObject,
     private val fileObject: FileObject,
     private val codeEditor: Editor,
     private val editorTab: EditorTab,
-    private val servers: List<BaseLspServer>,
+    private val servers: List<LspServer>,
 ) {
     var lspEditor: LspEditor? = null
 
@@ -116,7 +127,7 @@ class BaseLspConnector(
         return lspEditor?.isConnected == true
     }
 
-    suspend fun connect(textMateScope: String) =
+    suspend fun connect(wrapperLanguage: TextMateLanguage?) =
         withContext(Dispatchers.IO) {
             if (isConnected()) {
                 info("LSP servers already connected skipping...")
@@ -145,9 +156,9 @@ class BaseLspConnector(
             lspEditor =
                 withContext(Dispatchers.Main) {
                     project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
-                        wrapperLanguage = TextMateLanguage.create(textMateScope, false)
-                        editor = codeEditor
-                        isEnableInlayHint = true
+                        this.wrapperLanguage = wrapperLanguage
+                        this.editor = codeEditor
+                        this.isEnableInlayHint = true
                     }
                 }
 
@@ -201,17 +212,13 @@ class BaseLspConnector(
             }
         }
 
-    private fun BaseLspServer.createServerDefinition(
+    private fun LspServer.createServerDefinition(
         scope: CoroutineScope,
         fileExt: String,
         lspProject: LspProject,
     ): CustomLanguageServerDefinition {
         val instance =
-            BaseLspServerInstance(
-                    server = this@createServerDefinition,
-                    lspProject = lspProject,
-                    projectRoot = projectFile,
-                )
+            LspServerInstance(server = this@createServerDefinition, lspProject = lspProject, projectRoot = projectFile)
                 .also { addInstance(it) }
 
         return object :
@@ -288,12 +295,13 @@ class BaseLspConnector(
                                     dialog(title = strings.info.getString(), msg = messageParams.message)
 
                                 MessageType.Log -> info(messageParams.message)
+                                MessageType.Debug -> {}
                             }
                         }
 
                         override fun onStatusChange(newStatus: ServerStatus, oldStatus: ServerStatus) {
                             if (newStatus == ServerStatus.INITIALIZED) {
-                                scope.launch { onInitialize(this@BaseLspConnector) }
+                                scope.launch { onInitialize(this@LspConnector) }
                             }
 
                             // TODO: Consider when instances should be removed

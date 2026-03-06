@@ -62,7 +62,7 @@ suspend fun MainViewModel.goToTabAndSelect(file: FileObject, projectRoot: FileOb
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
 
@@ -136,7 +136,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
 fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
 
@@ -204,7 +204,7 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                 var currentName = ""
 
                 val file = editorTab.file
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
 
@@ -287,7 +287,7 @@ fun applyFormattingOptions(eventManager: LspEventManager, editorTab: EditorTab) 
  */
 suspend fun formatDocumentSuspend(editorTab: EditorTab) {
     runCatching {
-            val baseLspConnector = editorTab.baseLspConnector!!
+            val baseLspConnector = editorTab.lspConnector!!
             val editorState = editorTab.editorState
             val editor = editorState.editor.get()!!
             val eventManager = baseLspConnector.getEventManager()!!
@@ -309,7 +309,7 @@ fun formatDocument(scope: CoroutineScope, editorTab: EditorTab) {
 fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
                 val eventManager = baseLspConnector.getEventManager()!!
@@ -340,7 +340,7 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.go_to_definition,
             iconRes = drawables.jump_to_element,
-            shouldShow = { _ -> editorTab.baseLspConnector?.isGoToDefinitionSupported() == true },
+            shouldShow = { _ -> editorTab.lspConnector?.isGoToDefinitionSupported() == true },
         ) { _ ->
             goToDefinition(scope, context, viewModel, editorTab)
         }
@@ -349,7 +349,7 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.go_to_references,
             iconRes = drawables.manage_search,
-            shouldShow = { _ -> editorTab.baseLspConnector?.isGoToReferencesSupported() == true },
+            shouldShow = { _ -> editorTab.lspConnector?.isGoToReferencesSupported() == true },
         ) { _ ->
             goToReferences(scope, context, viewModel, editorTab)
         }
@@ -358,9 +358,7 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.rename_symbol,
             iconRes = drawables.edit_note,
-            shouldShow = { editor ->
-                editor.isEditable && editorTab.baseLspConnector?.isRenameSymbolSupported() == true
-            },
+            shouldShow = { editor -> editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true },
         ) { _ ->
             renameSymbol(scope, editorTab)
         }

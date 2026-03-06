@@ -12,10 +12,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.pm.PackageInfoCompat
-import com.rk.lsp.BaseLspServer
-import com.rk.lsp.BaseLspServerInstance
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspRegistry
+import com.rk.lsp.LspServer
+import com.rk.lsp.LspServerInstance
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LspServerLogs(server: BaseLspServer, id: String) {
+fun LspServerLogs(server: LspServer, id: String) {
     val scope = rememberCoroutineScope()
     var logLevel by remember { mutableStateOf(LogLevel.INFO) }
 
@@ -55,7 +55,7 @@ fun LspServerLogs(server: BaseLspServer, id: String) {
     }
 }
 
-private fun buildLogs(server: BaseLspServer, instance: BaseLspServerInstance, logLevel: LogLevel): String {
+private fun buildLogs(server: LspServer, instance: LspServerInstance, logLevel: LogLevel): String {
     val entries =
         instance
             .getLogs()

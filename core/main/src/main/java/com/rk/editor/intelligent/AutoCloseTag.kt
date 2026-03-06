@@ -7,7 +7,7 @@ import com.rk.settings.Settings
 object AutoCloseTag : IntelligentFeature() {
     override val id: String = "html.auto_close_tag"
 
-    override val supportedExtensions: List<String> = BuiltinFileType.HTML.extensions + BuiltinFileType.HTMX.extensions
+    override val supportedExtensions = BuiltinFileType.HTML.extensions + BuiltinFileType.HTMX.extensions
 
     override val triggerCharacters: List<Char> = listOf('>', '/')
 

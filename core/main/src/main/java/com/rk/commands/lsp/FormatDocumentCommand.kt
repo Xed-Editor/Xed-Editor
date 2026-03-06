@@ -21,7 +21,7 @@ class FormatDocumentCommand(commandContext: CommandContext) : LspCommand(command
     }
 
     override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.baseLspConnector.isFormattingSupported()
+        return lspNonActionContext.lspConnector.isFormattingSupported()
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)

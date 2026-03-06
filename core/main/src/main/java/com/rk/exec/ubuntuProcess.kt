@@ -78,7 +78,7 @@ suspend fun ubuntuProcess(
     excludeMounts: List<String> = listOf(),
     root: File = sandboxDir(),
     workingDir: String? = null,
-    command: MutableList<String>,
+    command: List<String>,
 ): Process =
     withContext(Dispatchers.IO) {
         if (!root.exists()) throw NoSuchFileException(root)
@@ -190,7 +190,7 @@ suspend fun ubuntuProcess(
 
 @SuppressLint("SdCardPath")
 suspend fun ubuntuProcess(
-    excludeMounts: List<String> = listOf<String>(),
+    excludeMounts: List<String> = listOf(),
     root: File = sandboxDir(),
     workingDir: String? = null,
     vararg command: String,

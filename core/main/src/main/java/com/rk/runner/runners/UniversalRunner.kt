@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Environment
 import com.rk.DefaultScope
 import com.rk.exec.TerminalCommand
-import com.rk.exec.launchInternalTerminal
+import com.rk.exec.launchTerminal
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -49,7 +49,7 @@ class UniversalRunner : RunnerImpl() {
     }
 
     suspend fun launchUniversalRunner(context: Context, fileObject: FileObject) {
-        launchInternalTerminal(
+        launchTerminal(
             context,
             terminalCommand =
                 TerminalCommand(

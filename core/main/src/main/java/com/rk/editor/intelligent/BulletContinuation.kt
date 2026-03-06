@@ -9,7 +9,7 @@ import io.github.rosemoe.sora.event.EditorKeyEvent
 object BulletContinuation : IntelligentFeature() {
     override val id: String = "md.bullet_continuation"
 
-    override val supportedExtensions: List<String> = BuiltinFileType.MARKDOWN.extensions
+    override val supportedExtensions = BuiltinFileType.MARKDOWN.extensions
 
     private val QUOTE_REGEX = Regex("^> ")
     private val LIST_WHITESPACE_REGEX = Regex("^\\s*([-+*]|[0-9]+[.)]) +(\\[[ x]] +)?")

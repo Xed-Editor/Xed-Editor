@@ -125,7 +125,7 @@ class SessionService : Service() {
 
     var wakeLock: PowerManager.WakeLock? = null
 
-    private fun actionExit() {
+    fun actionExit() {
         sessions.forEach { s -> s.value.finishIfRunning() }
         if (deamonRunning) {
             deamonRunning = false

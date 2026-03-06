@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun XedTopBar(
-    modifier: Modifier = Modifier,
     drawerState: DrawerState,
     viewModel: MainViewModel,
     onDrag: (Float) -> Unit = {},

@@ -1,50 +1,42 @@
 package com.rk.lsp.servers
 
 import android.content.Context
-import com.rk.exec.TerminalCommand
 import com.rk.exec.isTerminalInstalled
-import com.rk.exec.launchInternalTerminal
 import com.rk.file.BuiltinFileType
 import com.rk.file.child
 import com.rk.file.localBinDir
-import com.rk.file.localDir
-import com.rk.file.sandboxDir
-import com.rk.lsp.BaseLspServer
+import com.rk.file.sandboxHomeDir
 import com.rk.lsp.LspConnectionConfig
+import com.rk.lsp.ScriptedLspServer
 
-class XML : BaseLspServer() {
+object XML : ScriptedLspServer() {
     override val id: String = "xml"
     override val languageName: String = "XML"
     override val serverName = "lemminx"
-    override val supportedExtensions: List<String> = BuiltinFileType.XML.extensions
+    override val supportedExtensions = BuiltinFileType.XML.extensions
     override val icon = BuiltinFileType.XML.icon
 
-    override fun isInstalled(context: Context): Boolean {
+    override val installScript = localBinDir().child("lsp/xml")
+    override val installId = "XML language server"
+
+    // Has to be manually updated when a new version is released (Don't forgot to also update xml.sh)
+    const val LATEST_VERSION = "0.31.0"
+
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
-        return localDir().child("org.eclipse.lemminx.uber-jar_0.31.0.jar").exists() &&
-            sandboxDir().child("bin/java").exists()
+
+        return sandboxHomeDir().child(".lsp/lemminx/server.jar").exists()
     }
 
-    override fun install(context: Context) {
-        val installSH = localBinDir().child("lsp/xml")
-
-        launchInternalTerminal(
-            context = context,
-            terminalCommand =
-                TerminalCommand(
-                    exe = "/bin/bash",
-                    args = arrayOf(installSH.absolutePath),
-                    id = "xml-lsp-installer",
-                    env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
-                ),
-        )
+    override suspend fun isUpdatable(context: Context): Boolean {
+        val versionFile = sandboxHomeDir().child(".lsp/lemminx/version.txt")
+        val currentVersion = runCatching { versionFile.readText().trim() }.getOrNull()
+        return currentVersion != LATEST_VERSION
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {
-        return LspConnectionConfig.Process(
-            arrayOf("java", "-jar", localDir().child("org.eclipse.lemminx.uber-jar_0.31.0.jar").absolutePath)
-        )
+        return LspConnectionConfig.Process(arrayOf("java", "-jar", "/home/.lsp/lemminx/server.jar"))
     }
 }

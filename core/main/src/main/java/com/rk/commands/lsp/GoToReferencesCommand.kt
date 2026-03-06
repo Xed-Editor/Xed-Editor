@@ -26,7 +26,7 @@ class GoToReferencesCommand(commandContext: CommandContext) : LspCommand(command
     }
 
     override fun isSupported(lspNonActionContext: LspNonActionContext): Boolean {
-        return lspNonActionContext.baseLspConnector.isGoToReferencesSupported()
+        return lspNonActionContext.lspConnector.isGoToReferencesSupported()
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.manage_search)

@@ -2,29 +2,42 @@ set -e
 
 source "$LOCAL/bin/utils"
 
-info 'Preparing installation...'
+info 'Preparing...'
 apt update && apt upgrade -y
 
-install_nodejs() {
-  info "Installing Node.js LTS..."
-  apt install -y curl ca-certificates
-  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-  apt install -y nodejs
-
-  # Remove old installation
-  if [ -d "$HOME/.npm-global" ]; then
-    npm uninstall -g --prefix $HOME/.npm-global bash-language-server
+install() {
+  if ! command_exists node || ! command_exists npm; then
+    install_nodejs
   fi
+
+  info 'Installing Bash language server...'
+  npm install -g --prefix /usr bash-language-server
+
+  info 'Installing ShellCheck...'
+  apt install -y shellcheck
+
+  info 'Bash language server installed successfully.'
+  exit 0
 }
 
-if ! command_exists node || ! command_exists npm; then
-  install_nodejs
-fi
+uninstall() {
+  info 'Uninstalling Bash language server...'
+  npm uninstall -g --prefix /usr bash-language-server
+  info 'Bash language server uninstalled successfully.'
+  uninstall_nodejs
+  exit 0
+}
 
-info 'Installing Bash language server...'
-npm install -g --prefix /usr bash-language-server
+update() {
+  info 'Updating Bash language server...'
+  npm update -g --prefix /usr bash-language-server
+  info 'Bash language server updated successfully.'
+  exit 0
+}
 
-info 'Installing ShellCheck...'
-apt install -y shellcheck
+case "$1" in
+  --uninstall) uninstall;;
+  --update) update;;
+  *) install;;
+esac
 
-info 'Bash language server installed successfully.'

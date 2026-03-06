@@ -39,7 +39,6 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
-import kotlin.random.Random.Default.nextInt
 import kotlinx.coroutines.launch
 
 @Composable
@@ -681,7 +680,7 @@ fun refreshEditors() {
     MainActivity.instance?.apply {
         viewModel.tabs.forEach {
             if (it is EditorTab) {
-                it.refreshKey = nextInt()
+                it.refreshKey++
             }
         }
     }
