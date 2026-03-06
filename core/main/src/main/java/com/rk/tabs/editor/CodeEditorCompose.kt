@@ -326,9 +326,11 @@ private suspend fun EditorTab.findActiveLspServers(servers: List<LspServer>, con
             return@forEach
         }
 
-        if (server.isUpdatable(context)) {
-            info("Server ${server.id} is updatable")
-            promptLspUpdate(context, server)
+        scope.launch(Dispatchers.IO) {
+            if (server.isUpdatable(context)) {
+                info("Server ${server.id} is updatable")
+                promptLspUpdate(context, server)
+            }
         }
 
         matchedServers.add(server)

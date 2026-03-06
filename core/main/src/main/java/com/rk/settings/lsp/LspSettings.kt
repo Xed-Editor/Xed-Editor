@@ -64,7 +64,9 @@ import com.rk.settings.Preference
 import com.rk.utils.parseExtensions
 import com.rk.utils.toast
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LspSettings(navController: NavController) {
@@ -253,13 +255,15 @@ fun rememberLspInstallStatus(context: Context, server: LspServer, refreshKey: In
 
     return key(refreshKey) {
         produceState(previousStatus ?: LspInstallationAction.LOADING) {
-            if (server.isInstalled(context)) {
-                value = LspInstallationAction.UNINSTALL
-                if (server.isUpdatable(context)) {
-                    value = LspInstallationAction.UPDATE
+            withContext(Dispatchers.IO) {
+                if (server.isInstalled(context)) {
+                    value = LspInstallationAction.UNINSTALL
+                    if (server.isUpdatable(context)) {
+                        value = LspInstallationAction.UPDATE
+                    }
+                } else {
+                    value = LspInstallationAction.INSTALL
                 }
-            } else {
-                value = LspInstallationAction.INSTALL
             }
 
             previousStatus = value
