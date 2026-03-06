@@ -12,12 +12,15 @@ import com.rk.lsp.servers.TypeScript
 import com.rk.lsp.servers.XML
 
 object LspRegistry {
-    private val mutableServers = mutableStateListOf<LspServer>()
+    private val _extensionServers = mutableStateListOf<LspServer>()
     val extensionServers: List<LspServer>
-        get() = mutableServers.toList()
+        get() = _extensionServers.toList()
 
     val builtInServer = listOf(Python, HTML, Emmet, CSS, TypeScript, JSON, Bash, XML)
-    val externalServers = mutableStateListOf<LspServer>()
+
+    private val _externalServers = mutableStateListOf<LspServer>()
+    val externalServers: List<LspServer>
+        get() = _externalServers.toList()
 
     private val configuration: MutableMap<LspServer, Boolean> = mutableMapOf()
 
@@ -32,19 +35,35 @@ object LspRegistry {
         }
     }
 
+    fun addExternalServer(server: LspServer) {
+        _externalServers.add(server)
+    }
+
+    fun removeExternalServer(server: LspServer) {
+        _externalServers.remove(server)
+    }
+
+    fun clearExternalServers() {
+        _externalServers.clear()
+    }
+
+    fun replaceExternalServer(replaceIndex: Int, newServer: LspServer) {
+        _externalServers[replaceIndex] = newServer
+    }
+
     fun getForId(id: String): LspServer? {
         return builtInServer.find { it.id == id }
-            ?: externalServers.find { it.id == id }
-            ?: mutableServers.find { it.id == id }
+            ?: _externalServers.find { it.id == id }
+            ?: _extensionServers.find { it.id == id }
     }
 
     fun registerServer(server: LspServer) {
-        if (!mutableServers.contains(server)) {
-            mutableServers.add(server)
+        if (!_extensionServers.contains(server)) {
+            _extensionServers.add(server)
         }
     }
 
     fun unregisterServer(server: LspServer) {
-        mutableServers.remove(server)
+        _extensionServers.remove(server)
     }
 }

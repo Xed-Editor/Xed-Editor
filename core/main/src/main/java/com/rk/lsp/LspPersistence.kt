@@ -71,7 +71,7 @@ object LspPersistence {
                         )
                     else -> null
                 }
-            server?.let { LspRegistry.externalServers.add(it) }
+            server?.let { LspRegistry.addExternalServer(it) }
         }
     }
 }

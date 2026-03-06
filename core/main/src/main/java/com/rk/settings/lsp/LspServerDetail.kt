@@ -30,8 +30,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -42,6 +42,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavHostController
 import com.rk.activities.settings.snackbarHostStateRef
 import com.rk.components.SettingsToggle
@@ -77,8 +80,18 @@ enum class LspInstallationAction {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LspServerDetail(navController: NavHostController, server: LspServer) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    var refreshKey by remember { mutableIntStateOf(0) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycleState by lifecycleOwner.lifecycle.currentStateAsState()
+
+    LaunchedEffect(lifecycleState) {
+        if (lifecycleState == Lifecycle.State.RESUMED) {
+            refreshKey++
+        }
+    }
 
     @Composable
     fun RestartAllButton(enabled: Boolean) {
@@ -182,17 +195,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
             }
         }
 
-        val status by
-            produceState(LspInstallationAction.LOADING) {
-                if (server.isInstalled(context)) {
-                    value = LspInstallationAction.UNINSTALL
-                    if (server.isUpdatable(context)) {
-                        value = LspInstallationAction.UPDATE
-                    }
-                } else {
-                    value = LspInstallationAction.INSTALL
-                }
-            }
+        val status by rememberLspInstallStatus(context, server, refreshKey)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -395,7 +398,7 @@ private fun InstanceCard(instance: LspServerInstance, navController: NavHostCont
     }
 }
 
-fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
+private fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
     if (startTimeMillis == -1L) return null
 
     val diff = (currentTimeMillis - startTimeMillis)

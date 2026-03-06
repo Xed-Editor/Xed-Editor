@@ -19,7 +19,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 
 @Composable
-fun ExternalSocketServer(dialogState: ExternalLspDialogState) {
+fun SocketServerSection(dialogState: ExternalLspDialogState) {
     OutlinedTextField(
         value = dialogState.lspHost,
         onValueChange = {

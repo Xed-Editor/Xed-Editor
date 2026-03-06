@@ -6,10 +6,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.activities.main.TabState
 import com.rk.file.FileObject
-import kotlin.random.Random
 
-abstract class Tab() {
-    var refreshKey: Int = Random.nextInt()
+abstract class Tab {
+    var refreshKey: Int = 0
     abstract val name: String
     abstract val icon: ImageVector
 
