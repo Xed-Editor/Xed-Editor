@@ -776,4 +776,5 @@
     <string name="detect_bin_files_desc">Varsayılan olarak ikili dosyaları salt okunur modda açın</string>
     <string name="oom_prediction">OOM tahmini</string>
     <string name="oom_prediction_desc">Bellek yetersizliği iletişim kutusunu göster</string>
+    <string name="debug">Hata ayıklama</string>
 </resources>

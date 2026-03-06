@@ -766,4 +766,5 @@
     <string name="detect_bin_files_desc">Buka berkas biner dalam mode baca saja secara default</string>
     <string name="oom_prediction">Prediksi OOM</string>
     <string name="oom_prediction_desc">Tampilkan dialog kehabisan memori</string>
+    <string name="debug">Debug</string>
 </resources>

@@ -767,4 +767,9 @@
     <string name="file_mask">文件匹配符</string>
     <string name="file_mask_hint">文件匹配符（例如 .js、.ts）</string>
     <string name="glob_docs">了解如何使用 Glob 模式</string>
+    <string name="detect_bin_files">检测二进制文件</string>
+    <string name="detect_bin_files_desc">默认以只读模式打开二进制文件</string>
+    <string name="oom_prediction">内存溢出预测</string>
+    <string name="oom_prediction_desc">显示内存不足对话框</string>
+    <string name="debug">调试</string>
 </resources>
