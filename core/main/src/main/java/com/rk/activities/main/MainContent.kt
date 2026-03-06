@@ -162,9 +162,40 @@ fun MainContent(
                                 },
                                 onCloseOthers = { index ->
                                     mainViewModel.setCurrentTabIndex(index)
-                                    mainViewModel.removeOtherTabs()
+
+                                    val unsavedOtherTabs =
+                                        mainViewModel.tabs.filterIndexed { tabIndex, tab ->
+                                            tabIndex != index && (tab as? EditorTab)?.editorState?.isDirty == true
+                                        }
+                                    if (unsavedOtherTabs.isNotEmpty()) {
+                                        dialog(
+                                            title = strings.files_unsaved.getString(),
+                                            msg = strings.ask_multiple_unsaved.getString(),
+                                            onOk = { mainViewModel.removeOtherTabs() },
+                                            onCancel = {},
+                                            okString = strings.discard,
+                                        )
+                                    } else {
+                                        mainViewModel.removeOtherTabs()
+                                    }
                                 },
-                                onCloseAll = { mainViewModel.removeAllTabs() },
+                                onCloseAll = {
+                                    val unsavedTabs =
+                                        mainViewModel.tabs.filter { tab ->
+                                            (tab as? EditorTab)?.editorState?.isDirty == true
+                                        }
+                                    if (unsavedTabs.isNotEmpty()) {
+                                        dialog(
+                                            title = strings.files_unsaved.getString(),
+                                            msg = strings.ask_multiple_unsaved.getString(),
+                                            onOk = { mainViewModel.removeAllTabs() },
+                                            onCancel = {},
+                                            okString = strings.discard,
+                                        )
+                                    } else {
+                                        mainViewModel.removeAllTabs()
+                                    }
+                                },
                                 showFileActionDialog = { fileActionDialog = it },
                             )
                         }

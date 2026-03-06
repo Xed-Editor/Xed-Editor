@@ -226,7 +226,9 @@
     <string name="add_font_desc">Choose a TTF font from storage</string>
     <string name="file_not_saved">Some files are not saved</string>
     <string name="file_unsaved">File unsaved</string>
+    <string name="files_unsaved">Files unsaved</string>
     <string name="ask_unsaved">Are you sure you want to discard this unsaved document?</string>
+    <string name="ask_multiple_unsaved">Are you sure you want to discard these unsaved documents?</string>
     <string name="keep_editing">Keep editing</string>
     <string name="discard">Discard</string>
     <string name="warning">Warning</string>
