@@ -204,7 +204,7 @@ private fun LspServerItem(
 ) {
     SettingsToggle(
         label = server.languageName,
-        default = Preference.getBoolean("lsp_${server.id}", false),
+        default = Preference.getBoolean("lsp_${server.id}", true),
         description = server.serverName,
         singleLineDescription = true,
         showSwitch = true,

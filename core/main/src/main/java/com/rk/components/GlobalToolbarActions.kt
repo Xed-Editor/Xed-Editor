@@ -5,11 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
@@ -20,7 +16,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +35,7 @@ import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.currentDrawerTab
 import com.rk.icons.CreateNewFile
+import com.rk.icons.XedIcon
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -69,17 +65,17 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         val settingsCommand = CommandProvider.SettingsCommand
 
         IconButton(onClick = { newFileCommand.action(ActionContext(context as Activity)) }) {
-            Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+            XedIcon(newFileCommand.getIcon())
         }
 
         if (InbuiltFeatures.terminal.state.value) {
             IconButton(onClick = { terminalCommand.action(ActionContext(context as Activity)) }) {
-                Icon(painter = painterResource(drawables.terminal), contentDescription = null)
+                XedIcon(terminalCommand.getIcon())
             }
         }
 
         IconButton(onClick = { settingsCommand.action(ActionContext(context as Activity)) }) {
-            Icon(imageVector = Icons.Outlined.Settings, contentDescription = null)
+            XedIcon(settingsCommand.getIcon())
         }
     }
 

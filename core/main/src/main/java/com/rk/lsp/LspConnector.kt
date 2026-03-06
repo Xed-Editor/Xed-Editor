@@ -116,7 +116,7 @@ class LspConnector(
         return lspEditor?.isConnected == true
     }
 
-    suspend fun connect(textMateScope: String) =
+    suspend fun connect(wrapperLanguage: TextMateLanguage?) =
         withContext(Dispatchers.IO) {
             if (isConnected()) {
                 info("LSP servers already connected skipping...")
@@ -145,9 +145,9 @@ class LspConnector(
             lspEditor =
                 withContext(Dispatchers.Main) {
                     project.getOrCreateEditor(fileObject.getAbsolutePath()).apply {
-                        wrapperLanguage = TextMateLanguage.create(textMateScope, false)
-                        editor = codeEditor
-                        isEnableInlayHint = true
+                        this.wrapperLanguage = wrapperLanguage
+                        this.editor = codeEditor
+                        this.isEnableInlayHint = true
                     }
                 }
 

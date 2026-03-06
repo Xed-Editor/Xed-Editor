@@ -26,13 +26,19 @@ object LanguageManager {
         }
     }
 
-    suspend fun createLanguage(context: Context, textmateScope: String): TextMateLanguage {
+    suspend fun createLanguage(
+        context: Context,
+        textmateScope: String,
+        createIdentifiers: Boolean = true,
+    ): TextMateLanguage {
         grammarRegistryInitialized.await()
         val cacheKey = getCacheKey(context) + "_" + textmateScope
-        return languageCache.getOrPut(cacheKey) { TextMateLanguage.create(textmateScope, true) }
+        return languageCache.getOrPut(cacheKey) { TextMateLanguage.create(textmateScope, createIdentifiers) }
     }
 
-    fun createLanguageBlocking(context: Context, textmateScope: String): TextMateLanguage = runBlocking {
-        createLanguage(context, textmateScope)
-    }
+    fun createLanguageBlocking(
+        context: Context,
+        textmateScope: String,
+        createIdentifiers: Boolean = true,
+    ): TextMateLanguage = runBlocking { createLanguage(context, textmateScope, createIdentifiers) }
 }

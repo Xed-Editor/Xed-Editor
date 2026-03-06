@@ -24,6 +24,7 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.snackbarHostStateRef
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
+import com.rk.editor.LanguageManager
 import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.lsp.LspConnector
 import com.rk.lsp.LspRegistry
@@ -233,38 +234,40 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
     val editor = editorState.editor.get() ?: return
 
     with(editor) {
-        editorState.textmateScope?.let { langScope ->
-            scope.launch(Dispatchers.IO) {
-                setLanguage(langScope)
+        scope.launch(Dispatchers.IO) {
+            editorState.textmateScope?.let { setLanguage(it) }
 
-                val builtin = getBuiltinServers(context)
-                val extension = getExtensionServers(context)
-                val external = getExternalServers()
-                val servers = builtin + extension + external
-                if (servers.isEmpty()) return@launch
+            val builtin = getBuiltinServers(context)
+            val extension = getExtensionServers(context)
+            val external = getExternalServers()
+            val servers = builtin + extension + external
+            if (servers.isEmpty()) return@launch
 
-                val projectFile =
-                    projectRoot
-                        ?: run {
-                            logWarn(
-                                "File ${file.getName()} has no suitable project root. Skipping language server connection."
-                            )
-                            return@launch
-                        }
+            val wrapperLanguage =
+                editorState.textmateScope?.let {
+                    LanguageManager.createLanguage(context = context, textmateScope = it, createIdentifiers = false)
+                }
+            val projectFile =
+                projectRoot
+                    ?: run {
+                        logWarn(
+                            "File ${file.getName()} has no suitable project root. Skipping language server connection."
+                        )
+                        return@launch
+                    }
 
-                lspConnector =
-                    LspConnector(
-                        projectFile = projectFile,
-                        fileObject = file,
-                        codeEditor = this@with,
-                        editorTab = this@applyHighlightingAndConnectLSP,
-                        servers = servers,
-                    )
+            lspConnector =
+                LspConnector(
+                    projectFile = projectFile,
+                    fileObject = file,
+                    codeEditor = this@with,
+                    editorTab = this@applyHighlightingAndConnectLSP,
+                    servers = servers,
+                )
 
-                info("Trying to connect language servers...")
-                lspConnector?.connect(langScope)
-                info("isConnected : ${lspConnector?.isConnected() ?: false}")
-            }
+            info("Trying to connect language servers...")
+            lspConnector?.connect(wrapperLanguage)
+            info("isConnected : ${lspConnector?.isConnected() ?: false}")
         }
     }
 }
