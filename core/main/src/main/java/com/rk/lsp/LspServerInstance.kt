@@ -50,6 +50,7 @@ private fun MessageType.toLogLevel() =
         MessageType.Warning -> LogLevel.WARN
         MessageType.Info -> LogLevel.INFO
         MessageType.Log -> LogLevel.DEBUG
+        MessageType.Debug -> LogLevel.DEBUG
     }
 
 data class LspLogEntry(val level: MessageType, val message: String, val timestamp: Long = System.currentTimeMillis()) {
@@ -145,7 +146,7 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
         val filteredEditors = editors.filter { server.supportedExtensions.contains(it.fileExt) }
         filteredEditors.forEach { editor ->
             val matchingEditorTab =
-                MainActivity.Companion.instance!!.viewModel.run {
+                MainActivity.instance!!.viewModel.run {
                     tabs.filterIsInstance<EditorTab>().find { it.editorState.editor.get() == editor.editor }
                 } ?: return@forEach
             matchingEditorTab.applyHighlightingAndConnectLSP()
@@ -200,20 +201,20 @@ fun LspServerInstance.StatusIcon() {
                 imageVector = XedIcons.Error,
                 contentDescription = stringResource(strings.error),
                 tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.Companion.size(32.dp),
+                modifier = Modifier.size(32.dp),
             )
         }
         status == LspConnectionStatus.STARTING ||
             status == LspConnectionStatus.RESTARTING ||
             status == LspConnectionStatus.STOPPING -> {
-            CircularProgressIndicator(modifier = Modifier.Companion.size(24.dp))
+            CircularProgressIndicator(modifier = Modifier.size(24.dp))
         }
         status == LspConnectionStatus.RUNNING -> {
             Icon(
                 imageVector = Icons.Outlined.CheckCircle,
                 contentDescription = stringResource(strings.status_running),
                 tint = MaterialTheme.colorScheme.greenStatus,
-                modifier = Modifier.Companion.size(32.dp),
+                modifier = Modifier.size(32.dp),
             )
         }
         status == LspConnectionStatus.NOT_RUNNING -> {}
