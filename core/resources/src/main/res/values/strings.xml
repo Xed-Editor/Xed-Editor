@@ -757,4 +757,8 @@
     <string name="oom_prediction_desc">Show out of memory dialog</string>
     <string name="debug">Debug</string>
     <string name="restart_all">Restart all</string>
+    <string name="fullscreen">Fullscreen</string>
+    <string name="fullscreen_desc">Start application in fullscreen mode</string>
+    <string name="smart_toolbar">Smart toolbar</string>
+    <string name="smart_toolbar_desc">Hide the toolbar when editing to free up screen space</string>
 </resources>

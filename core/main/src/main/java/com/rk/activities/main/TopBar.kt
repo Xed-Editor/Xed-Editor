@@ -1,6 +1,10 @@
 package com.rk.activities.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.DrawerState
@@ -8,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -24,47 +29,53 @@ import kotlinx.coroutines.launch
 fun XedTopBar(
     drawerState: DrawerState,
     viewModel: MainViewModel,
+    fullScreen: Boolean,
     onDrag: (Float) -> Unit = {},
     onDragEnd: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
 
-    TopAppBar(
-        modifier =
-            Modifier.pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                    onDragEnd = { onDragEnd() },
-                    onDragCancel = { onDragEnd() },
-                )
-            },
-        title = {},
-        navigationIcon = {
-            if (!isPermanentDrawer) {
-                IconButton(
-                    onClick = { scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() } }
-                ) {
-                    Icon(Icons.Outlined.Menu, null)
-                }
-            }
-        },
-        actions = {
-            GlobalToolbarActions(viewModel)
-
-            if (viewModel.tabs.isNotEmpty()) {
-                val tab =
-                    if (isV) {
-                        viewModel.tabs[viewModel.currentTabIndex]
-                    } else {
-                        viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+    AnimatedVisibility(visible = viewModel.showTopBar, enter = expandVertically(), exit = shrinkVertically()) {
+        TopAppBar(
+            windowInsets = if (fullScreen) WindowInsets() else TopAppBarDefaults.windowInsets,
+            modifier =
+                Modifier.pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                        onDragEnd = { onDragEnd() },
+                        onDragCancel = { onDragEnd() },
+                    )
+                },
+            title = {},
+            navigationIcon = {
+                if (!isPermanentDrawer) {
+                    IconButton(
+                        onClick = {
+                            scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() }
+                        }
+                    ) {
+                        Icon(Icons.Outlined.Menu, null)
                     }
-
-                if (tab != null) {
-                    tab.apply { Actions() }
-                } else {
-                    toast(strings.unknown_error)
                 }
-            }
-        },
-    )
+            },
+            actions = {
+                GlobalToolbarActions(viewModel)
+
+                if (viewModel.tabs.isNotEmpty()) {
+                    val tab =
+                        if (isV) {
+                            viewModel.tabs[viewModel.currentTabIndex]
+                        } else {
+                            viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+                        }
+
+                    if (tab != null) {
+                        tab.apply { Actions() }
+                    } else {
+                        toast(strings.unknown_error)
+                    }
+                }
+            },
+        )
+    }
 }

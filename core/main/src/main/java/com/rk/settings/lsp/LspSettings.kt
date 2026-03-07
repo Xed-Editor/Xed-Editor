@@ -108,6 +108,7 @@ fun LspSettings(navController: NavController) {
         PreferenceGroup(heading = stringResource(strings.external)) {
             LspRegistry.externalServers.forEachIndexed { index, server ->
                 key(server.id) {
+                    val icon = server.icon ?: drawables.unknown_document
                     SettingsToggle(
                         label = server.languageName,
                         default = true,
@@ -115,7 +116,7 @@ fun LspSettings(navController: NavController) {
                         singleLineDescription = true,
                         showSwitch = false,
                         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
-                        startWidget = server.icon?.let { { LspServerIcon(server, it) } },
+                        startWidget = { LspServerIcon(server, icon) },
                         endWidget = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(
@@ -204,6 +205,7 @@ private fun LspServerItem(
     navController: NavController,
     refreshKey: Int,
 ) {
+    val icon = server.icon ?: drawables.unknown_document
     SettingsToggle(
         label = server.languageName,
         default = Preference.getBoolean("lsp_${server.id}", true),
@@ -211,7 +213,7 @@ private fun LspServerItem(
         singleLineDescription = true,
         showSwitch = true,
         onClick = { navController.navigate("${SettingsRoutes.LspServerDetail.route}/${server.id}") },
-        startWidget = server.icon?.let { { LspServerIcon(server, it) } },
+        startWidget = { LspServerIcon(server, icon) },
         sideEffect = {
             if (it) {
                 scope.launch { server.connectAllSuitableEditors() }

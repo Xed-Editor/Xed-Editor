@@ -1,7 +1,6 @@
 package com.rk.activities.main
 
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.LocalContentColor
@@ -66,7 +64,6 @@ import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
     innerPadding: PaddingValues,
@@ -221,6 +218,7 @@ fun MainContent(
                     file = fileActionDialog!!,
                     root = (currentDrawerTab as? FileTreeTab)?.root,
                     onDismissRequest = { fileActionDialog = null },
+                    scope = scope,
                     fileTreeContext = false,
                     fileTreeViewModel = fileTreeViewModel,
                 )

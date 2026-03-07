@@ -3,12 +3,16 @@ package com.rk.activities.main
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -22,6 +26,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
@@ -33,6 +39,7 @@ import com.rk.git.GitViewModel
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.search.SearchViewModel
+import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
@@ -47,6 +54,7 @@ var searchViewModel = WeakReference<SearchViewModel?>(null)
 var snackbarHostStateRef: WeakReference<SnackbarHostState?> = WeakReference(null)
 var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MainActivity.MainContentHost(
     gitViewModel: GitViewModel = viewModel(),
@@ -84,6 +92,21 @@ fun MainActivity.MainContentHost(
                 }
             }
 
+            LaunchedEffect(ReactiveSettings.fullscreen) {
+                val controller = WindowCompat.getInsetsController(window, window.decorView)
+                val statusBarType = WindowInsetsCompat.Type.statusBars()
+                if (ReactiveSettings.fullscreen) {
+                    controller.hide(statusBarType)
+                } else {
+                    controller.show(statusBarType)
+                }
+            }
+
+            val keyboardShown = WindowInsets.isImeVisible
+            LaunchedEffect(keyboardShown, ReactiveSettings.smartToolbar) {
+                viewModel.showTopBar = !ReactiveSettings.smartToolbar || !keyboardShown
+            }
+
             val scope = rememberCoroutineScope()
 
             BackHandler {
@@ -114,6 +137,8 @@ fun MainActivity.MainContentHost(
 
             val mainContent: @Composable () -> Unit = {
                 Scaffold(
+                    contentWindowInsets =
+                        if (ReactiveSettings.fullscreen) WindowInsets() else ScaffoldDefaults.contentWindowInsets,
                     snackbarHost = {
                         SnackbarHost(
                             hostState = snackbarHostState,
@@ -125,6 +150,7 @@ fun MainActivity.MainContentHost(
                         XedTopBar(
                             drawerState = drawerState,
                             viewModel = viewModel,
+                            fullScreen = ReactiveSettings.fullscreen,
                             onDrag = { dragAmount ->
                                 accumulator += dragAmount
 
@@ -165,10 +191,15 @@ fun MainActivity.MainContentHost(
                     createServices()
                     isLoading = false
                 }
-                DrawerContent(modifier = Modifier.fillMaxSize().padding(top = 8.dp))
+                DrawerContent(ReactiveSettings.fullscreen)
             }
 
-            ResponsiveDrawer(drawerState = drawerState, mainContent = mainContent, sheetContent = sheetContent)
+            ResponsiveDrawer(
+                drawerState = drawerState,
+                fullscreen = ReactiveSettings.fullscreen,
+                mainContent = mainContent,
+                sheetContent = sheetContent,
+            )
         }
     }
 }

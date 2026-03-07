@@ -124,6 +124,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 file = fileActionDialog!!,
                 root = root,
                 onDismissRequest = { fileActionDialog = null },
+                scope = scope,
                 fileTreeViewModel = fileTreeViewModel.get()!!,
             )
         }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
@@ -249,7 +251,7 @@ fun selectTab(tab: DrawerTab?) {
 var isLoading by mutableStateOf(true)
 
 @Composable
-fun DrawerContent(modifier: Modifier = Modifier) {
+fun DrawerContent(fullscreen: Boolean) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -381,7 +383,10 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 val lazyListState = rememberLazyListState()
                 val showHorizontalDivider by remember { derivedStateOf { lazyListState.canScrollForward } }
 
-                NavigationRail(modifier = Modifier.width(61.dp)) {
+                NavigationRail(
+                    modifier = Modifier.width(61.dp),
+                    windowInsets = if (fullscreen) WindowInsets() else NavigationRailDefaults.windowInsets,
+                ) {
                     Column(modifier = Modifier.fillMaxHeight()) {
                         LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
                             items(drawerTabs) { tab ->

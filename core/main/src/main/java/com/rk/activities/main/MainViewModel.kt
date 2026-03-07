@@ -102,6 +102,8 @@ class MainViewModel : ViewModel() {
     var commandPaletteInitialChildCommands by mutableStateOf<List<Command>?>(null)
     var commandPaletteInitialPlaceholder by mutableStateOf<String?>(null)
 
+    var showTopBar by mutableStateOf(true)
+
     fun showCommandPaletteWithChildren(placeholder: String? = null, childCommands: List<Command>) {
         commandPaletteInitialChildCommands = childCommands
         commandPaletteInitialPlaceholder = placeholder
