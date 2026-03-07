@@ -784,4 +784,8 @@
     <string name="oom_prediction">Prédiction OOM</string>
     <string name="oom_prediction_desc">Affiche le dialogue de dépassement de mémoire</string>
     <string name="debug">Débogage</string>
+    <string name="files_unsaved">Fichiers non enregistrés</string>
+    <string name="ask_multiple_unsaved">Êtes-vous sûr de ne pas vouloir enregistrer ces documents ?</string>
+    <string name="ask_lsp_update">Voulez-vous mettre à jour le serveur de langue \'%s\' ?</string>
+    <string name="restart_all">Tout redémarrer</string>
 </resources>
