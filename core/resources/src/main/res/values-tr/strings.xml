@@ -781,4 +781,8 @@
     <string name="ask_multiple_unsaved">Bu kaydedilmemiş belgeleri silmek istediğinizden emin misiniz?</string>
     <string name="ask_lsp_update">\'%s\' dil sunucusunu güncellemek ister misiniz?</string>
     <string name="restart_all">Tümünü yeniden başlat</string>
+    <string name="fullscreen">Tam ekran</string>
+    <string name="fullscreen_desc">Uygulamayı tam ekranda başlat</string>
+    <string name="smart_toolbar">Akıllı araç çubuğu</string>
+    <string name="smart_toolbar_desc">Ekran alanı açmak için düzenleme yaparken araç çubuğunu gizle</string>
 </resources>
