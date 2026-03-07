@@ -3,8 +3,10 @@ package com.rk.activities.main
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -52,6 +54,7 @@ var searchViewModel = WeakReference<SearchViewModel?>(null)
 var snackbarHostStateRef: WeakReference<SnackbarHostState?> = WeakReference(null)
 var drawerStateRef: WeakReference<DrawerState?> = WeakReference(null)
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MainActivity.MainContentHost(
     gitViewModel: GitViewModel = viewModel(),
@@ -97,6 +100,11 @@ fun MainActivity.MainContentHost(
                 } else {
                     controller.show(statusBarType)
                 }
+            }
+
+            val keyboardShown = WindowInsets.isImeVisible
+            LaunchedEffect(keyboardShown, ReactiveSettings.smartToolbar) {
+                viewModel.showTopBar = !ReactiveSettings.smartToolbar || !keyboardShown
             }
 
             val scope = rememberCoroutineScope()

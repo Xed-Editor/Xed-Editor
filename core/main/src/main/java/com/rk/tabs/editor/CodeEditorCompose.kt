@@ -6,15 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -70,11 +67,6 @@ fun EditorTab.CodeEditor(
     val divider = colorScheme.outlineVariant
     val constraintSet = remember { ConstraintSet() }
     val scope = rememberCoroutineScope()
-
-    val keyboardShown = WindowInsets.isImeVisible
-    LaunchedEffect(keyboardShown, ReactiveSettings.smartToolbar) {
-        viewModel.showTopBar = !ReactiveSettings.smartToolbar || !keyboardShown
-    }
 
     AndroidView(
         modifier = modifier.fillMaxSize(),

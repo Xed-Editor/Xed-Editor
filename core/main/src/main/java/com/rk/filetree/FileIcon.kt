@@ -20,7 +20,6 @@ import com.rk.icons.pack.currentIconPack
 import com.rk.icons.rememberSvgImageLoader
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
-import com.rk.theme.folderSurface
 import java.io.InputStream
 
 private val plain_file = drawables.file
@@ -62,7 +61,7 @@ fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = fa
     val tint =
         iconTint
             ?: if (icon == folder || icon == archive) {
-                MaterialTheme.colorScheme.folderSurface
+                MaterialTheme.colorScheme.primary
             } else MaterialTheme.colorScheme.secondary
 
     val useTint = currentIconPack.value?.info?.applyTint == true
@@ -110,7 +109,7 @@ fun FileNameIcon(fileName: String, isDirectory: Boolean, iconTint: Color? = null
     val tint =
         iconTint
             ?: if (icon == folder || icon == archive) {
-                MaterialTheme.colorScheme.folderSurface
+                MaterialTheme.colorScheme.primary
             } else MaterialTheme.colorScheme.secondary
 
     val useTint = currentIconPack.value?.info?.applyTint == true
