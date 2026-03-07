@@ -757,4 +757,6 @@
     <string name="oom_prediction_desc">Show out of memory dialog</string>
     <string name="debug">Debug</string>
     <string name="restart_all">Restart all</string>
+    <string name="fullscreen">Fullscreen</string>
+    <string name="fullscreen_desc">Start application in fullscreen mode</string>
 </resources>

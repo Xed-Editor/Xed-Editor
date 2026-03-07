@@ -1,9 +1,11 @@
 package com.rk.components
 
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -36,6 +38,7 @@ var isPermanentDrawer by mutableStateOf(false)
 @Composable
 fun ResponsiveDrawer(
     drawerState: DrawerState,
+    fullscreen: Boolean,
     mainContent: @Composable () -> Unit,
     sheetContent: @Composable ColumnScope.() -> Unit,
 ) {
@@ -48,7 +51,13 @@ fun ResponsiveDrawer(
         PermanentNavigationDrawer(
             content = mainContent,
             modifier = Modifier.imePadding().systemBarsPadding(),
-            drawerContent = { PermanentDrawerSheet(drawerShape = RectangleShape, content = sheetContent) },
+            drawerContent = {
+                PermanentDrawerSheet(
+                    windowInsets = if (fullscreen) WindowInsets() else DrawerDefaults.windowInsets,
+                    drawerShape = RectangleShape,
+                    content = sheetContent,
+                )
+            },
         )
     } else {
         ModalNavigationDrawer(
@@ -58,6 +67,7 @@ fun ResponsiveDrawer(
             content = mainContent,
             drawerContent = {
                 ModalDrawerSheet(
+                    windowInsets = if (fullscreen) WindowInsets() else DrawerDefaults.windowInsets,
                     modifier = Modifier.width(getDrawerWidth()),
                     drawerShape = RectangleShape,
                     content = sheetContent,

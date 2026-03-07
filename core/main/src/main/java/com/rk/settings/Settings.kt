@@ -42,6 +42,7 @@ object ReactiveSettings {
     var compactFoldersDrawer by mutableStateOf(Settings.compact_folders_drawer)
     var excludedFilesSearch by mutableStateOf(Settings.excluded_files_search)
     var excludedFilesDrawer by mutableStateOf(Settings.excluded_files_drawer)
+    var fullscreen by mutableStateOf(Settings.fullscreen)
 
     fun update() {
         toolbarActionIds = Settings.action_items
@@ -54,6 +55,7 @@ object ReactiveSettings {
         compactFoldersDrawer = Settings.compact_folders_drawer
         excludedFilesSearch = Settings.excluded_files_search
         excludedFilesDrawer = Settings.excluded_files_drawer
+        fullscreen = Settings.fullscreen
     }
 }
 
@@ -125,6 +127,7 @@ object Settings {
     var git_submodules by CachedPreference("git_submodules", true)
     var git_recursive_submodules by CachedPreference("git_recursive_submodules", true)
     var always_index_projects by CachedPreference("always_index_projects", false)
+    var fullscreen by CachedPreference("fullscreen", false)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)

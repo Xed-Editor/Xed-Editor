@@ -99,6 +99,16 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 sideEffect = { Settings.check_for_update = it },
             )
 
+            SettingsToggle(
+                label = stringResource(strings.fullscreen),
+                description = stringResource(strings.fullscreen_desc),
+                default = Settings.fullscreen,
+                sideEffect = {
+                    Settings.fullscreen = it
+                    ReactiveSettings.update()
+                },
+            )
+
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 SettingsToggle(
                     label = stringResource(strings.manage_storage),
