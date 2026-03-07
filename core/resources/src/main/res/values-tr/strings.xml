@@ -777,4 +777,8 @@
     <string name="oom_prediction">OOM tahmini</string>
     <string name="oom_prediction_desc">Bellek yetersizliği iletişim kutusunu göster</string>
     <string name="debug">Hata ayıklama</string>
+    <string name="files_unsaved">Dosyalar kaydedilmedi</string>
+    <string name="ask_multiple_unsaved">Bu kaydedilmemiş belgeleri silmek istediğinizden emin misiniz?</string>
+    <string name="ask_lsp_update">\'%s\' dil sunucusunu güncellemek ister misiniz?</string>
+    <string name="restart_all">Tümünü yeniden başlat</string>
 </resources>
