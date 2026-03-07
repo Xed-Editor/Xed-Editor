@@ -221,6 +221,7 @@ fun MainContent(
                     file = fileActionDialog!!,
                     root = (currentDrawerTab as? FileTreeTab)?.root,
                     onDismissRequest = { fileActionDialog = null },
+                    scope = scope,
                     fileTreeContext = false,
                     fileTreeViewModel = fileTreeViewModel,
                 )

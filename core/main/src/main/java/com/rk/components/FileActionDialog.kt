@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.drawerStateRef
 import com.rk.activities.terminal.Terminal
@@ -54,6 +53,7 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.errorDialog
 import com.rk.utils.showTerminalNotice
 import com.rk.utils.toast
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,11 +62,11 @@ fun FileActionDialog(
     file: FileObject,
     root: FileObject?,
     onDismissRequest: () -> Unit,
+    scope: CoroutineScope,
     fileTreeContext: Boolean = true,
     fileTreeViewModel: FileTreeViewModel,
 ) {
     val context = LocalContext.current
-    val scope = DefaultScope
 
     // State for various dialogs
     var showRenameDialog by remember { mutableStateOf(false) }
@@ -436,7 +436,7 @@ fun FileActionDialog(
                 }
             },
             onConfirm = {
-                DefaultScope.launch {
+                scope.launch {
                     runCatching {
                             if (file.canWrite().not()) {
                                 toast(strings.permission_denied)
