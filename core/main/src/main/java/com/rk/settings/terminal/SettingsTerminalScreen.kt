@@ -38,7 +38,6 @@ import com.rk.utils.dpToPx
 import com.rk.utils.getTempDir
 import com.rk.utils.toast
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.lang.Runtime.getRuntime
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -103,30 +102,32 @@ fun SettingsTerminalScreen() {
 
                         val tempFile = getTempDir().child("terminal-backup.tar.gz")
 
-                        fileObject.getInputStream().use { inputStream ->
-                            FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
-                        }
+                        try {
+                            fileObject.getInputStream().use { inputStream ->
+                                FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
+                            }
 
-                        if (fileObject.canRead().not()) {
-                            toast(strings.permission_denied)
-                            loading.hide()
-                            return@launch
-                        }
+                            sandboxDir().deleteRecursively()
+                            sandboxDir().mkdirs()
 
-                        sandboxDir().deleteRecursively()
-                        sandboxDir().mkdirs()
+                            val result =
+                                getRuntime().exec("tar -xf ${tempFile.absolutePath} -C ${sandboxDir()}").waitFor()
+                            withContext(Dispatchers.Main) {
+                                loading.hide()
+                                if (result == 0) {
+                                    toast(strings.success)
+                                } else {
+                                    toast(strings.failed)
+                                }
+                            }
 
-                        val result = getRuntime().exec("tar -xf ${tempFile.absolutePath} -C ${sandboxDir()}").waitFor()
-                        withContext(Dispatchers.Main) {
-                            loading.hide()
-                            if (result == 0) {
-                                toast(strings.success)
-                            } else {
-                                toast(strings.failed)
+                            localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").createFileIfNot()
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                loading.hide()
+                                toast("Error: ${e.message}")
                             }
                         }
-
-                        localDir().child(".terminal_setup_ok_DO_NOT_REMOVE").createFileIfNot()
                     }
                 }
 
@@ -151,62 +152,56 @@ fun SettingsTerminalScreen() {
                             if (fileObject != null) {
                                 val targetFile = getTempDir().child("terminal-backup.tar.gz")
 
-                                fileObject.getInputStream().use { inputStream ->
-                                    FileOutputStream(targetFile).use { outputStream ->
-                                        inputStream.copyTo(outputStream)
-                                    }
-                                }
-
                                 val loading = LoadingPopup(activity, null)
                                 loading.show()
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    try {
-                                        val sandboxDir = sandboxDir().absolutePath
-                                        val targetPath = targetFile.absolutePath
 
-                                        val processBuilder =
-                                            ProcessBuilder(
-                                                    "tar",
-                                                    "-czf",
-                                                    targetPath,
-                                                    ".",
-                                                    "--exclude=dev",
-                                                    "--exclude=sys",
-                                                    "--exclude=proc",
-                                                    "--exclude=system",
-                                                    "--exclude=apex",
-                                                    "--exclude=vendor",
-                                                    "--exclude=data",
-                                                    "--exclude=home",
-                                                    "--exclude=root",
-                                                    "--exclude=var/cache",
-                                                    "--exclude=var/tmp",
-                                                    "--exclude=lost+found",
-                                                    "--exclude=storage",
-                                                    "--exclude=system_ext",
-                                                    "--exclude=tmp",
-                                                    "--exclude=vendor",
-                                                    "--exclude=sdcard",
-                                                    "--exclude=storage",
-                                                )
-                                                .apply {
-                                                    directory(File(sandboxDir))
-                                                    redirectErrorStream(true)
-                                                }
+                                try {
+                                    val sandboxDir = sandboxDir().absolutePath
+                                    val targetPath = targetFile.absolutePath
 
-                                        processBuilder.start().waitFor()
+                                    val processBuilder =
+                                        ProcessBuilder(
+                                                "tar",
+                                                "-czf",
+                                                targetPath,
+                                                ".",
+                                                "--exclude=dev",
+                                                "--exclude=sys",
+                                                "--exclude=proc",
+                                                "--exclude=system",
+                                                "--exclude=apex",
+                                                "--exclude=vendor",
+                                                "--exclude=data",
+                                                "--exclude=home",
+                                                "--exclude=root",
+                                                "--exclude=var/cache",
+                                                "--exclude=var/tmp",
+                                                "--exclude=lost+found",
+                                                "--exclude=storage",
+                                                "--exclude=system_ext",
+                                                "--exclude=tmp",
+                                                "--exclude=vendor",
+                                                "--exclude=sdcard",
+                                                "--exclude=storage",
+                                            )
+                                            .apply {
+                                                directory(File(sandboxDir))
+                                                redirectErrorStream(true)
+                                            }
 
-                                        withContext(Dispatchers.Main) { loading.hide() }
-                                    } catch (e: Exception) {
-                                        withContext(Dispatchers.Main) {
-                                            loading.hide()
-                                            toast("Error: ${e.message}")
-                                        }
-                                    }
-                                    FileInputStream(targetFile).use { inputStream ->
+                                    processBuilder.start().waitFor()
+
+                                    loading.hide()
+
+                                    targetFile.inputStream().use { inputStream ->
                                         fileObject.getOutPutStream(false).use { outputStream ->
                                             inputStream.copyTo(outputStream)
                                         }
+                                    }
+                                } catch (e: Exception) {
+                                    withContext(Dispatchers.Main) {
+                                        loading.hide()
+                                        toast("Error: ${e.message}")
                                     }
                                 }
                             }
