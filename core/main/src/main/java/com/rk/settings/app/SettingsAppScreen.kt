@@ -109,6 +109,16 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 },
             )
 
+            SettingsToggle(
+                label = stringResource(strings.smart_toolbar),
+                description = stringResource(strings.smart_toolbar_desc),
+                default = Settings.smart_toolbar,
+                sideEffect = {
+                    Settings.smart_toolbar = it
+                    ReactiveSettings.update()
+                },
+            )
+
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 SettingsToggle(
                     label = stringResource(strings.manage_storage),

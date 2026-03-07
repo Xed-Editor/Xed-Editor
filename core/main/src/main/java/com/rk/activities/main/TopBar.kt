@@ -1,5 +1,8 @@
 package com.rk.activities.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material.icons.Icons
@@ -32,43 +35,47 @@ fun XedTopBar(
 ) {
     val scope = rememberCoroutineScope()
 
-    TopAppBar(
-        windowInsets = if (fullScreen) WindowInsets() else TopAppBarDefaults.windowInsets,
-        modifier =
-            Modifier.pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                    onDragEnd = { onDragEnd() },
-                    onDragCancel = { onDragEnd() },
-                )
-            },
-        title = {},
-        navigationIcon = {
-            if (!isPermanentDrawer) {
-                IconButton(
-                    onClick = { scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() } }
-                ) {
-                    Icon(Icons.Outlined.Menu, null)
-                }
-            }
-        },
-        actions = {
-            GlobalToolbarActions(viewModel)
-
-            if (viewModel.tabs.isNotEmpty()) {
-                val tab =
-                    if (isV) {
-                        viewModel.tabs[viewModel.currentTabIndex]
-                    } else {
-                        viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+    AnimatedVisibility(visible = viewModel.showTopBar, enter = expandVertically(), exit = shrinkVertically()) {
+        TopAppBar(
+            windowInsets = if (fullScreen) WindowInsets() else TopAppBarDefaults.windowInsets,
+            modifier =
+                Modifier.pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                        onDragEnd = { onDragEnd() },
+                        onDragCancel = { onDragEnd() },
+                    )
+                },
+            title = {},
+            navigationIcon = {
+                if (!isPermanentDrawer) {
+                    IconButton(
+                        onClick = {
+                            scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() }
+                        }
+                    ) {
+                        Icon(Icons.Outlined.Menu, null)
                     }
-
-                if (tab != null) {
-                    tab.apply { Actions() }
-                } else {
-                    toast(strings.unknown_error)
                 }
-            }
-        },
-    )
+            },
+            actions = {
+                GlobalToolbarActions(viewModel)
+
+                if (viewModel.tabs.isNotEmpty()) {
+                    val tab =
+                        if (isV) {
+                            viewModel.tabs[viewModel.currentTabIndex]
+                        } else {
+                            viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+                        }
+
+                    if (tab != null) {
+                        tab.apply { Actions() }
+                    } else {
+                        toast(strings.unknown_error)
+                    }
+                }
+            },
+        )
+    }
 }
