@@ -731,4 +731,49 @@
     <string name="diagnostics_desc">顯示錯誤與警告</string>
     <string name="formatting">格式化</string>
     <string name="formatting_desc">啟用文件格式化</string>
+    <string name="files_unsaved">檔案尚未儲存</string>
+    <string name="ask_multiple_unsaved">確定要捨棄這些尚未儲存的文件嗎？</string>
+    <string name="ask_lsp_update">要更新「%s」語言伺服器嗎？</string>
+    <string name="status_info">狀態：%s</string>
+    <string name="supported_extensions">擴充套件：%s</string>
+    <string name="always_index_projects_desc">預設自動為專案建立索引。這可能會占用大量裝置儲存空間。</string>
+    <string name="instances">執行個體</string>
+    <string name="stop">停止</string>
+    <string name="instance_not_found">找不到執行個體。</string>
+    <string name="offline">離線</string>
+    <string name="time_just_now">剛剛</string>
+    <string name="manage">管理</string>
+    <string name="no_instances">沒有執行個體</string>
+    <string name="uptime">運行時間：%s</string>
+    <string name="lsp_connection_error">無法連線至語言伺服器</string>
+    <string name="lsp_restart_required">重新啟動語言伺服器以套用變更</string>
+    <string name="exclude_files_drawer">在側邊欄排除檔案</string>
+    <string name="exclude_files_drawer_desc">設定要從檔案樹排除的檔案</string>
+    <string name="exclude_files_search">在搜尋中排除檔案</string>
+    <string name="exclude_files_search_desc">從索引中排除檔案。這可以改善大型專案的搜尋速度。</string>
+    <string name="file_mask">檔案遮罩</string>
+    <string name="file_mask_hint">檔案遮罩（例如 .js、.ts）</string>
+    <string name="glob_docs">了解如何使用 glob 模式</string>
+    <string name="detect_bin_files">偵測二進位檔案</string>
+    <string name="detect_bin_files_desc">預設以唯讀模式開啟二進位檔案</string>
+    <string name="oom_prediction">記憶體不足預測</string>
+    <string name="oom_prediction_desc">顯示記憶體不足提示</string>
+    <string name="debug">除錯</string>
+    <string name="restart_all">全部重新啟動</string>
+    <string name="fullscreen">全螢幕</string>
+    <string name="fullscreen_desc">以全螢幕模式啟動應用程式</string>
+    <string name="smart_toolbar">智慧工具列</string>
+    <string name="smart_toolbar_desc">編輯時隱藏工具列以騰出更多螢幕空間</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="other">%d 秒前</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="other">%d 分鐘前</item>
+    </plurals>
+    <plurals name="time_hours_ago">
+        <item quantity="other">%d 小時前</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="other">%d 天前</item>
+    </plurals>
 </resources>
