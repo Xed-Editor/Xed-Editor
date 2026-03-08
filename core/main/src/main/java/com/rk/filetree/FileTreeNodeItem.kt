@@ -2,8 +2,6 @@ package com.rk.filetree
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -125,7 +123,7 @@ fun FileTreeNodeItem(
                     )
                     .then(
                         if (viewModel.selectedFile[(currentDrawerTab as? FileTreeTab)?.root] == node.file && !isCut) {
-                            Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
+                            Modifier.background(color = MaterialTheme.colorScheme.surfaceContainer)
                         } else {
                             Modifier
                         }
@@ -175,7 +173,10 @@ fun FileTreeNodeItem(
             }
         }
 
-        AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(
+            modifier = Modifier.width(getDrawerWidth() - 61.dp),
+            visible = isExpanded && node.isDirectory && children.isNotEmpty(),
+        ) {
             Column {
                 displayedChildren.forEach { childNode ->
                     key(childNode.file.hashCode(), childNode.name) {

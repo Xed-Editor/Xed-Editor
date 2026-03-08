@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
@@ -66,7 +65,7 @@ fun MainActivity.MainContentHost(
     com.rk.activities.main.searchViewModel = WeakReference(searchViewModel)
 
     XedTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+        Surface(modifier = Modifier.fillMaxSize()) {
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
             val snackbarHostState = remember { SnackbarHostState() }
 

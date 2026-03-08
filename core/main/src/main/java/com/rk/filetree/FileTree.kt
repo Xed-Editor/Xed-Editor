@@ -25,7 +25,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.searchViewModel
-import com.rk.components.isPermanentDrawer
 import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -86,18 +84,10 @@ fun FileTree(
 
     LaunchedEffect(viewModel.sortMode) { viewModel.refreshEverything() }
 
-    Surface(
-        modifier = modifier,
-        color =
-            if (isPermanentDrawer) {
-                MaterialTheme.colorScheme.surface
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerLow
-            },
-    ) {
-        Column(modifier = Modifier.fillMaxSize().padding(vertical = 8.dp)) {
+    Surface(modifier = modifier) {
+        Column(modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -204,8 +194,12 @@ fun FileTree(
                 }
             }
 
-            Column(modifier = Modifier.horizontalScroll(rememberScrollState()).verticalScroll(rememberScrollState())) {
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier =
+                    Modifier.horizontalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = 8.dp)
+            ) {
                 key(rootNode.file.hashCode(), rootNode.name) {
                     FileTreeNodeItem(
                         modifier = Modifier.fillMaxWidth(),

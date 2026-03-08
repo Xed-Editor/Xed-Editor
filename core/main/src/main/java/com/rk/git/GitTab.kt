@@ -67,7 +67,6 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.components.SingleInputDialog
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
-import com.rk.components.isPermanentDrawer
 import com.rk.file.toFileWrapper
 import com.rk.filetree.DrawerTab
 import com.rk.filetree.FileNameIcon
@@ -137,15 +136,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
         val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
 
-        Surface(
-            modifier = modifier,
-            color =
-                if (isPermanentDrawer) {
-                    MaterialTheme.colorScheme.surface
-                } else {
-                    MaterialTheme.colorScheme.surfaceContainerLow
-                },
-        ) {
+        Surface(modifier = modifier) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -276,7 +267,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         Modifier.fillMaxWidth()
                             .height(40.dp)
                             .toggleable(
-                                value = amend!!,
+                                value = amend,
                                 enabled = !viewModel.isLoading,
                                 onValueChange = { viewModel.toggleAmend(it) },
                                 role = Role.Checkbox,
@@ -298,7 +289,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                 OutlinedTextField(
                     enabled = !viewModel.isLoading,
                     modifier = Modifier.fillMaxWidth().height(120.dp),
-                    value = commitMessage!!,
+                    value = commitMessage,
                     onValueChange = { viewModel.changeCommitMessage(it) },
                     placeholder = { Text(stringResource(strings.commit_message)) },
                 )
