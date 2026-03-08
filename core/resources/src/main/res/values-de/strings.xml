@@ -775,4 +775,8 @@
     <string name="oom_prediction">OOM-Vorhersage</string>
     <string name="oom_prediction_desc">Out-of-Memory-Dialog anzeigen</string>
     <string name="debug">Debug</string>
+    <string name="restart_all">Alles neu starten</string>
+    <string name="fullscreen">Vollbild</string>
+    <string name="fullscreen_desc">Anwendung im Vollbildmodus starten</string>
+    <string name="files_unsaved">Nicht gespeicherte Dateien</string>
 </resources>
