@@ -788,4 +788,8 @@
     <string name="ask_multiple_unsaved">Êtes-vous sûr de ne pas vouloir enregistrer ces documents ?</string>
     <string name="ask_lsp_update">Voulez-vous mettre à jour le serveur de langue \'%s\' ?</string>
     <string name="restart_all">Tout redémarrer</string>
+    <string name="fullscreen">Plein écran</string>
+    <string name="fullscreen_desc">Démarre l\'application en plein écran</string>
+    <string name="smart_toolbar">Barre d\'outils intelligente</string>
+    <string name="smart_toolbar_desc">Cache la barre d\'outils pour faciliter l\'édition de texte</string>
 </resources>
