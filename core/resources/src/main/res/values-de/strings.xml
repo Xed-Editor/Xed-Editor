@@ -21,7 +21,7 @@
     <string name="restart_to_apply">Bitte neu starten, um die Einstellungen anzuwenden</string>
     <string name="oled">Schwarzes Thema</string>
     <string name="word_wrap">Zeilenumbruch</string>
-    <string name="restart">Neustart</string>
+    <string name="restart">Neu starten</string>
     <string name="refresh">Neu laden</string>
     <string name="dir_example">Name (z. B. Test)</string>
     <string name="create">Erstellen</string>
@@ -775,10 +775,10 @@
     <string name="oom_prediction">OOM-Vorhersage</string>
     <string name="oom_prediction_desc">Out-of-Memory-Dialog anzeigen</string>
     <string name="debug">Debug</string>
-    <string name="restart_all">Alles neu starten</string>
+    <string name="restart_all">Alle neu starten</string>
     <string name="fullscreen">Vollbild</string>
     <string name="fullscreen_desc">Anwendung im Vollbildmodus starten</string>
-    <string name="files_unsaved">Nicht gespeicherte Dateien</string>
+    <string name="files_unsaved">Dateien nicht gespeichert</string>
     <string name="ask_multiple_unsaved">Bist du sicher, dass du diese nicht gespeicherten Dokumente verwerfen möchtest?</string>
     <string name="ask_lsp_update">Möchtest du den \'%s\' Sprachserver aktualisieren?</string>
     <string name="smart_toolbar">Intelligente Toolbar</string>
