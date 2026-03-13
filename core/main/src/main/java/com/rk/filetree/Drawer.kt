@@ -323,7 +323,6 @@ fun DrawerContent(fullscreen: Boolean) {
 
                         override fun isCancelled(): Boolean = cancelled || Thread.currentThread().isInterrupted
 
-
                         override fun showDialog() {
                             showCloneProgressDialog = true
                             progress = 0
