@@ -767,4 +767,12 @@
     <string name="oom_prediction">Prediksi OOM</string>
     <string name="oom_prediction_desc">Tampilkan dialog kehabisan memori</string>
     <string name="debug">Debug</string>
+    <string name="files_unsaved">File belum disimpan</string>
+    <string name="ask_multiple_unsaved">Apakah Anda yakin ingin menghapus dokumen-dokumen yang belum disimpan ini?</string>
+    <string name="ask_lsp_update">Apakah Anda ingin memperbarui server bahasa \'%s\'?</string>
+    <string name="restart_all">Atur ulang semua</string>
+    <string name="fullscreen">Layar penuh</string>
+    <string name="fullscreen_desc">Jalankan aplikasi dalam mode layar penuh</string>
+    <string name="smart_toolbar">Bilah alat pintar</string>
+    <string name="smart_toolbar_desc">Sembunyikan bilah alat saat mengedit untuk mengosongkan ruang layar</string>
 </resources>
