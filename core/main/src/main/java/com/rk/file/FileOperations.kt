@@ -10,11 +10,16 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util
 
 object FileOperations {
-    var clipboard: FileObject? = null
+    var clipboard: List<FileObject> = emptyList()
     var isCut: Boolean = false
 
     fun copyToClipboard(file: FileObject, isCut: Boolean = false) {
-        clipboard = file
+        clipboard = listOf(file)
+        this.isCut = isCut
+    }
+
+    fun copyToClipboard(files: List<FileObject>, isCut: Boolean = false) {
+        clipboard = files
         this.isCut = isCut
     }
 

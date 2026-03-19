@@ -24,8 +24,113 @@ fun FileObject.toFileTreeNode(): FileTreeNode {
 }
 
 class FileTreeViewModel : ViewModel() {
+    // File option dialogs
+    var showRenameDialog by mutableStateOf(false)
+        private set
+
+    var renameFile by mutableStateOf<FileObject?>(null)
+        private set
+
+    var renameValue by mutableStateOf("")
+
+    var renameError by mutableStateOf<String?>(null)
+    var showDeleteConfirmation by mutableStateOf(false)
+        private set
+
+    var deleteFiles by mutableStateOf<List<FileObject>?>(null)
+        private set
+
+    var deleteRoot by mutableStateOf<FileObject?>(null)
+        private set
+
+    var showPropertiesDialog by mutableStateOf(false)
+        private set
+
+    var propertyFiles by mutableStateOf<List<FileObject>?>(null)
+        private set
+
+    var isCreateFile by mutableStateOf(true)
+        private set
+
+    var createValue by mutableStateOf("")
+    var createError by mutableStateOf<String?>(null)
+    var showCreateDialog by mutableStateOf(false)
+        private set
+
+    var createParentFile by mutableStateOf<FileObject?>(null)
+        private set
+
+    var createRoot by mutableStateOf<FileObject?>(null)
+        private set
+
+    var showCloseProjectConfirmation by mutableStateOf(false)
+        private set
+
+    var projectConfirmationRoot by mutableStateOf<FileObject?>(null)
+        private set
+
+    fun showRenameDialog(file: FileObject) {
+        showRenameDialog = true
+        renameValue = file.getName()
+        renameFile = file
+    }
+
+    fun closeRenameDialog() {
+        showRenameDialog = false
+        renameValue = ""
+        renameError = null
+        renameFile = null
+    }
+
+    fun showDeleteConfirmation(files: List<FileObject>, root: FileObject?) {
+        showDeleteConfirmation = true
+        deleteFiles = files
+        deleteRoot = root
+    }
+
+    fun closeDeleteConfirmation() {
+        showDeleteConfirmation = false
+        deleteFiles = null
+        deleteRoot = null
+    }
+
+    fun showPropertiesDialog(files: List<FileObject>) {
+        showPropertiesDialog = true
+        propertyFiles = files
+    }
+
+    fun closePropertiesDialog() {
+        showPropertiesDialog = false
+        propertyFiles = null
+    }
+
+    fun showCreateDialog(isCreateFile: Boolean, parentFile: FileObject, root: FileObject?) {
+        this.isCreateFile = isCreateFile
+        showCreateDialog = true
+        createParentFile = parentFile
+        createRoot = root
+    }
+
+    fun closeCreateDialog() {
+        showCreateDialog = false
+        createError = null
+        createParentFile = null
+        createRoot = null
+    }
+
+    fun showCloseProjectConfirmation(root: FileObject) {
+        showCloseProjectConfirmation = true
+        projectConfirmationRoot = root
+    }
+
+    fun closeCloseProjectConfirmation() {
+        showCloseProjectConfirmation = false
+        projectConfirmationRoot = null
+    }
+
+    // File tree
     var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
-    var selectedFile = mutableStateMapOf<FileObject, FileObject>()
+    private val selectedFiles = mutableStateMapOf<FileObject, List<FileObject>>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
     private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
@@ -39,6 +144,45 @@ class FileTreeViewModel : ViewModel() {
 
     fun setExpandedNodes(map: Map<FileObject, Boolean>) {
         map.forEach { expandedNodes[it.key] = it.value }
+    }
+
+    fun toggleSelection(projectRoot: FileObject, fileObject: FileObject) {
+        if (isFileSelected(projectRoot, fileObject)) {
+            unselectFile(projectRoot, fileObject)
+        } else {
+            selectFile(projectRoot, fileObject)
+        }
+    }
+
+    fun selectFile(projectRoot: FileObject, fileObject: FileObject) {
+        selectedFiles[projectRoot] = selectedFiles[projectRoot]?.plus(fileObject) ?: listOf(fileObject)
+    }
+
+    fun unselectFile(projectRoot: FileObject, fileObject: FileObject) {
+        selectedFiles[projectRoot] = selectedFiles[projectRoot]?.minus(fileObject) ?: listOf(fileObject)
+        if (selectedFiles[projectRoot]?.isEmpty() == true) {
+            selectedFiles.remove(projectRoot)
+        }
+    }
+
+    fun unselectAllFiles(projectRoot: FileObject) {
+        selectedFiles.remove(projectRoot)
+    }
+
+    fun isFileSelected(projectRoot: FileObject, fileObject: FileObject): Boolean {
+        return selectedFiles[projectRoot]?.contains(fileObject) == true
+    }
+
+    fun isAnyFileSelected(projectRoot: FileObject): Boolean {
+        return selectedFiles[projectRoot]?.isNotEmpty() == true
+    }
+
+    fun getSelectionCount(projectRoot: FileObject): Int {
+        return selectedFiles[projectRoot]?.size ?: 0
+    }
+
+    fun getSelectedFiles(projectRoot: FileObject): List<FileObject> {
+        return selectedFiles[projectRoot] ?: emptyList()
     }
 
     suspend fun withFileOperation(block: suspend () -> Unit) {
@@ -167,7 +311,8 @@ class FileTreeViewModel : ViewModel() {
     }
 
     suspend fun goToFolder(projectFile: FileObject, fileObject: FileObject) {
-        selectedFile[projectFile] = fileObject
+        //        selectedFile[projectFile] = fileObject
+        // TODO: Focus file (1/2 occurrences)
 
         var currentFile: FileObject? = fileObject
         while (currentFile != null && currentFile != projectFile) {

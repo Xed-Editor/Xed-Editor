@@ -67,7 +67,6 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
-import com.rk.components.CloseConfirmationDialog
 import com.rk.components.DoubleInputDialog
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -552,7 +551,7 @@ fun DrawerContent(fullscreen: Boolean) {
                 }
 
                 if (closeProjectDialog && currentDrawerTab != null) {
-                    CloseConfirmationDialog(
+                    ProjectCloseConfirmationDialog(
                         projectName = currentDrawerTab!!.getName(),
                         onConfirm = {
                             closeProjectDialog = false

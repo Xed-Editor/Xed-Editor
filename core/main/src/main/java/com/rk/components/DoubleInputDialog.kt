@@ -117,7 +117,13 @@ fun DoubleInputDialog(
                                 )
                             }
                         } else null,
-                    keyboardActions = KeyboardActions(onDone = { onConfirm() }),
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                onConfirm()
+                                onFinish()
+                            }
+                        ),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )
 

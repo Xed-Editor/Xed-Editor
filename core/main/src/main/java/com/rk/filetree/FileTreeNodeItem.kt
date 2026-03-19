@@ -40,8 +40,6 @@ import com.rk.settings.ReactiveSettings
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun FileTreeNodeItem(
@@ -49,7 +47,6 @@ fun FileTreeNodeItem(
     node: FileTreeNode,
     depth: Int,
     onFileClick: (FileTreeNode) -> Unit,
-    onFileLongClick: (FileTreeNode) -> Unit,
     viewModel: FileTreeViewModel,
 ) {
     val isHidden = node.file.getName().startsWith(".")
@@ -97,32 +94,41 @@ fun FileTreeNodeItem(
             } else node.name
     }
 
+    val root = (currentDrawerTab as FileTreeTab).root
+    val isFileSelected = viewModel.isFileSelected(root, node.file)
+
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
                 Modifier.addIf(isCut) { alpha(0.5f) }
                     .combinedClickable(
                         onClick = {
+                            if (viewModel.isAnyFileSelected(root)) {
+                                viewModel.toggleSelection(root, node.file)
+                                return@combinedClickable
+                            }
+
                             if (node.isDirectory) {
                                 viewModel.toggleNodeExpansion(node.file)
-                            } else {
-                                scope.launch {
-                                    delay(100)
-                                    onFileClick(node)
-                                }
+                                return@combinedClickable
                             }
-                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root] = node.file
+
+                            onFileClick(node)
+
+                            // FOCUS FILE
+                            //                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root]
+                            // = node.file
                         },
                         onLongClick = {
-                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root] = node.file
-                            scope.launch {
-                                delay(50)
-                                onFileLongClick(node)
-                            }
+                            viewModel.toggleSelection(root, node.file)
+                            //                            scope.launch {
+                            //                                delay(50)
+                            //                                onFileLongClick(node)
+                            //                            }
                         },
                     )
                     .then(
-                        if (viewModel.selectedFile[(currentDrawerTab as? FileTreeTab)?.root] == node.file && !isCut) {
+                        if (isFileSelected && !isCut) {
                             Modifier.background(color = MaterialTheme.colorScheme.surfaceContainer)
                         } else {
                             Modifier
@@ -174,7 +180,7 @@ fun FileTreeNodeItem(
         }
 
         AnimatedVisibility(
-            modifier = Modifier.width(getDrawerWidth() - 61.dp),
+            modifier = Modifier.width(getDrawerWidth()),
             visible = isExpanded && node.isDirectory && children.isNotEmpty(),
         ) {
             Column {
@@ -185,7 +191,6 @@ fun FileTreeNodeItem(
                             node = childNode,
                             depth = depth + 1,
                             onFileClick = onFileClick,
-                            onFileLongClick = onFileLongClick,
                             viewModel = viewModel,
                         )
                     }

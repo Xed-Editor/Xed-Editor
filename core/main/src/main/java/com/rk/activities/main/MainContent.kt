@@ -15,6 +15,7 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LeadingIconTab
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,14 +47,18 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
-import com.rk.components.FileActionDialog
 import com.rk.components.compose.utils.addIf
 import com.rk.editor.preloadSelectionColor
-import com.rk.file.FileObject
+import com.rk.filetree.FileAction
+import com.rk.filetree.FileActionContext
+import com.rk.filetree.FileActionDialogs
 import com.rk.filetree.FileIcon
-import com.rk.filetree.FileTreeTab
 import com.rk.filetree.FileTreeViewModel
-import com.rk.filetree.currentDrawerTab
+import com.rk.filetree.MultiFileAction
+import com.rk.filetree.MultiFileActionContext
+import com.rk.filetree.getActions
+import com.rk.icons.XedIcon
+import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -72,32 +78,35 @@ fun MainContent(
     drawerState: DrawerState,
 ) {
     val scope = rememberCoroutineScope()
-    var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
+    val context = LocalContext.current
+
     preloadSelectionColor()
 
+    FileActionDialogs(fileTreeViewModel, scope, context)
+
+    if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
+        val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)
+
+        CommandPalette(
+            progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
+            commands = CommandProvider.commandList,
+            lastUsedCommand = lastUsedCommand,
+            initialChildCommands = mainViewModel.commandPaletteInitialChildCommands,
+            initialPlaceholder = mainViewModel.commandPaletteInitialPlaceholder,
+            onDismissRequest = {
+                mainViewModel.isDraggingPalette = false
+                mainViewModel.showCommandPalette = false
+                mainViewModel.commandPaletteInitialChildCommands = null
+                mainViewModel.commandPaletteInitialPlaceholder = null
+
+                scope.launch {
+                    mainViewModel.draggingPaletteProgress.animateTo(0f, animationSpec = spring(stiffness = 800f))
+                }
+            },
+        )
+    }
+
     Column(Modifier.fillMaxSize().padding(innerPadding)) {
-        if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
-            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)
-
-            CommandPalette(
-                progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
-                commands = CommandProvider.commandList,
-                lastUsedCommand = lastUsedCommand,
-                initialChildCommands = mainViewModel.commandPaletteInitialChildCommands,
-                initialPlaceholder = mainViewModel.commandPaletteInitialPlaceholder,
-                onDismissRequest = {
-                    mainViewModel.isDraggingPalette = false
-                    mainViewModel.showCommandPalette = false
-                    mainViewModel.commandPaletteInitialChildCommands = null
-                    mainViewModel.commandPaletteInitialPlaceholder = null
-
-                    scope.launch {
-                        mainViewModel.draggingPaletteProgress.animateTo(0f, animationSpec = spring(stiffness = 800f))
-                    }
-                },
-            )
-        }
-
         if (mainViewModel.tabs.isEmpty()) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 TextButton(onClick = { scope.launch { drawerState.open() } }) {
@@ -193,7 +202,6 @@ fun MainContent(
                                         mainViewModel.removeAllTabs()
                                     }
                                 },
-                                showFileActionDialog = { fileActionDialog = it },
                             )
                         }
                     }
@@ -212,17 +220,6 @@ fun MainContent(
                     mainViewModel.tabs[page].Content()
                 }
             }
-
-            if (fileActionDialog != null) {
-                FileActionDialog(
-                    file = fileActionDialog!!,
-                    root = (currentDrawerTab as? FileTreeTab)?.root,
-                    onDismissRequest = { fileActionDialog = null },
-                    scope = scope,
-                    fileTreeContext = false,
-                    fileTreeViewModel = fileTreeViewModel,
-                )
-            }
         }
     }
 }
@@ -238,7 +235,6 @@ private fun TabItem(
     onCloseThis: (Int) -> Unit,
     onCloseOthers: (Int) -> Unit,
     onCloseAll: (Int) -> Unit,
-    showFileActionDialog: (FileObject) -> Unit,
 ) {
     var calculatedTabWidth by
         remember(
@@ -270,7 +266,6 @@ private fun TabItem(
                 onCloseThis = onCloseThis,
                 onCloseOthers = onCloseOthers,
                 onCloseAll = onCloseAll,
-                showFileActionDialog = showFileActionDialog,
                 showIcon = showIcon,
                 isDraggableContent = true,
             )
@@ -286,7 +281,6 @@ private fun TabItem(
             onCloseThis = onCloseThis,
             onCloseOthers = onCloseOthers,
             onCloseAll = onCloseAll,
-            showFileActionDialog = showFileActionDialog,
             showIcon = showIcon,
         )
     }
@@ -302,12 +296,13 @@ private fun TabItemContent(
     onCloseThis: (Int) -> Unit,
     onCloseOthers: (Int) -> Unit,
     onCloseAll: (Int) -> Unit,
-    showFileActionDialog: (FileObject) -> Unit,
     showIcon: Boolean,
     isDraggableContent: Boolean = false,
 ) {
     var showTabMenu by remember { mutableStateOf(false) }
+    var showFileActionMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val isSelected = mainViewModel.currentTabIndex == index
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
@@ -341,7 +336,7 @@ private fun TabItemContent(
             modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
         )
 
-        DropdownMenu(expanded = showTabMenu, onDismissRequest = { showTabMenu = false }, modifier = Modifier) {
+        DropdownMenu(expanded = showTabMenu, onDismissRequest = { showTabMenu = false }) {
             DropdownMenuItem(
                 text = { Text(stringResource(strings.close_this)) },
                 onClick = {
@@ -365,12 +360,55 @@ private fun TabItemContent(
             )
             tabState.file?.let {
                 DropdownMenuItem(
-                    text = { Text(stringResource(strings.more)) },
+                    text = { Text(stringResource(strings.file_actions)) },
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(drawables.chevron_right),
+                            contentDescription = stringResource(strings.open),
+                        )
+                    },
                     onClick = {
                         showTabMenu = false
-                        showFileActionDialog(it)
+                        showFileActionMenu = true
                     },
                 )
+            }
+        }
+
+        tabState.file?.let {
+            DropdownMenu(expanded = showFileActionMenu, onDismissRequest = { showFileActionMenu = false }) {
+                val root = (tabState as? EditorTab)?.projectRoot
+                val actions = remember(it) { getActions(it, root) }
+
+                actions.forEach { action ->
+                    when (action) {
+                        is FileAction -> {
+                            DropdownMenuItem(
+                                text = { Text(action.title) },
+                                leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
+                                enabled = action.isEnabled(it),
+                                onClick = {
+                                    val context = FileActionContext(it, root, fileTreeViewModel, context, scope)
+                                    action.action(context)
+                                    showFileActionMenu = false
+                                },
+                            )
+                        }
+                        is MultiFileAction -> {
+                            val files = listOf(it)
+                            DropdownMenuItem(
+                                text = { Text(action.title) },
+                                leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
+                                enabled = action.isEnabled(files),
+                                onClick = {
+                                    val context = MultiFileActionContext(files, root, fileTreeViewModel, context, scope)
+                                    action.action(context)
+                                    showFileActionMenu = false
+                                },
+                            )
+                        }
+                    }
+                }
             }
         }
     }

@@ -58,7 +58,9 @@ enum class PropertyRoutes(val label: String, val route: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PropertiesDialog(file: FileObject, onDismiss: () -> Unit) {
+fun PropertiesDialog(files: List<FileObject>, onDismiss: () -> Unit) {
+    val file = files.first() // TODO: Support multiple files
+
     val pagerState = rememberPagerState(initialPage = 0) { PropertyRoutes.entries.size }
     val scope = rememberCoroutineScope()
 
