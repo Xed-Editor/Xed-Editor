@@ -309,5 +309,17 @@
       "grammar": "textmate/sql/syntaxes/sql.tmLanguage.json",
       "languageConfiguration": "textmate/sql/language-configuration.json"
     }
+    {
+      "name": "fortran-free",
+      "scopeName": "source.fortran_free",
+      "grammar": "textmate/fortran/syntaxes/fortran_free-form.tmLanguage.json",
+      "languageConfiguration": "textmate/fortran/language-configuration.json"
+    }
+    {
+      "name": "fortran-fixed",
+      "scopeName": "source.fortran_fixed",
+      "grammar": "textmate/fortran/syntaxes/fortran_fixed-form.tmLanguage.json",
+      "languageConfiguration": "textmate/fortran/language-configuration.json"
+    }
   ]
 }
