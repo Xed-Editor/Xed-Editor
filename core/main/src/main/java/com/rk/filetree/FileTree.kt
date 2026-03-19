@@ -135,6 +135,7 @@ fun FileTree(
                 key(rootNode.file.hashCode(), rootNode.name) {
                     FileTreeNodeItem(
                         modifier = Modifier.fillMaxWidth(),
+                        root = rootNode.file,
                         node = rootNode,
                         depth = 0,
                         onFileClick = { rootNode.onFileClick(it) },

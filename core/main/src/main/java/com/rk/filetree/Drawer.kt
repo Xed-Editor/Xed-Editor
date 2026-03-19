@@ -456,6 +456,7 @@ fun DrawerContent(fullscreen: Boolean) {
                         if (tab != null) {
                             tab.Content(modifier = Modifier.weight(1f))
                         } else {
+                            // TODO: Fix background not consistent here with other tabs
                             Column(
                                 modifier = Modifier.fillMaxSize().weight(1f),
                                 verticalArrangement = Arrangement.Center,

@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
+import com.rk.file.FileObject
 import com.rk.resources.drawables
 import com.rk.settings.ReactiveSettings
 import com.rk.utils.drawErrorUnderline
@@ -44,6 +45,7 @@ import com.rk.utils.getUnderlineColor
 @Composable
 fun FileTreeNodeItem(
     modifier: Modifier,
+    root: FileObject,
     node: FileTreeNode,
     depth: Int,
     onFileClick: (FileTreeNode) -> Unit,
@@ -94,7 +96,6 @@ fun FileTreeNodeItem(
             } else node.name
     }
 
-    val root = (currentDrawerTab as FileTreeTab).root
     val isFileSelected = viewModel.isFileSelected(root, node.file)
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -114,18 +115,8 @@ fun FileTreeNodeItem(
                             }
 
                             onFileClick(node)
-
-                            // FOCUS FILE
-                            //                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root]
-                            // = node.file
                         },
-                        onLongClick = {
-                            viewModel.toggleSelection(root, node.file)
-                            //                            scope.launch {
-                            //                                delay(50)
-                            //                                onFileLongClick(node)
-                            //                            }
-                        },
+                        onLongClick = { viewModel.toggleSelection(root, node.file) },
                     )
                     .then(
                         if (isFileSelected && !isCut) {
@@ -188,6 +179,7 @@ fun FileTreeNodeItem(
                     key(childNode.file.hashCode(), childNode.name) {
                         FileTreeNodeItem(
                             modifier = Modifier.fillMaxWidth(),
+                            root = root,
                             node = childNode,
                             depth = depth + 1,
                             onFileClick = onFileClick,
