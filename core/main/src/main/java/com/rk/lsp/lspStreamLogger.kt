@@ -1,41 +1,59 @@
 package com.rk.lsp
 
+import java.io.ByteArrayOutputStream
 import java.io.FilterInputStream
 import java.io.FilterOutputStream
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.Charset
 
-class LspFrameLogger(private val onFrame: ((String) -> Unit)? = null, private val charset: Charset = Charsets.UTF_8) {
-    private val buffer = StringBuilder()
+class LspFrameLogger(private val onFrame: ((String) -> Unit)? = null) {
+    private val buffer = ByteArrayOutputStream()
     private val headerRegex = Regex("Content-Length:\\s*(\\d+)", RegexOption.IGNORE_CASE)
 
     fun append(bytes: ByteArray, offset: Int = 0, length: Int = bytes.size) {
-        buffer.append(String(bytes, offset, length, charset))
+        buffer.write(bytes, offset, length)
         process()
     }
 
     private fun process() {
         while (true) {
-            // LSP frame structure: HEADER\r\n\r\nBODY
-            val bodyStart =
-                buffer.indexOf("\r\n\r\n").takeIf { it >= 0 }?.plus(4)
-                    ?: buffer
-                        .indexOf("\n\n") // Tolerate servers that use bare LF
-                        .takeIf { it >= 0 }
-                        ?.plus(2)
-                    ?: return
+            val bytes = buffer.toByteArray()
 
-            val header = buffer.substring(0, bodyStart).trim()
+            val (bodyStart, separatorLen) = findSeparator(bytes) ?: return
+
+            val header = String(bytes, 0, bodyStart, Charsets.US_ASCII)
             val contentLength = headerRegex.find(header)?.groupValues?.get(1)?.toIntOrNull() ?: return
 
-            if (buffer.length < bodyStart + contentLength) return
+            val totalLength = bodyStart + separatorLen + contentLength
+            if (bytes.size < totalLength) return
 
-            val json = buffer.substring(bodyStart, bodyStart + contentLength)
+            val json = String(bytes, bodyStart + separatorLen, contentLength, Charsets.UTF_8)
             onFrame?.invoke(json)
 
-            buffer.delete(0, bodyStart + contentLength)
+            buffer.reset()
+            buffer.write(bytes, totalLength, bytes.size - totalLength)
         }
+    }
+
+    // Usual LSP frame structure: HEADER\r\n\r\nBODY
+    // -> see https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#baseProtocol
+    private fun findSeparator(bytes: ByteArray): Pair<Int, Int>? {
+        val cr = '\r'.code.toByte()
+        val lf = '\n'.code.toByte()
+        val size = bytes.size
+
+        for (i in 0 until size - 1) {
+            // 1. Standard CRLF separator: \r\n\r\n
+            if (i + 3 < size && bytes[i] == cr && bytes[i + 1] == lf && bytes[i + 2] == cr && bytes[i + 3] == lf) {
+                return i to 4
+            }
+
+            // 2. Fallback LF separator: \n\n
+            if (bytes[i] == lf && bytes[i + 1] == lf) {
+                return i to 2
+            }
+        }
+        return null
     }
 }
 

@@ -2,8 +2,6 @@ package com.rk.filetree
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -25,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,21 +34,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
+import com.rk.file.FileObject
 import com.rk.resources.drawables
 import com.rk.settings.ReactiveSettings
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun FileTreeNodeItem(
     modifier: Modifier,
+    root: FileObject,
     node: FileTreeNode,
     depth: Int,
     onFileClick: (FileTreeNode) -> Unit,
-    onFileLongClick: (FileTreeNode) -> Unit,
     viewModel: FileTreeViewModel,
 ) {
     val isHidden = node.file.getName().startsWith(".")
@@ -63,8 +59,10 @@ fun FileTreeNodeItem(
     val isLoading = viewModel.isNodeLoading(node.file)
     val isCut = viewModel.isNodeCut(node.file)
 
+    val isFileSelected = viewModel.isFileSelected(root, node.file)
+    val selectionColor = MaterialTheme.colorScheme.surfaceContainer
+
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     // Load children when expanded
     LaunchedEffect(node.file, isExpanded) {
@@ -103,32 +101,22 @@ fun FileTreeNodeItem(
         Row(
             modifier =
                 Modifier.addIf(isCut) { alpha(0.5f) }
+                    .addIf(isFileSelected) { background(selectionColor) }
                     .combinedClickable(
                         onClick = {
+                            if (viewModel.isAnyFileSelected(root)) {
+                                viewModel.toggleSelection(root, node.file)
+                                return@combinedClickable
+                            }
+
                             if (node.isDirectory) {
                                 viewModel.toggleNodeExpansion(node.file)
-                            } else {
-                                scope.launch {
-                                    delay(100)
-                                    onFileClick(node)
-                                }
+                                return@combinedClickable
                             }
-                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root] = node.file
+
+                            onFileClick(node)
                         },
-                        onLongClick = {
-                            viewModel.selectedFile[(currentDrawerTab as FileTreeTab).root] = node.file
-                            scope.launch {
-                                delay(50)
-                                onFileLongClick(node)
-                            }
-                        },
-                    )
-                    .then(
-                        if (viewModel.selectedFile[(currentDrawerTab as? FileTreeTab)?.root] == node.file && !isCut) {
-                            Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
-                        } else {
-                            Modifier
-                        }
+                        onLongClick = { viewModel.toggleSelection(root, node.file) },
                     )
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
@@ -175,16 +163,19 @@ fun FileTreeNodeItem(
             }
         }
 
-        AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(
+            modifier = Modifier.width(getDrawerWidth()),
+            visible = isExpanded && node.isDirectory && children.isNotEmpty(),
+        ) {
             Column {
                 displayedChildren.forEach { childNode ->
                     key(childNode.file.hashCode(), childNode.name) {
                         FileTreeNodeItem(
                             modifier = Modifier.fillMaxWidth(),
+                            root = root,
                             node = childNode,
                             depth = depth + 1,
                             onFileClick = onFileClick,
-                            onFileLongClick = onFileLongClick,
                             viewModel = viewModel,
                         )
                     }

@@ -43,7 +43,6 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.components.AddDialogItem
-import com.rk.components.FileActionDialog
 import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog
 import com.rk.file.FileObject
@@ -71,7 +70,6 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content(modifier: Modifier) {
-        var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
         var searchDialog by remember { mutableStateOf(false) }
         var enableIndexing by remember {
             mutableStateOf(Preference.getBoolean(indexingPreferenceKey, Settings.always_index_projects))
@@ -103,34 +101,19 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
             rootNode = root.toFileTreeNode(),
             viewModel = fileTreeViewModel.get()!!,
             onFileClick = { node ->
-                if (node.isFile) {
-                    scope.launch(Dispatchers.IO) {
-                        if (node.file.isFile()) {
-                            mainViewModel?.newTab(node.file, projectRoot = root, switchToTab = true)
-                        }
+                scope.launch(Dispatchers.IO) {
+                    mainViewModel?.newTab(node.file, projectRoot = root, switchToTab = true)
 
-                        if (Settings.keep_drawer_locked.not()) {
-                            drawerStateRef.get()?.close()
-                        }
+                    if (!Settings.keep_drawer_locked) {
+                        drawerStateRef.get()?.close()
                     }
                 }
             },
-            onFileLongClick = { fileActionDialog = it.file },
             onSearchClick = { searchDialog = true },
         )
 
-        if (fileActionDialog != null && currentDrawerTab != null) {
-            FileActionDialog(
-                file = fileActionDialog!!,
-                root = root,
-                onDismissRequest = { fileActionDialog = null },
-                scope = scope,
-                fileTreeViewModel = fileTreeViewModel.get()!!,
-            )
-        }
-
         if (searchDialog) {
-            SearchDialog(
+            SearchSheet(
                 { searchDialog = false },
                 enableIndexing,
                 { newValue ->
@@ -143,7 +126,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
     @Composable
     @OptIn(ExperimentalMaterial3Api::class)
-    private fun SearchDialog(onDismiss: () -> Unit, enableIndexing: Boolean, toggleIndexing: (Boolean) -> Unit) {
+    private fun SearchSheet(onDismiss: () -> Unit, enableIndexing: Boolean, toggleIndexing: (Boolean) -> Unit) {
         val context = LocalContext.current
 
         ModalBottomSheet(onDismissRequest = onDismiss) {

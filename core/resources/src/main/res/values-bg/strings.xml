@@ -60,7 +60,7 @@
     <string name="ask_enter_name">Моля, въведете име</string>
     <string name="already_exists">Вече съществува документ с това име</string>
     <string name="attention">Внимание</string>
-    <string name="ask_del">Сигурни ли сте, че искате да изтриете за постоянно \'%s\'?</string>
+    <string name="ask_deletion_one">Сигурни ли сте, че искате да изтриете за постоянно \'%s\'?</string>
     <string name="reselect_dir">Моля, изберете отново директорията</string>
     <string name="cant_handle">Не е намерено приложение за обработка на файла</string>
     <string name="terminal">Терминал</string>

@@ -58,7 +58,7 @@
     <string name="ask_enter_name">অনুগ্রহ করে একটি নামকরণ করুন</string>
     <string name="already_exists">এই নামের একটি ফাইল অথবা ফোল্ডার ইতিমধ্যে উপলব্ধ আছে</string>
     <string name="attention">মনোযোগ দিন</string>
-    <string name="ask_del">আপনি কি নিশ্চিত যে আপনি মুছে দিতে চান</string>
+    <string name="ask_deletion_one">আপনি কি নিশ্চিত যে আপনি মুছে দিতে চান</string>
     <string name="reselect_dir">অনুগ্রহ করে ডিরেক্টরিটি পুনরায় নির্বাচন করুন</string>
     <string name="cant_handle">এই ফাইলটি পরিচালনা করার জন্য কোনো অ্যাপ খুঁজে পাওয়া যায়নি</string>
     <string name="terminal">টার্মিনাল</string>

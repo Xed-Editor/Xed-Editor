@@ -52,6 +52,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.filetree.getAppropriateName
+import com.rk.lsp.DefinitionPrevention
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspServer
 import com.rk.lsp.LspServerInstance
@@ -218,8 +219,13 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
         PreferenceGroupHeading(heading = stringResource(strings.instances))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (server.instances.isNotEmpty()) {
-                server.instances.forEach { instance -> InstanceCard(instance, navController) }
+            val visibleInstances =
+                server.instances.filter {
+                    it.status != LspConnectionStatus.NOT_RUNNING ||
+                        DefinitionPrevention.isServerPrevented(it.lspProject, it.server)
+                }
+            if (visibleInstances.isNotEmpty()) {
+                visibleInstances.forEach { instance -> InstanceCard(instance, navController) }
             } else {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),

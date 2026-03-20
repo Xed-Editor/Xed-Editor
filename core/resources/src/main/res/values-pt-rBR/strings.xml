@@ -58,7 +58,7 @@
     <string name="ask_enter_name">Por favor, insira um nome</string>
     <string name="already_exists">Já existe um documento com este nome</string>
     <string name="attention">Atenção</string>
-    <string name="ask_del">Tem certeza de que deseja excluir \'%s\' permanentemente?</string>
+    <string name="ask_deletion_one">Tem certeza de que deseja excluir \'%s\' permanentemente?</string>
     <string name="reselect_dir">Por favor, selecione novamente o diretório</string>
     <string name="cant_handle">Nenhum app encontrado para abrir o arquivo</string>
     <string name="terminal">Terminal</string>

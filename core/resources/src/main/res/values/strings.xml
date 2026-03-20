@@ -59,7 +59,8 @@
     <string name="create">Create</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
-    <string name="ask_del">Are you sure you want to permanently delete \'%s\'?</string>
+    <string name="ask_deletion_one">Are you sure you want to permanently delete \'%s\'?</string>
+    <string name="ask_deletion_many">Are you sure you want to permanently delete %d files?</string>
     <string name="reselect_dir">Please reselect the directory</string>
     <string name="cant_handle">No app found to handle the file</string>
     <string name="terminal">Terminal</string>
@@ -77,7 +78,7 @@
     <string name="apply">Apply</string>
     <string name="userdata">User data</string>
     <string name="invalid_userdata">User data is not valid. Change it in settings</string>
-    <string name="open_in_terminal">Open in Terminal</string>
+    <string name="open_in_terminal">Open in terminal</string>
     <string name="open_dir_in_terminal">Open directory in Terminal</string>
     <string name="file_open_denied">Opening this file with other apps is not permitted</string>
     <string name="reload_file_tree">Reload files</string>
@@ -456,6 +457,7 @@
     <string name="command_palette">Command palette</string>
     <string name="rename_failed">Unable to rename file</string>
     <string name="delete_failed">Unable to delete file</string>
+    <string name="paste_failed">Unable to paste file</string>
     <string name="debug_mode_warn">Debug mode disables safety restrictions, which could lead to data loss or other issues if misused. Only enable it if you know what you\'re doing.</string>
     <string name="external_lsp">External LSP</string>
     <string name="external">External</string>
@@ -761,4 +763,5 @@
     <string name="fullscreen_desc">Start application in fullscreen mode</string>
     <string name="smart_toolbar">Smart toolbar</string>
     <string name="smart_toolbar_desc">Hide the toolbar when editing to free up screen space</string>
+    <string name="file_actions">File actions</string>
 </resources>

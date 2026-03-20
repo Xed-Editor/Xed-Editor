@@ -50,7 +50,7 @@
     <string name="dir_example">Tên thư mục (vd: Test)</string>
     <string name="ask_enter_name">Vui lòng nhập tên</string>
     <string name="already_exists">Đã có tập tin/thư mục trùng tên</string>
-    <string name="ask_del">Xác nhận xóa \'%s\' VĨNH VIỄN?</string>
+    <string name="ask_deletion_one">Xác nhận xóa \'%s\' VĨNH VIỄN?</string>
     <string name="reselect_dir">Vui lòng chọn lại đường dẫn</string>
     <string name="cant_handle">Không tìm thấy ứng dụng nào phù hợp để mở tệp</string>
     <string name="add_file">Thêm tệp khác</string>

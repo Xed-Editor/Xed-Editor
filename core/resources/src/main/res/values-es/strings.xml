@@ -58,7 +58,7 @@
     <string name="create">Crear</string>
     <string name="ask_enter_name">Por favor ingresa un nombre</string>
     <string name="refresh">Recargar</string>
-    <string name="ask_del">¿Confirmas que quieres eliminar «%s» permanentemente?</string>
+    <string name="ask_deletion_one">¿Confirmas que quieres eliminar «%s» permanentemente?</string>
     <string name="reselect_dir">Por favor selecciona de nuevo la carpeta</string>
     <string name="terminal">Terminal</string>
     <string name="add_file">Agregar archivo externo</string>

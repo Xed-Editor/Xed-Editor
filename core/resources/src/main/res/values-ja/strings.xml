@@ -48,7 +48,7 @@
     <string name="create">作成</string>
     <string name="ask_enter_name">名前を入力してください</string>
     <string name="attention">注意</string>
-    <string name="ask_del">「%s」を完全に削除してもよろしいですか？</string>
+    <string name="ask_deletion_one">「%s」を完全に削除してもよろしいですか？</string>
     <string name="reselect_dir">ディレクトリを再選択してください</string>
     <string name="keyword_regex">キーワード (正規表現)</string>
     <string name="replace_all">全て置換</string>

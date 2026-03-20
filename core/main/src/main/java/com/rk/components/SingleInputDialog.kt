@@ -85,7 +85,13 @@ fun SingleInputDialog(
                                 )
                             }
                         } else null,
-                    keyboardActions = KeyboardActions(onDone = { onConfirm() }, onSearch = { onConfirm() }),
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                onConfirm()
+                                onFinish()
+                            }
+                        ),
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )
 

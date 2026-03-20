@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Silakan masukkan nama</string>
     <string name="already_exists">Dokumen dengan nama ini sudah ada</string>
     <string name="attention">Perhatian</string>
-    <string name="ask_del">Apakah Anda yakin ingin menghapus \'%s\' secara permanen?</string>
+    <string name="ask_deletion_one">Apakah Anda yakin ingin menghapus \'%s\' secara permanen?</string>
     <string name="reselect_dir">Silakan pilih ulang direktori</string>
     <string name="cant_handle">Tidak ada aplikasi yang dapat membuka file ini</string>
     <string name="terminal">Terminal</string>

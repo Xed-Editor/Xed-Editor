@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Proszę, wprowadź nazwę</string>
     <string name="already_exists">Nazwa dokumentu z wprowadzoną nazwą jest już używana</string>
     <string name="attention">Uwaga</string>
-    <string name="ask_del">Czy napewno chcesz trwale usunąć \'%s\'?</string>
+    <string name="ask_deletion_one">Czy napewno chcesz trwale usunąć \'%s\'?</string>
     <string name="reselect_dir">Proszę wybierz ponownie katalog</string>
     <string name="cant_handle">Nie znaleziono aplikacji do obsługi pliku</string>
     <string name="terminal">Terminal</string>

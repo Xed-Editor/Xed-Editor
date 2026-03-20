@@ -66,7 +66,7 @@
     <string name="create">তৈরি করুন</string>
     <string name="already_exists">এই নামে আগে থেকেই একটি ফাইল আছে</string>
     <string name="attention">দৃষ্টিআকর্ষণ</string>
-    <string name="ask_del">আপনি কি \'%s\' একেবারে ডিলেট করতে নিশ্চিত?</string>
+    <string name="ask_deletion_one">আপনি কি \'%s\' একেবারে ডিলেট করতে নিশ্চিত?</string>
     <string name="reselect_dir">দয়া করে, পুনরায় ফোল্ডার সিলেক্ট করুন</string>
     <string name="cant_handle">এই ফাইল হ্যান্ডেল এর জন্য কোনো অ্যাপ পাওয়া যায় নি</string>
     <string name="terminal">টার্মিনাল</string>

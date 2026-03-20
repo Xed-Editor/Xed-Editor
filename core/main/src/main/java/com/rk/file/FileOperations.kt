@@ -4,27 +4,22 @@ import android.content.Context
 import android.content.Intent
 import com.rk.activities.main.MainActivity
 import com.rk.components.ContentProgress
-import com.rk.utils.errorDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util
 
 object FileOperations {
-    var clipboard: FileObject? = null
+    var clipboard: List<FileObject> = emptyList()
     var isCut: Boolean = false
 
     fun copyToClipboard(file: FileObject, isCut: Boolean = false) {
-        clipboard = file
+        clipboard = listOf(file)
         this.isCut = isCut
     }
 
-    suspend fun deleteFile(file: FileObject): Boolean {
-        return try {
-            file.delete()
-        } catch (e: Exception) {
-            errorDialog(e)
-            false
-        }
+    fun copyToClipboard(files: List<FileObject>, isCut: Boolean = false) {
+        clipboard = files
+        this.isCut = isCut
     }
 
     suspend fun openWithExternalApp(context: Context, file: FileObject) {
@@ -43,7 +38,13 @@ object FileOperations {
         MainActivity.instance?.fileManager?.requestAddFile(parentFile)
     }
 
-    suspend fun calculateContent(folder: FileObject, onProgress: (ContentProgress) -> Unit = {}) {
+    /**
+     * Recursively calculates the total size and item count (files and directories) within a given folder or file.
+     *
+     * @param folder The [FileObject] to start the calculation from.
+     * @param onProgress Callback providing a [ContentProgress] instance for live updates.
+     */
+    suspend fun calculateContent(folder: FileObject, onProgress: (ContentProgress) -> Unit) {
         var totalSize = 0L
         var totalItems = 0L
 
@@ -52,15 +53,30 @@ object FileOperations {
 
         while (stack.isNotEmpty()) {
             val current = stack.removeLast()
-            if (current.isDirectory()) {
-                stack.addAll(current.listFiles())
-                totalItems++
-                onProgress(ContentProgress(totalSize, totalItems))
-            } else {
-                totalSize += current.length()
-                totalItems++
-                onProgress(ContentProgress(totalSize, totalItems))
+            runCatching {
+                if (current.isDirectory()) {
+                    stack.addAll(current.listFiles())
+                    totalItems++
+                    onProgress(ContentProgress(totalSize, totalItems))
+                } else {
+                    totalSize += current.length()
+                    totalItems++
+                    onProgress(ContentProgress(totalSize, totalItems))
+                }
             }
+        }
+    }
+
+    /**
+     * Deletes the specified file or directory.
+     *
+     * @param file The [FileObject] to be deleted.
+     * @return A [Result] containing a [Boolean] indicating whether the deletion was successful.
+     */
+    suspend fun deleteFile(file: FileObject) = runCatching {
+        val success = file.delete()
+        if (!success) {
+            throw IllegalStateException("Failed to delete file")
         }
     }
 

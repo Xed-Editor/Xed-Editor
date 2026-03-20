@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Vänligen mata in ett namn</string>
     <string name="already_exists">Dokument med samma namn existerar redan</string>
     <string name="attention">Uppmärksamhet</string>
-    <string name="ask_del">"Är du säker på att du vill ta bort  \'%s\' permanent?"</string>
+    <string name="ask_deletion_one">"Är du säker på att du vill ta bort  \'%s\' permanent?"</string>
     <string name="reselect_dir">Vänligen välj katalog igen</string>
     <string name="cant_handle">Hittar ingen app som hanterar filen</string>
     <string name="terminal">Terminal</string>

@@ -60,7 +60,7 @@
     <string name="ask_enter_name">कृपया नाम डालें</string>
     <string name="already_exists">इस नाम से पहले से मौजूद है</string>
     <string name="attention">ध्यान दें</string>
-    <string name="ask_del">क्या आप स्थायी रूप से डिलीट करना चाहते हैं?</string>
+    <string name="ask_deletion_one">क्या आप स्थायी रूप से डिलीट करना चाहते हैं?</string>
     <string name="reselect_dir">कृपया डायरेक्टरी फिर से चुनें</string>
     <string name="cant_handle">इस फ़ाइल को खोलने वाला ऐप नहीं मिला</string>
     <string name="terminal">टर्मिनल</string>

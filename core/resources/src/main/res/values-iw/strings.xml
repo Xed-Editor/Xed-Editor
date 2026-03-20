@@ -150,7 +150,7 @@
     <string name="delete_font">מחק גופו</string>
     <string name="add_font">הוסף גופו חדש</string>
     <string name="open_drawer">פתח</string>
-    <string name="ask_del">האם אתה בטוח שאתה רוצה למחוק לצמיתות?</string>
+    <string name="ask_deletion_one">האם אתה בטוח שאתה רוצה למחוק לצמיתות?</string>
     <string name="save_desc">שמור את הקובץ שנבחר במקום אחר</string>
     <string name="fetch_failed">בקשת האחזור החזירה null</string>
     <string name="unsaved_files">יש לך קבצים שלא נשמרו!</string>

@@ -103,7 +103,7 @@
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in deinem Speicher zu bearbeiten. Erlaube bitte den Zugriff in der nächsten Systemeinstellung.</string>
     <string name="close_this">Schließen</string>
     <string name="cant_handle">Keine App zum Verarbeiten der Datei gefunden</string>
-    <string name="ask_del">Bist du sicher, dass du \'%s\' endgültig löschen möchtest?</string>
+    <string name="ask_deletion_one">Bist du sicher, dass du \'%s\' endgültig löschen möchtest?</string>
     <string name="reselect_dir">Bitte wähle das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
