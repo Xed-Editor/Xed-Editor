@@ -52,6 +52,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.filetree.getAppropriateName
+import com.rk.lsp.DefinitionPrevention
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspServer
 import com.rk.lsp.LspServerInstance
@@ -306,8 +307,14 @@ private fun showRestartRequirement(scope: CoroutineScope, server: LspServer) {
 
 @Composable
 private fun InstanceCard(instance: LspServerInstance, navController: NavHostController) {
-    val scope = rememberCoroutineScope()
+    if (
+        instance.status == LspConnectionStatus.NOT_RUNNING &&
+            !DefinitionPrevention.isServerPrevented(instance.lspProject, instance.server)
+    ) {
+        return
+    }
 
+    val scope = rememberCoroutineScope()
     Surface(
         modifier =
             Modifier.fillMaxWidth()
