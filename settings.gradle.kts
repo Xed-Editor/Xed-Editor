@@ -1,52 +1,40 @@
+rootProject.name = "Xed-Editor"
+
 pluginManagement {
     repositories {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven { url = uri("https://jitpack.io") }
-        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
+        maven("https://jitpack.io")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-
         maven("https://repo.eclipse.org/content/groups/releases/")
-    }
-    plugins {
-        kotlin("jvm") version "2.2.20"
-        id("com.google.devtools.ksp") version "2.3.4" apply false
     }
 }
 
-plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0" }
+plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0" }
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") }
-        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
+        maven("https://jitpack.io")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-
         maven("https://repo.eclipse.org/content/groups/releases/")
     }
 }
 
-rootProject.name = "Xed-Editor"
-
-include(":app")
-
-include(":core:main")
-
-include(":core:components")
-
-include(":core:resources")
-
-include(":core:terminal-view")
-
-include(":core:terminal-emulator")
-
-include(":core:extension")
+include(
+    ":app",
+    ":core:main",
+    ":core:components",
+    ":core:resources",
+    ":core:terminal-view",
+    ":core:terminal-emulator",
+    ":core:extension",
+)
 
 val soraX = file("soraX")
 
@@ -62,24 +50,14 @@ if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
     )
 }
 
-include(":editor")
+include(":editor", ":oniguruma-native", ":editor-lsp", ":language-textmate")
 
 project(":editor").projectDir = file("soraX/editor")
 
-include(":oniguruma-native")
-
 project(":oniguruma-native").projectDir = file("soraX/oniguruma-native")
-
-include(":editor-lsp")
 
 project(":editor-lsp").projectDir = file("soraX/editor-lsp")
 
-include(":language-textmate")
-
 project(":language-textmate").projectDir = file("soraX/language-textmate")
 
-include(":baselineprofile")
-
-include(":benchmark")
-
-include(":benchmark2")
+include(":baselineprofile", ":benchmark", ":benchmark2")

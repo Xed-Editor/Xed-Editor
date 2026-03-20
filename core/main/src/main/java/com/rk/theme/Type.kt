@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.sp
 import com.rk.xededitor.R
 
 /*
- * Tipography definition for theming
+ * Typography definition for theming
  */
 val OutfitFontFamily = FontFamily(Font(R.font.outfit_regular, FontWeight.Normal, FontStyle.Normal))
 
