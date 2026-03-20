@@ -67,7 +67,7 @@
     <string name="paste_desc">Επικόλληση εγγράφου</string>
     <string name="clipboard_empty">Το πρόχειρο αρχείων είναι άδειο</string>
     <string name="save_desc">Αποθηκεύστε το επιλεγμένο αρχείο κάπου αλλού</string>
-    <string name="ask_del">Είστε σίγουροι ότι θέλετε να διαγράψετε οριστικά το \'%s\';</string>
+    <string name="ask_deletion_one">Είστε σίγουροι ότι θέλετε να διαγράψετε οριστικά το \'%s\';</string>
     <string name="reselect_dir">Παρακαλώ επανεπιλέξτε τον κατάλογο</string>
     <string name="cant_handle">Δεν βρέθηκε εφαρμογή για τη διαχείριση του αρχείου</string>
     <string name="terminal">Τερματικό</string>

@@ -75,7 +75,7 @@
     <string name="keyword_regex">kulcsszó (Regex)</string>
     <string name="terminal">Terminál</string>
     <string name="word_wrap">Sortörés</string>
-    <string name="ask_del">Biztosan törlöd?</string>
+    <string name="ask_deletion_one">Biztosan törlöd?</string>
     <string name="data_clear">Alkalmazásadatok törölve</string>
     <string name="action_done">Kérés végrehajtva</string>
     <string name="clone_repo">Repo klónozása</string>

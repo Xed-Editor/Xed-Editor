@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Введіть назву</string>
     <string name="already_exists">Файл / тека з такою назвою вже існує</string>
     <string name="attention">Увага</string>
-    <string name="ask_del">Ви впевнені, що хочете видалити?</string>
+    <string name="ask_deletion_one">Ви впевнені, що хочете видалити?</string>
     <string name="reselect_dir">Будь ласка, повторно виберіть каталог</string>
     <string name="cant_handle">Не знайдено програми для обробки файлу</string>
     <string name="terminal">Термінал</string>

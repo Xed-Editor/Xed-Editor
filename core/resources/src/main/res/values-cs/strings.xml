@@ -23,7 +23,7 @@
     <string name="close">Zavřít</string>
     <string name="download">Stáhnout</string>
     <string name="attention">Upozornění</string>
-    <string name="ask_del">Určitě chcete nenávratně odstranit \'%s\'?</string>
+    <string name="ask_deletion_one">Určitě chcete nenávratně odstranit \'%s\'?</string>
     <string name="terminal">Terminál</string>
     <string name="tab_text_1">Karta 1</string>
     <string name="tab_text_2">Karta 2</string>

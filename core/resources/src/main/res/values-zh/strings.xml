@@ -31,7 +31,7 @@
     <string name="ask_enter_name">请输入一个名称</string>
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你确定要永久删除 \'%s\' 吗？</string>
+    <string name="ask_deletion_one">你确定要永久删除 \'%s\' 吗？</string>
     <string name="reselect_dir">请重新选择目录</string>
     <string name="cant_handle">未找到能处理此文件的应用</string>
     <string name="terminal">终端</string>

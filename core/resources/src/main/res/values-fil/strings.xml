@@ -58,7 +58,7 @@
     <string name="ask_enter_name">Mangyaring maglagay ng pangalan</string>
     <string name="already_exists">Mayroon nang dokumentong may ganitong pangalan</string>
     <string name="attention">Pansin</string>
-    <string name="ask_del">Sigurado ka bang gusto mong permanenteng tanggalin ang \'%s\'?</string>
+    <string name="ask_deletion_one">Sigurado ka bang gusto mong permanenteng tanggalin ang \'%s\'?</string>
     <string name="reselect_dir">Mangyaring muling piliin ang direktoryo</string>
     <string name="cant_handle">Walang nakitang app na pangasiwaan ang file</string>
     <string name="add_file">Magdagdag ng panlabas na file</string>

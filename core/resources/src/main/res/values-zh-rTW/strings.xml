@@ -59,7 +59,7 @@
     <string name="ask_enter_name">請輸入名稱</string>
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你確定要永久刪除 \' %s\' 嗎？</string>
+    <string name="ask_deletion_one">你確定要永久刪除 \' %s\' 嗎？</string>
     <string name="reselect_dir">請重新選取資料夾</string>
     <string name="cant_handle">找不到可處理此檔案的應用程式</string>
     <string name="terminal">終端機</string>

@@ -218,8 +218,13 @@ fun DeleteConfirmationDialog(files: List<FileObject>, onConfirm: () -> Unit, onD
         title = { Text(stringResource(strings.delete)) },
         text = {
             Column {
-                val fileNames = files.joinToString(", ") { it.getName() } // TODO: Improve text
-                Text(text = stringResource(strings.ask_del).fillPlaceholders(fileNames))
+                val text =
+                    if (files.size == 1) {
+                        stringResource(strings.ask_deletion_one).fillPlaceholders(files.first().getName())
+                    } else {
+                        stringResource(strings.ask_deletion_many).fillPlaceholders(files.size)
+                    }
+                Text(text)
             }
         },
         confirmButton = {

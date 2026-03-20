@@ -59,7 +59,7 @@
     <string name="ask_enter_name">الرجاء إدخال اسم</string>
     <string name="already_exists">يوجد مستند بهذا الاسم بالفعل</string>
     <string name="attention">تحذير</string>
-    <string name="ask_del">هل أنت متأكد أنك تريد حذف \'%s\' بشكل دائم؟</string>
+    <string name="ask_deletion_one">هل أنت متأكد أنك تريد حذف \'%s\' بشكل دائم؟</string>
     <string name="reselect_dir">الرجاء إعادة تحديد المسار</string>
     <string name="cant_handle">لم يتم العثور على تطبيق للتعامل مع الملف</string>
     <string name="terminal">موجه الأوامر</string>
