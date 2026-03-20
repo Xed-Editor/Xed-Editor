@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="close_drawer">mdel</string>
     <string name="error">Tuccḍa</string>
-    <string name="yes">Ih</string>
-    <string name="print">Siggez</string>
     <string name="add">Rnu</string>
-    <string name="saved">Yettwasekles</string>
     <string name="copy">Nɣel</string>
     <string name="close">Mdel</string>
     <string name="path">Abrid</string>
@@ -20,24 +16,17 @@
     <string name="paste">Senṭeḍ</string>
     <string name="delete">Kkes</string>
     <string name="exit">Ffeɣ</string>
-    <string name="title">Azwel</string>
     <string name="open">Ldi</string>
     <string name="editor">Amaẓrag</string>
-    <string name="open_drawer">ldi</string>
     <string name="create">Snulfu-d</string>
-    <string name="description">Aglam</string>
     <string name="themes">Isental</string>
     <string name="ok">Ih</string>
-    <string name="files">Ifuyla</string>
-    <string name="available">Yella</string>
     <string name="update">Leqqem</string>
     <string name="ignore">Zgel-it</string>
-    <string name="launch">Sekker</string>
     <string name="save">Sekles</string>
     <string name="new_file">Afaylu amaynut</string>
     <string name="wait">Ttxil-k arǧu…</string>
     <string name="save_all">Sekles-iten akk</string>
-    <string name="close_search">Mdel anadi</string>
     <string name="open_with">Ldi s…</string>
     <string name="save_as">Sekles am</string>
     <string name="close_others">Mdel wiyaḍ</string>
@@ -47,11 +36,9 @@
     <string name="dark_mode">Ubrik</string>
     <string name="auto_mode">Awurman</string>
     <string name="version">Lqem</string>
-    <string name="no">Uhu</string>
     <string name="run">Selḥu</string>
     <string name="content">Agbur</string>
     <string name="other">Wayeḍ</string>
-    <string name="userdata">Isefka n useqdac</string>
     <string name="close_this">Model wa</string>
     <string name="new_folder">Akaram amaynut</string>
     <string name="replace">Semselsi</string>
@@ -66,7 +53,6 @@
     <string name="downloading">Azdam…</string>
     <string name="file">Afaylu</string>
     <string name="folder">Akaram</string>
-    <string name="script_network">aẓeṭṭa</string>
     <string name="open_file">Ldi afaylu</string>
     <string name="fonts">Tisefsa</string>
 </resources>
