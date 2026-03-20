@@ -219,8 +219,13 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
         PreferenceGroupHeading(heading = stringResource(strings.instances))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (server.instances.isNotEmpty()) {
-                server.instances.forEach { instance -> InstanceCard(instance, navController) }
+            val visibleInstances =
+                server.instances.filter {
+                    it.status != LspConnectionStatus.NOT_RUNNING ||
+                        DefinitionPrevention.isServerPrevented(it.lspProject, it.server)
+                }
+            if (visibleInstances.isNotEmpty()) {
+                visibleInstances.forEach { instance -> InstanceCard(instance, navController) }
             } else {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -307,14 +312,8 @@ private fun showRestartRequirement(scope: CoroutineScope, server: LspServer) {
 
 @Composable
 private fun InstanceCard(instance: LspServerInstance, navController: NavHostController) {
-    if (
-        instance.status == LspConnectionStatus.NOT_RUNNING &&
-            !DefinitionPrevention.isServerPrevented(instance.lspProject, instance.server)
-    ) {
-        return
-    }
-
     val scope = rememberCoroutineScope()
+
     Surface(
         modifier =
             Modifier.fillMaxWidth()
