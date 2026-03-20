@@ -294,12 +294,12 @@ object OpenAsProjectAction : FileAction() {
     override val type = FileActionType(file = false, folder = true, rootFolder = true)
 }
 
-object PropertiesAction : MultiFileAction() {
+object PropertiesAction : FileAction() {
     override val icon = Icon.VectorIcon(Icons.Outlined.Info)
     override val title = strings.properties.getString()
 
-    override fun action(context: MultiFileActionContext) {
-        context.viewModel.showPropertiesDialog(context.files)
+    override fun action(context: FileActionContext) {
+        context.viewModel.showPropertiesDialog(context.file)
     }
 
     override val type = FileActionType.All

@@ -47,7 +47,7 @@ class FileTreeViewModel : ViewModel() {
     var showPropertiesDialog by mutableStateOf(false)
         private set
 
-    var propertyFiles by mutableStateOf<List<FileObject>?>(null)
+    var propertyFile by mutableStateOf<FileObject?>(null)
         private set
 
     var isCreateFile by mutableStateOf(true)
@@ -95,14 +95,14 @@ class FileTreeViewModel : ViewModel() {
         deleteRoot = null
     }
 
-    fun showPropertiesDialog(files: List<FileObject>) {
+    fun showPropertiesDialog(file: FileObject) {
         showPropertiesDialog = true
-        propertyFiles = files
+        propertyFile = file
     }
 
     fun closePropertiesDialog() {
         showPropertiesDialog = false
-        propertyFiles = null
+        propertyFile = null
     }
 
     fun showCreateDialog(isCreateFile: Boolean, parentFile: FileObject, root: FileObject?) {

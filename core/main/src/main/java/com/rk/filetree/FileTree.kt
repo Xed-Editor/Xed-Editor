@@ -169,13 +169,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
             actualVisibleCount += 1
         }
 
-        val importantItems = actions.sortedByDescending { it.importance }.take(actualVisibleCount)
-        val fillerActions =
-            if (importantItems.size < actualVisibleCount) {
-                actions - importantItems.toSet()
-            } else emptyList()
-
-        val toolbarActions = importantItems + fillerActions
+        val toolbarActions = actions.sortedByDescending { it.importance }.take(actualVisibleCount)
         val dropdownActions = actions - toolbarActions.toSet()
 
         Row(verticalAlignment = Alignment.CenterVertically) {

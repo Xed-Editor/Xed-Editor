@@ -113,8 +113,8 @@ fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, conte
     }
 
     if (viewModel.showPropertiesDialog) {
-        val files = viewModel.propertyFiles ?: return
-        PropertiesDialog(files = files, onDismiss = { viewModel.closePropertiesDialog() })
+        val file = viewModel.propertyFile ?: return
+        PropertiesDialog(file = file, onDismiss = { viewModel.closePropertiesDialog() })
     }
 
     if (viewModel.showCreateDialog) {
