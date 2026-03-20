@@ -7,7 +7,7 @@ android {
     namespace = "com.termux.terminal"
 
     defaultConfig {
-	minSdkVersion 26
+        minSdkVersion 26
         externalNativeBuild {
             ndkBuild {
                 cFlags "-std=c11", "-Wall", "-Wextra", "-Werror", "-Os", "-fno-stack-protector", "-Wl,--gc-sections"
@@ -49,7 +49,7 @@ tasks.withType(Test) {
 }
 
 dependencies {
-    implementation libs.annotation
+    implementation libs.androidx.annotation
     testImplementation libs.junit
 }
 

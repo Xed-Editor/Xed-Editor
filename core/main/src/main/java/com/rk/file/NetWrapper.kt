@@ -113,11 +113,11 @@ class NetWrapper(private val url: URL) : FileObject {
         throw UnsupportedOperationException("URL is not a directory")
     }
 
-    override suspend fun readText(): String? {
+    override suspend fun readText(): String {
         return getInputStream().bufferedReader().use { it.readText() }
     }
 
-    override suspend fun readText(charset: Charset): String? {
+    override suspend fun readText(charset: Charset): String {
         return getInputStream().reader(charset).use { it.readText() }
     }
 

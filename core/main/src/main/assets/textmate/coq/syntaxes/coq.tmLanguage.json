@@ -1,7 +1,10 @@
 {
   "name": "Coq",
   "scopeName": "source.coq",
-  "fileTypes": ["v", "coq"],
+  "fileTypes": [
+    "v",
+    "coq"
+  ],
   "patterns": [
     {
       "name": "comment.line.double-dash.coq",

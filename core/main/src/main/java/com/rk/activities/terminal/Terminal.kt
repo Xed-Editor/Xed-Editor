@@ -117,7 +117,7 @@ class Terminal : AppCompatActivity() {
     fun handleIntent(intent: Intent) {
         this.intent = intent
         val binder = sessionBinder?.get() ?: return
-        val terminalView = terminalView.get() ?: return
+        terminalView.get() ?: return
 
         val pwd = intent.getStringExtra("cwd")
         if (pwd == null) {

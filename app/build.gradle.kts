@@ -1,10 +1,10 @@
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.android.baselineprofile)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktfmt)
 }
 
@@ -12,17 +12,44 @@ android {
     namespace = "com.rk.application"
     compileSdk = 36
 
+    defaultConfig {
+        applicationId = "com.rk.xededitor"
+        minSdk = 26
+
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk = 28
+
+        // versioning
+        versionCode = 84
+        versionName = "3.2.7"
+        vectorDrawables { useSupportLibrary = true }
+    }
+
+    buildFeatures {
+        viewBinding = true
+        compose = true
+        buildConfig = true
+    }
+
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+    kotlin { jvmToolchain(21) }
+
+    packaging { jniLibs { useLegacyPackaging = true } }
+
     signingConfigs {
         create("release") {
-            val isGITHUB_ACTION = System.getenv("GITHUB_ACTIONS") == "true"
+            val isGitHubActions = System.getenv("GITHUB_ACTIONS") == "true"
 
             val propertiesFilePath =
-                if (isGITHUB_ACTION) {
+                if (isGitHubActions) {
                     "/tmp/signing.properties"
                 } else {
                     "/home/rohit/Android/xed-signing/signing.properties"
@@ -35,7 +62,7 @@ android {
                 keyAlias = properties["keyAlias"] as String?
                 keyPassword = properties["keyPassword"] as String?
                 storeFile =
-                    if (isGITHUB_ACTION) {
+                    if (isGitHubActions) {
                         File("/tmp/xed.keystore")
                     } else {
                         (properties["storeFile"] as String?)?.let { File(it) }
@@ -76,42 +103,12 @@ android {
             isDebuggable = false
         }
     }
-
-    // Values in this will be overridden by the flavours
-    defaultConfig {
-        applicationId = "com.rk.xededitor"
-        minSdk = 26
-
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk = 28
-
-        // versioning
-        versionCode = 84
-        versionName = "3.2.7"
-        vectorDrawables { useSupportLibrary = true }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-    kotlin { jvmToolchain(21) }
-
-    buildFeatures {
-        viewBinding = true
-        compose = true
-        buildConfig = true
-    }
-
-    composeOptions { kotlinCompilerExtensionVersion = "1.5.15" }
-
-    packaging { jniLibs { useLegacyPackaging = true } }
 }
 
 dependencies {
     implementation(libs.androidx.profileinstaller)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    coreLibraryDesugaring(libs.desugar)
 
-    "baselineProfile"(project(":baselineprofile"))
+    baselineProfile(project(":baselineprofile"))
     implementation(project(":core:main"))
 }

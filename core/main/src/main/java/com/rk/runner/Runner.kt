@@ -11,7 +11,7 @@ import com.rk.settings.Settings
 import com.rk.utils.errorDialog
 import java.lang.ref.WeakReference
 
-abstract class RunnerImpl() {
+abstract class RunnerImpl {
 
     abstract suspend fun run(context: Context, fileObject: FileObject)
 

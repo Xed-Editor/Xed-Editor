@@ -1,13 +1,12 @@
 import groovy.json.JsonOutput
 
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktfmt)
-
-    id("com.google.devtools.ksp")
-    kotlin("plugin.serialization") version "2.2.20"
 }
 
 val gitCommitHash: Provider<String> =
@@ -23,12 +22,16 @@ android {
     namespace = "com.rk.xededitor"
     compileSdk = 36
 
-    buildFeatures { buildConfig = true }
-
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+        compose = true
     }
 
     buildTypes {
@@ -55,13 +58,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_21
     }
     kotlin { jvmToolchain(21) }
-
-    buildFeatures {
-        viewBinding = true
-        compose = true
-    }
-
-    composeOptions { kotlinCompilerExtensionVersion = "2.2.20" }
 }
 
 val runPrecompileScript by
@@ -77,40 +73,39 @@ val runPrecompileScript by
 tasks.named("preBuild") { dependsOn(runPrecompileScript) }
 
 dependencies {
-    implementation(libs.appcompat)
+    implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.constraintlayout)
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
-    implementation(libs.navigation.fragment.ktx)
-    implementation(libs.navigation.ui.ktx)
-    implementation(libs.activity)
-    implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.activity.compose)
-    implementation(platform(libs.compose.bom))
-    implementation(libs.ui)
-    implementation(libs.ui.graphics)
-    implementation(libs.material3)
-    implementation(libs.navigation.compose)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.utilcode)
     implementation(libs.coil.compose)
     implementation(libs.coil.svg)
     implementation(libs.gson)
     implementation(libs.commons.net)
     implementation(libs.okhttp)
-    implementation(libs.material.motion.compose.core)
+    implementation(libs.material.motion.compose)
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
     implementation(libs.glide)
-    // implementation(libs.media3.ui)
-    implementation(libs.browser)
     implementation(libs.anrwatchdog)
     implementation(libs.lsp4j)
     implementation(libs.kotlin.reflect)
     implementation(libs.androidx.documentfile)
     implementation(libs.compose.dnd)
-    implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidsvg.aar)
     implementation(libs.ec4j.core)
@@ -123,14 +118,14 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     // Modules
-    implementation(project(":editor"))
-    implementation(project(":editor-lsp"))
-    implementation(project(":language-textmate"))
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
     implementation(project(":core:extension"))
     implementation(project(":core:terminal-view"))
     implementation(project(":core:terminal-emulator"))
+    implementation(project(":editor"))
+    implementation(project(":editor-lsp"))
+    implementation(project(":language-textmate"))
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

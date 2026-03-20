@@ -304,15 +304,6 @@ class LspConnector(
                                 scope.launch { onInitialize(this@LspConnector) }
                             }
 
-                            // TODO: Consider when instances should be removed
-
-                            //                            if (newStatus is ServerStatus.STOPPED && newStatus.reason ==
-                            // ShutdownReason.UNUSED) {
-                            //                                removeInstance(instance)
-                            //                                supportedExtensions.forEach {
-                            // lspProject.removeServerDefinition(it, serverName) }
-                            //                            }
-
                             if (newStatus == ServerStatus.STARTED) {
                                 instance.startupTime = System.currentTimeMillis()
                             } else if (newStatus is ServerStatus.STOPPED) {
@@ -491,29 +482,6 @@ class LspConnector(
         runCatching {
                 lspEditor?.disposeAsync()
                 lspEditor = null
-
-                //                val lspProject = projectCache[projectFile.getAbsolutePath()] ?: return@runCatching
-                //                val instances =
-                //                    servers
-                //                        .mapNotNull { server ->
-                //                            server.instances.find { instance -> instance.lspProject == lspProject }
-                //                        }
-                //                        .filter { instance ->
-                //                            instance.status == LspConnectionStatus.NOT_RUNNING ||
-                //                                instance.status == LspConnectionStatus.CRASHED ||
-                //                                instance.status == LspConnectionStatus.TIMEOUT
-                //                        }
-                //                        .filter { instance ->
-                //                            lspProject.getEditors().none {
-                // instance.server.supportedExtensions.contains(it.fileExt) }
-                //                        }
-                //                instances.forEach { instance ->
-                //                    DefinitionPrevention.unregister(lspProject, instance.server)
-                //                    instance.server.removeInstance(instance)
-                //                    instance.server.supportedExtensions.forEach {
-                //                        lspProject.removeServerDefinition(it, instance.server.serverName)
-                //                    }
-                //                }
             }
             .onFailure { it.printStackTrace() }
     }

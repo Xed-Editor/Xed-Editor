@@ -16,7 +16,7 @@ import com.rk.settings.Settings
 import com.rk.utils.toast
 import java.net.BindException
 
-class HtmlRunner() : RunnerImpl() {
+class HtmlRunner : RunnerImpl() {
     companion object {
         var httpServer: HttpServer? = null
     }
