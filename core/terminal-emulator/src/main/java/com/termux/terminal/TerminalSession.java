@@ -47,16 +47,24 @@ public final class TerminalSession extends TerminalOutput {
      * writing to the {@link #mTerminalFileDescriptor}.
      */
     final ByteQueue mTerminalToProcessIOQueue = new ByteQueue(4096);
-    /** Buffer to write translate code points into utf8 before writing to mTerminalToProcessIOQueue */
+    /**
+     * Buffer to write translate code points into utf8 before writing to mTerminalToProcessIOQueue
+     */
     private final byte[] mUtf8InputBuffer = new byte[5];
 
-    /** Callback which gets notified when a session finishes or changes title. */
+    /**
+     * Callback which gets notified when a session finishes or changes title.
+     */
     TerminalSessionClient mClient;
 
-    /** The pid of the shell process. 0 if not started and -1 if finished running. */
+    /**
+     * The pid of the shell process. 0 if not started and -1 if finished running.
+     */
     int mShellPid;
 
-    /** The exit status of the shell process. Only valid if ${@link #mShellPid} is -1. */
+    /**
+     * The exit status of the shell process. Only valid if ${@link #mShellPid} is -1.
+     */
     int mShellExitStatus;
 
     /**
@@ -65,7 +73,9 @@ public final class TerminalSession extends TerminalOutput {
      */
     private int mTerminalFileDescriptor;
 
-    /** Set by the application for user identification of session, not by terminal. */
+    /**
+     * Set by the application for user identification of session, not by terminal.
+     */
     public String mSessionName;
 
     final Handler mMainThreadHandler = new MainThreadHandler();
@@ -99,7 +109,9 @@ public final class TerminalSession extends TerminalOutput {
             mEmulator.updateTerminalSessionClient(client);
     }
 
-    /** Inform the attached pty of the new size and reflow or initialize the emulator. */
+    /**
+     * Inform the attached pty of the new size and reflow or initialize the emulator.
+     */
     public void updateSize(int columns, int rows, int cellWidthPixels, int cellHeightPixels) {
         if (mEmulator == null) {
             initializeEmulator(columns, rows, cellWidthPixels, cellHeightPixels);
@@ -109,7 +121,9 @@ public final class TerminalSession extends TerminalOutput {
         }
     }
 
-    /** The terminal title as set through escape sequences or null if none set. */
+    /**
+     * The terminal title as set through escape sequences or null if none set.
+     */
     public String getTitle() {
         return (mEmulator == null) ? null : mEmulator.getTitle();
     }
@@ -173,13 +187,17 @@ public final class TerminalSession extends TerminalOutput {
 
     }
 
-    /** Write data to the shell process. */
+    /**
+     * Write data to the shell process.
+     */
     @Override
     public void write(byte[] data, int offset, int count) {
         if (mShellPid > 0) mTerminalToProcessIOQueue.write(data, offset, count);
     }
 
-    /** Write the Unicode code point to the terminal encoded in UTF-8. */
+    /**
+     * Write the Unicode code point to the terminal encoded in UTF-8.
+     */
     public void writeCodePoint(boolean prependEscape, int codePoint) {
         if (codePoint > 1114111 || (codePoint >= 0xD800 && codePoint <= 0xDFFF)) {
             // 1114111 (= 2**16 + 1024**2 - 1) is the highest code point, [0xD800,0xDFFF] is the surrogate range.
@@ -220,18 +238,24 @@ public final class TerminalSession extends TerminalOutput {
         return mEmulator;
     }
 
-    /** Notify the {@link #mClient} that the screen has changed. */
-    protected void notifyScreenUpdate() {
+    /**
+     * Notify the {@link #mClient} that the screen has changed.
+     */
+    private void notifyScreenUpdate() {
         mClient.onTextChanged(this);
     }
 
-    /** Reset state for terminal emulator state. */
+    /**
+     * Reset state for terminal emulator state.
+     */
     public void reset() {
         mEmulator.reset();
         notifyScreenUpdate();
     }
 
-    /** Finish this terminal session by sending SIGKILL to the shell. */
+    /**
+     * Finish this terminal session by sending SIGKILL to the shell.
+     */
     public void finishIfRunning() {
         if (isRunning()) {
             try {
@@ -242,7 +266,9 @@ public final class TerminalSession extends TerminalOutput {
         }
     }
 
-    /** Cleanup resources when the process exits. */
+    /**
+     * Cleanup resources when the process exits.
+     */
     void cleanupResources(int exitStatus) {
         synchronized (this) {
             mShellPid = -1;
@@ -264,7 +290,9 @@ public final class TerminalSession extends TerminalOutput {
         return mShellPid != -1;
     }
 
-    /** Only valid if not {@link #isRunning()}. */
+    /**
+     * Only valid if not {@link #isRunning()}.
+     */
     public synchronized int getExitStatus() {
         return mShellExitStatus;
     }
@@ -293,7 +321,9 @@ public final class TerminalSession extends TerminalOutput {
         return mShellPid;
     }
 
-    /** Returns the shell's working directory or null if it was unavailable. */
+    /**
+     * Returns the shell's working directory or null if it was unavailable.
+     */
     public String getCwd() {
         if (mShellPid < 1) {
             return null;

@@ -14,7 +14,7 @@ import io.github.rosemoe.sora.lang.completion.SimpleCompletionIconDrawer
  *
  * @see com.rk.icons.pack.IconPack.getIconFileForName
  */
-class FileIconProvider() : io.github.rosemoe.sora.lang.completion.FileIconProvider {
+class FileIconProvider : io.github.rosemoe.sora.lang.completion.FileIconProvider {
     companion object {
         fun register() {
             SimpleCompletionIconDrawer.globalFileIconProvider = FileIconProvider()

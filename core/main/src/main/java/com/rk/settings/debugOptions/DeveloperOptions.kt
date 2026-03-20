@@ -9,7 +9,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.rk.activities.settings.SettingsRoutes
@@ -36,7 +35,6 @@ private var flipperJob: Job? = null
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController) {
-    val context = LocalContext.current
     val activity = LocalActivity.current
 
     val memoryUsage = remember { mutableStateOf("Unknown") }

@@ -14,22 +14,22 @@ public final class TerminalRow {
     /**
      * Max combining characters that can exist in a column, that are separate from the base character
      * itself. Any additional combining characters will be ignored and not added to the column.
-     *
+     * <p>
      * There does not seem to be limit in unicode standard for max number of combination characters
      * that can be combined but such characters are primarily under 10.
-     *
+     * <p>
      * "Section 3.6 Combination" of unicode standard contains combining characters info.
      * - https://www.unicode.org/versions/Unicode15.0.0/ch03.pdf
      * - https://en.wikipedia.org/wiki/Combining_character#Unicode_ranges
      * - https://stackoverflow.com/questions/71237212/what-is-the-maximum-number-of-unicode-combined-characters-that-may-be-needed-to
-     *
+     * <p>
      * UAX15-D3 Stream-Safe Text Format limits to max 30 combining characters.
      * > The value of 30 is chosen to be significantly beyond what is required for any linguistic or technical usage.
      * > While it would have been feasible to chose a smaller number, this value provides a very wide margin,
      * > yet is well within the buffer size limits of practical implementations.
      * - https://unicode.org/reports/tr15/#Stream_Safe_Text_Format
      * - https://stackoverflow.com/a/11983435/14686958
-     *
+     * <p>
      * We choose the value 15 because it should be enough for terminal based applications and keep
      * the memory usage low for a terminal row, won't affect performance or cause terminal to
      * lag or hang, and will keep malicious applications from causing harm. The value can be
@@ -37,20 +37,34 @@ public final class TerminalRow {
      */
     private static final int MAX_COMBINING_CHARACTERS_PER_COLUMN = 15;
 
-    /** The number of columns in this terminal row. */
+    /**
+     * The number of columns in this terminal row.
+     */
     private final int mColumns;
-    /** The text filling this terminal row. */
+    /**
+     * The text filling this terminal row.
+     */
     public char[] mText;
-    /** The number of java chars used in {@link #mText}. */
+    /**
+     * The number of java chars used in {@link #mText}.
+     */
     private short mSpaceUsed;
-    /** If this row has been line wrapped due to text output at the end of line. */
+    /**
+     * If this row has been line wrapped due to text output at the end of line.
+     */
     boolean mLineWrap;
-    /** The style bits of each cell in the row. See {@link TextStyle}. */
+    /**
+     * The style bits of each cell in the row. See {@link TextStyle}.
+     */
     final long[] mStyle;
-    /** If this row might contain chars with width != 1, used for deactivating fast path */
+    /**
+     * If this row might contain chars with width != 1, used for deactivating fast path
+     */
     boolean mHasNonOneWidthOrSurrogateChars;
 
-    /** Construct a blank row (containing only whitespace, ' ') with a specified style. */
+    /**
+     * Construct a blank row (containing only whitespace, ' ') with a specified style.
+     */
     public TerminalRow(int columns, long style) {
         mColumns = columns;
         mText = new char[(int) (SPARE_CAPACITY_FACTOR * columns)];
@@ -58,7 +72,9 @@ public final class TerminalRow {
         clear(style);
     }
 
-    /** NOTE: The sourceX2 is exclusive. */
+    /**
+     * NOTE: The sourceX2 is exclusive.
+     */
     public void copyInterval(TerminalRow line, int sourceX1, int sourceX2, int destinationX) {
         mHasNonOneWidthOrSurrogateChars |= line.mHasNonOneWidthOrSurrogateChars;
         final int x1 = line.findStartOfColumn(sourceX1);
@@ -88,7 +104,9 @@ public final class TerminalRow {
         return mSpaceUsed;
     }
 
-    /** Note that the column may end of second half of wide character. */
+    /**
+     * Note that the column may end of second half of wide character.
+     */
     public int findStartOfColumn(int column) {
         if (column == mColumns) return getSpaceUsed();
 
@@ -150,7 +168,7 @@ public final class TerminalRow {
 
     // https://github.com/steven676/Android-Terminal-Emulator/commit/9a47042620bec87617f0b4f5d50568535668fe26
     public void setChar(int columnToSet, int codePoint, long style) {
-        if (columnToSet  < 0 || columnToSet >= mStyle.length)
+        if (columnToSet < 0 || columnToSet >= mStyle.length)
             throw new IllegalArgumentException("TerminalRow.setChar(): columnToSet=" + columnToSet + ", codePoint=" + codePoint + ", style=" + style);
 
         mStyle[columnToSet] = style;
@@ -276,7 +294,7 @@ public final class TerminalRow {
         return true;
     }
 
-    public final long getStyle(int column) {
+    public long getStyle(int column) {
         return mStyle[column];
     }
 

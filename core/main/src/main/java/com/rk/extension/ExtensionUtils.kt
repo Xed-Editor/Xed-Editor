@@ -110,7 +110,7 @@ suspend fun ExtensionManager.installExtension(fileObject: FileObject) = run {
 
 suspend fun ExtensionManager.loadAllExtensions() =
     withContext(Dispatchers.IO) {
-        for ((id, extension) in localExtensions) {
+        for ((_, extension) in localExtensions) {
             launch(Dispatchers.IO) {
                 extension.load(application!!).onFailure {
                     errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
