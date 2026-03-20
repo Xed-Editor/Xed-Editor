@@ -785,4 +785,12 @@
     <string name="exclude_files_search_desc">Wyklucz pliki z indeksowania. Może skrócić czas wyszukiwania większych projektów.</string>
     <string name="file_mask">Wzorzec nazwy pliku</string>
     <string name="file_mask_hint">Wzorzec nazwy pliku (np. .js, .ts)</string>
+    <string name="files_unsaved">Niezapisane pliki</string>
+    <string name="ask_multiple_unsaved">Czy napewno chcesz odrzucić niezapisane dokumenty?</string>
+    <string name="ask_lsp_update">Czy chcesz zaktualizować \'%s\' serwer językowy?</string>
+    <string name="restart_all">Uruchom ponownie wszystkie</string>
+    <string name="fullscreen">Pełny ekran</string>
+    <string name="fullscreen_desc">Uruchom aplikacje w trybie pełnoekranowym</string>
+    <string name="smart_toolbar">Inteligentny pasek narzędzi</string>
+    <string name="smart_toolbar_desc">Ukryj pasek narzędzi podczas edycji, aby zwolnić miejsce na ekranie</string>
 </resources>

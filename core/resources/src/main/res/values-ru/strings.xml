@@ -779,4 +779,13 @@
     <string name="oom_prediction_desc">Показывать окно ошибки нехватки памяти</string>
     <string name="detect_bin_files_desc">По умолчанию открывать бинарные файлы в режиме \"только для чтения\"</string>
     <string name="detect_bin_files">Определять бинарные файлы</string>
+    <string name="files_unsaved">Есть несохранённые файлы</string>
+    <string name="ask_multiple_unsaved">Вы уверены, что хотите закрыть эти документы без сохранения?</string>
+    <string name="ask_lsp_update">Обновить языковой сервер \'%s\'?</string>
+    <string name="debug">Отладка</string>
+    <string name="restart_all">Перезапустить всё</string>
+    <string name="fullscreen">Полноэкранный режим</string>
+    <string name="fullscreen_desc">Запускать приложение в полноэкранном режиме</string>
+    <string name="smart_toolbar">Умная панель инструментов</string>
+    <string name="smart_toolbar_desc">Скрывать панель инструментов во время редактирования, чтобы освободить место на экране</string>
 </resources>

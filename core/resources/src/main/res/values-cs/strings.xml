@@ -723,4 +723,11 @@
     <string name="disable_bin_files_desc">Výchoze zapnout čtecí režim pro binární soubory</string>
     <string name="oom_prediction">Zajistění OOM dialogu</string>
     <string name="oom_prediction_desc">Zobrazit OOM (Out Of Memory) dialog</string>
+    <string name="files_unsaved">Soubory neuloženy</string>
+    <string name="ask_multiple_unsaved">Opravdu chcete všechny neuložené soubory zahodit?</string>
+    <string name="fullscreen">Celá obrazovka</string>
+    <string name="fullscreen_desc">Spustit aplikaci v režimu celé obrazovky</string>
+    <string name="smart_toolbar">Chytrý postranní panel</string>
+    <string name="smart_toolbar_desc">Skrýt postranní panel při upravování pro uvolnění místa na obrazovce</string>
+    <string name="ask_lsp_update">Chtěli byste aktualizovat \'%s\' jazykový server?</string>
 </resources>

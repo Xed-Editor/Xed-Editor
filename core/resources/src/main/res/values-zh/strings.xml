@@ -411,7 +411,7 @@
     <string name="api_error">API 错误</string>
     <string name="unknown">未知的</string>
     <string name="cant_write">无法写入文件（没有写入权限）</string>
-    <string name="content_update">此文件已被其他 APP 修改。你想要重新载入此文件吗？未保存的更改将会丢失。</string>
+    <string name="content_update">此文件已被其他应用修改。你想要重新载入此文件吗？未保存的更改将会丢失。</string>
     <string name="info_lsp">语言服务器作为独立的进程，能提供例如代码补全、语法高亮和内联文档等诸多智能功能。</string>
     <string name="experimental_lsp">语言服务器还在实验性阶段，可能无法正常工作。</string>
     <string name="storage">储存空间</string>
@@ -772,4 +772,12 @@
     <string name="oom_prediction">内存溢出预测</string>
     <string name="oom_prediction_desc">显示内存不足对话框</string>
     <string name="debug">调试</string>
+    <string name="files_unsaved">尚未保存的文件</string>
+    <string name="ask_multiple_unsaved">这些文件尚未保存，你确定要放弃更改吗？</string>
+    <string name="ask_lsp_update">你想要更新 \'%s\' 语言服务器吗？</string>
+    <string name="restart_all">全部重启</string>
+    <string name="fullscreen">全屏</string>
+    <string name="fullscreen_desc">以全屏模式启动应用</string>
+    <string name="smart_toolbar">智能工具栏</string>
+    <string name="smart_toolbar_desc">在编辑时隐藏工具栏以减少遮挡</string>
 </resources>
