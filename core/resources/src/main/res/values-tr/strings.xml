@@ -785,4 +785,7 @@
     <string name="fullscreen_desc">Uygulamayı tam ekranda başlat</string>
     <string name="smart_toolbar">Akıllı araç çubuğu</string>
     <string name="smart_toolbar_desc">Ekran alanı açmak için düzenleme yaparken araç çubuğunu gizle</string>
+    <string name="ask_deletion_many">%d dosyayı kalıcı olarak silmek istediğinizden emin misiniz?</string>
+    <string name="paste_failed">Dosya yapıştırılamıyor</string>
+    <string name="file_actions">Dosya işlemleri</string>
 </resources>
