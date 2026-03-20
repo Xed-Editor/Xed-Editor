@@ -30,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -89,59 +88,57 @@ fun FileTree(
 
     LaunchedEffect(viewModel.sortMode) { viewModel.refreshEverything() }
 
-    Surface(modifier = modifier) {
-        Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (viewModel.isAnyFileSelected(rootNode.file)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { viewModel.unselectAllFiles(rootNode.file) }) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(strings.go_prev))
+                    }
+
+                    Text(viewModel.getSelectionCount(rootNode.file).toString())
+                }
+            }
+
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.weight(1f),
             ) {
                 if (viewModel.isAnyFileSelected(rootNode.file)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { viewModel.unselectAllFiles(rootNode.file) }) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(strings.go_prev))
-                        }
-
-                        Text(viewModel.getSelectionCount(rootNode.file).toString())
-                    }
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    if (viewModel.isAnyFileSelected(rootNode.file)) {
-                        SelectionActions(viewModel, rootNode)
-                    } else {
-                        FileTreeActions(viewModel, onSearchClick)
-                    }
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-                if (viewModel.isFileOperationInProgress() || searchViewModel.get()?.isIndexing(rootNode.file) == true) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxSize())
+                    SelectionActions(viewModel, rootNode)
                 } else {
-                    HorizontalDivider()
+                    FileTreeActions(viewModel, onSearchClick)
                 }
             }
+        }
 
-            Column(
-                modifier =
-                    Modifier.horizontalScroll(rememberScrollState())
-                        .verticalScroll(rememberScrollState())
-                        .padding(vertical = 8.dp)
-            ) {
-                key(rootNode.file.hashCode(), rootNode.name) {
-                    FileTreeNodeItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        root = rootNode.file,
-                        node = rootNode,
-                        depth = 0,
-                        onFileClick = { rootNode.onFileClick(it) },
-                        viewModel = viewModel,
-                    )
-                }
+        Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+            if (viewModel.isFileOperationInProgress() || searchViewModel.get()?.isIndexing(rootNode.file) == true) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxSize())
+            } else {
+                HorizontalDivider()
+            }
+        }
+
+        Column(
+            modifier =
+                Modifier.horizontalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 8.dp)
+        ) {
+            key(rootNode.file.hashCode(), rootNode.name) {
+                FileTreeNodeItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    root = rootNode.file,
+                    node = rootNode,
+                    depth = 0,
+                    onFileClick = { rootNode.onFileClick(it) },
+                    viewModel = viewModel,
+                )
             }
         }
     }

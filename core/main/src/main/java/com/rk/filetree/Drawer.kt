@@ -40,6 +40,7 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
@@ -449,33 +450,36 @@ fun DrawerContent(fullscreen: Boolean) {
 
                 VerticalDivider()
 
-                Crossfade(targetState = currentDrawerTab, label = "file tree") { tab ->
-                    if (currentServiceTab == null) {
-                        if (tab != null) {
-                            tab.Content(modifier = Modifier.weight(1f))
-                        } else {
-                            // TODO: Fix background not consistent here with other tabs
-                            Column(
-                                modifier = Modifier.fillMaxSize().weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                            ) {
-                                Icon(
-                                    painter = painterResource(drawables.outline_folder),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    stringResource(strings.no_folder_opened),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
+                Surface {
+                    Crossfade(targetState = currentDrawerTab, label = "file tree") { tab ->
+                        if (currentServiceTab == null) {
+                            if (tab != null) {
+                                tab.Content(modifier = Modifier.fillMaxSize())
+                            } else {
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Icon(
+                                        painter = painterResource(drawables.outline_folder),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        stringResource(strings.no_folder_opened),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                Crossfade(targetState = currentServiceTab) { tab -> tab?.Content(modifier = Modifier.weight(1f)) }
+                    Crossfade(targetState = currentServiceTab) { tab ->
+                        tab?.Content(modifier = Modifier.fillMaxSize())
+                    }
+                }
 
                 if (showAddDialog) {
                     AddProjectDialog(

@@ -40,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TriStateCheckbox
@@ -136,206 +135,201 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
         val commitMessage = viewModel.currentRoot.value?.absolutePath?.let { viewModel.commitMessages[it] } ?: ""
         val amend = viewModel.currentRoot.value?.absolutePath?.let { viewModel.amends[it] } ?: false
 
-        Surface(modifier = modifier) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        TextButton(onClick = { showBranchesMenu = true }, enabled = !viewModel.isLoading) {
+        Column(modifier = modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    TextButton(onClick = { showBranchesMenu = true }, enabled = !viewModel.isLoading) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.wrapContentWidth()) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.wrapContentWidth(),
+                                modifier = Modifier.weight(1f, fill = false),
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f, fill = false),
-                                ) {
-                                    Icon(painterResource(drawables.branch), contentDescription = null)
-                                    Spacer(Modifier.size(8.dp))
-                                    Text(
-                                        viewModel.currentBranch,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        softWrap = false,
-                                    )
-                                }
-
-                                Spacer(Modifier.size(4.dp))
-                                Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
-                            }
-                        }
-
-                        DropdownMenu(expanded = showBranchesMenu, onDismissRequest = { showBranchesMenu = false }) {
-                            viewModel.getBranchList().forEach { branch ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            RadioButton(selected = branch == viewModel.currentBranch, onClick = null)
-                                            Spacer(Modifier.width(12.dp))
-                                            Text(branch)
-                                        }
-                                    },
-                                    onClick = {
-                                        viewModel.checkout(branch)
-                                        showBranchesMenu = false
-                                    },
+                                Icon(painterResource(drawables.branch), contentDescription = null)
+                                Spacer(Modifier.size(8.dp))
+                                Text(
+                                    viewModel.currentBranch,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    softWrap = false,
                                 )
                             }
+
+                            Spacer(Modifier.size(4.dp))
+                            Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
+                        }
+                    }
+
+                    DropdownMenu(expanded = showBranchesMenu, onDismissRequest = { showBranchesMenu = false }) {
+                        viewModel.getBranchList().forEach { branch ->
                             DropdownMenuItem(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+                                        RadioButton(selected = branch == viewModel.currentBranch, onClick = null)
                                         Spacer(Modifier.width(12.dp))
-                                        Text(stringResource(strings.new_branch))
+                                        Text(branch)
                                     }
                                 },
                                 onClick = {
+                                    viewModel.checkout(branch)
                                     showBranchesMenu = false
-                                    showNewBranchDialog = true
                                 },
                             )
                         }
-                    }
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    viewModel.pull().join()
-                                    MainActivity.instance!!.viewModel.tabs.filterIsInstance<EditorTab>().forEach {
-                                        if (findGitRoot(it.file.getAbsolutePath()) != null) {
-                                            it.refresh()
-                                        }
-                                    }
+                        DropdownMenuItem(
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+                                    Spacer(Modifier.width(12.dp))
+                                    Text(stringResource(strings.new_branch))
                                 }
                             },
-                            enabled = !viewModel.isLoading,
-                        ) {
-                            Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
-                        }
-
-                        IconButton(onClick = { viewModel.fetch() }, enabled = !viewModel.isLoading) {
-                            Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
-                        }
-
-                        IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
-                            Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
-                        }
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-                    if (viewModel.isLoading) {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxSize())
-                    } else {
-                        HorizontalDivider()
-                    }
-                }
-
-                if (gitChanges.isNotEmpty()) {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f, fill = true).horizontalScroll(rememberScrollState()),
-                        state = rememberLazyListState(),
-                        contentPadding = PaddingValues(top = 8.dp),
-                    ) {
-                        item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
-                        item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
-                        item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxSize().weight(1f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            painter = painterResource(drawables.file),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
-                    }
-                }
-
-                HorizontalDivider()
-
-                Row(
-                    modifier =
-                        Modifier.fillMaxWidth()
-                            .height(40.dp)
-                            .toggleable(
-                                value = amend,
-                                enabled = !viewModel.isLoading,
-                                onValueChange = { viewModel.toggleAmend(it) },
-                                role = Role.Checkbox,
-                                indication = null,
-                                interactionSource = interactionSource,
-                            )
-                            .padding(horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = amend,
-                        enabled = !viewModel.isLoading,
-                        interactionSource = interactionSource,
-                        onCheckedChange = null,
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(strings.amend))
-                }
-                OutlinedTextField(
-                    enabled = !viewModel.isLoading,
-                    modifier = Modifier.fillMaxWidth().height(120.dp),
-                    value = commitMessage,
-                    onValueChange = { viewModel.changeCommitMessage(it) },
-                    placeholder = { Text(stringResource(strings.commit_message)) },
-                )
-
-                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                    Button(
-                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = { viewModel.commit() },
-                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                    ) {
-                        Icon(
-                            painterResource(drawables.commit),
-                            contentDescription = stringResource(strings.commit),
-                            modifier = Modifier.size(ButtonDefaults.IconSize),
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(
-                            stringResource(if (amend) strings.amend_commit else strings.commit),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                            onClick = {
+                                showBranchesMenu = false
+                                showNewBranchDialog = true
+                            },
                         )
                     }
-                    OutlinedButton(
-                        enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
-                        modifier = Modifier.fillMaxWidth(),
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
                         onClick = {
                             scope.launch {
-                                viewModel.commit().join()
-                                showPushConfirmDialog = true
+                                viewModel.pull().join()
+                                MainActivity.instance!!.viewModel.tabs.filterIsInstance<EditorTab>().forEach {
+                                    if (findGitRoot(it.file.getAbsolutePath()) != null) {
+                                        it.refresh()
+                                    }
+                                }
                             }
                         },
-                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                        enabled = !viewModel.isLoading,
                     ) {
-                        Icon(
-                            painterResource(drawables.push),
-                            contentDescription = stringResource(strings.push),
-                            modifier = Modifier.size(ButtonDefaults.IconSize),
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(
-                            stringResource(if (amend) strings.amend_commit_and_push else strings.commit_and_push),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                        Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
                     }
+
+                    IconButton(onClick = { viewModel.fetch() }, enabled = !viewModel.isLoading) {
+                        Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
+                    }
+
+                    IconButton(onClick = { showPushConfirmDialog = true }, enabled = !viewModel.isLoading) {
+                        Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
+                    }
+                }
+            }
+
+            Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
+                if (viewModel.isLoading) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxSize())
+                } else {
+                    HorizontalDivider()
+                }
+            }
+
+            if (gitChanges.isNotEmpty()) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f, fill = true).horizontalScroll(rememberScrollState()),
+                    state = rememberLazyListState(),
+                    contentPadding = PaddingValues(top = 8.dp),
+                ) {
+                    item { ConflictsList(conflicts, conflictsExpanded) { conflictsExpanded = !conflictsExpanded } }
+                    item { ChangesList(changes, changesExpanded) { changesExpanded = !changesExpanded } }
+                    item { UntrackedList(untracked, untrackedExpanded) { untrackedExpanded = !untrackedExpanded } }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize().weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        painter = painterResource(drawables.file),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(stringResource(strings.no_changes), color = MaterialTheme.colorScheme.onSurface)
+                }
+            }
+
+            HorizontalDivider()
+
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(40.dp)
+                        .toggleable(
+                            value = amend,
+                            enabled = !viewModel.isLoading,
+                            onValueChange = { viewModel.toggleAmend(it) },
+                            role = Role.Checkbox,
+                            indication = null,
+                            interactionSource = interactionSource,
+                        )
+                        .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    checked = amend,
+                    enabled = !viewModel.isLoading,
+                    interactionSource = interactionSource,
+                    onCheckedChange = null,
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(strings.amend))
+            }
+            OutlinedTextField(
+                enabled = !viewModel.isLoading,
+                modifier = Modifier.fillMaxWidth().height(120.dp),
+                value = commitMessage,
+                onValueChange = { viewModel.changeCommitMessage(it) },
+                placeholder = { Text(stringResource(strings.commit_message)) },
+            )
+
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                Button(
+                    enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { viewModel.commit() },
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                ) {
+                    Icon(
+                        painterResource(drawables.commit),
+                        contentDescription = stringResource(strings.commit),
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        stringResource(if (amend) strings.amend_commit else strings.commit),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                OutlinedButton(
+                    enabled = !viewModel.isLoading && commitMessage.isNotBlank() && hasCheckedChanges,
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        scope.launch {
+                            viewModel.commit().join()
+                            showPushConfirmDialog = true
+                        }
+                    },
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                ) {
+                    Icon(
+                        painterResource(drawables.push),
+                        contentDescription = stringResource(strings.push),
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        stringResource(if (amend) strings.amend_commit_and_push else strings.commit_and_push),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
         }

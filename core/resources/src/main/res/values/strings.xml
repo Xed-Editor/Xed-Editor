@@ -78,7 +78,7 @@
     <string name="apply">Apply</string>
     <string name="userdata">User data</string>
     <string name="invalid_userdata">User data is not valid. Change it in settings</string>
-    <string name="open_in_terminal">Open in Terminal</string>
+    <string name="open_in_terminal">Open in terminal</string>
     <string name="open_dir_in_terminal">Open directory in Terminal</string>
     <string name="file_open_denied">Opening this file with other apps is not permitted</string>
     <string name="reload_file_tree">Reload files</string>
