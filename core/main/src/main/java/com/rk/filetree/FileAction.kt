@@ -193,7 +193,7 @@ object CutAction : MultiFileAction() {
     override fun action(context: MultiFileActionContext) {
         context.scope.launch {
             FileOperations.copyToClipboard(context.files, isCut = true)
-            context.files.forEach { context.viewModel.markNodeAsCut(it) }
+            context.viewModel.markNodesAsCut(context.files)
         }
     }
 
@@ -233,7 +233,7 @@ object PasteAction : FileAction() {
 
             context.viewModel.updateCache(context.file)
             clipboardParentFiles.forEach { context.viewModel.updateCache(it) }
-            clipboardFiles.forEach { context.viewModel.unmarkNodeAsCut(it) }
+            context.viewModel.unmarkNodesAsCut(clipboardFiles)
         }
     }
 

@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,8 +59,10 @@ fun FileTreeNodeItem(
     val isLoading = viewModel.isNodeLoading(node.file)
     val isCut = viewModel.isNodeCut(node.file)
 
+    val isFileSelected = viewModel.isFileSelected(root, node.file)
+    val selectionColor = MaterialTheme.colorScheme.surfaceContainer
+
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     // Load children when expanded
     LaunchedEffect(node.file, isExpanded) {
@@ -96,12 +97,11 @@ fun FileTreeNodeItem(
             } else node.name
     }
 
-    val isFileSelected = viewModel.isFileSelected(root, node.file)
-
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
                 Modifier.addIf(isCut) { alpha(0.5f) }
+                    .addIf(isFileSelected) { background(selectionColor) }
                     .combinedClickable(
                         onClick = {
                             if (viewModel.isAnyFileSelected(root)) {
@@ -117,13 +117,6 @@ fun FileTreeNodeItem(
                             onFileClick(node)
                         },
                         onLongClick = { viewModel.toggleSelection(root, node.file) },
-                    )
-                    .then(
-                        if (isFileSelected && !isCut) {
-                            Modifier.background(color = MaterialTheme.colorScheme.surfaceContainer)
-                        } else {
-                            Modifier
-                        }
                     )
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),

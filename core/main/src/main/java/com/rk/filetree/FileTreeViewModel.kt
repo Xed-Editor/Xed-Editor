@@ -3,6 +3,7 @@ package com.rk.filetree
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -203,7 +204,7 @@ class FileTreeViewModel : ViewModel() {
         return fileOperationsCount > 0
     }
 
-    private val cutNode = mutableStateOf<FileObject?>(null)
+    private val cutNodes = mutableStateListOf<FileObject>()
 
     // File -> Error severity (see DiagnosticRegion.java)
     private val diagnosedNodes = mutableStateMapOf<FileObject, Int>()
@@ -215,16 +216,14 @@ class FileTreeViewModel : ViewModel() {
 
     fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates[fileObject] == true
 
-    fun isNodeCut(fileObject: FileObject): Boolean = cutNode.value == fileObject
+    fun isNodeCut(fileObject: FileObject): Boolean = cutNodes.contains(fileObject)
 
-    fun markNodeAsCut(fileObject: FileObject) {
-        cutNode.value = fileObject
+    fun markNodesAsCut(fileObjects: List<FileObject>) {
+        cutNodes.addAll(fileObjects)
     }
 
-    fun unmarkNodeAsCut(fileObject: FileObject) {
-        if (isNodeCut(fileObject)) {
-            cutNode.value = null
-        }
+    fun unmarkNodesAsCut(fileObject: List<FileObject>) {
+        cutNodes.removeAll(fileObject)
     }
 
     fun diagnoseNode(fileObject: FileObject, severity: Int) {
@@ -311,9 +310,6 @@ class FileTreeViewModel : ViewModel() {
     }
 
     suspend fun goToFolder(projectFile: FileObject, fileObject: FileObject) {
-        //        selectedFile[projectFile] = fileObject
-        // TODO: Focus file (1/2 occurrences)
-
         var currentFile: FileObject? = fileObject
         while (currentFile != null && currentFile != projectFile) {
             expandedNodes[currentFile] = true
