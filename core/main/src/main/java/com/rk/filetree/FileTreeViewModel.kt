@@ -188,8 +188,11 @@ class FileTreeViewModel : ViewModel() {
 
     suspend fun withFileOperation(block: suspend () -> Unit) {
         registerFileOperation()
-        block()
-        unregisterFileOperation()
+        try {
+            block()
+        } finally {
+            unregisterFileOperation()
+        }
     }
 
     fun registerFileOperation() {
@@ -218,12 +221,12 @@ class FileTreeViewModel : ViewModel() {
 
     fun isNodeCut(fileObject: FileObject): Boolean = cutNodes.contains(fileObject)
 
-    fun markNodesAsCut(fileObjects: List<FileObject>) {
-        cutNodes.addAll(fileObjects)
+    fun markNodeAsCut(fileObject: FileObject) {
+        cutNodes.add(fileObject)
     }
 
-    fun unmarkNodesAsCut(fileObject: List<FileObject>) {
-        cutNodes.removeAll(fileObject)
+    fun unmarkNodeAsCut(fileObject: FileObject) {
+        cutNodes.remove(fileObject)
     }
 
     fun diagnoseNode(fileObject: FileObject, severity: Int) {

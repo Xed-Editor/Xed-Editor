@@ -17,6 +17,7 @@ import com.rk.file.FileObject
 import com.rk.file.FileOperations
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.getFilledString
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
@@ -80,29 +81,27 @@ fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, conte
             onConfirm = {
                 scope.launch {
                     for (file in files) {
-                        var success = false
-                        viewModel.withFileOperation { success = FileOperations.deleteFile(file) }
+                        viewModel.withFileOperation {
+                            FileOperations.deleteFile(file)
+                                .onFailure { toast(it.message ?: strings.delete_failed.getString()) }
+                                .onSuccess {
+                                    val parentFile = file.getParentFile()
+                                    if (parentFile != null) {
+                                        viewModel.updateCache(file.getParentFile()!!)
+                                    }
 
-                        if (!success) {
-                            toast(strings.delete_failed)
-                            return@launch
-                        }
+                                    if (file == root) {
+                                        removeProject(file, true)
+                                    }
 
-                        val parentFile = file.getParentFile()
-                        if (parentFile != null) {
-                            viewModel.updateCache(file.getParentFile()!!)
-                        }
-
-                        if (file == root) {
-                            removeProject(file, true)
-                        }
-
-                        MainActivity.instance?.viewModel?.also { viewModel ->
-                            viewModel.tabs.forEachIndexed { index, tab ->
-                                if (tab.file == file) {
-                                    viewModel.removeTab(index)
+                                    MainActivity.instance?.viewModel?.also { viewModel ->
+                                        viewModel.tabs.forEachIndexed { index, tab ->
+                                            if (tab.file == file) {
+                                                viewModel.removeTab(index)
+                                            }
+                                        }
+                                    }
                                 }
-                            }
                         }
                     }
                 }

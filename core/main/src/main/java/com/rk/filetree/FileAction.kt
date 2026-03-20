@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.file.FileObject
@@ -24,7 +25,6 @@ import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.showTerminalNotice
 import com.rk.utils.toast
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 data class FileActionContext(
@@ -32,7 +32,6 @@ data class FileActionContext(
     val root: FileObject?,
     val viewModel: FileTreeViewModel,
     val context: Context,
-    val scope: CoroutineScope,
 )
 
 data class MultiFileActionContext(
@@ -40,7 +39,6 @@ data class MultiFileActionContext(
     val root: FileObject?,
     val viewModel: FileTreeViewModel,
     val context: Context,
-    val scope: CoroutineScope,
 )
 
 data class FileActionType(val file: Boolean, val folder: Boolean, val rootFolder: Boolean) {
@@ -176,10 +174,8 @@ object CopyAction : MultiFileAction() {
     override val title = strings.copy.getString()
 
     override fun action(context: MultiFileActionContext) {
-        context.scope.launch {
-            FileOperations.copyToClipboard(context.files)
-            toast(context.context.getString(strings.copied))
-        }
+        FileOperations.copyToClipboard(context.files)
+        toast(context.context.getString(strings.copied))
     }
 
     override val type = FileActionType.All
@@ -191,10 +187,8 @@ object CutAction : MultiFileAction() {
     override val title = strings.cut.getString()
 
     override fun action(context: MultiFileActionContext) {
-        context.scope.launch {
-            FileOperations.copyToClipboard(context.files, isCut = true)
-            context.viewModel.markNodesAsCut(context.files)
-        }
+        FileOperations.copyToClipboard(context.files, isCut = true)
+        context.files.forEach { context.viewModel.markNodeAsCut(it) }
     }
 
     override val type = FileActionType.All
@@ -205,35 +199,34 @@ object PasteAction : FileAction() {
     override val title = strings.paste.getString()
 
     override fun action(context: FileActionContext) {
-        context.scope.launch {
+        context.viewModel.viewModelScope.launch {
             val isCut = FileOperations.isCut
             val clipboardFiles = FileOperations.clipboard
-            val clipboardParentFiles = clipboardFiles.mapNotNull { it.getParentFile() }
 
             context.viewModel.withFileOperation {
-                clipboardFiles.forEach {
+                for (clipboardFile in clipboardFiles) {
                     FileOperations.pasteFile(
-                        context = context.context,
-                        sourceFile = it,
-                        destinationFolder = context.file,
-                        isCut = isCut,
-                    )
+                            context = context.context,
+                            sourceFile = clipboardFile,
+                            destinationFolder = context.file,
+                            isCut = isCut,
+                        )
+                        .onFailure { toast(it.message ?: strings.paste_failed.getString()) }
+                        .onSuccess {
+                            if (isCut) {
+                                MainActivity.instance?.apply {
+                                    val targetTab =
+                                        viewModel.tabs.find { it is EditorTab && it.file == clipboardFile }
+                                            as? EditorTab
+                                    targetTab?.file = context.file.getChildForName(clipboardFile.getName())
+                                }
+                            }
+                            clipboardFile.getParentFile()?.let { context.viewModel.updateCache(it) }
+                            context.viewModel.updateCache(context.file)
+                            context.viewModel.unmarkNodeAsCut(clipboardFile)
+                        }
                 }
             }
-
-            if (FileOperations.isCut) {
-                MainActivity.instance?.apply {
-                    for (clipboardFile in clipboardFiles) {
-                        val targetTab =
-                            viewModel.tabs.find { it is EditorTab && it.file == clipboardFile } as? EditorTab
-                        targetTab?.file = context.file.getChildForName(clipboardFile.getName())
-                    }
-                }
-            }
-
-            context.viewModel.updateCache(context.file)
-            clipboardParentFiles.forEach { context.viewModel.updateCache(it) }
-            context.viewModel.unmarkNodesAsCut(clipboardFiles)
         }
     }
 
@@ -251,7 +244,7 @@ object OpenWithAction : FileAction() {
     override val title = strings.open_with.getString()
 
     override fun action(context: FileActionContext) {
-        context.scope.launch { FileOperations.openWithExternalApp(context.context, context.file) }
+        context.viewModel.viewModelScope.launch { FileOperations.openWithExternalApp(context.context, context.file) }
     }
 
     override val type = FileActionType.All

@@ -37,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -151,7 +150,6 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
     var expanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     BoxWithConstraints {
         val itemWidth = 64.dp
@@ -177,7 +175,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                         IconButton(
                             enabled = action.isEnabled(file),
                             onClick = {
-                                val context = FileActionContext(file, rootNode.file, viewModel, context, scope)
+                                val context = FileActionContext(file, rootNode.file, viewModel, context)
                                 action.action(context)
 
                                 viewModel.unselectAllFiles(rootNode.file)
@@ -190,8 +188,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                         IconButton(
                             enabled = action.isEnabled(selectedFiles),
                             onClick = {
-                                val context =
-                                    MultiFileActionContext(selectedFiles, rootNode.file, viewModel, context, scope)
+                                val context = MultiFileActionContext(selectedFiles, rootNode.file, viewModel, context)
                                 action.action(context)
 
                                 viewModel.unselectAllFiles(rootNode.file)
@@ -219,8 +216,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                                         leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                         enabled = action.isEnabled(file),
                                         onClick = {
-                                            val context =
-                                                FileActionContext(file, rootNode.file, viewModel, context, scope)
+                                            val context = FileActionContext(file, rootNode.file, viewModel, context)
                                             action.action(context)
 
                                             viewModel.unselectAllFiles(rootNode.file)
@@ -235,13 +231,7 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                                         enabled = action.isEnabled(selectedFiles),
                                         onClick = {
                                             val context =
-                                                MultiFileActionContext(
-                                                    selectedFiles,
-                                                    rootNode.file,
-                                                    viewModel,
-                                                    context,
-                                                    scope,
-                                                )
+                                                MultiFileActionContext(selectedFiles, rootNode.file, viewModel, context)
                                             action.action(context)
 
                                             viewModel.unselectAllFiles(rootNode.file)

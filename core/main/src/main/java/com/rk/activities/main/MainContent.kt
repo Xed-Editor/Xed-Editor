@@ -301,16 +301,16 @@ private fun TabItemContent(
 ) {
     var showTabMenu by remember { mutableStateOf(false) }
     var showFileActionMenu by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
 
     val isSelected = mainViewModel.currentTabIndex == index
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
 
     val tabModifier =
         Modifier.let { modifier ->
-                calculatedTabWidth?.let { width -> modifier.width(with(LocalDensity.current) { width.toDp() }) }
-                    ?: modifier
+                calculatedTabWidth?.let { width -> modifier.width(with(density) { width.toDp() }) } ?: modifier
             }
             .let { if (isDraggableContent) it.background(backgroundColor.copy(alpha = 0.4f)) else it }
 
@@ -388,7 +388,7 @@ private fun TabItemContent(
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                 enabled = action.isEnabled(it),
                                 onClick = {
-                                    val context = FileActionContext(it, root, fileTreeViewModel, context, scope)
+                                    val context = FileActionContext(it, root, fileTreeViewModel, context)
                                     action.action(context)
                                     showFileActionMenu = false
                                 },
@@ -401,7 +401,7 @@ private fun TabItemContent(
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                 enabled = action.isEnabled(files),
                                 onClick = {
-                                    val context = MultiFileActionContext(files, root, fileTreeViewModel, context, scope)
+                                    val context = MultiFileActionContext(files, root, fileTreeViewModel, context)
                                     action.action(context)
                                     showFileActionMenu = false
                                 },
