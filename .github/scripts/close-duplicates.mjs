@@ -49,14 +49,20 @@ if (!owner || !repo) {
 // ---------------------------------------------------------------------------
 
 /**
- * Extract the raw stacktrace string that follows "Error StackTrace :" in the
- * issue body. Returns null if the marker isn't found.
+ * Extract the raw stacktrace string that follows either of these markers:
+ *   - "Error StackTrace :"  (original format)
+ *   - "Error stacktrace:"   (new format)
+ *
+ * Returns null if neither marker is found.
  */
 function extractRawStacktrace(body) {
   if (typeof body !== "string") return null;
-  const marker = "Error StackTrace :";
-  const idx = body.indexOf(marker);
-  return idx === -1 ? null : body.substring(idx + marker.length).trim();
+  const markers = ["Error StackTrace :", "Error stacktrace:"];
+  for (const marker of markers) {
+    const idx = body.indexOf(marker);
+    if (idx !== -1) return body.substring(idx + marker.length).trim();
+  }
+  return null;
 }
 
 /**
