@@ -1,6 +1,6 @@
 // .github/scripts/close-duplicates.mjs
 import crypto from "crypto";
-import github from "@actions/github";
+import { getOctokit } from "@actions/github";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -37,7 +37,7 @@ if (!token) {
   process.exit(1);
 }
 
-const octokit = github.getOctokit(token);
+const octokit = getOctokit(token);
 const [owner, repo] = (process.env.GITHUB_REPOSITORY ?? "").split("/");
 if (!owner || !repo) {
   console.error("❌  GITHUB_REPOSITORY is not set or malformed.");
