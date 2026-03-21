@@ -198,6 +198,14 @@ async function closeAsDuplicate(issue_number, original_number) {
   }
 
   await withRetry(() =>
+    octokit.rest.issues.createComment({
+      owner, repo,
+      issue_number,
+      body: `Duplicate of #${original_number}`,
+    })
+  );
+
+  await withRetry(() =>
     octokit.rest.issues.update({
       owner, repo,
       issue_number,
@@ -259,7 +267,7 @@ async function closeAsDuplicate(issue_number, original_number) {
     console.log("─".repeat(60));
     console.log(`✅  Unique crashes  : ${seen.size}`);
     console.log(`🔁  Closed as dupes : ${closed}`);
-    console.log(`⏭️   No stacktrace   : ${noTrace}`);
+    console.log(`⏭️  No stacktrace   : ${noTrace}`);
   } catch (err) {
     console.error("Fatal:", err.message);
     process.exit(1);
