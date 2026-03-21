@@ -170,44 +170,21 @@ async function withRetry(fn, retries = 4) {
   }
 }
 
-/** Ensure the "duplicate" label exists; create it if it doesn't. */
-async function ensureDuplicateLabel() {
-  try {
-    await octokit.rest.issues.getLabel({ owner, repo, name: "duplicate" });
-  } catch (err) {
-    if (err.status !== 404) throw err;
-    if (!DRY_RUN) {
-      await withRetry(() =>
-        octokit.rest.issues.createLabel({
-          owner, repo,
-          name: "duplicate",
-          color: "cfd3d7",
-          description: "This issue already exists",
-        })
-      );
-    }
-    console.log('  [setup] Created missing "duplicate" label.');
-  }
-}
-
-/** Close the issue and apply the duplicate label. */
+/**
+ * Close the issue as a duplicate of another issue.
+ * Posting "Duplicate of #X" as the closing comment makes GitHub natively
+ * recognize and display it as "closed as duplicate of #X" in the UI —
+ * identical to manually selecting that option.
+ */
 async function closeAsDuplicate(issue_number, original_number) {
   if (DRY_RUN) {
     console.log(`  [dry-run] Would close #${issue_number} as duplicate of #${original_number}`);
     return;
   }
 
+  // Posting this comment is what triggers GitHub's native duplicate UI.
+  // GitHub will automatically close the issue and link it to the original.
   await withRetry(() =>
-    octokit.rest.issues.update({
-      owner, repo,
-      issue_number,
-      state: "closed",
-      state_reason: "not_planned",
-      labels: ["duplicate"],
-    })
-  );
-
-await withRetry(() =>
     octokit.rest.issues.createComment({
       owner, repo,
       issue_number,
@@ -223,8 +200,6 @@ await withRetry(() =>
 (async () => {
   try {
     if (DRY_RUN) console.log("🔍  DRY RUN — no changes will be made.\n");
-
-    await ensureDuplicateLabel();
 
     const allIssues = await octokit.paginate(
       octokit.rest.issues.listForRepo,
