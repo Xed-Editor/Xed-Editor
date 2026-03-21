@@ -198,20 +198,20 @@ async function closeAsDuplicate(issue_number, original_number) {
   }
 
   await withRetry(() =>
-    octokit.rest.issues.createComment({
-      owner, repo,
-      issue_number,
-      body: `Duplicate of #${original_number}`,
-    })
-  );
-
-  await withRetry(() =>
     octokit.rest.issues.update({
       owner, repo,
       issue_number,
       state: "closed",
       state_reason: "not_planned",
       labels: ["duplicate"],
+    })
+  );
+
+await withRetry(() =>
+    octokit.rest.issues.createComment({
+      owner, repo,
+      issue_number,
+      body: `Duplicate of #${original_number}`,
     })
   );
 }
