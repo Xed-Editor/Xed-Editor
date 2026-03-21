@@ -1,0 +1,37 @@
+# .github/workflows/close-duplicate-issues.yml
+name: Close Duplicate Crash Issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no issues will be closed)"
+        type: boolean
+        default: false
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  deduplicate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install @actions/github @actions/core
+
+      - name: Close duplicate issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: node .github/scripts/close-duplicates.mjs
