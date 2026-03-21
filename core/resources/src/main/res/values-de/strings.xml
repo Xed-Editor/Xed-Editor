@@ -600,4 +600,7 @@
     <string name="ask_lsp_update">Möchtest du den \'%s\' Sprachserver aktualisieren?</string>
     <string name="smart_toolbar">Intelligente Toolbar</string>
     <string name="smart_toolbar_desc">Die Toolbar beim Bearbeiten ausblenden, um Bildschirmplatz zu sparen</string>
+    <string name="ask_deletion_many">Bist du sicher, dass du %d Dateien endgültig löschen möchtest?</string>
+    <string name="paste_failed">Datei konnte nicht eingefügt werden</string>
+    <string name="file_actions">Dateiaktionen</string>
 </resources>
