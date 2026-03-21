@@ -182,13 +182,32 @@ async function closeAsDuplicate(issue_number, original_number) {
     return;
   }
 
-  // Posting this comment is what triggers GitHub's native duplicate UI.
-  // GitHub will automatically close the issue and link it to the original.
+  // Get node IDs needed for GraphQL
+  const { data: dupIssue } = await withRetry(() =>
+    octokit.rest.issues.get({ owner, repo, issue_number })
+  );
+  const { data: origIssue } = await withRetry(() =>
+    octokit.rest.issues.get({ owner, repo, issue_number: original_number })
+  );
+
+  // Use GraphQL to close as duplicate — this is what the GitHub UI does internally
   await withRetry(() =>
-    octokit.rest.issues.createComment({
-      owner, repo,
-      issue_number,
-      body: `Duplicate of #${original_number}`,
+    octokit.graphql(`
+      mutation($issueId: ID!, $canonicalIssueId: ID!) {
+        closeIssueAsduplicate(input: {
+          issueId: $issueId,
+          canonicalIssueId: $canonicalIssueId
+        }) {
+          issue {
+            number
+            state
+            stateReason
+          }
+        }
+      }
+    `, {
+      issueId: dupIssue.node_id,
+      canonicalIssueId: origIssue.node_id,
     })
   );
 }
