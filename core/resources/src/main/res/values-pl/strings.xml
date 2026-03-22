@@ -608,4 +608,9 @@
     <string name="fullscreen_desc">Uruchom aplikacje w trybie pełnoekranowym</string>
     <string name="smart_toolbar">Inteligentny pasek narzędzi</string>
     <string name="smart_toolbar_desc">Ukryj pasek narzędzi podczas edycji, aby zwolnić miejsce na ekranie</string>
+    <string name="ask_deletion_many">Czy napewno chcesz trwale usunąć %d plików?</string>
+    <string name="paste_failed">Nie można wkleić pliku</string>
+    <string name="file_actions">Czynności pliku</string>
+    <string name="show_minimap">Pokaż minimapę</string>
+    <string name="show_minimap_desc">Pokaż minimapę po prawej stronie ekranu</string>
 </resources>
