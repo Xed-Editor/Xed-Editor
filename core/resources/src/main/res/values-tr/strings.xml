@@ -603,4 +603,6 @@
     <string name="ask_deletion_many">%d dosyayı kalıcı olarak silmek istediğinizden emin misiniz?</string>
     <string name="paste_failed">Dosya yapıştırılamıyor</string>
     <string name="file_actions">Dosya işlemleri</string>
+    <string name="show_minimap">Mini haritayı göster</string>
+    <string name="show_minimap_desc">Ekranın sağ tarafında bir mini harita göster</string>
 </resources>
