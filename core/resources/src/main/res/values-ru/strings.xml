@@ -607,4 +607,9 @@
     <string name="fullscreen_desc">Запускать приложение в полноэкранном режиме</string>
     <string name="smart_toolbar">Умная панель инструментов</string>
     <string name="smart_toolbar_desc">Скрывать панель инструментов во время редактирования, чтобы освободить место на экране</string>
+    <string name="ask_deletion_many">Вы действительно хотите безвозвратно удалить %d файлов?</string>
+    <string name="paste_failed">Невозможно вставить файл</string>
+    <string name="file_actions">Действия с файлом</string>
+    <string name="show_minimap">Показать мини-карту</string>
+    <string name="show_minimap_desc">Показывать мини-карту в правой части экрана</string>
 </resources>
