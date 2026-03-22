@@ -595,4 +595,8 @@
     <string name="fullscreen_desc">Jalankan aplikasi dalam mode layar penuh</string>
     <string name="smart_toolbar">Bilah alat pintar</string>
     <string name="smart_toolbar_desc">Sembunyikan bilah alat saat mengedit untuk mengosongkan ruang layar</string>
+    <string name="ask_deletion_many">Apakah Anda yakin ingin menghapus file %d secara permanen?</string>
+    <string name="file_actions">Tindakan file</string>
+    <string name="show_minimap">Tampilkan peta mini</string>
+    <string name="show_minimap_desc">Tampilkan peta mini di sisi kanan layar</string>
 </resources>
