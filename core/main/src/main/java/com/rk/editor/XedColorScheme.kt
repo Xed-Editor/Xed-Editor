@@ -72,6 +72,9 @@ class XedColorScheme(
                 LINE_NUMBER_PANEL,
             )
 
+            setColors(setAlpha(surfaceContainer, 0.4f), MINIMAP_BACKGROUND)
+            setColors(setAlpha(highSurfaceContainer, 0.6f), MINIMAP_VIEWPORT, MINIMAP_VIEWPORT_BORDER)
+
             setColors(highSurfaceContainer, COMPLETION_WND_ITEM_CURRENT)
 
             setColors(
@@ -85,6 +88,7 @@ class XedColorScheme(
                 HOVER_TEXT_NORMAL,
                 LINE_NUMBER,
                 LINE_NUMBER_CURRENT,
+                LINE_NUMBER_PANEL_TEXT,
             )
 
             setColors(handleColor, SELECTION_HANDLE)

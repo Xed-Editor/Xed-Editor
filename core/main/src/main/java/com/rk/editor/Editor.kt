@@ -153,6 +153,7 @@ class Editor : CodeEditor {
         val finalNewline = Settings.insert_final_newline
         val trailingWhitespace = Settings.trim_trailing_whitespace
         val completeOnEnter = Settings.complete_on_enter
+        val showMinimap = Settings.show_minimap
 
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
@@ -160,6 +161,7 @@ class Editor : CodeEditor {
         props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
         props.selectCompletionItemOnEnterForSoftKbd = completeOnEnter
+        props.showMinimap = showMinimap
         setPinLineNumber(pinLineNumber)
         isLineNumberEnabled = showLineNumber
         isCursorAnimationEnabled = cursorAnimation
@@ -189,6 +191,7 @@ class Editor : CodeEditor {
             } else 0
 
         lineNumberMarginLeft = 9f
+        searcher.isEnsureOccurrenceVisible = true
     }
 
     fun applySettings(resourceProperties: ResourceProperties) {
