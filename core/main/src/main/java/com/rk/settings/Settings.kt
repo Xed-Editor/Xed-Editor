@@ -131,6 +131,7 @@ object Settings {
     var always_index_projects by CachedPreference("always_index_projects", false)
     var fullscreen by CachedPreference("fullscreen", false)
     var smart_toolbar by CachedPreference("smart_toolbar", false)
+    var show_minimap by CachedPreference("show_minimap", false)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)

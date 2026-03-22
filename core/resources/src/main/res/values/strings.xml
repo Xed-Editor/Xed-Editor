@@ -606,4 +606,6 @@
     <string name="smart_toolbar">Smart toolbar</string>
     <string name="smart_toolbar_desc">Hide the toolbar when editing to free up screen space</string>
     <string name="file_actions">File actions</string>
+    <string name="show_minimap">Show minimap</string>
+    <string name="show_minimap_desc">Show a minimap on the right side of the screen</string>
 </resources>

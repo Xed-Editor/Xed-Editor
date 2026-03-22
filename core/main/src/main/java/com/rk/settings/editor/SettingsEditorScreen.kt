@@ -158,20 +158,6 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
             EditorSettingsToggle(
-                label = stringResource(strings.detect_bin_files),
-                description = stringResource(strings.detect_bin_files_desc),
-                default = Settings.detect_bin_files,
-                sideEffect = { Settings.detect_bin_files = it },
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(strings.oom_prediction),
-                description = stringResource(strings.oom_prediction_desc),
-                default = Settings.oom_prediction,
-                sideEffect = { Settings.oom_prediction = it },
-            )
-
-            EditorSettingsToggle(
                 label = stringResource(strings.disable_virtual_kbd),
                 description = stringResource(strings.disable_virtual_kbd_desc),
                 default = Settings.hide_soft_keyboard_if_hardware,
@@ -191,6 +177,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.cursor_anim_desc),
                 default = Settings.cursor_animation,
                 sideEffect = { Settings.cursor_animation = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.show_minimap),
+                description = stringResource(strings.show_minimap_desc),
+                default = Settings.show_minimap,
+                sideEffect = { Settings.show_minimap = it },
             )
 
             EditorSettingsToggle(
@@ -423,6 +416,20 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.other)) {
+            EditorSettingsToggle(
+                label = stringResource(strings.detect_bin_files),
+                description = stringResource(strings.detect_bin_files_desc),
+                default = Settings.detect_bin_files,
+                sideEffect = { Settings.detect_bin_files = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.oom_prediction),
+                description = stringResource(strings.oom_prediction_desc),
+                default = Settings.oom_prediction,
+                sideEffect = { Settings.oom_prediction = it },
+            )
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.restore_sessions),
                 description = stringResource(id = strings.restore_sessions_desc),
