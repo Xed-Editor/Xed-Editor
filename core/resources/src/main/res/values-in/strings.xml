@@ -599,4 +599,5 @@
     <string name="file_actions">Tindakan file</string>
     <string name="show_minimap">Tampilkan peta mini</string>
     <string name="show_minimap_desc">Tampilkan peta mini di sisi kanan layar</string>
+    <string name="paste_failed">Tidak dapat menempelkan file</string>
 </resources>
