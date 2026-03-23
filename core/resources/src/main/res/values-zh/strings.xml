@@ -25,7 +25,7 @@
     <string name="add_file">添加外部文件</string>
     <string name="replace_all">替换所有</string>
     <string name="download">下载</string>
-    <string name="open_in_terminal">打开终端</string>
+    <string name="open_in_terminal">在终端打开</string>
     <string name="close_current_project">你确定要关闭 \'%s\' 项目吗？</string>
     <string name="file_name">文件名称</string>
     <string name="open">打开</string>
@@ -596,4 +596,9 @@
     <string name="fullscreen_desc">以全屏模式启动应用</string>
     <string name="smart_toolbar">智能工具栏</string>
     <string name="smart_toolbar_desc">在编辑时隐藏工具栏以减少遮挡</string>
+    <string name="paste_failed">无法粘贴文件</string>
+    <string name="show_minimap">显示小地图</string>
+    <string name="show_minimap_desc">显示屏幕右侧的小地图</string>
+    <string name="ask_deletion_many">你确定要永久删除 %d 吗？</string>
+    <string name="file_actions">文件操作</string>
 </resources>
