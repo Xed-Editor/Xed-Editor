@@ -25,7 +25,7 @@
     <string name="add_file">添加外部文件</string>
     <string name="replace_all">替换所有</string>
     <string name="download">下载</string>
-    <string name="open_in_terminal">在终端打开</string>
+    <string name="open_in_terminal">在终端中打开</string>
     <string name="close_current_project">你确定要关闭 \'%s\' 项目吗？</string>
     <string name="file_name">文件名称</string>
     <string name="open">打开</string>
@@ -37,10 +37,10 @@
     <string name="go_prev">上一个</string>
     <string name="replace">替换</string>
     <string name="app">应用程序</string>
-    <string name="oled_desc">使用纯黑色主题</string>
+    <string name="oled_desc">使用纯黑主题</string>
     <string name="text_size_desc">设置字体大小</string>
     <string name="tab_size">制表符大小（\\t）</string>
-    <string name="tab_size_desc">设置为制表符插入的空格数量</string>
+    <string name="tab_size_desc">设置制表符等于的空格数</string>
     <string name="unsupported_content">不支持的内容</string>
     <string name="restart_required">需要重启</string>
     <string name="save">保存</string>
@@ -97,7 +97,7 @@
     <string name="check_for_updates">检查更新</string>
     <string name="dark_mode">暗色</string>
     <string name="auto_mode">自动</string>
-    <string name="theme_mode_desc">将主题改为自动、亮色或暗色</string>
+    <string name="theme_mode_desc">修改应用主题颜色</string>
     <string name="show_suggestions">显示键盘选词建议</string>
     <string name="about">关于</string>
     <string name="about_desc">关于 Xed-Editor</string>
@@ -319,7 +319,7 @@
     <string name="empty_command">空命令</string>
     <string name="socket">套接字</string>
     <string name="process">进程</string>
-    <string name="project_restore_failed">恢复项目失败</string>
+    <string name="project_restore_failed">项目恢复失败</string>
     <string name="theme_flipper">主题翻转器</string>
     <string name="theme_flipper_desc">每 7 秒种切换一次主题模式</string>
     <string name="invalid_intent">接收到错误的 Intent 意图：\n%s</string>
@@ -419,8 +419,8 @@
     <string name="file_creation_failed">无法创建文件</string>
     <string name="folder_creation_failed">无法创建文件夹</string>
     <string name="restore_terminal">还原终端备份</string>
-    <string name="terminal_backup">终端备份</string>
-    <string name="settings_backup_desc">创建包含所有当前设置的备份</string>
+    <string name="terminal_backup">创建终端备份</string>
+    <string name="settings_backup_desc">创建包含当前所有设置的备份</string>
     <string name="settings_restore_desc">从备份中还原设置</string>
     <string name="export_successful">导出成功</string>
     <string name="export_failed">导出失败</string>
@@ -442,7 +442,7 @@
     <string name="enable_editorconfig">启用 EditorConfig 支持</string>
     <string name="enable_editorconfig_desc">自动应用 .editorconfig 文件中的代码风格规则</string>
     <string name="binary_file_notice">此文件似乎为二进制文件。编辑模式已禁用</string>
-    <string name="show_hidden_files">显示隐藏的文件</string>
+    <string name="show_hidden_files">显示隐藏项</string>
     <string name="sort_by_name">按名称排序</string>
     <string name="sort_by_size">按大小排序</string>
     <string name="sort_by_date">按日期排序</string>
@@ -462,8 +462,8 @@
     <string name="general">通用</string>
     <string name="advanced">高级</string>
     <string name="open_removable_storage">打开可移动存储</string>
-    <string name="clone_repo_desc">克隆远程仓库</string>
-    <string name="repo_url">仓库 URL</string>
+    <string name="clone_repo_desc">克隆远程存储库</string>
+    <string name="repo_url">存储库 URL</string>
     <string name="branch">分支</string>
     <string name="value_empty_err">值不能为空</string>
     <string name="git">Git</string>
@@ -481,7 +481,7 @@
     <string name="account">账号</string>
     <string name="repository">存储库</string>
     <string name="submodules">子模块</string>
-    <string name="submodules_desc">克隆仓库时包含子模块</string>
+    <string name="submodules_desc">克隆存储库时包含子模块</string>
     <string name="recursive_submodules">递归子模块</string>
     <string name="recursive_submodules_desc">递归地获取子模块及其依赖项</string>
     <string name="commit_message">提交信息</string>
@@ -520,7 +520,7 @@
     <string name="indexing">索引中…</string>
     <string name="file_name_opened">%s（打开）</string>
     <string name="index_project">索引项目</string>
-    <string name="index_project_desc">索引可以提高大型项目的搜索速度</string>
+    <string name="index_project_desc">通过索引可以提高大型项目的搜索速度</string>
     <string name="always_index_projects">始终索引项目</string>
     <string name="indexing_stats">已索引 %1$s 个文件，数据库大小 %2$s</string>
     <string name="logs">日志</string>
@@ -528,8 +528,8 @@
     <string name="view_app_logs">查看应用程序日志</string>
     <string name="logs_too_long">日志太长了</string>
     <string name="logs_too_long_desc">您要提交的日志文件过大。请通过手动粘贴的方式提交。</string>
-    <string name="complete_on_enter">回车以确认</string>
-    <string name="complete_on_enter_desc">软键盘回车时是否选中首个补全项</string>
+    <string name="complete_on_enter">在回车时补全</string>
+    <string name="complete_on_enter_desc">在软键盘回车时自动使用第一个补全项</string>
     <string name="status_info">状态: %s</string>
     <string name="status_running">运行中</string>
     <string name="status_starting">正在启动…</string>
@@ -594,8 +594,8 @@
     <string name="restart_all">全部重启</string>
     <string name="fullscreen">全屏</string>
     <string name="fullscreen_desc">以全屏模式启动应用</string>
-    <string name="smart_toolbar">智能工具栏</string>
-    <string name="smart_toolbar_desc">在编辑时隐藏工具栏以减少遮挡</string>
+    <string name="smart_toolbar">智能标题栏</string>
+    <string name="smart_toolbar_desc">编辑时隐藏标题栏以减少遮挡</string>
     <string name="paste_failed">无法粘贴文件</string>
     <string name="show_minimap">显示小地图</string>
     <string name="show_minimap_desc">显示屏幕右侧的小地图</string>
