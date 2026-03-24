@@ -13,6 +13,8 @@ import com.rk.settings.Settings
 import com.rk.settings.editor.LineEnding
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import io.github.rosemoe.sora.text.CharPosition
+import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.TextActionItem
@@ -297,5 +299,40 @@ class Editor : CodeEditor {
         val selectionStart = cursorRange.startIndex
         val selectionEnd = cursorRange.endIndex
         return text.substring(selectionStart, selectionEnd)
+    }
+
+    companion object {
+        private val uriRegex =
+            Regex(
+                "([a-z0-9+.-]+):(?:\\/\\/(?:((?:[a-z0-9-._~!\$&'()*+,;=:]|%[0-9A-F]{2})*)@)?((?:[a-z0-9-._~!\$&'()*+,;=]|%[0-9A-F]{2})*)(?::(\\d*))?(\\/(?:[a-z0-9-._~!\$&'()*+,;=:@/]|%[0-9A-F]{2})*)?|(\\/?(?:[a-z0-9-._~!\$&'()*+,;=:@]|%[0-9A-F]{2})+(?:[a-z0-9-._~!\$&'()*+,;=:@/]|%[0-9A-F]{2})*)?)(?:\\?((?:[a-z0-9-._~!\$&'()*+,;=:/?@]|%[0-9A-F]{2})*))?(?:#((?:[a-z0-9-._~!\$&'()*+,;=:/?@]|%[0-9A-F]{2})*))?"
+            )
+        private val urlRegex =
+            Regex(
+                "(?i)https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&/=]*)"
+            )
+    }
+
+    /**
+     * Overrides the default word range detection to prioritize identifying URIs at the given position before falling
+     * back to standard word boundaries.
+     */
+    override fun getWordRange(line: Int, column: Int, useIcu: Boolean): TextRange? {
+        val urls = uriRegex.findAll(text.getLine(line))
+        val foundUrl = urls.find { column in it.range.first..it.range.last }
+        if (foundUrl != null) {
+            return TextRange(CharPosition(line, foundUrl.range.first), CharPosition(line, foundUrl.range.last + 1))
+        }
+
+        return super.getWordRange(line, column, useIcu)
+    }
+
+    /**
+     * Returns whether a URL is selected in the editor.
+     *
+     * @return True if a valid URL is selected, false otherwise.
+     */
+    fun isUrlSelected(): Boolean {
+        val text = getSelectedText() ?: return false
+        return urlRegex.matches(text)
     }
 }

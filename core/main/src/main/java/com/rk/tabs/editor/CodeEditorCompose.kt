@@ -1,43 +1,43 @@
 package com.rk.tabs.editor
 
 import android.content.Context
+import android.content.Intent
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.view.children
+import androidx.core.net.toUri
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.snackbarHostStateRef
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.editor.LanguageManager
 import com.rk.editor.intelligent.IntelligentFeature
+import com.rk.file.FileObject
 import com.rk.lsp.LspConnector
 import com.rk.lsp.LspRegistry
 import com.rk.lsp.LspServer
 import com.rk.lsp.createLspTextActions
+import com.rk.resources.drawables
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
-import com.rk.utils.dpToPx
 import com.rk.utils.info
 import com.rk.utils.logWarn
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -45,7 +45,9 @@ import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
+import io.github.rosemoe.sora.widget.component.TextActionItem
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,179 +58,162 @@ import kotlinx.coroutines.withContext
 @Composable
 fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
-    state: CodeEditorState,
     intelligentFeatures: List<IntelligentFeature>,
     onTextChange: () -> Unit,
 ) {
     val selectionColors = LocalTextSelectionColors.current
+    val scope = rememberCoroutineScope()
     val isDarkMode = isSystemInDarkTheme()
     val colorScheme = MaterialTheme.colorScheme
 
-    val divider = colorScheme.outlineVariant
-    val constraintSet = remember { ConstraintSet() }
-    val scope = rememberCoroutineScope()
+    Column(modifier = modifier) {
+        AndroidView(
+            modifier = Modifier.weight(1f),
+            onRelease = { it.release() },
+            update = { info("Editor view update") },
+            factory = { ctx ->
+                Editor(ctx).apply {
+                    if (this@CodeEditor == viewModel.currentTab) {
+                        requestFocus()
+                        requestFocusFromTouch()
+                    }
 
-    AndroidView(
-        modifier = modifier.fillMaxSize(),
-        onRelease = { it.children.filterIsInstance<Editor>().firstOrNull()?.release() },
-        update = { info("Editor view update") },
-        factory = { ctx ->
-            ConstraintLayout(ctx).apply {
-                layoutParams =
-                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                val dividerId = View.generateViewId()
+                    info("New Editor instance")
 
-                val editor =
-                    Editor(ctx).apply {
-                        if (this@CodeEditor == viewModel.currentTab) {
-                            requestFocus()
-                            requestFocusFromTouch()
-                        }
+                    editable = editorState.editable
+                    val isTxtFile = file.getName().endsWith(".txt")
+                    if (Settings.word_wrap_text && isTxtFile) {
+                        setWordwrap(true, true, true)
+                    }
+                    id = View.generateViewId()
+                    layoutParams = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 0)
 
-                        info("New Editor instance")
+                    setThemeColors(
+                        isDarkMode = isDarkMode,
+                        selectionColors = selectionColors,
+                        colorScheme = colorScheme,
+                    )
 
-                        editable = state.editable
-                        val isTxtFile = file.getName().endsWith(".txt")
-                        if (Settings.word_wrap_text && isTxtFile) {
-                            setWordwrap(true, true, true)
-                        }
-                        id = View.generateViewId()
-                        layoutParams = ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 0)
+                    editorState.editor = WeakReference(this)
 
-                        setThemeColors(
-                            isDarkMode = isDarkMode,
-                            selectionColors = selectionColors,
-                            colorScheme = colorScheme,
-                        )
+                    registerXedActions(scope, viewModel, this@CodeEditor)
+                    registerXedEvents(this@CodeEditor, intelligentFeatures, file, onTextChange)
 
-                        state.editor = WeakReference(this)
-
-                        val lspActions = createLspTextActions(scope, context, viewModel, this@CodeEditor)
-                        lspActions.forEach { registerTextAction(it) }
-
-                        scope.launch(Dispatchers.IO) {
-                            state.contentLoaded.await()
-                            state.updateLock.withLock {
-                                withContext(Dispatchers.Main) {
-                                    setText(state.content)
-                                    state.contentRendered.complete(Unit)
-                                }
+                    scope.launch(Dispatchers.IO) {
+                        editorState.contentLoaded.await()
+                        editorState.updateLock.withLock {
+                            withContext(Dispatchers.Main) {
+                                setText(editorState.content)
+                                editorState.contentRendered.complete(Unit)
                             }
-                        }
-
-                        scope.launch { state.editorConfigLoaded?.await()?.let { applySettings() } }
-
-                        subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
-                            val viewModel = fileTreeViewModel.get()
-                            val diagnostics = event.newDiagnosticsEvent
-
-                            val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
-
-                            if (highestSeverity != null) {
-                                viewModel?.diagnoseNode(file, highestSeverity)
-                            } else {
-                                viewModel?.undiagnoseNode(file)
-                            }
-                        }
-
-                        subscribeAlways(ContentChangeEvent::class.java) {
-                            intelligentFeatures.forEach { feature ->
-                                when (it.action) {
-                                    ContentChangeEvent.ACTION_INSERT -> feature.handleInsert(this)
-                                    ContentChangeEvent.ACTION_DELETE -> feature.handleDelete(this)
-                                }
-                            }
-
-                            if (it.changedText.length == 1) {
-                                val character = it.changedText.first()
-                                intelligentFeatures.forEach { feature ->
-                                    if (feature.triggerCharacters.contains(character)) {
-                                        when (it.action) {
-                                            ContentChangeEvent.ACTION_INSERT ->
-                                                feature.handleInsertChar(character, this)
-                                            ContentChangeEvent.ACTION_DELETE ->
-                                                feature.handleDeleteChar(character, this)
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!state.updateLock.isLocked) {
-                                editorState.updateUndoRedo()
-                                onTextChange.invoke()
-                            }
-                        }
-
-                        subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
-                            editorState.isWrapping = event.isLayoutBusy
-                        }
-
-                        subscribeAlways(EditorKeyEvent::class.java) { event ->
-                            intelligentFeatures.forEach { it.handleKeyEvent(event, this) }
-                        }
-
-                        // Intercept the default handling of some keybinds because
-                        // they should be handled by Xed-Editor's key binding system instead
-                        // (for custom keybinds support)
-                        subscribeAlways(KeyBindingEvent::class.java) { event ->
-                            intelligentFeatures.forEach { it.handleKeyBindingEvent(event, this) }
-                            if (event.isIntercepted) return@subscribeAlways
-
-                            val keyCode = event.keyCode
-                            val shouldBeIntercepted =
-                                keyCode == KeyEvent.KEYCODE_A ||
-                                    keyCode == KeyEvent.KEYCODE_C ||
-                                    keyCode == KeyEvent.KEYCODE_X ||
-                                    keyCode == KeyEvent.KEYCODE_V ||
-                                    keyCode == KeyEvent.KEYCODE_U ||
-                                    keyCode == KeyEvent.KEYCODE_R ||
-                                    keyCode == KeyEvent.KEYCODE_D ||
-                                    keyCode == KeyEvent.KEYCODE_W ||
-                                    keyCode == KeyEvent.KEYCODE_Y ||
-                                    keyCode == KeyEvent.KEYCODE_Z ||
-                                    keyCode == KeyEvent.KEYCODE_J
-                            if (shouldBeIntercepted) event.markAsConsumed()
-
-                            KeybindingsManager.handleEditorEvent(event, MainActivity.instance!!)
                         }
                     }
 
-                val divider =
-                    View(ctx).apply {
-                        id = dividerId
-                        visibility =
-                            if (ReactiveSettings.showExtraKeys) {
-                                View.VISIBLE
-                            } else {
-                                View.GONE
-                            }
-                        layoutParams =
-                            ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, dpToPx(1f, ctx))
-                                .apply { setBackgroundColor(divider.toArgb()) }
-                    }
-
-                addView(editor)
-                addView(divider)
-
-                with(constraintSet) {
-                    clone(this@apply)
-
-                    connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                    connect(editor.id, ConstraintSet.BOTTOM, dividerId, ConstraintSet.TOP) // Connect to divider top
-                    connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                    connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-
-                    connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                    connect(dividerId, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-                    connect(dividerId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                    connect(dividerId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-
-                    applyTo(this@apply)
+                    scope.launch { editorState.editorConfigLoaded?.await()?.let { applySettings() } }
                 }
-                editorState.rootView = WeakReference(this)
-            }
-        },
+            },
+        )
+
+        if (ReactiveSettings.showExtraKeys) {
+            HorizontalDivider()
+        }
+    }
+}
+
+fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, editorTab: EditorTab) {
+    registerTextAction(
+        TextActionItem(
+            strings.open,
+            drawables.open_in_new,
+            shouldShow = { isUrlSelected() },
+            onClick = {
+                val text = getSelectedText() ?: return@TextActionItem
+                val intent = Intent(Intent.ACTION_VIEW, text.toUri())
+                context.startActivity(intent)
+            },
+        )
     )
+    val lspActions = createLspTextActions(scope, context, viewModel, editorTab)
+    lspActions.forEach { registerTextAction(it) }
+}
+
+fun Editor.registerXedEvents(
+    editorTab: EditorTab,
+    intelligentFeatures: List<IntelligentFeature>,
+    file: FileObject,
+    onTextChange: () -> Unit,
+) {
+    subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
+        val viewModel = fileTreeViewModel.get()
+        val diagnostics = event.newDiagnosticsEvent
+
+        val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
+
+        if (highestSeverity != null) {
+            viewModel?.diagnoseNode(file, highestSeverity)
+        } else {
+            viewModel?.undiagnoseNode(file)
+        }
+    }
+
+    subscribeAlways(ContentChangeEvent::class.java) {
+        intelligentFeatures.forEach { feature ->
+            when (it.action) {
+                ContentChangeEvent.ACTION_INSERT -> feature.handleInsert(this)
+                ContentChangeEvent.ACTION_DELETE -> feature.handleDelete(this)
+            }
+        }
+
+        if (it.changedText.length == 1) {
+            val character = it.changedText.first()
+            intelligentFeatures.forEach { feature ->
+                if (feature.triggerCharacters.contains(character)) {
+                    when (it.action) {
+                        ContentChangeEvent.ACTION_INSERT -> feature.handleInsertChar(character, this)
+                        ContentChangeEvent.ACTION_DELETE -> feature.handleDeleteChar(character, this)
+                    }
+                }
+            }
+        }
+
+        if (!editorTab.editorState.updateLock.isLocked) {
+            editorTab.editorState.updateUndoRedo()
+            onTextChange.invoke()
+        }
+    }
+
+    subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
+        editorTab.editorState.isWrapping = event.isLayoutBusy
+    }
+
+    subscribeAlways(EditorKeyEvent::class.java) { event ->
+        intelligentFeatures.forEach { it.handleKeyEvent(event, this) }
+    }
+
+    // Intercept the default handling of some keybinds because
+    // they should be handled by Xed-Editor's key binding system instead
+    // (for custom keybinds support)
+    subscribeAlways(KeyBindingEvent::class.java) { event ->
+        intelligentFeatures.forEach { it.handleKeyBindingEvent(event, this) }
+        if (event.isIntercepted) return@subscribeAlways
+
+        val keyCode = event.keyCode
+        val shouldBeIntercepted =
+            keyCode == KeyEvent.KEYCODE_A ||
+                keyCode == KeyEvent.KEYCODE_C ||
+                keyCode == KeyEvent.KEYCODE_X ||
+                keyCode == KeyEvent.KEYCODE_V ||
+                keyCode == KeyEvent.KEYCODE_U ||
+                keyCode == KeyEvent.KEYCODE_R ||
+                keyCode == KeyEvent.KEYCODE_D ||
+                keyCode == KeyEvent.KEYCODE_W ||
+                keyCode == KeyEvent.KEYCODE_Y ||
+                keyCode == KeyEvent.KEYCODE_Z ||
+                keyCode == KeyEvent.KEYCODE_J
+        if (shouldBeIntercepted) event.markAsConsumed()
+
+        KeybindingsManager.handleEditorEvent(event, MainActivity.instance!!)
+    }
 }
 
 fun EditorTab.applyHighlightingAndConnectLSP() {

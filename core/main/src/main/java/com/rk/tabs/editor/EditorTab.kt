@@ -448,7 +448,6 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
                 CodeEditor(
                     modifier = Modifier.weight(1f),
-                    state = editorState,
                     intelligentFeatures = intelligentFeatures,
                     onTextChange = {
                         if (Settings.auto_save && !isTemp) {

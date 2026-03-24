@@ -335,12 +335,15 @@ fun createLspTextActions(
     viewModel: MainViewModel,
     editorTab: EditorTab,
 ): List<TextActionItem> {
+    fun isUrlSelected(): Boolean {
+        return editorTab.editorState.editor.get()?.isUrlSelected() == true
+    }
 
     val goToDefinition =
         TextActionItem(
             titleRes = strings.go_to_definition,
             iconRes = drawables.jump_to_element,
-            shouldShow = { _ -> editorTab.lspConnector?.isGoToDefinitionSupported() == true },
+            shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToDefinitionSupported() == true },
         ) { _ ->
             goToDefinition(scope, context, viewModel, editorTab)
         }
@@ -349,7 +352,7 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.go_to_references,
             iconRes = drawables.manage_search,
-            shouldShow = { _ -> editorTab.lspConnector?.isGoToReferencesSupported() == true },
+            shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToReferencesSupported() == true },
         ) { _ ->
             goToReferences(scope, context, viewModel, editorTab)
         }
@@ -358,7 +361,9 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.rename_symbol,
             iconRes = drawables.edit_note,
-            shouldShow = { editor -> editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true },
+            shouldShow = { editor ->
+                !isUrlSelected() && editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true
+            },
         ) { _ ->
             renameSymbol(scope, editorTab)
         }
