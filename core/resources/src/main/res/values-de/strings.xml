@@ -603,4 +603,6 @@
     <string name="ask_deletion_many">Bist du sicher, dass du %d Dateien endgültig löschen möchtest?</string>
     <string name="paste_failed">Datei konnte nicht eingefügt werden</string>
     <string name="file_actions">Dateiaktionen</string>
+    <string name="show_minimap">Minimap anzeigen</string>
+    <string name="show_minimap_desc">Eine Minimap auf der rechten Seite des Bildschirms anzeigen</string>
 </resources>
