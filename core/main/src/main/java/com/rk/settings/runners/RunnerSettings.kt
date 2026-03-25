@@ -185,7 +185,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                             sideEffect = { _ ->
                                 MainActivity.instance?.let {
                                     it.lifecycleScope.launch {
-                                        it.viewModel.newTab(FileWrapper(runner.getScript()))
+                                        it.viewModel.editorManager.openFile(FileWrapper(runner.getScript()), null, true)
                                         toast(strings.tab_opened)
                                     }
                                 }

@@ -97,7 +97,7 @@ fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, conte
                                     MainActivity.instance?.viewModel?.also { viewModel ->
                                         viewModel.tabs.forEachIndexed { index, tab ->
                                             if (tab.file == file) {
-                                                viewModel.removeTab(index)
+                                                viewModel.tabManager.removeTab(index)
                                             }
                                         }
                                     }
@@ -161,7 +161,8 @@ fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, conte
                                 if (viewModel.isCreateFile && newChild != null && Settings.auto_open_new_files) {
                                     MainActivity.instance
                                         ?.viewModel
-                                        ?.newTab(
+                                        ?.editorManager
+                                        ?.openFile(
                                             newChild,
                                             projectRoot = root,
                                             checkDuplicate = true,

@@ -161,6 +161,7 @@ suspend fun Terminal.getPwd(): String {
         return intent.getStringExtra("cwd").toString()
     }
 
+    val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab
     if (Settings.project_as_pwd) {
         //        if (currentProject != null && currentProject is FileWrapper) {
         //            val absolutePath = currentProject!!.getAbsolutePath()
@@ -171,7 +172,7 @@ suspend fun Terminal.getPwd(): String {
         //            }
         //        }
 
-        MainActivity.instance?.viewModel?.currentTab?.let {
+        currentTab?.let {
             if (it is EditorTab && it.file is FileWrapper) {
                 val parent = it.file.getParentFile()
                 if (parent != null && parent is FileWrapper) {
@@ -184,7 +185,7 @@ suspend fun Terminal.getPwd(): String {
             }
         }
     } else {
-        MainActivity.instance?.viewModel?.currentTab?.let {
+        currentTab?.let {
             if (it is EditorTab && it.file is FileWrapper) {
                 val parent = it.file.getParentFile()
                 if (parent != null && parent is FileWrapper) {

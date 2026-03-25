@@ -74,7 +74,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
             SideEffect {
                 if (isV)
                     (viewModel.tabs.size.takeIf { it > 1 }?.let { (1 until it).random() } ?: 0).also { n ->
-                        if (n > 0) x(viewModel.tabs, n)
+                        if (n > 0) x(viewModel.tabs.toMutableList(), n)
                     }
             }
             toolbarActions.forEach { command ->

@@ -102,7 +102,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
             viewModel = fileTreeViewModel.get()!!,
             onFileClick = { node ->
                 scope.launch(Dispatchers.IO) {
-                    mainViewModel?.newTab(node.file, projectRoot = root, switchToTab = true)
+                    mainViewModel?.editorManager?.openFile(node.file, projectRoot = root, switchToTab = true)
 
                     if (!Settings.keep_drawer_locked) {
                         drawerStateRef.get()?.close()
