@@ -158,7 +158,7 @@ fun MainActivity.MainContentHost(
 
                                 scope.launch {
                                     val newProgress = (accumulator / hardThreshold).coerceIn(0f, 1f)
-                                    viewModel.draggingPaletteProgress.snapTo(newProgress) // TODO
+                                    viewModel.draggingPaletteProgress.snapTo(newProgress)
                                 }
                             },
                             onDragEnd = {

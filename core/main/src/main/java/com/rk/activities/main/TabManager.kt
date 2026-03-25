@@ -77,10 +77,10 @@ class TabManager {
     }
 
     fun removeOtherTabs() {
-        if (currentTab == null) return
+        val tabToKeep = currentTab ?: return
 
-        _tabs.forEach { if (it != currentTab) it.onTabRemoved() }
-        _tabs.removeAll { it != currentTab }
+        _tabs.forEach { if (it != tabToKeep) it.onTabRemoved() }
+        _tabs.removeAll { it != tabToKeep }
         currentTabIndex = 0
     }
 
