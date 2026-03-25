@@ -127,6 +127,17 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         GlobalScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
     }
 
+    override fun onTabSelected() {
+        editorState.editor.get()?.apply {
+            requestFocus()
+            requestFocusFromTouch()
+        }
+    }
+
+    override fun onTabUnselected() {
+        editorState.editor.get()?.clearFocus()
+    }
+
     init {
         scope.launch {
             if (!file.exists() || !file.canRead()) return@launch

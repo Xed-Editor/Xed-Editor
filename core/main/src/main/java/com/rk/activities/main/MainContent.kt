@@ -314,11 +314,15 @@ private fun TabItemContent(
             }
             .let { if (isDraggableContent) it.background(backgroundColor.copy(alpha = 0.4f)) else it }
 
-    val onClick = {
+    val onClick: () -> Unit = {
         if (isSelected) {
             showTabMenu = true
         } else {
+            val previousTab = mainViewModel.currentTab
+            previousTab?.onTabUnselected()
             mainViewModel.currentTabIndex = index
+            val newTab = mainViewModel.currentTab
+            newTab?.onTabSelected()
         }
     }
 

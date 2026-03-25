@@ -73,11 +73,6 @@ fun EditorTab.CodeEditor(
             update = { info("Editor view update") },
             factory = { ctx ->
                 Editor(ctx).apply {
-                    if (this@CodeEditor == viewModel.currentTab) {
-                        requestFocus()
-                        requestFocusFromTouch()
-                    }
-
                     info("New Editor instance")
 
                     editable = editorState.editable

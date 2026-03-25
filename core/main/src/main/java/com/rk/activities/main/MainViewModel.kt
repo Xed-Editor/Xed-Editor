@@ -90,6 +90,7 @@ object SessionManager {
         }
 }
 
+// TODO: Refactor
 class MainViewModel : ViewModel() {
     val tabs = mutableStateListOf<Tab>()
     val mutex = Mutex()
@@ -148,8 +149,10 @@ class MainViewModel : ViewModel() {
                     }
 
             tabs.addAll(deferredRestoredTabs)
+            tabs.forEach { it.onTabAdded() }
 
             currentTabIndex = session.currentTabIndex
+            currentTab?.onTabSelected()
         }
     }
 
@@ -226,6 +229,7 @@ class MainViewModel : ViewModel() {
                 }
                 else -> currentTabIndex
             }
+        currentTab?.onTabSelected()
     }
 
     /**
@@ -314,6 +318,7 @@ class MainViewModel : ViewModel() {
                 tabs.forEachIndexed { index, tab ->
                     if (tab is EditorTab && tab.file == file) {
                         currentTabIndex = index
+                        tab.onTabSelected()
                         return@withContext tab
                     }
                 }
@@ -323,9 +328,13 @@ class MainViewModel : ViewModel() {
                 mutex.withLock {
                     val editorTab = EditorTab(file = file, projectRoot = projectRoot, viewModel = this@MainViewModel)
 
-                    if (openTab) tabs.add(editorTab)
+                    if (openTab) {
+                        tabs.add(editorTab)
+                        editorTab.onTabAdded()
+                    }
                     if (openTab && switchToTab) {
                         currentTabIndex = tabs.lastIndex
+                        editorTab.onTabSelected()
                     }
 
                     editorTab
@@ -342,8 +351,10 @@ class MainViewModel : ViewModel() {
     suspend fun openTab(tab: Tab, switchToTab: Boolean = false) {
         mutex.withLock {
             tabs.add(tab)
+            tab.onTabAdded()
             if (switchToTab) {
                 currentTabIndex = tabs.lastIndex
+                tab.onTabSelected()
             }
         }
     }
@@ -432,6 +443,7 @@ class MainViewModel : ViewModel() {
             return false
         }
         currentTabIndex = index
+        tabs[index].onTabSelected()
         return true
     }
 
