@@ -22,6 +22,12 @@ abstract class Tab {
 
     open fun onTabRemoved() {}
 
+    open fun onTabAdded() {}
+
+    open fun onTabSelected() {}
+
+    open fun onTabUnselected() {}
+
     @Composable abstract fun Content()
 
     @Composable open fun RowScope.Actions() {}

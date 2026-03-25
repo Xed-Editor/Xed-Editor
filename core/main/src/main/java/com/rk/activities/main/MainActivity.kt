@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         isPaused = true
         GlobalScope.launch(Dispatchers.IO) {
-            SessionManager.saveSession(viewModel.tabs.toList(), viewModel.currentTabIndex)
+            SessionManager.saveSession(viewModel.tabs, viewModel.currentTabIndex)
             DrawerPersistence.saveState()
             foregroundListener.values.forEach { it.invoke(false) }
 
@@ -108,8 +108,8 @@ class MainActivity : AppCompatActivity() {
 
             val file = uri.toFileObject(expectedIsFile = true)
 
-            viewModel.sessionRestored.await()
-            viewModel.newTab(file, projectRoot = null, switchToTab = true)
+            viewModel.awaitSessionRestoration()
+            viewModel.editorManager.openFile(file, projectRoot = null, switchToTab = true)
             setIntent(Intent())
         }
     }

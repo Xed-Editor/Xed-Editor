@@ -127,6 +127,17 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         GlobalScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
     }
 
+    override fun onTabSelected() {
+        editorState.editor.get()?.apply {
+            requestFocus()
+            requestFocusFromTouch()
+        }
+    }
+
+    override fun onTabUnselected() {
+        editorState.editor.get()?.clearFocus()
+    }
+
     init {
         scope.launch {
             if (!file.exists() || !file.canRead()) return@launch
@@ -448,7 +459,6 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
                 CodeEditor(
                     modifier = Modifier.weight(1f),
-                    state = editorState,
                     intelligentFeatures = intelligentFeatures,
                     onTextChange = {
                         if (Settings.auto_save && !isTemp) {

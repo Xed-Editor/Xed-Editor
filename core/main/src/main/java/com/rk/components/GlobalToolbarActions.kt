@@ -87,7 +87,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
             onSelect = { projectFile, fileObject ->
                 scope.launch {
                     if (fileObject.isFile()) {
-                        viewModel.newTab(
+                        viewModel.editorManager.openFile(
                             fileObject = fileObject,
                             projectRoot = projectFile,
                             checkDuplicate = true,
@@ -149,7 +149,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                             fileManager.createNewFile(mimeType = "*/*", title = "newfile.txt") {
                                 if (it != null) {
                                     lifecycleScope.launch {
-                                        viewModel.newTab(
+                                        viewModel.editorManager.openFile(
                                             it,
                                             projectRoot = null,
                                             checkDuplicate = true,
@@ -168,7 +168,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                         fileManager.requestOpenFile(mimeType = "*/*") {
                             if (it != null) {
                                 lifecycleScope.launch {
-                                    viewModel.newTab(
+                                    viewModel.editorManager.openFile(
                                         it.toFileObject(expectedIsFile = true),
                                         checkDuplicate = true,
                                         projectRoot = null,
@@ -230,7 +230,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                 DefaultScope.launch(Dispatchers.IO) {
                     tempFileNameDialog = false
                     tempFile.createFileIfNot()
-                    viewModel.newTab(tempFile, projectRoot = null, switchToTab = true)
+                    viewModel.editorManager.openFile(tempFile, projectRoot = null, switchToTab = true)
                 }
             },
             onDismiss = { tempFileNameDialog = false },

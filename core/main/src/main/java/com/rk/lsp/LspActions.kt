@@ -3,6 +3,7 @@ package com.rk.lsp
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
+import com.rk.activities.main.EditorManager
 import com.rk.activities.main.MainViewModel
 import com.rk.file.FileObject
 import com.rk.file.child
@@ -55,8 +56,8 @@ fun fixHomeLocation(context: Context, uri: String): String {
     return fixedPath?.let { Uri.fromFile(it).toString() } ?: uri
 }
 
-suspend fun MainViewModel.goToTabAndSelect(file: FileObject, projectRoot: FileObject?, range: Range) {
-    goToTabAndSelect(file, projectRoot, range.start.line, range.start.character, range.end.line, range.end.character)
+suspend fun EditorManager.jumpToPosition(file: FileObject, projectRoot: FileObject?, range: Range) {
+    jumpToPosition(file, projectRoot, range.start.line, range.start.character, range.end.line, range.end.character)
 }
 
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
@@ -87,7 +88,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range) }
+                    scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
                     return@launch
                 }
 
@@ -116,7 +117,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                                 column = range.start.character,
                                 onClick = {
                                     scope.launch {
-                                        viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range)
+                                        viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
                                     }
                                 },
                             )
@@ -156,7 +157,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range) }
+                    scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
                     return@launch
                 }
 
@@ -181,7 +182,7 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                                 column = range.start.character,
                                 onClick = {
                                     scope.launch {
-                                        viewModel.goToTabAndSelect(targetFile, editorTab.projectRoot, range)
+                                        viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
                                     }
                                 },
                             )
@@ -335,12 +336,15 @@ fun createLspTextActions(
     viewModel: MainViewModel,
     editorTab: EditorTab,
 ): List<TextActionItem> {
+    fun isUrlSelected(): Boolean {
+        return editorTab.editorState.editor.get()?.isUrlSelected() == true
+    }
 
     val goToDefinition =
         TextActionItem(
             titleRes = strings.go_to_definition,
             iconRes = drawables.jump_to_element,
-            shouldShow = { _ -> editorTab.lspConnector?.isGoToDefinitionSupported() == true },
+            shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToDefinitionSupported() == true },
         ) { _ ->
             goToDefinition(scope, context, viewModel, editorTab)
         }
@@ -349,7 +353,7 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.go_to_references,
             iconRes = drawables.manage_search,
-            shouldShow = { _ -> editorTab.lspConnector?.isGoToReferencesSupported() == true },
+            shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToReferencesSupported() == true },
         ) { _ ->
             goToReferences(scope, context, viewModel, editorTab)
         }
@@ -358,7 +362,9 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.rename_symbol,
             iconRes = drawables.edit_note,
-            shouldShow = { editor -> editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true },
+            shouldShow = { editor ->
+                !isUrlSelected() && editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true
+            },
         ) { _ ->
             renameSymbol(scope, editorTab)
         }

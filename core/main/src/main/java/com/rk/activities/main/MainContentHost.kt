@@ -73,14 +73,15 @@ fun MainActivity.MainContentHost(
             LaunchedEffect(snackbarHostState) { snackbarHostStateRef = WeakReference(snackbarHostState) }
 
             LaunchedEffect(drawerState.isOpen) {
+                val viewModel = MainActivity.instance?.viewModel ?: return@LaunchedEffect
                 if (drawerState.isOpen) {
-                    MainActivity.instance?.viewModel?.currentTab?.let {
+                    viewModel.tabManager.currentTab?.let {
                         if (it is EditorTab) {
                             it.editorState.editor.get()?.clearFocus()
                         }
                     }
                 } else if (drawerState.isClosed) {
-                    MainActivity.instance?.viewModel?.currentTab?.let {
+                    viewModel.tabManager.currentTab?.let {
                         if (it is EditorTab) {
                             it.editorState.editor.get()?.apply {
                                 requestFocus()

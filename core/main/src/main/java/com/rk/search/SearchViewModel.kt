@@ -472,7 +472,7 @@ class SearchViewModel : ViewModel() {
                 isOpen = isOpen,
                 onClick = {
                     viewModelScope.launch {
-                        mainViewModel.goToTabAndSelect(
+                        mainViewModel.editorManager.jumpToPosition(
                             file = file,
                             projectRoot = projectRoot,
                             lineStart = lineIndex,

@@ -1,6 +1,5 @@
 package com.rk.activities.main
 
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -93,16 +92,7 @@ fun MainContent(
             lastUsedCommand = lastUsedCommand,
             initialChildCommands = mainViewModel.commandPaletteInitialChildCommands,
             initialPlaceholder = mainViewModel.commandPaletteInitialPlaceholder,
-            onDismissRequest = {
-                mainViewModel.isDraggingPalette = false
-                mainViewModel.showCommandPalette = false
-                mainViewModel.commandPaletteInitialChildCommands = null
-                mainViewModel.commandPaletteInitialPlaceholder = null
-
-                scope.launch {
-                    mainViewModel.draggingPaletteProgress.animateTo(0f, animationSpec = spring(stiffness = 800f))
-                }
-            },
+            onDismissRequest = { scope.launch { mainViewModel.closeCommandPalette() } },
         )
     }
 
@@ -158,16 +148,16 @@ fun MainContent(
                                         dialog(
                                             title = strings.file_unsaved.getString(),
                                             msg = strings.ask_unsaved.getString(),
-                                            onOk = { mainViewModel.removeTab(tabIndex) },
+                                            onOk = { mainViewModel.tabManager.removeTab(tabIndex) },
                                             onCancel = {},
                                             okString = strings.discard,
                                         )
                                     } else {
-                                        mainViewModel.removeTab(tabIndex)
+                                        mainViewModel.tabManager.removeTab(tabIndex)
                                     }
                                 },
                                 onCloseOthers = { index ->
-                                    mainViewModel.setCurrentTabIndex(index)
+                                    mainViewModel.tabManager.setCurrentTab(index)
 
                                     val unsavedOtherTabs =
                                         mainViewModel.tabs.filterIndexed { tabIndex, tab ->
@@ -177,12 +167,12 @@ fun MainContent(
                                         dialog(
                                             title = strings.files_unsaved.getString(),
                                             msg = strings.ask_multiple_unsaved.getString(),
-                                            onOk = { mainViewModel.removeOtherTabs() },
+                                            onOk = { mainViewModel.tabManager.removeOtherTabs() },
                                             onCancel = {},
                                             okString = strings.discard,
                                         )
                                     } else {
-                                        mainViewModel.removeOtherTabs()
+                                        mainViewModel.tabManager.removeOtherTabs()
                                     }
                                 },
                                 onCloseAll = {
@@ -194,12 +184,12 @@ fun MainContent(
                                         dialog(
                                             title = strings.files_unsaved.getString(),
                                             msg = strings.ask_multiple_unsaved.getString(),
-                                            onOk = { mainViewModel.removeAllTabs() },
+                                            onOk = { mainViewModel.tabManager.removeAllTabs() },
                                             onCancel = {},
                                             okString = strings.discard,
                                         )
                                     } else {
-                                        mainViewModel.removeAllTabs()
+                                        mainViewModel.tabManager.removeAllTabs()
                                     }
                                 },
                             )
@@ -254,7 +244,7 @@ private fun TabItem(
             val index = mainViewModel.tabs.indexOf(tabState)
             val oldIndex = mainViewModel.tabs.indexOf(state.data)
 
-            mainViewModel.moveTab(oldIndex, index)
+            mainViewModel.tabManager.moveTab(oldIndex, index)
         },
         draggableContent = {
             TabItemContent(
@@ -314,11 +304,11 @@ private fun TabItemContent(
             }
             .let { if (isDraggableContent) it.background(backgroundColor.copy(alpha = 0.4f)) else it }
 
-    val onClick = {
+    val onClick: () -> Unit = {
         if (isSelected) {
             showTabMenu = true
         } else {
-            mainViewModel.currentTabIndex = index
+            mainViewModel.tabManager.setCurrentTab(index)
         }
     }
 

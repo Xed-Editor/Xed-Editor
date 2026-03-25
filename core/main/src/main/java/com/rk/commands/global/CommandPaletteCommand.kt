@@ -16,7 +16,7 @@ class CommandPaletteCommand(commandContext: CommandContext) : GlobalCommand(comm
     override fun getLabel(): String = strings.command_palette.getString()
 
     override fun action(actionContext: ActionContext) {
-        commandContext.mainViewModel.showCommandPalette = true
+        commandContext.mainViewModel.showCommandPalette()
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.command_palette)
