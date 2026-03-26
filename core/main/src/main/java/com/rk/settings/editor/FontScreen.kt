@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
@@ -46,10 +47,10 @@ import com.rk.theme.LegacyOutfitFontFamily
 import com.rk.theme.generateTypography
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 const val DEFAULT_EDITOR_FONT_PATH = "fonts/SourceCodePro-Medium.ttf"
 const val DEFAULT_TERMINAL_FONT_PATH = "fonts/SourceCodePro-Medium.ttf"
@@ -80,7 +81,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
 fun TerminalFontScreen(modifier: Modifier = Modifier) {
     val selectedFontPath = Settings.terminal_font_path
     val etcFontExists = sandboxDir().child("etc/font.ttf").exists()
-    val warningMessage = if (etcFontExists) strings.terminal_font_warning.getString() else null
+    val warningMessage = if (etcFontExists) stringResource(strings.terminal_font_warning) else null
 
     FontScreen(modifier, selectedFontPath, DEFAULT_TERMINAL_FONT_PATH, warningMessage) { font ->
         Settings.terminal_font_path = font.pathOrAsset
@@ -121,6 +122,14 @@ fun FontScreen(
     onSelectFont: (FontRegistry.Font) -> Unit,
 ) {
     PreferenceLayout(label = stringResource(strings.fonts), backArrowVisible = true) {
+        warningMessage?.let {
+            InfoBlock(
+                icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
+                text = it,
+                warning = true,
+            )
+        }
+
         PreferenceGroup {
             var selectedFontCompose by remember {
                 mutableStateOf(
@@ -177,8 +186,6 @@ fun FontScreen(
                             }
                     },
                 )
-
-            warningMessage?.let { InfoBlock(text = it, warning = true) }
 
             FontRegistry.fonts.forEach { font ->
                 val interactionSource = remember { MutableInteractionSource() }
