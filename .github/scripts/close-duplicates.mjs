@@ -277,12 +277,10 @@ async function closeAsDuplicate(issue_number, original_number, versionDiffers = 
           console.log(`  exception        : ${parsed.exceptionType}`);
           console.log(`  fingerprint hash : ${h.substring(0, 12)}…\n`);
           await closeAsDuplicate(issue.number, original.number, versionDiffers);
-          if (versionDiffers) {
-              labeled++;
-          } else {
-              closed++;
-          }
+          if (versionDiffers) labeled++;
+          else closed++;
         }
+        seen.set(h, { number: original.number, version: extractAppVersion(issue.body) });
       } else {
         seen.set(h, { number: issue.number, version: extractAppVersion(issue.body) });
       }
