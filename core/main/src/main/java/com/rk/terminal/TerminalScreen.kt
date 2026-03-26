@@ -61,11 +61,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.activities.terminal.Terminal
 import com.rk.animations.NavigationAnimationTransitions
+import com.rk.editor.FontCache
 import com.rk.exec.pendingCommand
 import com.rk.file.child
 import com.rk.file.sandboxDir
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
@@ -274,11 +276,21 @@ private fun ColumnScope.TerminalView(
                 attachSession(session)
                 setTerminalViewClient(client)
 
+                // Legacy behavior
                 val fontFile = sandboxDir().child("etc/font.ttf")
                 if (fontFile.exists()) {
                     setTypeface(Typeface.createFromFile(fontFile))
                 } else {
-                    setTypeface(Typeface.createFromAsset(context.assets, "fonts/Default.ttf"))
+                    val fontPath = Settings.terminal_font_path
+                    val font =
+                        if (fontPath.isNotEmpty()) {
+                            FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset)
+                                ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
+                        } else {
+                            FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
+                        }
+
+                    setTypeface(font)
                 }
 
                 addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
