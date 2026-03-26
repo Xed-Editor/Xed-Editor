@@ -15,6 +15,10 @@ sealed class SettingsRoutes(val route: String) {
 
     data object EditorFontScreen : SettingsRoutes("editor_font_screen")
 
+    data object AppFontScreen : SettingsRoutes("app_font_screen")
+
+    data object TerminalFontScreen : SettingsRoutes("terminal_font_screen")
+
     data object DefaultEncoding : SettingsRoutes("default_encoding")
 
     data object DefaultLineEnding : SettingsRoutes("default_line_ending")

@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.BasicToggle
+import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -139,6 +140,12 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     },
                 )
             }
+
+            NextScreenCard(
+                label = stringResource(strings.manage_app_font),
+                description = stringResource(strings.manage_app_font),
+                route = SettingsRoutes.AppFontScreen,
+            )
         }
 
         PreferenceGroup(heading = stringResource(strings.feature_toggles)) {

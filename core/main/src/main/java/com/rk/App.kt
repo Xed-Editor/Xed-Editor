@@ -23,6 +23,8 @@ import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
+import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
+import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.theme.updateThemes
 import com.rk.utils.application
 import com.rk.utils.getTempDir
@@ -96,12 +98,14 @@ class App : Application() {
             launch(Dispatchers.IO) { SessionManager.preloadSession() }
 
             launch(Dispatchers.IO) {
-                val fontPath = Settings.selected_font_path
-                if (fontPath.isNotEmpty()) {
-                    FontCache.loadFont(this@App, fontPath, Settings.is_selected_font_asset)
-                } else {
-                    FontCache.loadFont(this@App, "fonts/Default.ttf", true)
-                }
+                val editorFontPath = Settings.editor_font_path.ifEmpty { DEFAULT_EDITOR_FONT_PATH }
+                val isEditorAsset = if (editorFontPath.isNotEmpty()) Settings.is_editor_font_asset else true
+
+                val appFontPath = Settings.app_font_path.ifEmpty { DEFAULT_APP_FONT_PATH }
+                val isAppAsset = if (editorFontPath.isNotEmpty()) Settings.is_app_font_asset else true
+
+                FontCache.loadFont(this@App, editorFontPath, isEditorAsset)
+                FontCache.loadFont(this@App, appFontPath, isAppAsset)
             }
 
             launch(Dispatchers.IO) { Preference.preloadAllSettings() }

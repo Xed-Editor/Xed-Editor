@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder
 import com.rk.settings.Settings
 import com.rk.utils.application
 
-object EditorFont {
+object FontRegistry {
     val fonts = mutableStateListOf<Font>()
 
     data class Font(val name: String, val isAsset: Boolean, val pathOrAsset: String)

@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.MaterialColors
 import com.rk.settings.Settings
+import com.rk.settings.editor.rememberAppTypography
 import com.rk.settings.theme.themes
 import com.rk.utils.isDarkTheme
 import com.rk.utils.toast
@@ -89,7 +90,7 @@ fun XedTheme(
         }
 
     CompositionLocalProvider(LocalThemeHolder provides themeHolder) {
-        MaterialTheme(colorScheme = colorScheme, typography = Typography) {
+        MaterialTheme(colorScheme = colorScheme, typography = rememberAppTypography(LocalContext.current)) {
             Surface(color = MaterialTheme.colorScheme.background) { content() }
         }
     }

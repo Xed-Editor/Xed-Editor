@@ -608,4 +608,7 @@
     <string name="file_actions">File actions</string>
     <string name="show_minimap">Show minimap</string>
     <string name="show_minimap_desc">Show a minimap on the right side of the screen</string>
+    <string name="manage_app_font">Manage application fonts</string>
+    <string name="manage_terminal_font">Manage terminal fonts</string>
+    <string name="terminal_font_warning">The terminal font file at \'etc/font.ttf\' overrides the custom font set below. Delete the file in the terminal sandbox to apply the custom fonts.</string>
 </resources>

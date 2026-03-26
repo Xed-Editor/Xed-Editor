@@ -13,6 +13,7 @@ import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
 import com.rk.settings.debugOptions.AppLogs
 import com.rk.settings.debugOptions.DeveloperOptions
+import com.rk.settings.editor.AppFontScreen
 import com.rk.settings.editor.DefaultEncoding
 import com.rk.settings.editor.DefaultLineEnding
 import com.rk.settings.editor.EditExtraKeys
@@ -20,6 +21,7 @@ import com.rk.settings.editor.EditToolbarActions
 import com.rk.settings.editor.EditorFontScreen
 import com.rk.settings.editor.ExcludeFiles
 import com.rk.settings.editor.SettingsEditorScreen
+import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.extension.Extensions
 import com.rk.settings.git.GitSettings
 import com.rk.settings.keybinds.KeybindingsScreen
@@ -50,6 +52,8 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
+        composable(SettingsRoutes.AppFontScreen.route) { AppFontScreen() }
+        composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
         composable(SettingsRoutes.DefaultLineEnding.route) { DefaultLineEnding() }
         composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
