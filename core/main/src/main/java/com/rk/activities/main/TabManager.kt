@@ -36,16 +36,23 @@ class TabManager {
     fun removeTab(index: Int) {
         if (index !in _tabs.indices) return
 
-        _tabs[index].onTabRemoved()
-        _tabs.removeAt(index)
+        val removingTab = _tabs[index]
+        val wasCurrent = index == currentTabIndex
 
-        setCurrentTab(
-            when {
-                _tabs.isEmpty() -> 0
-                index <= currentTabIndex -> maxOf(0, currentTabIndex - 1)
-                else -> currentTabIndex
-            }
-        )
+        val newIndex = when {
+            _tabs.size == 1 -> 0
+            index < currentTabIndex -> currentTabIndex - 1
+            index > currentTabIndex -> currentTabIndex
+            else -> maxOf(0, currentTabIndex - 1)
+        }
+
+        _tabs.removeAt(index)
+        removingTab.onTabRemoved()
+        currentTabIndex = newIndex
+
+        if (wasCurrent && _tabs.isNotEmpty()) {
+            _tabs[currentTabIndex].onTabSelected()
+        }
     }
 
     fun removeTab(tab: Tab) = removeTab(_tabs.indexOf(tab))
