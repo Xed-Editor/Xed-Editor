@@ -109,6 +109,13 @@ function parseStacktrace(raw) {
   return frames.length === 0 ? null : { exceptionType, frames };
 }
 
+/** Extract the "App Version : x.y.z" field from the issue body. */
+function extractAppVersion(body) {
+  if (typeof body !== "string") return null;
+  const match = body.match(/^App [Vv]ersion\s*:\s*(.+)$/m);
+  return match ? match[1].trim() : null;
+}
+
 // ---------------------------------------------------------------------------
 // Fingerprinting
 // ---------------------------------------------------------------------------
@@ -197,27 +204,28 @@ async function ensureDuplicateLabel() {
 }
 
 /** Close the issue and apply the duplicate label. */
-async function closeAsDuplicate(issue_number, original_number) {
+async function closeAsDuplicate(issue_number, original_number, versionDiffers = false) {
+  const comment = versionDiffers
+    ? `Duplicate of #${original_number} (version differs)`
+    : `Duplicate of #${original_number}`;
+
   if (DRY_RUN) {
-    console.log(`  [dry-run] Would close #${issue_number} as duplicate of #${original_number}`);
+    console.log(`  [dry-run] Would ${versionDiffers ? "label" : "close"} #${issue_number} as duplicate of #${original_number}${versionDiffers ? " (version differs)" : ""}`);
     return;
   }
 
   await withRetry(() =>
-    octokit.rest.issues.createComment({
-      owner, repo,
-      issue_number,
-      body: `Duplicate of #${original_number}`,
-    })
+    octokit.rest.issues.createComment({ owner, repo, issue_number, body: comment })
   );
 
   await withRetry(() =>
     octokit.rest.issues.update({
       owner, repo,
       issue_number,
-      state: "closed",
-      state_reason: "not_planned",
       labels: ["duplicate"],
+      // Only close when the version matches. If it differs, keep it open for
+      // triage since it may be a regression in the newer version.
+      ...(versionDiffers ? {} : { state: "closed", state_reason: "not_planned" }),
     })
   );
 }
@@ -234,7 +242,7 @@ async function closeAsDuplicate(issue_number, original_number) {
 
     const allIssues = await octokit.paginate(
       octokit.rest.issues.listForRepo,
-      { owner, repo, state: "open", per_page: 100 }
+      { owner, repo, state: "all", per_page: 100 }
     );
 
     // Process oldest-first so the first occurrence is always the one kept open
@@ -242,10 +250,12 @@ async function closeAsDuplicate(issue_number, original_number) {
       .filter((i) => !i.pull_request)
       .sort((a, b) => a.number - b.number);
 
-    console.log(`Found ${issues.length} open (non-PR) issues.\n`);
+    const openCount = issues.filter((i) => i.state === "open").length;
+    console.log(`Found ${issues.length} total issues (${openCount} open).\n`);
 
     const seen = new Map(); // fingerprint hash → oldest issue number
     let closed = 0;
+    let labeled = 0;
     let noTrace = 0;
 
     for (const issue of issues) {
@@ -260,19 +270,28 @@ async function closeAsDuplicate(issue_number, original_number) {
 
       if (seen.has(h)) {
         const original = seen.get(h);
-        console.log(`#${issue.number} → duplicate of #${original}`);
-        console.log(`  exception        : ${parsed.exceptionType}`);
-        console.log(`  fingerprint hash : ${h.substring(0, 12)}…\n`);
-        await closeAsDuplicate(issue.number, original);
-        closed++;
+        const hasDuplicationLabel = issue.labels.some((l) => l.name === "duplicate");
+        if (issue.state === "open" && !hasDuplicationLabel) {
+          const versionDiffers = original.version !== extractAppVersion(issue.body);
+          console.log(`#${issue.number} → duplicate of #${original.number}${versionDiffers ? " (version differs)" : ""}`);
+          console.log(`  exception        : ${parsed.exceptionType}`);
+          console.log(`  fingerprint hash : ${h.substring(0, 12)}…\n`);
+          await closeAsDuplicate(issue.number, original.number, versionDiffers);
+          if (versionDiffers) {
+              labeled++;
+          } else {
+              closed++;
+          }
+        }
       } else {
-        seen.set(h, issue.number);
+        seen.set(h, { number: issue.number, version: extractAppVersion(issue.body) });
       }
     }
 
     console.log("─".repeat(60));
     console.log(`✅  Unique crashes  : ${seen.size}`);
     console.log(`🔁  Closed as dupes : ${closed}`);
+    console.log(`🏷️  Labeled (version differs) : ${labeled}`);
     console.log(`⏭️  No stacktrace   : ${noTrace}`);
   } catch (err) {
     console.error("Fatal:", err.message);
