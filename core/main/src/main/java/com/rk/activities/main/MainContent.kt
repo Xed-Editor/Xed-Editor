@@ -205,9 +205,13 @@ fun MainContent(
                 modifier = Modifier.fillMaxSize().clipToBounds(),
                 beyondViewportPageCount = mainViewModel.tabs.size,
                 userScrollEnabled = false,
+                key = { page -> mainViewModel.tabs.getOrNull(page) },
             ) { page ->
-                if (page < mainViewModel.tabs.size) {
-                    mainViewModel.tabs[page].Content()
+                val tab = mainViewModel.tabs.getOrNull(page)
+                if (tab != null) {
+                    key(tab) {
+                        tab.Content()
+                    }
                 }
             }
         }
