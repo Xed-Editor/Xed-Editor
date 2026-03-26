@@ -15,6 +15,8 @@ import androidx.compose.ui.res.stringResource
 import com.rk.DocumentProvider
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
+import com.rk.activities.settings.SettingsRoutes
+import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
 import com.rk.components.ValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -73,6 +75,14 @@ fun SettingsTerminalScreen() {
                 terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
             },
         )
+
+        PreferenceGroup {
+            NextScreenCard(
+                label = stringResource(strings.manage_terminal_font),
+                description = stringResource(strings.manage_terminal_font),
+                route = SettingsRoutes.TerminalFontScreen,
+            )
+        }
 
         PreferenceGroup {
             var seccomp by remember { mutableStateOf(Settings.seccomp) }

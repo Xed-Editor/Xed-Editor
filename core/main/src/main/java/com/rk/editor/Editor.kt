@@ -10,6 +10,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.rk.settings.Settings
+import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.LineEnding
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -230,13 +231,13 @@ class Editor : CodeEditor {
 
     fun applyFont() {
         runCatching {
-                val fontPath = Settings.selected_font_path
+                val fontPath = Settings.editor_font_path
                 val font =
                     if (fontPath.isNotEmpty()) {
-                        FontCache.getFont(context, fontPath, Settings.is_selected_font_asset)
-                            ?: FontCache.getFont(context, "fonts/Default.ttf", true)
+                        FontCache.getTypeface(context, fontPath, Settings.is_editor_font_asset)
+                            ?: FontCache.getTypeface(context, DEFAULT_EDITOR_FONT_PATH, true)
                     } else {
-                        FontCache.getFont(context, "fonts/Default.ttf", true)
+                        FontCache.getTypeface(context, DEFAULT_EDITOR_FONT_PATH, true)
                     }
 
                 typefaceText = font ?: Typeface.DEFAULT
