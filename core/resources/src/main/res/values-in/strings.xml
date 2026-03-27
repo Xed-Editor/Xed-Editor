@@ -600,4 +600,7 @@
     <string name="show_minimap">Tampilkan peta mini</string>
     <string name="show_minimap_desc">Tampilkan peta mini di sisi kanan layar</string>
     <string name="paste_failed">Tidak dapat menempelkan file</string>
+    <string name="manage_app_font">Kelola font aplikasi</string>
+    <string name="manage_terminal_font">Kelola font terminal</string>
+    <string name="terminal_font_warning">File font terminal di \'etc/font.ttf\' menggantikan set font khusus yang ditentukan di bawah ini. Hapus file tersebut di lingkungan sandbox terminal untuk menerapkan font khusus tersebut.</string>
 </resources>
