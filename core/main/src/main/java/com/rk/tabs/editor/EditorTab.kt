@@ -277,6 +277,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     editorState.editor.get()?.setText(newContent)
                     editorState.updateUndoRedo()
                     editorState.isDirty = false
+                    refreshKey++
                 }
             }
         }

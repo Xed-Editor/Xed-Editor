@@ -39,6 +39,8 @@ class Editor : CodeEditor {
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
+    private val langMutex = Mutex()
+
     var lineEnding = LineEnding.LF
     var insertFinalNewline = false
     var trimTrailingWhitespace = false
@@ -128,9 +130,11 @@ class Editor : CodeEditor {
 
         XedColorScheme.applyPatchesTo(colorScheme, patchArgs) // pre-apply patches
         scope.launch {
-            // TextMate color scheme with patches
-            val createdColorScheme = ThemeManager.createColorScheme(context, patchArgs)
-            withContext(Dispatchers.Main) { colorScheme = createdColorScheme }
+            langMutex.withLock {
+                // TextMate color scheme with patches
+                val createdColorScheme = ThemeManager.createColorScheme(context, patchArgs)
+                withContext(Dispatchers.Main) { colorScheme = createdColorScheme }
+            }
         }
     }
 
@@ -254,8 +258,6 @@ class Editor : CodeEditor {
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
             }
     }
-
-    private val langMutex = Mutex()
 
     suspend fun setLanguage(textmateScope: String) {
         langMutex.withLock {
