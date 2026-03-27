@@ -205,6 +205,7 @@ fun MainContent(
                 modifier = Modifier.fillMaxSize().clipToBounds(),
                 beyondViewportPageCount = mainViewModel.tabs.size,
                 userScrollEnabled = false,
+                key = { mainViewModel.tabs.getOrNull(it).hashCode() },
             ) { page ->
                 if (page < mainViewModel.tabs.size) {
                     mainViewModel.tabs[page].Content()
