@@ -605,4 +605,7 @@
     <string name="file_actions">Dosya işlemleri</string>
     <string name="show_minimap">Mini haritayı göster</string>
     <string name="show_minimap_desc">Ekranın sağ tarafında bir mini harita göster</string>
+    <string name="manage_app_font">Uygulama yazı tiplerini yönet</string>
+    <string name="manage_terminal_font">Terminal yazı tiplerini yönet</string>
+    <string name="terminal_font_warning">Terminalde \'etc/font.ttf\' yolunda bulunan yazı tipi dosyası, aşağıda tanımlanan özel yazı tipini geçersiz kılmaktadır. Özel yazı tiplerinin uygulanması için bu dosyanın terminal korumalı alanından kaldırılması gerekmektedir.</string>
 </resources>
