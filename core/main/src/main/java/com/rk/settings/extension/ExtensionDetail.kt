@@ -61,9 +61,9 @@ fun ExtensionDetail(extension: LocalExtension?) {
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
 
-    PreferenceLayout(label = extension?.name ?: stringResource(strings.no_ext), backArrowVisible = true) {
+    PreferenceLayout(label = extension?.name ?: stringResource(strings.ext_not_found), backArrowVisible = true) {
         if (extension == null) {
-            Text(stringResource(strings.ext_not_found_desc))
+            Text(stringResource(strings.ext_not_found_desc), modifier = Modifier.padding(horizontal = 16.dp))
         } else {
             var installState by remember {
                 mutableStateOf(
