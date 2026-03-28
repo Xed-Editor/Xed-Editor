@@ -595,4 +595,12 @@
     <plurals name="time_days_ago">
         <item quantity="other">%d 天前</item>
     </plurals>
+    <string name="ask_deletion_many">確定要永久刪除 %d 個檔案嗎？</string>
+    <string name="paste_failed">無法貼上檔案</string>
+    <string name="file_actions">檔案操作</string>
+    <string name="show_minimap">顯示小地圖</string>
+    <string name="show_minimap_desc">在畫面右側顯示小地圖</string>
+    <string name="manage_app_font">管理應用程式字型</string>
+    <string name="manage_terminal_font">管理終端機字型</string>
+    <string name="terminal_font_warning">位於「etc/font.ttf」的終端機字型檔會覆蓋下方自訂字型設定。請在終端機沙箱中刪除此檔案以套用自訂字型。</string>
 </resources>
