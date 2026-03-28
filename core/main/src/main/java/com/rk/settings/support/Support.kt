@@ -80,7 +80,7 @@ fun Support(modifier: Modifier = Modifier) {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
@@ -107,7 +107,7 @@ fun Support(modifier: Modifier = Modifier) {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },

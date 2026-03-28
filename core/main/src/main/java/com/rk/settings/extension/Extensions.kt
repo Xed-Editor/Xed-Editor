@@ -220,20 +220,21 @@ suspend fun runExtensionInstallAction(
             val result =
                 extensionManager.installStoreExtension(context, extension).getOrElse {
                     loading.hide()
-                    errorDialog(it.message ?: "Unexpected error", activity)
+                    errorDialog(it.message ?: strings.unknown_error.getString(), activity)
                     updateInstallState(InstallState.Idle)
                     return@runCatching
                 }
 
-            handleInstallResult(result, activity) { ext ->
+            handleInstallResult(result, activity, { updateInstallState(InstallState.Idle) }) { ext ->
                 updateInstallState(InstallState.Installed)
 
                 scope.launch(Dispatchers.Default) {
-                    ext.load(application!!).onFailure { errorDialog(it.message ?: "Unexpected error", activity) }
+                    ext.load(application!!).onFailure {
+                        errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                    }
                 }
-
-                loading.hide()
             }
+            loading.hide()
         }
         .onFailure {
             loading?.hide()
@@ -266,7 +267,7 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                         handleInstallResult(result, activity) { ext ->
                             scope.launch(Dispatchers.Default) {
                                 ext.load(application!!).onFailure {
-                                    errorDialog(it.message ?: "Unexpected error", activity)
+                                    errorDialog(it.message ?: strings.unknown_error.getString(), activity)
                                 }
                             }
                         }
@@ -287,7 +288,12 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
     }
 }
 
-private fun handleInstallResult(result: InstallResult, activity: Activity?, onSuccess: (LocalExtension) -> Unit = {}) =
+private fun handleInstallResult(
+    result: InstallResult,
+    activity: Activity?,
+    onError: () -> Unit = {},
+    onSuccess: (LocalExtension) -> Unit = {},
+) =
     when (result) {
         is InstallResult.AlreadyInstalled -> {
             //            errorDialog("Extension already installed", activity)
@@ -300,6 +306,7 @@ private fun handleInstallResult(result: InstallResult, activity: Activity?, onSu
                 ExtensionError.OUTDATED_EXTENSION ->
                     errorDialog(strings.outdated_extension.getString(), activity, strings.install_failed.getString())
             }
+            onError()
         }
 
         is InstallResult.Success -> {
@@ -313,5 +320,6 @@ private fun handleInstallResult(result: InstallResult, activity: Activity?, onSu
                 activity,
                 strings.extension_validation_failed.getString(),
             )
+            onError()
         }
     }

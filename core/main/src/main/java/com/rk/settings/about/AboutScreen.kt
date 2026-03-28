@@ -3,9 +3,10 @@ package com.rk.settings.about
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,16 +14,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
+import coil.compose.AsyncImage
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.copyToClipboard
@@ -36,12 +42,30 @@ import org.json.JSONObject
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AboutScreen() {
-    val packageInfo = LocalContext.current.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
+    val context = LocalContext.current
+    val pm = context.packageManager
+    val icon = pm.getApplicationIcon(context.packageName)
+    val packageInfo = pm.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName
     val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
-    val context = LocalContext.current
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+            AsyncImage(model = icon, contentDescription = null, modifier = Modifier.size(64.dp))
+
+            Text(
+                text = stringResource(strings.app_name),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Text(
+                text = versionName.toString().uppercase(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+
         PreferenceGroup(heading = stringResource(strings.build_info)) {
             PreferenceTemplate(
                 modifier =
@@ -128,7 +152,7 @@ fun AboutScreen() {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
@@ -148,7 +172,7 @@ fun AboutScreen() {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
@@ -168,7 +192,7 @@ fun AboutScreen() {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
