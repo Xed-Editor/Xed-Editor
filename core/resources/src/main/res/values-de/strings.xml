@@ -605,4 +605,7 @@
     <string name="file_actions">Dateiaktionen</string>
     <string name="show_minimap">Minimap anzeigen</string>
     <string name="show_minimap_desc">Eine Minimap auf der rechten Seite des Bildschirms anzeigen</string>
+    <string name="manage_app_font">Anwendungs-Schriftarten verwalten</string>
+    <string name="manage_terminal_font">Terminal-Schriftarten verwalten</string>
+    <string name="terminal_font_warning">Die Terminal-Schriftartdatei unter \'etc/font.ttf\' überschreibt die unten aufgeführten benutzerdefinierten Schriftarten. Lösche die Datei in der Terminal-Sandbox, um die benutzerdefinierten Schriftarten anzuwenden.</string>
 </resources>
