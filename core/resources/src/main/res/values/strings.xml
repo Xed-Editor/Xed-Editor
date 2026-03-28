@@ -615,7 +615,6 @@
     <string name="ext_not_found_desc">This page is not available. This can happen if a local extension has been uninstalled or removed from the store by its owner.</string>
     <string name="downloads">Downloads</string>
     <string name="rating">Rating</string>
-    <string name="reviews">Reviews</string>
     <string name="overview">Overview</string>
     <string name="contributors">Contributors</string>
     <string name="changelog">Changelog</string>

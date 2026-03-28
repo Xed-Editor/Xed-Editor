@@ -85,43 +85,6 @@ fun ExtensionDetail(extension: Extension?) {
     }
 }
 
-enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String) {
-    OVERVIEW(Icon.DrawableRes(drawables.file), strings.overview.getString(), "overview"),
-    CONTRIBUTORS(Icon.DrawableRes(drawables.contributors), strings.contributors.getString(), "contributors"),
-    CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
-}
-
-@Composable
-private fun TabSection(scope: CoroutineScope) {
-    val pagerState = rememberPagerState(initialPage = 0) { ExtensionRoutes.entries.size }
-
-    PrimaryScrollableTabRow(edgePadding = 0.dp, selectedTabIndex = pagerState.currentPage) {
-        ExtensionRoutes.entries.forEachIndexed { index, destination ->
-            LeadingIconTab(
-                icon = { XedIcon(destination.icon) },
-                selected = pagerState.currentPage == index,
-                onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                text = { Text(text = destination.label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
-            )
-        }
-    }
-
-    HorizontalPager(
-        state = pagerState,
-        beyondViewportPageCount = ExtensionRoutes.entries.size,
-        pageSpacing = 16.dp,
-        modifier = Modifier.fillMaxWidth(),
-    ) { page ->
-        Column(modifier = Modifier.fillMaxSize()) {
-            when (ExtensionRoutes.entries[page]) {
-                else -> {
-                    Text(ExtensionRoutes.entries[page].label)
-                }
-            }
-        }
-    }
-}
-
 @Composable
 private fun AboutSection(
     extension: Extension,
@@ -172,7 +135,7 @@ private fun AboutSection(
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), "1.2M")
         ExtensionStats(Modifier.weight(1f), stringResource(strings.rating).uppercase(), "4.8", Icons.Default.Star)
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.reviews).uppercase(), "452")
+        ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), "3.71KB")
     }
 }
 
@@ -195,6 +158,43 @@ fun ExtensionStats(modifier: Modifier = Modifier, title: String, value: String, 
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp),
                     )
+                }
+            }
+        }
+    }
+}
+
+enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String) {
+    OVERVIEW(Icon.DrawableRes(drawables.file), strings.overview.getString(), "overview"),
+    CONTRIBUTORS(Icon.DrawableRes(drawables.contributors), strings.contributors.getString(), "contributors"),
+    CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
+}
+
+@Composable
+private fun TabSection(scope: CoroutineScope) {
+    val pagerState = rememberPagerState(initialPage = 0) { ExtensionRoutes.entries.size }
+
+    PrimaryScrollableTabRow(edgePadding = 0.dp, selectedTabIndex = pagerState.currentPage) {
+        ExtensionRoutes.entries.forEachIndexed { index, destination ->
+            LeadingIconTab(
+                icon = { XedIcon(destination.icon) },
+                selected = pagerState.currentPage == index,
+                onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                text = { Text(text = destination.label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+            )
+        }
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        beyondViewportPageCount = ExtensionRoutes.entries.size,
+        pageSpacing = 16.dp,
+        modifier = Modifier.fillMaxWidth(),
+    ) { page ->
+        Column(modifier = Modifier.fillMaxSize()) {
+            when (ExtensionRoutes.entries[page]) {
+                else -> {
+                    Text(ExtensionRoutes.entries[page].label)
                 }
             }
         }
