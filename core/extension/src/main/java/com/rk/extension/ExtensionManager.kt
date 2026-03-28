@@ -36,13 +36,58 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         }
     }
 
-    internal fun validateExtensionDir(dir: File): Result<ExtensionInfo> {
+    suspend fun indexLocalExtensions() =
+        mutex.withLock {
+            localExtensions.clear()
+
+            withContext(Dispatchers.IO) {
+                val extensionFolders = context.extensionDir.listFiles()?.filter { it.isDirectory }
+                extensionFolders?.forEach { dir ->
+                    val extensionJson = dir.resolve("manifest.json")
+                    if (extensionJson.exists()) {
+                        runCatching {
+                            val extensionManifest =
+                                Gson().fromJson(extensionJson.readText(), ExtensionManifest::class.java)
+                            val extension = LocalExtension(manifest = extensionManifest, installPath = dir.absolutePath)
+                            localExtensions[extensionManifest.id] = extension
+                        }
+                    }
+                }
+            }
+        }
+
+    suspend fun indexStoreExtensions() =
+        withContext(Dispatchers.IO) {
+            val extensions = ExtensionRegistry.fetchExtensions()
+            storeExtension.clear()
+            // TODO: Remove debug line below
+            storeExtension["com.rk.store"] =
+                StoreExtension(
+                    manifest =
+                        ExtensionManifest(
+                            id = "com.rk.store",
+                            name = "Store",
+                            mainClass = "com.rk.store.Store",
+                            authors = listOf("KonerDev"),
+                        ),
+                    verified = true,
+                )
+            storeExtension.putAll(extensions.associate { it.id to StoreExtension(it) })
+        }
+
+    suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
+        val dir = context.cacheDir.resolve(extension.id)
+        ExtensionRegistry.downloadExtension(extension.id, dir)
+        return@runCatching installExtensionFromDir(dir)
+    }
+
+    internal fun validateExtensionDir(dir: File): Result<ExtensionManifest> {
         val extensionJson = dir.resolve("manifest.json")
         if (!extensionJson.exists()) {
             return Result.failure(Exception("Missing manifest.json"))
         }
-        val extensionInfo =
-            runCatching { Gson().fromJson(extensionJson.readText(), ExtensionInfo::class.java) }
+        val extensionManifest =
+            runCatching { Gson().fromJson(extensionJson.readText(), ExtensionManifest::class.java) }
                 .getOrElse {
                     return Result.failure(Exception("Invalid manifest.json", it))
                 }
@@ -52,10 +97,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             return Result.failure(Exception("Missing APK file"))
         }
 
-        return Result.success(extensionInfo)
+        return Result.success(extensionManifest)
     }
 
-    suspend fun installExtension(zipFile: File): InstallResult =
+    suspend fun installExtensionFromZip(zipFile: File): InstallResult =
         withContext(Dispatchers.IO) {
             // Extract to temp dir first
             val tempDir = File(context.cacheDir, "ext_temp_${System.currentTimeMillis()}")
@@ -91,7 +136,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             if (targetDir.exists()) {
                 uninstallExtension(extensionInfo.id)
-                // return@withContext InstallResult.AlreadyInstalled(extensionInfo.id)
             }
 
             val pm = context.packageManager
@@ -105,7 +149,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             dir.copyRecursively(targetDir, overwrite = true)
 
-            val extension = LocalExtension(info = extensionInfo, installPath = targetDir.absolutePath)
+            val extension = LocalExtension(manifest = extensionInfo, installPath = targetDir.absolutePath)
             localExtensions[extensionInfo.id] = extension
 
             InstallResult.Success(extension)
@@ -126,41 +170,12 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
                 extensionDir.deleteRecursively()
                 localExtensions.remove(extensionId)
-                context.compiledDexDir().deleteWithPackageName(extension.info.id)
+                context.compiledDexDir().deleteWithPackageName(extension.manifest.id)
 
                 Result.success(Unit)
             } catch (err: Exception) {
                 Result.failure(Exception("Failed to uninstall extension: ${err.message}", err))
             }
-        }
-
-    suspend fun indexLocalExtensions() =
-        mutex.withLock {
-            localExtensions.clear()
-            indexExtensionsInDir(context.extensionDir)
-        }
-
-    private suspend fun indexExtensionsInDir(baseDir: File) =
-        withContext(Dispatchers.IO) {
-            baseDir.listFiles()?.forEach { dir ->
-                if (dir.isDirectory) {
-                    val extensionJson = dir.resolve("manifest.json")
-                    if (extensionJson.exists()) {
-                        runCatching {
-                            val extensionInfo = Gson().fromJson(extensionJson.readText(), ExtensionInfo::class.java)
-                            val extension = LocalExtension(info = extensionInfo, installPath = dir.absolutePath)
-                            localExtensions[extensionInfo.id] = extension
-                        }
-                    }
-                }
-            }
-        }
-
-    suspend fun indexStoreExtensions() =
-        withContext(Dispatchers.IO) {
-            val extensions = ExtensionRegistry.fetchExtensions()
-            storeExtension.clear()
-            storeExtension.putAll(extensions.associate { it.id to StoreExtension(it) })
         }
 
     private fun File.deleteWithPackageName(pkgName: String) {
@@ -172,8 +187,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
 
-    fun getExtension(extensionId: ExtensionId) = localExtensions[extensionId]
+    fun getExtension(extensionId: ExtensionId) = localExtensions[extensionId] ?: storeExtension[extensionId]
 
-    fun getExtensionInfo(extensionId: ExtensionId) =
-        localExtensions[extensionId]?.info ?: storeExtension[extensionId]?.info
+    fun getExtensionManifest(extensionId: ExtensionId) =
+        localExtensions[extensionId]?.manifest ?: storeExtension[extensionId]?.manifest
 }

@@ -5,7 +5,7 @@ import java.io.Serializable
 typealias ExtensionId = String
 
 /** @property id Unique identifier of the extension (package name) */
-data class ExtensionInfo(
+data class ExtensionManifest(
     val id: ExtensionId,
     val name: String,
     val mainClass: String,
@@ -22,7 +22,7 @@ data class ExtensionInfo(
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ExtensionInfo) return false
+        if (other !is ExtensionManifest) return false
         return id == other.id
     }
 
@@ -31,7 +31,7 @@ data class ExtensionInfo(
 
 data class CachedExtension(
     val sha: String, // from GitHub
-    val metadata: ExtensionInfo,
+    val metadata: ExtensionManifest,
     val lastFetched: Long,
 ) : Serializable {
     override fun equals(other: Any?): Boolean {

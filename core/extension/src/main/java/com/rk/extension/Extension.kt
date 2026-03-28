@@ -19,32 +19,32 @@ sealed interface Extension {
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
-data class StoreExtension(val info: ExtensionInfo, val verified: Boolean = false) : Extension {
+data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean = false) : Extension {
     override val id
-        get() = info.id
+        get() = manifest.id
 
     override val name
-        get() = info.name
+        get() = manifest.name
 
     override val version
-        get() = info.version
+        get() = manifest.version
 
     override val authors
-        get() = info.authors
+        get() = manifest.authors
 
     override val description
-        get() = info.description
+        get() = manifest.description
 
     override val repository
-        get() = info.repository
+        get() = manifest.repository
 
     override val license
-        get() = info.license
+        get() = manifest.license
 }
 
 /** Extensions that are installed locally (from disk). */
 data class LocalExtension(
-    val info: ExtensionInfo,
+    val manifest: ExtensionManifest,
 
     // Path where extension is installed
     val installPath: String,
@@ -65,25 +65,25 @@ data class LocalExtension(
     }
 
     override val id
-        get() = info.id
+        get() = manifest.id
 
     override val name
-        get() = info.name
+        get() = manifest.name
 
     override val version
-        get() = info.version
+        get() = manifest.version
 
     override val authors
-        get() = info.authors
+        get() = manifest.authors
 
     override val description
-        get() = info.description
+        get() = manifest.description
 
     override val repository
-        get() = info.repository
+        get() = manifest.repository
 
     override val license
-        get() = info.license
+        get() = manifest.license
 }
 
 data class UpdatableExtension(val installed: LocalExtension, val availableUpdate: StoreExtension) : Extension {

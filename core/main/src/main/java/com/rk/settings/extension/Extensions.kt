@@ -1,6 +1,7 @@
 package com.rk.settings.extension
 
 import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -41,12 +42,13 @@ import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLazyColumn
 import com.rk.components.compose.preferences.base.PreferenceScaffold
+import com.rk.extension.Extension
 import com.rk.extension.ExtensionError
-import com.rk.extension.ExtensionRegistry
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
+import com.rk.extension.StoreExtension
 import com.rk.extension.github.GitHubApiException
-import com.rk.extension.installExtension
+import com.rk.extension.installExtensionFromZip
 import com.rk.extension.load
 import com.rk.file.toFileObject
 import com.rk.resources.getString
@@ -56,6 +58,7 @@ import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.openUrl
 import com.rk.utils.toast
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -77,49 +80,8 @@ fun Extensions(navController: NavController) {
     }
 
     val filePickerLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-            var loading: LoadingPopup? = null
-
-            scope.launch(Dispatchers.IO) {
-                runCatching {
-                        if (uri == null) return@runCatching
-
-                        val fileObject = uri.toFileObject(expectedIsFile = true)
-                        val exists = fileObject.exists()
-                        val canRead = fileObject.canRead()
-                        val isZip = fileObject.getName().endsWith(".zip")
-
-                        if (exists && canRead && isZip) {
-                            withContext(Dispatchers.Main) {
-                                loading = LoadingPopup(activity).show()
-                                loading.setMessage(strings.installing.getString())
-                            }
-
-                            val result = extensionManager.installExtension(fileObject)
-
-                            withContext(Dispatchers.Main) {
-                                handleInstallResult(result, activity) { ext ->
-                                    scope.launch(Dispatchers.Default) {
-                                        ext.load(application!!).onFailure {
-                                            errorDialog(it.message ?: "Unexpected error", activity)
-                                        }
-                                    }
-                                }
-
-                                loading?.hide()
-                            }
-                        } else {
-                            errorDialog(
-                                "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
-                                activity,
-                            )
-                        }
-                    }
-                    .onFailure {
-                        loading?.hide()
-                        errorDialog(it, activity)
-                    }
-            }
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.OpenDocument()) { uri ->
+            installExtensionFromUri(scope, uri, activity)
         }
 
     PreferenceScaffold(
@@ -196,41 +158,9 @@ fun Extensions(navController: NavController) {
                         extension = extension,
                         installState = installState,
                         onInstallClick = {
-                            installState = InstallState.Installing
-
-                            runCatching {
-                                    val dir = context.cacheDir.resolve(extension.id)
-                                    ExtensionRegistry.downloadExtension(extension.id, dir)
-                                    dir
-                                }
-                                .onSuccess { dir ->
-                                    val loadingPopup = LoadingPopup(activity)
-                                    loadingPopup.setMessage(strings.installing.getString())
-                                    loadingPopup.show()
-
-                                    val result = extensionManager.installExtensionFromDir(dir = dir)
-
-                                    handleInstallResult(result, activity) { ext ->
-                                        installState = InstallState.Installed
-
-                                        scope.launch(Dispatchers.Default) {
-                                            ext.load(application!!).onFailure {
-                                                errorDialog(it.message ?: "Unexpected error", activity)
-                                            }
-                                        }
-                                    }
-
-                                    loadingPopup.hide()
-                                }
-                                .onFailure { err ->
-                                    errorDialog(err, activity)
-                                    installState = InstallState.Idle
-                                }
+                            runExtensionInstallAction(extension, { installState = it }, scope, context, activity)
                         },
-                        onUninstallClick = {
-                            extensionManager.uninstallExtension(extension.id).onFailure { errorDialog(it, activity) }
-                            installState = InstallState.Idle
-                        },
+                        onUninstallClick = { runExtensionUninstallAction(extension, { installState = it }, activity) },
                         onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
                     )
                 }
@@ -256,6 +186,104 @@ fun Extensions(navController: NavController) {
                 }
             }
         }
+    }
+}
+
+suspend fun runExtensionUninstallAction(
+    extension: Extension,
+    updateInstallState: (InstallState) -> Unit,
+    activity: AppCompatActivity?,
+) {
+    extensionManager.uninstallExtension(extension.id).onFailure {
+        errorDialog(it, activity)
+        return
+    }
+    updateInstallState(InstallState.Idle)
+}
+
+suspend fun runExtensionInstallAction(
+    extension: Extension,
+    updateInstallState: (InstallState) -> Unit,
+    scope: CoroutineScope,
+    context: Context,
+    activity: AppCompatActivity?,
+) {
+    updateInstallState(InstallState.Installing)
+    var loading: LoadingPopup? = null
+
+    runCatching {
+            val extension = extension as? StoreExtension ?: return
+
+            loading = LoadingPopup(activity).show()
+            loading.setMessage(strings.installing.getString())
+
+            val result =
+                extensionManager.installStoreExtension(context, extension).getOrElse {
+                    loading.hide()
+                    errorDialog(it.message ?: "Unexpected error", activity)
+                    updateInstallState(InstallState.Idle)
+                    return@runCatching
+                }
+
+            handleInstallResult(result, activity) { ext ->
+                updateInstallState(InstallState.Installed)
+
+                scope.launch(Dispatchers.Default) {
+                    ext.load(application!!).onFailure { errorDialog(it.message ?: "Unexpected error", activity) }
+                }
+
+                loading.hide()
+            }
+        }
+        .onFailure {
+            loading?.hide()
+            errorDialog(it, activity)
+            updateInstallState(InstallState.Idle)
+        }
+}
+
+fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompatActivity?) {
+    var loading: LoadingPopup? = null
+
+    scope.launch(Dispatchers.IO) {
+        runCatching {
+                if (uri == null) return@runCatching
+
+                val fileObject = uri.toFileObject(expectedIsFile = true)
+                val exists = fileObject.exists()
+                val canRead = fileObject.canRead()
+                val isZip = fileObject.getName().endsWith(".zip")
+
+                if (exists && canRead && isZip) {
+                    withContext(Dispatchers.Main) {
+                        loading = LoadingPopup(activity).show()
+                        loading.setMessage(strings.installing.getString())
+                    }
+
+                    val result = extensionManager.installExtensionFromZip(fileObject)
+
+                    withContext(Dispatchers.Main) {
+                        handleInstallResult(result, activity) { ext ->
+                            scope.launch(Dispatchers.Default) {
+                                ext.load(application!!).onFailure {
+                                    errorDialog(it.message ?: "Unexpected error", activity)
+                                }
+                            }
+                        }
+
+                        loading?.hide()
+                    }
+                } else {
+                    errorDialog(
+                        "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
+                        activity,
+                    )
+                }
+            }
+            .onFailure {
+                loading?.hide()
+                errorDialog(it, activity)
+            }
     }
 }
 

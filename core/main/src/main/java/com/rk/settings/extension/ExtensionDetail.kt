@@ -1,7 +1,7 @@
 package com.rk.settings.extension
 
-import android.app.Activity
 import androidx.activity.compose.LocalActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,23 +45,25 @@ import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.App.Companion.extensionManager
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.extension.LocalExtension
+import com.rk.extension.Extension
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.Typography
-import com.rk.utils.errorDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ExtensionDetail(extension: LocalExtension?) {
+fun ExtensionDetail(extension: Extension?) {
     val scope = rememberCoroutineScope()
-    val activity = LocalActivity.current
 
-    PreferenceLayout(label = extension?.name ?: stringResource(strings.ext_not_found), backArrowVisible = true) {
+    PreferenceLayout(
+        label = extension?.name ?: stringResource(strings.ext_not_found),
+        backArrowVisible = true,
+        isExpandedScreen = true,
+    ) {
         if (extension == null) {
             Text(stringResource(strings.ext_not_found_desc), modifier = Modifier.padding(horizontal = 16.dp))
         } else {
@@ -76,7 +78,7 @@ fun ExtensionDetail(extension: LocalExtension?) {
             }
 
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                AboutSection(extension, installState, scope, activity)
+                AboutSection(extension, installState, { installState = it }, scope)
             }
             TabSection(scope)
         }
@@ -122,12 +124,14 @@ private fun TabSection(scope: CoroutineScope) {
 
 @Composable
 private fun AboutSection(
-    extension: LocalExtension,
+    extension: Extension,
     installState: InstallState,
+    updateInstallState: (InstallState) -> Unit,
     scope: CoroutineScope,
-    activity: Activity?,
 ) {
-    var installState1 = installState
+    val context = LocalContext.current
+    val activity = LocalActivity.current as? AppCompatActivity
+
     AsyncImage(
         model =
             ImageRequest.Builder(LocalContext.current)
@@ -142,13 +146,26 @@ private fun AboutSection(
 
     Spacer(Modifier.height(16.dp))
 
-    Text(text = extension.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+    Row {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = extension.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
 
-    Text(
-        text = "by ${extension.authors.joinToString()} • v${extension.version} • ${extension.license}",
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+            val license = extension.license.let { if (it.isBlank()) "" else " • $it" }
+            Text(
+                text = "by ${extension.authors.joinToString()} • v${extension.version}" + license,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        ExtensionActionButton(
+            extension = extension,
+            installState = installState,
+            scope = scope,
+            onInstallClick = { runExtensionInstallAction(extension, updateInstallState, scope, context, activity) },
+            onUninstallClick = { runExtensionUninstallAction(extension, updateInstallState, activity) },
+        )
+    }
 
     Spacer(Modifier.height(16.dp))
 
@@ -156,13 +173,6 @@ private fun AboutSection(
         ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), "1.2M")
         ExtensionStats(Modifier.weight(1f), stringResource(strings.rating).uppercase(), "4.8", Icons.Default.Star)
         ExtensionStats(Modifier.weight(1f), stringResource(strings.reviews).uppercase(), "452")
-    }
-
-    Spacer(Modifier.height(16.dp))
-
-    ExtensionActionButton(extension, installState1, scope, {}) {
-        extensionManager.uninstallExtension(extension.id).onFailure { errorDialog(it, activity) }
-        installState1 = InstallState.Idle
     }
 }
 

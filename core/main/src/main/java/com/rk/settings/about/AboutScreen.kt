@@ -4,8 +4,6 @@ import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Icon
@@ -16,15 +14,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
-import coil.compose.AsyncImage
-import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -48,40 +42,6 @@ fun AboutScreen() {
     val context = LocalContext.current
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
-        PreferenceGroup(heading = stringResource(strings.developer)) {
-            SettingsToggle(
-                label = "RohitKushvaha01",
-                description = stringResource(strings.view_github_profile),
-                default = false,
-                sideEffect = {
-                    val url = "https://github.com/RohitKushvaha01"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
-                    context.startActivity(intent)
-                },
-                showSwitch = false,
-                startWidget = {
-                    AsyncImage(
-                        model =
-                            ImageRequest.Builder(LocalContext.current)
-                                .data("https://github.com/RohitKushvaha01.png")
-                                .crossfade(true)
-                                .diskCachePolicy(CachePolicy.ENABLED)
-                                .memoryCachePolicy(CachePolicy.ENABLED)
-                                .build(),
-                        contentDescription = "GitHub Avatar",
-                        modifier = Modifier.padding(start = 16.dp).size(26.dp).clip(CircleShape),
-                    )
-                },
-                endWidget = {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null,
-                    )
-                },
-            )
-        }
-
         PreferenceGroup(heading = stringResource(strings.build_info)) {
             PreferenceTemplate(
                 modifier =
