@@ -27,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -350,8 +351,10 @@ private fun TabItemContent(
                 },
             )
             tabState.file?.let {
+                val fileExists by produceState(false) { value = it.exists() }
                 DropdownMenuItem(
                     text = { Text(stringResource(strings.file_actions)) },
+                    enabled = fileExists,
                     trailingIcon = {
                         Icon(
                             painter = painterResource(drawables.chevron_right),

@@ -611,4 +611,12 @@
     <string name="manage_app_font">Manage application fonts</string>
     <string name="manage_terminal_font">Manage terminal fonts</string>
     <string name="terminal_font_warning">The terminal font file at \'etc/font.ttf\' overrides the custom font set below. Delete the file in the terminal sandbox to apply the custom fonts.</string>
+    <string name="ext_not_found">Extension not found</string>
+    <string name="ext_not_found_desc">This extension is no longer available. This can happen when it is no longer installed.</string>
+    <string name="downloads">Downloads</string>
+    <string name="rating">Rating</string>
+    <string name="reviews">Reviews</string>
+    <string name="overview">Overview</string>
+    <string name="contributors">Contributors</string>
+    <string name="changelog">Changelog</string>
 </resources>

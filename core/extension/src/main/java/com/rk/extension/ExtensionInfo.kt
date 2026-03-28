@@ -17,6 +17,7 @@ data class ExtensionInfo(
     val icon: String? = null,
     val screenshots: List<String> = emptyList(),
     val repository: String = "",
+    val license: String = "",
     val tags: List<String> = emptyList(),
 ) : Serializable {
     override fun equals(other: Any?): Boolean {

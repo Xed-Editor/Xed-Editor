@@ -7,12 +7,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -35,7 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.rk.App.Companion.extensionManager
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLazyColumn
@@ -61,7 +62,7 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Extensions(modifier: Modifier = Modifier) {
+fun Extensions(navController: NavController) {
     val context = LocalContext.current
     val activity = LocalActivity.current as? AppCompatActivity
     val scope = rememberCoroutineScope()
@@ -178,85 +179,79 @@ fun Extensions(modifier: Modifier = Modifier) {
                 )
             }
 
-            if (isIndexing) {
-                item {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                }
-            } else {
-                if (extensions.isNotEmpty()) {
-                    items(extensions.map { it.value }.sortedBy { it.name }) { extension ->
-                        var installState by remember {
-                            mutableStateOf(
-                                if (extensionManager.isInstalled(extension.id)) {
-                                    InstallState.Installed
-                                } else {
-                                    InstallState.Idle
-                                }
-                            )
-                        }
-
-                        ExtensionCard(
-                            modifier = Modifier.padding(16.dp),
-                            extension = extension,
-                            installState = installState,
-                            onInstallClick = {
-                                installState = InstallState.Installing
-
-                                runCatching {
-                                        val dir = context.cacheDir.resolve(extension.id)
-                                        ExtensionRegistry.downloadExtension(extension.id, dir)
-                                        dir
-                                    }
-                                    .onSuccess { dir ->
-                                        val loadingPopup = LoadingPopup(activity)
-                                        loadingPopup.setMessage(strings.installing.getString())
-                                        loadingPopup.show()
-
-                                        val result = extensionManager.installExtensionFromDir(dir = dir)
-
-                                        handleInstallResult(result, activity) { ext ->
-                                            installState = InstallState.Installed
-
-                                            scope.launch(Dispatchers.Default) {
-                                                ext.load(application!!).onFailure {
-                                                    errorDialog(it.message ?: "Unexpected error", activity)
-                                                }
-                                            }
-                                        }
-
-                                        loadingPopup.hide()
-                                    }
-                                    .onFailure { err ->
-                                        errorDialog(err, activity)
-                                        installState = InstallState.Idle
-                                    }
-                            },
-                            onUninstallClick = {
-                                extensionManager.uninstallExtension(extension.id).onFailure {
-                                    errorDialog(it, activity)
-                                }
-                                installState = InstallState.Idle
-                            },
-                            onLongPress = {},
+            if (extensions.isNotEmpty() || isIndexing || isFetching) {
+                items(extensions.map { it.value }.sortedBy { it.name }) { extension ->
+                    var installState by remember {
+                        mutableStateOf(
+                            if (extensionManager.isInstalled(extension.id)) {
+                                InstallState.Installed
+                            } else {
+                                InstallState.Idle
+                            }
                         )
                     }
 
-                    if (isFetching) {
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
+                    ExtensionCard(
+                        modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
+                        extension = extension,
+                        installState = installState,
+                        onInstallClick = {
+                            installState = InstallState.Installing
 
-                            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                                Text(text = stringResource(strings.loading), modifier = Modifier.padding(16.dp))
-                            }
+                            runCatching {
+                                    val dir = context.cacheDir.resolve(extension.id)
+                                    ExtensionRegistry.downloadExtension(extension.id, dir)
+                                    dir
+                                }
+                                .onSuccess { dir ->
+                                    val loadingPopup = LoadingPopup(activity)
+                                    loadingPopup.setMessage(strings.installing.getString())
+                                    loadingPopup.show()
+
+                                    val result = extensionManager.installExtensionFromDir(dir = dir)
+
+                                    handleInstallResult(result, activity) { ext ->
+                                        installState = InstallState.Installed
+
+                                        scope.launch(Dispatchers.Default) {
+                                            ext.load(application!!).onFailure {
+                                                errorDialog(it.message ?: "Unexpected error", activity)
+                                            }
+                                        }
+                                    }
+
+                                    loadingPopup.hide()
+                                }
+                                .onFailure { err ->
+                                    errorDialog(err, activity)
+                                    installState = InstallState.Idle
+                                }
+                        },
+                        onUninstallClick = {
+                            extensionManager.uninstallExtension(extension.id).onFailure { errorDialog(it, activity) }
+                            installState = InstallState.Idle
+                        },
+                        onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
+                    )
+                }
+
+                if (isIndexing || isFetching) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            horizontalArrangement =
+                                Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            Text(text = stringResource(strings.loading))
                         }
                     }
-                } else {
-                    item {
-                        PreferenceGroup {
-                            Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp))
-                        }
+                }
+            } else {
+                item {
+                    PreferenceGroup(modifier = Modifier.padding(top = 8.dp)) {
+                        Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp))
                     }
                 }
             }

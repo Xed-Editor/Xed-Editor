@@ -15,6 +15,7 @@ sealed interface Extension {
     val authors: List<String>
     val description: String
     val repository: String
+    val license: String
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
@@ -36,6 +37,9 @@ data class StoreExtension(val info: ExtensionInfo, val verified: Boolean = false
 
     override val repository
         get() = info.repository
+
+    override val license
+        get() = info.license
 }
 
 /** Extensions that are installed locally (from disk). */
@@ -77,6 +81,9 @@ data class LocalExtension(
 
     override val repository
         get() = info.repository
+
+    override val license
+        get() = info.license
 }
 
 data class UpdatableExtension(val installed: LocalExtension, val availableUpdate: StoreExtension) : Extension {
@@ -97,6 +104,9 @@ data class UpdatableExtension(val installed: LocalExtension, val availableUpdate
 
     override val repository
         get() = installed.repository
+
+    override val license
+        get() = installed.license
 }
 
 fun LocalExtension.classLoader(parent: ClassLoader?) = PathClassLoader(apkFile.absolutePath, parent)

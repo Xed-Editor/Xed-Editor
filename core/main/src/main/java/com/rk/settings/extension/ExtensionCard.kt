@@ -37,6 +37,7 @@ import com.rk.extension.Extension
 import com.rk.icons.Download
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 enum class InstallState {
@@ -53,18 +54,14 @@ fun ExtensionCard(
     installState: InstallState = InstallState.Idle,
     onInstallClick: suspend (Extension) -> Unit,
     onUninstallClick: suspend (Extension) -> Unit,
-    onLongPress: suspend (Extension) -> Unit = {},
+    onClick: (Extension) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 
     Card(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(vertical = 6.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .combinedClickable(onLongClick = { scope.launch { onLongPress(extension) } }, onClick = {}),
+            modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick = { onClick(extension) }),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
     ) {
@@ -94,58 +91,7 @@ fun ExtensionCard(
                     )
                 }
 
-                when (installState) {
-                    InstallState.Idle -> {
-                        Button(
-                            onClick = { scope.launch { onInstallClick(extension) } },
-                            shape = RoundedCornerShape(10.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                        ) {
-                            Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(strings.install))
-                        }
-                    }
-
-                    InstallState.Installing -> {
-                        Button(
-                            onClick = {},
-                            enabled = false,
-                            shape = RoundedCornerShape(10.dp),
-                            colors =
-                                ButtonDefaults.buttonColors(disabledContentColor = MaterialTheme.colorScheme.onSurface),
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(strings.installing))
-                        }
-                    }
-
-                    InstallState.Installed -> {
-                        Button(
-                            onClick = { scope.launch { onUninstallClick(extension) } },
-                            shape = RoundedCornerShape(10.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                            colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError,
-                                ),
-                        ) {
-                            Icon(
-                                Icons.Outlined.Delete,
-                                contentDescription = stringResource(strings.delete),
-                                Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(strings.uninstall))
-                        }
-                    }
-                }
+                ExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick)
             }
 
             Spacer(Modifier.height(10.dp))
@@ -158,6 +104,63 @@ fun ExtensionCard(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.fillMaxWidth(),
             )
+        }
+    }
+}
+
+@Composable
+fun ExtensionActionButton(
+    extension: Extension,
+    installState: InstallState,
+    scope: CoroutineScope,
+    onInstallClick: suspend (Extension) -> Unit,
+    onUninstallClick: suspend (Extension) -> Unit,
+) {
+    when (installState) {
+        InstallState.Idle -> {
+            Button(
+                onClick = { scope.launch { onInstallClick(extension) } },
+                shape = RoundedCornerShape(10.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+            ) {
+                Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(strings.install))
+            }
+        }
+
+        InstallState.Installing -> {
+            Button(
+                onClick = {},
+                enabled = false,
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(disabledContentColor = MaterialTheme.colorScheme.onSurface),
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(strings.installing))
+            }
+        }
+
+        InstallState.Installed -> {
+            Button(
+                onClick = { scope.launch { onUninstallClick(extension) } },
+                shape = RoundedCornerShape(10.dp),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
+            ) {
+                Icon(Icons.Outlined.Delete, contentDescription = stringResource(strings.delete), Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(strings.uninstall))
+            }
         }
     }
 }

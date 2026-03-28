@@ -172,6 +172,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
 
+    fun getExtension(extensionId: ExtensionId) = localExtensions[extensionId]
+
     fun getExtensionInfo(extensionId: ExtensionId) =
         localExtensions[extensionId]?.info ?: storeExtension[extensionId]?.info
 }

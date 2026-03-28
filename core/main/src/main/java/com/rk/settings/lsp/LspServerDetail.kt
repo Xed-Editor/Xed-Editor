@@ -46,6 +46,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavHostController
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.snackbarHostStateRef
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -319,7 +320,11 @@ private fun InstanceCard(instance: LspServerInstance, navController: NavHostCont
             Modifier.fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .clickable(
-                    onClick = { navController.navigate("lsp_server_logs/${instance.server.id}/${instance.id}") }
+                    onClick = {
+                        navController.navigate(
+                            "${SettingsRoutes.LspServerLogs.route}/${instance.server.id}/${instance.id}"
+                        )
+                    }
                 ),
         shape = MaterialTheme.shapes.large,
         tonalElevation = 1.dp,
@@ -369,7 +374,13 @@ private fun InstanceCard(instance: LspServerInstance, navController: NavHostCont
             Spacer(modifier = Modifier.height(16.dp))
 
             Row {
-                Button(onClick = { navController.navigate("lsp_server_logs/${instance.server.id}/${instance.id}") }) {
+                Button(
+                    onClick = {
+                        navController.navigate(
+                            "${SettingsRoutes.LspServerLogs.route}/${instance.server.id}/${instance.id}"
+                        )
+                    }
+                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
