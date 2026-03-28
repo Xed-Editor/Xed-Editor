@@ -226,7 +226,7 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
 
             val wrapperLanguage =
                 editorState.textmateScope?.let {
-                    LanguageManager.createLanguage(context = context, textmateScope = it, createIdentifiers = false)
+                    LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false)
                 }
             val projectFile =
                 projectRoot

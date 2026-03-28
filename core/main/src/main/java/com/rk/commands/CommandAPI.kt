@@ -7,7 +7,10 @@ import com.rk.icons.Icon
 import com.rk.lsp.LspConnector
 import com.rk.tabs.editor.EditorTab
 
-data class CommandContext(val mainViewModel: MainViewModel)
+data class CommandContext(private val provider: () -> MainViewModel) {
+    val mainViewModel: MainViewModel
+        get() = provider()
+}
 
 data class ActionContext(val currentActivity: Activity)
 

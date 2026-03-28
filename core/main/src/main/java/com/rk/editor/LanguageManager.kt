@@ -1,6 +1,5 @@
 package com.rk.editor
 
-import android.content.Context
 import com.rk.utils.application
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
@@ -13,7 +12,6 @@ import kotlinx.coroutines.withContext
 
 object LanguageManager {
     private val grammarRegistryInitialized = CompletableDeferred<Unit>()
-    private val languageCache = hashMapOf<String, TextMateLanguage>()
 
     suspend fun initGrammarRegistry() {
         if (grammarRegistryInitialized.isCompleted) return
@@ -26,19 +24,13 @@ object LanguageManager {
         }
     }
 
-    suspend fun createLanguage(
-        context: Context,
-        textmateScope: String,
-        createIdentifiers: Boolean = true,
-    ): TextMateLanguage {
+    suspend fun createLanguage(textmateScope: String, createIdentifiers: Boolean = true): TextMateLanguage {
         grammarRegistryInitialized.await()
-        val cacheKey = getCacheKey(context) + "_" + textmateScope
-        return languageCache.getOrPut(cacheKey) { TextMateLanguage.create(textmateScope, createIdentifiers) }
+        return TextMateLanguage.create(textmateScope, createIdentifiers)
     }
 
-    fun createLanguageBlocking(
-        context: Context,
-        textmateScope: String,
-        createIdentifiers: Boolean = true,
-    ): TextMateLanguage = runBlocking { createLanguage(context, textmateScope, createIdentifiers) }
+    fun createLanguageBlocking(textmateScope: String, createIdentifiers: Boolean = true): TextMateLanguage =
+        runBlocking {
+            createLanguage(textmateScope, createIdentifiers)
+        }
 }
