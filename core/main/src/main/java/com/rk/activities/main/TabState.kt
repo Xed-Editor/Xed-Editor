@@ -20,7 +20,7 @@ data class EditorTabState(
     val unsavedContent: String?,
 ) : TabState {
     override suspend fun toTab(): Tab? {
-        if (fileObject.exists() && fileObject.canRead()) return null
+        if (!fileObject.exists() && !fileObject.canRead()) return null
 
         MainActivity.instance!!.viewModel.apply {
             val editorTab = editorManager.createEditorTab(fileObject, projectRoot)

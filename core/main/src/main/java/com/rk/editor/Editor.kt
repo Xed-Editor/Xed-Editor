@@ -23,8 +23,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.ec4j.core.ResourceProperties
 import org.ec4j.core.model.PropertyType
@@ -38,8 +36,6 @@ class Editor : CodeEditor {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     private val scope = CoroutineScope(Dispatchers.Default)
-
-    private val langMutex = Mutex()
 
     var lineEnding = LineEnding.LF
     var insertFinalNewline = false
@@ -130,11 +126,9 @@ class Editor : CodeEditor {
 
         XedColorScheme.applyPatchesTo(colorScheme, patchArgs) // pre-apply patches
         scope.launch {
-            langMutex.withLock {
-                // TextMate color scheme with patches
-                val createdColorScheme = ThemeManager.createColorScheme(context, patchArgs)
-                withContext(Dispatchers.Main) { colorScheme = createdColorScheme }
-            }
+            // TextMate color scheme with patches
+            val createdColorScheme = ThemeManager.createColorScheme(context, patchArgs)
+            withContext(Dispatchers.Main) { colorScheme = createdColorScheme }
         }
     }
 
@@ -260,17 +254,15 @@ class Editor : CodeEditor {
     }
 
     suspend fun setLanguage(textmateScope: String) {
-        langMutex.withLock {
-            val language = LanguageManager.createLanguage(context, textmateScope)
-            language.useTab(Settings.actual_tabs)
+        val language = LanguageManager.createLanguage(textmateScope)
+        language.useTab(Settings.actual_tabs)
 
-            if (Settings.textmate_suggestions) {
-                val keywords = KeywordManager.getKeywords(textmateScope)
-                keywords?.let { language.setCompleterKeywords(it.toTypedArray()) }
-            }
-
-            withContext(Dispatchers.Main) { setEditorLanguage(language) }
+        if (Settings.textmate_suggestions) {
+            val keywords = KeywordManager.getKeywords(textmateScope)
+            keywords?.let { language.setCompleterKeywords(it.toTypedArray()) }
         }
+
+        withContext(Dispatchers.Main) { setEditorLanguage(language) }
     }
 
     /**

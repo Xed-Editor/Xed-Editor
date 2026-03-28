@@ -1,6 +1,6 @@
 package com.rk.commands
 
-import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.MainActivity
 import com.rk.commands.editor.CopyCommand
 import com.rk.commands.editor.CutCommand
 import com.rk.commands.editor.DuplicateLineCommand
@@ -37,9 +37,9 @@ import com.rk.commands.lsp.GoToReferencesCommand
 import com.rk.commands.lsp.RenameSymbolCommand
 
 object CommandProvider {
-    private val mutableCommandList = mutableListOf<Command>()
+    private val _commandList = mutableListOf<Command>()
     val commandList: List<Command>
-        get() = mutableCommandList.toList()
+        get() = _commandList.toList()
 
     lateinit var DocumentationCommand: DocumentationCommand
     lateinit var TerminalCommand: TerminalCommand
@@ -76,58 +76,60 @@ object CommandProvider {
     lateinit var FormatDocumentCommand: FormatDocumentCommand
     lateinit var FormatSelectionCommand: FormatSelectionCommand
 
-    fun buildCommands(mainViewModel: MainViewModel) {
-        val commandContext = CommandContext(mainViewModel)
+    fun buildCommands() =
+        synchronized(this) {
+            val commandContext = CommandContext { MainActivity.instance!!.viewModel }
 
-        registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
-        registerBuiltin(TerminalCommand(commandContext)) { TerminalCommand = it }
-        registerBuiltin(SettingsCommand(commandContext)) { SettingsCommand = it }
-        registerBuiltin(NewFileCommand(commandContext)) { NewFileCommand = it }
-        registerBuiltin(CommandPaletteCommand(commandContext)) { CommandPaletteCommand = it }
-        registerBuiltin(SearchFileFolderCommand(commandContext)) { SearchFileFolderCommand = it }
-        registerBuiltin(SearchCodeCommand(commandContext)) { SearchCodeCommand = it }
-        registerBuiltin(CutCommand(commandContext)) { CutCommand = it }
-        registerBuiltin(CopyCommand(commandContext)) { CopyCommand = it }
-        registerBuiltin(PasteCommand(commandContext)) { PasteCommand = it }
-        registerBuiltin(SelectAllCommand(commandContext)) { SelectAllCommand = it }
-        registerBuiltin(SelectWordCommand(commandContext)) { SelectWordCommand = it }
-        registerBuiltin(DuplicateLineCommand(commandContext)) { DuplicateLineCommand = it }
-        registerBuiltin(LowerCaseCommand(commandContext)) { LowerCaseCommand = it }
-        registerBuiltin(UpperCaseCommand(commandContext)) { UpperCaseCommand = it }
-        registerBuiltin(SaveCommand(commandContext)) { SaveCommand = it }
-        registerBuiltin(SaveAllCommand(commandContext)) { SaveAllCommand = it }
-        registerBuiltin(UndoCommand(commandContext)) { UndoCommand = it }
-        registerBuiltin(RedoCommand(commandContext)) { RedoCommand = it }
-        registerBuiltin(RunCommand(commandContext)) { RunCommand = it }
-        registerBuiltin(ToggleReadOnlyCommand(commandContext)) { ToggleReadOnlyCommand = it }
-        registerBuiltin(SearchCommand(commandContext)) { SearchCommand = it }
-        registerBuiltin(ReplaceCommand(commandContext)) { ReplaceCommand = it }
-        registerBuiltin(RefreshCommand(commandContext)) { RefreshCommand = it }
-        registerBuiltin(SyntaxHighlightingCommand(commandContext)) { SyntaxHighlightingCommand = it }
-        registerBuiltin(ToggleWordWrapCommand(commandContext)) { ToggleWordWrapCommand = it }
-        registerBuiltin(JumpToLineCommand(commandContext)) { JumpToLineCommand = it }
-        registerBuiltin(ShareCommand(commandContext)) { ShareCommand = it }
-        registerBuiltin(EmulateKeyCommand(commandContext)) { EmulateKeyCommand = it }
-        registerBuiltin(GoToDefinitionCommand(commandContext)) { GoToDefinitionCommand = it }
-        registerBuiltin(GoToReferencesCommand(commandContext)) { GoToReferencesCommand = it }
-        registerBuiltin(RenameSymbolCommand(commandContext)) { RenameSymbolCommand = it }
-        registerBuiltin(FormatDocumentCommand(commandContext)) { FormatDocumentCommand = it }
-        registerBuiltin(FormatSelectionCommand(commandContext)) { FormatSelectionCommand = it }
-    }
+            registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
+            registerBuiltin(TerminalCommand(commandContext)) { TerminalCommand = it }
+            registerBuiltin(SettingsCommand(commandContext)) { SettingsCommand = it }
+            registerBuiltin(NewFileCommand(commandContext)) { NewFileCommand = it }
+            registerBuiltin(CommandPaletteCommand(commandContext)) { CommandPaletteCommand = it }
+            registerBuiltin(SearchFileFolderCommand(commandContext)) { SearchFileFolderCommand = it }
+            registerBuiltin(SearchCodeCommand(commandContext)) { SearchCodeCommand = it }
+            registerBuiltin(CutCommand(commandContext)) { CutCommand = it }
+            registerBuiltin(CopyCommand(commandContext)) { CopyCommand = it }
+            registerBuiltin(PasteCommand(commandContext)) { PasteCommand = it }
+            registerBuiltin(SelectAllCommand(commandContext)) { SelectAllCommand = it }
+            registerBuiltin(SelectWordCommand(commandContext)) { SelectWordCommand = it }
+            registerBuiltin(DuplicateLineCommand(commandContext)) { DuplicateLineCommand = it }
+            registerBuiltin(LowerCaseCommand(commandContext)) { LowerCaseCommand = it }
+            registerBuiltin(UpperCaseCommand(commandContext)) { UpperCaseCommand = it }
+            registerBuiltin(SaveCommand(commandContext)) { SaveCommand = it }
+            registerBuiltin(SaveAllCommand(commandContext)) { SaveAllCommand = it }
+            registerBuiltin(UndoCommand(commandContext)) { UndoCommand = it }
+            registerBuiltin(RedoCommand(commandContext)) { RedoCommand = it }
+            registerBuiltin(RunCommand(commandContext)) { RunCommand = it }
+            registerBuiltin(ToggleReadOnlyCommand(commandContext)) { ToggleReadOnlyCommand = it }
+            registerBuiltin(SearchCommand(commandContext)) { SearchCommand = it }
+            registerBuiltin(ReplaceCommand(commandContext)) { ReplaceCommand = it }
+            registerBuiltin(RefreshCommand(commandContext)) { RefreshCommand = it }
+            registerBuiltin(SyntaxHighlightingCommand(commandContext)) { SyntaxHighlightingCommand = it }
+            registerBuiltin(ToggleWordWrapCommand(commandContext)) { ToggleWordWrapCommand = it }
+            registerBuiltin(JumpToLineCommand(commandContext)) { JumpToLineCommand = it }
+            registerBuiltin(ShareCommand(commandContext)) { ShareCommand = it }
+            registerBuiltin(EmulateKeyCommand(commandContext)) { EmulateKeyCommand = it }
+            registerBuiltin(GoToDefinitionCommand(commandContext)) { GoToDefinitionCommand = it }
+            registerBuiltin(GoToReferencesCommand(commandContext)) { GoToReferencesCommand = it }
+            registerBuiltin(RenameSymbolCommand(commandContext)) { RenameSymbolCommand = it }
+            registerBuiltin(FormatDocumentCommand(commandContext)) { FormatDocumentCommand = it }
+            registerBuiltin(FormatSelectionCommand(commandContext)) { FormatSelectionCommand = it }
+        }
 
     private fun <T : Command> registerBuiltin(command: T, assign: (T) -> Unit) {
+        if (_commandList.contains(command)) return
         assign(command)
-        mutableCommandList.add(command)
+        _commandList.add(command)
     }
 
     fun registerCommand(command: Command) {
-        if (!mutableCommandList.contains(command)) {
-            mutableCommandList.add(command)
+        if (!_commandList.contains(command)) {
+            _commandList.add(command)
         }
     }
 
     fun unregisterCommand(command: Command) {
-        mutableCommandList.remove(command)
+        _commandList.remove(command)
     }
 
     fun getForId(id: String): Command? = findRecursive(id, commandList)

@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.activities.main.SessionManager
+import com.rk.commands.CommandProvider
+import com.rk.commands.KeybindingsManager
 import com.rk.crashhandler.CrashHandler
 import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
@@ -75,6 +77,9 @@ class App : Application() {
 
         MarkdownImageProvider.register()
         FileIconProvider.register()
+
+        CommandProvider.buildCommands()
+        KeybindingsManager.loadKeybindings()
 
         val currentLocale = Locale.forLanguageTag(Settings.current_lang)
         val appLocale = LocaleListCompat.create(currentLocale)

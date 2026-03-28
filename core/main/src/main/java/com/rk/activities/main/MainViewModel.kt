@@ -7,13 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.commands.Command
-import com.rk.commands.CommandProvider
-import com.rk.commands.KeybindingsManager
 import com.rk.settings.Settings
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 class MainViewModel : ViewModel() {
     val tabManager = TabManager()
@@ -66,8 +65,6 @@ class MainViewModel : ViewModel() {
 
     init {
         restoreSessionsIfNeeded()
-        CommandProvider.buildCommands(this)
-        KeybindingsManager.loadKeybindings()
     }
 
     suspend fun awaitSessionRestoration() {
@@ -95,8 +92,10 @@ class MainViewModel : ViewModel() {
 
             val deferredRestoredTabs = session.tabStates.mapNotNull { tabState -> tabState.toTab() }
 
-            deferredRestoredTabs.forEach { tabManager.addTab(it, false) }
-            tabManager.setCurrentTab(session.currentTabIndex)
+            withContext(Dispatchers.Main) {
+                deferredRestoredTabs.forEach { tabManager.addTab(it, false) }
+                tabManager.setCurrentTab(session.currentTabIndex)
+            }
         }
     }
 }
