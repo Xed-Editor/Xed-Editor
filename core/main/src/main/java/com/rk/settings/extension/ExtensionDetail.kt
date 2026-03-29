@@ -1,8 +1,12 @@
 package com.rk.settings.extension
 
+import android.graphics.Typeface
+import android.text.Spanned
+import android.widget.TextView
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,14 +20,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LeadingIconTab
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,12 +39,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -50,8 +63,14 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.Typography
+import io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 @Composable
 fun ExtensionDetail(extension: Extension?) {
@@ -78,7 +97,7 @@ fun ExtensionDetail(extension: Extension?) {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 AboutSection(extension, installState, { installState = it }, scope)
             }
-            TabSection(scope)
+            TabSection(extension, scope)
         }
     }
 }
@@ -97,21 +116,21 @@ private fun AboutSection(
         AsyncImage(
             model =
                 ImageRequest.Builder(LocalContext.current)
-                    .data("https://github.com/KonerDev.png")
+                    .data(extension.iconUrl)
+                    .fallback(drawables.extension)
                     .crossfade(true)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .build(),
-            modifier = Modifier.size(96.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
+            modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
             contentDescription = null,
         )
 
         Column(modifier = Modifier.weight(1f)) {
             Text(text = extension.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
 
-            val license = extension.license.let { if (it.isBlank()) "" else " • $it" }
             Text(
-                text = "by ${extension.authors.joinToString()} • v${extension.version}" + license,
+                text = "by ${extension.authors.joinToString()} • v${extension.version}",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -165,7 +184,7 @@ enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String)
 }
 
 @Composable
-private fun TabSection(scope: CoroutineScope) {
+private fun TabSection(extension: Extension, scope: CoroutineScope) {
     val pagerState = rememberPagerState(initialPage = 0) { ExtensionRoutes.entries.size }
 
     PrimaryScrollableTabRow(edgePadding = 0.dp, selectedTabIndex = pagerState.currentPage) {
@@ -181,16 +200,126 @@ private fun TabSection(scope: CoroutineScope) {
 
     HorizontalPager(
         state = pagerState,
-        beyondViewportPageCount = ExtensionRoutes.entries.size,
+        verticalAlignment = Alignment.Top,
         pageSpacing = 16.dp,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
     ) { page ->
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             when (ExtensionRoutes.entries[page]) {
-                else -> {
-                    Text(ExtensionRoutes.entries[page].label)
-                }
+                ExtensionRoutes.OVERVIEW -> MarkdownViewer(url = extension.readmeUrl)
+                ExtensionRoutes.CONTRIBUTORS -> ContributorsTab(extension)
+                ExtensionRoutes.CHANGELOG -> MarkdownViewer(url = extension.changelogUrl)
             }
         }
     }
+}
+
+sealed interface MarkdownStatus {
+    object Loading : MarkdownStatus
+
+    sealed class Error(val stringRes: Int, val drawableRes: Int) : MarkdownStatus {
+        object Network : Error(strings.network_err, drawables.cloud_off)
+
+        object Unknown : Error(strings.unknown_err, drawables.error)
+
+        object Empty : Error(strings.empty_err, drawables.file)
+    }
+
+    data class Success(val spanned: Spanned) : MarkdownStatus
+}
+
+@Composable
+fun MarkdownViewer(url: String, modifier: Modifier = Modifier) {
+    var state by remember(url) { mutableStateOf<MarkdownStatus>(MarkdownStatus.Loading) }
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val client = remember { OkHttpClient() }
+
+    LaunchedEffect(url) {
+        state = MarkdownStatus.Loading
+        state = withContext(Dispatchers.IO) { loadMarkdown(url, primaryColor.toArgb(), client) }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        when (state) {
+            MarkdownStatus.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            is MarkdownStatus.Error -> {
+                val markdownStatus = state as MarkdownStatus.Error
+                val color =
+                    when (markdownStatus) {
+                        is MarkdownStatus.Error.Empty -> LocalContentColor.current
+                        else -> MaterialTheme.colorScheme.error
+                    }
+                StateScreen(
+                    painter = painterResource(markdownStatus.drawableRes),
+                    text = stringResource(markdownStatus.stringRes),
+                    color = color,
+                )
+            }
+            is MarkdownStatus.Success -> {
+                val markdownStatus = state as MarkdownStatus.Success
+                AndroidView(
+                    factory = { ctx -> TextView(ctx) },
+                    update = { it.text = markdownStatus.spanned },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun StateScreen(painter: Painter, text: String, color: Color = LocalContentColor.current) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(painter = painter, contentDescription = null, modifier = Modifier.size(64.dp), tint = color)
+        Text(text = text, color = color, modifier = Modifier.padding(top = 8.dp), textAlign = TextAlign.Center)
+    }
+}
+
+private suspend fun loadMarkdown(url: String, primaryColor: Int, client: OkHttpClient): MarkdownStatus {
+    return runCatching {
+            val markdown =
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    val request = Request.Builder().url(url).build()
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) {
+                            return when (response.code) {
+                                404 -> MarkdownStatus.Error.Empty
+                                else -> MarkdownStatus.Error.Unknown
+                            }
+                        }
+                        response.body.string()
+                    }
+                } else {
+                    val file = File(url)
+                    if (!file.exists()) {
+                        return MarkdownStatus.Error.Empty
+                    }
+                    file.readText()
+                }
+
+            val spanned =
+                SimpleMarkdownRenderer.renderAsync(
+                    markdown,
+                    boldColor = primaryColor,
+                    inlineCodeColor = primaryColor,
+                    codeTypeface = Typeface.MONOSPACE,
+                    linkColor = primaryColor,
+                )
+
+            MarkdownStatus.Success(spanned)
+        }
+        .getOrElse {
+            it.printStackTrace()
+            MarkdownStatus.Error.Network
+        }
+}
+
+@Composable
+fun ContributorsTab(extension: Extension) {
+    Text(text = extension.authors.joinToString())
 }

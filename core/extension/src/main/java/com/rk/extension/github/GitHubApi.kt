@@ -8,6 +8,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 private const val BASE_URL = "https://api.github.com/repos/Xed-Editor/Extension-Registry/contents"
+private const val RAW_BASE_URL =
+    "https://raw.githubusercontent.com/Xed-Editor/Extension-Registry/refs/heads/main/extensions"
 
 object GitHubApi {
     private val client = OkHttpClient()
@@ -35,7 +37,7 @@ object GitHubApi {
                         )
                     }
 
-                    val body = response.body?.string() ?: return@withContext emptyArray()
+                    val body = response.body.string()
 
                     return@withContext if (body.trim().startsWith("[")) {
                         gson.fromJson(body, Array<FileContent>::class.java)
@@ -43,7 +45,7 @@ object GitHubApi {
                         arrayOf(gson.fromJson(body, FileContent::class.java))
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return@withContext arrayOf()
             }
         }
@@ -68,7 +70,7 @@ object GitHubApi {
 
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) return@withContext
-                val data = response.body.bytes() ?: return@withContext
+                val data = response.body.bytes()
                 val outFile =
                     File(targetDir, file.name).apply {
                         if (!exists()) {
@@ -80,4 +82,6 @@ object GitHubApi {
             }
         }
     }
+
+    fun getRawUrl(path: String) = "$RAW_BASE_URL/$path"
 }

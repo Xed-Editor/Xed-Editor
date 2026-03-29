@@ -15,7 +15,9 @@ sealed interface Extension {
     val authors: List<String>
     val description: String
     val repository: String
-    val license: String
+    val iconUrl: String?
+    val readmeUrl: String
+    val changelogUrl: String
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
@@ -38,8 +40,14 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override val repository
         get() = manifest.repository
 
-    override val license
-        get() = manifest.license
+    override val iconUrl: String?
+        get() = ExtensionRegistry.getIconUrl(manifest)
+
+    override val readmeUrl: String
+        get() = ExtensionRegistry.getReadmeUrl(manifest)
+
+    override val changelogUrl: String
+        get() = ExtensionRegistry.getChangelogUrl(manifest)
 }
 
 /** Extensions that are installed locally (from disk). */
@@ -82,8 +90,14 @@ data class LocalExtension(
     override val repository
         get() = manifest.repository
 
-    override val license
-        get() = manifest.license
+    override val iconUrl: String?
+        get() = manifest.icon?.let { "$installPath/$it" }
+
+    override val readmeUrl: String
+        get() = "$installPath/README.md"
+
+    override val changelogUrl: String
+        get() = "$installPath/CHANGELOG.md"
 }
 
 data class UpdatableExtension(val installed: LocalExtension, val availableUpdate: StoreExtension) : Extension {
@@ -105,8 +119,14 @@ data class UpdatableExtension(val installed: LocalExtension, val availableUpdate
     override val repository
         get() = installed.repository
 
-    override val license
-        get() = installed.license
+    override val iconUrl
+        get() = installed.iconUrl
+
+    override val readmeUrl
+        get() = installed.readmeUrl
+
+    override val changelogUrl
+        get() = installed.changelogUrl
 }
 
 fun LocalExtension.classLoader(parent: ClassLoader?) = PathClassLoader(apkFile.absolutePath, parent)

@@ -74,4 +74,10 @@ object ExtensionRegistry {
                 }
             }
         }
+
+    fun getIconUrl(manifest: ExtensionManifest) = manifest.icon?.let { GitHubApi.getRawUrl("${manifest.id}/$it") }
+
+    fun getReadmeUrl(manifest: ExtensionManifest) = GitHubApi.getRawUrl("${manifest.id}/README.md")
+
+    fun getChangelogUrl(manifest: ExtensionManifest) = GitHubApi.getRawUrl("${manifest.id}/CHANGELOG.md")
 }
