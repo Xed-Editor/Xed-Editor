@@ -45,15 +45,16 @@ fun PreferenceColumn(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     scrollState: ScrollState? = rememberScrollState(),
+    stretchEnabled: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    NestedScrollStretch(modifier = modifier) {
+    NestedScrollStretch(modifier = modifier, enabled = stretchEnabled) {
         Column(
             verticalArrangement = verticalArrangement,
             horizontalAlignment = horizontalAlignment,
             modifier =
                 Modifier.fillMaxHeight()
-                    .addIf(scrollState != null) { this.verticalScroll(scrollState!!) }
+                    .addIf(scrollState != null) { verticalScroll(scrollState!!) }
                     .padding(contentPadding)
                     .padding(top = 8.dp, bottom = 16.dp),
             content = content,

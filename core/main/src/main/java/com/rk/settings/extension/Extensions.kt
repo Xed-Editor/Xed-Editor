@@ -134,8 +134,9 @@ fun Extensions(navController: NavController) {
                 InfoBlock(
                     modifier =
                         Modifier.clickable {
-                            activity?.openUrl("https://xed-editor.github.io/Xed-Docs/docs/extensions/")
-                        },
+                                activity?.openUrl("https://xed-editor.github.io/Xed-Docs/docs/extensions/")
+                            }
+                            .padding(bottom = 8.dp),
                     icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
                     text = stringResource(strings.info_ext),
                 )
@@ -154,7 +155,7 @@ fun Extensions(navController: NavController) {
                     }
 
                     ExtensionCard(
-                        modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
+                        modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
                         extension = extension,
                         installState = installState,
                         onInstallClick = {
@@ -168,7 +169,7 @@ fun Extensions(navController: NavController) {
                 if (isIndexing || isFetching) {
                     item {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                             horizontalArrangement =
                                 Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally),
                             verticalAlignment = Alignment.CenterVertically,
@@ -180,9 +181,7 @@ fun Extensions(navController: NavController) {
                 }
             } else {
                 item {
-                    PreferenceGroup(modifier = Modifier.padding(top = 8.dp)) {
-                        Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp))
-                    }
+                    PreferenceGroup { Text(text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp)) }
                 }
             }
         }

@@ -12,12 +12,17 @@ sealed interface Extension {
     val id: ExtensionId
     val name: String
     val version: String
-    val authors: List<String>
+    val author: ExtensionAuthor
     val description: String
     val repository: String
+    val license: String?
     val iconUrl: String?
     val readmeUrl: String
     val changelogUrl: String
+}
+
+data class ExtensionAuthor(val name: String, val github: String? = null) {
+    override fun toString() = name
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
@@ -31,8 +36,8 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override val version
         get() = manifest.version
 
-    override val authors
-        get() = manifest.authors
+    override val author
+        get() = manifest.author
 
     override val description
         get() = manifest.description
@@ -40,13 +45,16 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override val repository
         get() = manifest.repository
 
-    override val iconUrl: String?
+    override val license
+        get() = manifest.license
+
+    override val iconUrl
         get() = ExtensionRegistry.getIconUrl(manifest)
 
-    override val readmeUrl: String
+    override val readmeUrl
         get() = ExtensionRegistry.getReadmeUrl(manifest)
 
-    override val changelogUrl: String
+    override val changelogUrl
         get() = ExtensionRegistry.getChangelogUrl(manifest)
 }
 
@@ -81,8 +89,8 @@ data class LocalExtension(
     override val version
         get() = manifest.version
 
-    override val authors
-        get() = manifest.authors
+    override val author
+        get() = manifest.author
 
     override val description
         get() = manifest.description
@@ -90,13 +98,16 @@ data class LocalExtension(
     override val repository
         get() = manifest.repository
 
-    override val iconUrl: String?
+    override val license
+        get() = manifest.license
+
+    override val iconUrl
         get() = manifest.icon?.let { "$installPath/$it" }
 
-    override val readmeUrl: String
+    override val readmeUrl
         get() = "$installPath/README.md"
 
-    override val changelogUrl: String
+    override val changelogUrl
         get() = "$installPath/CHANGELOG.md"
 }
 
@@ -110,14 +121,17 @@ data class UpdatableExtension(val installed: LocalExtension, val availableUpdate
     override val version
         get() = installed.version
 
-    override val authors
-        get() = installed.authors
+    override val author
+        get() = installed.author
 
     override val description
         get() = installed.description
 
     override val repository
         get() = installed.repository
+
+    override val license
+        get() = installed.license
 
     override val iconUrl
         get() = installed.iconUrl

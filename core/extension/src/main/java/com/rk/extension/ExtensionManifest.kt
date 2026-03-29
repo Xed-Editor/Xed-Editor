@@ -11,11 +11,12 @@ data class ExtensionManifest(
     val mainClass: String,
     val version: String = "1.0.0",
     val description: String = "",
-    val authors: List<String> = emptyList(),
+    val author: ExtensionAuthor,
     val minAppVersion: Int = -1, // -1 means supports all versions
     val targetAppVersion: Int = -1, // -1 means supports all versions
     val icon: String? = null,
     val repository: String = "",
+    val license: String? = null,
     val tags: List<String> = emptyList(),
 ) : Serializable {
     override fun equals(other: Any?): Boolean {

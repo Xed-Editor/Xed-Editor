@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -39,6 +40,7 @@ import com.rk.icons.Download
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.theme.Typography
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -77,28 +79,29 @@ fun ExtensionCard(
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED)
                         .build(),
-                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
+                modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
                 contentDescription = null,
             )
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = extension.name,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = Typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
-                Text(
-                    text = "by ${extension.authors.firstOrNull()}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-
-                Text(
-                    text = "v${extension.version}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                    Text(
+                        text = "${extension.author} • v${extension.version}",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = Typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
             ExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick)

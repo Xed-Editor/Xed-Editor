@@ -616,7 +616,7 @@
     <string name="downloads">Downloads</string>
     <string name="rating">Rating</string>
     <string name="overview">Overview</string>
-    <string name="contributors">Contributors</string>
+    <string name="reviews">Reviews</string>
     <string name="changelog">Changelog</string>
     <string name="empty_err">Nothing to see here … yet.</string>
 </resources>

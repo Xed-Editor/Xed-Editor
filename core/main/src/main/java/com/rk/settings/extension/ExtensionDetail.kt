@@ -5,6 +5,7 @@ import android.text.Spanned
 import android.widget.TextView
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -32,6 +34,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,8 +58,9 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.App.Companion.extensionManager
-import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
+import com.rk.extension.ExtensionAuthor
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
@@ -76,10 +80,18 @@ import okhttp3.Request
 fun ExtensionDetail(extension: Extension?) {
     val scope = rememberCoroutineScope()
 
-    PreferenceLayout(
+    var isRefreshing by remember { mutableStateOf(false) }
+    var refreshKey by remember { mutableIntStateOf(0) }
+
+    RefreshablePreferenceLayout(
         label = extension?.name ?: stringResource(strings.ext_not_found),
         backArrowVisible = true,
         isExpandedScreen = true,
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            refreshKey++
+        },
     ) {
         if (extension == null) {
             Text(stringResource(strings.ext_not_found_desc), modifier = Modifier.padding(horizontal = 16.dp))
@@ -97,7 +109,7 @@ fun ExtensionDetail(extension: Extension?) {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 AboutSection(extension, installState, { installState = it }, scope)
             }
-            TabSection(extension, scope)
+            TabSection(extension, scope, refreshKey) { isRefreshing = false }
         }
     }
 }
@@ -127,13 +139,24 @@ private fun AboutSection(
         )
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = extension.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-
             Text(
-                text = "by ${extension.authors.joinToString()} • v${extension.version}",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = extension.name,
+                style = Typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                Text(
+                    text = "${extension.author} • v${extension.version}",
+                    style = Typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
 
         ExtensionActionButton(
@@ -179,12 +202,12 @@ fun ExtensionStats(modifier: Modifier = Modifier, title: String, value: String, 
 
 enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String) {
     OVERVIEW(Icon.DrawableRes(drawables.file), strings.overview.getString(), "overview"),
-    CONTRIBUTORS(Icon.DrawableRes(drawables.contributors), strings.contributors.getString(), "contributors"),
+    REVIEWS(Icon.DrawableRes(drawables.comment), strings.reviews.getString(), "reviews"),
     CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
 }
 
 @Composable
-private fun TabSection(extension: Extension, scope: CoroutineScope) {
+private fun TabSection(extension: Extension, scope: CoroutineScope, refreshKey: Int, onLoaded: () -> Unit) {
     val pagerState = rememberPagerState(initialPage = 0) { ExtensionRoutes.entries.size }
 
     PrimaryScrollableTabRow(edgePadding = 0.dp, selectedTabIndex = pagerState.currentPage) {
@@ -204,11 +227,11 @@ private fun TabSection(extension: Extension, scope: CoroutineScope) {
         pageSpacing = 16.dp,
         modifier = Modifier.fillMaxSize(),
     ) { page ->
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             when (ExtensionRoutes.entries[page]) {
-                ExtensionRoutes.OVERVIEW -> MarkdownViewer(url = extension.readmeUrl)
-                ExtensionRoutes.CONTRIBUTORS -> ContributorsTab(extension)
-                ExtensionRoutes.CHANGELOG -> MarkdownViewer(url = extension.changelogUrl)
+                ExtensionRoutes.OVERVIEW -> MarkdownViewer(extension.readmeUrl, refreshKey, onLoaded)
+                ExtensionRoutes.REVIEWS -> ReviewsTab(extension)
+                ExtensionRoutes.CHANGELOG -> MarkdownViewer(extension.changelogUrl, refreshKey, onLoaded)
             }
         }
     }
@@ -229,30 +252,34 @@ sealed interface MarkdownStatus {
 }
 
 @Composable
-fun MarkdownViewer(url: String, modifier: Modifier = Modifier) {
+fun MarkdownViewer(url: String, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
     var state by remember(url) { mutableStateOf<MarkdownStatus>(MarkdownStatus.Loading) }
 
     val primaryColor = MaterialTheme.colorScheme.primary
     val client = remember { OkHttpClient() }
 
-    LaunchedEffect(url) {
+    LaunchedEffect(url, refreshKey) {
         state = MarkdownStatus.Loading
-        state = withContext(Dispatchers.IO) { loadMarkdown(url, primaryColor.toArgb(), client) }
+        state = loadMarkdown(url, primaryColor.toArgb(), client)
+        onLoaded()
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    AnimatedContent(targetState = state, modifier = modifier.fillMaxWidth()) { state ->
         when (state) {
-            MarkdownStatus.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            MarkdownStatus.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
             is MarkdownStatus.Error -> {
-                val markdownStatus = state as MarkdownStatus.Error
                 val color =
-                    when (markdownStatus) {
+                    when (state) {
                         is MarkdownStatus.Error.Empty -> LocalContentColor.current
                         else -> MaterialTheme.colorScheme.error
                     }
                 StateScreen(
-                    painter = painterResource(markdownStatus.drawableRes),
-                    text = stringResource(markdownStatus.stringRes),
+                    painter = painterResource(state.drawableRes),
+                    text = stringResource(state.stringRes),
                     color = color,
                 )
             }
@@ -275,51 +302,71 @@ fun StateScreen(painter: Painter, text: String, color: Color = LocalContentColor
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(painter = painter, contentDescription = null, modifier = Modifier.size(64.dp), tint = color)
+        Icon(painter = painter, contentDescription = null, modifier = Modifier.size(48.dp), tint = color)
         Text(text = text, color = color, modifier = Modifier.padding(top = 8.dp), textAlign = TextAlign.Center)
     }
 }
 
 private suspend fun loadMarkdown(url: String, primaryColor: Int, client: OkHttpClient): MarkdownStatus {
-    return runCatching {
-            val markdown =
-                if (url.startsWith("http://") || url.startsWith("https://")) {
-                    val request = Request.Builder().url(url).build()
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) {
-                            return when (response.code) {
-                                404 -> MarkdownStatus.Error.Empty
-                                else -> MarkdownStatus.Error.Unknown
+    return withContext(Dispatchers.IO) {
+        runCatching {
+                val markdown =
+                    if (url.startsWith("http://") || url.startsWith("https://")) {
+                        val request = Request.Builder().url(url).build()
+                        client.newCall(request).execute().use { response ->
+                            if (!response.isSuccessful) {
+                                return@withContext when (response.code) {
+                                    404 -> MarkdownStatus.Error.Empty
+                                    else -> MarkdownStatus.Error.Unknown
+                                }
                             }
+                            response.body.string()
                         }
-                        response.body.string()
+                    } else {
+                        val file = File(url)
+                        if (!file.exists()) {
+                            return@withContext MarkdownStatus.Error.Empty
+                        }
+                        file.readText()
                     }
-                } else {
-                    val file = File(url)
-                    if (!file.exists()) {
-                        return MarkdownStatus.Error.Empty
-                    }
-                    file.readText()
-                }
 
-            val spanned =
-                SimpleMarkdownRenderer.renderAsync(
-                    markdown,
-                    boldColor = primaryColor,
-                    inlineCodeColor = primaryColor,
-                    codeTypeface = Typeface.MONOSPACE,
-                    linkColor = primaryColor,
-                )
+                val spanned =
+                    SimpleMarkdownRenderer.renderAsync(
+                        markdown,
+                        boldColor = primaryColor,
+                        inlineCodeColor = primaryColor,
+                        codeTypeface = Typeface.MONOSPACE,
+                        linkColor = primaryColor,
+                    )
 
-            MarkdownStatus.Success(spanned)
-        }
-        .getOrElse {
-            it.printStackTrace()
-            MarkdownStatus.Error.Network
-        }
+                MarkdownStatus.Success(spanned)
+            }
+            .getOrElse {
+                it.printStackTrace()
+                MarkdownStatus.Error.Network
+            }
+    }
 }
 
 @Composable
-fun ContributorsTab(extension: Extension) {
-    Text(text = extension.authors.joinToString())
+fun ExtensionAuthorIcon(author: ExtensionAuthor, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+
+    AsyncImage(
+        model =
+            ImageRequest.Builder(context)
+                .data(author.github?.let { "https://github.com/$it.png" })
+                .fallback(drawables.account)
+                .crossfade(true)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .build(),
+        contentDescription = null,
+        modifier = modifier.clip(CircleShape),
+    )
+}
+
+@Composable
+fun ReviewsTab(extension: Extension) {
+    Text("Work in progress...")
 }

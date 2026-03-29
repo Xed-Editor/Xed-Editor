@@ -68,7 +68,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                             id = "com.rk.store",
                             name = "Store",
                             mainClass = "com.rk.store.Store",
-                            authors = listOf("KonerDev"),
+                            author = ExtensionAuthor(name = "KonerDev", github = "KonerDev"),
+                            license = "MIT",
                         ),
                     verified = true,
                 )
