@@ -5,10 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -95,21 +93,19 @@ private fun AboutSection(
     val context = LocalContext.current
     val activity = LocalActivity.current as? AppCompatActivity
 
-    AsyncImage(
-        model =
-            ImageRequest.Builder(LocalContext.current)
-                .data("https://github.com/KonerDev.png")
-                .crossfade(true)
-                .diskCachePolicy(CachePolicy.ENABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .build(),
-        modifier = Modifier.size(96.dp).clip(RoundedCornerShape(8.dp)),
-        contentDescription = null,
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        AsyncImage(
+            model =
+                ImageRequest.Builder(LocalContext.current)
+                    .data("https://github.com/KonerDev.png")
+                    .crossfade(true)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .build(),
+            modifier = Modifier.size(96.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
+            contentDescription = null,
+        )
 
-    Spacer(Modifier.height(16.dp))
-
-    Row {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = extension.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
 
@@ -130,9 +126,7 @@ private fun AboutSection(
         )
     }
 
-    Spacer(Modifier.height(16.dp))
-
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), "1.2M")
         ExtensionStats(Modifier.weight(1f), stringResource(strings.rating).uppercase(), "4.8", Icons.Default.Star)
         ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), "3.71KB")

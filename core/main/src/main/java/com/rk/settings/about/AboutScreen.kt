@@ -44,14 +44,18 @@ import org.json.JSONObject
 fun AboutScreen() {
     val context = LocalContext.current
     val pm = context.packageManager
-    val icon = pm.getApplicationIcon(context.packageName)
+    val appIcon = pm.getApplicationIcon(context.packageName)
     val packageInfo = pm.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName
     val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(model = icon, contentDescription = null, modifier = Modifier.size(64.dp))
+            AsyncImage(
+                model = appIcon,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp).padding(bottom = 8.dp),
+            )
 
             Text(
                 text = stringResource(strings.app_name),
