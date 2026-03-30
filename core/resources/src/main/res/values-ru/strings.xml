@@ -612,4 +612,7 @@
     <string name="file_actions">Действия с файлом</string>
     <string name="show_minimap">Показать мини-карту</string>
     <string name="show_minimap_desc">Показывать мини-карту в правой части экрана</string>
+    <string name="manage_app_font">Настройка шрифтов приложения</string>
+    <string name="manage_terminal_font">Настройка шрифтов терминала</string>
+    <string name="terminal_font_warning">Файл шрифта терминала по пути «etc/font.ttf» переопределяет пользовательский шрифт, заданный ниже. Удалите этот файл в изолированной среде терминала, чтобы применить пользовательские шрифты.</string>
 </resources>

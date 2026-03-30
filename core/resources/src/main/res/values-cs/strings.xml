@@ -15,7 +15,7 @@
     <string name="ask_deletion_one">Určitě chcete nenávratně odstranit \'%s\'?</string>
     <string name="terminal">Terminál</string>
     <string name="apply">Použít</string>
-    <string name="open_in_terminal">Otevřít ve Terminálu</string>
+    <string name="open_in_terminal">Otevřít ve terminálu</string>
     <string name="open">Otevřít</string>
     <string name="permission_denied">Přístup odepřen</string>
     <string name="error">Chyba</string>
@@ -545,4 +545,23 @@
     <string name="smart_toolbar">Chytrý postranní panel</string>
     <string name="smart_toolbar_desc">Skrýt postranní panel při upravování pro uvolnění místa na obrazovce</string>
     <string name="ask_lsp_update">Chtěli byste aktualizovat \'%s\' jazykový server?</string>
+    <string name="file_actions">Akce souboru</string>
+    <string name="show_minimap">Zobrazit minimapu</string>
+    <string name="show_minimap_desc">Zobrazit minimapu na pravé straně obrazovky</string>
+    <string name="manage_app_font">Spravovat fonty aplikace</string>
+    <string name="manage_terminal_font">Spravovat fonty terminálu</string>
+    <string name="terminal_font_warning">Font soubor v terminálu v \'/etc/font.ttf\' má vyšší prioritu než vlastní fonty nastaveny níže. Odstraňtě tenhle soubor v terminálu pro použití vlastních fontů.</string>
+    <string name="restart_all">Restartovat vše</string>
+    <string name="logs">Protokoly</string>
+    <string name="view_logs">Zobrazit protokoly</string>
+    <string name="view_app_logs">Zobrazit protokoly aplikace</string>
+    <string name="logs_too_long">Protokoly příliš dlouhé</string>
+    <string name="complete_on_enter">Dokončit na entru</string>
+    <string name="complete_on_enter_desc">Vybrat první položku dokončení při entru pro softwarovou klávesnici</string>
+    <string name="status_info">Stav: %s</string>
+    <string name="status_running">Běží</string>
+    <string name="status_starting">Spouštění…</string>
+    <string name="status_not_running">Neběží</string>
+    <string name="status_not_running_forced">Neběží (vnuceno)</string>
+    <string name="status_crashed">Havarovalo</string>
 </resources>

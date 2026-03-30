@@ -609,4 +609,7 @@
     <string name="file_actions">Actions sur les fichiers</string>
     <string name="show_minimap">Afficher minimap</string>
     <string name="show_minimap_desc">Affiche une vue d\'ensemble du côté droit de l\'écran</string>
+    <string name="manage_app_font">Gérer les polices de l\'application</string>
+    <string name="manage_terminal_font">Gérer les polices du terminal</string>
+    <string name="terminal_font_warning">Le fichier de police \"etc/font.ttf\" prend le pas sur la police choisie ci-dessous. Supprimez le fichier dans la sandbox du terminal pour appliquer les polices personnalisées.</string>
 </resources>
