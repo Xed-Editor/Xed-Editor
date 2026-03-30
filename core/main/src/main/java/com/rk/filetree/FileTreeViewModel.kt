@@ -13,7 +13,6 @@ import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.file.FileObject
 import com.rk.search.GlobExcluder
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -137,7 +136,7 @@ class FileTreeViewModel : ViewModel() {
     private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
     private var fileOperationsCount by mutableIntStateOf(0)
 
-    private val excluder by derivedStateOf { GlobExcluder(ReactiveSettings.excludedFilesDrawer) }
+    private val excluder by derivedStateOf { GlobExcluder(Settings.excluded_files_drawer) }
 
     fun getExpandedNodes(): Map<FileObject, Boolean> {
         return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }

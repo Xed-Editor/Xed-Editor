@@ -393,7 +393,7 @@ private fun applyFilter(
                 val labelMatch = extension.name.contains(query, ignoreCase = true)
                 val descriptionMatch = extension.description?.contains(query, ignoreCase = true) == true
                 val tagMatch = extension.tags.any { it.contains(query, ignoreCase = true) }
-                val authorMatch = extension.author.name.contains(query, ignoreCase = true)
+                val authorMatch = extension.author.displayName.contains(query, ignoreCase = true)
                 val authorGithubMatch = extension.author.github?.contains(query, ignoreCase = true) == true
                 labelMatch || descriptionMatch || tagMatch || authorMatch || authorGithubMatch
             }

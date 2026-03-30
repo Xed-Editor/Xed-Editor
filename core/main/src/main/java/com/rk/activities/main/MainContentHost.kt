@@ -38,7 +38,6 @@ import com.rk.git.GitViewModel
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.search.SearchViewModel
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
@@ -92,10 +91,10 @@ fun MainActivity.MainContentHost(
                 }
             }
 
-            LaunchedEffect(ReactiveSettings.fullscreen) {
+            LaunchedEffect(Settings.fullscreen) {
                 val controller = WindowCompat.getInsetsController(window, window.decorView)
                 val statusBarType = WindowInsetsCompat.Type.statusBars()
-                if (ReactiveSettings.fullscreen) {
+                if (Settings.fullscreen) {
                     controller.hide(statusBarType)
                 } else {
                     controller.show(statusBarType)
@@ -103,8 +102,8 @@ fun MainActivity.MainContentHost(
             }
 
             val keyboardShown = WindowInsets.isImeVisible
-            LaunchedEffect(keyboardShown, ReactiveSettings.smartToolbar) {
-                viewModel.showTopBar = !ReactiveSettings.smartToolbar || !keyboardShown
+            LaunchedEffect(keyboardShown, Settings.smart_toolbar) {
+                viewModel.showTopBar = !Settings.smart_toolbar || !keyboardShown
             }
 
             val scope = rememberCoroutineScope()
@@ -138,7 +137,7 @@ fun MainActivity.MainContentHost(
             val mainContent: @Composable () -> Unit = {
                 Scaffold(
                     contentWindowInsets =
-                        if (ReactiveSettings.fullscreen) WindowInsets() else ScaffoldDefaults.contentWindowInsets,
+                        if (Settings.fullscreen) WindowInsets() else ScaffoldDefaults.contentWindowInsets,
                     snackbarHost = {
                         SnackbarHost(
                             hostState = snackbarHostState,
@@ -150,7 +149,7 @@ fun MainActivity.MainContentHost(
                         XedTopBar(
                             drawerState = drawerState,
                             viewModel = viewModel,
-                            fullScreen = ReactiveSettings.fullscreen,
+                            fullScreen = Settings.fullscreen,
                             onDrag = { dragAmount ->
                                 accumulator += dragAmount
 
@@ -191,12 +190,12 @@ fun MainActivity.MainContentHost(
                     createServices()
                     isLoading = false
                 }
-                DrawerContent(ReactiveSettings.fullscreen)
+                DrawerContent(Settings.fullscreen)
             }
 
             ResponsiveDrawer(
                 drawerState = drawerState,
-                fullscreen = ReactiveSettings.fullscreen,
+                fullscreen = Settings.fullscreen,
                 mainContent = mainContent,
                 sheetContent = sheetContent,
             )

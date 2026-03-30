@@ -27,40 +27,6 @@ import kotlin.reflect.jvm.isAccessible
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * Wraps settings in `MutableState`s for reactive UI updates. This is necessary because the static `Settings` object,
- * which reads from SharedPreferences, will not trigger a recomposition when its values change.
- */
-object ReactiveSettings {
-    var toolbarActionIds by mutableStateOf(Settings.action_items)
-    var showExtraKeys by mutableStateOf(Settings.show_extra_keys)
-    var splitExtraKeys by mutableStateOf(Settings.split_extra_keys)
-    var extraKeyCommandIds by mutableStateOf(Settings.extra_keys_commands)
-    var extraKeySymbols by mutableStateOf(Settings.extra_keys_symbols)
-    var extraKeysBackground by mutableStateOf(Settings.extra_keys_bg)
-    var showHiddenFilesDrawer by mutableStateOf(Settings.show_hidden_files_drawer)
-    var compactFoldersDrawer by mutableStateOf(Settings.compact_folders_drawer)
-    var excludedFilesSearch by mutableStateOf(Settings.excluded_files_search)
-    var excludedFilesDrawer by mutableStateOf(Settings.excluded_files_drawer)
-    var fullscreen by mutableStateOf(Settings.fullscreen)
-    var smartToolbar by mutableStateOf(Settings.smart_toolbar)
-
-    fun update() {
-        toolbarActionIds = Settings.action_items
-        showExtraKeys = Settings.show_extra_keys
-        splitExtraKeys = Settings.split_extra_keys
-        extraKeyCommandIds = Settings.extra_keys_commands
-        extraKeySymbols = Settings.extra_keys_symbols
-        extraKeysBackground = Settings.extra_keys_bg
-        showHiddenFilesDrawer = Settings.show_hidden_files_drawer
-        compactFoldersDrawer = Settings.compact_folders_drawer
-        excludedFilesSearch = Settings.excluded_files_search
-        excludedFilesDrawer = Settings.excluded_files_drawer
-        fullscreen = Settings.fullscreen
-        smartToolbar = Settings.smart_toolbar
-    }
-}
-
 // NOTE: USE snake_case FOR KEYS!
 object Settings {
     var detect_bin_files by CachedPreference("detect_bin_files", true)
@@ -207,6 +173,19 @@ object Preference {
             .toMap()
     }
 
+    // Registry mapping preference keys to their CachedPreference delegates so that
+    // external Preference.setXxx() calls can propagate updates into the MutableState.
+    private val delegateRegistry = mutableMapOf<String, CachedPreference<*>>()
+
+    internal fun registerDelegate(key: String, delegate: CachedPreference<*>) {
+        delegateRegistry[key] = delegate
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> notifyDelegate(key: String, value: T) {
+        (delegateRegistry[key] as? CachedPreference<T>)?.applyStateValue(value)
+    }
+
     // Weak reference caches to allow garbage collection of unused settings
     private val stringCache = mutableMapOf<String, WeakReference<String?>>()
     private val boolCache = mutableMapOf<String, WeakReference<Boolean>>()
@@ -225,7 +204,7 @@ object Preference {
             is Int -> setInt(key, value)
             is Long -> setLong(key, value)
             is Float -> setFloat(key, value)
-            else -> IllegalArgumentException("Unsupported preference type")
+            else -> throw IllegalArgumentException("Unsupported preference type")
         }
     }
 
@@ -292,6 +271,7 @@ object Preference {
     }
 
     fun setBoolean(key: String, value: Boolean) {
+        notifyDelegate(key, value)
         boolCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putBoolean(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -313,6 +293,7 @@ object Preference {
     }
 
     fun setString(key: String, value: String?) {
+        notifyDelegate(key, value)
         stringCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putString(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -334,6 +315,7 @@ object Preference {
     }
 
     fun setInt(key: String, value: Int) {
+        notifyDelegate(key, value)
         intCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putInt(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -355,6 +337,7 @@ object Preference {
     }
 
     fun setLong(key: String, value: Long) {
+        notifyDelegate(key, value)
         longCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putLong(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -376,6 +359,7 @@ object Preference {
     }
 
     fun setFloat(key: String, value: Float) {
+        notifyDelegate(key, value)
         floatCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putFloat(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -383,7 +367,13 @@ object Preference {
 
 @Suppress("UNCHECKED_CAST")
 class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWriteProperty<Any?, T> {
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+    private var state by mutableStateOf(loadInitialValue())
+
+    init {
+        Preference.registerDelegate(key, this)
+    }
+
+    private fun loadInitialValue(): T {
         return when (defaultValue) {
             is Boolean -> Preference.getBoolean(key, defaultValue) as T
             is String -> Preference.getString(key, defaultValue) as T
@@ -394,6 +384,8 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
         }
     }
 
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T = state
+
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         when (value) {
             is Boolean -> Preference.setBoolean(key, value)
@@ -403,5 +395,9 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
             is Float -> Preference.setFloat(key, value)
             else -> throw IllegalArgumentException("Unsupported preference type")
         }
+    }
+
+    internal fun applyStateValue(value: T) {
+        state = value
     }
 }

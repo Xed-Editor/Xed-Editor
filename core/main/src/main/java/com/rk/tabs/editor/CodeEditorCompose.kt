@@ -36,7 +36,6 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.utils.info
 import com.rk.utils.logWarn
@@ -109,7 +108,7 @@ fun EditorTab.CodeEditor(
             },
         )
 
-        if (ReactiveSettings.showExtraKeys) {
+        if (Settings.show_extra_keys) {
             HorizontalDivider()
         }
     }

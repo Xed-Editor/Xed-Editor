@@ -34,7 +34,6 @@ import com.rk.file.BuiltinFileType
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorNotice
 import com.rk.theme.XedTheme
@@ -172,7 +171,6 @@ fun ExcludeFiles(isDrawer: Boolean) {
                                 } else {
                                     Settings.excluded_files_search = it.editor.text.toString()
                                 }
-                                ReactiveSettings.update()
                             }
 
                             setThemeColors(

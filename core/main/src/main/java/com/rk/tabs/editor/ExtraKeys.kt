@@ -28,7 +28,7 @@ import com.rk.commands.CommandProvider
 import com.rk.commands.ToggleableCommand
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
-import com.rk.settings.ReactiveSettings
+import com.rk.settings.Settings
 
 private data class ExtraKey(
     val label: String,
@@ -40,7 +40,7 @@ private data class ExtraKey(
 
 @Composable
 fun ExtraKeys(editorTab: EditorTab) {
-    val commandIds by remember { derivedStateOf { ReactiveSettings.extraKeyCommandIds.split("|").toTypedArray() } }
+    val commandIds by remember { derivedStateOf { Settings.extra_keys_commands.split("|").toTypedArray() } }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
 
     val commandExtraKeys =
@@ -55,7 +55,7 @@ fun ExtraKeys(editorTab: EditorTab) {
         }
 
     val isEditable by remember { derivedStateOf { editorTab.editorState.editable } }
-    val symbols = ReactiveSettings.extraKeySymbols
+    val symbols = Settings.extra_keys_symbols
     val symbolExtraKeys =
         symbols.map {
             ExtraKey(
@@ -82,7 +82,7 @@ fun ExtraKeys(editorTab: EditorTab) {
     val extraKeys = commandExtraKeys + symbolExtraKeys
 
     Column(modifier = Modifier.fillMaxWidth().padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (ReactiveSettings.splitExtraKeys) {
+        if (Settings.split_extra_keys) {
             KeyRow(commandExtraKeys)
             KeyRow(symbolExtraKeys)
         } else {
@@ -116,7 +116,7 @@ private fun KeyButton(key: ExtraKey) {
             Modifier.size(32.dp, 32.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .then(
-                    if (ReactiveSettings.extraKeysBackground) {
+                    if (Settings.extra_keys_bg) {
                         Modifier.background(
                             MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = if (key.enabled) 1f else 0.5f)
                         )

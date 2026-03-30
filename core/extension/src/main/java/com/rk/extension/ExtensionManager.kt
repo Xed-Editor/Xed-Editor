@@ -69,7 +69,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                             id = "com.rk.store",
                             name = "Store",
                             mainClass = "com.rk.store.Store",
-                            author = ExtensionAuthor(name = "KonerDev", github = "KonerDev"),
+                            author = ExtensionAuthor(displayName = "KonerDev", github = "KonerDev"),
                             repository = "https://github.com/KonerDev/Xed-Store",
                             license = "MIT",
                         ),

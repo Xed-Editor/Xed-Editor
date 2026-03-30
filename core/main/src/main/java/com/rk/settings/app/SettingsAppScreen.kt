@@ -33,7 +33,6 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditors
 import com.rk.theme.amoled
@@ -104,20 +103,14 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 label = stringResource(strings.fullscreen),
                 description = stringResource(strings.fullscreen_desc),
                 default = Settings.fullscreen,
-                sideEffect = {
-                    Settings.fullscreen = it
-                    ReactiveSettings.update()
-                },
+                sideEffect = { Settings.fullscreen = it },
             )
 
             SettingsToggle(
                 label = stringResource(strings.smart_toolbar),
                 description = stringResource(strings.smart_toolbar_desc),
                 default = Settings.smart_toolbar,
-                sideEffect = {
-                    Settings.smart_toolbar = it
-                    ReactiveSettings.update()
-                },
+                sideEffect = { Settings.smart_toolbar = it },
             )
 
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
@@ -274,7 +267,6 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
 
                                     Preference.put(key, fixedValue)
                                 }
-                                ReactiveSettings.update()
 
                                 // Update theme in the UI if the setting changed
                                 withContext(Dispatchers.Main) {

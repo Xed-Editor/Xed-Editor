@@ -50,7 +50,6 @@ import com.rk.file.FileObject
 import com.rk.icons.XedIcon
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import kotlin.math.min
 import kotlinx.coroutines.launch
@@ -265,7 +264,7 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             DropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = ReactiveSettings.showHiddenFilesDrawer, onCheckedChange = null)
+                        Checkbox(checked = Settings.show_hidden_files_drawer, onCheckedChange = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.show_hidden_files))
                         Spacer(Modifier.width(8.dp))
@@ -273,7 +272,6 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
                 },
                 onClick = {
                     Settings.show_hidden_files_drawer = !Settings.show_hidden_files_drawer
-                    ReactiveSettings.update()
                     showOptionsMenu = false
                 },
             )
@@ -281,7 +279,7 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
             DropdownMenuItem(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = ReactiveSettings.compactFoldersDrawer, onCheckedChange = null)
+                        Checkbox(checked = Settings.compact_folders_drawer, onCheckedChange = null)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(strings.compact_folders))
                         Spacer(Modifier.width(8.dp))
@@ -289,7 +287,6 @@ private fun FileTreeActions(viewModel: FileTreeViewModel, onSearchClick: () -> U
                 },
                 onClick = {
                     Settings.compact_folders_drawer = !Settings.compact_folders_drawer
-                    ReactiveSettings.update()
                     showOptionsMenu = false
                 },
             )

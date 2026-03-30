@@ -45,7 +45,6 @@ import com.rk.components.compose.preferences.base.PreferenceScaffold
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
@@ -62,7 +61,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
     val reorderState = rememberReorderState<String>(dragAfterLongPress = true)
     val lazyListState = rememberLazyListState()
 
-    val commandIds = remember { mutableStateListOf(*ReactiveSettings.extraKeyCommandIds.split("|").toTypedArray()) }
+    val commandIds = remember { mutableStateListOf(*Settings.extra_keys_commands.split("|").toTypedArray()) }
     val commands by remember { derivedStateOf { commandIds.mapNotNull { id -> CommandProvider.getForId(id) } } }
 
     var showExtraKeysDialog by remember { mutableStateOf(false) }
@@ -74,10 +73,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
             inputLabel = stringResource(id = strings.extra_keys),
             inputValue = extraKeysValue.value,
             onInputValueChange = { extraKeysValue.value = it },
-            onConfirm = {
-                Settings.extra_keys_symbols = extraKeysValue.value
-                ReactiveSettings.update()
-            },
+            onConfirm = { Settings.extra_keys_symbols = extraKeysValue.value },
             onFinish = {
                 extraKeysValue.value = Settings.extra_keys_symbols
                 showExtraKeysDialog = false
@@ -180,7 +176,6 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
 private fun saveOrder(commandIds: SnapshotStateList<String>) {
     val extraKeyCommandIds = commandIds.joinToString("|")
     Settings.extra_keys_commands = extraKeyCommandIds
-    ReactiveSettings.update()
 }
 
 /** Reset order of commands and symbols to default */
@@ -190,5 +185,4 @@ private fun resetOrder(commandIds: SnapshotStateList<String>, extraKeysValue: Mu
     commandIds.clear()
     commandIds.addAll(DEFAULT_EXTRA_KEYS_COMMANDS.split("|"))
     extraKeysValue.value = DEFAULT_EXTRA_KEYS_SYMBOLS
-    ReactiveSettings.update()
 }

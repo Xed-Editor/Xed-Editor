@@ -34,7 +34,6 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.editor.KeywordManager
 import com.rk.filetree.SortMode
 import com.rk.resources.strings
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
@@ -310,39 +309,30 @@ fun SettingsEditorScreen(navController: NavController) {
                 label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
                 default = Settings.show_extra_keys,
-                sideEffect = {
-                    Settings.show_extra_keys = it
-                    ReactiveSettings.update()
-                },
+                sideEffect = { Settings.show_extra_keys = it },
             )
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.extra_key_bg),
                 description = stringResource(id = strings.extra_key_bg_desc),
-                isEnabled = ReactiveSettings.showExtraKeys,
+                isEnabled = Settings.show_extra_keys,
                 default = Settings.extra_keys_bg,
-                sideEffect = {
-                    Settings.extra_keys_bg = it
-                    ReactiveSettings.update()
-                },
+                sideEffect = { Settings.extra_keys_bg = it },
             )
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.split_extra_keys),
                 description = stringResource(id = strings.split_extra_keys_desc),
-                isEnabled = ReactiveSettings.showExtraKeys,
+                isEnabled = Settings.show_extra_keys,
                 default = Settings.split_extra_keys,
-                sideEffect = {
-                    Settings.split_extra_keys = it
-                    ReactiveSettings.update()
-                },
+                sideEffect = { Settings.split_extra_keys = it },
             )
 
             NextScreenCard(
                 label = stringResource(strings.change_extra_keys),
                 description = stringResource(strings.change_extra_keys_desc),
                 route = SettingsRoutes.ExtraKeys,
-                isEnabled = ReactiveSettings.showExtraKeys,
+                isEnabled = Settings.show_extra_keys,
             )
         }
 
@@ -365,10 +355,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 label = stringResource(id = strings.show_hidden_files_drawer),
                 description = stringResource(id = strings.show_hidden_files_drawer_desc),
                 default = Settings.show_hidden_files_drawer,
-                sideEffect = {
-                    Settings.show_hidden_files_drawer = it
-                    ReactiveSettings.update()
-                },
+                sideEffect = { Settings.show_hidden_files_drawer = it },
             )
 
             NextScreenCard(
@@ -381,10 +368,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 label = stringResource(id = strings.compact_folders_drawer),
                 description = stringResource(id = strings.compact_folders_drawer_desc),
                 default = Settings.compact_folders_drawer,
-                sideEffect = {
-                    Settings.compact_folders_drawer = it
-                    ReactiveSettings.update()
-                },
+                sideEffect = { Settings.compact_folders_drawer = it },
             )
 
             EditorSettingsToggle(

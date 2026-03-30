@@ -28,8 +28,8 @@ sealed interface Extension {
 }
 
 @Serializable
-data class ExtensionAuthor(val name: String, val github: String? = null) {
-    override fun toString() = name
+data class ExtensionAuthor(val displayName: String, val github: String? = null) {
+    override fun toString() = displayName
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
