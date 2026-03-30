@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
-import com.google.gson.Gson
 import java.io.File
 import java.util.zip.ZipFile
 import kotlinx.coroutines.CoroutineScope
@@ -13,6 +12,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 
 private val Context.localDir: File
     get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
@@ -26,6 +27,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     private val mutex = Mutex()
     val localExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
+    val json = Json { ignoreUnknownKeys = true }
 
     init {
         launch(Dispatchers.IO) {
@@ -46,8 +48,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     val extensionJson = dir.resolve("manifest.json")
                     if (extensionJson.exists()) {
                         runCatching {
-                            val extensionManifest =
-                                Gson().fromJson(extensionJson.readText(), ExtensionManifest::class.java)
+                            val extensionManifest = json.decodeFromString<ExtensionManifest>(extensionJson.readText())
                             val extension = LocalExtension(manifest = extensionManifest, installPath = dir.absolutePath)
                             localExtensions[extensionManifest.id] = extension
                         }
@@ -69,6 +70,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                             name = "Store",
                             mainClass = "com.rk.store.Store",
                             author = ExtensionAuthor(name = "KonerDev", github = "KonerDev"),
+                            repository = "https://github.com/KonerDev/Xed-Store",
                             license = "MIT",
                         ),
                     verified = true,
@@ -82,15 +84,16 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return@runCatching installExtensionFromDir(dir)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     internal fun validateExtensionDir(dir: File): Result<ExtensionManifest> {
         val extensionJson = dir.resolve("manifest.json")
         if (!extensionJson.exists()) {
             return Result.failure(Exception("Missing manifest.json"))
         }
         val extensionManifest =
-            runCatching { Gson().fromJson(extensionJson.readText(), ExtensionManifest::class.java) }
-                .getOrElse {
-                    return Result.failure(Exception("Invalid manifest.json", it))
+            runCatching { json.decodeFromString<ExtensionManifest>(extensionJson.readText()) }
+                .getOrElse { e ->
+                    return Result.failure(e)
                 }
 
         val hasApk = dir.listFiles()?.any { it.extension == "apk" } == true

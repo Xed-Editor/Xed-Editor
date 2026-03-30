@@ -69,6 +69,7 @@ fun PreferenceLazyColumn(
     enabled: Boolean = true,
     isChild: Boolean = false,
     state: LazyListState = rememberLazyListState(),
+    stretchEnabled: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
     if (!enabled) {
@@ -76,7 +77,7 @@ fun PreferenceLazyColumn(
             state.scroll(scrollPriority = MutatePriority.PreventUserInput) { awaitCancellation() }
         }
     }
-    NestedScrollStretch(modifier = modifier) {
+    NestedScrollStretch(modifier = modifier, enabled = stretchEnabled) {
         LazyColumn(
             modifier = Modifier.addIf(!isChild) { fillMaxHeight() },
             contentPadding = contentPadding,

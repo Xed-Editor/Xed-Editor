@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.compose.runtime.mutableStateMapOf
 import dalvik.system.PathClassLoader
 import java.io.File
+import kotlinx.serialization.Serializable
 
 val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
 
@@ -13,7 +14,8 @@ sealed interface Extension {
     val name: String
     val version: String
     val author: ExtensionAuthor
-    val description: String
+    val description: String?
+    val tags: List<String>
     val repository: String
     val license: String?
     val iconUrl: String?
@@ -25,6 +27,7 @@ sealed interface Extension {
     suspend fun getDownloadCount(): Long?
 }
 
+@Serializable
 data class ExtensionAuthor(val name: String, val github: String? = null) {
     override fun toString() = name
 }
@@ -45,6 +48,9 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
 
     override val description
         get() = manifest.description
+
+    override val tags
+        get() = manifest.tags
 
     override val repository
         get() = manifest.repository
@@ -103,6 +109,9 @@ data class LocalExtension(
     override val description
         get() = manifest.description
 
+    override val tags
+        get() = manifest.tags
+
     override val repository
         get() = manifest.repository
 
@@ -155,6 +164,9 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
 
     override val description
         get() = installed.description
+
+    override val tags
+        get() = installed.tags
 
     override val repository
         get() = installed.repository

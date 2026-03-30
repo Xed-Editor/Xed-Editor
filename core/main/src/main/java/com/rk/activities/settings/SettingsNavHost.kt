@@ -24,7 +24,7 @@ import com.rk.settings.editor.ExcludeFiles
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.extension.ExtensionDetail
-import com.rk.settings.extension.Extensions
+import com.rk.settings.extension.ExtensionScreen
 import com.rk.settings.git.GitSettings
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
@@ -96,7 +96,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             LspServerLogs(server, instanceId)
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
-        composable(SettingsRoutes.Extensions.route) { Extensions(navController = navController) }
+        composable(SettingsRoutes.Extensions.route) { ExtensionScreen(navController = navController) }
         composable(
             "${SettingsRoutes.ExtensionDetail.route}/{extensionId}",
             arguments = listOf(navArgument("extensionId", builder = { type = NavType.StringType })),

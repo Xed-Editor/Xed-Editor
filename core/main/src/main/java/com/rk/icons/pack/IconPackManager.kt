@@ -87,7 +87,7 @@ class IconPackManager(private val context: Application) {
                         dialog(
                             SettingsActivity.instance,
                             strings.icon_pack_install_failed.getString(),
-                            strings.icon_pack_missing_fields.getFilledString(fields),
+                            strings.manifest_missing_fields.getFilledString(fields),
                             cancelable = false,
                         )
                         return null

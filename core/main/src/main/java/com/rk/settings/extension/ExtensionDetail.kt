@@ -365,7 +365,7 @@ fun ExtensionAuthorIcon(author: ExtensionAuthor, modifier: Modifier = Modifier) 
         model =
             ImageRequest.Builder(context)
                 .data(author.github?.let { "https://github.com/$it.png" })
-                .fallback(drawables.account)
+                .fallback(drawables.person)
                 .crossfade(true)
                 .diskCachePolicy(CachePolicy.ENABLED)
                 .memoryCachePolicy(CachePolicy.ENABLED)
