@@ -158,7 +158,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                             }
 
                             Spacer(Modifier.size(4.dp))
-                            Icon(painterResource(drawables.kbd_arrow_down), contentDescription = null)
+                            Icon(painterResource(drawables.chevron_down), contentDescription = null)
                         }
                     }
 

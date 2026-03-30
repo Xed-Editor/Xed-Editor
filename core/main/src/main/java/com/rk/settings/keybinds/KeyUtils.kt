@@ -88,10 +88,10 @@ data object KeyUtils {
         return Icon.DrawableRes(
             when (keyCode) {
                 KeyEvent.KEYCODE_SHIFT_LEFT -> drawables.shift
-                KeyEvent.KEYCODE_DPAD_DOWN -> drawables.kbd_arrow_down
-                KeyEvent.KEYCODE_DPAD_UP -> drawables.kbd_arrow_up
-                KeyEvent.KEYCODE_DPAD_LEFT -> drawables.kbd_arrow_left
-                KeyEvent.KEYCODE_DPAD_RIGHT -> drawables.kbd_arrow_right
+                KeyEvent.KEYCODE_DPAD_DOWN -> drawables.chevron_down
+                KeyEvent.KEYCODE_DPAD_UP -> drawables.chevron_up
+                KeyEvent.KEYCODE_DPAD_LEFT -> drawables.chevron_left
+                KeyEvent.KEYCODE_DPAD_RIGHT -> drawables.chevron_right
                 KeyEvent.KEYCODE_DEL -> drawables.backspace
                 KeyEvent.KEYCODE_FORWARD_DEL -> drawables.backspace_mirrored
                 KeyEvent.KEYCODE_TAB -> drawables.kbd_tab

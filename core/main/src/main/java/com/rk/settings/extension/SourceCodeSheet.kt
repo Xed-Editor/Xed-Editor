@@ -33,7 +33,7 @@ enum class SourceCodeProvider(val drawableRes: Int, val viewStringRes: Int) {
     GitHub(drawables.github, strings.view_github),
     GitLab(drawables.gitlab, strings.view_gitlab),
     BitBucket(drawables.bitbucket, strings.view_bitbucket),
-    Other(drawables.ic_language_xml, strings.view_repo);
+    Other(drawables.xml, strings.view_repo);
 
     companion object {
         fun fromUrl(url: String): SourceCodeProvider {
@@ -62,7 +62,7 @@ fun SourceCodeSheet(extension: Extension, onDismissRequest: () -> Unit) {
                 modifier = Modifier.padding(horizontal = 16.dp),
             ) {
                 Icon(
-                    painter = painterResource(drawables.ic_language_xml),
+                    painter = painterResource(drawables.xml),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(32.dp),
