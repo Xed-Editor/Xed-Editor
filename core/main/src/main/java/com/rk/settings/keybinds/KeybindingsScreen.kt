@@ -23,6 +23,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -126,11 +127,9 @@ fun KeybindingsScreen() {
                 state = searchQuery,
                 leadingIcon = { Icon(Icons.Rounded.Search, null) },
                 trailingIcon = {
-                    Icon(
-                        modifier = Modifier.clickable(onClick = { searchQuery.clearText() }),
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = stringResource(strings.close),
-                    )
+                    IconButton({ searchQuery.clearText() }) {
+                        Icon(imageVector = Icons.Rounded.Close, contentDescription = stringResource(strings.close))
+                    }
                 },
                 onSearch = {},
                 expanded = false,

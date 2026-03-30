@@ -627,4 +627,12 @@
     <string name="verified">Verified</string>
     <string name="filter_options">Filter options</string>
     <string name="sort_options">Sort options</string>
+    <string name="source_code">Source code</string>
+    <string name="ext_source_desc">This extension is open-source. Contributions and bug reports are welcome on the official repository.</string>
+    <string name="ext_source_desc_license">This extension is open-source and released under the %s license. Contributions and bug reports are welcome on the official repository.</string>
+    <string name="view_github">View on GitHub</string>
+    <string name="view_gitlab">View on GitLab</string>
+    <string name="view_bitbucket">View on BitBucket</string>
+    <string name="view_repo">View repository</string>
+    <string name="reviews_not_supported">Reviews are not supported for this extension.</string>
 </resources>

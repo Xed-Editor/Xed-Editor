@@ -30,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SegmentedButton
@@ -299,17 +300,11 @@ private fun ExtensionSearchBar(
         state = searchQuery,
         leadingIcon = { Icon(Icons.Rounded.Search, null) },
         trailingIcon = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(end = 16.dp),
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
-                    Icon(
-                        modifier = Modifier.clickable(onClick = { searchOptionsExpanded = true }),
-                        painter = painterResource(drawables.filter),
-                        contentDescription = null,
-                    )
+                    IconButton({ searchOptionsExpanded = true }) {
+                        Icon(painter = painterResource(drawables.filter), contentDescription = null)
+                    }
 
                     DropdownMenu(searchOptionsExpanded, { searchOptionsExpanded = false }) {
                         Text(
@@ -350,11 +345,9 @@ private fun ExtensionSearchBar(
                     }
                 }
 
-                Icon(
-                    modifier = Modifier.clickable(onClick = { searchQuery.clearText() }),
-                    imageVector = Icons.Rounded.Close,
-                    contentDescription = stringResource(strings.close),
-                )
+                IconButton({ searchQuery.clearText() }) {
+                    Icon(imageVector = Icons.Rounded.Close, contentDescription = stringResource(strings.close))
+                }
             }
         },
         onSearch = {},

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.compose.runtime.mutableStateMapOf
 import dalvik.system.PathClassLoader
 import java.io.File
+import java.util.Date
 import kotlinx.serialization.Serializable
 
 val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
@@ -24,8 +25,14 @@ sealed interface Extension {
 
     suspend fun calcSize(): Long
 
+    suspend fun getRating(): Float?
+
+    suspend fun getReviews(): List<Review>
+
     suspend fun getDownloadCount(): Long?
 }
+
+data class Review(val rating: Int, val text: String, val author: String, val date: Date, val authorResponse: String?)
 
 @Serializable
 data class ExtensionAuthor(val displayName: String, val github: String? = null) {
@@ -68,6 +75,10 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
         get() = ExtensionRegistry.getChangelogUrl(manifest)
 
     override suspend fun calcSize() = ExtensionRegistry.calcSize(manifest)
+
+    override suspend fun getRating() = null
+
+    override suspend fun getReviews(): List<Review> = emptyList()
 
     override suspend fun getDownloadCount() = null
 }
@@ -146,6 +157,10 @@ data class LocalExtension(
         return totalSize
     }
 
+    override suspend fun getRating() = null
+
+    override suspend fun getReviews(): List<Review> = emptyList()
+
     override suspend fun getDownloadCount() = null
 }
 
@@ -184,6 +199,10 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
         get() = installed.changelogUrl
 
     override suspend fun calcSize() = installed.calcSize()
+
+    override suspend fun getRating() = store.getRating()
+
+    override suspend fun getReviews() = store.getReviews()
 
     override suspend fun getDownloadCount() = store.getDownloadCount()
 }
