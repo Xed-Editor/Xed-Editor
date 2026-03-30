@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -70,13 +70,15 @@ jobs:
 
       - name: Send APK to Telegram
         if: ${{ success() && github.event.head_commit.message != '' }}
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          CAPTION=$(jq -R . <<< "${{ github.event.head_commit.message }}")
+          CAPTION=$(printf "%s" "$COMMIT_MSG" | jq -Rs .)
           curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
-          -F chat_id="-1002408175863" \
-          -F message_thread_id="582" \
-          -F caption="$CAPTION" \
-          -F document=@"app/xed-editor-${{ env.COMMIT_HASH }}.apk"
+            -F chat_id="-1002408175863" \
+            -F message_thread_id="582" \
+            -F caption="$CAPTION" \
+            -F document=@"app/xed-editor-${{ env.COMMIT_HASH }}.apk"
 
       - name: Generate Plugin Sdk
         run: |
