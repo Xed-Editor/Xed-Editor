@@ -1,4 +1,4 @@
-package com.rk.settings.editor
+package com.rk.settings.terminal
 
 import android.content.Intent
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -41,53 +41,37 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
 
-val DEFAULT_EXCLUDED_FILES_DRAWER = listOf("**/.git", "**/.svn", "**/.hg", "**/.DS_Store", "**/Thumbs.db")
-
-val DEFAULT_EXCLUDED_FILES_SEARCH =
-    listOf(
-        "**/node_modules/**",
-        "**/bower_components/**",
-        "**/jspm_packages/**",
-        "**/.npm/**",
-        "**/flow-typed/**",
-        "**/vendor/**",
-        "**/composer/**",
-        "**/venv/**",
-        "**/.virtualenv/**",
-        "**/__pycache__/**",
-        "**/.pytest_cache/**",
-        "**/.eggs/**",
-        "**/*.egg-info/**",
-        "**/.git/**",
-        "**/.svn/**",
-        "**/.hg/**",
-        "**/.vscode/**",
-        "**/.idea/**",
-        "**/.vs/**",
-        "**/.project/**",
-        "**/.settings/**",
-        "**/.classpath/**",
-        "**/dist/**",
-        "**/build/**",
-        "**/out/**",
-        "**/target/**",
-        "**/bin/**",
-        "**/obj/**",
-        "**/coverage/**",
-        "**/.nyc_output/**",
-        "**/htmlcov/**",
-        "**/temp/**",
-        "**/tmp/**",
-        "**/.cache/**",
-        "**/logs/**",
-        "**/.sass-cache/**",
-        "**/.DS_Store/**",
-        "**/Thumbs.db/**",
-    )
+const val DEFAULT_TERMINAL_EXTRA_KEYS =
+    ("[" +
+        "\n  [" +
+        "\n    \"ESC\"," +
+        "\n    {" +
+        "\n      \"key\": \"/\"," +
+        "\n      \"popup\": \"\\\\\"" +
+        "\n    }," +
+        "\n    {" +
+        "\n      \"key\": \"-\"," +
+        "\n      \"popup\": \"|\"" +
+        "\n    }," +
+        "\n    \"HOME\"," +
+        "\n    \"UP\"," +
+        "\n    \"END\"," +
+        "\n    \"PGUP\"" +
+        "\n  ]," +
+        "\n  [" +
+        "\n    \"TAB\"," +
+        "\n    \"CTRL\"," +
+        "\n    \"ALT\"," +
+        "\n    \"LEFT\"," +
+        "\n    \"DOWN\"," +
+        "\n    \"RIGHT\"," +
+        "\n    \"PGDN\"" +
+        "\n  ]" +
+        "\n]")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExcludeFiles(isDrawer: Boolean) {
+fun TerminalExtraKeys() {
     val scope = rememberCoroutineScope()
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -112,12 +96,8 @@ fun ExcludeFiles(isDrawer: Boolean) {
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
-                    title = {
-                        Text(
-                            stringResource(if (isDrawer) strings.exclude_files_drawer else strings.exclude_files_search)
-                        )
-                    },
-                    actions = { ResetButton { resetFiles(editorRef.get(), isDrawer) } },
+                    title = { Text(stringResource(strings.change_extra_keys)) },
+                    actions = { ResetButton { resetFiles(editorRef.get()) } },
                 )
                 HorizontalDivider()
             }
@@ -129,11 +109,11 @@ fun ExcludeFiles(isDrawer: Boolean) {
 
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             EditorNotice(
-                text = stringResource(strings.glob_docs),
+                text = stringResource(strings.see_termux_extra_keys),
                 actionButton = {
                     IconButton(
                         onClick = {
-                            val url = "https://code.visualstudio.com/docs/editor/glob-patterns"
+                            val url = "https://wiki.termux.com/wiki/Touch_Keyboard#Extra_Keys_Row"
                             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                             context.startActivity(intent)
                         }
@@ -153,19 +133,11 @@ fun ExcludeFiles(isDrawer: Boolean) {
                         editorRef = WeakReference(this)
 
                         setTextSize(10f)
-                        if (isDrawer) {
-                            setText(Settings.excluded_files_drawer)
-                        } else {
-                            setText(Settings.excluded_files_search)
-                        }
+                        setText(Settings.terminal_extra_keys)
                         isWordwrap = false
 
                         subscribeAlways(ContentChangeEvent::class.java) {
-                            if (isDrawer) {
-                                Settings.excluded_files_drawer = it.editor.text.toString()
-                            } else {
-                                Settings.excluded_files_search = it.editor.text.toString()
-                            }
+                            Settings.terminal_extra_keys = it.editor.text.toString()
                         }
 
                         setThemeColors(
@@ -174,7 +146,7 @@ fun ExcludeFiles(isDrawer: Boolean) {
                             colorScheme = colorScheme,
                         )
 
-                        scope.launch { setLanguage(BuiltinFileType.IGNORE.textmateScope!!) }
+                        scope.launch { setLanguage(BuiltinFileType.JSON.textmateScope!!) }
                     }
                 },
             )
@@ -183,12 +155,7 @@ fun ExcludeFiles(isDrawer: Boolean) {
 }
 
 /** Reset order of commands and symbols to default */
-private fun resetFiles(editor: Editor?, isDrawer: Boolean) {
-    if (isDrawer) {
-        Preference.removeKey("excluded_files_drawer")
-        editor?.setText(DEFAULT_EXCLUDED_FILES_DRAWER.joinToString("\n"))
-    } else {
-        Preference.removeKey("excluded_files_search")
-        editor?.setText(DEFAULT_EXCLUDED_FILES_SEARCH.joinToString("\n"))
-    }
+private fun resetFiles(editor: Editor?) {
+    Preference.removeKey("terminal_extra_keys")
+    editor?.setText(DEFAULT_TERMINAL_EXTRA_KEYS)
 }

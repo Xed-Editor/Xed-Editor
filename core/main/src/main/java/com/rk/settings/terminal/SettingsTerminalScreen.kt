@@ -4,23 +4,35 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
 import com.rk.DocumentProvider
 import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.activities.settings.settingsNavController
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
 import com.rk.components.ValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.file.child
 import com.rk.file.createFileIfNot
@@ -39,65 +51,112 @@ import com.rk.utils.dialog
 import com.rk.utils.dpToPx
 import com.rk.utils.getTempDir
 import com.rk.utils.toast
+import com.termux.terminal.TerminalEmulator
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Runtime.getRuntime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+enum class TerminalCursorStyle(val value: String, val stringRes: Int) {
+    BLOCK("block", strings.block),
+    BAR("bar", strings.bar),
+    UNDERLINE("underline", strings.underline);
+
+    companion object {
+        fun fromString(value: String): TerminalCursorStyle {
+            return entries.firstOrNull { it.value == value } ?: BLOCK
+        }
+    }
+}
+
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun SettingsTerminalScreen() {
+fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
         val activity = LocalActivity.current as? AppCompatActivity
 
-        if (InbuiltFeatures.debugMode.state.value) {
-            PreferenceGroup {
-                SettingsToggle(
-                    label = stringResource(strings.failsafe_mode),
-                    description = stringResource(strings.failsafe_mode_desc),
-                    default = !Settings.sandbox,
-                    sideEffect = { Settings.sandbox = !it },
-                )
-            }
+        var showCursorStyleDialog by remember { mutableStateOf(false) }
+        var cursorStyleValue by remember {
+            mutableStateOf(TerminalCursorStyle.fromString(Settings.terminal_cursor_style))
         }
 
-        ValueSlider(
-            label = { Text(stringResource(strings.text_size)) },
-            min = 10,
-            max = 20,
-            onValueChanged = {
-                Settings.terminal_font_size = it
-                terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
-            },
-        )
+        PreferenceGroup(heading = stringResource(strings.appearance)) {
+            ValueSlider(
+                label = { Text(stringResource(strings.text_size)) },
+                min = 10,
+                max = 20,
+                default = Settings.terminal_font_size.toFloat(),
+                onValueChanged = {
+                    Settings.terminal_font_size = it
+                    terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
+                },
+            )
 
-        PreferenceGroup {
             NextScreenCard(
                 label = stringResource(strings.manage_terminal_font),
                 description = stringResource(strings.manage_terminal_font),
                 route = SettingsRoutes.TerminalFontScreen,
             )
-        }
-
-        PreferenceGroup {
-            var seccomp by remember { mutableStateOf(Settings.seccomp) }
 
             SettingsToggle(
-                label = "SECCOMP",
-                default = seccomp,
-                description = stringResource(strings.seccomp_desc),
-                sideEffect = {
-                    Settings.seccomp = it
-                    seccomp = it
-                },
-                showSwitch = true,
+                label = stringResource(strings.cursor_style),
+                description = stringResource(strings.cursor_style_desc),
+                default = false,
+                showSwitch = false,
+                sideEffect = { showCursorStyleDialog = true },
             )
+        }
 
+        if (showCursorStyleDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showCursorStyleDialog = false
+                    cursorStyleValue = TerminalCursorStyle.fromString(Settings.terminal_cursor_style)
+                },
+                title = { Text(stringResource(strings.cursor_style)) },
+                text = {
+                    Column {
+                        TerminalCursorStyle.entries.forEach {
+                            PreferenceTemplate(
+                                modifier =
+                                    Modifier.clip(MaterialTheme.shapes.large).clickable { cursorStyleValue = it },
+                                title = { Text(stringResource(it.stringRes)) },
+                                startWidget = { RadioButton(selected = cursorStyleValue == it, onClick = null) },
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showCursorStyleDialog = false
+                            Settings.terminal_cursor_style = cursorStyleValue.value
+                        }
+                    ) {
+                        Text(stringResource(strings.apply))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showCursorStyleDialog = false
+                            cursorStyleValue = TerminalCursorStyle.fromString(Settings.terminal_cursor_style)
+                        }
+                    ) {
+                        Text(stringResource(strings.cancel))
+                    }
+                },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.user_data)) {
             val restore =
                 rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
                     if (uri == null) {
@@ -258,7 +317,57 @@ fun SettingsTerminalScreen() {
             )
         }
 
-        PreferenceGroup {
+        PreferenceGroup(heading = stringResource(strings.advanced)) {
+            if (InbuiltFeatures.debugMode.state.value) {
+                SettingsToggle(
+                    label = stringResource(strings.failsafe_mode),
+                    description = stringResource(strings.failsafe_mode_desc),
+                    default = !Settings.sandbox,
+                    sideEffect = { Settings.sandbox = !it },
+                )
+            }
+
+            var seccomp by remember { mutableStateOf(Settings.seccomp) }
+
+            SettingsToggle(
+                label = "SECCOMP",
+                default = seccomp,
+                description = stringResource(strings.seccomp_desc),
+                sideEffect = {
+                    Settings.seccomp = it
+                    seccomp = it
+                },
+                showSwitch = true,
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.other)) {
+            NextScreenCard(
+                label = stringResource(strings.change_extra_keys),
+                description = stringResource(strings.change_extra_keys_desc),
+                navController = overrideNavController ?: settingsNavController.get(),
+                route = SettingsRoutes.TerminalExtraKeys,
+            )
+
+            var job by remember { mutableStateOf<Job?>(null) }
+            val scope = rememberCoroutineScope()
+            ValueSlider(
+                label = { Text(stringResource(strings.scrollback_buffer)) },
+                description = { Text(stringResource(strings.scrollback_buffer_desc)) },
+                min = TerminalEmulator.TERMINAL_TRANSCRIPT_ROWS_MIN,
+                max = TerminalEmulator.TERMINAL_TRANSCRIPT_ROWS_MAX,
+                default = Settings.terminal_scrollback_buffer.toFloat(),
+                useSteps = false,
+            ) {
+                job?.cancel()
+                job =
+                    scope.launch {
+                        delay(300) // debounce
+                        Settings.terminal_scrollback_buffer = it
+                        toast(strings.restart_required)
+                    }
+            }
+
             SettingsToggle(
                 label = stringResource(strings.terminate_all_sessions),
                 description = stringResource(strings.terminate_all_sessions_desc),

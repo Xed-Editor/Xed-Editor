@@ -6,6 +6,8 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.activities.terminal.Terminal
+import com.rk.settings.Settings
+import com.rk.settings.terminal.TerminalCursorStyle
 import com.rk.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -41,7 +43,11 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
     override fun setTerminalShellPid(session: TerminalSession, pid: Int) {}
 
     override fun getTerminalCursorStyle(): Int {
-        return TerminalEmulator.DEFAULT_TERMINAL_CURSOR_STYLE
+        return when (Settings.terminal_cursor_style) {
+            TerminalCursorStyle.BAR.value -> TerminalEmulator.TERMINAL_CURSOR_STYLE_BAR
+            TerminalCursorStyle.UNDERLINE.value -> TerminalEmulator.TERMINAL_CURSOR_STYLE_UNDERLINE
+            else -> TerminalEmulator.TERMINAL_CURSOR_STYLE_BLOCK
+        }
     }
 
     override fun logError(tag: String?, message: String?) {
@@ -103,10 +109,7 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            val activity = Terminal.instance
-            if (activity == null) {
-                return false
-            }
+            val activity = Terminal.instance ?: return false
             activity.sessionBinder
                 ?.get()
                 ?.terminateSession(activity.sessionBinder?.get()!!.getService().currentSession.value)

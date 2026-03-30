@@ -595,47 +595,18 @@ fun SettingsEditorScreen(navController: NavController) {
                 title = { Text(stringResource(strings.sort_mode)) },
                 text = {
                     Column {
-                        PreferenceTemplate(
-                            modifier =
-                                Modifier.clip(MaterialTheme.shapes.large).clickable {
-                                    sortingModeValue = SortMode.SORT_BY_NAME.ordinal
+                        SortMode.entries.forEach { sortMode ->
+                            PreferenceTemplate(
+                                modifier =
+                                    Modifier.clip(MaterialTheme.shapes.large).clickable {
+                                        sortingModeValue = sortMode.ordinal
+                                    },
+                                title = { Text(stringResource(sortMode.stringRes)) },
+                                startWidget = {
+                                    RadioButton(selected = sortingModeValue == sortMode.ordinal, onClick = null)
                                 },
-                            title = { Text(stringResource(strings.sort_by_name)) },
-                            startWidget = {
-                                RadioButton(
-                                    selected = sortingModeValue == SortMode.SORT_BY_NAME.ordinal,
-                                    onClick = null,
-                                )
-                            },
-                        )
-
-                        PreferenceTemplate(
-                            modifier =
-                                Modifier.clip(MaterialTheme.shapes.large).clickable {
-                                    sortingModeValue = SortMode.SORT_BY_SIZE.ordinal
-                                },
-                            title = { Text(stringResource(strings.sort_by_size)) },
-                            startWidget = {
-                                RadioButton(
-                                    selected = sortingModeValue == SortMode.SORT_BY_SIZE.ordinal,
-                                    onClick = null,
-                                )
-                            },
-                        )
-
-                        PreferenceTemplate(
-                            modifier =
-                                Modifier.clip(MaterialTheme.shapes.large).clickable {
-                                    sortingModeValue = SortMode.SORT_BY_DATE.ordinal
-                                },
-                            title = { Text(stringResource(strings.sort_by_date)) },
-                            startWidget = {
-                                RadioButton(
-                                    selected = sortingModeValue == SortMode.SORT_BY_DATE.ordinal,
-                                    onClick = null,
-                                )
-                            },
-                        )
+                            )
+                        }
                     }
                 },
                 confirmButton = {
