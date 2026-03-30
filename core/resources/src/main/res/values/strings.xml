@@ -635,4 +635,13 @@
     <string name="view_bitbucket">View on BitBucket</string>
     <string name="view_repo">View repository</string>
     <string name="reviews_not_supported">Reviews are not supported for this extension.</string>
+    <string name="cursor_style">Cursor style</string>
+    <string name="cursor_style_desc">Change the cursor style</string>
+    <string name="block">Block</string>
+    <string name="underline">Underline</string>
+    <string name="bar">Bar</string>
+    <string name="appearance">Appearance</string>
+    <string name="see_termux_extra_keys">The terminal uses the Termux extra keys format</string>
+    <string name="scrollback_buffer">Scrollback buffer size</string>
+    <string name="scrollback_buffer_desc">Number of lines the terminal keeps in memory as history</string>
 </resources>

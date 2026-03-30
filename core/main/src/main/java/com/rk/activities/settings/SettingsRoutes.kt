@@ -11,6 +11,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object TerminalSettings : SettingsRoutes("terminal_settings")
 
+    data object TerminalExtraKeys : SettingsRoutes("terminal_extra_keys")
+
     data object About : SettingsRoutes("about")
 
     data object EditorFontScreen : SettingsRoutes("editor_font_screen")

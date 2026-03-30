@@ -74,6 +74,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.settings.terminal.SettingsTerminalScreen
+import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.virtualkeys.VirtualKeysListener
@@ -105,7 +106,8 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         composable("terminal") {
             TerminalScreenInternal(terminalActivity = terminalActivity, navController = navController)
         }
-        composable("terminal_settings") { SettingsTerminalScreen() }
+        composable("terminal_settings") { SettingsTerminalScreen(navController) }
+        composable("terminal_extra_keys") { TerminalExtraKeys() }
     }
 }
 
@@ -162,7 +164,7 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
 
                                                 reload(
                                                     VirtualKeysInfo(
-                                                        VIRTUAL_KEYS,
+                                                        Settings.terminal_extra_keys,
                                                         "",
                                                         VirtualKeysConstants.CONTROL_CHARS_ALIASES,
                                                     )
@@ -461,31 +463,3 @@ private fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: 
 
     invalidate()
 }
-
-const val VIRTUAL_KEYS =
-    ("[" +
-        "\n  [" +
-        "\n    \"ESC\"," +
-        "\n    {" +
-        "\n      \"key\": \"/\"," +
-        "\n      \"popup\": \"\\\\\"" +
-        "\n    }," +
-        "\n    {" +
-        "\n      \"key\": \"-\"," +
-        "\n      \"popup\": \"|\"" +
-        "\n    }," +
-        "\n    \"HOME\"," +
-        "\n    \"UP\"," +
-        "\n    \"END\"," +
-        "\n    \"PGUP\"" +
-        "\n  ]," +
-        "\n  [" +
-        "\n    \"TAB\"," +
-        "\n    \"CTRL\"," +
-        "\n    \"ALT\"," +
-        "\n    \"LEFT\"," +
-        "\n    \"DOWN\"," +
-        "\n    \"RIGHT\"," +
-        "\n    \"PGDN\"" +
-        "\n  ]" +
-        "\n]")

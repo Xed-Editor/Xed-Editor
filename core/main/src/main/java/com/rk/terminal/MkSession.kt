@@ -16,7 +16,6 @@ import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
 import com.rk.utils.isFDroid
 import com.rk.xededitor.BuildConfig
-import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
@@ -144,7 +143,7 @@ object MkSession {
                 localDir().absolutePath,
                 actualArgs,
                 env.toTypedArray(),
-                TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
+                Settings.terminal_scrollback_buffer,
                 sessionClient,
             ) to workingDir
         }

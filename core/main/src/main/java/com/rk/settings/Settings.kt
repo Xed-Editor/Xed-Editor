@@ -13,10 +13,12 @@ import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
 import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_SEARCH
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
+import com.rk.settings.terminal.DEFAULT_TERMINAL_EXTRA_KEYS
 import com.rk.theme.blueberry
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
+import com.termux.terminal.TerminalEmulator
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
@@ -106,6 +108,8 @@ object Settings {
     var editor_text_size by CachedPreference("text_size", 14)
     var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
+    var terminal_scrollback_buffer by
+        CachedPreference("terminal_scrollback_buffer", TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS)
     var auto_save_delay by CachedPreference("auto_save_delay", 400L)
 
     var user_declined_value by CachedPreference("user_declined_value", false)
@@ -125,6 +129,8 @@ object Settings {
     var editor_font_path by CachedPreference("selected_font_path", "")
     var app_font_path by CachedPreference("app_font_path", "")
     var terminal_font_path by CachedPreference("terminal_font_path", "")
+    var terminal_cursor_style by CachedPreference("terminal_cursor_style", "block")
+    var terminal_extra_keys by CachedPreference("terminal_extra_keys", DEFAULT_TERMINAL_EXTRA_KEYS)
     var encoding: String by CachedPreference("encoding", Charset.defaultCharset().name())
     var line_ending by CachedPreference("line_ending", "lf")
     var current_lang: String by

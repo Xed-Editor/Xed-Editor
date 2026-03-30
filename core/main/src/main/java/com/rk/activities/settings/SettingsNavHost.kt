@@ -35,6 +35,7 @@ import com.rk.settings.runners.HtmlRunnerSettings
 import com.rk.settings.runners.RunnerSettings
 import com.rk.settings.support.Support
 import com.rk.settings.terminal.SettingsTerminalScreen
+import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.settings.theme.ThemeScreen
 
 @Composable
@@ -52,6 +53,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
         composable(SettingsRoutes.Keybindings.route) { KeybindingsScreen() }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
+        composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.AppFontScreen.route) { AppFontScreen() }
