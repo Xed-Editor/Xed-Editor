@@ -1,41 +1,27 @@
-<p align="center">
-  <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Xed-Editor Icon" width="90" height="90"/>
-</p>
+## Xed-Editor
 
-<h2 align="center"><b>Xed-Editor</b></h2>
+<img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Xed-Editor Icon" width="90" height="90" align="left"/>
 
-<div align="center">
-  <img src="https://img.shields.io/github/downloads/Xed-Editor/Xed-Editor/total?label=Downloads" alt="Download Count">
-  <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI">
-</div>
+**Xed-Editor** is a versatile and extensible text editor for Android, featuring syntax highlighting,
+LSP-powered code intelligence, a built-in terminal, extensions, and fast project-wide tools for
+efficient editing.
 
-**Xed-Editor** is a versatile text editor for Android, offering advanced functionality such as
-syntax highlighting, extensive customization options, and a streamlined interface for efficient
-editing.
-
-> **We are looking for contributors/maintainers to help keep the project alive and speed up the
-development. You can help by fixing bugs, implementing & improving features, etc.**
+![Android CI](https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push&style=for-the-badge)
+![Download count](https://img.shields.io/github/downloads/Xed-Editor/Xed-Editor/total?label=Downloads)
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 To learn more about Xed-Editor‘s features and usage, visit the official
 documentation: https://xed-editor.github.io/Xed-Docs/
 
----
-
-## 🌍 Community
-
-> [!TIP]
-> Join the Xed-Editor community to stay updated and engage with other users:
-
-- [Telegram](https://t.me/XedEditor)
-- [Discord](https://discord.gg/6bKzcQRuef)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://t.me/XedEditor)
+[![Telegram](https://img.shields.io/badge/Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://discord.gg/6bKzcQRuef)
 
 ---
 
-## ⬇️ Download
+## Download
 
 <div>
   <a href="https://android.izzysoft.de/repo/apk/com.rk.xededitor">
@@ -56,7 +42,7 @@ documentation: https://xed-editor.github.io/Xed-Docs/
 
 ---
 
-## 📷 Screenshots
+## Screenshots
 
 <div>
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" />
@@ -71,17 +57,18 @@ documentation: https://xed-editor.github.io/Xed-Docs/
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! Please read the [CONTRIBUTING.md](/docs/CONTRIBUTING.md) file to learn how
+We welcome contributions! Please read the [`/docs/CONTRIBUTING.md`](/docs/CONTRIBUTING.md) file to
+learn how
 you can get involved.
 
 ---
 
-## 🌐 Translations
+## Translations
 
-Translate Xed-Editor! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/) to get
-involved:
+Help translate Xed-Editor! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/) to get
+started:
 
 <a href="https://hosted.weblate.org/engage/xed-editor/">
     <img src="https://hosted.weblate.org/widgets/xed-editor/-/multi-auto.svg" alt="Translation Status">
@@ -89,14 +76,7 @@ involved:
 
 ---
 
-## :heart: Find this app useful?
-
-Support it by giving a star :star: <br>
-Also, **__[follow](https://github.com/Rohitkushvaha01)__** me for my next creations!
-
----
-
-## 👥 Contributors
+## Contributors
 
 <a href="https://github.com/Xed-Editor/Xed-Editor/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Xed-Editor/Xed-Editor" />
