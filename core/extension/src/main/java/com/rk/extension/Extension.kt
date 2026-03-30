@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import androidx.compose.runtime.mutableStateMapOf
 import dalvik.system.PathClassLoader
 import java.io.File
+import java.util.Date
+import kotlinx.serialization.Serializable
 
 val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
 
@@ -12,35 +14,78 @@ sealed interface Extension {
     val id: ExtensionId
     val name: String
     val version: String
-    val authors: List<String>
-    val description: String
+    val author: ExtensionAuthor
+    val description: String?
+    val tags: List<String>
     val repository: String
+    val license: String?
+    val iconUrl: String?
+    val readmeUrl: String
+    val changelogUrl: String
+
+    suspend fun calcSize(): Long
+
+    suspend fun getRating(): Float?
+
+    suspend fun getReviews(): List<Review>
+
+    suspend fun getDownloadCount(): Long?
+}
+
+data class Review(val rating: Int, val text: String, val author: String, val date: Date, val authorResponse: String?)
+
+@Serializable
+data class ExtensionAuthor(val displayName: String, val github: String? = null) {
+    override fun toString() = displayName
 }
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
-data class StoreExtension(val info: ExtensionInfo, val verified: Boolean = false) : Extension {
+data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean = false) : Extension {
     override val id
-        get() = info.id
+        get() = manifest.id
 
     override val name
-        get() = info.name
+        get() = manifest.name
 
     override val version
-        get() = info.version
+        get() = manifest.version
 
-    override val authors
-        get() = info.authors
+    override val author
+        get() = manifest.author
 
     override val description
-        get() = info.description
+        get() = manifest.description
+
+    override val tags
+        get() = manifest.tags
 
     override val repository
-        get() = info.repository
+        get() = manifest.repository
+
+    override val license
+        get() = manifest.license
+
+    override val iconUrl
+        get() = ExtensionRegistry.getIconUrl(manifest)
+
+    override val readmeUrl
+        get() = ExtensionRegistry.getReadmeUrl(manifest)
+
+    override val changelogUrl
+        get() = ExtensionRegistry.getChangelogUrl(manifest)
+
+    override suspend fun calcSize() = ExtensionRegistry.calcSize(manifest)
+
+    override suspend fun getRating() = null
+
+    override suspend fun getReviews(): List<Review> = emptyList()
+
+    override suspend fun getDownloadCount() = null
 }
 
 /** Extensions that are installed locally (from disk). */
 data class LocalExtension(
-    val info: ExtensionInfo,
+    val manifest: ExtensionManifest,
 
     // Path where extension is installed
     val installPath: String,
@@ -61,25 +106,65 @@ data class LocalExtension(
     }
 
     override val id
-        get() = info.id
+        get() = manifest.id
 
     override val name
-        get() = info.name
+        get() = manifest.name
 
     override val version
-        get() = info.version
+        get() = manifest.version
 
-    override val authors
-        get() = info.authors
+    override val author
+        get() = manifest.author
 
     override val description
-        get() = info.description
+        get() = manifest.description
+
+    override val tags
+        get() = manifest.tags
 
     override val repository
-        get() = info.repository
+        get() = manifest.repository
+
+    override val license
+        get() = manifest.license
+
+    override val iconUrl
+        get() = manifest.icon?.let { "$installPath/$it" }
+
+    override val readmeUrl
+        get() = "$installPath/README.md"
+
+    override val changelogUrl
+        get() = "$installPath/CHANGELOG.md"
+
+    override suspend fun calcSize(): Long {
+        var totalSize = 0L
+        val stack = ArrayDeque<File>()
+        stack.add(File(installPath))
+
+        loop@ while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            runCatching {
+                if (current.isDirectory()) {
+                    val files = current.listFiles() ?: continue@loop
+                    stack.addAll(files)
+                } else {
+                    totalSize += current.length()
+                }
+            }
+        }
+        return totalSize
+    }
+
+    override suspend fun getRating() = null
+
+    override suspend fun getReviews(): List<Review> = emptyList()
+
+    override suspend fun getDownloadCount() = null
 }
 
-data class UpdatableExtension(val installed: LocalExtension, val availableUpdate: StoreExtension) : Extension {
+data class UpdatableExtension(val installed: LocalExtension, val store: StoreExtension) : Extension {
     override val id
         get() = installed.id
 
@@ -89,14 +174,37 @@ data class UpdatableExtension(val installed: LocalExtension, val availableUpdate
     override val version
         get() = installed.version
 
-    override val authors
-        get() = installed.authors
+    override val author
+        get() = installed.author
 
     override val description
         get() = installed.description
 
+    override val tags
+        get() = installed.tags
+
     override val repository
         get() = installed.repository
+
+    override val license
+        get() = installed.license
+
+    override val iconUrl
+        get() = installed.iconUrl
+
+    override val readmeUrl
+        get() = installed.readmeUrl
+
+    override val changelogUrl
+        get() = installed.changelogUrl
+
+    override suspend fun calcSize() = installed.calcSize()
+
+    override suspend fun getRating() = store.getRating()
+
+    override suspend fun getReviews() = store.getReviews()
+
+    override suspend fun getDownloadCount() = store.getDownloadCount()
 }
 
 fun LocalExtension.classLoader(parent: ClassLoader?) = PathClassLoader(apkFile.absolutePath, parent)

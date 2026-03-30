@@ -38,7 +38,7 @@ import com.rk.commands.ToggleableCommand
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
-import com.rk.settings.ReactiveSettings
+import com.rk.settings.Settings
 import com.rk.terminal.isV
 import com.rk.theme.Typography
 import com.rk.utils.x
@@ -49,7 +49,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    val allActions = ReactiveSettings.toolbarActionIds.split("|").mapNotNull { CommandProvider.getForId(it) }
+    val allActions = Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) }
 
     BoxWithConstraints(modifier = modifier) {
         val itemWidth = 64.dp

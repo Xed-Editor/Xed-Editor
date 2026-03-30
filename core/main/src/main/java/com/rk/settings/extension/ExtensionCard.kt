@@ -2,24 +2,14 @@ package com.rk.settings.extension
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -29,21 +19,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.rk.extension.Extension
-import com.rk.icons.Download
-import com.rk.icons.XedIcons
-import com.rk.resources.strings
-import kotlinx.coroutines.launch
-
-enum class InstallState {
-    Idle,
-    Installing,
-    Installed,
-}
+import com.rk.resources.drawables
+import com.rk.theme.Typography
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -53,111 +38,53 @@ fun ExtensionCard(
     installState: InstallState = InstallState.Idle,
     onInstallClick: suspend (Extension) -> Unit,
     onUninstallClick: suspend (Extension) -> Unit,
-    onLongPress: suspend (Extension) -> Unit = {},
+    onClick: (Extension) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 
     Card(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(vertical = 6.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .combinedClickable(onLongClick = { scope.launch { onLongPress(extension) } }, onClick = {}),
+            modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick = { onClick(extension) }),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(
-                        text = extension.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            AsyncImage(
+                model =
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(extension.iconUrl)
+                        .fallback(drawables.extension)
+                        .crossfade(true)
+                        .diskCachePolicy(CachePolicy.ENABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .build(),
+                modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
+                contentDescription = null,
+            )
 
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = extension.name,
+                    style = Typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
                     Text(
-                        text = "by ${extension.authors.joinToString()}",
-                        style = MaterialTheme.typography.labelMedium,
+                        text = "${extension.author} • v${extension.version}",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = Typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-
-                    Text(
-                        text = "v${extension.version}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                when (installState) {
-                    InstallState.Idle -> {
-                        Button(
-                            onClick = { scope.launch { onInstallClick(extension) } },
-                            shape = RoundedCornerShape(10.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                        ) {
-                            Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(strings.install))
-                        }
-                    }
-
-                    InstallState.Installing -> {
-                        Button(
-                            onClick = {},
-                            enabled = false,
-                            shape = RoundedCornerShape(10.dp),
-                            colors =
-                                ButtonDefaults.buttonColors(disabledContentColor = MaterialTheme.colorScheme.onSurface),
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(strings.installing))
-                        }
-                    }
-
-                    InstallState.Installed -> {
-                        Button(
-                            onClick = { scope.launch { onUninstallClick(extension) } },
-                            shape = RoundedCornerShape(10.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                            colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError,
-                                ),
-                        ) {
-                            Icon(
-                                Icons.Outlined.Delete,
-                                contentDescription = stringResource(strings.delete),
-                                Modifier.size(18.dp),
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(strings.uninstall))
-                        }
-                    }
                 }
             }
 
-            Spacer(Modifier.height(10.dp))
-
-            Text(
-                text = extension.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            ExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick)
         }
     }
 }

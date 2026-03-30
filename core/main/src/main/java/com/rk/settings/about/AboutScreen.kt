@@ -3,11 +3,10 @@ package com.rk.settings.about
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,20 +14,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
-import coil.request.CachePolicy
-import coil.request.ImageRequest
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.copyToClipboard
@@ -42,43 +42,31 @@ import org.json.JSONObject
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AboutScreen() {
-    val packageInfo = LocalContext.current.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
+    val context = LocalContext.current
+    val pm = context.packageManager
+    val appIcon = pm.getApplicationIcon(context.packageName)
+    val packageInfo = pm.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName
     val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
-    val context = LocalContext.current
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
-        PreferenceGroup(heading = stringResource(strings.developer)) {
-            SettingsToggle(
-                label = "RohitKushvaha01",
-                description = stringResource(strings.view_github_profile),
-                default = false,
-                sideEffect = {
-                    val url = "https://github.com/RohitKushvaha01"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
-                    context.startActivity(intent)
-                },
-                showSwitch = false,
-                startWidget = {
-                    AsyncImage(
-                        model =
-                            ImageRequest.Builder(LocalContext.current)
-                                .data("https://github.com/RohitKushvaha01.png")
-                                .crossfade(true)
-                                .diskCachePolicy(CachePolicy.ENABLED)
-                                .memoryCachePolicy(CachePolicy.ENABLED)
-                                .build(),
-                        contentDescription = "GitHub Avatar",
-                        modifier = Modifier.padding(start = 16.dp).size(26.dp).clip(CircleShape),
-                    )
-                },
-                endWidget = {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null,
-                    )
-                },
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+            AsyncImage(
+                model = appIcon,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp).padding(bottom = 8.dp),
+            )
+
+            Text(
+                text = stringResource(strings.app_name),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Text(
+                text = versionName.toString().uppercase(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
             )
         }
 
@@ -168,7 +156,7 @@ fun AboutScreen() {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
@@ -188,7 +176,7 @@ fun AboutScreen() {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
@@ -208,7 +196,7 @@ fun AboutScreen() {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },

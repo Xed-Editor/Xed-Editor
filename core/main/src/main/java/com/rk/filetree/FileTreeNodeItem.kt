@@ -36,7 +36,7 @@ import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
 import com.rk.file.FileObject
 import com.rk.resources.drawables
-import com.rk.settings.ReactiveSettings
+import com.rk.settings.Settings
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
@@ -51,7 +51,7 @@ fun FileTreeNodeItem(
     viewModel: FileTreeViewModel,
 ) {
     val isHidden = node.file.getName().startsWith(".")
-    if (isHidden && !ReactiveSettings.showHiddenFilesDrawer) return
+    if (isHidden && !Settings.show_hidden_files_drawer) return
 
     val isExpanded = viewModel.isNodeExpanded(node.file)
     val horizontalPadding = (depth * 16).dp
@@ -85,14 +85,14 @@ fun FileTreeNodeItem(
     var displayedChildren by remember { mutableStateOf(children) }
     var displayName by remember { mutableStateOf(node.name) }
 
-    LaunchedEffect(children, ReactiveSettings.compactFoldersDrawer) {
+    LaunchedEffect(children, Settings.compact_folders_drawer) {
         displayedChildren =
-            if (ReactiveSettings.compactFoldersDrawer && children.size == 1 && children[0].isDirectory) {
+            if (Settings.compact_folders_drawer && children.size == 1 && children[0].isDirectory) {
                 val collapsedNode = viewModel.collapseNode(node)
                 viewModel.getNodeChildren(collapsedNode)
             } else children
         displayName =
-            if (ReactiveSettings.compactFoldersDrawer) {
+            if (Settings.compact_folders_drawer) {
                 viewModel.getCollapsedName(node)
             } else node.name
     }

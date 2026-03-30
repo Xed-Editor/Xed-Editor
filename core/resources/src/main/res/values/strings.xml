@@ -158,7 +158,7 @@
     <string name="value_empty_err">Value cannot be empty</string>
     <string name="installing">Installing…</string>
     <string name="install_from_storage">Install from storage</string>
-    <string name="no_ext">No extension installed.</string>
+    <string name="no_ext">No extensions found.</string>
     <string name="loading">Loading…</string>
     <string name="info_ext">Extensions can be used to modify the behavior and features of Xed-Editor. To learn how to build an extension, click here.</string>
     <string name="downloading">Downloading…</string>
@@ -499,7 +499,7 @@
     <string name="last_modified">Last modified</string>
     <string name="content_property">%s items, totaling %s</string>
     <string name="icon_pack_install_failed">Icon pack installation failed</string>
-    <string name="icon_pack_missing_fields">The manifest.json file has missing or invalid properties:\n%s\n\nPlease check the file and try again.</string>
+    <string name="manifest_missing_fields">The manifest.json file has missing or invalid properties:\n%s\n\nPlease check the file and try again.</string>
     <string name="manifest_missing">The manifest.json file is missing. Please add it and try again.</string>
     <string name="outdated_extension">This extension was made for an older version of Xed-Editor. Please ask the developer for an update.</string>
     <string name="outdated_client">Your Xed-Editor is out of date. Please update to the latest version to use this extension.</string>
@@ -611,4 +611,28 @@
     <string name="manage_app_font">Manage application fonts</string>
     <string name="manage_terminal_font">Manage terminal fonts</string>
     <string name="terminal_font_warning">The terminal font file at \'etc/font.ttf\' overrides the custom font set below. Delete the file in the terminal sandbox to apply the custom fonts.</string>
+    <string name="ext_not_found">Extension not found</string>
+    <string name="ext_not_found_desc">This page is not available. This can happen if a local extension has been uninstalled or a store extension has been removed from the registry by its owner.</string>
+    <string name="downloads">Downloads</string>
+    <string name="rating">Rating</string>
+    <string name="overview">Overview</string>
+    <string name="reviews">Reviews</string>
+    <string name="changelog">Changelog</string>
+    <string name="empty_err">Nothing to see here … yet.</string>
+    <string name="all">All</string>
+    <string name="local">Local</string>
+    <string name="store">Store</string>
+    <string name="search_extensions">Search extensions</string>
+    <string name="date_added">Date added</string>
+    <string name="verified">Verified</string>
+    <string name="filter_options">Filter options</string>
+    <string name="sort_options">Sort options</string>
+    <string name="source_code">Source code</string>
+    <string name="ext_source_desc">This extension is open-source. Contributions and bug reports are welcome on the official repository.</string>
+    <string name="ext_source_desc_license">This extension is open-source and released under the %s license. Contributions and bug reports are welcome on the official repository.</string>
+    <string name="view_github">View on GitHub</string>
+    <string name="view_gitlab">View on GitLab</string>
+    <string name="view_bitbucket">View on BitBucket</string>
+    <string name="view_repo">View repository</string>
+    <string name="reviews_not_supported">Reviews are not supported for this extension.</string>
 </resources>

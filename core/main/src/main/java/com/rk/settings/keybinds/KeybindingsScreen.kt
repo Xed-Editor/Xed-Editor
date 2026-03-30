@@ -13,11 +13,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -41,7 +49,6 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -61,11 +68,12 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.Typography
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KeybindingsScreen() {
     var editCommandKeybinds by remember { mutableStateOf<Command?>(null) }
     var refreshTrigger by remember { mutableIntStateOf(0) }
-    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+    val searchQuery = rememberTextFieldState("")
 
     val commands = CommandProvider.commandList
     val filteredCommands =
@@ -99,10 +107,7 @@ fun KeybindingsScreen() {
         item { InfoBlock(text = stringResource(id = strings.keybinds_info)) }
 
         item {
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                maxLines = 1,
+            SearchBarDefaults.InputField(
                 modifier =
                     Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
                         .fillMaxWidth()
@@ -115,14 +120,20 @@ fun KeybindingsScreen() {
                             if (!keyCombination.ctrl && !keyCombination.alt && !keyCombination.shift) {
                                 return@onPreviewKeyEvent false
                             }
-                            searchQuery =
-                                searchQuery.copy(
-                                    text = keyCombination.getDisplayName(),
-                                    selection = TextRange(searchQuery.text.length),
-                                )
+
+                            searchQuery.setTextAndPlaceCursorAtEnd(keyCombination.getDisplayName())
                             return@onPreviewKeyEvent true
                         },
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+                state = searchQuery,
+                leadingIcon = { Icon(Icons.Rounded.Search, null) },
+                trailingIcon = {
+                    IconButton({ searchQuery.clearText() }) {
+                        Icon(imageVector = Icons.Rounded.Close, contentDescription = stringResource(strings.close))
+                    }
+                },
+                onSearch = {},
+                expanded = false,
+                onExpandedChange = {},
                 placeholder = { Text(stringResource(strings.search_keybinds)) },
             )
         }
@@ -133,7 +144,11 @@ fun KeybindingsScreen() {
                     derivedStateOf { KeybindingsManager.getKeyCombinationForCommand(command.id) }
                 }
             Box(modifier = Modifier.animateItem()) {
-                KeybindItem(command = command, keyCombination = keyCombination, searchQuery = searchQuery.text) {
+                KeybindItem(
+                    command = command,
+                    keyCombination = keyCombination,
+                    searchQuery = searchQuery.text.toString(),
+                ) {
                     editCommandKeybinds = it
                 }
             }

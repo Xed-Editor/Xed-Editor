@@ -14,7 +14,6 @@ import com.rk.activities.main.MainViewModel
 import com.rk.file.FileObject
 import com.rk.file.toFileWrapper
 import com.rk.settings.Preference
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.editor.LineEnding
 import com.rk.tabs.editor.EditorTab
@@ -46,7 +45,7 @@ class SearchViewModel : ViewModel() {
     var showFileMaskDialog by mutableStateOf(false)
     var fileMaskText by mutableStateOf(Settings.file_mask)
     var fileMask = derivedStateOf { parseExtensions(fileMaskText) }
-    private val excluder by derivedStateOf { GlobExcluder(ReactiveSettings.excludedFilesSearch) }
+    private val excluder by derivedStateOf { GlobExcluder(Settings.excluded_files_search) }
 
     var isSearchingCode by mutableStateOf(false)
     val codeSearchResults = mutableStateListOf<CodeItem>()

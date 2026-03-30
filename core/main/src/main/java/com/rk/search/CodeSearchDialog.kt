@@ -48,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,7 +80,7 @@ fun CodeSearchDialog(
 ) {
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
-    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
+    val viewportHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
 
     LaunchedEffect(
         searchViewModel.isIndexing(projectFile),
@@ -114,7 +115,7 @@ fun CodeSearchDialog(
     }
 
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
-        Column(modifier = Modifier.animateContentSize().height(screenHeight * 0.8f)) {
+        Column(modifier = Modifier.animateContentSize().height(viewportHeight * 0.8f)) {
             TextField(
                 value = searchViewModel.codeSearchQuery,
                 onValueChange = { searchViewModel.codeSearchQuery = it },

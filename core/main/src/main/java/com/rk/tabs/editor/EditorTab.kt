@@ -53,7 +53,6 @@ import com.rk.resources.strings
 import com.rk.runner.currentRunner
 import com.rk.search.EditorSearchPanel
 import com.rk.search.FindingsDialog
-import com.rk.settings.ReactiveSettings
 import com.rk.settings.Settings
 import com.rk.settings.editor.refreshEditorSettings
 import com.rk.settings.support.handleSupport
@@ -478,7 +477,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     },
                 )
 
-                if (ReactiveSettings.showExtraKeys) {
+                if (Settings.show_extra_keys) {
                     ExtraKeys(editorTab = this@EditorTab)
                 }
 

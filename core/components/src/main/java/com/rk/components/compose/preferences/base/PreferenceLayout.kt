@@ -20,10 +20,15 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
@@ -81,6 +86,114 @@ fun PreferenceLayout(
     }
 }
 
+@Composable
+fun RefreshablePreferenceLayout(
+    label: String,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
+    backArrowVisible: Boolean = true,
+    isExpandedScreen: Boolean = LocalIsExpandedScreen.current,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    scrollState: ScrollState? = rememberScrollState(),
+    fab: (@Composable () -> Unit) = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    bottomBar: @Composable () -> Unit = { BottomSpacer() },
+    snackbarHost: @Composable () -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val state = rememberPullToRefreshState()
+    val stretchEnabled = !isRefreshing && state.distanceFraction == 0f
+
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        state = state,
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                state = state,
+                isRefreshing = isRefreshing,
+                modifier =
+                    Modifier.align(Alignment.TopCenter).padding(top = TopAppBarDefaults.MediumAppBarExpandedHeight),
+            )
+        },
+    ) {
+        PreferenceScaffold(
+            modifier = modifier,
+            backArrowVisible = backArrowVisible,
+            label = label,
+            isExpandedScreen = isExpandedScreen,
+            actions = actions,
+            bottomBar = bottomBar,
+            fab = fab,
+            snackbarHost = snackbarHost,
+        ) {
+            PreferenceColumn(
+                contentPadding = it,
+                verticalArrangement = verticalArrangement,
+                horizontalAlignment = horizontalAlignment,
+                scrollState = scrollState,
+                stretchEnabled = stretchEnabled,
+                content = content,
+            )
+        }
+    }
+}
+
+@Composable
+fun RefreshablePreferenceLayoutLazyColumn(
+    label: String,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier,
+    backArrowVisible: Boolean = true,
+    isExpandedScreen: Boolean = LocalIsExpandedScreen.current,
+    enabled: Boolean = true,
+    lazyListState: LazyListState = rememberLazyListState(),
+    fab: (@Composable () -> Unit) = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    bottomBar: @Composable () -> Unit = { BottomSpacer() },
+    snackbarHost: @Composable () -> Unit = {},
+    content: LazyListScope.() -> Unit,
+) {
+    val state = rememberPullToRefreshState()
+    val stretchEnabled = !isRefreshing && state.distanceFraction == 0f
+
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        state = state,
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                state = state,
+                isRefreshing = isRefreshing,
+                modifier =
+                    Modifier.align(Alignment.TopCenter).padding(top = TopAppBarDefaults.MediumAppBarExpandedHeight),
+            )
+        },
+    ) {
+        PreferenceScaffold(
+            backArrowVisible = backArrowVisible,
+            label = label,
+            isExpandedScreen = isExpandedScreen,
+            actions = actions,
+            bottomBar = bottomBar,
+            fab = fab,
+            snackbarHost = snackbarHost,
+        ) {
+            PreferenceLazyColumn(
+                contentPadding = it,
+                modifier = modifier,
+                enabled = enabled,
+                state = lazyListState,
+                stretchEnabled = stretchEnabled,
+                content = content,
+            )
+        }
+    }
+}
+
 /**
  * Represents the layout of all Preference screens. This composable only composes and lays out the currently visible
  * items. Uses a combination of [PreferenceScaffold] and [PreferenceLazyColumn] to represent the layout.
@@ -89,7 +202,7 @@ fun PreferenceLayout(
  * @param modifier the [Modifier] to apply at [PreferenceLazyColumn]
  * @param enabled whether the layout allows user input or not
  * @param backArrowVisible whether to show the back arrow or not
- * @param state the state object to be used to control or observe the list's state
+ * @param lazyListState the state object to be used to control or observe the list's state
  * @param actions what content to show at the top-right of the layout
  * @param content the actual content
  * @see [PreferenceLayout]
@@ -100,11 +213,13 @@ fun PreferenceLayout(
 fun PreferenceLayoutLazyColumn(
     label: String,
     modifier: Modifier = Modifier,
+    backArrowVisible: Boolean = true,
     isExpandedScreen: Boolean = LocalIsExpandedScreen.current,
     enabled: Boolean = true,
-    backArrowVisible: Boolean = true,
-    state: LazyListState = rememberLazyListState(),
+    lazyListState: LazyListState = rememberLazyListState(),
+    fab: (@Composable () -> Unit) = {},
     actions: @Composable RowScope.() -> Unit = {},
+    bottomBar: @Composable () -> Unit = { BottomSpacer() },
     snackbarHost: @Composable () -> Unit = {},
     content: LazyListScope.() -> Unit,
 ) {
@@ -113,13 +228,15 @@ fun PreferenceLayoutLazyColumn(
         label = label,
         isExpandedScreen = isExpandedScreen,
         actions = actions,
+        bottomBar = bottomBar,
+        fab = fab,
         snackbarHost = snackbarHost,
     ) {
         PreferenceLazyColumn(
             contentPadding = it,
             modifier = modifier,
             enabled = enabled,
-            state = state,
+            state = lazyListState,
             content = content,
         )
     }

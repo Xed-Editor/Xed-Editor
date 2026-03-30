@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -63,9 +64,9 @@ fun FileSearchDialog(
         searchViewModel.launchFileSearch(context, projectFile)
     }
 
-    val screenHeight = LocalWindowInfo.current.containerSize.height.dp
+    val viewportHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
-        Column(modifier = Modifier.animateContentSize().height(screenHeight * 0.8f)) {
+        Column(modifier = Modifier.animateContentSize().height(viewportHeight * 0.8f)) {
             TextField(
                 value = searchViewModel.fileSearchQuery,
                 onValueChange = { searchViewModel.fileSearchQuery = it },

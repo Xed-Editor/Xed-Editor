@@ -6,8 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -80,7 +78,7 @@ fun Support(modifier: Modifier = Modifier) {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
@@ -107,7 +105,7 @@ fun Support(modifier: Modifier = Modifier) {
                 endWidget = {
                     Icon(
                         modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        painter = painterResource(drawables.open_in_new),
                         contentDescription = null,
                     )
                 },
@@ -136,7 +134,7 @@ fun Support(modifier: Modifier = Modifier) {
                     endWidget = {
                         Icon(
                             modifier = Modifier.padding(16.dp),
-                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            painter = painterResource(drawables.open_in_new),
                             contentDescription = null,
                         )
                     },

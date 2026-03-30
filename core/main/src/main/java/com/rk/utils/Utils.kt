@@ -42,7 +42,9 @@ import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.filetree.FileTreeViewModel
 import com.rk.git.ChangeType
+import com.rk.resources.getQuantityString
 import com.rk.resources.getString
+import com.rk.resources.plurals
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
@@ -55,6 +57,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -429,12 +432,43 @@ fun formatFileSize(bytes: Long): String {
     return String.format(Locale.getDefault(), "%.1f GB", gb)
 }
 
+fun formatNumberCompact(number: Long): String {
+    val suffix = listOf("", "k", "m", "b", "t")
+    var r = DecimalFormat("##0E0").format(number)
+    r = r.replace("E[0-9]".toRegex(), suffix[Character.getNumericValue(r[r.length - 1]) / 3])
+    while (r.length > 4 || r.matches("[0-9]+\\.[a-z]".toRegex())) {
+        r = r.substring(0, r.length - 2) + r.substring(r.length - 1)
+    }
+    return r
+}
+
 @Composable
 fun rememberNumberFormatter(): NumberFormat {
-    return remember { NumberFormat.getInstance() }
+    return remember { NumberFormat.getNumberInstance() }
 }
 
 /** Parses a string of comma or space-separated file extensions into a uniform list of extensions (without the dot). */
 fun parseExtensions(input: String): List<String> {
     return input.split(",", " ").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
+}
+
+fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
+    if (startTimeMillis == -1L) return null
+
+    val diff = (currentTimeMillis - startTimeMillis)
+    if (diff < 0) return null
+
+    val seconds = (diff / 1000).toInt()
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    val days = hours / 24
+
+    if (seconds < 1) return strings.time_just_now.getString()
+
+    return when {
+        seconds < 60 -> plurals.time_seconds_ago.getQuantityString(seconds, seconds)
+        minutes < 60 -> plurals.time_minutes_ago.getQuantityString(minutes, minutes)
+        hours < 24 -> plurals.time_hours_ago.getQuantityString(hours, hours)
+        else -> plurals.time_days_ago.getQuantityString(days, days)
+    }
 }

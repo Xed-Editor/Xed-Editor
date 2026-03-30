@@ -18,7 +18,7 @@ fun LocalExtension.load(application: Application) = run {
         } catch (err: Exception) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to create ClassLoader for extension '${info.name}'. Details: ${err.message}",
+                    "Failed to create ClassLoader for extension '${manifest.name}'. Details: ${err.message}",
                     err,
                 )
             )
@@ -27,13 +27,13 @@ fun LocalExtension.load(application: Application) = run {
     if (isMainThread()) {
         return@run Result.failure(
             RuntimeException(
-                "Attempted to load extension '${info.name}' on the main thread. Extension loading must be performed on a background thread."
+                "Attempted to load extension '${manifest.name}' on the main thread. Extension loading must be performed on a background thread."
             )
         )
     }
 
-    val minAppVersion = info.minAppVersion
-    val maxAppVersion = info.targetAppVersion
+    val minAppVersion = manifest.minAppVersion
+    val maxAppVersion = manifest.targetAppVersion
 
     val xedVersionCode =
         PackageInfoCompat.getLongVersionCode(application.packageManager.getPackageInfo(application.packageName, 0))
@@ -41,18 +41,18 @@ fun LocalExtension.load(application: Application) = run {
     if (!(minAppVersion <= xedVersionCode && maxAppVersion <= xedVersionCode)) {
         return@run Result.failure(
             RuntimeException(
-                "Extension '${info.name}' (${info.version}) is not compatible with this version of Xed-Editor (min: $minAppVersion, max: $maxAppVersion, Xed-Editor: $xedVersionCode)"
+                "Extension '${manifest.name}' (${manifest.version}) is not compatible with this version of Xed-Editor (min: $minAppVersion, max: $maxAppVersion, Xed-Editor: $xedVersionCode)"
             )
         )
     }
 
     val mainClassInstance =
         try {
-            classLoader.loadClass(info.mainClass)
+            classLoader.loadClass(manifest.mainClass)
         } catch (err: Exception) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to load main class '${info.mainClass}' for extension '${info.name}'. Details: ${err.message}",
+                    "Failed to load main class '${manifest.mainClass}' for extension '${manifest.name}'. Details: ${err.message}",
                     err,
                 )
             )
@@ -63,7 +63,7 @@ fun LocalExtension.load(application: Application) = run {
             mainClassInstance.getDeclaredConstructor().newInstance() as? ExtensionAPI
                 ?: return@run Result.failure(
                     RuntimeException(
-                        "Failed to instantiate main class '${mainClassInstance.name}' for extension '${info.name}'. The class could not be cast to ExtensionAPI. Ensure it implements the ExtensionAPI interface and has a public no-argument constructor."
+                        "Failed to instantiate main class '${mainClassInstance.name}' for extension '${manifest.name}'. The class could not be cast to ExtensionAPI. Ensure it implements the ExtensionAPI interface and has a public no-argument constructor."
                     )
                 )
 
@@ -72,21 +72,21 @@ fun LocalExtension.load(application: Application) = run {
         } catch (err: ClassNotFoundException) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to initialize extension '${info.name}': A required class was not found. This might indicate a missing dependency or an issue with the extension's packaging. Details: ${err.message}",
+                    "Failed to initialize extension '${manifest.name}': A required class was not found. This might indicate a missing dependency or an issue with the extension's packaging. Details: ${err.message}",
                     err,
                 )
             )
         } catch (err: NoClassDefFoundError) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to initialize extension '${info.name}': A class definition was not found. This usually means a class was available at compile time but is missing at runtime. Check the extension's dependencies. Details: ${err.message}",
+                    "Failed to initialize extension '${manifest.name}': A class definition was not found. This usually means a class was available at compile time but is missing at runtime. Check the extension's dependencies. Details: ${err.message}",
                     err,
                 )
             )
         } catch (err: Exception) {
             return@run Result.failure(
                 RuntimeException(
-                    "Failed to initialize extension '${info.name}': An unexpected error occurred during the onExtensionLoaded call. Details: ${err.message}",
+                    "Failed to initialize extension '${manifest.name}': An unexpected error occurred during the onExtensionLoaded call. Details: ${err.message}",
                     err,
                 )
             )
@@ -97,15 +97,15 @@ fun LocalExtension.load(application: Application) = run {
     } else {
         Result.failure(
             RuntimeException(
-                "The main class '${info.mainClass}' of extension '${info.name}' does not implement the ExtensionAPI interface. Please ensure the main class correctly implements this interface."
+                "The main class '${manifest.mainClass}' of extension '${manifest.name}' does not implement the ExtensionAPI interface. Please ensure the main class correctly implements this interface."
             )
         )
     }
 }
 
-suspend fun ExtensionManager.installExtension(fileObject: FileObject) = run {
+suspend fun ExtensionManager.installExtensionFromZip(fileObject: FileObject) = run {
     val file = fileObject.copyToTempDir()
-    installExtension(file).also { file.delete() }
+    installExtensionFromZip(file).also { file.delete() }
 }
 
 suspend fun ExtensionManager.loadAllExtensions() =

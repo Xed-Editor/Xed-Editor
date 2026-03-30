@@ -36,16 +36,16 @@ object ExtensionRegistry {
                                     ?: fetchRawFile(extensionFileInfo)
                                     ?: return@mapNotNull null
 
-                            val extensionInfo = Gson().fromJson(decoded, ExtensionInfo::class.java)
+                            val extensionManifest = Gson().fromJson(decoded, ExtensionManifest::class.java)
 
                             cache[extensionPath] =
                                 CachedExtension(
                                     sha = extensionFileInfo.sha,
-                                    metadata = extensionInfo,
+                                    metadata = extensionManifest,
                                     lastFetched = System.currentTimeMillis(),
                                 )
 
-                            extensionInfo
+                            extensionManifest
                         } catch (err: Exception) {
                             Log.w(TAG, "Failed to fetch extension ${extDir.name}: ${err.message}")
                             null
@@ -74,4 +74,14 @@ object ExtensionRegistry {
                 }
             }
         }
+
+    fun getIconUrl(manifest: ExtensionManifest) = manifest.icon?.let { GitHubApi.getRawUrl("${manifest.id}/$it") }
+
+    fun getReadmeUrl(manifest: ExtensionManifest) = GitHubApi.getRawUrl("${manifest.id}/README.md")
+
+    fun getChangelogUrl(manifest: ExtensionManifest) = GitHubApi.getRawUrl("${manifest.id}/CHANGELOG.md")
+
+    suspend fun calcSize(manifest: ExtensionManifest): Long {
+        return GitHubApi.fetchContents("extensions/${manifest.id}").sumOf { it.size.toLong() }
+    }
 }
