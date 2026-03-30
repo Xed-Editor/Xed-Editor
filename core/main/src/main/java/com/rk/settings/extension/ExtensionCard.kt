@@ -4,20 +4,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
@@ -28,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,19 +27,8 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.extension.Extension
-import com.rk.icons.Download
-import com.rk.icons.XedIcons
 import com.rk.resources.drawables
-import com.rk.resources.strings
 import com.rk.theme.Typography
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-
-enum class InstallState {
-    Idle,
-    Installing,
-    Installed,
-}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -105,63 +85,6 @@ fun ExtensionCard(
             }
 
             ExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick)
-        }
-    }
-}
-
-@Composable
-fun ExtensionActionButton(
-    extension: Extension,
-    installState: InstallState,
-    scope: CoroutineScope,
-    onInstallClick: suspend (Extension) -> Unit,
-    onUninstallClick: suspend (Extension) -> Unit,
-) {
-    when (installState) {
-        InstallState.Idle -> {
-            Button(
-                onClick = { scope.launch { onInstallClick(extension) } },
-                shape = RoundedCornerShape(10.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-            ) {
-                Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(strings.install))
-            }
-        }
-
-        InstallState.Installing -> {
-            Button(
-                onClick = {},
-                enabled = false,
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(disabledContentColor = MaterialTheme.colorScheme.onSurface),
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(16.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(strings.installing))
-            }
-        }
-
-        InstallState.Installed -> {
-            Button(
-                onClick = { scope.launch { onUninstallClick(extension) } },
-                shape = RoundedCornerShape(10.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                    ),
-            ) {
-                Icon(Icons.Outlined.Delete, contentDescription = stringResource(strings.delete), Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(strings.uninstall))
-            }
         }
     }
 }

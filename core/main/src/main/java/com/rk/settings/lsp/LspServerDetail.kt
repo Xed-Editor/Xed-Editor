@@ -1,6 +1,5 @@
 package com.rk.settings.lsp
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -31,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -46,30 +43,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavHostController
-import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.snackbarHostStateRef
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.filetree.getAppropriateName
 import com.rk.lsp.DefinitionPrevention
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspServer
-import com.rk.lsp.LspServerInstance
-import com.rk.lsp.StatusIcon
-import com.rk.lsp.getStatusColor
-import com.rk.lsp.getStatusText
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
-import com.rk.resources.getQuantityString
 import com.rk.resources.getString
-import com.rk.resources.plurals
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 enum class LspInstallationAction {
@@ -226,7 +214,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
                         DefinitionPrevention.isServerPrevented(it.lspProject, it.server)
                 }
             if (visibleInstances.isNotEmpty()) {
-                visibleInstances.forEach { instance -> InstanceCard(instance, navController) }
+                visibleInstances.forEach { instance -> LspInstanceCard(instance, navController) }
             } else {
                 Surface(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -309,129 +297,4 @@ private fun showRestartRequirement(scope: CoroutineScope, server: LspServer) {
                 server.restartAllInstances()
             }
         }
-}
-
-@Composable
-private fun InstanceCard(instance: LspServerInstance, navController: NavHostController) {
-    val scope = rememberCoroutineScope()
-
-    Surface(
-        modifier =
-            Modifier.fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .clickable(
-                    onClick = {
-                        navController.navigate(
-                            "${SettingsRoutes.LspServerLogs.route}/${instance.server.id}/${instance.id}"
-                        )
-                    }
-                ),
-        shape = MaterialTheme.shapes.large,
-        tonalElevation = 1.dp,
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(text = instance.projectRoot.getAppropriateName(), style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        text = instance.projectRoot.getAbsolutePath(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                instance.StatusIcon()
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(strings.status_info).fillPlaceholders(instance.getStatusText()),
-                style = MaterialTheme.typography.bodyMedium,
-                color = instance.getStatusColor() ?: MaterialTheme.colorScheme.onSurface,
-            )
-
-            var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-            LaunchedEffect(Unit) {
-                while (true) {
-                    delay(1000)
-                    now = System.currentTimeMillis()
-                }
-            }
-
-            val uptime = timeAgo(now, instance.startupTime) ?: strings.offline.getString()
-            Text(
-                text = stringResource(strings.uptime).fillPlaceholders(uptime),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row {
-                Button(
-                    onClick = {
-                        navController.navigate(
-                            "${SettingsRoutes.LspServerLogs.route}/${instance.server.id}/${instance.id}"
-                        )
-                    }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(painter = painterResource(drawables.eye), contentDescription = null)
-                        Text(text = stringResource(strings.view_logs))
-                    }
-                }
-
-                val isRunning =
-                    instance.status != LspConnectionStatus.NOT_RUNNING &&
-                        instance.status != LspConnectionStatus.CRASHED &&
-                        instance.status != LspConnectionStatus.TIMEOUT
-                if (isRunning) {
-                    IconButton(onClick = { scope.launch { instance.restart() } }) {
-                        Icon(
-                            painter = painterResource(drawables.restart),
-                            contentDescription = stringResource(strings.restart),
-                        )
-                    }
-                } else {
-                    IconButton(onClick = { scope.launch { instance.start() } }) {
-                        Icon(painter = painterResource(drawables.run), contentDescription = stringResource(strings.run))
-                    }
-                }
-
-                IconButton(onClick = { scope.launch { instance.stop() } }, enabled = isRunning) {
-                    Icon(painter = painterResource(drawables.stop), contentDescription = stringResource(strings.stop))
-                }
-            }
-        }
-    }
-}
-
-private fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
-    if (startTimeMillis == -1L) return null
-
-    val diff = (currentTimeMillis - startTimeMillis)
-    if (diff < 0) return null
-
-    val seconds = (diff / 1000).toInt()
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    val days = hours / 24
-
-    if (seconds < 1) return strings.time_just_now.getString()
-
-    return when {
-        seconds < 60 -> plurals.time_seconds_ago.getQuantityString(seconds, seconds)
-        minutes < 60 -> plurals.time_minutes_ago.getQuantityString(minutes, minutes)
-        hours < 24 -> plurals.time_hours_ago.getQuantityString(hours, hours)
-        else -> plurals.time_days_ago.getQuantityString(days, days)
-    }
 }
