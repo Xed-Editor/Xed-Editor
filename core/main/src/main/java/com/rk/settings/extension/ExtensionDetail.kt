@@ -145,7 +145,7 @@ private fun AboutSection(
         }
 
         IconButton(onClick = { showSourceCodeSheet = true }) {
-            Icon(painter = painterResource(drawables.ic_language_xml), contentDescription = null)
+            Icon(painter = painterResource(drawables.xml), contentDescription = null)
         }
 
         ExtensionActionButton(

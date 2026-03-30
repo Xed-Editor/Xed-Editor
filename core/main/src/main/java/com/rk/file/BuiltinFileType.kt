@@ -7,20 +7,20 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 
 private val java = drawables.java
-private val html = drawables.ic_language_html
-private val kotlin = drawables.ic_language_kotlin
-private val python = drawables.ic_language_python
-private val xml = drawables.ic_language_xml
-private val js = drawables.ic_language_js
+private val html = drawables.html
+private val kotlin = drawables.kotlin
+private val python = drawables.python
+private val xml = drawables.xml
+private val js = drawables.javascript
 private val ts = drawables.typescript
 private val lua = drawables.lua
 private val extension = drawables.extension
 private val prop = drawables.settings
-private val c = drawables.ic_language_c
-private val cpp = drawables.ic_language_cpp
-private val json = drawables.ic_language_json
-private val css = drawables.ic_language_css
-private val csharp = drawables.ic_language_csharp
+private val c = drawables.c
+private val cpp = drawables.cpp
+private val json = drawables.json
+private val css = drawables.css
+private val csharp = drawables.csharp
 private val shell = drawables.bash
 private val apk = drawables.apk_document
 private val archive = drawables.archive
