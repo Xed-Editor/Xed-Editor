@@ -31,11 +31,9 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-
     implementation(libs.gson)
     implementation(libs.okhttp)
     implementation(libs.androidx.compose.runtime)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.espresso)

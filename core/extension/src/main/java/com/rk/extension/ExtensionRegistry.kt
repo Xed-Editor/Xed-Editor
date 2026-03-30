@@ -80,4 +80,8 @@ object ExtensionRegistry {
     fun getReadmeUrl(manifest: ExtensionManifest) = GitHubApi.getRawUrl("${manifest.id}/README.md")
 
     fun getChangelogUrl(manifest: ExtensionManifest) = GitHubApi.getRawUrl("${manifest.id}/CHANGELOG.md")
+
+    suspend fun calcSize(manifest: ExtensionManifest): Long {
+        return GitHubApi.fetchContents("extensions/${manifest.id}").sumOf { it.size.toLong() }
+    }
 }

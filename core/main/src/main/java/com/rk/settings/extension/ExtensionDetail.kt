@@ -36,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -67,6 +68,8 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.Typography
+import com.rk.utils.formatFileSize
+import com.rk.utils.formatNumberCompact
 import io.github.rosemoe.sora.lsp.editor.text.SimpleMarkdownRenderer
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -168,10 +171,16 @@ private fun AboutSection(
         )
     }
 
+    val size by produceState("---") { value = formatFileSize(extension.calcSize()) }
+    val downloadCount by
+        produceState("---") {
+            val count = extension.getDownloadCount() ?: return@produceState
+            value = formatNumberCompact(count)
+        }
     Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), "1.2M")
+        ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
         ExtensionStats(Modifier.weight(1f), stringResource(strings.rating).uppercase(), "4.8", Icons.Default.Star)
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), "3.71KB")
+        ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
     }
 }
 

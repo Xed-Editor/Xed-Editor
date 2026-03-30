@@ -19,6 +19,10 @@ sealed interface Extension {
     val iconUrl: String?
     val readmeUrl: String
     val changelogUrl: String
+
+    suspend fun calcSize(): Long
+
+    suspend fun getDownloadCount(): Long?
 }
 
 data class ExtensionAuthor(val name: String, val github: String? = null) {
@@ -56,6 +60,10 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
 
     override val changelogUrl
         get() = ExtensionRegistry.getChangelogUrl(manifest)
+
+    override suspend fun calcSize() = ExtensionRegistry.calcSize(manifest)
+
+    override suspend fun getDownloadCount() = null
 }
 
 /** Extensions that are installed locally (from disk). */
@@ -109,9 +117,30 @@ data class LocalExtension(
 
     override val changelogUrl
         get() = "$installPath/CHANGELOG.md"
+
+    override suspend fun calcSize(): Long {
+        var totalSize = 0L
+        val stack = ArrayDeque<File>()
+        stack.add(File(installPath))
+
+        loop@ while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            runCatching {
+                if (current.isDirectory()) {
+                    val files = current.listFiles() ?: continue@loop
+                    stack.addAll(files)
+                } else {
+                    totalSize += current.length()
+                }
+            }
+        }
+        return totalSize
+    }
+
+    override suspend fun getDownloadCount() = null
 }
 
-data class UpdatableExtension(val installed: LocalExtension, val availableUpdate: StoreExtension) : Extension {
+data class UpdatableExtension(val installed: LocalExtension, val store: StoreExtension) : Extension {
     override val id
         get() = installed.id
 
@@ -141,6 +170,10 @@ data class UpdatableExtension(val installed: LocalExtension, val availableUpdate
 
     override val changelogUrl
         get() = installed.changelogUrl
+
+    override suspend fun calcSize() = installed.calcSize()
+
+    override suspend fun getDownloadCount() = store.getDownloadCount()
 }
 
 fun LocalExtension.classLoader(parent: ClassLoader?) = PathClassLoader(apkFile.absolutePath, parent)

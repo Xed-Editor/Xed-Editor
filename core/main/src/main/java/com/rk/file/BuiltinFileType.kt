@@ -1,7 +1,5 @@
 package com.rk.file
 
-import com.rk.file.BuiltinFileType.UNKNOWN
-import com.rk.file.BuiltinFileType.entries
 import com.rk.icons.Icon
 import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
@@ -130,7 +128,7 @@ object FileTypeManager {
     }
 
     /** Get all dynamically registered file types + built-in file types together */
-    fun allTypes(): List<FileType> = entries + dynamicRegistry
+    fun allTypes(): List<FileType> = BuiltinFileType.entries + dynamicRegistry
 
     fun fromFileName(name: String): FileType {
         val normalized = name.lowercase()
@@ -140,12 +138,13 @@ object FileTypeManager {
 
     fun fromExtension(ext: String): FileType {
         val normalized = ext.lowercase().removePrefix(".")
-        return allTypes().firstOrNull { normalized in it.extensions } ?: UNKNOWN
+        return allTypes().firstOrNull { normalized in it.extensions } ?: BuiltinFileType.UNKNOWN
     }
 
     fun fromMarkdownName(name: String): FileType {
         val normalized = name.lowercase()
-        return allTypes().firstOrNull { normalized in it.extensions || normalized in it.markdownNames } ?: UNKNOWN
+        return allTypes().firstOrNull { normalized in it.extensions || normalized in it.markdownNames }
+            ?: BuiltinFileType.UNKNOWN
     }
 
     fun knowsExtension(ext: String): Boolean {

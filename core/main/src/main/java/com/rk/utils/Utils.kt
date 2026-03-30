@@ -55,6 +55,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -429,9 +430,19 @@ fun formatFileSize(bytes: Long): String {
     return String.format(Locale.getDefault(), "%.1f GB", gb)
 }
 
+fun formatNumberCompact(number: Long): String {
+    val suffix = listOf("", "k", "m", "b", "t")
+    var r = DecimalFormat("##0E0").format(number)
+    r = r.replace("E[0-9]".toRegex(), suffix[Character.getNumericValue(r[r.length - 1]) / 3])
+    while (r.length > 4 || r.matches("[0-9]+\\.[a-z]".toRegex())) {
+        r = r.substring(0, r.length - 2) + r.substring(r.length - 1)
+    }
+    return r
+}
+
 @Composable
 fun rememberNumberFormatter(): NumberFormat {
-    return remember { NumberFormat.getInstance() }
+    return remember { NumberFormat.getNumberInstance() }
 }
 
 /** Parses a string of comma or space-separated file extensions into a uniform list of extensions (without the dot). */
