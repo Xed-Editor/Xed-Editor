@@ -266,7 +266,7 @@
     <string name="anr_watchdog">ANR Watchdog</string>
     <string name="enable_quick_deletion">Zapnout rychlé vymazání řádků</string>
     <string name="enable_quick_deletion_desc">Automaticky vymaže celý řádek jestli je prázdný</string>
-    <string name="rename_failed">Nelze přejmenovat soubor</string>
+    <string name="rename_failed">Selhalo přejmenování souboru</string>
     <string name="continue_action">Pokračovat</string>
     <string name="no_definitions_found">Definice nebyly nalezeny.</string>
     <string name="find_definitions_error">Nelze najít definice.</string>
@@ -564,4 +564,23 @@
     <string name="status_not_running">Neběží</string>
     <string name="status_not_running_forced">Neběží (vnuceno)</string>
     <string name="status_crashed">Havarovalo</string>
+    <string name="ask_deletion_many">Určitě chcete nenávratně odstranit %d soubory/ů?</string>
+    <string name="clone_repo_desc">Klonovat vzdálený repozitář</string>
+    <string name="repo_url">URL repozitáře</string>
+    <string name="branch">Větev</string>
+    <string name="auto_save_delay">Interval automatického uložení</string>
+    <string name="auto_save_delay_desc">Interval v milisekundách mezi automatického uložení</string>
+    <string name="value_empty_err">Hodnota nemůže být prázdná</string>
+    <string name="paste_failed">Selhalo vložení souboru</string>
+    <string name="logs_too_long_desc">Protokolový soubor, který jste chtěli nahlásit je příliš dlouhý. Prosím manuálně vložte zkopírovaný protokolový soubor do hlášení o chyb.</string>
+    <string name="status_restarting">Restartování…</string>
+    <string name="status_stopping">Zastavování.…</string>
+    <string name="supported_extensions">Doplňky: %s</string>
+    <string name="features">Funkce</string>
+    <string name="code_completion">Dokončování kódu</string>
+    <string name="code_completion_desc">Zapnout návrhy automatického dokončování</string>
+    <string name="diagnostics">Diagnostika</string>
+    <string name="diagnostics_desc">Zobrazit chyby a upozornění</string>
+    <string name="formatting">Formátování</string>
+    <string name="formatting_desc">Zapnout formátování souboru</string>
 </resources>
