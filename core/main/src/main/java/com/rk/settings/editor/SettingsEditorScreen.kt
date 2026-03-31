@@ -28,6 +28,7 @@ import com.rk.components.EditorSettingsToggle
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
 import com.rk.components.SingleInputDialog
+import com.rk.components.ValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -45,14 +46,6 @@ fun SettingsEditorScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
-
-        var showTextSizeDialog by remember { mutableStateOf(false) }
-        var textSizeValue by remember { mutableStateOf(Settings.editor_text_size.toString()) }
-        var textSizeError by remember { mutableStateOf<String?>(null) }
-
-        var showTabSizeDialog by remember { mutableStateOf(false) }
-        var tabSizeValue by remember { mutableStateOf(Settings.tab_size.toString()) }
-        var tabSizeError by remember { mutableStateOf<String?>(null) }
 
         var showLineSpacingDialog by remember { mutableStateOf(false) }
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
@@ -233,13 +226,17 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.EditorFontScreen,
             )
 
-            EditorSettingsToggle(
+            ValueSlider(
                 label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = { showTextSizeDialog = true },
-            )
+                default = Settings.editor_text_size,
+                min = 6,
+                max = 50,
+                useSteps = false,
+            ) {
+                Settings.editor_text_size = it
+                scope.launch { refreshEditorSettings() }
+            }
 
             EditorSettingsToggle(
                 label = stringResource(strings.complete_on_enter),
@@ -273,13 +270,16 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
             )
 
-            EditorSettingsToggle(
+            ValueSlider(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = { showTabSizeDialog = true },
-            )
+                default = Settings.tab_size,
+                min = 1,
+                max = 16,
+            ) {
+                Settings.tab_size = it
+                scope.launch { refreshEditorSettings() }
+            }
 
             EditorSettingsToggle(
                 label = stringResource(strings.use_tabs),
@@ -495,64 +495,6 @@ fun SettingsEditorScreen(navController: NavController) {
                     lineSpacingValue = Settings.line_spacing.toString()
                     lineSpacingError = null
                     showLineSpacingDialog = false
-                },
-            )
-        }
-
-        if (showTextSizeDialog) {
-            SingleInputDialog(
-                title = stringResource(id = strings.text_size),
-                inputLabel = stringResource(id = strings.text_size),
-                inputValue = textSizeValue,
-                errorMessage = textSizeError,
-                onInputValueChange = {
-                    textSizeValue = it
-                    textSizeError = null
-                    if (it.toIntOrNull() == null) {
-                        textSizeError = context.getString(strings.value_invalid)
-                    } else if (it.toInt() > 100) {
-                        textSizeError = context.getString(strings.value_large)
-                    } else if (it.toInt() < 6) {
-                        textSizeError = context.getString(strings.value_small)
-                    }
-                },
-                onConfirm = {
-                    Settings.editor_text_size = textSizeValue.toInt()
-                    scope.launch { refreshEditorSettings() }
-                },
-                onFinish = {
-                    textSizeValue = Settings.editor_text_size.toString()
-                    textSizeError = null
-                    showTextSizeDialog = false
-                },
-            )
-        }
-
-        if (showTabSizeDialog) {
-            SingleInputDialog(
-                title = stringResource(id = strings.tab_size),
-                inputLabel = stringResource(id = strings.tab_size),
-                inputValue = tabSizeValue,
-                errorMessage = tabSizeError,
-                onInputValueChange = {
-                    tabSizeValue = it
-                    tabSizeError = null
-                    if (tabSizeValue.toIntOrNull() == null) {
-                        tabSizeError = context.getString(strings.value_invalid)
-                    } else if (tabSizeValue.toInt() > 16) {
-                        tabSizeError = context.getString(strings.value_large)
-                    } else if (tabSizeValue.toInt() < 1) {
-                        tabSizeError = context.getString(strings.value_small)
-                    }
-                },
-                onConfirm = {
-                    Settings.tab_size = tabSizeValue.toInt()
-                    scope.launch { refreshEditorSettings() }
-                },
-                onFinish = {
-                    tabSizeValue = Settings.tab_size.toString()
-                    tabSizeError = null
-                    showTabSizeDialog = false
                 },
             )
         }

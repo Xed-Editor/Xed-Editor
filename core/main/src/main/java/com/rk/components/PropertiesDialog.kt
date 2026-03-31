@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -29,10 +30,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rk.activities.main.gitViewModel
 import com.rk.exec.ShellUtils
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
@@ -41,6 +44,7 @@ import com.rk.resources.fillPlaceholders
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.formatFileSize
+import com.rk.utils.getGitColor
 import com.rk.utils.rememberNumberFormatter
 import java.text.DateFormat
 import java.util.Date
@@ -163,27 +167,46 @@ fun AdvancedProperties(file: FileObject) {
     InfoRow(stringResource(strings.permissions), getPseudoPermissions(file))
     InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
 
+    val changeType = gitViewModel.get()?.getChangeType(file.getAbsolutePath())
+    val gitStatus = changeType?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: strings.unknown.getString()
+    InfoRow(
+        label = stringResource(strings.git_status),
+        value = gitStatus,
+        customTextColor = changeType?.let { getGitColor(it) },
+    )
+
     if (file is FileWrapper && file.isFile()) {
         var fileInfo by remember { mutableStateOf(strings.loading.getString()) }
-        InfoRow(label = "file", fileInfo)
+        InfoRow(label = stringResource(strings.file_type), fileInfo)
 
         LaunchedEffect(file) {
             val result = withContext(Dispatchers.IO) { ShellUtils.run("file", file.getAbsolutePath()) }
 
-            if (result.exitCode == 0) {
-                fileInfo =
+            fileInfo =
+                if (result.exitCode == 0) {
                     result.output
                         .removePrefix(file.getAbsolutePath())
                         .removePrefix(file.getCanonicalPath())
                         .removePrefix(":")
-            }
+                } else {
+                    result.error
+                }
         }
     }
 }
 
 @Composable
-fun InfoRow(label: String, value: String) {
-    OutlinedTextField(value = value, onValueChange = {}, label = { Text(label) }, readOnly = true)
+fun InfoRow(label: String, value: String, customTextColor: Color? = null) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = {},
+        label = { Text(label) },
+        readOnly = true,
+        colors =
+            OutlinedTextFieldDefaults.colors().run {
+                customTextColor?.let { copy(focusedTextColor = it, unfocusedTextColor = it) } ?: this
+            },
+    )
 }
 
 private fun getPseudoPermissions(file: FileObject): String {

@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,8 +57,6 @@ import java.lang.Runtime.getRuntime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -89,10 +86,10 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
 
         PreferenceGroup(heading = stringResource(strings.appearance)) {
             ValueSlider(
-                label = { Text(stringResource(strings.text_size)) },
+                label = stringResource(strings.text_size),
                 min = 10,
                 max = 20,
-                default = Settings.terminal_font_size.toFloat(),
+                default = Settings.terminal_font_size,
                 onValueChanged = {
                     Settings.terminal_font_size = it
                     terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
@@ -349,23 +346,16 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 route = SettingsRoutes.TerminalExtraKeys,
             )
 
-            var job by remember { mutableStateOf<Job?>(null) }
-            val scope = rememberCoroutineScope()
             ValueSlider(
-                label = { Text(stringResource(strings.scrollback_buffer)) },
-                description = { Text(stringResource(strings.scrollback_buffer_desc)) },
+                label = stringResource(strings.scrollback_buffer),
+                description = stringResource(strings.scrollback_buffer_desc),
                 min = TerminalEmulator.TERMINAL_TRANSCRIPT_ROWS_MIN,
                 max = TerminalEmulator.TERMINAL_TRANSCRIPT_ROWS_MAX,
-                default = Settings.terminal_scrollback_buffer.toFloat(),
+                default = Settings.terminal_scrollback_buffer,
                 useSteps = false,
             ) {
-                job?.cancel()
-                job =
-                    scope.launch {
-                        delay(300) // debounce
-                        Settings.terminal_scrollback_buffer = it
-                        toast(strings.restart_required)
-                    }
+                Settings.terminal_scrollback_buffer = it
+                toast(strings.restart_required)
             }
 
             SettingsToggle(

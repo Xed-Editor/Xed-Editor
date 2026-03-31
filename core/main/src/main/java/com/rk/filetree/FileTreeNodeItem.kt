@@ -115,7 +115,6 @@ fun FileTreeNodeItem(
             modifier =
                 Modifier.addIf(isCut) { alpha(0.5f) }
                     .background(nodeBackground.value)
-                    //                    .addIf(isFileFocused || isFileSelected) { background(selectionColor) }
                     .combinedClickable(
                         onClick = {
                             if (viewModel.isAnyFileSelected(root)) {

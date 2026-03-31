@@ -65,6 +65,7 @@ class SearchViewModel : ViewModel() {
         private set
 
     companion object {
+        // NOTE: Occurrence that are between the borders of two chunks won't be found, this is a known issue
         private const val MAX_CHUNK_SIZE = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
         const val MAX_CODE_RESULTS = 10_000 // Max amount of code search results to show in UI
         private const val MAX_FILE_SIZE_SEARCH = 10_000_000 // Max size for code search (10 MB)

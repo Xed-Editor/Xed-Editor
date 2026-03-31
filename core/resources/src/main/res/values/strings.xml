@@ -644,4 +644,6 @@
     <string name="see_termux_extra_keys">The terminal uses the Termux extra keys format</string>
     <string name="scrollback_buffer">Scrollback buffer size</string>
     <string name="scrollback_buffer_desc">Number of lines the terminal keeps in memory as history</string>
+    <string name="file_type">File type</string>
+    <string name="git_status">Git status</string>
 </resources>

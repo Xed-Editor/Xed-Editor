@@ -1,20 +1,25 @@
 package com.rk.extension
 
 import android.util.Log
-import com.google.gson.Gson
 import com.rk.extension.github.FileContent
 import com.rk.extension.github.GitHubApi
 import com.rk.extension.github.decodeFromBase64
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.MissingFieldException
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
+
+private val json = Json { ignoreUnknownKeys = true }
 
 object ExtensionRegistry {
     private const val TAG = "ExtensionRegistry"
     private val cache = mutableMapOf<String, CachedExtension>()
 
+    @OptIn(ExperimentalSerializationApi::class)
     suspend fun fetchExtensions() =
         withContext(Dispatchers.IO) {
             val extensions = GitHubApi.fetchContents("extensions")
@@ -36,7 +41,20 @@ object ExtensionRegistry {
                                     ?: fetchRawFile(extensionFileInfo)
                                     ?: return@mapNotNull null
 
-                            val extensionManifest = Gson().fromJson(decoded, ExtensionManifest::class.java)
+                            val extensionManifest =
+                                runCatching { json.decodeFromString<ExtensionManifest>(decoded) }
+                                    .getOrElse { e ->
+                                        when (e) {
+                                            is MissingFieldException ->
+                                                Log.w(
+                                                    TAG,
+                                                    "Manifest for ${extDir.name} is missing required fields: ${e.missingFields}",
+                                                )
+                                            else ->
+                                                Log.w(TAG, "Failed to parse manifest for ${extDir.name}: ${e.message}")
+                                        }
+                                        return@mapNotNull null
+                                    }
 
                             cache[extensionPath] =
                                 CachedExtension(
