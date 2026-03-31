@@ -131,6 +131,7 @@ class FileTreeViewModel : ViewModel() {
     // File tree
     var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
     private val selectedFiles = mutableStateMapOf<FileObject, List<FileObject>>()
+    private val focusedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
     private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
@@ -311,7 +312,15 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
+    fun isFileFocused(projectFile: FileObject, fileObject: FileObject) = focusedFile[projectFile] == fileObject
+
     suspend fun goToFolder(projectFile: FileObject, fileObject: FileObject) {
+        focusedFile[projectFile] = fileObject
+        viewModelScope.launch {
+            delay(1000)
+            focusedFile.remove(projectFile)
+        }
+
         var currentFile: FileObject? = fileObject
         while (currentFile != null && currentFile != projectFile) {
             expandedNodes[currentFile] = true

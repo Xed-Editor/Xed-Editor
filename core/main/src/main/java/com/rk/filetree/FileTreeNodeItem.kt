@@ -1,7 +1,9 @@
 package com.rk.filetree
 
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -60,9 +62,20 @@ fun FileTreeNodeItem(
     val isCut = viewModel.isNodeCut(node.file)
 
     val isFileSelected = viewModel.isFileSelected(root, node.file)
-    val selectionColor = MaterialTheme.colorScheme.surfaceContainer
+    val isFileFocused = viewModel.isFileFocused(root, node.file)
 
     val context = LocalContext.current
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val selectionColor = MaterialTheme.colorScheme.primaryContainer
+
+    val nodeBackground = remember { Animatable(surfaceColor) }
+    LaunchedEffect(isFileFocused, isFileSelected) {
+        if (isFileFocused || isFileSelected) {
+            nodeBackground.animateTo(selectionColor, animationSpec = tween(300))
+        } else {
+            nodeBackground.animateTo(surfaceColor, animationSpec = tween(300))
+        }
+    }
 
     // Load children when expanded
     LaunchedEffect(node.file, isExpanded) {
@@ -101,7 +114,8 @@ fun FileTreeNodeItem(
         Row(
             modifier =
                 Modifier.addIf(isCut) { alpha(0.5f) }
-                    .addIf(isFileSelected) { background(selectionColor) }
+                    .background(nodeBackground.value)
+                    //                    .addIf(isFileFocused || isFileSelected) { background(selectionColor) }
                     .combinedClickable(
                         onClick = {
                             if (viewModel.isAnyFileSelected(root)) {

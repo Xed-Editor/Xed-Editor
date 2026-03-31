@@ -38,7 +38,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.components.XedDialog
-import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
 import com.rk.file.toFileWrapper
@@ -123,34 +122,34 @@ fun SearchItem(
     val isHidden = fileObject.getName().startsWith(".") || fileObject.getAbsolutePath().contains("/.")
     val fileNameColor = getGitColor(fileObject) ?: Color.Unspecified
 
-    Column {
-        PreferenceTemplate(
-            modifier =
-                Modifier.clickable(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier.fillMaxWidth()
+                .clickable(
                     enabled = true,
                     onClick = {
                         onDismissRequest()
                         onSelect(projectFile, fileObject)
                     },
-                ),
-            verticalPadding = 8.dp,
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.addIf(isHidden) { alpha(0.5f) }) { FileIcon(file = fileObject) }
+                )
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        Box(modifier = Modifier.addIf(isHidden) { alpha(0.5f) }) { FileIcon(file = fileObject) }
 
-                    Column(modifier = Modifier.padding(start = 8.dp)) {
-                        Text(text = fileObject.getAppropriateName(), color = fileNameColor)
-                        Text(
-                            text = "." + fileObject.getAbsolutePath().removePrefix(projectFile.getAbsolutePath()),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        )
-                    }
-                }
-            },
-            endWidget = {},
-        )
+        Column(modifier = Modifier.padding(start = 8.dp)) {
+            Text(
+                text = fileObject.getAppropriateName(),
+                color = fileNameColor,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text = "." + fileObject.getAbsolutePath().removePrefix(projectFile.getAbsolutePath()),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            )
+        }
     }
 }
