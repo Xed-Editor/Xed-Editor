@@ -1,59 +1,68 @@
 package com.rk.lsp
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.rk.file.child
 import com.rk.lsp.servers.ExternalProcessServer
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.settings.Preference
-import java.io.Serializable
+import com.rk.utils.application
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
+@Serializable
 data class SavedLspConfig(
-    val type: String, // socket or process
+    val type: String,
     val supportedExtensions: List<String>,
-    val host: String = "localhost", // Specific to socket
-    val port: Int = 0, // Specific to socket
-    val command: String = "", // Specific to process
-) : Serializable
+    val host: String = "localhost", // specific to socket
+    val port: Int = 0, // specific to socket
+    val command: String = "", // specific to process
+)
 
 object LspPersistence {
-    // TODO: Do not save in settings but in separate file (maybe also without GSON, not only here, but with native java
-    // serialization)
-    private const val KEY_EXTERNAL_LSP = "saved_external_servers"
-    private val gson = Gson()
+
+    @Deprecated("This is now saved as a file.") private const val KEY_EXTERNAL_LSP = "saved_external_servers"
+
+    @Deprecated("This is temporary migration code.")
+    fun migrate() {
+        saveFile.writeText(Preference.getString(KEY_EXTERNAL_LSP, ""))
+        Preference.removeKey(KEY_EXTERNAL_LSP)
+    }
+
+    private val json = Json { ignoreUnknownKeys = true }
+    private val saveFile = application!!.filesDir.child("externalLSPServer")
 
     fun saveServers() {
         val configList =
             LspRegistry.externalServers.mapNotNull { server ->
                 when (server) {
-                    is ExternalSocketServer -> {
+                    is ExternalSocketServer ->
                         SavedLspConfig(
                             type = "socket",
                             host = server.host,
                             port = server.port,
                             supportedExtensions = server.supportedExtensions,
                         )
-                    }
-                    is ExternalProcessServer -> {
+                    is ExternalProcessServer ->
                         SavedLspConfig(
                             type = "process",
                             command = server.command,
                             supportedExtensions = server.supportedExtensions,
                         )
-                    }
                     else -> null
                 }
             }
 
-        val json = gson.toJson(configList)
-        Preference.setString(KEY_EXTERNAL_LSP, json)
+        saveFile.writeText(json.encodeToString(configList))
     }
 
     fun restoreServers() {
-        val json = Preference.getString(KEY_EXTERNAL_LSP, "")
-        if (json.isEmpty()) return
+        val jsonStr = saveFile.readText()
+        if (jsonStr.isEmpty()) return
 
-        val type = object : TypeToken<List<SavedLspConfig>>() {}.type
-        val configs: List<SavedLspConfig> = gson.fromJson(json, type)
+        val configs =
+            runCatching { json.decodeFromString<List<SavedLspConfig>>(jsonStr) }
+                .getOrElse {
+                    return
+                }
 
         configs.forEach { config ->
             val server =

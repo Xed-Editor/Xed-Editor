@@ -7,6 +7,7 @@ import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileWrapper
+import com.rk.lsp.LspPersistence
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
@@ -187,6 +188,10 @@ object UpdateManager {
                                 .renameTo("expandedFileTree")
                         }
                     }
+                }
+
+                if (lastVersionCode <= 85) {
+                    LspPersistence.migrate()
                 }
 
                 deleteCommonFiles()

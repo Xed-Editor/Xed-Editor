@@ -50,9 +50,9 @@ import com.rk.settings.editor.refreshEditors
 import com.rk.theme.ThemeHolder
 import com.rk.theme.amoled
 import com.rk.theme.blueberry
+import com.rk.theme.builtInThemes
 import com.rk.theme.currentTheme
 import com.rk.theme.dynamicTheme
-import com.rk.theme.inbuiltThemes
 import com.rk.theme.installFromFile
 import com.rk.theme.updateThemes
 import com.rk.utils.LoadingPopup
@@ -124,7 +124,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                         refreshEditors()
                     },
                     endWidget = {
-                        if (!inbuiltThemes.contains(theme)) {
+                        if (!builtInThemes.contains(theme)) {
                             IconButton(
                                 onClick = {
                                     if (currentTheme.value?.id == theme.id) {

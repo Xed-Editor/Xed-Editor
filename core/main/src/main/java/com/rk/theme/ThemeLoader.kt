@@ -105,7 +105,7 @@ private fun ThemeConfig.finishThemeInstall(name: String) {
 
 fun updateThemes() {
     themes.clear()
-    themes.addAll(inbuiltThemes)
+    themes.addAll(builtInThemes)
     loadThemes()
 }
 

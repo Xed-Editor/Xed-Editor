@@ -317,4 +317,4 @@ val lime =
             },
     )
 
-val inbuiltThemes = listOf<ThemeHolder>(blueberry, lime)
+val builtInThemes = listOf(blueberry, lime)

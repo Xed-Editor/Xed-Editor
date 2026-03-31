@@ -1,9 +1,9 @@
 package com.rk.extension.github
 
-import com.google.gson.Gson
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -12,8 +12,8 @@ private const val RAW_BASE_URL =
     "https://raw.githubusercontent.com/Xed-Editor/Extension-Registry/refs/heads/main/extensions"
 
 object GitHubApi {
+    private val json = Json { ignoreUnknownKeys = true }
     private val client = OkHttpClient()
-    private val gson = Gson()
 
     /**
      * Fetches the contents of a file or directory from the GitHub repository.
@@ -25,7 +25,6 @@ object GitHubApi {
         withContext(Dispatchers.IO) {
             try {
                 val url = "$BASE_URL/$path"
-
                 val request = Request.Builder().url(url).build()
 
                 client.newCall(request).execute().use { response ->
@@ -40,9 +39,9 @@ object GitHubApi {
                     val body = response.body.string()
 
                     return@withContext if (body.trim().startsWith("[")) {
-                        gson.fromJson(body, Array<FileContent>::class.java)
+                        json.decodeFromString<Array<FileContent>>(body)
                     } else {
-                        arrayOf(gson.fromJson(body, FileContent::class.java))
+                        arrayOf(json.decodeFromString<FileContent>(body))
                     }
                 }
             } catch (_: Exception) {
