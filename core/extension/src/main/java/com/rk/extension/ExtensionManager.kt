@@ -61,19 +61,6 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         withContext(Dispatchers.IO) {
             val extensions = ExtensionRegistry.fetchExtensions()
             storeExtension.clear()
-            // TODO: Remove debug line below
-            storeExtension["com.rk.store"] =
-                StoreExtension(
-                    manifest =
-                        ExtensionManifest(
-                            id = "com.rk.store",
-                            name = "Store",
-                            mainClass = "com.rk.store.Store",
-                            author = ExtensionAuthor(displayName = "KonerDev", github = "KonerDev"),
-                            repository = "https://bitbucket.org/KonerDev/Xed-Store",
-                        ),
-                    verified = true,
-                )
             storeExtension.putAll(extensions.associate { it.id to StoreExtension(it) })
         }
 

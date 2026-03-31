@@ -3,6 +3,7 @@ package com.rk.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -24,6 +25,11 @@ fun StateScreen(painter: Painter, text: String, color: Color = LocalContentColor
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(painter = painter, contentDescription = null, modifier = Modifier.size(48.dp), tint = color)
-        Text(text = text, color = color, modifier = Modifier.padding(top = 8.dp), textAlign = TextAlign.Center)
+        Text(
+            text = text,
+            color = color,
+            modifier = Modifier.fillMaxWidth(0.5f).padding(top = 8.dp),
+            textAlign = TextAlign.Center,
+        )
     }
 }

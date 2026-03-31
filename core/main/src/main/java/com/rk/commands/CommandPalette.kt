@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -50,7 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.components.XedDialog
-import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.utils.addIf
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -208,11 +210,12 @@ fun CommandItem(
             }
         }
 
-    Column {
-        PreferenceTemplate(
-            enabled = enabled,
-            modifier =
-                Modifier.clickable(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier =
+            Modifier.fillMaxWidth()
+                .clickable(
                     enabled = enabled,
                     onClick = {
                         Settings.last_used_command = command.id
@@ -223,80 +226,77 @@ fun CommandItem(
                             command.action(ActionContext(activity!!))
                         }
                     },
-                ),
-            verticalPadding = 8.dp,
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    XedIcon(
-                        icon = command.getIcon(),
-                        modifier = Modifier.padding(end = 8.dp).size(16.dp),
-                        contentDescription = command.getLabel(),
-                        tint =
-                            if (command is ToggleableCommand && command.isOn()) {
-                                MaterialTheme.colorScheme.primary
-                            } else LocalContentColor.current,
-                    )
-
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
-                            Text(
-                                text = highlightedString,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f),
-                                color =
-                                    if (command is ToggleableCommand && command.isOn()) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        Color.Unspecified
-                                    },
-                            )
-                            if (recentlyUsed) {
-                                Text(
-                                    text = stringResource(strings.recently_used),
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = 10.sp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    maxLines = 1,
-                                    modifier = Modifier.padding(start = 8.dp),
-                                )
-                            }
-                        }
-
-                        if (!isSubpage) {
-                            CommandProvider.getParentCommand(command)?.getLabel()?.let {
-                                Text(
-                                    text = it,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            endWidget = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    keyCombination?.let {
-                        Text(
-                            text = keyCombination.getDisplayName(),
-                            fontFamily = FontFamily.Monospace,
-                            style = Typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                    if (childCommands.isNotEmpty()) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                            contentDescription = null,
-                            modifier = Modifier.height(16.dp),
-                        )
-                    }
-                }
-            },
+                )
+                .addIf(!enabled) { alpha(0.38f) }
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        XedIcon(
+            icon = command.getIcon(),
+            modifier = Modifier.size(16.dp),
+            contentDescription = command.getLabel(),
+            tint =
+                if (command is ToggleableCommand && command.isOn()) {
+                    MaterialTheme.colorScheme.primary
+                } else LocalContentColor.current,
         )
+
+        Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
+                Text(
+                    text = highlightedString,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color =
+                        if (command is ToggleableCommand && command.isOn()) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Unspecified
+                        },
+                )
+                if (recentlyUsed) {
+                    Text(
+                        text = stringResource(strings.recently_used),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
+            }
+
+            if (!isSubpage) {
+                CommandProvider.getParentCommand(command)?.getLabel()?.let {
+                    Text(
+                        text = it,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    )
+                }
+            }
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            keyCombination?.let {
+                Text(
+                    text = keyCombination.getDisplayName(),
+                    fontFamily = FontFamily.Monospace,
+                    style = Typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            if (childCommands.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.height(16.dp),
+                )
+            }
+        }
     }
 }
