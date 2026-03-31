@@ -242,7 +242,8 @@ fun CodeSearchDialog(
 
             if (searchViewModel.codeSearchQuery.isNotEmpty()) {
                 LazyColumn {
-                    searchViewModel.codeSearchResults.entries.forEachIndexed { index, (fileObject, codeItems) ->
+                    searchViewModel.codeSearchResultsOrder.forEachIndexed { index, fileObject ->
+                        val codeItems = searchViewModel.codeSearchResults[fileObject] ?: return@forEachIndexed
                         item {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,

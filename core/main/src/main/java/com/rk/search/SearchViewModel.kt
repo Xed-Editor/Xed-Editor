@@ -35,12 +35,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-sealed interface CodeResultItem {
-    data class Header(val file: FileObject) : CodeResultItem
-
-    data class Item(val codeItem: CodeItem) : CodeResultItem
-}
-
 class SearchViewModel : ViewModel() {
     private var isIndexing = mutableStateMapOf<FileObject, Boolean>()
     private var indexJob: Job? = null
@@ -59,6 +53,7 @@ class SearchViewModel : ViewModel() {
 
     var isSearchingCode by mutableStateOf(false)
     var totalCodeSearchResults by mutableIntStateOf(0)
+    val codeSearchResultsOrder = mutableStateListOf<FileObject>()
     val codeSearchResults = mutableStateMapOf<FileObject, SnapshotStateList<CodeItem>>()
     private var codeSearchJob: Job? = null
 
@@ -127,6 +122,7 @@ class SearchViewModel : ViewModel() {
 
         totalCodeSearchResults = 0
         codeSearchResults.clear()
+        codeSearchResultsOrder.clear()
         isSearchingCode = false
     }
 
@@ -158,6 +154,9 @@ class SearchViewModel : ViewModel() {
                     .collect {
                         if (totalCodeSearchResults < MAX_CODE_RESULTS) {
                             totalCodeSearchResults++
+                            if (!codeSearchResults.containsKey(it.file)) {
+                                codeSearchResultsOrder.add(it.file)
+                            }
                             val fileList = codeSearchResults.getOrPut(it.file) { mutableStateListOf() }
                             fileList.add(it)
                         } else {
