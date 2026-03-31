@@ -1,6 +1,7 @@
 package com.rk.lsp
 
 import com.rk.file.child
+import com.rk.file.createFileIfNot
 import com.rk.lsp.servers.ExternalProcessServer
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.settings.Preference
@@ -23,12 +24,14 @@ object LspPersistence {
 
     @Deprecated("This is temporary migration code.")
     fun migrate() {
-        saveFile.writeText(Preference.getString(KEY_EXTERNAL_LSP, ""))
-        Preference.removeKey(KEY_EXTERNAL_LSP)
+        runCatching {
+            saveFile.writeText(Preference.getString(KEY_EXTERNAL_LSP, ""))
+            Preference.removeKey(KEY_EXTERNAL_LSP)
+        }
     }
 
     private val json = Json { ignoreUnknownKeys = true }
-    private val saveFile = application!!.filesDir.child("externalLSPServer")
+    private val saveFile = application!!.filesDir.child("externalLSPServer").createFileIfNot()
 
     fun saveServers() {
         val configList =
