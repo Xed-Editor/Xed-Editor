@@ -624,10 +624,10 @@
     <string name="source_code">源代码</string>
     <string name="ext_source_desc">此扩展是开源的，欢迎前往官方仓库贡献代码和提交反馈。</string>
     <string name="ext_source_desc_license">此扩展是基于 %s 许可证开源的，欢迎前往官方仓库贡献代码和提交反馈。</string>
-    <string name="view_github">在 Github 中查看</string>
+    <string name="view_github">在 GitHub 中查看</string>
     <string name="view_gitlab">在 GitLab 中查看</string>
     <string name="view_bitbucket">在 BitBucket 中查看</string>
-    <string name="view_repo">前往仓库</string>
+    <string name="view_repo">查看存储库</string>
     <string name="reviews_not_supported">这个扩展不支持发表评论。</string>
     <string name="cursor_style">光标形状</string>
     <string name="cursor_style_desc">更改光标形状</string>
