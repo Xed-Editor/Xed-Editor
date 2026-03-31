@@ -1,11 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
+  "extends": ["config:recommended"],
+
   "automerge": true,
   "forkProcessing": "enabled",
-  "baseBranchPatterns": [
-    "main"
+  "baseBranchPatterns": ["main"],
+
+  "packageRules": [
+    {
+      "matchDatasources": ["maven"],
+      "registryUrls": [
+        "https://repo1.maven.org/maven2",
+        "https://jitpack.io"
+      ]
+    }
   ]
 }
