@@ -94,6 +94,10 @@ class FileWrapper(var file: File) : FileObject {
             return@withContext FileInputStream(file)
         }
 
+    override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
+        return withContext(Dispatchers.IO) { FileInputStream(file).use { block(it) } }
+    }
+
     override suspend fun getOutPutStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             return@withContext if (append) {

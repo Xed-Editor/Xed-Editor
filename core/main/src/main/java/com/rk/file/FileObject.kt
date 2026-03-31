@@ -40,6 +40,12 @@ interface FileObject : Serializable {
 
     suspend fun getInputStream(): InputStream
 
+    /**
+     * This method is required to prevent crashes caused by an unclosed stream. This can occur when using
+     * [getInputStream] because there is a suspension point before the [InputStream.use] call.
+     */
+    suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R
+
     suspend fun getOutPutStream(append: Boolean): OutputStream
 
     fun getAbsolutePath(): String

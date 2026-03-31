@@ -198,8 +198,8 @@ fun CodeSearchDialog(
                     placeholder = { Text(text = stringResource(strings.replace)) },
                     trailingIcon = {
                         IconButton(
-                            enabled = searchViewModel.codeSearchResults.isNotEmpty(),
-                            onClick = { replaceAll(searchViewModel.codeSearchResults) },
+                            enabled = searchViewModel.totalCodeSearchResults != 0,
+                            onClick = { replaceAll(searchViewModel.codeSearchResults.values.flatten()) },
                         ) {
                             Icon(
                                 painter = painterResource(drawables.find_replace),
@@ -220,13 +220,17 @@ fun CodeSearchDialog(
                 }
                 val numberFormatter = rememberNumberFormatter()
                 val resultCount by remember {
-                    derivedStateOf { numberFormatter.format(searchViewModel.codeSearchResults.size) }
+                    derivedStateOf {
+                        val amount = searchViewModel.totalCodeSearchResults
+                        val suffix = if (amount == SearchViewModel.MAX_CODE_RESULTS) "+" else ""
+                        numberFormatter.format(amount) + suffix
+                    }
                 }
                 Text(
                     stringResource(
                             when {
                                 searchViewModel.isIndexing(projectFile) -> strings.indexing
-                                searchViewModel.codeSearchResults.isNotEmpty() -> strings.results
+                                searchViewModel.totalCodeSearchResults != 0 -> strings.results
                                 else -> strings.no_results
                             }
                         )
@@ -238,7 +242,7 @@ fun CodeSearchDialog(
 
             if (searchViewModel.codeSearchQuery.isNotEmpty()) {
                 LazyColumn {
-                    searchViewModel.groupedCodeResults.entries.forEachIndexed { index, (fileObject, codeItems) ->
+                    searchViewModel.codeSearchResults.entries.forEachIndexed { index, (fileObject, codeItems) ->
                         item {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
