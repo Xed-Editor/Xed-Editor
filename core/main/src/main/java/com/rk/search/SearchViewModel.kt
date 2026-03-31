@@ -3,10 +3,12 @@ package com.rk.search
 import android.content.Context
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
@@ -21,13 +23,15 @@ import com.rk.utils.hasBinaryChars
 import com.rk.utils.isBinaryExtension
 import com.rk.utils.parseExtensions
 import java.io.File
+import java.io.InputStreamReader
 import java.nio.charset.Charset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -48,8 +52,9 @@ class SearchViewModel : ViewModel() {
     private val excluder by derivedStateOf { GlobExcluder(Settings.excluded_files_search) }
 
     var isSearchingCode by mutableStateOf(false)
-    val codeSearchResults = mutableStateListOf<CodeItem>()
-    val groupedCodeResults by derivedStateOf { codeSearchResults.groupBy { it.file } }
+    var totalCodeSearchResults by mutableIntStateOf(0)
+    val codeSearchResultsOrder = mutableStateListOf<FileObject>()
+    val codeSearchResults = mutableStateMapOf<FileObject, SnapshotStateList<CodeItem>>()
     private var codeSearchJob: Job? = null
 
     var codeSearchQuery by mutableStateOf("")
@@ -61,6 +66,9 @@ class SearchViewModel : ViewModel() {
 
     companion object {
         private const val MAX_CHUNK_SIZE = 1_000_000 // 1 MB limit per column to avoid CursorWindow crash
+        const val MAX_CODE_RESULTS = 10_000 // Max amount of code search results to show in UI
+        private const val MAX_FILE_SIZE_SEARCH = 10_000_000 // Max size for code search (10 MB)
+        private const val CODE_BATCH_SIZE = 5_000 // Insert code mid-traversal in chunks to avoid OOM
     }
 
     fun cleanupJobs(projectRoot: FileObject) {
@@ -112,7 +120,9 @@ class SearchViewModel : ViewModel() {
         codeSearchJob?.cancel()
         codeSearchJob = null
 
+        totalCodeSearchResults = 0
         codeSearchResults.clear()
+        codeSearchResultsOrder.clear()
         isSearchingCode = false
     }
 
@@ -121,6 +131,7 @@ class SearchViewModel : ViewModel() {
         cancelCodeSearch()
 
         if (codeSearchQuery.isBlank()) {
+            totalCodeSearchResults = 0
             codeSearchResults.clear()
             return
         }
@@ -140,8 +151,19 @@ class SearchViewModel : ViewModel() {
                                 Settings.always_index_projects,
                             ),
                     )
-                    .collect { codeSearchResults.add(it) }
-
+                    .collect {
+                        if (totalCodeSearchResults < MAX_CODE_RESULTS) {
+                            totalCodeSearchResults++
+                            if (!codeSearchResults.containsKey(it.file)) {
+                                codeSearchResultsOrder.add(it.file)
+                            }
+                            val fileList = codeSearchResults.getOrPut(it.file) { mutableStateListOf() }
+                            fileList.add(it)
+                        } else {
+                            isSearchingCode = false
+                            codeSearchJob?.cancel()
+                        }
+                    }
                 isSearchingCode = false
             }
     }
@@ -257,7 +279,7 @@ class SearchViewModel : ViewModel() {
             if (index == -1) break
 
             indices.add(index)
-            currentIndex = index + 1
+            currentIndex = index + query.length
         }
 
         return indices
@@ -269,60 +291,66 @@ class SearchViewModel : ViewModel() {
         projectRoot: FileObject,
         query: String,
         useIndex: Boolean = true,
-    ): Flow<CodeItem> = flow {
-        // Search in opened tabs
-        val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
-        val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
+    ): Flow<CodeItem> =
+        channelFlow {
+                // Search in opened tabs
+                val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
+                val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
 
-        for (tab in openedEditorTabs) {
-            val fileExt = tab.file.getExtension()
-            if (!matchesFileMask(fileExt)) continue
+                for (tab in openedEditorTabs) {
+                    val fileExt = tab.file.getExtension()
+                    if (!matchesFileMask(fileExt)) continue
 
-            val editor = tab.editorState.editor.get()
-            val editorText = editor?.text.toString()
-            editorText.lines().forEachIndexed { lineIndex, line ->
-                val indices = findAllIndices(line, query, ignoreCase = ignoreCase)
-                for (index in indices) {
-                    currentCoroutineContext().ensureActive()
-                    emit(
-                        createCodeItem(
-                            context = context,
-                            mainViewModel = mainViewModel,
-                            text = line,
-                            charIndex = index,
-                            query = query,
-                            file = tab.file,
-                            projectRoot = projectRoot,
-                            lineIndex = lineIndex,
-                            isOpen = true,
-                        )
+                    val editor = tab.editorState.editor.get()
+                    val content = editor?.text
+                    if (content != null) {
+                        val lineCount = content.lineCount
+                        for (lineIndex in 0 until lineCount) {
+                            val line = content.getLine(lineIndex).toString()
+                            val indices = findAllIndices(line, query, ignoreCase = ignoreCase)
+                            for (index in indices) {
+                                currentCoroutineContext().ensureActive()
+                                send(
+                                    createCodeItem(
+                                        context = context,
+                                        mainViewModel = mainViewModel,
+                                        text = line,
+                                        charIndex = index,
+                                        query = query,
+                                        file = tab.file,
+                                        projectRoot = projectRoot,
+                                        lineIndex = lineIndex,
+                                        isOpen = true,
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Search through other files
+                if (!useIndex) {
+                    searchCodeWithoutIndex(
+                        context = context,
+                        mainViewModel = mainViewModel,
+                        parent = projectRoot,
+                        projectRoot = projectRoot,
+                        query = query,
+                        openPaths = openPaths,
+                        send = ::send,
+                    )
+                } else {
+                    searchCodeWithIndex(
+                        context = context,
+                        mainViewModel = mainViewModel,
+                        projectRoot = projectRoot,
+                        query = query,
+                        openPaths = openPaths,
+                        send = ::send,
                     )
                 }
             }
-        }
-
-        // Search through other files
-        if (!useIndex) {
-            searchCodeWithoutIndex(
-                context = context,
-                mainViewModel = mainViewModel,
-                parent = projectRoot,
-                projectRoot = projectRoot,
-                query = query,
-                openPaths = openPaths,
-                emit = ::emit,
-            )
-        } else {
-            searchCodeWithIndex(
-                context = context,
-                mainViewModel = mainViewModel,
-                projectRoot = projectRoot,
-                query = query,
-                openPaths = openPaths,
-                emit = ::emit,
-            )
-        }
-    }
+            .flowOn(Dispatchers.IO)
 
     private suspend fun searchCodeWithIndex(
         context: Context,
@@ -330,7 +358,7 @@ class SearchViewModel : ViewModel() {
         projectRoot: FileObject,
         query: String,
         openPaths: Set<String>,
-        emit: suspend (CodeItem) -> Unit,
+        send: suspend (CodeItem) -> Unit,
     ) {
         var resultLimit = 5
         var offset = 0
@@ -358,7 +386,7 @@ class SearchViewModel : ViewModel() {
                     val absoluteCharIndex = result.chunkStart + index
 
                     currentCoroutineContext().ensureActive()
-                    emit(
+                    send(
                         createCodeItem(
                             context = context,
                             mainViewModel = mainViewModel,
@@ -384,7 +412,7 @@ class SearchViewModel : ViewModel() {
         projectRoot: FileObject,
         query: String,
         openPaths: Set<String>,
-        emit: suspend (CodeItem) -> Unit,
+        send: suspend (CodeItem) -> Unit,
         isResultHidden: Boolean = false,
     ) {
         val childFiles = parent.listFiles()
@@ -409,34 +437,38 @@ class SearchViewModel : ViewModel() {
                     projectRoot = projectRoot,
                     query = query,
                     openPaths = openPaths,
-                    emit = emit,
+                    send = send,
                     isResultHidden = isResultHidden,
                 )
                 continue
             }
 
-            val fileText = getFileContentOrNull(file) ?: continue
+            if (!isFileSearchable(file)) continue
+            val charset = Charset.forName(Settings.encoding)
 
-            val lines = fileText.lines()
-            lines.forEachIndexed { lineIndex, line ->
-                val chunks = line.chunked(MAX_CHUNK_SIZE)
-                chunks.forEachIndexed { chunkIndex, chunk ->
-                    val indices = findAllIndices(chunk, query, ignoreCase = ignoreCase)
-                    for (index in indices) {
-                        val absoluteCharIndex = (chunkIndex * MAX_CHUNK_SIZE) + index
-                        currentCoroutineContext().ensureActive()
-                        emit(
-                            createCodeItem(
-                                context = context,
-                                mainViewModel = mainViewModel,
-                                text = chunk,
-                                charIndex = absoluteCharIndex,
-                                query = query,
-                                file = file,
-                                projectRoot = projectRoot,
-                                lineIndex = lineIndex,
-                            )
-                        )
+            file.useInputStream { inputStream ->
+                inputStream.bufferedReader(charset).useLines { lineSequence ->
+                    lineSequence.forEachIndexed { lineIndex, line ->
+                        val chunks = line.chunked(MAX_CHUNK_SIZE)
+                        chunks.forEachIndexed { chunkIndex, chunk ->
+                            val indices = findAllIndices(chunk, query, ignoreCase = ignoreCase)
+                            for (index in indices) {
+                                val absoluteCharIndex = (chunkIndex * MAX_CHUNK_SIZE) + index
+                                currentCoroutineContext().ensureActive()
+                                send(
+                                    createCodeItem(
+                                        context = context,
+                                        mainViewModel = mainViewModel,
+                                        text = chunk,
+                                        charIndex = absoluteCharIndex,
+                                        query = query,
+                                        file = file,
+                                        projectRoot = projectRoot,
+                                        lineIndex = lineIndex,
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -492,27 +524,32 @@ class SearchViewModel : ViewModel() {
      * @param file The file to read.
      * @return The file content as a [String], or null.
      */
-    private suspend fun getFileContentOrNull(file: FileObject): String? {
+    private suspend fun isFileSearchable(file: FileObject): Boolean {
         // Do not search in file if it's over 10MB
-        if (file.length() > 10_000_000) return null
+        if (file.length() > MAX_FILE_SIZE_SEARCH) return false
 
         // Do not search in file if it's likely to be binary (file extension based detection)
         val ext = file.getExtension()
-        if (isBinaryExtension(ext)) return null
+        if (isBinaryExtension(ext)) return false
 
-        val fileText =
+        val charset = Charset.forName(Settings.encoding)
+
+        // Do not search in file if it's likely to be binary (character based detection)
+        val isBinary =
             withContext(Dispatchers.IO) {
                 try {
-                    file.readText()
+                    file.useInputStream { stream ->
+                        val buffer = CharArray(1024)
+                        val charsRead = InputStreamReader(stream, charset).read(buffer, 0, buffer.size)
+                        val sample = String(buffer, 0, charsRead)
+                        hasBinaryChars(sample)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    null
+                    true
                 }
             }
-        // Do not search in file if it's likely to be binary (character based detection)
-        if (fileText == null || hasBinaryChars(fileText)) return null
-
-        return fileText
+        return !isBinary
     }
 
     suspend fun index(context: Context, projectRoot: FileObject) {
@@ -529,8 +566,10 @@ class SearchViewModel : ViewModel() {
         val newFileMetas = mutableListOf<FileMeta>()
 
         try {
-            indexRecursively(projectRoot, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
-            updateIndex(database, indexedFiles, pathsToKeep, codeLineDao, fileMetaDao, newCodeLines, newFileMetas)
+            suspend fun flushBatch() = this@SearchViewModel.flushBatch(codeLineDao, newCodeLines)
+
+            indexRecursively(projectRoot, indexedFiles, pathsToKeep, newCodeLines, newFileMetas, ::flushBatch)
+            finalizeIndex(database, indexedFiles, pathsToKeep, codeLineDao, fileMetaDao, newCodeLines, newFileMetas)
         } finally {
             isIndexing[projectRoot] = false
         }
@@ -547,21 +586,24 @@ class SearchViewModel : ViewModel() {
                     val fileMetaDao = database.fileMetaDao()
 
                     val indexedFiles = fileMetaDao.getAll().associateBy { it.path }
+                    val filteredIndexedFiles = indexedFiles.filter { it.key.startsWith(file.getAbsolutePath()) }
                     val pathsToKeep = mutableSetOf<String>()
 
                     val newCodeLines = mutableListOf<CodeLine>()
                     val newFileMetas = mutableListOf<FileMeta>()
 
                     try {
+                        suspend fun flushBatch() = this@SearchViewModel.flushBatch(codeLineDao, newCodeLines)
+
                         if (file == database.projectRoot) {
-                            indexRecursively(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+                            indexRecursively(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas, ::flushBatch)
                         } else {
-                            indexFile(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas)
+                            indexFile(file, indexedFiles, pathsToKeep, newCodeLines, newFileMetas, ::flushBatch)
                         }
 
-                        updateIndex(
+                        finalizeIndex(
                             database,
-                            indexedFiles.filter { it.key.startsWith(file.getAbsolutePath()) },
+                            filteredIndexedFiles,
                             pathsToKeep,
                             codeLineDao,
                             fileMetaDao,
@@ -580,7 +622,16 @@ class SearchViewModel : ViewModel() {
         IndexDatabase.removeDatabase(context, projectRoot)
     }
 
-    private suspend fun updateIndex(
+    // Called mid-traversal (to reduce memory allocation size of newCodeLines and newFileMetas)
+    private suspend fun flushBatch(codeLineDao: CodeLineDao, newCodeLines: MutableList<CodeLine>) {
+        if (newCodeLines.size > CODE_BATCH_SIZE) {
+            codeLineDao.insertAll(newCodeLines)
+            newCodeLines.clear()
+        }
+    }
+
+    // Only called once at the end of indexing and sync (handles deletions + remaining inserts)
+    private suspend fun finalizeIndex(
         database: IndexDatabase,
         indexedFiles: Map<String, FileMeta>,
         pathsToKeep: MutableSet<String>,
@@ -609,13 +660,22 @@ class SearchViewModel : ViewModel() {
         pathsToKeep: MutableSet<String>,
         codeLineResults: MutableList<CodeLine>,
         fileMetaResults: MutableList<FileMeta>,
+        flushBatch: suspend () -> Unit,
         isResultHidden: Boolean = false,
     ) {
         val childFiles = parent.listFiles()
 
         for (file in childFiles) {
             currentCoroutineContext().ensureActive()
-            indexFile(file, indexedFiles, pathsToKeep, codeLineResults, fileMetaResults, isResultHidden)
+            indexFile(
+                file,
+                indexedFiles,
+                pathsToKeep,
+                codeLineResults,
+                fileMetaResults,
+                flushBatch = flushBatch,
+                isResultHidden = isResultHidden,
+            )
         }
     }
 
@@ -625,6 +685,7 @@ class SearchViewModel : ViewModel() {
         pathsToKeep: MutableSet<String>,
         codeLineResults: MutableList<CodeLine>,
         fileMetaResults: MutableList<FileMeta>,
+        flushBatch: suspend () -> Unit,
         isResultHidden: Boolean = false,
     ) {
         val isHidden = file.getName().startsWith(".") || isResultHidden
@@ -645,6 +706,7 @@ class SearchViewModel : ViewModel() {
             fileMetaResults.add(
                 FileMeta(path = path, fileName = file.getName(), lastModified = lastModified, size = file.length())
             )
+            flushBatch()
         }
 
         if (file.isDirectory()) {
@@ -654,26 +716,32 @@ class SearchViewModel : ViewModel() {
                 pathsToKeep = pathsToKeep,
                 codeLineResults = codeLineResults,
                 fileMetaResults = fileMetaResults,
+                flushBatch = flushBatch,
                 isResultHidden = isHidden,
             )
             return
         }
 
-        val fileText = getFileContentOrNull(file) ?: return
+        if (!isFileSearchable(file)) return
+        val charset = Charset.forName(Settings.encoding)
 
-        val lines = fileText.lines()
-        lines.forEachIndexed { lineIndex, line ->
-            val chunks = line.chunked(MAX_CHUNK_SIZE)
-            chunks.forEachIndexed { chunkIndex, chunk ->
-                currentCoroutineContext().ensureActive()
-                codeLineResults.add(
-                    CodeLine(
-                        content = chunk,
-                        path = path,
-                        lineNumber = lineIndex,
-                        chunkStart = chunkIndex * MAX_CHUNK_SIZE,
-                    )
-                )
+        file.useInputStream { inputStream ->
+            inputStream.bufferedReader(charset).useLines { lineSequence ->
+                lineSequence.forEachIndexed { lineIndex, line ->
+                    val chunks = line.chunked(MAX_CHUNK_SIZE)
+                    chunks.forEachIndexed { chunkIndex, chunk ->
+                        currentCoroutineContext().ensureActive()
+                        codeLineResults.add(
+                            CodeLine(
+                                content = chunk,
+                                path = path,
+                                lineNumber = lineIndex,
+                                chunkStart = chunkIndex * MAX_CHUNK_SIZE,
+                            )
+                        )
+                        flushBatch()
+                    }
+                }
             }
         }
     }

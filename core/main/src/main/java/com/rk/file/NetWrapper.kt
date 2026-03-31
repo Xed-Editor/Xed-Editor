@@ -68,6 +68,10 @@ class NetWrapper(private val url: URL) : FileObject {
         return withContext(Dispatchers.IO) { url.openStream() }
     }
 
+    override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
+        return withContext(Dispatchers.IO) { url.openStream().use { block(it) } }
+    }
+
     override suspend fun getOutPutStream(append: Boolean): OutputStream {
         throw UnsupportedOperationException("URL is read-only")
     }

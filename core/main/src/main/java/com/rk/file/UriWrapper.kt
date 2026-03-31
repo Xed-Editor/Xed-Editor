@@ -141,6 +141,13 @@ class UriWrapper : FileObject {
                 ?: throw IOException("Could not open input stream for: ${file.uri}")
         }
 
+    override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
+        return withContext(Dispatchers.IO) {
+            application!!.contentResolver?.openInputStream(file.uri)?.use { block(it) }
+                ?: throw IOException("Could not open input stream for: ${file.uri}")
+        }
+    }
+
     override suspend fun getOutPutStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             val mode = if (append) "wa" else "wt"
