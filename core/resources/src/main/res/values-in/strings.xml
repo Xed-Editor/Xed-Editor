@@ -637,4 +637,6 @@
     <string name="see_termux_extra_keys">Terminal ini menggunakan format tombol tambahan Termux</string>
     <string name="scrollback_buffer">Ukuran buffer gulir</string>
     <string name="scrollback_buffer_desc">Jumlah baris yang disimpan terminal dalam memori sebagai riwayat</string>
+    <string name="file_type">Tipe file</string>
+    <string name="git_status">Status Git</string>
 </resources>
