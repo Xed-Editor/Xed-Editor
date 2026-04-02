@@ -42,6 +42,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +56,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
@@ -64,6 +66,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.terminal.Terminal
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.editor.FontCache
@@ -73,6 +76,7 @@ import com.rk.file.sandboxDir
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
+import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
@@ -106,8 +110,9 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         composable("terminal") {
             TerminalScreenInternal(terminalActivity = terminalActivity, navController = navController)
         }
-        composable("terminal_settings") { SettingsTerminalScreen(navController) }
-        composable("terminal_extra_keys") { TerminalExtraKeys() }
+        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
+        composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
+        composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
     }
 }
 
@@ -118,7 +123,10 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
     val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
     val isDarkMode = isSystemInDarkTheme()
     val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
     val currentTheme = LocalThemeHolder.current
+
+    DisposableEffect(Unit) { onDispose { keyboardController?.hide() } }
 
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

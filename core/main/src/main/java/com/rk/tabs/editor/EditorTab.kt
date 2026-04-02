@@ -38,6 +38,7 @@ import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
+import com.rk.color.ColorPicker
 import com.rk.components.AddDialogItem
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
@@ -476,6 +477,21 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         }
                     },
                 )
+
+                val showColorPicker = editorState.showColorPicker
+                if (showColorPicker != null) {
+                    ColorPicker(
+                        initialColor = showColorPicker.first,
+                        initialFormat = showColorPicker.second,
+                        onApply = {
+                            val textRange = editorState.colorPickerRange ?: return@ColorPicker
+                            val editor = editorState.editor.get() ?: return@ColorPicker
+                            editor.text.replace(textRange.startIndex, textRange.endIndex, it)
+                        },
+                    ) {
+                        editorState.showColorPicker = null
+                    }
+                }
 
                 if (Settings.show_extra_keys) {
                     ExtraKeys(editorTab = this@EditorTab)

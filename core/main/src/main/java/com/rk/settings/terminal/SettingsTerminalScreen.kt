@@ -99,6 +99,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
             NextScreenCard(
                 label = stringResource(strings.manage_terminal_font),
                 description = stringResource(strings.manage_terminal_font),
+                navController = overrideNavController ?: settingsNavController.get(),
                 route = SettingsRoutes.TerminalFontScreen,
             )
 
