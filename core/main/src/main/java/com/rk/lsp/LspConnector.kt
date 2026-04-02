@@ -165,10 +165,9 @@ class LspConnector(
             launch { servers.forEach { it.beforeConnect() } }
 
             try {
-                lspEditor!!.connectWithTimeout()
-                lspEditor!!
-                    .requestManager
-                    .didChangeWorkspaceFolders(
+                lspEditor?.apply {
+                    connectWithTimeout()
+                    requestManager.didChangeWorkspaceFolders(
                         DidChangeWorkspaceFoldersParams().apply {
                             event =
                                 WorkspaceFoldersChangeEvent().apply {
@@ -177,7 +176,8 @@ class LspConnector(
                                 }
                         }
                     )
-                lspEditor!!.openDocument()
+                    openDocument()
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

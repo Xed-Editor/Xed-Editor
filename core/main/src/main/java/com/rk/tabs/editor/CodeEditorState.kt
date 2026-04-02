@@ -5,12 +5,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.compose.ui.graphics.Color
+import com.rk.color.ColorFormat
 import com.rk.editor.Editor
 import com.rk.runner.RunnerImpl
 import com.rk.search.CodeItem
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.Content
+import io.github.rosemoe.sora.text.TextRange
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
@@ -18,7 +20,6 @@ import org.ec4j.core.ResourceProperties
 
 data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
-    var rootView: WeakReference<ConstraintLayout?> = WeakReference(null)
 
     var content = initialContent
     var isDirty by mutableStateOf(false)
@@ -58,6 +59,9 @@ data class CodeEditorState(val initialContent: Content? = null) {
 
     var runnersToShow by mutableStateOf<List<RunnerImpl>>(emptyList())
     var showRunnerDialog by mutableStateOf(false)
+
+    var showColorPicker by mutableStateOf<Pair<Color, ColorFormat>?>(null)
+    var colorPickerRange by mutableStateOf<TextRange?>(null)
 
     var canUndo by mutableStateOf(false)
     var canRedo by mutableStateOf(false)

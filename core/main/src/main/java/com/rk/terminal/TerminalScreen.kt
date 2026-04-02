@@ -64,6 +64,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.terminal.Terminal
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.editor.FontCache
@@ -73,6 +74,7 @@ import com.rk.file.sandboxDir
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
+import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
@@ -106,8 +108,9 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         composable("terminal") {
             TerminalScreenInternal(terminalActivity = terminalActivity, navController = navController)
         }
-        composable("terminal_settings") { SettingsTerminalScreen(navController) }
-        composable("terminal_extra_keys") { TerminalExtraKeys() }
+        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
+        composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
+        composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
     }
 }
 

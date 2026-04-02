@@ -646,4 +646,6 @@
     <string name="scrollback_buffer_desc">Number of lines the terminal keeps in memory as history</string>
     <string name="file_type">File type</string>
     <string name="git_status">Git status</string>
+    <string name="invalid_color">Invalid color</string>
+    <string name="color_picker">Pick a color</string>
 </resources>

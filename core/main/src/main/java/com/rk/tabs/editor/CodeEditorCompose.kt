@@ -15,6 +15,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.net.toUri
@@ -22,6 +23,8 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.snackbarHostStateRef
+import com.rk.color.ColorFormat
+import com.rk.color.parseUnknownColor
 import com.rk.commands.KeybindingsManager
 import com.rk.editor.Editor
 import com.rk.editor.LanguageManager
@@ -39,11 +42,16 @@ import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.utils.info
 import com.rk.utils.logWarn
+import com.rk.utils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
+import io.github.rosemoe.sora.event.InlayHintClickEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
+import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
+import io.github.rosemoe.sora.text.CharPosition
+import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.component.TextActionItem
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
@@ -137,6 +145,33 @@ fun Editor.registerXedEvents(
     file: FileObject,
     onTextChange: () -> Unit,
 ) {
+    subscribeAlways(InlayHintClickEvent::class.java) { event ->
+        val hint = event.inlayHint
+        if (hint is ColorInlayHint) {
+            val colorRange = hint.colorRange
+            val indexedColorRange =
+                colorRange?.let {
+                    val startIndex = event.editor.text.getCharIndex(colorRange.start.line, colorRange.start.column)
+                    val endIndex = event.editor.text.getCharIndex(colorRange.end.line, colorRange.end.column)
+                    TextRange(
+                        CharPosition(colorRange.start.line, colorRange.start.column, startIndex),
+                        CharPosition(colorRange.end.line, colorRange.end.column, endIndex),
+                    )
+                }
+
+            if (indexedColorRange != null) {
+                val colorText = event.editor.text.substring(indexedColorRange.startIndex, indexedColorRange.endIndex)
+                val colorValue = hint.color.resolve(colorScheme).let { Color(it) }
+                val parsedColor = colorText.parseUnknownColor() ?: (colorValue to ColorFormat.HEX)
+
+                editorTab.editorState.showColorPicker = parsedColor
+                editorTab.editorState.colorPickerRange = indexedColorRange
+            } else {
+                toast(strings.invalid_color)
+            }
+        }
+    }
+
     subscribeAlways(PublishDiagnosticsEvent::class.java) { event ->
         val viewModel = fileTreeViewModel.get()
         val diagnostics = event.newDiagnosticsEvent

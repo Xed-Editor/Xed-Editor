@@ -12,6 +12,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.rk.DocumentProvider
@@ -75,6 +77,9 @@ enum class TerminalCursorStyle(val value: String, val stringRes: Int) {
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    LaunchedEffect(keyboardController) { keyboardController?.hide() }
+
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
         val activity = LocalActivity.current as? AppCompatActivity
@@ -99,6 +104,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
             NextScreenCard(
                 label = stringResource(strings.manage_terminal_font),
                 description = stringResource(strings.manage_terminal_font),
+                navController = overrideNavController ?: settingsNavController.get(),
                 route = SettingsRoutes.TerminalFontScreen,
             )
 
