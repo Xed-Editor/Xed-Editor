@@ -642,4 +642,6 @@
     <string name="see_termux_extra_keys">Terminal, Termux ekstra anahtarlar biçimini kullanır</string>
     <string name="scrollback_buffer">Kaydırma arabelleği boyutu</string>
     <string name="scrollback_buffer_desc">Terminalin hafızasında geçmiş olarak tuttuğu satır sayısı</string>
+    <string name="file_type">Dosya türü</string>
+    <string name="git_status">Git durumu</string>
 </resources>
