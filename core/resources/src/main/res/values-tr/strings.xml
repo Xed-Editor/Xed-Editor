@@ -644,4 +644,6 @@
     <string name="scrollback_buffer_desc">Terminalin hafızasında geçmiş olarak tuttuğu satır sayısı</string>
     <string name="file_type">Dosya türü</string>
     <string name="git_status">Git durumu</string>
+    <string name="invalid_color">Yanlış renk</string>
+    <string name="color_picker">Bir renk seçin</string>
 </resources>
