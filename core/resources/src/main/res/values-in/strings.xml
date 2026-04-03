@@ -639,4 +639,6 @@
     <string name="scrollback_buffer_desc">Jumlah baris yang disimpan terminal dalam memori sebagai riwayat</string>
     <string name="file_type">Tipe file</string>
     <string name="git_status">Status Git</string>
+    <string name="invalid_color">Warna tidak valid</string>
+    <string name="color_picker">Pilih warna</string>
 </resources>
