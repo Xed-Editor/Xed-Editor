@@ -618,4 +618,7 @@
     <string name="cursor_style_desc">Změnit styl kurzoru</string>
     <string name="block">Blok</string>
     <string name="underline">Podtržítko</string>
+    <string name="appearance">Vzhled</string>
+    <string name="scrollback_buffer">Velikost vyrovnávací paměti rolování</string>
+    <string name="ext_not_found_desc">Tato stránka není dostupná. Stát se to může jestli lokální doplňek byl odinstalován nebo doplňek v obchodě byl odstraněn z registru vlastníkem.</string>
 </resources>
