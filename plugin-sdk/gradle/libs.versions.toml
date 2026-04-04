@@ -109,7 +109,7 @@ lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" 
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version = "2.14" }
 junit = { module = "junit:junit", version = "4.13.2" }
 jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.64" }
-joni = { module = "org.jruby.joni:joni", version = "2.2.6" }
+joni = { module = "org.jruby.joni:joni", version = "2.2.7" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "3.0.1" }
 moshi = { module = "com.squareup.moshi:moshi", version = "1.15.2" }
 jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.100" }
