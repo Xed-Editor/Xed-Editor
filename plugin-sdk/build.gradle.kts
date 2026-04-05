@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    kotlin("jvm") version "2.0.10"
+    kotlin("jvm") version "2.3.20"
     id("com.gradleup.shadow") version "9.3.0"
 }
 
