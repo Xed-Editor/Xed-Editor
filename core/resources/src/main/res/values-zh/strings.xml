@@ -635,7 +635,10 @@
     <string name="underline">下划线</string>
     <string name="bar">条状</string>
     <string name="appearance">外观</string>
-    <string name="see_termux_extra_keys">终端使用 Termux 拓展按键格式</string>
+    <string name="see_termux_extra_keys">此终端使用 Termux 的额外按键格式</string>
     <string name="scrollback_buffer">滚动缓冲区大小</string>
     <string name="scrollback_buffer_desc">终端在内存中保留的历史行数</string>
+    <string name="file_type">文件类型</string>
+    <string name="git_status">Git 状态</string>
+    <string name="color_picker">选择颜色</string>
 </resources>
