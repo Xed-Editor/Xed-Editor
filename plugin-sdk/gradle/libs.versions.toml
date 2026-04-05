@@ -112,7 +112,7 @@ jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.64" }
 joni = { module = "org.jruby.joni:joni", version = "2.2.7" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "3.0.1" }
 moshi = { module = "com.squareup.moshi:moshi", version = "1.15.2" }
-jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.100" }
+jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.4.100" }
 monarch-code = { module = "io.github.dingyi222666.monarch:monarch", version = "1.0.3" }
 monarch-language-pack = { module = "io.github.dingyi222666.monarch:monarch-language-pack", version = "1.0.2" }
 monarch-json = { module = "io.github.dingyi222666.monarch:monarch-json-loader", version = "1.0.2" }
