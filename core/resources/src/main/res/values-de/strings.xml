@@ -642,4 +642,8 @@
     <string name="see_termux_extra_keys">Das Terminal verwendet das Termux-Zusatztastenformat</string>
     <string name="scrollback_buffer">Größe des Scrollback-Puffers</string>
     <string name="scrollback_buffer_desc">Anzahl der Zeilen, die das Terminal als Verlauf im Speicher behält</string>
+    <string name="file_type">Dateityp</string>
+    <string name="git_status">Git-Status</string>
+    <string name="invalid_color">Ungültige Farbe</string>
+    <string name="color_picker">Wähle eine Farbe</string>
 </resources>
