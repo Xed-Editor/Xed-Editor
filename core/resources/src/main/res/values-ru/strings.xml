@@ -649,4 +649,8 @@
     <string name="see_termux_extra_keys">Терминал использует формат дополнительных ключей Termux</string>
     <string name="scrollback_buffer">Размер буфера прокрутки</string>
     <string name="scrollback_buffer_desc">Количество строк, которые терминал хранит в памяти в качестве истории</string>
+    <string name="file_type">Тип файла</string>
+    <string name="git_status">Статус Git</string>
+    <string name="invalid_color">Недопустимый цвет</string>
+    <string name="color_picker">Выберите цвет</string>
 </resources>
