@@ -138,7 +138,7 @@
     <string name="add_session">Ajouter session</string>
     <string name="ext_desc">Gérer les extensions</string>
     <string name="tab_opened">Onglet ouvert</string>
-    <string name="no_ext">Aucune extension installée.</string>
+    <string name="no_ext">Aucune extension trouvée.</string>
     <string name="loading">Chargement…</string>
     <string name="network_err">Erreur réseau. Vérifiez que votre connexion internet fonctionne correctement.</string>
     <string name="update">Mise-à-jour</string>
@@ -375,7 +375,7 @@
     <string name="press_key">Appuyer sur une combinaison de touches (devant contenir Ctrl ou Alt)</string>
     <string name="ctrl">Ctrl</string>
     <string name="alt">Alt</string>
-    <string name="shift">Maj.</string>
+    <string name="shift">Majuscule</string>
     <string name="keybinds_info">Xed-editor gère des raccourcis clavier matériel pour vous aider à travailler plus vite et plus efficacement. Une large gamme de raccourcis clavier sont déjà disponibles par défaut et vous pouvez les configurer ci-dessous à votre convenance.</string>
     <string name="reset_all">Tout réinitialiser</string>
     <string name="search_keybinds">Commandes de recherche ou raccourcis clavier</string>
@@ -614,11 +614,11 @@
     <string name="terminal_font_warning">Le fichier de police \"etc/font.ttf\" prend le pas sur la police choisie ci-dessous. Supprimez le fichier dans la sandbox du terminal pour appliquer les polices personnalisées.</string>
     <string name="manifest_missing_fields">Le fichier manifest.json contient des propriétés manquantes ou invalides :\n%s\n\nVérifiez le fichier, s\'il vous plait, et réessayez.</string>
     <string name="ext_not_found">Extension non trouvée</string>
-    <string name="ext_not_found_desc">Cette page n\'est pas accessible. Cela peut se produire si une extension locale a été désinstallée ou si une extension officielle a été supprimée du registre par son propriétaire.</string>
+    <string name="ext_not_found_desc">Cette page n\'est pas disponible. Cela peut se produire si une extension locale a été désinstallée ou si une extension officielle a été supprimée du registre par son propriétaire.</string>
     <string name="downloads">Téléchargements</string>
     <string name="rating">Notation</string>
     <string name="overview">Aperçu</string>
-    <string name="store">Stockage</string>
+    <string name="store">Magasin</string>
     <string name="search_extensions">Recherche d\'extensions</string>
     <string name="date_added">Date ajoutée</string>
     <string name="verified">Vérifié</string>
@@ -631,12 +631,12 @@
     <string name="view_gitlab">Afficher sur GitLab</string>
     <string name="view_bitbucket">Afficher sur BitBucket</string>
     <string name="view_repo">Afficher le dépôt</string>
-    <string name="reviews_not_supported">Les critiques ne sont disponibles pour cette extension.</string>
+    <string name="reviews_not_supported">Les avis ne sont disponibles pour cette extension.</string>
     <string name="cursor_style">Style de curseur</string>
     <string name="cursor_style_desc">Change le style de curseur</string>
-    <string name="block">Bloquer</string>
+    <string name="block">Bloc</string>
     <string name="underline">Souligner</string>
-    <string name="bar">Barre</string>
+    <string name="bar">Barré</string>
     <string name="appearance">Apparence</string>
     <string name="reviews">Critiques</string>
     <string name="changelog">Journal des modifications</string>
