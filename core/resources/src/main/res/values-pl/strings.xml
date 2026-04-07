@@ -616,4 +616,19 @@
     <string name="manifest_missing_fields">Plik manifest.json ma brakujące lub nieprawidłowe właściwości:\n%s\n\nProszę, sprawdź plik oraz spróbuj ponownie.</string>
     <string name="manage_app_font">Zarządzaj czcionkami aplikacji</string>
     <string name="manage_terminal_font">Zarządzaj czcionkami terminalu</string>
+    <string name="rating">Oceny</string>
+    <string name="overview">Szczegóły</string>
+    <string name="reviews">Recenzje</string>
+    <string name="changelog">Dziennik zmian</string>
+    <string name="empty_err">Nic tu nie ma... jeszcze.</string>
+    <string name="all">Wszystkie</string>
+    <string name="local">Lokalne</string>
+    <string name="store">Sklep</string>
+    <string name="search_extensions">Szukaj rozszerzeń</string>
+    <string name="date_added">Data dodania</string>
+    <string name="verified">Zweryfikowane</string>
+    <string name="filter_options">Opcje filtrowania</string>
+    <string name="sort_options">Opcje sortowania</string>
+    <string name="source_code">Kod źródłowy</string>
+    <string name="ext_source_desc">Rozszerzenie jest otwartoźródłowe. Wkład oraz zgłaszanie błędów są mile widzane na stronie oficjalnego repozytorium.</string>
 </resources>
