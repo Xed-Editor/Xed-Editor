@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="unsupported_content">지원되지 않는 콘텐츠</string>
-    <string name="restart_required">재시작이 필요해요</string>
+    <string name="restart_required">재시작이 필요합니다</string>
     <string name="save">저장</string>
     <string name="open_directory">디렉터리 열기</string>
     <string name="new_file">새 파일</string>
@@ -53,7 +53,7 @@
     <string name="open">열기</string>
     <string name="permission_denied">권한 거부됨</string>
     <string name="manage_storage">저장공간 관리</string>
-    <string name="manage_storage_reason">Xed-Editor는 저장공간에서 파일을 수정하기 위한 권한이 필요로 해요. 시스템 설정에서 권한을 허용해 주세요.</string>
+    <string name="manage_storage_reason">Xed-Editor는 저장공간에서 파일을 수정하기 위한 권한이 필요로 합니다. 시스템 설정에서 권한을 허용해 주세요.</string>
     <string name="ok">확인</string>
     <string name="clone_repo">저장소 복제하기</string>
     <string name="clone_repo_desc">원격 저장소 복제하기</string>
@@ -76,28 +76,28 @@
     <string name="smooth_tabs">부드러운 탭</string>
     <string name="smooth_tab_desc">탭 사이의 전환을 부드럽게 해줘요</string>
     <string name="word_wrap_desc">에디터에서 자동 줄바꿈을 켜줘요</string>
-    <string name="drawer_lock_desc">파일을 열 때 사이드 메뉴 잠금을 유지해요</string>
+    <string name="drawer_lock_desc">파일을 열 때 사이드 메뉴 잠금을 유지합니다</string>
     <string name="cursor_anim">커서 애니메이션</string>
-    <string name="cursor_anim_desc">부드러운 커서 애니메이션을 활성화해요</string>
+    <string name="cursor_anim_desc">부드러운 커서 애니메이션을 활성화합니다</string>
     <string name="cursor_style">커서 스타일</string>
     <string name="cursor_style_desc">커서 스타일을 바꿔요</string>
     <string name="show_line_number">줄 번호 표시하기</string>
     <string name="pin_line_number">줄 번호 고정</string>
     <string name="extra_keys">개별 키</string>
-    <string name="extra_keys_desc">키보드 위에 개별 키를 표시해요</string>
+    <string name="extra_keys_desc">키보드 위에 개별 키를 표시합니다</string>
     <string name="auto_save">자동 저장</string>
     <string name="auto_save_desc">파일을 자동으로 저장하요</string>
     <string name="auto_save_delay">자동 저장 지연 시간</string>
-    <string name="auto_save_delay_desc">자동 저장 사이의 지연 시간을 조절해요(단위 ms)</string>
+    <string name="auto_save_delay_desc">자동 저장 사이의 지연 시간(ms)을 조절합니다</string>
     <string name="value_invalid">유효하지 않는 값</string>
     <string name="value_small">값이 너무 작아요</string>
     <string name="value_large">값이 너무 커요</string>
     <string name="text_size">글자 크기</string>
-    <string name="text_size_desc">글자 크기를 선택해요</string>
+    <string name="text_size_desc">글자 크기를 선택합니다</string>
     <string name="tab_size">탭 크기</string>
-    <string name="tab_size_desc">Tab 키를 입력했을 때 삽입될 공백의 수를 정해요</string>
+    <string name="tab_size_desc">Tab 키를 입력했을 때 삽입될 공백의 수를 정합니다</string>
     <string name="monet">다이나믹 컬러</string>
-    <string name="monet_desc">디바이스의 테마를 앱에서 사용해요</string>
+    <string name="monet_desc">디바이스의 테마를 앱에서도 사용합니다</string>
     <string name="app_desc">일반 앱 설정</string>
     <string name="editor_desc">일반 에디터 설정</string>
     <string name="terminal_desc">일반 터미널 설정</string>
@@ -107,7 +107,7 @@
     <string name="dark_mode">다크</string>
     <string name="auto_mode">시스템 설정에 따름</string>
     <string name="theme_mode">테마 설정</string>
-    <string name="theme_mode_desc">앱의 색 테마를 변경해요</string>
+    <string name="theme_mode_desc">앱의 색 테마를 변경합니다</string>
     <string name="show_suggestions">키보드 제안 표시</string>
     <string name="about">정보</string>
     <string name="about_desc">Xed-Editor에 대한 정보</string>
@@ -122,7 +122,7 @@
     <string name="click_open">여기를 눌러 파일을 여세요</string>
     <string name="run">실행</string>
     <string name="txt_word_wrap">TXT 파일 줄바꿈</string>
-    <string name="txt_word_wrap_desc">TXT 파일을 자동으로 줄바꿈해요</string>
+    <string name="txt_word_wrap_desc">TXT 파일을 자동으로 줄바꿈합니다</string>
     <string name="manage_editor_font">에디터 폰트 관리</string>
     <string name="default_encoding">기본 인코딩</string>
     <string name="default_encoding_desc">에디터 기본 인코딩</string>
@@ -164,7 +164,7 @@
     <string name="downloading">다운로드 중…</string>
     <string name="network_err">네트워크 에러. 인터넷 연결이 제대로 되고 있는지 확인해주세요.</string>
     <string name="disable_virtual_kbd">가상 키보드 비활성화</string>
-    <string name="disable_virtual_kbd_desc">하드웨어 키보드를 이용할 수 있는 경우, 가상 키보드를 비활성화해요</string>
+    <string name="disable_virtual_kbd_desc">하드웨어 키보드를 이용할 수 있는 경우, 가상 키보드를 비활성화합니다</string>
     <string name="highlighting">구문 강조</string>
     <string name="toggle_word_wrap">자동 줄바꿈 켜기/끄기</string>
     <string name="warning_private_dir">Xed-Editor를 지울 경우, 이 디렉터리의 내용도 함께 삭제됩니다</string>
@@ -177,4 +177,13 @@
     <string name="failed">실패</string>
     <string name="unknown_err">오류가 발생했어요</string>
     <string name="expose_saf">홈 디렉터리 노출</string>
+    <string name="expose_saf_desc">시스템 파일 선택기를 통해서 외부 앱에서 홈 디렉터리에 접근할 수 있게 합니다</string>
+    <string name="saf_expose_warning">홈 디렉터리를 노출하면 Git 토큰, 비밀번호, 사용자 이름 등, 터미널 홈 디렉터리에 저장된 다른 파일이 악성 앱에 노출될 수 있습니다. 계속하시겠습니까?</string>
+    <string name="info">정보</string>
+    <string name="size">크기</string>
+    <string name="copied">복사됨</string>
+    <string name="temp_file">임시 파일</string>
+    <string name="manage_storage_desc">저장공간 권한 관리</string>
+    <string name="lang">언어</string>
+    <string name="lang_desc">언어 설정</string>
 </resources>
