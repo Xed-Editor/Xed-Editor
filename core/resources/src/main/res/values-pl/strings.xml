@@ -81,7 +81,7 @@
     <string name="name_empty_err">Pole nie może być puste</string>
     <string name="installing">Instaluje…</string>
     <string name="install_from_storage">Instaluj z pamięci</string>
-    <string name="no_ext">Brak zainstalowanych rozszerzeń.</string>
+    <string name="no_ext">Brak rozszerzeń.</string>
     <string name="loading">Ładuje…</string>
     <string name="disable_virtual_kbd">Wyłącz wirtualną klawiaturę</string>
     <string name="disable_virtual_kbd_desc">Wyłącz wirtualną klawiaturę jeśli klawiatura fizyczna jest dostępna</string>
@@ -613,4 +613,7 @@
     <string name="file_actions">Czynności pliku</string>
     <string name="show_minimap">Pokaż minimapę</string>
     <string name="show_minimap_desc">Pokaż minimapę po prawej stronie ekranu</string>
+    <string name="manifest_missing_fields">Plik manifest.json ma brakujące lub nieprawidłowe właściwości:\n%s\n\nProszę, sprawdź plik oraz spróbuj ponownie.</string>
+    <string name="manage_app_font">Zarządzaj czcionkami aplikacji</string>
+    <string name="manage_terminal_font">Zarządzaj czcionkami terminalu</string>
 </resources>
