@@ -36,7 +36,7 @@
     <string name="refresh">Перезагрузить</string>
     <string name="create">Создать</string>
     <string name="attention">Внимание</string>
-    <string name="ask_deletion_one">Вы уверены, что хотите навсегда удалить \'%s\'?</string>
+    <string name="ask_deletion_one">Вы уверены, что хотите навсегда удалить «%s»?</string>
     <string name="cant_handle">Не найдено приложение для обработки файла</string>
     <string name="terminal">Терминал</string>
     <string name="add_file">Добавить внешний файл</string>
@@ -45,11 +45,11 @@
     <string name="apply">Применить</string>
     <string name="open_in_terminal">Открыть в терминале</string>
     <string name="file_open_denied">Открытие этого файла другими программами запрещено</string>
-    <string name="close_current_project">Вы уверены, что хотите закрыть проект \'%s\'?</string>
+    <string name="close_current_project">Вы уверены, что хотите закрыть проект «%s»?</string>
     <string name="file_name">Имя файла</string>
     <string name="path">Путь</string>
     <string name="open">Открыть</string>
-    <string name="permission_denied">Доступ запрещен</string>
+    <string name="permission_denied">Доступ запрещён</string>
     <string name="manage_storage">Доступ к хранилищу</string>
     <string name="manage_storage_reason">Xed-Editor требуется доступ для редактирования файлов в вашем хранилище. Пожалуйста, разрешите доступ в следующем окне настроек.</string>
     <string name="ok">ОК</string>
@@ -354,7 +354,7 @@
     <string name="select_key">Выберите код клавиши</string>
     <string name="split_extra_keys">Разделить дополнительные клавиши</string>
     <string name="split_extra_keys_desc">Разделить доп. панель клавиш на два ряда, чтобы разделить команды и символы</string>
-    <string name="open_removable_storage">Открыть removable storage</string>
+    <string name="open_removable_storage">Открыть удаляемое хранилище</string>
     <string name="restore_terminal">Восстановить терминал из бэкапа</string>
     <string name="terminal_backup">Создать бэкап терминала</string>
     <string name="show_hidden_files">Показать скрытые файлы</string>
@@ -381,7 +381,7 @@
     <string name="alt">Alt</string>
     <string name="shift">Shift</string>
     <string name="reset_all">Сбросить всё</string>
-    <string name="clone_repo_desc">Клонировать удаленный репозиторий</string>
+    <string name="clone_repo_desc">Клонировать удалённый репозиторий</string>
     <string name="repo_url">Ссылка на репозиторий</string>
     <string name="branch">Ветка</string>
     <string name="value_empty_err">Значение не должно быть пустым</string>
@@ -607,7 +607,7 @@
     <string name="fullscreen_desc">Запускать приложение в полноэкранном режиме</string>
     <string name="smart_toolbar">Умная панель инструментов</string>
     <string name="smart_toolbar_desc">Скрывать панель инструментов во время редактирования, чтобы освободить место на экране</string>
-    <string name="ask_deletion_many">Вы действительно хотите безвозвратно удалить %d файлов?</string>
+    <string name="ask_deletion_many">Вы действительно хотите безвозвратно удалить %d фйл.?</string>
     <string name="paste_failed">Невозможно вставить файл</string>
     <string name="file_actions">Действия с файлом</string>
     <string name="show_minimap">Показать мини-карту</string>
