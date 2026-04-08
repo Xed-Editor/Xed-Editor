@@ -139,7 +139,7 @@
     <string name="ask_multiple_unsaved">정말 저장하지 않은 문서들을 버리시겠어요?</string>
     <string name="discard">버리기</string>
     <string name="warning">경고</string>
-    <string name="encoding_warning">기본 인코딩을 바꾸는 것은 강력히 추천드리지 않아요, 변경할 경우 파일 변형이 일어날 수 있습니다. 이 변경으로 인한 영향을 완전히 이해하지 않았거나 적절한 백업 파일을 만들어 두지 않았을 경우, UTF-8로 사용하는 것을 강력히 권장드려요.</string>
+    <string name="encoding_warning">기본 인코딩을 바꾸는 것은 강력히 추천드리지 않아요, 변경할 경우 파일 변형이 일어날 수 있습니다. 이 변경으로 인한 영향을 완전히 이해하지 않았거나 적절한 백업 파일을 만들어 두지 않았을 경우, UTF-8로 사용하는 것을 강력히 권장드립니다.</string>
     <string name="line_spacing">줄 간격</string>
     <string name="line_spacing_desc">에디터에서 각 줄의 높이 배율</string>
     <string name="update_av">새로운 업데이트를 이용할 수 있어요</string>
