@@ -631,4 +631,8 @@
     <string name="sort_options">Opcje sortowania</string>
     <string name="source_code">Kod źródłowy</string>
     <string name="ext_source_desc">Rozszerzenie jest otwartoźródłowe. Wkład oraz zgłaszanie błędów są mile widzane na stronie oficjalnego repozytorium.</string>
+    <string name="file_type">Typ pliku</string>
+    <string name="git_status">Stan Git</string>
+    <string name="invalid_color">Nieprawidłowy kolor</string>
+    <string name="color_picker">Wybierz kolor</string>
 </resources>
