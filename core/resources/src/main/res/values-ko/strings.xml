@@ -204,4 +204,12 @@
     <string name="cut">잘라내기</string>
     <string name="timeout">타임아웃으로 인해 다운로드가 취소되었습니다. 인터넷 연결이 안정한지 반드시 확인해주세요</string>
     <string name="theme_settings">테마 설정</string>
+    <string name="add_theme">테마 추가</string>
+    <string name="unsupported_feature">이 기능은 이 스마트폰에서 지원하지 않습니다</string>
+    <string name="confirm_exit">정말 종료하실 거예요?</string>
+    <string name="tab_memory_warning">이 탭을 열 수 있는 메모리가 충분하지 않습니다. 이대로 탭을 열 경우, Xed-Editor가 충돌할 수 있습니다. 정말 계속하실 건가요?</string>
+    <string name="read_mode_desc">읽기 모드를 기본값으로 활성화</string>
+    <string name="acquire_wakelock">절전 방지 활성화</string>
+    <string name="release_wakelock">절전 방지 끄기</string>
+    <string name="native_runner">해당 러너는 네이티브 파일에서만 돌아가며, 터미널 홈 디렉터리로 옮기는 것을 고려해보세요</string>
 </resources>
