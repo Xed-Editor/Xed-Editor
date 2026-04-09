@@ -197,4 +197,11 @@
     <string name="runner_name_exists">러너 이름이 이미 존재합니다</string>
     <string name="edit_runner">러너 수정</string>
     <string name="info_runners">러너는 파일 및 프로젝트를 실행시키기 위해 사용되는 작은 bash 스크립트입니다. 러너를 만들고 클릭하여 에디터에서 여세요.</string>
+    <string name="redo">재실행</string>
+    <string name="read_mode">읽기 모드</string>
+    <string name="edit_mode">수정 모드</string>
+    <string name="no_folder_opened">폴더가 열려있지 않음</string>
+    <string name="cut">잘라내기</string>
+    <string name="timeout">타임아웃으로 인해 다운로드가 취소되었습니다. 인터넷 연결이 안정한지 반드시 확인해주세요</string>
+    <string name="theme_settings">테마 설정</string>
 </resources>
