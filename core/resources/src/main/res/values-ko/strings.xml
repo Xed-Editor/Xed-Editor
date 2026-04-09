@@ -186,4 +186,15 @@
     <string name="manage_storage_desc">저장공간 권한 관리</string>
     <string name="lang">언어</string>
     <string name="lang_desc">언어 설정</string>
+    <string name="runners">러너</string>
+    <string name="runners_desc">셸 실행기</string>
+    <string name="no_runners">러너 없음</string>
+    <string name="new_runner">새로운 러너</string>
+    <string name="runner_name">러너 이름</string>
+    <string name="runner_regex">정규식 패턴 (예시: *py$)</string>
+    <string name="invalid_runner_name">문자, 숫자, 밑줄, 하이픈만 사용 가능합니다</string>
+    <string name="invalid_regex">유효하지 않은 정규식 패턴</string>
+    <string name="runner_name_exists">러너 이름이 이미 존재합니다</string>
+    <string name="edit_runner">러너 수정</string>
+    <string name="info_runners">러너는 파일 및 프로젝트를 실행시키기 위해 사용되는 작은 bash 스크립트입니다. 러너를 만들고 클릭하여 에디터에서 여세요.</string>
 </resources>
