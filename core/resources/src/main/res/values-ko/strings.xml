@@ -212,4 +212,8 @@
     <string name="acquire_wakelock">절전 방지 활성화</string>
     <string name="release_wakelock">절전 방지 끄기</string>
     <string name="native_runner">해당 러너는 네이티브 파일에서만 돌아가며, 터미널 홈 디렉터리로 옮기는 것을 고려해보세요</string>
+    <string name="terminal_virus_notice">중국 브랜드의 몇몇 기기들은 터미널에서 많은 프로세스가 실행될 때 시스템 보안 경고를 볼 수도 있습니다(예를 들어, \'apt update\'나 \'apt upgrade\'가 진행 중일 때). 이 것은 거짓 양성이며, 실제 바이러스가 아닙니다.</string>
+    <string name="text_mate_suggestion">TextMate 자동 완성</string>
+    <string name="text_mate_suggestion_desc">사전 정의된 키워드 추천</string>
+    <string name="install">설치</string>
 </resources>
