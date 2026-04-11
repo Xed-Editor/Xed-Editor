@@ -246,4 +246,10 @@
     <string name="anr_watchdog_desc">5초 이상 응답하지 않을 경우, Xed-Editor를 터뜨립니다</string>
     <string name="verbose_errors">상세 오류 표시</string>
     <string name="verbose_errors_desc">오류 대화상자에 스택 트레이스 포함</string>
+    <string name="unsupported_file_ext">지원하지 않는 파일 확장자</string>
+    <string name="invalid_port">유효하지 않는 포트</string>
+    <string name="port_number">포트 번호</string>
+    <string name="file_ext_example">파일 확장자 (예시: *.py)</string>
+    <string name="discord">디스코드 커뮤니티</string>
+    <string name="use_tabs">탭 문자 삽입</string>
 </resources>
