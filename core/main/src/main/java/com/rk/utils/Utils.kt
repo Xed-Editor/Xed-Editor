@@ -57,7 +57,6 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -444,8 +443,7 @@ fun formatNumberCompact(number: Int): String {
         index++
     }
 
-    return String.format("%.1f%s", value, suffix[index])
-        .replace(".0", "")
+    return String.format("%.1f%s", value, suffix[index]).replace(".0", "")
 }
 
 @Composable

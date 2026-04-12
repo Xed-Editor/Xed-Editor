@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,8 +48,7 @@ sealed interface MarkdownStatus {
 
 @Composable
 fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
-    var state by remember(url) { mutableStateOf<MarkdownStatus>(MarkdownStatus
-        .Loading) }
+    var state by remember(url) { mutableStateOf<MarkdownStatus>(MarkdownStatus.Loading) }
     val primaryColor = MaterialTheme.colorScheme.primary
     val client = remember { OkHttpClient() }
 
