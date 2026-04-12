@@ -69,7 +69,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
         val dir = context.cacheDir.child("${extension.id}.zip")
         // ExtensionRegistry.downloadExtension(extension.id, dir)
-        ExtensionRegistry.downloadZip(extension.manifest,dir)
+        ExtensionRegistry.downloadZip(extension.manifest, dir)
         installExtensionFromZip(dir)
     }
 
@@ -112,7 +112,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     }
                 }
                 installExtensionFromDir(tempDir)
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 e.printStackTrace()
                 errorDialog(e)
                 InstallResult.ValidationFailed(e)
