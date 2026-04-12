@@ -59,7 +59,6 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayoutLazyColumn
 import com.rk.extension.Extension
 import com.rk.extension.StoreExtension
-import com.rk.extension.github.GitHubApiException
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.Typography
@@ -77,7 +76,6 @@ private enum class ExtensionCategories(val drawableRes: Int, val stringRes: Int)
 private enum class ExtensionSortOptions(val stringRes: Int) {
     NAME(strings.name),
     RATING(strings.rating),
-    SIZE(strings.size),
     DATE_ADDED(strings.date_added),
 }
 
@@ -150,14 +148,9 @@ fun ExtensionScreen(navController: NavController) {
         try {
             isFetching = true
             extensionManager.indexStoreExtensions()
-        } catch (err: GitHubApiException) {
+        } catch (err: Exception) {
             val message = buildString {
                 appendLine(err.message)
-                appendLine("Response Code: ${err.statusCode}")
-
-                if (err.response.isNotBlank()) {
-                    appendLine("Response: ${err.response}")
-                }
             }
 
             toast(message)
@@ -205,7 +198,7 @@ fun ExtensionScreen(navController: NavController) {
         }
 
         item {
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(all = 16.dp)) {
                 ExtensionCategories.entries.forEach { category ->
                     SegmentedButton(
                         selected = selectedCategory == category,
@@ -344,10 +337,6 @@ private suspend fun applySort(
     when (currentSortOption) {
         ExtensionSortOptions.NAME -> filteredExtensions.sortedBy { it.name }
         ExtensionSortOptions.RATING -> filteredExtensions.sortedBy { it.id } // TODO: RATING
-        ExtensionSortOptions.SIZE -> {
-            val sizes = filteredExtensions.associateWith { ext -> ext.calcSize() }
-            filteredExtensions.sortedBy { sizes[it] }
-        }
 
         ExtensionSortOptions.DATE_ADDED -> filteredExtensions.sortedBy { it.id } // TODO: DATE_ADDED
     }
@@ -366,8 +355,16 @@ private fun applyFilter(
                 val labelMatch = extension.name.contains(query, ignoreCase = true)
                 val descriptionMatch = extension.description?.contains(query, ignoreCase = true) == true
                 val tagMatch = extension.tags.any { it.contains(query, ignoreCase = true) }
-                val authorMatch = extension.author.displayName.contains(query, ignoreCase = true)
-                val authorGithubMatch = extension.author.github?.contains(query, ignoreCase = true) == true
+                val authorMatch = extension.authors.joinToString(
+                    ",",
+                    prefix = "[",
+                    postfix = "]"
+                ) { it.displayName }.contains(query, ignoreCase = true)
+                val authorGithubMatch = extension.authors.joinToString(
+                    ",",
+                    prefix = "[",
+                    postfix = "]"
+                ) { it.github.toString() }.contains(query, ignoreCase = true)
                 labelMatch || descriptionMatch || tagMatch || authorMatch || authorGithubMatch
             }
         }

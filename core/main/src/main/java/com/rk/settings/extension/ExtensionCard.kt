@@ -15,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +44,11 @@ fun ExtensionCard(
 ) {
     val scope = rememberCoroutineScope()
     val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+    var iconUrl by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(extension) {
+        iconUrl = extension.iconUrl()
+    }
 
     Card(
         modifier =
@@ -53,7 +60,7 @@ fun ExtensionCard(
             AsyncImage(
                 model =
                     ImageRequest.Builder(LocalContext.current)
-                        .data(extension.iconUrl)
+                        .data(iconUrl)
                         .fallback(drawables.extension)
                         .crossfade(true)
                         .diskCachePolicy(CachePolicy.ENABLED)
@@ -73,9 +80,9 @@ fun ExtensionCard(
                 )
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                    ExtensionAuthorIcon(extension.authors.first(), Modifier.size(16.dp).padding(end = 4.dp))
                     Text(
-                        text = "${extension.author} • v${extension.version}",
+                        text = "${extension.authors} • v${extension.version}",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = Typography.labelMedium,

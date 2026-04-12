@@ -47,7 +47,7 @@ sealed interface MarkdownStatus {
 }
 
 @Composable
-fun MarkdownViewer(url: String, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
+fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier: Modifier = Modifier) {
     var state by remember(url) { mutableStateOf<MarkdownStatus>(MarkdownStatus.Loading) }
 
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -91,8 +91,13 @@ fun MarkdownViewer(url: String, refreshKey: Int, onLoaded: () -> Unit, modifier:
     }
 }
 
-private suspend fun loadMarkdown(url: String, primaryColor: Int, client: OkHttpClient): MarkdownStatus {
+private suspend fun loadMarkdown(url: String?, primaryColor: Int, client: OkHttpClient): MarkdownStatus {
     return withContext(Dispatchers.IO) {
+
+        if (url == null){
+            return@withContext MarkdownStatus.Error.Empty
+        }
+
         runCatching {
                 val markdown =
                     if (url.startsWith("http://") || url.startsWith("https://")) {

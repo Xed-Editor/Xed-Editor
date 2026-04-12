@@ -66,7 +66,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
     suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
         val dir = context.cacheDir.resolve(extension.id)
-        ExtensionRegistry.downloadExtension(extension.id, dir)
+        //ExtensionRegistry.downloadExtension(extension.id, dir)
+        TODO()
         return@runCatching installExtensionFromDir(dir)
     }
 

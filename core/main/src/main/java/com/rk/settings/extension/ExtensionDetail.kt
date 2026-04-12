@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -109,11 +110,17 @@ private fun AboutSection(
 
     var showSourceCodeSheet by remember { mutableStateOf(false) }
 
+    var iconUrl by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(extension) {
+        iconUrl = extension.iconUrl()
+    }
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         AsyncImage(
             model =
                 ImageRequest.Builder(LocalContext.current)
-                    .data(extension.iconUrl)
+                    .data(iconUrl)
                     .fallback(drawables.extension)
                     .crossfade(true)
                     .diskCachePolicy(CachePolicy.ENABLED)
@@ -133,9 +140,9 @@ private fun AboutSection(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                ExtensionAuthorIcon(extension.authors.first(), Modifier.size(16.dp).padding(end = 4.dp))
                 Text(
-                    text = "${extension.author} • v${extension.version}",
+                    text = "${extension.authors} • v${extension.version}",
                     style = Typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -157,7 +164,7 @@ private fun AboutSection(
         )
     }
 
-    val size by produceState("---") { value = formatFileSize(extension.calcSize()) }
+
     val rating by
         produceState<Pair<String, ImageVector?>>("---" to null) {
             val rating = extension.getRating() ?: return@produceState
@@ -171,7 +178,6 @@ private fun AboutSection(
     Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
         ExtensionStats(Modifier.weight(1f), stringResource(strings.rating).uppercase(), rating.first, rating.second)
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
     }
 
     if (showSourceCodeSheet) {
@@ -207,7 +213,7 @@ fun ExtensionStats(modifier: Modifier = Modifier, title: String, value: String, 
 enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String) {
     OVERVIEW(Icon.DrawableRes(drawables.file), strings.overview.getString(), "overview"),
     REVIEWS(Icon.DrawableRes(drawables.comment), strings.reviews.getString(), "reviews"),
-    CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
+    //CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
 }
 
 @Composable
@@ -225,6 +231,13 @@ private fun TabSection(extension: Extension, scope: CoroutineScope, refreshKey: 
         }
     }
 
+
+    var readmeUrl by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(extension) {
+        readmeUrl = extension.readmeUrl()
+    }
+
     HorizontalPager(
         state = pagerState,
         verticalAlignment = Alignment.Top,
@@ -233,9 +246,8 @@ private fun TabSection(extension: Extension, scope: CoroutineScope, refreshKey: 
     ) { page ->
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             when (ExtensionRoutes.entries[page]) {
-                ExtensionRoutes.OVERVIEW -> MarkdownViewer(extension.readmeUrl, refreshKey, onLoaded)
+                ExtensionRoutes.OVERVIEW -> MarkdownViewer(readmeUrl, refreshKey, onLoaded)
                 ExtensionRoutes.REVIEWS -> ReviewsPage(extension, refreshKey, onLoaded)
-                ExtensionRoutes.CHANGELOG -> MarkdownViewer(extension.changelogUrl, refreshKey, onLoaded)
             }
         }
     }
