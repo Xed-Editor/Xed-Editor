@@ -55,7 +55,6 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.theme.Typography
-import com.rk.utils.formatFileSize
 import com.rk.utils.formatNumberCompact
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -112,9 +111,7 @@ private fun AboutSection(
 
     var iconUrl by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(extension) {
-        iconUrl = extension.iconUrl()
-    }
+    LaunchedEffect(extension) { iconUrl = extension.iconUrl() }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         AsyncImage(
@@ -164,7 +161,6 @@ private fun AboutSection(
         )
     }
 
-
     val rating by
         produceState<Pair<String, ImageVector?>>("---" to null) {
             val rating = extension.getRating() ?: return@produceState
@@ -213,7 +209,7 @@ fun ExtensionStats(modifier: Modifier = Modifier, title: String, value: String, 
 enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String) {
     OVERVIEW(Icon.DrawableRes(drawables.file), strings.overview.getString(), "overview"),
     REVIEWS(Icon.DrawableRes(drawables.comment), strings.reviews.getString(), "reviews"),
-    //CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
+    // CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
 }
 
 @Composable
@@ -231,12 +227,9 @@ private fun TabSection(extension: Extension, scope: CoroutineScope, refreshKey: 
         }
     }
 
-
     var readmeUrl by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(extension) {
-        readmeUrl = extension.readmeUrl()
-    }
+    LaunchedEffect(extension) { readmeUrl = extension.readmeUrl() }
 
     HorizontalPager(
         state = pagerState,

@@ -149,9 +149,7 @@ fun ExtensionScreen(navController: NavController) {
             isFetching = true
             extensionManager.indexStoreExtensions()
         } catch (err: Exception) {
-            val message = buildString {
-                appendLine(err.message)
-            }
+            val message = buildString { appendLine(err.message) }
 
             toast(message)
         } finally {
@@ -355,16 +353,14 @@ private fun applyFilter(
                 val labelMatch = extension.name.contains(query, ignoreCase = true)
                 val descriptionMatch = extension.description?.contains(query, ignoreCase = true) == true
                 val tagMatch = extension.tags.any { it.contains(query, ignoreCase = true) }
-                val authorMatch = extension.authors.joinToString(
-                    ",",
-                    prefix = "[",
-                    postfix = "]"
-                ) { it.displayName }.contains(query, ignoreCase = true)
-                val authorGithubMatch = extension.authors.joinToString(
-                    ",",
-                    prefix = "[",
-                    postfix = "]"
-                ) { it.github.toString() }.contains(query, ignoreCase = true)
+                val authorMatch =
+                    extension.authors
+                        .joinToString(",", prefix = "[", postfix = "]") { it.displayName }
+                        .contains(query, ignoreCase = true)
+                val authorGithubMatch =
+                    extension.authors
+                        .joinToString(",", prefix = "[", postfix = "]") { it.github.toString() }
+                        .contains(query, ignoreCase = true)
                 labelMatch || descriptionMatch || tagMatch || authorMatch || authorGithubMatch
             }
         }

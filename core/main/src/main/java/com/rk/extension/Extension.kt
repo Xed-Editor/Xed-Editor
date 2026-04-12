@@ -21,6 +21,7 @@ sealed interface Extension {
     val license: String?
 
     suspend fun iconUrl(): String?
+
     suspend fun readmeUrl(): String?
 
     suspend fun getRating(): Float?
@@ -66,6 +67,7 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override suspend fun getRating() = null
 
     override suspend fun iconUrl(): String? = ExtensionRegistry.getIconUrl(manifest)
+
     override suspend fun readmeUrl(): String? = ExtensionRegistry.getReadmeUrl(manifest)
 
     override suspend fun getReviews(): List<Review> = emptyList()
@@ -119,14 +121,13 @@ data class LocalExtension(
     override val license
         get() = manifest.license
 
-    override suspend fun iconUrl(): String?{
+    override suspend fun iconUrl(): String? {
         return ExtensionRegistry.getIconUrl(manifest)
     }
 
     override suspend fun readmeUrl(): String? {
         return ExtensionRegistry.getReadmeUrl(manifest)
     }
-
 
     override suspend fun getRating() = null
 

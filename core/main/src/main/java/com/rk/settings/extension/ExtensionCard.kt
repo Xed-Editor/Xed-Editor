@@ -14,9 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,9 +46,7 @@ fun ExtensionCard(
     val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     var iconUrl by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(extension) {
-        iconUrl = extension.iconUrl()
-    }
+    LaunchedEffect(extension) { iconUrl = extension.iconUrl() }
 
     Card(
         modifier =

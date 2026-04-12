@@ -93,8 +93,7 @@ fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier
 
 private suspend fun loadMarkdown(url: String?, primaryColor: Int, client: OkHttpClient): MarkdownStatus {
     return withContext(Dispatchers.IO) {
-
-        if (url == null){
+        if (url == null) {
             return@withContext MarkdownStatus.Error.Empty
         }
 
