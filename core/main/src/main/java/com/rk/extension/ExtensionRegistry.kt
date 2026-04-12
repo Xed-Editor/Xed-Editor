@@ -1,124 +1,185 @@
 package com.rk.extension
 
 import android.util.Log
+import com.rk.utils.application
 import com.rk.utils.errorDialog
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.json.JSONObject
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
-private val json = Json { ignoreUnknownKeys = true }
-
-object ExtensionRegistry {
+object ExtensionRegistry{
     private const val TAG = "ExtensionRegistry"
-    private val cache = mutableMapOf<String, CachedExtension>()
+    private const val BASE_URL = "https://xed-editor.app/api/extensions"
+    private val client: OkHttpClient = OkHttpClient()
+    // ---------------- CACHE ----------------
+    private var extensionsCache: List<ExtensionManifest>? = null
+    private val detailCache = ConcurrentHashMap<String, JSONObject>()
 
-    @OptIn(ExperimentalSerializationApi::class)
-    suspend fun fetchExtensions(): List<ExtensionManifest> =
+    // prevents duplicate simultaneous requests
+    private val inflight = ConcurrentHashMap<String, kotlinx.coroutines.Deferred<JSONObject>>()
+
+    // ---------------- CORE ----------------
+
+    suspend fun fetchExtensions(force: Boolean): List<ExtensionManifest> =
         withContext(Dispatchers.IO) {
+
+            extensionsCache?.takeIf { !force }?.let {
+                return@withContext it
+            }
+
             runCatching {
-                    val url = URL("https://xed-editor.app/api/extensions")
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.requestMethod = "GET"
-                    connection.connectTimeout = 5000
-                    connection.readTimeout = 5000
+                val json = requestJson(BASE_URL)
 
-                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-                    Log.d(TAG, response)
-                    val extensions = JSONObject(response).getJSONArray("extensions")
+                val extensions = json.getJSONArray("extensions")
+                val list = mutableListOf<ExtensionManifest>()
 
-                    val list = mutableListOf<ExtensionManifest>()
+                for (i in 0 until extensions.length()) {
+                    val obj = extensions.getJSONObject(i)
+                    val manifest = obj.getJSONObject("manifest")
 
-                    for (i in 0 until extensions.length()) {
-                        val obj = extensions.getJSONObject(i)
-                        val manifest = obj.getJSONObject("manifest")
-
-                        val name = manifest.getString("name")
-                        val id = manifest.getString("id")
-                        val version = manifest.getString("version")
-                        val mainClass = manifest.getString("mainClass")
-                        val description = manifest.getString("description")
-                        val authors = manifest.getJSONArray("authors")
-                        val targetAppVersion = manifest.getInt("targetAppVersion")
-                        val repository = manifest.getString("repository")
-                        val license = manifest.getString("license")
-
-                        val extensionAuthors = mutableListOf<ExtensionAuthor>()
-
-                        for (j in 0 until authors.length()) {
-                            val author = authors.getString(j)
-                            extensionAuthors.add(ExtensionAuthor(displayName = author, github = null))
-                        }
-
-                        list.add(
-                            ExtensionManifest(
-                                id,
-                                name,
-                                mainClass = mainClass,
-                                version = version,
-                                description = description,
-                                authors = extensionAuthors,
-                                minAppVersion = -1,
-                                targetAppVersion = targetAppVersion,
-                                repository = repository,
-                                license = license,
-                                tags = emptyList(),
-                            )
+                    list.add(
+                        ExtensionManifest(
+                            id = manifest.getString("id"),
+                            name = manifest.getString("name"),
+                            mainClass = manifest.getString("mainClass"),
+                            version = manifest.getString("version"),
+                            description = manifest.getString("description"),
+                            authors = manifest.getJSONArray("authors")
+                                .let { arr ->
+                                    List(arr.length()) { j ->
+                                        ExtensionAuthor(arr.getString(j), null)
+                                    }
+                                },
+                            minAppVersion = -1,
+                            targetAppVersion = manifest.getInt("targetAppVersion"),
+                            repository = manifest.getString("repository"),
+                            license = manifest.optString("license", ""),
+                            tags = emptyList()
                         )
-                    }
-
-                    return@withContext list
-                }
-                .onFailure {
-                    it.printStackTrace()
-                    errorDialog(it)
+                    )
                 }
 
-            return@withContext emptyList<ExtensionManifest>()
+                extensionsCache = list
+                list
+
+            }.onFailure {
+                it.printStackTrace()
+                errorDialog(it)
+            }.getOrElse {
+                emptyList()
+            }
         }
+
+    // ---------------- DETAILS (cached + shared) ----------------
+
+    private suspend fun getDetails(id: String): JSONObject =
+        coroutineScope {
+
+            // 1. memory cache
+            detailCache[id]?.let { return@coroutineScope it }
+
+            // 2. avoid duplicate simultaneous requests
+            inflight[id]?.let { return@coroutineScope it.await() }
+
+            val deferred = async(Dispatchers.IO) {
+                requestJson("$BASE_URL/$id")
+            }
+
+            inflight[id] = deferred
+
+            try {
+                val result = deferred.await()
+                detailCache[id] = result
+                result
+            } finally {
+                inflight.remove(id)
+            }
+        }
+
+    // ---------------- PUBLIC APIs ----------------
 
     suspend fun getIconUrl(manifest: ExtensionManifest): String? =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                    val url = URL("https://xed-editor.app/api/extensions/${manifest.id}")
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.requestMethod = "GET"
-                    connection.connectTimeout = 5000
-                    connection.readTimeout = 5000
+        runCatching {
+            getDetails(manifest.id)
+                .getJSONObject("download")
+                .getString("icon")
+        }.getOrNull()
 
-                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-                    Log.d(TAG, response)
-                    val iconUrl = JSONObject(response).getJSONObject("download").getString("icon")
-                    return@withContext iconUrl
-                }
-                .onFailure {
-                    it.printStackTrace()
-                    errorDialog(it)
-                }
-            return@withContext null
+    suspend fun getReadmeFile(
+        manifest: ExtensionManifest
+    ): String? = withContext(Dispatchers.IO) {
+
+        runCatching {
+            val id = manifest.id
+
+            // cache file location
+            val dir = File(application!!.cacheDir, "readme_cache")
+            if (!dir.exists()) dir.mkdirs()
+
+            val file = File(dir, "$id.md")
+
+            // ✅ return if already cached
+            if (file.exists() && file.length() > 0) {
+                return@withContext file.absolutePath
+            }
+
+            // 1. get readme URL from API
+            val readmeUrl = getDetails(id)
+                .getJSONObject("download")
+                .getString("readme")
+
+            // 2. download content
+            val request = Request.Builder().url(readmeUrl).build()
+
+            client.newCall(request).execute().use { res ->
+                if (!res.isSuccessful) error("HTTP ${res.code}")
+
+                val body = res.body?.string() ?: error("Empty readme")
+
+                // 3. write to file
+                file.writeText(body)
+            }
+
+            return@withContext file.absolutePath
+
+        }.onFailure {
+            it.printStackTrace()
+            errorDialog(it)
         }
 
-    suspend fun getReadmeUrl(manifest: ExtensionManifest): String? =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                    val url = URL("https://xed-editor.app/api/extensions/${manifest.id}")
-                    val connection = url.openConnection() as HttpURLConnection
-                    connection.requestMethod = "GET"
-                    connection.connectTimeout = 5000
-                    connection.readTimeout = 5000
+        return@withContext null
+    }
 
-                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-                    Log.d(TAG, response)
-                    val iconUrl = JSONObject(response).getJSONObject("download").getString("readme")
-                    return@withContext iconUrl
-                }
-                .onFailure {
-                    it.printStackTrace()
-                    errorDialog(it)
-                }
-            return@withContext null
+    private suspend fun getReadmeUrl(manifest: ExtensionManifest): String? =
+        runCatching {
+            getDetails(manifest.id)
+                .getJSONObject("download")
+                .getString("readme")
+        }.getOrNull()
+
+    suspend fun getDownloadCount(manifest: ExtensionManifest): Int? =
+        runCatching {
+            getDetails(manifest.id)
+                .getInt("downloads")
+        }.getOrElse { null }
+
+    // ---------------- HTTP ----------------
+
+    private fun requestJson(url: String): JSONObject {
+        val req = Request.Builder().url(url).build()
+
+        client.newCall(req).execute().use { res ->
+            if (!res.isSuccessful) error("HTTP ${res.code}")
+            val body = res.body?.string() ?: error("Empty response")
+            Log.d(TAG, body)
+            return JSONObject(body)
         }
+    }
 }

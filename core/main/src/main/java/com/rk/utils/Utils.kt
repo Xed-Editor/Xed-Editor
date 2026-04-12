@@ -432,14 +432,20 @@ fun formatFileSize(bytes: Long): String {
     return String.format(Locale.getDefault(), "%.1f GB", gb)
 }
 
-fun formatNumberCompact(number: Long): String {
-    val suffix = listOf("", "k", "m", "b", "t")
-    var r = DecimalFormat("##0E0").format(number)
-    r = r.replace("E[0-9]".toRegex(), suffix[Character.getNumericValue(r[r.length - 1]) / 3])
-    while (r.length > 4 || r.matches("[0-9]+\\.[a-z]".toRegex())) {
-        r = r.substring(0, r.length - 2) + r.substring(r.length - 1)
+fun formatNumberCompact(number: Int): String {
+    if (number < 1000) return number.toString()
+
+    val suffix = arrayOf("k", "m", "b")
+    var value = number.toDouble()
+    var index = -1
+
+    while (value >= 1000 && index < suffix.lastIndex) {
+        value /= 1000
+        index++
     }
-    return r
+
+    return String.format("%.1f%s", value, suffix[index])
+        .replace(".0", "")
 }
 
 @Composable

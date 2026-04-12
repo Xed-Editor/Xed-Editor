@@ -102,7 +102,7 @@ fun ExtensionScreen(navController: NavController) {
         launch(Dispatchers.IO) {
             runCatching {
                 extensionManager.indexLocalExtensions()
-                extensionManager.indexStoreExtensions()
+                extensionManager.indexStoreExtensions(false)
             }
         }
     }
@@ -147,7 +147,7 @@ fun ExtensionScreen(navController: NavController) {
         if (selectedCategory == ExtensionCategories.LOCAL) return@LaunchedEffect
         try {
             isFetching = true
-            extensionManager.indexStoreExtensions()
+            extensionManager.indexStoreExtensions(false)
         } catch (err: Exception) {
             val message = buildString { appendLine(err.message) }
 

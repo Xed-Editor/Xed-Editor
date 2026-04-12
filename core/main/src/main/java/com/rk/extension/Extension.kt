@@ -21,14 +21,13 @@ sealed interface Extension {
     val license: String?
 
     suspend fun iconUrl(): String?
-
     suspend fun readmeUrl(): String?
 
     suspend fun getRating(): Float?
 
     suspend fun getReviews(): List<Review>
 
-    suspend fun getDownloadCount(): Long?
+    suspend fun getDownloadCount(): Int?
 }
 
 data class Review(val rating: Int, val text: String, val author: String, val date: Date, val authorResponse: String?)
@@ -40,6 +39,7 @@ data class ExtensionAuthor(val displayName: String, val github: String? = null) 
 
 /** Extensions that are published in the store (online registry). Might or might not be installed locally. */
 data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean = false) : Extension {
+
     override val id
         get() = manifest.id
 
@@ -67,12 +67,11 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override suspend fun getRating() = null
 
     override suspend fun iconUrl(): String? = ExtensionRegistry.getIconUrl(manifest)
-
-    override suspend fun readmeUrl(): String? = ExtensionRegistry.getReadmeUrl(manifest)
+    override suspend fun readmeUrl(): String? = ExtensionRegistry.getReadmeFile(manifest)
 
     override suspend fun getReviews(): List<Review> = emptyList()
 
-    override suspend fun getDownloadCount() = null
+    override suspend fun getDownloadCount() = ExtensionRegistry.getDownloadCount(manifest)
 }
 
 /** Extensions that are installed locally (from disk). */
@@ -121,13 +120,14 @@ data class LocalExtension(
     override val license
         get() = manifest.license
 
-    override suspend fun iconUrl(): String? {
+    override suspend fun iconUrl(): String?{
         return ExtensionRegistry.getIconUrl(manifest)
     }
 
     override suspend fun readmeUrl(): String? {
-        return ExtensionRegistry.getReadmeUrl(manifest)
+        return ExtensionRegistry.getReadmeFile(manifest)
     }
+
 
     override suspend fun getRating() = null
 
