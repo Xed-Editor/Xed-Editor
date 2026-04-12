@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.file.child
+import com.rk.utils.errorDialog
 import java.io.File
 import java.util.zip.ZipFile
 import kotlinx.coroutines.CoroutineScope
@@ -65,10 +67,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         }
 
     suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
-        val dir = context.cacheDir.resolve(extension.id)
+        val dir = context.cacheDir.child("${extension.id}.zip")
         // ExtensionRegistry.downloadExtension(extension.id, dir)
-        TODO()
-        return@runCatching installExtensionFromDir(dir)
+        ExtensionRegistry.downloadZip(extension.manifest,dir)
+        installExtensionFromZip(dir)
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -110,6 +112,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                     }
                 }
                 installExtensionFromDir(tempDir)
+            }catch (e: Exception){
+                e.printStackTrace()
+                errorDialog(e)
+                InstallResult.ValidationFailed(e)
             } finally {
                 tempDir.deleteRecursively()
             }
