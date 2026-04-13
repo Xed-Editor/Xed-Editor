@@ -635,4 +635,23 @@
     <string name="git_status">Stan Git</string>
     <string name="invalid_color">Nieprawidłowy kolor</string>
     <string name="color_picker">Wybierz kolor</string>
+    <string name="terminal_font_warning">Plik czcionki terminalu w katalogu \'etc/font.ttf\' nadpisuje niestandardową czcionkę ustawioną poniżej. Usuń plik ze środowiska terminalu, aby stosować niestandardowe czcionki.</string>
+    <string name="ext_not_found">Nie znaleziono rozszerzenia</string>
+    <string name="downloads">Pobrane</string>
+    <string name="ext_source_desc_license">Rozszerzenie jest otwartoźródłowe oraz udostępniane na licencji %s. Wkłady oraz zgłaszanie błędów są mile widziane na stronie oficjalnego repozytorium.</string>
+    <string name="view_github">Zobacz na GitHub</string>
+    <string name="view_gitlab">Zobacz na GitLab</string>
+    <string name="view_bitbucket">Zobacz na BitBucket</string>
+    <string name="view_repo">Zobacz repozytorium</string>
+    <string name="reviews_not_supported">Recenzje dla tego rozszerzenia nie są obsługiwane.</string>
+    <string name="cursor_style">Styl kursora</string>
+    <string name="cursor_style_desc">Zmień styl kursora</string>
+    <string name="block">Blok</string>
+    <string name="underline">Podkreślenie</string>
+    <string name="bar">Przekreślenie</string>
+    <string name="appearance">Wygląd</string>
+    <string name="see_termux_extra_keys">Terminal używa formatu dodatkowych klawiszy Termux</string>
+    <string name="scrollback_buffer">Rozmiar bufora przewijania</string>
+    <string name="scrollback_buffer_desc">Liczba linijek terminalu przechowywana w pamięci jako historia</string>
+    <string name="ext_not_found_desc">Strona jest niedostępna. Może się tak zdarzyć, gdy rozszerzenie lokalne zostanie odinstalowane, lub rozszerzenie ze sklepu zostanie usunięte z rejestru przez właściciela.</string>
 </resources>
