@@ -147,7 +147,7 @@
     <string name="name_empty_err">Името не може да бъде празно</string>
     <string name="installing">Инсталиране…</string>
     <string name="install_from_storage">Инсталиране от хранилището</string>
-    <string name="no_ext">Няма инсталирано разширение.</string>
+    <string name="no_ext">Не са намерени разширения.</string>
     <string name="loading">Зареждане…</string>
     <string name="info_ext">Разширенията могат да се използват за промяна на поведението и функциите на Xed-Editor. За да научите как да създадете разширение, щракнете тук.</string>
     <string name="downloading">Изтегляне…</string>
@@ -436,4 +436,12 @@
     <string name="hover_information_desc">Показване на документацията при задържане на курсора на мишката</string>
     <string name="signature_help">Помощ за подпис</string>
     <string name="signature_help_desc">Показване на информация за параметрите</string>
+    <string name="ask_deletion_many">Сигурни ли сте, че искате да изтриете завинаги %d файла?</string>
+    <string name="files_unsaved">Незапазени файлове</string>
+    <string name="ask_multiple_unsaved">Сигурни ли сте, че искате да отхвърлите тези незапазени документи?</string>
+    <string name="ask_lsp_update">Искате ли да актуализирате езиковия сървър \'%s\'?</string>
+    <string name="paste_failed">Не може да се постави файл</string>
+    <string name="inlay_hints">Съвети за инкрустация</string>
+    <string name="inlay_hints_desc">Показване на вградени подсказки (напр. параметри, типове и цветови прегледи)</string>
+    <string name="code_completion">Довършване на код</string>
 </resources>
