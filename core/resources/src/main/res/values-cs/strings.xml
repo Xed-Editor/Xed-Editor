@@ -626,4 +626,6 @@
     <string name="instance_not_found">Instance nenalezena.</string>
     <string name="no_instances">Žádné instance</string>
     <string name="debug">Ladění</string>
+    <string name="theme_flipper">Přepnout mezi témata</string>
+    <string name="theme_flipper_desc">Pořád měnit režim téma každých 7 sekund</string>
 </resources>
