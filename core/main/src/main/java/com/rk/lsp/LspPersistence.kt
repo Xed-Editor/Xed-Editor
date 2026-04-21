@@ -6,9 +6,9 @@ import com.rk.lsp.servers.ExternalProcessServer
 import com.rk.lsp.servers.ExternalSocketServer
 import com.rk.settings.Preference
 import com.rk.utils.application
+import kotlin.random.Random
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.random.Random
 
 @Serializable
 data class SavedLspConfig(
@@ -17,7 +17,7 @@ data class SavedLspConfig(
     val host: String = "localhost", // specific to socket
     val port: Int = 0, // specific to socket
     val command: String = "", // specific to process,
-    val id: String = ""
+    val id: String = "",
 )
 
 object LspPersistence {
@@ -45,14 +45,14 @@ object LspPersistence {
                             host = server.host,
                             port = server.port,
                             supportedExtensions = server.supportedExtensions,
-                            id = server.id
+                            id = server.id,
                         )
                     is ExternalProcessServer ->
                         SavedLspConfig(
                             type = "process",
                             command = server.command,
                             supportedExtensions = server.supportedExtensions,
-                            id = server.id
+                            id = server.id,
                         )
                     else -> null
                 }
@@ -73,10 +73,11 @@ object LspPersistence {
 
         var shouldUpdateServers = false
         configs.forEach { config ->
-            val finalId = config.id.ifBlank {
-                shouldUpdateServers=true;
-                "${config.supportedExtensions.firstOrNull()}_${Random.nextInt()}"
-            }
+            val finalId =
+                config.id.ifBlank {
+                    shouldUpdateServers = true
+                    "${config.supportedExtensions.firstOrNull()}_${Random.nextInt()}"
+                }
 
             val server =
                 when (config.type) {
@@ -85,19 +86,19 @@ object LspPersistence {
                             host = config.host,
                             port = config.port,
                             supportedExtensions = config.supportedExtensions,
-                            id = finalId
+                            id = finalId,
                         )
                     "process" ->
                         ExternalProcessServer(
                             command = config.command,
                             supportedExtensions = config.supportedExtensions,
-                            id = finalId
+                            id = finalId,
                         )
                     else -> null
                 }
             server?.let { LspRegistry.addExternalServer(it) }
         }
-        if (shouldUpdateServers){
+        if (shouldUpdateServers) {
             saveServers()
         }
     }
