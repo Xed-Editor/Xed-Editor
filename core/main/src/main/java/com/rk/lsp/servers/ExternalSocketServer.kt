@@ -7,10 +7,10 @@ import com.rk.lsp.LspServer
 import kotlin.random.Random
 
 // DO not put this in lsp registry
-class ExternalSocketServer(val host: String, val port: Int, override val supportedExtensions: List<String>) :
+class ExternalSocketServer(val host: String, val port: Int, override val supportedExtensions: List<String>, override val id: String = "${supportedExtensions.firstOrNull()}_${Random.nextInt()}") :
     LspServer() {
     override val languageName = supportedExtensions.firstOrNull()?.let { FileTypeManager.fromExtension(it).title } ?: ""
-    override val id = "${supportedExtensions.firstOrNull()}_${Random.nextInt()}"
+
     override val serverName = "$host:$port"
     override val icon = supportedExtensions.firstOrNull()?.let { FileTypeManager.fromExtension(it).icon }
     override val canBeUninstalled = false
