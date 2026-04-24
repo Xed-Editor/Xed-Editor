@@ -102,6 +102,7 @@ object Settings {
     var fullscreen by CachedPreference("fullscreen", false)
     var smart_toolbar by CachedPreference("smart_toolbar", false)
     var show_minimap by CachedPreference("show_minimap", false)
+    var auto_closing_bracket by CachedPreference("auto_closing_bracket", true)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)

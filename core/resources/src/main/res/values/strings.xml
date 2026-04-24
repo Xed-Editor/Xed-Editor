@@ -648,4 +648,6 @@
     <string name="git_status">Git status</string>
     <string name="invalid_color">Invalid color</string>
     <string name="color_picker">Pick a color</string>
+    <string name="auto_closing_bracket">Auto closing bracket</string>
+    <string name="auto_closing_bracket_desc">Automatically insert matching closing bracket</string>
 </resources>
