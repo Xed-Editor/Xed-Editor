@@ -14,15 +14,18 @@ sealed interface Extension {
     val id: ExtensionId
     val name: String
     val version: String
-    val authors: List<ExtensionAuthor>
+    val author: ExtensionAuthor
     val description: String?
     val tags: List<String>
     val repository: String
     val license: String?
 
-    suspend fun iconUrl(): String?
+    val iconUrl: String
 
-    suspend fun readmeUrl(): String?
+    val readmeUrl: String
+    val changelogUrl: String
+
+    suspend fun calcSize(): Long
 
     suspend fun getRating(): Float?
 
@@ -50,8 +53,8 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override val version
         get() = manifest.version
 
-    override val authors
-        get() = manifest.authors
+    override val author
+        get() = manifest.author
 
     override val description
         get() = manifest.description
@@ -67,13 +70,20 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
 
     override suspend fun getRating() = null
 
-    override suspend fun iconUrl(): String? = ExtensionRegistry.getIconUrl(manifest)
+    override val iconUrl: String
+        get() = ExtensionRegistry.getIconUrl(manifest.id)
 
-    override suspend fun readmeUrl(): String? = ExtensionRegistry.getReadmeFile(manifest)
+    override val readmeUrl: String
+        get() = ExtensionRegistry.getReadmeUrl(manifest.id)
+
+    override val changelogUrl
+        get() = ExtensionRegistry.getChangelogUrl(manifest.id)
+
+    override suspend fun calcSize() = 0L // TODO
 
     override suspend fun getReviews(): List<Review> = emptyList()
 
-    override suspend fun getDownloadCount() = ExtensionRegistry.getDownloadCount(manifest)
+    override suspend fun getDownloadCount() = ExtensionRegistry.getDownloadCount(manifest.id)
 }
 
 /** Extensions that are installed locally (from disk). */
@@ -107,8 +117,8 @@ data class LocalExtension(
     override val version
         get() = manifest.version
 
-    override val authors
-        get() = manifest.authors
+    override val author
+        get() = manifest.author
 
     override val description
         get() = manifest.description
@@ -122,12 +132,32 @@ data class LocalExtension(
     override val license
         get() = manifest.license
 
-    override suspend fun iconUrl(): String? {
-        return ExtensionRegistry.getIconUrl(manifest)
-    }
+    override val iconUrl
+        get() = "$installPath/icon.png"
 
-    override suspend fun readmeUrl(): String? {
-        return ExtensionRegistry.getReadmeFile(manifest)
+    override val readmeUrl
+        get() = "$installPath/README.md"
+
+    override val changelogUrl
+        get() = "$installPath/CHANGELOG.md"
+
+    override suspend fun calcSize(): Long {
+        var totalSize = 0L
+        val stack = ArrayDeque<File>()
+        stack.add(File(installPath))
+
+        loop@ while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            runCatching {
+                if (current.isDirectory()) {
+                    val files = current.listFiles() ?: continue@loop
+                    stack.addAll(files)
+                } else {
+                    totalSize += current.length()
+                }
+            }
+        }
+        return totalSize
     }
 
     override suspend fun getRating() = null
@@ -147,8 +177,8 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
     override val version
         get() = installed.version
 
-    override val authors
-        get() = installed.authors
+    override val author
+        get() = installed.author
 
     override val description
         get() = installed.description
@@ -162,9 +192,16 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
     override val license
         get() = installed.license
 
-    override suspend fun iconUrl(): String? = installed.iconUrl()
+    override val iconUrl
+        get() = installed.iconUrl
 
-    override suspend fun readmeUrl(): String? = installed.readmeUrl()
+    override val readmeUrl
+        get() = installed.readmeUrl
+
+    override val changelogUrl
+        get() = installed.changelogUrl
+
+    override suspend fun calcSize() = installed.calcSize()
 
     override suspend fun getRating() = store.getRating()
 

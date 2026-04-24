@@ -12,7 +12,7 @@ data class ExtensionManifest(
     val mainClass: String,
     val version: String = "1.0.0",
     val description: String? = null,
-    val authors: List<ExtensionAuthor>,
+    val author: ExtensionAuthor,
     val minAppVersion: Int = -1, // -1 means supports all versions
     val targetAppVersion: Int = -1, // -1 means supports all versions
     val repository: String,

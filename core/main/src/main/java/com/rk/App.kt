@@ -27,6 +27,7 @@ import com.rk.settings.Settings
 import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
 import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
 import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
+import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.theme.updateThemes
 import com.rk.utils.application
 import com.rk.utils.getTempDir
@@ -109,8 +110,12 @@ class App : Application() {
                 val appFontPath = Settings.app_font_path.ifEmpty { DEFAULT_APP_FONT_PATH }
                 val isAppAsset = if (editorFontPath.isNotEmpty()) Settings.is_app_font_asset else true
 
+                val terminalFontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
+                val isTerminalAsset = if (terminalFontPath.isNotEmpty()) Settings.is_terminal_font_asset else true
+
                 FontCache.loadFont(this@App, editorFontPath, isEditorAsset)
                 FontCache.loadFont(this@App, appFontPath, isAppAsset)
+                FontCache.loadFont(this@App, terminalFontPath, isTerminalAsset)
             }
 
             launch(Dispatchers.IO) { Preference.preloadAllSettings() }
@@ -125,7 +130,7 @@ class App : Application() {
                 }
             }
 
-            launch { runCatching { UpdateChecker.checkForUpdates("dev") } }
+            launch { runCatching { UpdateChecker.checkForUpdates("main") } }
 
             // wait until UpdateManager is done, it should only take few milliseconds
             UpdateManager.inspect()

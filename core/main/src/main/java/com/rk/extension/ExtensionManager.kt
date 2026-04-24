@@ -35,7 +35,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         launch(Dispatchers.IO) {
             runCatching {
                 indexLocalExtensions()
-                indexStoreExtensions(false)
+                indexStoreExtensions()
             }
         }
     }
@@ -59,16 +59,15 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             }
         }
 
-    suspend fun indexStoreExtensions(force: Boolean) =
+    suspend fun indexStoreExtensions() =
         withContext(Dispatchers.IO) {
-            val extensions = ExtensionRegistry.fetchExtensions(force)
+            val extensions = ExtensionRegistry.fetchExtensions()
             storeExtension.clear()
             storeExtension.putAll(extensions.associate { it.id to StoreExtension(it) })
         }
 
     suspend fun installStoreExtension(context: Context, extension: StoreExtension) = runCatching {
         val dir = context.cacheDir.child("${extension.id}.zip")
-        // ExtensionRegistry.downloadExtension(extension.id, dir)
         ExtensionRegistry.downloadZip(extension.manifest, dir)
         installExtensionFromZip(dir)
     }

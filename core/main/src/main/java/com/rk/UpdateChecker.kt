@@ -51,10 +51,8 @@ object UpdateChecker {
                 val request = Request.Builder().url(url).build()
 
                 client.newCall(request).execute().use { response ->
-                    val jsonResponse = response.body?.string()
-                    if (jsonResponse != null) {
-                        parseJson(jsonResponse)
-                    }
+                    val jsonResponse = response.body.string()
+                    parseJson(jsonResponse)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
