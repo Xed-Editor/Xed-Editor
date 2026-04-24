@@ -103,6 +103,7 @@ object Settings {
     var smart_toolbar by CachedPreference("smart_toolbar", false)
     var show_minimap by CachedPreference("show_minimap", false)
     var auto_closing_bracket by CachedPreference("auto_closing_bracket", true)
+    var confirm_exit by CachedPreference("confirm_exit", true)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)
