@@ -395,4 +395,11 @@
     <string name="results">Tìm thấy %s kết quả</string>
     <string name="enter_name">Nhập tên</string>
     <string name="show_hidden_files">Hiện tệp ẩn</string>
+    <string name="show_hidden_files_search">Hiện tệp ẩn trong khi tìm kiếm</string>
+    <string name="show_hidden_files_search_desc">Hiển thị tệp hoặc thư mục ẩn trong kết quả tìm kiếm</string>
+    <string name="reset_all">Đặt lại tất cả</string>
+    <string name="disclaimer_heading">Điều khoản sử dụng &amp; Tuyên bố miễn trừ trách nhiệm</string>
+    <string name="disclaimer_read_carefully">Vui lòng đọc cẩn thận trước khi sử dụng ứng dụng này.</string>
+    <string name="transform_lowercase">Chuyển đổi sang chữ thường</string>
+    <string name="transform_uppercase">Chuyển đổi sang chữ hoa</string>
 </resources>
