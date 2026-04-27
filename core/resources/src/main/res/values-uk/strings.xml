@@ -96,17 +96,17 @@
     <string name="light_mode">Світла</string>
     <string name="dark_mode">Темна</string>
     <string name="auto_mode">Як у системі</string>
-    <string name="theme_mode">Режим теми</string>
-    <string name="theme_mode_desc">Змінити режим теми застосунку</string>
+    <string name="theme_mode">Вибір теми</string>
+    <string name="theme_mode_desc">Змінити тему застосунку</string>
     <string name="show_suggestions">Показати пропозиції</string>
     <string name="about">Про застосунок</string>
     <string name="about_desc">Про Xed-Editor</string>
     <string name="version">Версія</string>
     <string name="version_code">Код версії</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">"Постав зірку на  GitHub 🤩"</string>
+    <string name="github_desc">Постав зірку на GitHub 🤩</string>
     <string name="telegram">Група в Telegram</string>
-    <string name="telegram_desc">"Повідомляйте про проблеми, пропонуйте  нові функції тощо"</string>
+    <string name="telegram_desc">Повідомляйте про проблеми, пропонуйте нові функції тощо</string>
     <string name="git_commit">хеш коміту Git</string>
     <string name="check_for_updates">Перевірити оновлення</string>
     <string name="check_for_updates_desc">Періодично перевіряти наявність оновлень</string>
@@ -116,7 +116,7 @@
     <string name="txt_word_wrap_desc">Автоматично переносити текстові файли</string>
     <string name="manage_editor_font">Керування шрифтами редактора</string>
     <string name="default_encoding">Кодування за замовчуванням</string>
-    <string name="default_encoding_desc">"Кодування за замовчуванням  в редакторі"</string>
+    <string name="default_encoding_desc">Кодування за замовчуванням в редакторі</string>
     <string name="other">Інше</string>
     <string name="content">Вміст</string>
     <string name="fonts">Шрифти</string>
@@ -242,7 +242,7 @@
     <string name="go_to_definition">Перейти до визначення</string>
     <string name="go_to_references">Перейти до джерел</string>
     <string name="files_unsaved">Файли не збережено</string>
-    <string name="ask_multiple_unsaved">"Ви впевнені що хочете  відмінити зміни у цьому незбереженому документі?"</string>
+    <string name="ask_multiple_unsaved">Ви впевнені що хочете відмінити зміни у цьому незбереженому документі?</string>
     <string name="terminal_home">Головна тека терміналу</string>
     <string name="terminal_home_desc">Головна тека терміналу за замовчуванням</string>
     <string name="feature_toggles">Перемикачі функцій</string>
@@ -283,7 +283,7 @@
     <string name="view_logs">Переглянути логи</string>
     <string name="view_app_logs">Переглянути логи додатку</string>
     <string name="logs_too_long">Логи занадто довгі</string>
-    <string name="use">Використання</string>
+    <string name="use">Використати</string>
     <string name="yes_support">Так, я хочу підтримати! ❤️</string>
     <string name="not_for_me">Ні, дякую</string>
 </resources>
