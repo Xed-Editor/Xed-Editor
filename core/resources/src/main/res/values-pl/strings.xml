@@ -62,7 +62,7 @@
     <string name="app_desc">Ogólne ustawienia aplikacji</string>
     <string name="editor_desc">Ogólne ustawienia edytora</string>
     <string name="terminal_desc">Ogólne ustawienia terminalu</string>
-    <string name="unknown_error">Nieznany bład</string>
+    <string name="unknown_error">Nieznany błąd</string>
     <string name="install_failed">Instalacja zakończona niepowodzeniem</string>
     <string name="light_mode">Jasny</string>
     <string name="dark_mode">Ciemny</string>
@@ -216,7 +216,7 @@
     <string name="manage_storage_reason">Aplikacja wymaga dostępu, aby edytować pliki w pamięci wewnętrznej. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
     <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji aplikacji. Aby nauczyć się jak stworzyć rozszerzenie, kliknij tutaj.</string>
-    <string name="network_err">Bład sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
+    <string name="network_err">Błąd sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
     <string name="expose_saf_desc">Udostępnij katalog główny aplikacjom zewnętrznym używając systemowego menedżera plików (SAF)</string>
     <string name="saf_expose_warning">Udostępniając katalog główny możesz odkryć wrażliwe informacje złośliwym aplikacjom, włączając tokeny Git, hasła, nazwy użytkownika oraz inne pliki przechowywane w twoim głównym katalogu terminalu. Czy chcesz kontynuować?</string>
     <string name="runner_regex">Wzór wyrażenia regularnego</string>
@@ -271,8 +271,8 @@
     <string name="go_to_references_desc">Wybierz jedną z %s referencji, aby przejść do lokalizacji.</string>
     <string name="no_definitions_found">Nie znaleziono definicji.</string>
     <string name="no_references_found">Nie znaleziono referencji.</string>
-    <string name="find_definitions_error">Nie można znaleść definicji.</string>
-    <string name="find_references_error">Nie można znaleść referencji.</string>
+    <string name="find_definitions_error">Nie można znaleźć definicji.</string>
+    <string name="find_references_error">Nie można znaleźć referencji.</string>
     <string name="rename_symbol_error">Nie można zmienić nazwy symbolu.</string>
     <string name="cannot_rename_symbol">Nie można zmienić nazwy tego symbolu.</string>
     <string name="rename_symbol_multiple_files">Zmiana nazw wielu plików nie jest obsługiwana.</string>
@@ -384,7 +384,7 @@
     <string name="keybindings">Przypisania klawiszy</string>
     <string name="keybindings_desc">Konfiguruj przypisania klawiszy</string>
     <string name="none_set">Nie ustawiono</string>
-    <string name="press_key">Naciśnij kombinacaje klawiszy (musi zawierać Ctrl lub Alt)</string>
+    <string name="press_key">Naciśnij kombinacje klawiszy (musi zawierać Ctrl lub Alt)</string>
     <string name="keybinds_info">Aplikacja wspiera skróty klawiszowe klawiatury fizycznej, aby pracować szybciej i efektywniej. Rozbudowany zestaw domyślnych skrótów jest dostępny od ręki oraz możesz go dostosować do upodobań poniżej.</string>
     <string name="extra_key_bg">Tło dodatkowych klawiszy</string>
     <string name="extra_key_bg_desc">Pokaż tło dodatkowych klawiszy</string>
@@ -534,7 +534,7 @@
     <string name="status_timeout">Przerwa</string>
     <string name="status_restarting">Uruchamianie ponownie…</string>
     <string name="status_stopping">Zatrzymywanie…</string>
-    <string name="supported_extensions">Rozśzerzenia: %s</string>
+    <string name="supported_extensions">Rozszerzenia: %s</string>
     <string name="features">Funkcje</string>
     <string name="hover_information">Informacje po najechaniu</string>
     <string name="hover_information_desc">Pokaż dokumentacje wyświetlaną po najechaniu kursorem</string>
