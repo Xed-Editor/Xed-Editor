@@ -98,7 +98,7 @@
     <string name="auto_mode">Як у системі</string>
     <string name="theme_mode">Вибір теми</string>
     <string name="theme_mode_desc">Змінити тему застосунку</string>
-    <string name="show_suggestions">Показати пропозиції</string>
+    <string name="show_suggestions">Показувати пропозиції клавіатури</string>
     <string name="about">Про застосунок</string>
     <string name="about_desc">Про Xed-Editor</string>
     <string name="version">Версія</string>
@@ -262,7 +262,7 @@
     <string name="file_already_exists">Файл з іменем \'%s\' вже існує</string>
     <string name="folder_already_exists">Папка з іменем \'%s\' вже існує</string>
     <string name="file_creation_failed">Неможливо створити файл</string>
-    <string name="folder_creation_failed">Неможливо створити папку</string>
+    <string name="folder_creation_failed">Неможливо створити теку</string>
     <string name="settings_backup_desc">Створити резервну копію для всіх поточних налаштувань</string>
     <string name="settings_restore_desc">Відновити налаштування за допомогою Резервної копії</string>
     <string name="export_successful">Успішно експортовано</string>
