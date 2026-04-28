@@ -239,6 +239,13 @@ fun SettingsEditorScreen(navController: NavController) {
             }
 
             EditorSettingsToggle(
+                label = stringResource(strings.auto_closing_bracket),
+                description = stringResource(strings.auto_closing_bracket_desc),
+                default = Settings.auto_closing_bracket,
+                sideEffect = { Settings.auto_closing_bracket = it },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(strings.complete_on_enter),
                 description = stringResource(strings.complete_on_enter_desc),
                 default = Settings.complete_on_enter,
