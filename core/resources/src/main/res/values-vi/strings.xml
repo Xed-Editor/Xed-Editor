@@ -429,4 +429,27 @@
     <string name="terminal_virus_notice">Trên một số thiết bị, đặc biệt là một số mẫu máy từ Trung Quốc, bạn có thể thấy cảnh báo bảo mật hệ thống khi nhiều tiến trình đang chạy trong terminal (ví dụ trong lúc \'apt update\' hoặc \'apt upgrade\'). Đây là cảnh báo giả và không phải là vi rút thực sự.</string>
     <string name="text_mate_suggestion">Tự động hoàn thành theo TextMate</string>
     <string name="text_mate_suggestion_desc">Gợi ý từ khóa được xác định trước</string>
+    <string name="ask_lsp_install">Bạn có muốn cài đặt language server cho \'%s\' không?</string>
+    <string name="ask_lsp_update">Bạn có muốn cập nhật language server cho \'%s\' không?</string>
+    <string name="seccomp_desc">Sửa lỗi \"function not implemented\" trên một số thiết bị</string>
+    <string name="non_native_filetype">Không hỗ trợ chạy code ở vị trí này. Hãy cân nhắc di chuyển tệp của bạn đến thư mục chính của terminal để chạy.</string>
+    <string name="sdcard_filetype">Không khuyến khích chạy code ở vị trí này. Hãy cân nhắc di chuyển tệp của bạn đến thư mục chính của terminal.</string>
+    <string name="wrapper_type">Loại trình bao bọc</string>
+    <string name="force_crash">Buộc dừng ứng dụng</string>
+    <string name="force_crash_desc">Ném ra một ngoại lệ runtime</string>
+    <string name="strict_mode">Chế độ nghiêm ngặt</string>
+    <string name="strict_mode_desc">Phát hiện truy cập đĩa hoặc mạng trên luồng chính</string>
+    <string name="anr_watchdog">ANR Watchdog (Giám sát ANR)</string>
+    <string name="anr_watchdog_desc">Tự động kết thúc Xed-Editor nếu nó không phản hồi trong hơn 5 giây</string>
+    <string name="verbose_errors">Hiển thị chi tiết lỗi</string>
+    <string name="verbose_errors_desc">Bao gồm stacktrace trong hộp thoại lỗi</string>
+    <string name="unsupported_file_ext">Phần mở rộng tệp không được hỗ trợ</string>
+    <string name="file_ext_example">Phần mở rộng tệp (ví dụ py)</string>
+    <string name="use_tabs">Chèn ký tự tab</string>
+    <string name="use_tabs_desc">Sử dụng tab thực (\\t) thay vì khoảng trắng để thụt lề</string>
+    <string name="build_info">Thông tin bản dựng</string>
+    <string name="failsafe_mode">Chế độ an toàn</string>
+    <string name="failsafe_mode_desc">Khởi động terminal ở chế độ bảo trì</string>
+    <string name="info_lsp">Language server là các tiến trình riêng biệt cung cấp các tính năng thông minh, như tự động hoàn thành code, tô sáng lỗi và tài liệu nội dòng.</string>
+    <string name="storage">Bộ nhớ</string>
 </resources>
