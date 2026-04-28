@@ -286,4 +286,23 @@
     <string name="use">Використати</string>
     <string name="yes_support">Так, я хочу підтримати! ❤️</string>
     <string name="not_for_me">Ні, дякую</string>
+    <string name="manage_storage_desc">Керувати дозволом на сховище</string>
+    <string name="no_folder_opened">Немає відкритої теки</string>
+    <string name="more">Більше</string>
+    <string name="ask_lsp_install">Хочеш завантажити \'%s\' мовний сервер?</string>
+    <string name="ask_lsp_update">Хочеш оновити \'%s\' мовний сервер?</string>
+    <string name="terminal_backup">Резервне копіювання терміналу</string>
+    <string name="project_as_wk">Використати проект як робочу директорію</string>
+    <string name="project_as_wk_desc">Використати проект як робочу директорію терміналу</string>
+    <string name="debug_options">Опції налагодження</string>
+    <string name="debug_options_desc">Опції налагодження для %s</string>
+    <string name="force_crash">Примусовий збій</string>
+    <string name="force_crash_confirm">Ви хочете зробити примусовий збій програми? Програма може зависнути.</string>
+    <string name="github_stars">GitHib зірки</string>
+    <string name="terminal_feature">Термінал і запускач</string>
+    <string name="rename_symbol">Перейменувати символ</string>
+    <string name="format_document">Форматувати документ</string>
+    <string name="format_selection">Форматувати вибране</string>
+    <string name="rename_symbol_error">Не вдалося перейменувати символ.</string>
+    <string name="cannot_rename_symbol">Ви не можете перейменувати цей символ.</string>
 </resources>
