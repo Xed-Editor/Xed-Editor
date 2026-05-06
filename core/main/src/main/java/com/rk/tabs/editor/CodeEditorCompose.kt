@@ -111,7 +111,7 @@ fun EditorTab.CodeEditor(
                         }
                     }
 
-                    scope.launch { editorState.editorConfigLoaded?.await()?.let { applySettings() } }
+                    scope.launch { editorState.editorConfigLoaded?.await()?.let { applySettings(it) } }
                 }
             },
         )
