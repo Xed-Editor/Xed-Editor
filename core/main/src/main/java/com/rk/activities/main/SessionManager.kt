@@ -59,7 +59,6 @@ object SessionManager {
                         val tabStates = tabs.mapNotNull { it.getState() }
                         val sessionState = SessionState(tabStates, currentTabIndex)
 
-                        println(sessionState)
                         ObjectOutputStream(FileOutputStream(tabCacheFile)).use { oos -> oos.writeObject(sessionState) }
                     }
                     .onFailure {
