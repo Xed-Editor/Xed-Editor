@@ -154,6 +154,7 @@ class Editor : CodeEditor {
         val finalNewline = Settings.insert_final_newline
         val trailingWhitespace = Settings.trim_trailing_whitespace
         val completeOnEnter = Settings.complete_on_enter
+        val autoClosingBracket = Settings.auto_closing_bracket
         val showMinimap = Settings.show_minimap
 
         props.deleteMultiSpaces = tabSize
@@ -162,6 +163,7 @@ class Editor : CodeEditor {
         props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
         props.selectCompletionItemOnEnterForSoftKbd = completeOnEnter
+        props.symbolPairAutoCompletion = autoClosingBracket
         props.showMinimap = showMinimap
         setPinLineNumber(pinLineNumber)
         isLineNumberEnabled = showLineNumber

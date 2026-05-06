@@ -63,7 +63,6 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.Typography
 import com.rk.utils.openUrl
-import com.rk.utils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -102,7 +101,7 @@ fun ExtensionScreen(navController: NavController) {
         launch(Dispatchers.IO) {
             runCatching {
                 extensionManager.indexLocalExtensions()
-                extensionManager.indexStoreExtensions(false)
+                extensionManager.indexStoreExtensions()
             }
         }
     }
@@ -145,17 +144,14 @@ fun ExtensionScreen(navController: NavController) {
 
     LaunchedEffect(refreshKey, selectedCategory) {
         if (selectedCategory == ExtensionCategories.LOCAL) return@LaunchedEffect
-        try {
-            isFetching = true
-            extensionManager.indexStoreExtensions(false)
-        } catch (err: Exception) {
-            val message = buildString { appendLine(err.message) }
-
-            toast(message)
-        } finally {
-            isFetching = false
-            isRefreshing = false
-        }
+        runCatching {
+                isFetching = true
+                extensionManager.indexStoreExtensions()
+            }
+            .also {
+                isFetching = false
+                isRefreshing = false
+            }
     }
 
     RefreshablePreferenceLayoutLazyColumn(
@@ -196,7 +192,7 @@ fun ExtensionScreen(navController: NavController) {
         }
 
         item {
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(all = 16.dp)) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
                 ExtensionCategories.entries.forEach { category ->
                     SegmentedButton(
                         selected = selectedCategory == category,
@@ -353,14 +349,8 @@ private fun applyFilter(
                 val labelMatch = extension.name.contains(query, ignoreCase = true)
                 val descriptionMatch = extension.description?.contains(query, ignoreCase = true) == true
                 val tagMatch = extension.tags.any { it.contains(query, ignoreCase = true) }
-                val authorMatch =
-                    extension.authors
-                        .joinToString(",", prefix = "[", postfix = "]") { it.displayName }
-                        .contains(query, ignoreCase = true)
-                val authorGithubMatch =
-                    extension.authors
-                        .joinToString(",", prefix = "[", postfix = "]") { it.github.toString() }
-                        .contains(query, ignoreCase = true)
+                val authorMatch = extension.author.displayName.contains(query, ignoreCase = true)
+                val authorGithubMatch = extension.author.github?.contains(query, ignoreCase = true) == true
                 labelMatch || descriptionMatch || tagMatch || authorMatch || authorGithubMatch
             }
         }

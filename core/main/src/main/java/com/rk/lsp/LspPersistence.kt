@@ -16,7 +16,7 @@ data class SavedLspConfig(
     val supportedExtensions: List<String>,
     val host: String = "localhost", // specific to socket
     val port: Int = 0, // specific to socket
-    val command: String = "", // specific to process,
+    val command: String = "", // specific to process
     val id: String = "",
 )
 

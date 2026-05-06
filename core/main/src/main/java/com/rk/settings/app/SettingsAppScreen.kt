@@ -113,6 +113,13 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 sideEffect = { Settings.smart_toolbar = it },
             )
 
+            SettingsToggle(
+                label = stringResource(strings.confirm_exit_dialog),
+                description = stringResource(strings.confirm_exit_dialog_desc),
+                default = Settings.confirm_exit,
+                sideEffect = { Settings.confirm_exit = it },
+            )
+
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 SettingsToggle(
                     label = stringResource(strings.manage_storage),
