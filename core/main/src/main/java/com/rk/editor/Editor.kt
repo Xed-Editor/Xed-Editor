@@ -212,6 +212,7 @@ class Editor : CodeEditor {
         actualTabSize?.let {
             props.deleteMultiSpaces = it
             tabWidth = it
+            (editorLanguage as? TextMateLanguage)?.tabSize = it
         }
 
         val endOfLine: PropertyType.EndOfLineValue? = resourceProperties.getValue(PropertyType.end_of_line, null, false)
@@ -258,6 +259,7 @@ class Editor : CodeEditor {
     suspend fun setLanguage(textmateScope: String) {
         val language = LanguageManager.createLanguage(textmateScope)
         language.useTab(Settings.actual_tabs)
+        language.tabSize = Settings.tab_size
 
         if (Settings.textmate_suggestions) {
             val keywords = KeywordManager.getKeywords(textmateScope)
