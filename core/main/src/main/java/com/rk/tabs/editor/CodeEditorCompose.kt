@@ -30,6 +30,7 @@ import com.rk.editor.Editor
 import com.rk.editor.LanguageManager
 import com.rk.editor.intelligent.IntelligentFeature
 import com.rk.file.FileObject
+import com.rk.file.FileWrapper
 import com.rk.lsp.LspConnector
 import com.rk.lsp.LspRegistry
 import com.rk.lsp.LspServer
@@ -40,6 +41,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.info
 import com.rk.utils.logWarn
 import com.rk.utils.toast
@@ -299,7 +301,8 @@ private fun EditorTab.promptLspInstall(context: Context, server: LspServer) {
             snackbarHost.showSnackbar(
                 message = strings.ask_lsp_install.getFilledString(server.languageName, context),
                 actionLabel = strings.install.getString(),
-                duration = SnackbarDuration.Long,
+                withDismissAction = true,
+                duration = SnackbarDuration.Short,
             )
         if (result == SnackbarResult.ActionPerformed) {
             server.install(context)
@@ -335,7 +338,7 @@ private suspend fun EditorTab.findActiveLspServers(servers: List<LspServer>, con
             return@forEach
         }
 
-        if (!server.isInstalled(context)) {
+        if (InbuiltFeatures.terminal.state.value && !server.isInstalled(context) && file is FileWrapper) {
             info("Server ${server.id} is not installed")
             promptLspInstall(context, server)
             return@forEach
