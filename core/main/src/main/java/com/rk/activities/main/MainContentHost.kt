@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
@@ -147,7 +146,7 @@ fun MainActivity.MainContentHost(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                 actionColor = MaterialTheme.colorScheme.primary,
-                                dismissActionContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                dismissActionContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     },
