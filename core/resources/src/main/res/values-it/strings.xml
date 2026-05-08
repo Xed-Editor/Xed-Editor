@@ -239,4 +239,24 @@
     <string name="wrapper_type">Tipologia di wrapper</string>
     <string name="strict_mode">Modalità strict</string>
     <string name="strict_mode_desc">Individua dischi o accessi di rete nel thread principale</string>
+    <string name="terminal_virus_notice">In alcuni dispositivi, specialmente alcuni modelli dalla Cina, è possibile imbattersi in un avviso di sicurezza di sistema quando molti processi sono in esecuzione nel terminale (per esempio durante \'apt update\' o \'apt upgrade\'). Questo è un falso positivo e non indica realmente un virus.</string>
+    <string name="ask_lsp_update">Vuoi aggiornare la lingua \'%s\' del server?</string>
+    <string name="anr_watchdog_desc">Termina Xed-Editor se non risponde per più di 5 secondi</string>
+    <string name="verbose_errors">Errori dettagliati</string>
+    <string name="verbose_errors_desc">Inclusi lo stackrace nelle finestre di dialogo di errore</string>
+    <string name="unsupported_file_ext">Estensione file non supportata</string>
+    <string name="invalid_port">Porta non valida</string>
+    <string name="port_number">Numero porta</string>
+    <string name="file_ext_example">Estensione file (es. py)</string>
+    <string name="discord">Comunità Discord</string>
+    <string name="use_tabs">Inserisci carattere di tabulazione</string>
+    <string name="use_tabs_desc">Usa una vera tabulazione (\\t) invece degli spazi per l\'indentazione</string>
+    <string name="language_server">Server di lingua</string>
+    <string name="manage_language_servers">Gestisci server di lingua</string>
+    <string name="manage_language_servers_desc">Installa, connetti e configura server di lingua</string>
+    <string name="format_on_save">Formatta al salvataggio</string>
+    <string name="format_on_save_desc">Formatta il file automaticamente quando viene salvato</string>
+    <string name="developer">Sviluppatore</string>
+    <string name="build_info">Informazioni build</string>
+    <string name="community">Community</string>
 </resources>
