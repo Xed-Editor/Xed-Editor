@@ -80,7 +80,7 @@
     <string name="value_invalid">Valore non valido</string>
     <string name="value_small">Valore troppo piccolo</string>
     <string name="tab_size">Dimensione della tabulazione</string>
-    <string name="tab_size_desc">Imposta la dimensione del tabulatore</string>
+    <string name="tab_size_desc">Numero di spazi inseriti per una tabulazione</string>
     <string name="monet">Colori dinamici</string>
     <string name="monet_desc">Usa il tema del dispostivo nell\'app</string>
     <string name="editor_desc">Imoostazioni generali dell\'editor</string>
@@ -145,10 +145,10 @@
     <string name="ext_desc">Gestisci estensioni</string>
     <string name="restore_sessions">Ripristina sessioni</string>
     <string name="sessions">Sessioni</string>
-    <string name="no_ext">Nessuna estensione installata.</string>
+    <string name="no_ext">Nessuna estensione trovata.</string>
     <string name="downloading">Scaricamento…</string>
     <string name="network_err">Errore di rete. Verifica che la tua connessione internet stia funzionando correttamente.</string>
-    <string name="info_ext">Le estensioni possono modificare il comportamento e le caratteristiche di Xed-Editor. Per imparare come costruire un plugin, clicca qui.</string>
+    <string name="info_ext">Le estensioni possono modificare il comportamento e le caratteristiche di Xed-Editor. Per imparare come costruire un\'estensione, clicca qui.</string>
     <string name="loading">Caricamento…</string>
     <string name="highlighting">Evidenziazione sintassi</string>
     <string name="toggle_word_wrap">Attiva/Disattiva a capo automatico</string>
@@ -219,4 +219,24 @@
     <string name="force_crash_confirm">Vuoi forzare l\'arresto dell\'app? L\'app potrebbe bloccarsi.</string>
     <string name="memory_usage">Utilizzo memoria</string>
     <string name="open_as_project">Apri come un progetto</string>
+    <string name="ask_deletion_many">Sei sicuro di voler eliminare definitivamente %d file?</string>
+    <string name="clone_repo_desc">Clona repository remota</string>
+    <string name="repo_url">URL della repository</string>
+    <string name="branch">Branch</string>
+    <string name="open_removable_storage">Apri archiviazione removibile</string>
+    <string name="auto_save_delay">Ritardo dell\'autosalvataggio</string>
+    <string name="auto_save_delay_desc">Ritardo in millisecondi tra gli autosalvataggi</string>
+    <string name="files_unsaved">File non salvati</string>
+    <string name="ask_multiple_unsaved">Sei sicuro di voler scartare questi documenti non salvati?</string>
+    <string name="line_spacing_desc">Moltiplicatore di altezza per ogni linea nell\'editor</string>
+    <string name="value_empty_err">Il valore non può essere vuoto</string>
+    <string name="size">Dimensione</string>
+    <string name="native_runner">Questo esecutore funziona solo nei file nativi, considera di spostarlo nella cartella principale del terminale</string>
+    <string name="text_mate_suggestion">Auto completamento TextMate</string>
+    <string name="text_mate_suggestion_desc">Suggerisco parole chiave predefinite</string>
+    <string name="restore_terminal">Ripristina backup del terminale</string>
+    <string name="terminal_backup">Backup del terminale</string>
+    <string name="wrapper_type">Tipologia di wrapper</string>
+    <string name="strict_mode">Modalità strict</string>
+    <string name="strict_mode_desc">Individua dischi o accessi di rete nel thread principale</string>
 </resources>
