@@ -1,5 +1,12 @@
 [versions]
+
+# kotlin, agp and r8 must be compatible with each other aftr update
 agp = "8.13.1"
+kotlin = "2.3.0"
+ksp = "2.3.0"
+kotlinReflect = "2.3.0"
+r8 = "8.13.19"
+
 annotation = "1.9.1"
 anrwatchdog = "1.4.0"
 appcompat = "1.7.1"
@@ -9,13 +16,11 @@ coreVersion = "0.3.0"
 desugar_jdk_libs = "2.1.5"
 documentfile = "1.1.0"
 glide = "5.0.5"
-kotlinReflect = "2.3.20"
 material = "1.13.0"
 constraintlayout = "2.2.1"
 materialIconsCore = "1.7.8"
 nanohttpd = "2.3.1"
 navigation = "2.9.6"
-kotlin = "2.3.20"
 coreKtx = "1.17.0"
 activity = "1.12.0"
 okhttp = "5.3.2"
@@ -29,6 +34,7 @@ composeBom = "2025.11.01"
 coil = "2.7.0"
 ktfmt = "0.25.0"
 jgit = "6.2.0.202206071550-r"
+
 tsBinding = "4.3.2"
 lsp4j = "1.0.0"
 uiautomator = "2.3.0"
@@ -41,7 +47,7 @@ androidsvgAar = "1.4"
 ec4jCore = "1.2.0"
 kotlinxSerializationJson = "1.10.0"
 room = "2.8.4"
-ksp = "2.3.6"
+
 publish = "0.36.0"
 collection = "1.5.0"
 jcodings = "1.0.64"
@@ -140,6 +146,7 @@ androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "junit
 androidx-test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
+r8 = { module = "com.android.tools:r8", version.ref = "r8" }
 tests-robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 tests-google-truth = { module = "com.google.truth:truth", version.ref = "truth" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
