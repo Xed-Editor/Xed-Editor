@@ -628,4 +628,8 @@
     <string name="debug">Ladění</string>
     <string name="theme_flipper">Přepnout mezi témata</string>
     <string name="theme_flipper_desc">Pořád měnit režim téma každých 7 sekund</string>
+    <string name="auto_closing_bracket">Automatické uzavírání závorek</string>
+    <string name="auto_closing_bracket_desc">Automaticky vložit shodnou uzávírecí závorku</string>
+    <string name="confirm_exit_dialog">Potvrzení o ukončení</string>
+    <string name="confirm_exit_dialog_desc">Zobrazit dialog o potvrzení o ukončení před zavření aplikace</string>
 </resources>
