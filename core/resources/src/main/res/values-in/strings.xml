@@ -641,4 +641,8 @@
     <string name="git_status">Status Git</string>
     <string name="invalid_color">Warna tidak valid</string>
     <string name="color_picker">Pilih warna</string>
+    <string name="auto_closing_bracket">Kurung penutup otomatis</string>
+    <string name="auto_closing_bracket_desc">Secara otomatis menyisipkan kurung penutup yang sesuai</string>
+    <string name="confirm_exit_dialog">Dialog konfirmasi keluar</string>
+    <string name="confirm_exit_dialog_desc">Tampilkan dialog konfirmasi sebelum menutup aplikasi</string>
 </resources>
