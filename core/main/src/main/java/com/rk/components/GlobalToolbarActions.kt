@@ -50,7 +50,7 @@ import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.editor.GeminiCliModalSheet
+import com.rk.tabs.editor.GeminiCliSheet
 import com.rk.tabs.editor.GeminiSheetSessionStore
 import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.utils.application
@@ -301,7 +301,7 @@ private fun HomeGeminiSheet(
         if (!GeminiSheetSessionStore.canReuseFor(defaultDir)) startGemini(defaultDir)
     }
 
-    GeminiCliModalSheet(
+    GeminiCliSheet(
         onDismissRequest = onDismiss,
         cwd = defaultDir,
         session = GeminiSheetSessionStore.session,
