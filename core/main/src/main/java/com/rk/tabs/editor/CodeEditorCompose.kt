@@ -137,6 +137,26 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
             },
         )
     )
+    registerTextAction(
+        TextActionItem(
+            strings.gemini_assistant,
+            drawables.auto_fix,
+            shouldShow = { isTextSelected },
+            onClick = {
+                val selectedText = getSelectedText().orEmpty()
+                editorTab.editorState.geminiPrompt =
+                    """
+                    Explain this selected code, find possible bugs, and suggest improvements.
+
+                    ```
+                    $selectedText
+                    ```
+                    """
+                        .trimIndent()
+                editorTab.editorState.showGeminiAssistant = true
+            },
+        )
+    )
     val lspActions = createLspTextActions(scope, context, viewModel, editorTab)
     lspActions.forEach { registerTextAction(it) }
 }

@@ -77,5 +77,8 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var showGeminiAssistant by mutableStateOf(false)
     var geminiPrompt by mutableStateOf("")
     var geminiOutput by mutableStateOf("")
+    var geminiRawLog by mutableStateOf("")
+    var geminiCliTranscript by mutableStateOf("")
+    var geminiShellMode by mutableStateOf(false)
     var geminiRunning by mutableStateOf(false)
 }

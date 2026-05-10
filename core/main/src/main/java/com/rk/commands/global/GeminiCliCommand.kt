@@ -1,5 +1,6 @@
 package com.rk.commands.global
 
+import com.rk.ai.GeminiBridge
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
@@ -22,6 +23,7 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
     override fun action(actionContext: ActionContext) {
         val currentEditorTab = commandContext.mainViewModel.currentTab as? EditorTab
         val projectDir = currentEditorTab?.projectRoot?.getAbsolutePath()
+        val bridge = projectDir?.let { GeminiBridge.ensureStarted(commandContext.mainViewModel, it) }
         val args =
             buildList {
                     add(localBinDir().child("gemini-cli").absolutePath)
@@ -41,6 +43,14 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
                 id = "gemini-cli",
                 terminatePreviousSession = false,
                 workingDir = projectDir,
+                env =
+                    bridge?.let {
+                        arrayOf(
+                            "GEMINI_CLI_IDE_SERVER_PORT=${it.port}",
+                            "GEMINI_CLI_IDE_AUTH_TOKEN=${it.token}",
+                            "GEMINI_CLI_IDE_WORKSPACE_PATH=${it.workspacePath}",
+                        )
+                    } ?: arrayOf(),
             ),
         )
     }
