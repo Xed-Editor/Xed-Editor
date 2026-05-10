@@ -13,6 +13,7 @@ import com.rk.utils.getTempDir
 import java.io.File
 import java.security.SecureRandom
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 object GeminiBridge {
