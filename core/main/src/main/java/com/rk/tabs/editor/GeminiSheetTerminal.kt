@@ -53,7 +53,6 @@ import com.rk.utils.dpToPx
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
 import com.rk.utils.isFDroid
-import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TextStyle
@@ -78,6 +77,7 @@ fun GeminiCliSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier.fillMaxWidth(),
+        sheetGesturesEnabled = false,
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
         Column(
@@ -263,8 +263,11 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "TERM_PROGRAM=vscode",
         "TERM_PROGRAM_VERSION=1.0.0",
         "VSCODE_PID=${android.os.Process.myPid()}",
+        "EDITOR=vim",
+        "VISUAL=vim",
         "LANG=C.UTF-8",
-        "DEBUG=${BuildConfig.DEBUG}",
+        "DEBUG=false",
+        "DEBUG_MODE=false",
         "LOCAL=${localDir().absolutePath}",
         "PRIVATE_DIR=${activity.filesDir.parentFile!!.absolutePath}",
         "LD_LIBRARY_PATH=${localLibDir().absolutePath}",

@@ -20,6 +20,9 @@ import java.io.PrintWriter
 import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -100,9 +103,63 @@ object GeminiBridge {
                     refreshEditors()
                     json(Response.Status.OK, "{\"ok\":true}")
                 }
+                "/external-editor" -> serveExternalEditor(session)
                 "/mcp" -> serveMcp(session)
                 else -> json(Response.Status.NOT_FOUND, error(null, -32601, "not_found"))
             }
+        }
+
+        private fun serveExternalEditor(session: IHTTPSession): Response {
+            if (session.method != Method.POST) {
+                return json(Response.Status.BAD_REQUEST, error(null, -32601, "method_not_allowed"))
+            }
+
+            val body = mutableMapOf<String, String>()
+            runCatching { session.parseBody(body) }.getOrElse {
+                return json(Response.Status.BAD_REQUEST, error(null, -32700, it.message ?: "invalid request"))
+            }
+            val request = runCatching { JsonParser.parseString(body["postData"].orEmpty()).asJsonObject }.getOrNull()
+                ?: return json(Response.Status.BAD_REQUEST, error(null, -32700, "parse error"))
+
+            val newPath = request.get("newPath")?.asString.orEmpty()
+            val oldPath = request.get("oldPath")?.asString?.takeIf { it.isNotBlank() }
+            if (newPath.isBlank()) return json(Response.Status.BAD_REQUEST, error(null, -32602, "newPath required"))
+
+            val newFile = File(newPath)
+            val oldText = oldPath?.let { runCatching { File(it).readText() }.getOrDefault("") }.orEmpty()
+            val newText = runCatching { newFile.readText() }.getOrElse {
+                return json(Response.Status.BAD_REQUEST, error(null, -32602, "cannot read editable file"))
+            }
+
+            val latch = CountDownLatch(1)
+            val accepted = AtomicBoolean(false)
+            val shown = runBlocking(Dispatchers.Main) {
+                val tab = (viewModel.currentTab as? EditorTab)
+                    ?: viewModel.tabs.filterIsInstance<EditorTab>().firstOrNull()
+                    ?: return@runBlocking false
+                tab.editorState.pendingGeminiPatch =
+                    GeminiEditorPatch(
+                        title = "Review Gemini external editor change",
+                        filePath = newPath,
+                        oldText = oldText,
+                        newText = newText,
+                        reject = {
+                            accepted.set(false)
+                            latch.countDown()
+                        },
+                        apply = {
+                            runCatching { newFile.writeText(newText) }
+                            accepted.set(true)
+                            latch.countDown()
+                        },
+                    )
+                true
+            }
+
+            if (!shown) return json(Response.Status.BAD_REQUEST, error(null, -32602, "no Xed editor tab available"))
+            val completed = latch.await(30, TimeUnit.MINUTES)
+            if (!completed) return json(Response.Status.OK, error(null, -32000, "external editor timed out"))
+            return json(Response.Status.OK, gson.toJson(JsonObject().apply { addProperty("accepted", accepted.get()) }))
         }
 
         private fun serveMcp(session: IHTTPSession): Response {

@@ -6,6 +6,13 @@ source "$LOCAL/bin/utils"
 cd "${WKDIR:-$HOME}" 2>/dev/null || cd "$HOME"
 
 export NO_UPDATE_NOTIFIER=1
+export GEMINI_TELEMETRY_ENABLED=false
+export GEMINI_TELEMETRY_TARGET=local
+export DEBUG=false
+export DEBUG_MODE=false
+export PATH="$LOCAL/bin:$PATH"
+export EDITOR=vim
+export VISUAL=vim
 configure_gemini_auth_browser
 
 ensure_node() {
@@ -36,7 +43,10 @@ let settings = {};
 try {
   settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
 } catch (_) {}
+settings.general = { ...(settings.general || {}), preferredEditor: 'vim' };
 settings.ide = { ...(settings.ide || {}), enabled: true, hasSeenNudge: true };
+settings.privacy = { ...(settings.privacy || {}), usageStatisticsEnabled: false };
+settings.telemetry = { ...(settings.telemetry || {}), enabled: false };
 fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
 NODE
 }
