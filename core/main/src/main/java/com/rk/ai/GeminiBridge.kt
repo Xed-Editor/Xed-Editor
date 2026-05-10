@@ -478,8 +478,16 @@ object GeminiBridge {
                         oldText = oldContent,
                         newText = newContent,
                         apply = {
-                            apply()
-                            viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }?.editorState?.showGeminiAssistant = true
+                            runCatching {
+                                apply()
+                                viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }?.editorState?.showGeminiAssistant = true
+                            }.onFailure {
+                                toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")
+                                sendMcpNotification("ide/diffRejected", JsonObject().apply {
+                                    addProperty("filePath", filePath)
+                                    addProperty("reason", it.message ?: "apply failed")
+                                })
+                            }
                         },
                         reject = {
                             sendMcpNotification("ide/diffRejected", JsonObject().apply { addProperty("filePath", filePath) })

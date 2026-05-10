@@ -1,5 +1,6 @@
 package com.rk.ai
 
+import com.rk.file.sandboxHomeDir
 import java.io.File
 import java.net.URI
 
@@ -14,7 +15,7 @@ internal fun geminiIdeWorkspacePath(primary: String): String =
 internal fun geminiWorkspaceRoots(workspacePath: String): List<File> =
     geminiIdeWorkspacePath(workspacePath)
         .split(File.pathSeparator)
-        .mapNotNull { root -> runCatching { File(root).canonicalFile }.getOrNull() }
+        .mapNotNull { root -> runCatching { geminiAndroidFileForProotPath(File(root)).canonicalFile }.getOrNull() }
         .distinctBy { it.path }
 
 internal fun geminiDisplayRootFor(workspacePath: String, file: File): File =
@@ -30,7 +31,7 @@ internal fun geminiResolveWorkspacePath(workspacePath: String, path: String): Fi
     val normalized = path.trim()
     if (normalized.isBlank()) return primary
 
-    val requested = geminiRequestedFile(normalized)
+    val requested = geminiAndroidFileForProotPath(geminiRequestedFile(normalized))
     val candidate = if (requested.isAbsolute) requested else File(primary, normalized)
     val canonical = runCatching { candidate.canonicalFile }.getOrElse { candidate.absoluteFile }
 
@@ -50,3 +51,10 @@ private fun geminiRequestedFile(path: String): File =
     } else {
         File(path)
     }
+
+private fun geminiAndroidFileForProotPath(file: File): File {
+    val path = file.path
+    if (path == "/home") return sandboxHomeDir()
+    if (path.startsWith("/home/")) return File(sandboxHomeDir(), path.removePrefix("/home/"))
+    return file
+}
