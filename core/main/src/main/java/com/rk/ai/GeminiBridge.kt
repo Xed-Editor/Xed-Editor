@@ -28,6 +28,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.withLock
 
 object GeminiBridge {
     data class Info(val url: String, val port: Int, val token: String, val workspacePath: String)
@@ -71,16 +73,21 @@ object GeminiBridge {
         NanoHTTPD("127.0.0.1", 0) {
         private val sessionId = UUID.randomUUID().toString()
         private val workspacePaths = linkedSetOf(workspacePath)
+        private val workspacePathsLock = Any()
         private val sseClients = ConcurrentHashMap<String, PrintWriter>()
         private val sseCreatedAt = ConcurrentHashMap<String, Long>()
 
-        private fun primaryWorkspacePath(): String = workspacePaths.firstOrNull().orEmpty()
-        private fun workspacePathForResolution(): String = workspacePaths.joinToString(File.pathSeparator)
+        private fun primaryWorkspacePath(): String = synchronized(workspacePathsLock) { workspacePaths.firstOrNull().orEmpty() }
+        private fun workspacePathForResolution(): String = synchronized(workspacePathsLock) { workspacePaths.joinToString(File.pathSeparator) }
 
         fun info(): Info = Info(url = "http://127.0.0.1:$listeningPort", port = listeningPort, token = token, workspacePath = primaryWorkspacePath())
 
         fun addWorkspacePath(path: String) {
-            if (path.isNotBlank()) workspacePaths.add(path)
+            if (path.isNotBlank()) {
+                synchronized(workspacePathsLock) {
+                    workspacePaths.add(path)
+                }
+            }
         }
 
         fun writeDiscoveryFile() {
@@ -111,11 +118,6 @@ object GeminiBridge {
         override fun serve(session: IHTTPSession): Response {
             d("serve ${session.method} ${session.uri}")
             
-            // parseBody must be called to access session.parameters for POST requests
-            if (session.method == Method.POST) {
-                runCatching { session.parseBody(mutableMapOf()) }
-            }
-
             if (!hasValidHost(session)) {
                 return json(Response.Status.FORBIDDEN, error(null, -32003, "invalid host"))
             }
@@ -141,9 +143,7 @@ object GeminiBridge {
                 return json(Response.Status.BAD_REQUEST, error(null, -32601, "method_not_allowed"))
             }
 
-            val body = mutableMapOf<String, String>()
-            runCatching { session.parseBody(body) }
-            val raw = body["postData"] ?: readRequestBodyUtf8(session).getOrElse {
+            val raw = readRequestBodyUtf8(session).getOrElse {
                 return json(Response.Status.BAD_REQUEST, error(null, -32700, it.message ?: "invalid request"))
             }
             
@@ -556,12 +556,17 @@ object GeminiBridge {
 
             val exactMatches = viewModel.tabs
                 .filterIsInstance<EditorTab>()
-                .map { File(it.file.getAbsolutePath()) }
-                .filter { it.path.endsWith(File.separator + path) }
-                .mapNotNull { it.parentFile }
+                .mapNotNull { tab ->
+                    val tabFile = File(tab.file.getAbsolutePath())
+                    if (tabFile.path.endsWith(File.separator + path)) {
+                        geminiResolveWorkspacePath(workspacePathForResolution(), tabFile.path)
+                    } else {
+                        null
+                    }
+                }
                 .distinctBy { it.absolutePath }
             if (exactMatches.size == 1) {
-                return geminiResolveWorkspacePath(workspacePathForResolution(), File(exactMatches.first(), path).path)
+                return exactMatches.first()
             }
 
             return null
@@ -657,7 +662,7 @@ object GeminiBridge {
 
         private fun writeFileAndRefreshEditor(file: File, content: String) {
             val tab = findTabByPath(file.absolutePath)
-            runBlocking {
+            runBlocking<Unit> {
                 tab?.saveMutex?.withLock {
                     withContext(Dispatchers.IO) {
                         file.parentFile?.mkdirs()
@@ -698,7 +703,14 @@ object GeminiBridge {
         private fun normalizeLineEndings(text: String): String = text.replace("\r\n", "\n").replace('\r', '\n')
 
         private fun refreshEditor(filePath: String, force: Boolean): Boolean {
-            val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } ?: return false
+            val requested = runCatching { File(filePath).canonicalPath }.getOrDefault(File(filePath).absolutePath)
+            val tab = viewModel.tabs
+                .filterIsInstance<EditorTab>()
+                .find { tab ->
+                    val tabPath = runCatching { File(tab.file.getAbsolutePath()).canonicalPath }
+                        .getOrDefault(File(tab.file.getAbsolutePath()).absolutePath)
+                    tabPath == requested
+                } ?: return false
             if (!force && tab.editorState.isDirty) return false
             tab.refresh()
             return true
