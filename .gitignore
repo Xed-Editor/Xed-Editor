@@ -22,3 +22,4 @@ Todo.md
 **/build
 .vscode
 core/wasm3
+/help_res/gemini-cli/
