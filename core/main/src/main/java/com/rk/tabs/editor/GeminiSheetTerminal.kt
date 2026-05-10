@@ -75,6 +75,51 @@ import java.lang.ref.WeakReference
 import java.util.Properties
 import kotlinx.coroutines.launch
 
+private data class GeminiSheetUiState(
+    val minimized: Boolean,
+    val terminalHeight: Dp,
+    val onDragStart: () -> Unit,
+    val onDrag: (Float) -> Unit,
+    val onDragEndForInline: () -> Unit,
+    val onDragEndForModal: (() -> Unit)? = null,
+)
+
+@Composable
+private fun rememberGeminiSheetUiState(
+    minHeight: Dp = 260.dp,
+    initialHeight: Dp = 595.dp,
+    onModalMinimize: (() -> Unit)? = null,
+    onModalExpand: (() -> Unit)? = null,
+): GeminiSheetUiState {
+    val density = LocalDensity.current
+    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.82f).dp
+    var minimized by remember { mutableStateOf(false) }
+    var terminalHeight by remember { mutableStateOf(initialHeight.coerceAtMost(maxHeight)) }
+    var handleDrag by remember { mutableStateOf(0f) }
+
+    return GeminiSheetUiState(
+        minimized = minimized,
+        terminalHeight = terminalHeight,
+        onDragStart = { handleDrag = 0f },
+        onDrag = { dragAmount ->
+            handleDrag += dragAmount
+            terminalHeight = (terminalHeight - with(density) { dragAmount.toDp() }).coerceIn(minHeight, maxHeight)
+        },
+        onDragEndForInline = {
+            when {
+                handleDrag > 140f -> minimized = true
+                handleDrag < -30f -> minimized = false
+            }
+        },
+        onDragEndForModal = {
+            when {
+                handleDrag > 60f -> onModalMinimize?.invoke()
+                handleDrag < -60f -> onModalExpand?.invoke()
+            }
+        },
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeminiCliSheet(
@@ -87,37 +132,25 @@ fun GeminiCliSheet(
     controls: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val density = LocalDensity.current
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.82f).dp
-    var minimized by remember { mutableStateOf(false) }
-    var terminalHeight by remember { mutableStateOf(595.dp.coerceAtMost(maxHeight)) }
-    var handleDrag = 0f
+    val ui = rememberGeminiSheetUiState()
 
     Column(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = if (minimized) 0.dp else 8.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = if (ui.minimized) 0.dp else 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         GeminiSheetDragHandle(
             modifier = Modifier.fillMaxWidth(),
-            onDragStart = { handleDrag = 0f },
-            onDrag = { dragAmount ->
-                handleDrag += dragAmount
-                terminalHeight = (terminalHeight - with(density) { dragAmount.toDp() }).coerceIn(260.dp, maxHeight)
-            },
-            onDragEnd = {
-                when {
-                    handleDrag > 140f -> minimized = true
-                    handleDrag < -30f -> minimized = false
-                }
-            },
+            onDragStart = ui.onDragStart,
+            onDrag = ui.onDrag,
+            onDragEnd = ui.onDragEndForInline,
             backgroundColor = colorScheme.surfaceContainerHighest,
         )
-        if (!minimized) {
+        if (!ui.minimized) {
             GeminiCliSheetContent(
                 onDismissRequest = onDismissRequest,
                 cwd = cwd,
                 session = session,
-                terminalHeight = terminalHeight,
+                terminalHeight = ui.terminalHeight,
                 showTerminal = showTerminal,
                 headerContent = headerContent,
                 controls = controls,
@@ -140,10 +173,11 @@ fun GeminiCliModalSheet(
     val colorScheme = MaterialTheme.colorScheme
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
-    val density = LocalDensity.current
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.82f).dp
-    var terminalHeight by remember { mutableStateOf(595.dp.coerceAtMost(maxHeight)) }
-    var handleDrag = 0f
+    val ui =
+        rememberGeminiSheetUiState(
+            onModalMinimize = { scope.launch { runCatching { sheetState.partialExpand() } } },
+            onModalExpand = { scope.launch { sheetState.expand() } },
+        )
 
     ModalBottomSheet(
         onDismissRequest = {},
@@ -154,21 +188,22 @@ fun GeminiCliModalSheet(
             GeminiSheetDragHandle(
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = colorScheme.surfaceContainerHighest,
-                onDragStart = { handleDrag = 0f },
-                onDrag = { dragAmount ->
-                    handleDrag += dragAmount
-                    terminalHeight = (terminalHeight - with(density) { dragAmount.toDp() }).coerceIn(260.dp, maxHeight)
-                },
-                onDragEnd = {
-                    when {
-                        handleDrag > 60f -> scope.launch { runCatching { sheetState.partialExpand() } }
-                        handleDrag < -60f -> scope.launch { sheetState.expand() }
-                    }
-                },
+                onDragStart = ui.onDragStart,
+                onDrag = ui.onDrag,
+                onDragEnd = { ui.onDragEndForModal?.invoke() },
             )
         },
     ) {
-        GeminiCliSheetContent(onDismissRequest, cwd, session, Modifier.fillMaxWidth().padding(vertical = 8.dp), terminalHeight, showTerminal, headerContent, controls)
+        GeminiCliSheetContent(
+            onDismissRequest,
+            cwd,
+            session,
+            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            ui.terminalHeight,
+            showTerminal,
+            headerContent,
+            controls,
+        )
     }
 }
 

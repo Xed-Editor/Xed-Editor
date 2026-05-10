@@ -8,6 +8,8 @@ import com.termux.terminal.TerminalSession
 object GeminiSheetSessionStore {
     var session by mutableStateOf<TerminalSession?>(null)
     var cwd by mutableStateOf<String?>(null)
+    private val allowRootReuse: Boolean =
+        (System.getenv("XED_GEMINI_REUSE_ROOT") ?: "true").equals("true", ignoreCase = true)
 
     fun canReuseFor(requestedCwd: String): Boolean {
         val running = session
@@ -15,7 +17,7 @@ object GeminiSheetSessionStore {
         val requested = requestedCwd.trimEnd('/')
         if (running?.isRunning != true) return false
         if (existingCwd == requested) return true
-        if (existingCwd == "/home" || existingCwd == "/storage/emulated/0" || existingCwd == "/") return false
+        if (!allowRootReuse && (existingCwd == "/home" || existingCwd == "/storage/emulated/0" || existingCwd == "/")) return false
         return requested.startsWith("$existingCwd/")
     }
 

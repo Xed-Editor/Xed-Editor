@@ -34,11 +34,12 @@ object GeminiBridge {
     private val secureRandom = SecureRandom()
     private val gson: Gson = GsonBuilder().disableHtmlEscaping().create()
 
+    @Synchronized
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String): Info {
         val existing = server
         if (existing != null) {
             existing.viewModel = viewModel
-            existing.workspacePath = workspacePath
+            existing.addWorkspacePath(workspacePath)
             existing.writeDiscoveryFile()
             return existing.info()
         }
@@ -57,12 +58,21 @@ object GeminiBridge {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    private class BridgeServer(var viewModel: MainViewModel, private val token: String, var workspacePath: String) :
+    private class BridgeServer(var viewModel: MainViewModel, private val token: String, workspacePath: String) :
         NanoHTTPD("127.0.0.1", 0) {
         private val sessionId = UUID.randomUUID().toString()
+        private val workspacePaths = linkedSetOf(workspacePath)
         private val sseClients = ConcurrentHashMap<String, PrintWriter>()
+        private val sseCreatedAt = ConcurrentHashMap<String, Long>()
 
-        fun info(): Info = Info(url = "http://127.0.0.1:$listeningPort", port = listeningPort, token = token, workspacePath)
+        private fun primaryWorkspacePath(): String = workspacePaths.firstOrNull().orEmpty()
+        private fun workspacePathForResolution(): String = workspacePaths.joinToString(File.pathSeparator)
+
+        fun info(): Info = Info(url = "http://127.0.0.1:$listeningPort", port = listeningPort, token = token, workspacePath = primaryWorkspacePath())
+
+        fun addWorkspacePath(path: String) {
+            if (path.isNotBlank()) workspacePaths.add(path)
+        }
 
         fun writeDiscoveryFile() {
             runCatching {
@@ -74,7 +84,7 @@ object GeminiBridge {
                 val file = File(dir, "gemini-ide-server-${android.os.Process.myPid()}-$listeningPort.json")
                 val discovery = JsonObject().apply {
                     addProperty("port", listeningPort)
-                    addProperty("workspacePath", geminiIdeWorkspacePath(workspacePath))
+                    addProperty("workspacePath", workspacePathForResolution())
                     addProperty("authToken", token)
                     add("ideInfo", JsonObject().apply {
                         addProperty("name", "xed")
@@ -133,6 +143,7 @@ object GeminiBridge {
 
             val latch = CountDownLatch(1)
             val accepted = AtomicBoolean(false)
+            val applyError = java.util.concurrent.atomic.AtomicReference<String?>(null)
             val shown = runBlocking(Dispatchers.Main) {
                 val tab = (viewModel.currentTab as? EditorTab)
                     ?: viewModel.tabs.filterIsInstance<EditorTab>().firstOrNull()
@@ -148,8 +159,12 @@ object GeminiBridge {
                             latch.countDown()
                         },
                         apply = {
-                            runCatching { newFile.writeText(newText) }
-                            accepted.set(true)
+                            runCatching { newFile.writeText(newText, Charsets.UTF_8) }
+                                .onSuccess { accepted.set(true) }
+                                .onFailure {
+                                    accepted.set(false)
+                                    applyError.set(it.message ?: it::class.java.simpleName)
+                                }
                             latch.countDown()
                         },
                     )
@@ -159,7 +174,15 @@ object GeminiBridge {
             if (!shown) return json(Response.Status.BAD_REQUEST, error(null, -32602, "no Xed editor tab available"))
             val completed = latch.await(30, TimeUnit.MINUTES)
             if (!completed) return json(Response.Status.OK, error(null, -32000, "external editor timed out"))
-            return json(Response.Status.OK, gson.toJson(JsonObject().apply { addProperty("accepted", accepted.get()) }))
+            return json(
+                Response.Status.OK,
+                gson.toJson(
+                    JsonObject().apply {
+                        addProperty("accepted", accepted.get())
+                        applyError.get()?.let { addProperty("error", it) }
+                    },
+                ),
+            )
         }
 
         private fun serveMcp(session: IHTTPSession): Response {
@@ -193,7 +216,10 @@ object GeminiBridge {
             val input = PipedInputStream()
             val output = PipedOutputStream(input)
             val writer = PrintWriter(output, true)
+            sseClients.remove(requestedSessionId)?.close()
             sseClients[requestedSessionId] = writer
+            sseCreatedAt[requestedSessionId] = System.currentTimeMillis()
+            cleanupStaleSseClients()
             writer.print(": connected\n\n")
             writer.flush()
             runCatching {
@@ -210,6 +236,7 @@ object GeminiBridge {
         }
 
         private fun sendMcpNotification(method: String, params: JsonObject) {
+            cleanupStaleSseClients()
             val notification = notificationJson(method, params)
             val deadClients = mutableListOf<String>()
             sseClients.forEach { (id, writer) ->
@@ -220,7 +247,19 @@ object GeminiBridge {
                     if (writer.checkError()) deadClients.add(id)
                 }.onFailure { deadClients.add(id) }
             }
-            deadClients.forEach { id -> sseClients.remove(id)?.close() }
+            deadClients.forEach { id ->
+                sseClients.remove(id)?.close()
+                sseCreatedAt.remove(id)
+            }
+        }
+
+        private fun cleanupStaleSseClients(maxAgeMillis: Long = 60 * 60 * 1000L) {
+            val now = System.currentTimeMillis()
+            val staleIds = sseCreatedAt.filterValues { createdAt -> now - createdAt > maxAgeMillis }.keys
+            staleIds.forEach { id ->
+                sseClients.remove(id)?.close()
+                sseCreatedAt.remove(id)
+            }
         }
 
         private fun notificationJson(method: String, params: JsonObject): String =
@@ -259,8 +298,8 @@ object GeminiBridge {
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
                     val oldContent = openEditorContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
-                    if (oldContent == newContent) {
-                        return callToolTextResult(id, "No changes detected for ${file.absolutePath}; current editor/file content already matches proposed content.")
+                    compareNoopReason(oldContent, newContent)?.let { reason ->
+                        return callToolTextResult(id, "No changes detected for ${file.absolutePath}: $reason")
                     }
                     val shown = showPendingPatch(file.absolutePath, oldContent, newContent) {
                         writeFileAndRefreshEditor(file, newContent)
@@ -381,8 +420,19 @@ object GeminiBridge {
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
                     val oldContent = openEditorContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
-                    if (oldContent == content) {
-                        return callToolTextResult(id, "No changes detected for ${file.absolutePath}; current editor/file content already matches requested content.")
+                    compareNoopReason(oldContent, content)?.let { reason ->
+                        return callToolTextResult(id, "No changes detected for ${file.absolutePath}: $reason")
+                    }
+                    val openTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
+                    if (openTab != null) {
+                        val shown = showPendingPatch(file.absolutePath, oldContent, content) {
+                            writeFileAndRefreshEditor(file, content)
+                            sendMcpNotification("ide/diffAccepted", JsonObject().apply {
+                                addProperty("filePath", file.absolutePath)
+                                addProperty("content", content)
+                            })
+                        }
+                        if (shown) return callToolEmptyResult(id)
                     }
                     writeFileAndRefreshEditor(file, content)
                     callToolTextResult(id, "wrote and refreshed ${file.absolutePath} (${diffSummary(oldContent, content)})")
@@ -410,7 +460,16 @@ object GeminiBridge {
                     val command = args.get("command")?.asString.orEmpty()
                     if (command.isBlank()) return error(id, -32602, "command required")
                     val timeout = args.get("timeoutSeconds")?.asLong ?: 120L
-                    val result = runBlocking { ShellUtils.runUbuntu(workspacePath, "/bin/bash", "-lc", command, timeoutSeconds = timeout.coerceIn(1, 600)) }
+                    val result =
+                        runBlocking {
+                            ShellUtils.runUbuntu(
+                                primaryWorkspacePath(),
+                                "/bin/bash",
+                                "-lc",
+                                command,
+                                timeoutSeconds = timeout.coerceIn(1, 600),
+                            )
+                        }
                     callToolTextResult(id, buildString {
                         if (result.output.isNotBlank()) appendLine(result.output)
                         if (result.error.isNotBlank()) appendLine(result.error)
@@ -433,26 +492,33 @@ object GeminiBridge {
             if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
                 resolveRelativePathFromOpenEditor(normalized)?.let { return it }
             }
-            return geminiResolveWorkspacePath(workspacePath, path)
+            return geminiResolveWorkspacePath(workspacePathForResolution(), path)
         }
 
         private fun resolveRelativePathFromOpenEditor(path: String): File? {
-            val leafName = File(path).name
-            val hasDirectory = path.contains("/") || path.contains(File.separator)
             val activeTab = viewModel.currentTab as? EditorTab
-            val tabs = listOfNotNull(activeTab) + viewModel.tabs.filterIsInstance<EditorTab>().filter { it != activeTab }
-            val baseFile = tabs
+            val activeBase = activeTab?.let { File(it.file.getAbsolutePath()).parentFile }
+            activeBase?.let { parent ->
+                geminiResolveWorkspacePath(workspacePathForResolution(), File(parent, path).path)?.let { return it }
+            }
+
+            val exactMatches = viewModel.tabs
+                .filterIsInstance<EditorTab>()
                 .map { File(it.file.getAbsolutePath()) }
-                .firstOrNull { it.path.endsWith(File.separator + path) || (!hasDirectory && it.name == leafName) }
-                ?: return null
-            val parent = baseFile.parentFile ?: return null
-            return geminiResolveWorkspacePath(workspacePath, File(parent, path).path)
+                .filter { it.path.endsWith(File.separator + path) }
+                .mapNotNull { it.parentFile }
+                .distinctBy { it.absolutePath }
+            if (exactMatches.size == 1) {
+                return geminiResolveWorkspacePath(workspacePathForResolution(), File(exactMatches.first(), path).path)
+            }
+
+            return null
         }
 
         private fun listWorkspaceFiles(dir: File, recursive: Boolean, maxFiles: Int): String {
             if (!dir.exists() || !dir.isDirectory) return ""
             val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules")
-            val root = geminiDisplayRootFor(workspacePath, dir)
+            val root = geminiDisplayRootFor(workspacePathForResolution(), dir)
             val output = mutableListOf<String>()
 
             fun visit(current: File) {
@@ -532,6 +598,16 @@ object GeminiBridge {
             val changed = (maxOf(oldLines.size, newLines.size) - common).coerceAtLeast(1)
             return "$changed changed line(s)"
         }
+
+        private fun compareNoopReason(oldContent: String, newContent: String): String? {
+            if (oldContent == newContent) return "exact content match (same bytes/hash)"
+            val oldNormalized = normalizeLineEndings(oldContent)
+            val newNormalized = normalizeLineEndings(newContent)
+            if (oldNormalized == newNormalized) return "only line-ending differences (CRLF/LF normalization)"
+            return null
+        }
+
+        private fun normalizeLineEndings(text: String): String = text.replace("\r\n", "\n").replace('\r', '\n')
 
         private fun refreshEditor(filePath: String, force: Boolean): Boolean {
             val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } ?: return false
