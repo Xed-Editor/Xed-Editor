@@ -34,9 +34,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.ai.GeminiBridge
@@ -83,32 +86,38 @@ fun GeminiCliSheet(
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val density = LocalDensity.current
+    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.82f).dp
     var minimized by remember { mutableStateOf(false) }
+    var terminalHeight by remember { mutableStateOf(595.dp.coerceAtMost(maxHeight)) }
     var handleDrag = 0f
 
     Column(
         modifier = modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = if (minimized) 0.dp else 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        BottomSheetDefaults.DragHandle(
-            modifier = Modifier.pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onDragStart = { handleDrag = 0f },
-                    onVerticalDrag = { _, dragAmount -> handleDrag += dragAmount },
-                    onDragEnd = {
-                        when {
-                            handleDrag > 60f -> minimized = true
-                            handleDrag < -60f -> minimized = false
-                        }
-                    },
-                )
+        GeminiSheetDragHandle(
+            modifier = Modifier.fillMaxWidth(),
+            onDragStart = { handleDrag = 0f },
+            onDrag = { dragAmount ->
+                handleDrag += dragAmount
+                terminalHeight = (terminalHeight - with(density) { dragAmount.toDp() }).coerceIn(260.dp, maxHeight)
             },
+            onDragEnd = {
+                when {
+                    handleDrag > 140f -> minimized = true
+                    handleDrag < -30f -> minimized = false
+                }
+            },
+            backgroundColor = colorScheme.surfaceContainerHighest,
         )
         if (!minimized) {
             GeminiCliSheetContent(
                 onDismissRequest = onDismissRequest,
                 cwd = cwd,
                 session = session,
+                terminalHeight = terminalHeight,
                 showTerminal = showTerminal,
                 headerContent = headerContent,
                 controls = controls,
@@ -128,8 +137,12 @@ fun GeminiCliModalSheet(
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.82f).dp
+    var terminalHeight by remember { mutableStateOf(595.dp.coerceAtMost(maxHeight)) }
     var handleDrag = 0f
 
     ModalBottomSheet(
@@ -138,23 +151,51 @@ fun GeminiCliModalSheet(
         sheetState = sheetState,
         sheetGesturesEnabled = false,
         dragHandle = {
-            BottomSheetDefaults.DragHandle(
-                modifier = Modifier.pointerInput(Unit) {
-                    detectVerticalDragGestures(
-                        onDragStart = { handleDrag = 0f },
-                        onVerticalDrag = { _, dragAmount -> handleDrag += dragAmount },
-                        onDragEnd = {
-                            when {
-                                handleDrag > 60f -> scope.launch { runCatching { sheetState.partialExpand() } }
-                                handleDrag < -60f -> scope.launch { sheetState.expand() }
-                            }
-                        },
-                    )
+            GeminiSheetDragHandle(
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = colorScheme.surfaceContainerHighest,
+                onDragStart = { handleDrag = 0f },
+                onDrag = { dragAmount ->
+                    handleDrag += dragAmount
+                    terminalHeight = (terminalHeight - with(density) { dragAmount.toDp() }).coerceIn(260.dp, maxHeight)
+                },
+                onDragEnd = {
+                    when {
+                        handleDrag > 60f -> scope.launch { runCatching { sheetState.partialExpand() } }
+                        handleDrag < -60f -> scope.launch { sheetState.expand() }
+                    }
                 },
             )
         },
     ) {
-        GeminiCliSheetContent(onDismissRequest, cwd, session, Modifier.fillMaxWidth().padding(vertical = 8.dp), showTerminal, headerContent, controls)
+        GeminiCliSheetContent(onDismissRequest, cwd, session, Modifier.fillMaxWidth().padding(vertical = 8.dp), terminalHeight, showTerminal, headerContent, controls)
+    }
+}
+
+@Composable
+private fun GeminiSheetDragHandle(
+    modifier: Modifier = Modifier,
+    backgroundColor: androidx.compose.ui.graphics.Color,
+    onDragStart: () -> Unit,
+    onDrag: (Float) -> Unit,
+    onDragEnd: () -> Unit,
+) {
+    Box(
+        modifier =
+            modifier
+                .background(backgroundColor, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+                .padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        BottomSheetDefaults.DragHandle(
+            modifier = Modifier.pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = { onDragStart() },
+                    onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                    onDragEnd = onDragEnd,
+                )
+            },
+        )
     }
 }
 
@@ -164,6 +205,7 @@ private fun GeminiCliSheetContent(
     cwd: String,
     session: TerminalSession?,
     modifier: Modifier = Modifier,
+    terminalHeight: Dp = 595.dp,
     showTerminal: Boolean = true,
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
@@ -201,22 +243,24 @@ private fun GeminiCliSheetContent(
                     style = MaterialTheme.typography.bodySmall,
                 )
 
-                GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
+                GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
             }
         }
     }
 }
 
 @Composable
-fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier) {
+fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier, height: Dp = 595.dp) {
     val colorScheme = MaterialTheme.colorScheme
     val currentTheme = LocalThemeHolder.current
     val isDarkMode = isSystemInDarkTheme()
+    val keysHeight = 75.dp
+    val terminalBodyHeight = (height - keysHeight).coerceAtLeast(160.dp)
 
     Column(
         modifier =
             modifier
-                .height(595.dp)
+                .height(height)
                 .background(colorScheme.surface, RoundedCornerShape(14.dp))
                 .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
     ) {
@@ -228,7 +272,7 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
                 fontFamily = FontFamily.Monospace,
             )
         } else {
-            Box(modifier = Modifier.fillMaxWidth().height(520.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().height(terminalBodyHeight)) {
                 AndroidView(
                     factory = { context ->
                         TerminalView(context, null).apply {
@@ -292,7 +336,7 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(75.dp),
+                modifier = Modifier.fillMaxWidth().height(keysHeight),
                 update = { keys ->
                     virtualKeysView = WeakReference(keys)
                     keys.virtualKeysViewClient = VirtualKeysListener(session)

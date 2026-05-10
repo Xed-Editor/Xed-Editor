@@ -259,10 +259,11 @@ object GeminiBridge {
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
                     val oldContent = openEditorContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
+                    if (oldContent == newContent) {
+                        return callToolTextResult(id, "No changes detected for ${file.absolutePath}; current editor/file content already matches proposed content.")
+                    }
                     val shown = showPendingPatch(file.absolutePath, oldContent, newContent) {
-                        file.parentFile?.mkdirs()
-                        file.writeText(newContent)
-                        refreshEditor(file.absolutePath, force = true)
+                        writeFileAndRefreshEditor(file, newContent)
                         refreshEditors(onlyClean = true)
                         sendMcpNotification("ide/diffAccepted", JsonObject().apply {
                             addProperty("filePath", file.absolutePath)
@@ -270,8 +271,7 @@ object GeminiBridge {
                         })
                     }
                     if (shown) callToolEmptyResult(id) else {
-                        file.parentFile?.mkdirs()
-                        file.writeText(newContent)
+                        writeFileAndRefreshEditor(file, newContent)
                         refreshEditors(onlyClean = true)
                         sendMcpNotification("ide/diffAccepted", JsonObject().apply {
                             addProperty("filePath", file.absolutePath)
@@ -283,7 +283,7 @@ object GeminiBridge {
                 "closeDiff" -> {
                     val filePath = args.get("filePath")?.asString.orEmpty()
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
-                    val content = runCatching { file.readText() }.getOrDefault("")
+                    val content = openEditorContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
                     callToolTextResult(id, gson.toJson(JsonObject().apply { addProperty("content", content) }))
                 }
                 "readFile" -> {
@@ -380,18 +380,12 @@ object GeminiBridge {
                     val content = args.get("content")?.asString.orEmpty()
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
-                    file.parentFile?.mkdirs()
-                    file.writeText(content)
-                    val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
-                    runBlocking(Dispatchers.Main) {
-                        tab?.let {
-                            it.editorState.editor.get()?.setText(content)
-                            it.editorState.content = it.editorState.editor.get()?.text
-                            it.editorState.updateUndoRedo()
-                            it.editorState.isDirty = false
-                        }
+                    val oldContent = openEditorContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
+                    if (oldContent == content) {
+                        return callToolTextResult(id, "No changes detected for ${file.absolutePath}; current editor/file content already matches requested content.")
                     }
-                    callToolTextResult(id, "wrote and refreshed ${file.absolutePath}")
+                    writeFileAndRefreshEditor(file, content)
+                    callToolTextResult(id, "wrote and refreshed ${file.absolutePath} (${diffSummary(oldContent, content)})")
                 }
                 "saveOpenFiles" -> {
                     val tabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
@@ -515,6 +509,28 @@ object GeminiBridge {
         private fun openEditorContent(filePath: String): String? {
             val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } ?: return null
             return runBlocking(Dispatchers.Main) { tab.editorState.editor.get()?.text?.toString() }
+        }
+
+        private fun writeFileAndRefreshEditor(file: File, content: String) {
+            file.parentFile?.mkdirs()
+            file.writeText(content, Charsets.UTF_8)
+            val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
+            runBlocking(Dispatchers.Main) {
+                tab?.let {
+                    it.editorState.editor.get()?.setText(content)
+                    it.editorState.content = it.editorState.editor.get()?.text
+                    it.editorState.updateUndoRedo()
+                    it.editorState.isDirty = false
+                }
+            }
+        }
+
+        private fun diffSummary(oldContent: String, newContent: String): String {
+            val oldLines = oldContent.lines()
+            val newLines = newContent.lines()
+            val common = oldLines.zip(newLines).count { (old, new) -> old == new }
+            val changed = (maxOf(oldLines.size, newLines.size) - common).coerceAtLeast(1)
+            return "$changed changed line(s)"
         }
 
         private fun refreshEditor(filePath: String, force: Boolean): Boolean {
