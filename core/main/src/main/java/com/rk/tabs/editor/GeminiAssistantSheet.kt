@@ -119,7 +119,8 @@ fun EditorTab.GeminiAssistantSheet() {
                             ```
 
                             Answer concisely. Do not edit files.
-                            """.trimIndent()
+                            """
+                                .trimIndent()
                         )
                     },
                 ) {
@@ -145,7 +146,8 @@ fun EditorTab.GeminiAssistantSheet() {
                             ```
                             $contextText
                             ```
-                            """.trimIndent()
+                            """
+                                .trimIndent()
                         ) { replacement ->
                             currentEditor.text.replace(start, end, replacement)
                         }
@@ -169,9 +171,14 @@ fun EditorTab.GeminiAssistantSheet() {
                             ```
                             $contextText
                             ```
-                            """.trimIndent()
+                            """
+                                .trimIndent()
                         ) { insertion ->
-                            currentEditor.text.insert(currentEditor.cursor.leftLine, currentEditor.cursor.leftColumn, insertion)
+                            currentEditor.text.insert(
+                                currentEditor.cursor.leftLine,
+                                currentEditor.cursor.leftColumn,
+                                insertion,
+                            )
                         }
                     },
                 ) {
@@ -206,7 +213,10 @@ fun EditorTab.GeminiAssistantSheet() {
             }
 
             if (editorState.geminiRunning) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     CircularProgressIndicator()
                     Text(strings.wait.getString())
                 }
