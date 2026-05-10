@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.ai.GeminiBridge
 import com.termux.terminal.TerminalSession
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,7 +52,7 @@ fun EditorTab.GeminiAssistantSheet() {
 
     fun currentProjectDir(): String =
         projectRoot?.getAbsolutePath()
-            ?: file.getParentFile()?.getAbsolutePath()
+            ?: File(file.getAbsolutePath()).parent
             ?: file.getAbsolutePath()
 
     fun currentEditor() = editorState.editor.get()
@@ -59,7 +60,9 @@ fun EditorTab.GeminiAssistantSheet() {
     fun selectedOrFileText(): String {
         val editor = currentEditor() ?: return editorState.content?.toString().orEmpty()
         return if (editor.isTextSelected) {
-            editor.text.substring(editor.cursorRange.startIndex, editor.cursorRange.endIndex)
+            val start = minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex)
+            val end = maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex)
+            editor.text.substring(start, end)
         } else {
             editor.text.toString()
         }
@@ -117,7 +120,6 @@ fun EditorTab.GeminiAssistantSheet() {
                 activity = currentActivity,
                 bridge = bridge,
                 workingDir = currentProjectDir(),
-                startupPrompt = geminiStartupPrompt(currentProjectDir(), file.getAbsolutePath()),
                 extraArgs = extraArgs,
             )
             withContext(Dispatchers.Main) {

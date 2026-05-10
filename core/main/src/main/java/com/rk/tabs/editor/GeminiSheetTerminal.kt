@@ -67,56 +67,55 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
                 color = colorScheme.onSurfaceVariant,
                 fontFamily = FontFamily.Monospace,
             )
-            return@Box
-        }
-
-        AndroidView(
-            factory = { context ->
-                TerminalView(context, null).apply {
-                    terminalView = WeakReference(this)
-                    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                    val fontFile = sandboxDir().child("etc/font.ttf")
-                    if (fontFile.exists()) {
-                        setTypeface(Typeface.createFromFile(fontFile))
-                    } else {
-                        val font =
-                            Settings.terminal_font_path.takeIf { it.isNotEmpty() }?.let {
-                                FontCache.getTypeface(context, it, Settings.is_terminal_font_asset)
-                            } ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
-                        setTypeface(font)
+        } else {
+            AndroidView(
+                factory = { context ->
+                    TerminalView(context, null).apply {
+                        terminalView = WeakReference(this)
+                        setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
+                        val fontFile = sandboxDir().child("etc/font.ttf")
+                        if (fontFile.exists()) {
+                            setTypeface(Typeface.createFromFile(fontFile))
+                        } else {
+                            val font =
+                                Settings.terminal_font_path.takeIf { it.isNotEmpty() }?.let {
+                                    FontCache.getTypeface(context, it, Settings.is_terminal_font_asset)
+                                } ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
+                            setTypeface(font)
+                        }
+                        val client = TerminalBackEnd()
+                        session.updateTerminalSessionClient(client)
+                        attachSession(session)
+                        setTerminalViewClient(client)
+                        applyGeminiSheetTerminalColors(
+                            surfaceColor = colorScheme.surface.toArgb(),
+                            onSurfaceColor = colorScheme.onSurface.toArgb(),
+                            terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                        )
+                        post {
+                            keepScreenOn = true
+                            isFocusableInTouchMode = true
+                            requestFocus()
+                        }
                     }
-                    val client = TerminalBackEnd()
-                    session.updateTerminalSessionClient(client)
-                    attachSession(session)
-                    setTerminalViewClient(client)
-                    applyGeminiSheetTerminalColors(
+                },
+                modifier = Modifier.fillMaxSize(),
+                update = { view ->
+                    terminalView = WeakReference(view)
+                    if (view.mTermSession != session) {
+                        val client = TerminalBackEnd()
+                        session.updateTerminalSessionClient(client)
+                        view.attachSession(session)
+                        view.setTerminalViewClient(client)
+                    }
+                    view.applyGeminiSheetTerminalColors(
                         surfaceColor = colorScheme.surface.toArgb(),
                         onSurfaceColor = colorScheme.onSurface.toArgb(),
                         terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
                     )
-                    post {
-                        keepScreenOn = true
-                        isFocusableInTouchMode = true
-                        requestFocus()
-                    }
-                }
-            },
-            modifier = Modifier.fillMaxSize(),
-            update = { view ->
-                terminalView = WeakReference(view)
-                if (view.mTermSession != session) {
-                    val client = TerminalBackEnd()
-                    session.updateTerminalSessionClient(client)
-                    view.attachSession(session)
-                    view.setTerminalViewClient(client)
-                }
-                view.applyGeminiSheetTerminalColors(
-                    surfaceColor = colorScheme.surface.toArgb(),
-                    onSurfaceColor = colorScheme.onSurface.toArgb(),
-                    terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
-                )
-            },
-        )
+                },
+            )
+        }
     }
 }
 
@@ -145,29 +144,14 @@ fun buildGeminiSheetPrompt(
     $request
     """.trimIndent()
 
-fun geminiStartupPrompt(projectDir: String, filePath: String): String =
-    """
-    You are Gemini CLI embedded directly inside Xed-Editor's AI sheet.
-
-    Xed editor binding is active:
-    - Project root: $projectDir
-    - Active file: $filePath
-    - Use IDE/editor tools for edits when available so Xed can review/update open tabs.
-    - Dirty Xed tabs sync before prompts; clean open tabs refresh after disk edits.
-
-    Briefly say you are connected to Xed and ask what the user wants to edit.
-    """.trimIndent()
-
 fun createGeminiSheetSession(
     activity: Activity,
     bridge: GeminiBridge.Info,
     workingDir: String,
-    startupPrompt: String,
     extraArgs: List<String> = emptyList(),
 ): TerminalSession {
     setupTerminalFiles()
-    val launchArgs = extraArgs.ifEmpty { listOf("--prompt-interactive", startupPrompt) }
-    val (shell, args) = geminiSheetProcessArgs(launchArgs, workingDir)
+    val (shell, args) = geminiSheetProcessArgs(extraArgs, workingDir)
     return TerminalSession(
         shell,
         localDir().absolutePath,

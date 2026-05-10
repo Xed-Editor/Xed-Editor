@@ -241,11 +241,12 @@ object GeminiBridge {
                     val newContent = args.get("newContent")?.asString.orEmpty()
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
-                    val oldContent = runCatching { file.readText() }.getOrDefault("")
+                    val oldContent = openEditorContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
                     val shown = showPendingPatch(file.absolutePath, oldContent, newContent) {
                         file.parentFile?.mkdirs()
                         file.writeText(newContent)
-                        refreshEditors()
+                        refreshEditor(file.absolutePath, force = true)
+                        refreshEditors(onlyClean = true)
                         sendMcpNotification("ide/diffAccepted", JsonObject().apply {
                             addProperty("filePath", file.absolutePath)
                             addProperty("content", newContent)
@@ -305,8 +306,8 @@ object GeminiBridge {
                     val ok = runBlocking(Dispatchers.Main) {
                         val editor = current.editorState.editor.get() ?: return@runBlocking false
                         val hasSelection = editor.isTextSelected
-                        val start = if (hasSelection) editor.cursorRange.startIndex else 0
-                        val end = if (hasSelection) editor.cursorRange.endIndex else editor.text.toString().length
+                        val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
+                        val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
                         val oldText = editor.text.substring(start, end)
                         current.editorState.pendingGeminiPatch =
                             GeminiEditorPatch(
@@ -358,6 +359,11 @@ object GeminiBridge {
                 }
                 "saveOpenFiles" -> {
                     val tabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
+                    runBlocking(Dispatchers.Main) {
+                        tabs.forEach { tab ->
+                            tab.editorState.editor.get()?.let { editor -> tab.editorState.content = editor.text }
+                        }
+                    }
                     runBlocking { tabs.forEach { tab -> tab.quickSave() } }
                     callToolTextResult(id, "saved ${tabs.size} dirty open file(s)")
                 }
@@ -385,9 +391,8 @@ object GeminiBridge {
                 "refreshFile" -> {
                     val filePath = args.get("filePath")?.asString.orEmpty()
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
-                    val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
-                    if (tab?.editorState?.isDirty != true) tab?.refresh()
-                    callToolTextResult(id, if (tab != null) "refreshed" else "file is not open")
+                    val refreshed = refreshEditor(file.absolutePath, force = false)
+                    callToolTextResult(id, if (refreshed) "refreshed" else "file is not open or has unsaved changes")
                 }
                 else -> error(id, -32601, "unknown tool: $name")
             }
@@ -445,7 +450,19 @@ object GeminiBridge {
                 true
             }
 
-        private fun refreshEditors(onlyClean: Boolean = false) {
+        private fun openEditorContent(filePath: String): String? {
+            val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } ?: return null
+            return runBlocking(Dispatchers.Main) { tab.editorState.editor.get()?.text?.toString() }
+        }
+
+        private fun refreshEditor(filePath: String, force: Boolean): Boolean {
+            val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } ?: return false
+            if (!force && tab.editorState.isDirty) return false
+            tab.refresh()
+            return true
+        }
+
+        private fun refreshEditors(onlyClean: Boolean = true) {
             viewModel.tabs.filterIsInstance<EditorTab>().forEach {
                 if (!onlyClean || !it.editorState.isDirty) it.refresh()
             }
