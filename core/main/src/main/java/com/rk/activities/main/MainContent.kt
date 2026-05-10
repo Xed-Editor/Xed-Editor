@@ -202,24 +202,26 @@ fun MainContent(
 
             HorizontalDivider()
 
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize().clipToBounds(),
-                beyondViewportPageCount = mainViewModel.tabs.size,
-                userScrollEnabled = false,
-                key = { mainViewModel.tabs.getOrNull(it).hashCode() },
-            ) { page ->
-                if (page < mainViewModel.tabs.size) {
-                    mainViewModel.tabs[page].Content()
+            Box(Modifier.fillMaxSize()) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize().clipToBounds(),
+                    beyondViewportPageCount = mainViewModel.tabs.size,
+                    userScrollEnabled = false,
+                    key = { mainViewModel.tabs.getOrNull(it).hashCode() },
+                ) { page ->
+                    if (page < mainViewModel.tabs.size) {
+                        mainViewModel.tabs[page].Content()
+                    }
                 }
-            }
-            
-            if (mainViewModel.showGeminiSheet) {
-                UnifiedGeminiSheet(
-                    viewModel = mainViewModel,
-                    onDismissRequest = { mainViewModel.showGeminiSheet = false },
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                )
+
+                if (mainViewModel.showGeminiSheet) {
+                    UnifiedGeminiSheet(
+                        viewModel = mainViewModel,
+                        onDismissRequest = { mainViewModel.showGeminiSheet = false },
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
             }
         }
     }

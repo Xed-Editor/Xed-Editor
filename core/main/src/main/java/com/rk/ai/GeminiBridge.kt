@@ -627,7 +627,7 @@ object GeminiBridge {
                             runCatching { onApply() }
                                 .onSuccess {
                                     accepted.set(true)
-                                    tab.editorState.showGeminiAssistant = true
+                                    viewModel.showGeminiSheet = true
                                 }
                                 .onFailure {
                                     toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")

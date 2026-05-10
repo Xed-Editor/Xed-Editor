@@ -16,7 +16,7 @@ class GeminiAssistantCommand(commandContext: CommandContext) : EditorCommand(com
     override fun getLabel(): String = strings.gemini_assistant.getString()
 
     override fun action(editorActionContext: EditorActionContext) {
-        editorActionContext.editorTab.editorState.showGeminiAssistant = true
+        commandContext.mainViewModel.showGeminiSheet = true
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =

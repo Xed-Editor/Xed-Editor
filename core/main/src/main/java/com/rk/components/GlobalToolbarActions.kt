@@ -259,6 +259,3 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         )
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
