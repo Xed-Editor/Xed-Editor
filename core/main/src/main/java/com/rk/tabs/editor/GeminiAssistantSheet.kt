@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,6 +72,7 @@ private data class GeminiPendingPatch(
 fun EditorTab.GeminiAssistantSheet() {
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
+    val colorScheme = MaterialTheme.colorScheme
     var pendingPatch by remember { mutableStateOf<GeminiPendingPatch?>(null) }
 
     fun currentEditor() = editorState.editor.get()
@@ -558,19 +558,19 @@ fun EditorTab.GeminiAssistantSheet() {
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0D1117), RoundedCornerShape(18.dp))
-                        .border(1.dp, Color(0xFF30363D), RoundedCornerShape(18.dp))
+                        .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(18.dp))
+                        .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(18.dp))
                         .padding(14.dp),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "✦ Gemini CLI", color = Color(0xFFE6EDF3), style = MaterialTheme.typography.titleMedium)
+                        Text(text = "✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.width(8.dp))
-                        Text(text = "Xed bridge", color = Color(0xFF7D8590), style = MaterialTheme.typography.bodySmall)
+                        Text(text = "Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                     }
                     Text(
                         text = "cwd ${currentProjectDir()}",
-                        color = Color(0xFF7D8590),
+                        color = colorScheme.onSurfaceVariant,
                         fontFamily = FontFamily.Monospace,
                         style = MaterialTheme.typography.bodySmall,
                     )
@@ -585,14 +585,14 @@ fun EditorTab.GeminiAssistantSheet() {
                                     .trimIndent()
                             },
                         modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp, max = 260.dp).verticalScroll(rememberScrollState()),
-                        color = Color(0xFFE6EDF3),
+                        color = colorScheme.onSurface,
                         fontFamily = FontFamily.Monospace,
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Row(verticalAlignment = Alignment.Top) {
                         Text(
                             text = if (editorState.geminiShellMode) "! " else "> ",
-                            color = if (editorState.geminiShellMode) Color(0xFFF0883E) else Color(0xFF2F81F7),
+                            color = if (editorState.geminiShellMode) colorScheme.tertiary else colorScheme.primary,
                             fontFamily = FontFamily.Monospace,
                             modifier = Modifier.padding(top = 18.dp),
                         )
@@ -616,13 +616,13 @@ fun EditorTab.GeminiAssistantSheet() {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Using: ${memoryFiles().size} GEMINI.md files | Xed IDE bridge | ${if (editorState.geminiShellMode) "shell mode" else "auto"}",
-                            color = Color(0xFF7D8590),
+                            color = colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodySmall,
                         )
                         Spacer(Modifier.weight(1f))
                         Text(
                             text = "no sandbox",
-                            color = Color(0xFFFF7B72),
+                            color = colorScheme.error,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
