@@ -56,6 +56,8 @@ import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
+import com.rk.xededitor.BuildConfig
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -272,6 +274,9 @@ private fun HomeGeminiSheet(
     viewModel: MainViewModel,
     onDismiss: () -> Unit,
 ) {
+    fun d(msg: String) {
+        if (BuildConfig.DEBUG) Log.d("HomeGeminiSheet", msg)
+    }
     val context = LocalContext.current
     val activity = context as? Activity
     val scope = rememberCoroutineScope()
@@ -282,7 +287,12 @@ private fun HomeGeminiSheet(
 
     fun startGemini(workingDir: String = defaultDir, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
-        if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) return
+        if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) {
+            scope.launch(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
+            d("reused existing session cwd=$workingDir")
+            return
+        }
+        d("startGemini forceRestart=$forceRestart cwd=$workingDir extraArgs=${extraArgs.joinToString(" ")}")
         GeminiSheetSessionStore.stop()
         scope.launch {
             val bridge = withContext(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
@@ -294,6 +304,7 @@ private fun HomeGeminiSheet(
             )
             GeminiSheetSessionStore.session = newSession
             GeminiSheetSessionStore.cwd = workingDir
+            d("session started cwd=$workingDir")
         }
     }
 

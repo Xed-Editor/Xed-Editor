@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import com.rk.ai.GeminiBridge
 import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
+import com.rk.xededitor.BuildConfig
+import android.util.Log
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -21,6 +23,9 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
+    fun d(msg: String) {
+        if (BuildConfig.DEBUG) Log.d("GeminiAssistantSheet", msg)
+    }
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
 
@@ -64,9 +69,12 @@ fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
         val currentActivity = activity ?: return
         val workingDir = currentProjectDir()
         if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) {
+            scope.launch(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
             appendLog("Reusing Gemini CLI session: ${GeminiSheetSessionStore.cwd}")
+            d("reuse session cwd=${GeminiSheetSessionStore.cwd} requested=$workingDir")
             return
         }
+        d("startGemini forceRestart=$forceRestart cwd=$workingDir extraArgs=${extraArgs.joinToString(" ")}")
         GeminiSheetSessionStore.stop()
         scope.launch(Dispatchers.IO) {
             val saved = saveDirtyEditors()
@@ -82,6 +90,7 @@ fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
                 GeminiSheetSessionStore.session = newSession
                 GeminiSheetSessionStore.cwd = workingDir
                 appendLog("Gemini CLI running in sheet: $workingDir")
+                d("session started cwd=$workingDir")
             }
         }
     }
@@ -118,6 +127,7 @@ fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
             "/stop" -> {
                 GeminiSheetSessionStore.stop()
                 appendLog("Gemini CLI stopped.")
+                d("session stopped from command")
             }
             else -> sendToGemini(input)
         }

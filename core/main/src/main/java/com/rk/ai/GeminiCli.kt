@@ -44,14 +44,12 @@ object GeminiCli {
     }
 
     fun cleanOutput(text: String): String {
-        val ansiRegex = Regex("\\u001B\\[[;\\d]*m")
+        // Remove all ANSI escape sequences, not just colors
+        val ansiRegex = Regex("\\u001B\\[[;\\d]*[A-Za-z]")
         val ignoreRegexes = listOf(
-            Regex("^(INFO|WARN|ERROR|DEBUG|TRACE)\\s+.*"),
-            Regex(".*ClearcutLogger.*"),
-            Regex(".*Flush already in progress.*"),
+            Regex("^(INFO|WARN|ERROR|DEBUG|TRACE)\\s+(ClearcutLogger|Flush|Starting Gemini CLI).*"),
             Regex(".*No GEMINI_API_KEY/GOOGLE_API_KEY.*"),
             Regex(".*No API key found\\. Headless mode.*"),
-            Regex(".*Starting Gemini CLI in.*"),
             Regex("^\\s*$")
         )
 

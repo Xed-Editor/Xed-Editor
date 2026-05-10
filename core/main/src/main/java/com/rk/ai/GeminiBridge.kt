@@ -12,8 +12,10 @@ import com.rk.file.FileWrapper
 import com.rk.tabs.editor.GeminiEditorPatch
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
+import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import com.rk.utils.getTempDir
+import android.util.Log
 import java.io.File
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
@@ -33,14 +35,20 @@ object GeminiBridge {
     private var server: BridgeServer? = null
     private val secureRandom = SecureRandom()
     private val gson: Gson = GsonBuilder().disableHtmlEscaping().create()
+    private const val TAG = "GeminiBridge"
+    private fun d(msg: String) {
+        if (BuildConfig.DEBUG) Log.d(TAG, msg)
+    }
 
     @Synchronized
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String): Info {
+        d("ensureStarted(workspacePath=$workspacePath)")
         val existing = server
         if (existing != null) {
             existing.viewModel = viewModel
             existing.addWorkspacePath(workspacePath)
             existing.writeDiscoveryFile()
+            d("reusing bridge port=${existing.listeningPort}")
             return existing.info()
         }
 
@@ -49,6 +57,7 @@ object GeminiBridge {
         created.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false)
         created.writeDiscoveryFile()
         server = created
+        d("created bridge port=${created.listeningPort}")
         return created.info()
     }
 
@@ -100,6 +109,13 @@ object GeminiBridge {
         }
 
         override fun serve(session: IHTTPSession): Response {
+            d("serve ${session.method} ${session.uri}")
+            
+            // parseBody must be called to access session.parameters for POST requests
+            if (session.method == Method.POST) {
+                runCatching { session.parseBody(mutableMapOf()) }
+            }
+
             if (!hasValidHost(session)) {
                 return json(Response.Status.FORBIDDEN, error(null, -32003, "invalid host"))
             }
@@ -125,9 +141,12 @@ object GeminiBridge {
                 return json(Response.Status.BAD_REQUEST, error(null, -32601, "method_not_allowed"))
             }
 
-            val raw = readRequestBodyUtf8(session).getOrElse {
+            val body = mutableMapOf<String, String>()
+            runCatching { session.parseBody(body) }
+            val raw = body["postData"] ?: readRequestBodyUtf8(session).getOrElse {
                 return json(Response.Status.BAD_REQUEST, error(null, -32700, it.message ?: "invalid request"))
             }
+            
             val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
                 ?: return json(Response.Status.BAD_REQUEST, error(null, -32700, "parse error"))
 
@@ -145,9 +164,14 @@ object GeminiBridge {
             val accepted = AtomicBoolean(false)
             val applyError = java.util.concurrent.atomic.AtomicReference<String?>(null)
             val shown = runBlocking(Dispatchers.Main) {
-                val tab = (viewModel.currentTab as? EditorTab)
+                val tab = findTabByPath(newPath)
+                    ?: (viewModel.currentTab as? EditorTab)
                     ?: viewModel.tabs.filterIsInstance<EditorTab>().firstOrNull()
                     ?: return@runBlocking false
+                
+                // If there's already a patch, reject it to avoid hangs
+                tab.editorState.pendingGeminiPatch?.reject?.invoke()
+                
                 tab.editorState.pendingGeminiPatch =
                     GeminiEditorPatch(
                         title = "Review Gemini external editor change",
@@ -173,7 +197,16 @@ object GeminiBridge {
 
             if (!shown) return json(Response.Status.BAD_REQUEST, error(null, -32602, "no Xed editor tab available"))
             val completed = latch.await(30, TimeUnit.MINUTES)
-            if (!completed) return json(Response.Status.OK, error(null, -32000, "external editor timed out"))
+            if (!completed) {
+                // Ensure we don't leave a stale patch that might be applied late
+                runBlocking(Dispatchers.Main) {
+                    val tab = findTabByPath(newPath)
+                    if (tab?.editorState?.pendingGeminiPatch?.filePath == newPath) {
+                        tab.editorState.pendingGeminiPatch = null
+                    }
+                }
+                return json(Response.Status.OK, error(null, -32000, "external editor timed out"))
+            }
             return json(
                 Response.Status.OK,
                 gson.toJson(
@@ -183,6 +216,16 @@ object GeminiBridge {
                     },
                 ),
             )
+        }
+
+        private fun findTabByPath(path: String): EditorTab? {
+            val file = File(path)
+            val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
+            return viewModel.tabs.filterIsInstance<EditorTab>().find {
+                val tabFile = File(it.file.getAbsolutePath())
+                val tabCanonical = runCatching { tabFile.canonicalPath }.getOrDefault(tabFile.absolutePath)
+                tabCanonical == canonical
+            }
         }
 
         private fun serveMcp(session: IHTTPSession): Response {
@@ -205,6 +248,7 @@ object GeminiBridge {
                     "tools/call" -> toolsCallResult(id, request)
                     else -> error(id, -32601, "method not found: $method")
                 }
+            if (method == "tools/call") d("mcp tools/call requestId=$id")
 
             val nanoResponse = json(Response.Status.OK, response)
             nanoResponse.addHeader("mcp-session-id", sessionId)
@@ -291,6 +335,7 @@ object GeminiBridge {
             val params = request.getAsJsonObject("params") ?: return error(id, -32602, "missing params")
             val name = params.get("name")?.asString.orEmpty()
             val args = params.getAsJsonObject("arguments") ?: JsonObject()
+            d("tool=$name argsKeys=${args.keySet().joinToString(",")}")
             return when (name) {
                 "openDiff" -> {
                     val filePath = args.get("filePath")?.asString.orEmpty()
@@ -301,7 +346,7 @@ object GeminiBridge {
                     compareNoopReason(oldContent, newContent)?.let { reason ->
                         return callToolTextResult(id, "No changes detected for ${file.absolutePath}: $reason")
                     }
-                    val shown = showPendingPatch(file.absolutePath, oldContent, newContent) {
+                    val accepted = showPendingPatch(file.absolutePath, oldContent, newContent) {
                         writeFileAndRefreshEditor(file, newContent)
                         refreshEditors(onlyClean = true)
                         sendMcpNotification("ide/diffAccepted", JsonObject().apply {
@@ -309,14 +354,10 @@ object GeminiBridge {
                             addProperty("content", newContent)
                         })
                     }
-                    if (shown) callToolEmptyResult(id) else {
-                        writeFileAndRefreshEditor(file, newContent)
-                        refreshEditors(onlyClean = true)
-                        sendMcpNotification("ide/diffAccepted", JsonObject().apply {
-                            addProperty("filePath", file.absolutePath)
-                            addProperty("content", newContent)
-                        })
-                        callToolTextResult(id, "No open editor tab was available; wrote ${file.absolutePath} directly.")
+                    if (accepted) {
+                        callToolTextResult(id, "Change applied to ${file.absolutePath} after user review.")
+                    } else {
+                        callToolTextResult(id, "Change to ${file.absolutePath} was rejected or timed out.")
                     }
                 }
                 "closeDiff" -> {
@@ -329,8 +370,7 @@ object GeminiBridge {
                     val filePath = args.get("filePath")?.asString.orEmpty()
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
-                    val absolutePath = file.absolutePath
-                    val openTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == absolutePath }
+                    val openTab = findTabByPath(file.absolutePath)
                     val content = if (openTab != null) {
                         runBlocking(Dispatchers.Main) { openTab.editorState.editor.get()?.text?.toString() } ?: runCatching { file.readText() }.getOrDefault("")
                     } else {
@@ -374,6 +414,10 @@ object GeminiBridge {
                         val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
                         val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
                         val oldText = editor.text.substring(start, end)
+                        
+                        // Reject existing patch if any
+                        current.editorState.pendingGeminiPatch?.reject?.invoke()
+
                         current.editorState.pendingGeminiPatch =
                             GeminiEditorPatch(
                                 title = if (hasSelection) "Review Gemini selection replacement" else "Review Gemini file replacement",
@@ -395,6 +439,10 @@ object GeminiBridge {
                         val editor = current.editorState.editor.get() ?: return@runBlocking false
                         val line = editor.cursor.leftLine
                         val column = editor.cursor.leftColumn
+                        
+                        // Reject existing patch if any
+                        current.editorState.pendingGeminiPatch?.reject?.invoke()
+
                         current.editorState.pendingGeminiPatch =
                             GeminiEditorPatch("Review Gemini insertion", current.file.getAbsolutePath(), "", newContent) {
                                 editor.text.insert(line, column, newContent)
@@ -423,19 +471,20 @@ object GeminiBridge {
                     compareNoopReason(oldContent, content)?.let { reason ->
                         return callToolTextResult(id, "No changes detected for ${file.absolutePath}: $reason")
                     }
-                    val openTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
-                    if (openTab != null) {
-                        val shown = showPendingPatch(file.absolutePath, oldContent, content) {
-                            writeFileAndRefreshEditor(file, content)
-                            sendMcpNotification("ide/diffAccepted", JsonObject().apply {
-                                addProperty("filePath", file.absolutePath)
-                                addProperty("content", content)
-                            })
-                        }
-                        if (shown) return callToolEmptyResult(id)
+                    
+                    val accepted = showPendingPatch(file.absolutePath, oldContent, content) {
+                        writeFileAndRefreshEditor(file, content)
+                        sendMcpNotification("ide/diffAccepted", JsonObject().apply {
+                            addProperty("filePath", file.absolutePath)
+                            addProperty("content", content)
+                        })
                     }
-                    writeFileAndRefreshEditor(file, content)
-                    callToolTextResult(id, "wrote and refreshed ${file.absolutePath} (${diffSummary(oldContent, content)})")
+                    
+                    if (accepted) {
+                        callToolTextResult(id, "File ${file.absolutePath} updated after user review.")
+                    } else {
+                        callToolTextResult(id, "Update to ${file.absolutePath} was rejected or timed out.")
+                    }
                 }
                 "saveOpenFiles" -> {
                     val tabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
@@ -444,7 +493,10 @@ object GeminiBridge {
                             tab.editorState.editor.get()?.let { editor -> tab.editorState.content = editor.text }
                         }
                     }
-                    runBlocking { tabs.forEach { tab -> tab.quickSave() } }
+                    // Run saves in parallel on IO dispatcher to avoid blocking the main thread sequentially
+                    runBlocking(Dispatchers.IO) {
+                        tabs.forEach { tab -> tab.quickSave() }
+                    }
                     callToolTextResult(id, "saved ${tabs.size} dirty open file(s)")
                 }
                 "refreshOpenEditors" -> {
@@ -538,15 +590,28 @@ object GeminiBridge {
             return output.joinToString("\n")
         }
 
-        private fun showPendingPatch(filePath: String, oldContent: String, newContent: String, apply: () -> Unit): Boolean =
-            runBlocking(Dispatchers.Main) {
-                val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }
-                    ?: (viewModel.currentTab as? EditorTab)
-                    ?: run {
-                        viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
-                        viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }
-                    }
-                    ?: return@runBlocking false
+        private fun showPendingPatch(
+            filePath: String,
+            oldContent: String,
+            newContent: String,
+            onReject: (() -> Unit)? = null,
+            onApply: () -> Unit,
+        ): Boolean {
+            val latch = CountDownLatch(1)
+            val accepted = AtomicBoolean(false)
+            
+            val shown = runBlocking(Dispatchers.Main) {
+                var tab = findTabByPath(filePath)
+                if (tab == null) {
+                    viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
+                    tab = findTabByPath(filePath)
+                }
+                
+                if (tab == null) return@runBlocking false
+                
+                // Reject existing patch if any
+                tab.editorState.pendingGeminiPatch?.reject?.invoke()
+
                 tab.editorState.pendingGeminiPatch =
                     GeminiEditorPatch(
                         title = "Review Gemini file change",
@@ -554,33 +619,56 @@ object GeminiBridge {
                         oldText = oldContent,
                         newText = newContent,
                         apply = {
-                            runCatching {
-                                apply()
-                                viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }?.editorState?.showGeminiAssistant = true
-                            }.onFailure {
-                                toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")
-                                sendMcpNotification("ide/diffRejected", JsonObject().apply {
-                                    addProperty("filePath", filePath)
-                                    addProperty("reason", it.message ?: "apply failed")
-                                })
-                            }
+                            runCatching { onApply() }
+                                .onSuccess {
+                                    accepted.set(true)
+                                    tab.editorState.showGeminiAssistant = true
+                                }
+                                .onFailure {
+                                    toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")
+                                    sendMcpNotification("ide/diffRejected", JsonObject().apply {
+                                        addProperty("filePath", filePath)
+                                        addProperty("reason", it.message ?: "apply failed")
+                                    })
+                                }
+                            latch.countDown()
                         },
                         reject = {
+                            onReject?.invoke()
                             sendMcpNotification("ide/diffRejected", JsonObject().apply { addProperty("filePath", filePath) })
+                            latch.countDown()
                         },
                     )
                 true
             }
+            
+            if (shown) {
+                // Wait up to 30 minutes for user to review
+                latch.await(30, TimeUnit.MINUTES)
+                return accepted.get()
+            }
+            return false
+        }
 
         private fun openEditorContent(filePath: String): String? {
-            val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } ?: return null
+            val tab = findTabByPath(filePath) ?: return null
             return runBlocking(Dispatchers.Main) { tab.editorState.editor.get()?.text?.toString() }
         }
 
         private fun writeFileAndRefreshEditor(file: File, content: String) {
-            file.parentFile?.mkdirs()
-            file.writeText(content, Charsets.UTF_8)
-            val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
+            val tab = findTabByPath(file.absolutePath)
+            runBlocking {
+                tab?.saveMutex?.withLock {
+                    withContext(Dispatchers.IO) {
+                        file.parentFile?.mkdirs()
+                        file.writeText(content, Charsets.UTF_8)
+                    }
+                } ?: withContext(Dispatchers.IO) {
+                    file.parentFile?.mkdirs()
+                    file.writeText(content, Charsets.UTF_8)
+                }
+            }
+            
             runBlocking(Dispatchers.Main) {
                 tab?.let {
                     it.editorState.editor.get()?.setText(content)

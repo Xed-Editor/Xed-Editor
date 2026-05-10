@@ -39,11 +39,16 @@ internal fun geminiResolveWorkspacePath(workspacePath: String, path: String): Fi
     // bridge primary workspace is a project/home path. The discovery file exposes a
     // multi-root workspace including "/", so keep the bridge lenient and never crash the
     // CLI with MCP -32602 for valid file paths.
-    return canonical.takeIf { roots.isEmpty() || roots.any { root -> geminiIsInsideRoot(it, root) } } ?: canonical
+    val isInside = roots.isEmpty() || roots.any { root -> geminiIsInsideRoot(canonical, root) }
+    return canonical.takeIf { isInside }
 }
 
-private fun geminiIsInsideRoot(file: File, root: File): Boolean =
-    root.path == File.separator || file.path == root.path || file.path.startsWith(root.path + File.separator)
+private fun geminiIsInsideRoot(file: File, root: File): Boolean {
+    val filePath = file.absolutePath
+    val rootPath = root.absolutePath
+    if (rootPath == File.separator) return true
+    return filePath == rootPath || filePath.startsWith(rootPath + File.separator)
+}
 
 private fun geminiRequestedFile(path: String): File =
     if (path.startsWith("file:")) {
