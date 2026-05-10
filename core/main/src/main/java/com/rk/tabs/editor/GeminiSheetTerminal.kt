@@ -77,7 +77,6 @@ fun GeminiCliSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier.fillMaxWidth(),
-        sheetGesturesEnabled = false,
         dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
         Column(

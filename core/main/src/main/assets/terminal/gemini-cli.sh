@@ -3,7 +3,12 @@ set -e
 
 source "$LOCAL/bin/utils"
 
-cd "${WKDIR:-$HOME}" 2>/dev/null || cd "$HOME"
+target_dir="${GEMINI_CLI_IDE_WORKSPACE_PATH:-${WKDIR:-$HOME}}"
+cd "$target_dir" 2>/dev/null || cd "${WKDIR:-$HOME}" 2>/dev/null || cd "$HOME"
+export WKDIR="$(pwd)"
+if [ -n "${GEMINI_CLI_IDE_WORKSPACE_PATH:-}" ]; then
+  export GEMINI_CLI_IDE_WORKSPACE_PATH="$(pwd)"
+fi
 
 export NO_UPDATE_NOTIFIER=1
 export GEMINI_TELEMETRY_ENABLED=false
