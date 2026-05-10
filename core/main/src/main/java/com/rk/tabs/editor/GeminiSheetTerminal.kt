@@ -7,7 +7,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +34,11 @@ import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.setupTerminalFiles
 import com.rk.terminal.terminalView
+import com.rk.terminal.virtualKeysView
+import com.rk.terminal.virtualkeys.VirtualKeysConstants
+import com.rk.terminal.virtualkeys.VirtualKeysInfo
+import com.rk.terminal.virtualkeys.VirtualKeysListener
+import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
 import com.rk.utils.dpToPx
 import com.rk.utils.getSourceDirOfPackage
@@ -52,10 +59,10 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
     val currentTheme = LocalThemeHolder.current
     val isDarkMode = isSystemInDarkTheme()
 
-    Box(
+    Column(
         modifier =
             modifier
-                .height(520.dp)
+                .height(595.dp)
                 .background(colorScheme.surface, RoundedCornerShape(14.dp))
                 .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
     ) {
@@ -67,51 +74,75 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
                 fontFamily = FontFamily.Monospace,
             )
         } else {
-            AndroidView(
-                factory = { context ->
-                    TerminalView(context, null).apply {
-                        terminalView = WeakReference(this)
-                        setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                        val fontFile = sandboxDir().child("etc/font.ttf")
-                        if (fontFile.exists()) {
-                            setTypeface(Typeface.createFromFile(fontFile))
-                        } else {
-                            val font =
-                                Settings.terminal_font_path.takeIf { it.isNotEmpty() }?.let {
-                                    FontCache.getTypeface(context, it, Settings.is_terminal_font_asset)
-                                } ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
-                            setTypeface(font)
+            Box(modifier = Modifier.fillMaxWidth().height(520.dp)) {
+                AndroidView(
+                    factory = { context ->
+                        TerminalView(context, null).apply {
+                            terminalView = WeakReference(this)
+                            setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
+                            val fontFile = sandboxDir().child("etc/font.ttf")
+                            if (fontFile.exists()) {
+                                setTypeface(Typeface.createFromFile(fontFile))
+                            } else {
+                                val font =
+                                    Settings.terminal_font_path.takeIf { it.isNotEmpty() }?.let {
+                                        FontCache.getTypeface(context, it, Settings.is_terminal_font_asset)
+                                    } ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
+                                setTypeface(font)
+                            }
+                            val client = TerminalBackEnd()
+                            session.updateTerminalSessionClient(client)
+                            attachSession(session)
+                            setTerminalViewClient(client)
+                            applyGeminiSheetTerminalColors(
+                                surfaceColor = colorScheme.surface.toArgb(),
+                                onSurfaceColor = colorScheme.onSurface.toArgb(),
+                                terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                            )
+                            post {
+                                keepScreenOn = true
+                                isFocusableInTouchMode = true
+                                requestFocus()
+                            }
                         }
-                        val client = TerminalBackEnd()
-                        session.updateTerminalSessionClient(client)
-                        attachSession(session)
-                        setTerminalViewClient(client)
-                        applyGeminiSheetTerminalColors(
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    update = { view ->
+                        terminalView = WeakReference(view)
+                        if (view.mTermSession != session) {
+                            val client = TerminalBackEnd()
+                            session.updateTerminalSessionClient(client)
+                            view.attachSession(session)
+                            view.setTerminalViewClient(client)
+                        }
+                        view.applyGeminiSheetTerminalColors(
                             surfaceColor = colorScheme.surface.toArgb(),
                             onSurfaceColor = colorScheme.onSurface.toArgb(),
                             terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
                         )
-                        post {
-                            keepScreenOn = true
-                            isFocusableInTouchMode = true
-                            requestFocus()
-                        }
+                    },
+                )
+            }
+            AndroidView(
+                factory = { context ->
+                    VirtualKeysView(context, null).apply {
+                        virtualKeysView = WeakReference(this)
+                        virtualKeysViewClient = VirtualKeysListener(session)
+                        buttonTextColor = colorScheme.onSurface.toArgb()
+                        reload(
+                            VirtualKeysInfo(
+                                Settings.terminal_extra_keys,
+                                "",
+                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                            )
+                        )
                     }
                 },
-                modifier = Modifier.fillMaxSize(),
-                update = { view ->
-                    terminalView = WeakReference(view)
-                    if (view.mTermSession != session) {
-                        val client = TerminalBackEnd()
-                        session.updateTerminalSessionClient(client)
-                        view.attachSession(session)
-                        view.setTerminalViewClient(client)
-                    }
-                    view.applyGeminiSheetTerminalColors(
-                        surfaceColor = colorScheme.surface.toArgb(),
-                        onSurfaceColor = colorScheme.onSurface.toArgb(),
-                        terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
-                    )
+                modifier = Modifier.fillMaxWidth().height(75.dp),
+                update = { keys ->
+                    virtualKeysView = WeakReference(keys)
+                    keys.virtualKeysViewClient = VirtualKeysListener(session)
+                    keys.buttonTextColor = colorScheme.onSurface.toArgb()
                 },
             )
         }
@@ -140,6 +171,7 @@ private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String):
     val sandbox = localBinDir().child("sandbox").absolutePath
     val command =
         listOf(
+            "/bin/bash",
             localBinDir().child("gemini-cli").absolutePath,
             "--skip-trust",
             "--include-directories",
