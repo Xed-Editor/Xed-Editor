@@ -259,11 +259,11 @@ private fun ensureGeminiSheetWrapper(workingDir: String): File {
 
         export LOCAL="${localDir().absolutePath}"
         export WKDIR="$workingDir"
-        export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir().absolutePath}:$PATH"
+        export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir().absolutePath}:${'$'}PATH"
 
-        if [ -f "$LOCAL/bin/utils" ]; then
+        if [ -f "${'$'}LOCAL/bin/utils" ]; then
           # shellcheck disable=SC1091
-          source "$LOCAL/bin/utils"
+          source "${'$'}LOCAL/bin/utils"
           configure_gemini_auth_browser || true
         fi
 
@@ -276,7 +276,7 @@ private fun ensureGeminiSheetWrapper(workingDir: String): File {
           exit 127
         fi
 
-        exec gemini "$@"
+        exec gemini "${'$'}@"
         """
             .trimIndent()
     wrapper.writeText(content)
