@@ -23,6 +23,7 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -84,20 +85,20 @@ fun GeminiCliSheet(
     var handleDrag = 0f
 
     ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = {},
         modifier = modifier.fillMaxWidth(),
         sheetState = sheetState,
         sheetGesturesEnabled = false,
         dragHandle = {
             BottomSheetDefaults.DragHandle(
-                modifier = Modifier.pointerInput(sheetState) {
+                modifier = Modifier.pointerInput(Unit) {
                     detectVerticalDragGestures(
                         onDragStart = { handleDrag = 0f },
                         onVerticalDrag = { _, dragAmount -> handleDrag += dragAmount },
                         onDragEnd = {
                             when {
-                                handleDrag > 80f -> scope.launch { sheetState.hide(); onDismissRequest() }
-                                handleDrag < -80f -> scope.launch { sheetState.expand() }
+                                handleDrag > 60f -> scope.launch { runCatching { sheetState.partialExpand() } }
+                                handleDrag < -60f -> scope.launch { sheetState.expand() }
                             }
                         },
                     )
@@ -122,6 +123,8 @@ fun GeminiCliSheet(
                         Text("✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.width(8.dp))
                         Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.weight(1f))
+                        TextButton(onClick = onDismissRequest) { Text("Hide") }
                     }
 
                     headerContent?.invoke()

@@ -51,11 +51,11 @@ import com.rk.search.FileSearchDialog
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.GeminiCliSheet
+import com.rk.tabs.editor.GeminiSheetSessionStore
 import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
-import com.termux.terminal.TerminalSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,8 +71,6 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
     var showHomeGeminiSheet by remember { mutableStateOf(false) }
-    var homeGeminiSession by remember { mutableStateOf<TerminalSession?>(null) }
-    var homeGeminiCwd by remember { mutableStateOf<String?>(null) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         val newFileCommand = CommandProvider.NewFileCommand
@@ -102,10 +100,6 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     if (showHomeGeminiSheet) {
         HomeGeminiSheet(
             viewModel = viewModel,
-            session = homeGeminiSession,
-            sessionCwd = homeGeminiCwd,
-            onSessionChange = { homeGeminiSession = it },
-            onSessionCwdChange = { homeGeminiCwd = it },
             onDismiss = { showHomeGeminiSheet = false },
         )
     }
@@ -276,10 +270,6 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
 @Composable
 private fun HomeGeminiSheet(
     viewModel: MainViewModel,
-    session: TerminalSession?,
-    sessionCwd: String?,
-    onSessionChange: (TerminalSession?) -> Unit,
-    onSessionCwdChange: (String?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -288,12 +278,12 @@ private fun HomeGeminiSheet(
     val homeDir = if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
     val projectDir = ((currentDrawerTab as? FileTreeTab)?.root as? FileWrapper)?.getAbsolutePath()
         ?: drawerTabs.filterIsInstance<FileTreeTab>().mapNotNull { it.root as? FileWrapper }.firstOrNull()?.getAbsolutePath()
-    val defaultDir = sessionCwd ?: projectDir ?: homeDir
+    val defaultDir = GeminiSheetSessionStore.cwd ?: projectDir ?: homeDir
 
-    fun startGemini(workingDir: String = defaultDir, extraArgs: List<String> = emptyList()) {
+    fun startGemini(workingDir: String = defaultDir, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
-        session?.finishIfRunning()
-        onSessionChange(null)
+        if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) return
+        GeminiSheetSessionStore.stop()
         scope.launch {
             val bridge = withContext(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
             val newSession = createGeminiSheetSession(
@@ -302,26 +292,24 @@ private fun HomeGeminiSheet(
                 workingDir = workingDir,
                 extraArgs = extraArgs,
             )
-            onSessionChange(newSession)
-            onSessionCwdChange(workingDir)
+            GeminiSheetSessionStore.session = newSession
+            GeminiSheetSessionStore.cwd = workingDir
         }
     }
 
     LaunchedEffect(Unit) {
-        if (session == null || !session.isRunning) startGemini(defaultDir)
+        if (!GeminiSheetSessionStore.canReuseFor(defaultDir)) startGemini(defaultDir)
     }
 
     GeminiCliSheet(
         onDismissRequest = onDismiss,
         cwd = defaultDir,
-        session = session,
+        session = GeminiSheetSessionStore.session,
         controls = {
-            TextButton(onClick = { startGemini(defaultDir) }) { Text("Restart") }
-            TextButton(onClick = { startGemini(defaultDir, listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
+            TextButton(onClick = { startGemini(defaultDir, forceRestart = true) }) { Text("Restart") }
+            TextButton(onClick = { startGemini(defaultDir, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { Text("Auth") }
             TextButton(onClick = {
-                session?.finishIfRunning()
-                onSessionChange(null)
-                onSessionCwdChange(null)
+                GeminiSheetSessionStore.stop()
             }) { Text("Stop") }
         },
     )

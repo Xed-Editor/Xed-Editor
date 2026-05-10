@@ -59,31 +59,35 @@ fun EditorTab.GeminiAssistantSheet() {
             .forEach { it.refresh() }
     }
 
-    fun startGemini(extraArgs: List<String> = emptyList()) {
+    fun startGemini(extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
-        editorState.geminiCliSession?.finishIfRunning()
-        editorState.geminiCliSession = null
+        val workingDir = currentProjectDir()
+        if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) {
+            appendLog("Reusing Gemini CLI session: ${GeminiSheetSessionStore.cwd}")
+            return
+        }
+        GeminiSheetSessionStore.stop()
         scope.launch(Dispatchers.IO) {
             val saved = saveDirtyEditors()
-            val bridge = GeminiBridge.ensureStarted(viewModel, currentProjectDir())
+            val bridge = GeminiBridge.ensureStarted(viewModel, workingDir)
             withContext(Dispatchers.Main) {
                 val newSession = createGeminiSheetSession(
                     activity = currentActivity,
                     bridge = bridge,
-                    workingDir = currentProjectDir(),
+                    workingDir = workingDir,
                     extraArgs = extraArgs,
                 )
                 if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
-                editorState.geminiCliSession = newSession
-                editorState.geminiCliSessionCwd = currentProjectDir()
-                appendLog("Gemini CLI running in sheet: ${currentProjectDir()}")
+                GeminiSheetSessionStore.session = newSession
+                GeminiSheetSessionStore.cwd = workingDir
+                appendLog("Gemini CLI running in sheet: $workingDir")
             }
         }
     }
 
     fun sendToGemini(text: String) {
         if (text.isBlank()) return
-        val runningSession = editorState.geminiCliSession
+        val runningSession = GeminiSheetSessionStore.session
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
             scope.launch(Dispatchers.IO) {
                 val saved = saveDirtyEditors()
@@ -109,10 +113,9 @@ fun EditorTab.GeminiAssistantSheet() {
                 refreshCleanEditors()
                 appendLog("Refreshed clean editor tabs from disk.")
             }
-            "/restart" -> startGemini()
+            "/restart" -> startGemini(forceRestart = true)
             "/stop" -> {
-                editorState.geminiCliSession?.finishIfRunning()
-                editorState.geminiCliSession = null
+                GeminiSheetSessionStore.stop()
                 appendLog("Gemini CLI stopped.")
             }
             else -> sendToGemini(input)
@@ -121,14 +124,13 @@ fun EditorTab.GeminiAssistantSheet() {
     }
 
     LaunchedEffect(Unit) {
-        val existing = editorState.geminiCliSession
-        if (existing == null || !existing.isRunning || editorState.geminiCliSessionCwd != currentProjectDir()) {
+        if (!GeminiSheetSessionStore.canReuseFor(currentProjectDir())) {
             startGemini()
         }
     }
 
-    LaunchedEffect(editorState.geminiCliSession) {
-        while (editorState.geminiCliSession?.isRunning == true) {
+    LaunchedEffect(GeminiSheetSessionStore.session) {
+        while (GeminiSheetSessionStore.session?.isRunning == true) {
             delay(1500)
             refreshCleanEditors()
         }
@@ -143,10 +145,10 @@ fun EditorTab.GeminiAssistantSheet() {
     GeminiCliSheet(
         onDismissRequest = { editorState.showGeminiAssistant = false },
         cwd = currentProjectDir(),
-        session = editorState.geminiCliSession,
+        session = GeminiSheetSessionStore.session,
         controls = {
-            TextButton(onClick = { startGemini() }) { Text("Restart") }
-            TextButton(onClick = { startGemini(listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
+            TextButton(onClick = { startGemini(forceRestart = true) }) { Text("Restart") }
+            TextButton(onClick = { startGemini(listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { Text("Auth") }
             TextButton(onClick = {
                 scope.launch(Dispatchers.IO) {
                     val saved = saveDirtyEditors()
@@ -158,8 +160,7 @@ fun EditorTab.GeminiAssistantSheet() {
                 appendLog("Refreshed clean editor tabs.")
             }) { Text("Refresh") }
             TextButton(onClick = {
-                editorState.geminiCliSession?.finishIfRunning()
-                editorState.geminiCliSession = null
+                GeminiSheetSessionStore.stop()
                 appendLog("Gemini CLI stopped.")
             }) { Text("Stop") }
         },

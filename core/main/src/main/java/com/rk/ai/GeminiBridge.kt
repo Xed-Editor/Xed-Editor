@@ -115,11 +115,10 @@ object GeminiBridge {
                 return json(Response.Status.BAD_REQUEST, error(null, -32601, "method_not_allowed"))
             }
 
-            val body = mutableMapOf<String, String>()
-            runCatching { session.parseBody(body) }.getOrElse {
+            val raw = readRequestBodyUtf8(session).getOrElse {
                 return json(Response.Status.BAD_REQUEST, error(null, -32700, it.message ?: "invalid request"))
             }
-            val request = runCatching { JsonParser.parseString(body["postData"].orEmpty()).asJsonObject }.getOrNull()
+            val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
                 ?: return json(Response.Status.BAD_REQUEST, error(null, -32700, "parse error"))
 
             val newPath = request.get("newPath")?.asString.orEmpty()
@@ -168,9 +167,7 @@ object GeminiBridge {
                 return serveMcpStream(session)
             }
 
-            val body = mutableMapOf<String, String>()
-            runCatching { session.parseBody(body) }.getOrElse { return json(Response.Status.BAD_REQUEST, error(null, -32700, it.message ?: "invalid request")) }
-            val raw = body["postData"].orEmpty()
+            val raw = readRequestBodyUtf8(session).getOrElse { return json(Response.Status.BAD_REQUEST, error(null, -32700, it.message ?: "invalid request")) }
             val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
                 ?: return json(Response.Status.BAD_REQUEST, error(null, -32700, "parse error"))
 
@@ -437,7 +434,26 @@ object GeminiBridge {
             }
         }
 
-        private fun resolveWorkspacePath(path: String): File? = geminiResolveWorkspacePath(workspacePath, path)
+        private fun resolveWorkspacePath(path: String): File? {
+            val normalized = path.trim()
+            if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
+                resolveRelativePathFromOpenEditor(normalized)?.let { return it }
+            }
+            return geminiResolveWorkspacePath(workspacePath, path)
+        }
+
+        private fun resolveRelativePathFromOpenEditor(path: String): File? {
+            val leafName = File(path).name
+            val hasDirectory = path.contains("/") || path.contains(File.separator)
+            val activeTab = viewModel.currentTab as? EditorTab
+            val tabs = listOfNotNull(activeTab) + viewModel.tabs.filterIsInstance<EditorTab>().filter { it != activeTab }
+            val baseFile = tabs
+                .map { File(it.file.getAbsolutePath()) }
+                .firstOrNull { it.path.endsWith(File.separator + path) || (!hasDirectory && it.name == leafName) }
+                ?: return null
+            val parent = baseFile.parentFile ?: return null
+            return geminiResolveWorkspacePath(workspacePath, File(parent, path).path)
+        }
 
         private fun listWorkspaceFiles(dir: File, recursive: Boolean, maxFiles: Int): String {
             if (!dir.exists() || !dir.isDirectory) return ""
@@ -576,8 +592,27 @@ object GeminiBridge {
                 add("error", JsonObject().apply { addProperty("code", code); addProperty("message", message) })
             }.let { gson.toJson(it) }
 
+        private fun readRequestBodyUtf8(session: IHTTPSession): Result<String> =
+            runCatching {
+                val contentLength = (session.headers["content-length"] ?: session.headers["Content-Length"])?.toIntOrNull()
+                if (contentLength != null && contentLength > 0) {
+                    val bytes = ByteArray(contentLength)
+                    var offset = 0
+                    while (offset < contentLength) {
+                        val read = session.inputStream.read(bytes, offset, contentLength - offset)
+                        if (read <= 0) break
+                        offset += read
+                    }
+                    String(bytes, 0, offset, Charsets.UTF_8)
+                } else {
+                    val body = mutableMapOf<String, String>()
+                    session.parseBody(body)
+                    body["postData"].orEmpty()
+                }
+            }
+
         private fun json(status: Response.Status, body: String): Response =
-            newFixedLengthResponse(status, "application/json", body).apply {
+            newFixedLengthResponse(status, "application/json; charset=utf-8", body).apply {
                 addHeader("Access-Control-Allow-Origin", "*")
                 addHeader("Cache-Control", "no-store")
             }
