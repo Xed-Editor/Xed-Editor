@@ -116,13 +116,13 @@ fun EditorTab.GeminiAssistantSheet() {
         scope.launch(Dispatchers.IO) {
             val saved = saveDirtyEditors()
             val bridge = GeminiBridge.ensureStarted(viewModel, currentProjectDir())
-            val newSession = createGeminiSheetSession(
-                activity = currentActivity,
-                bridge = bridge,
-                workingDir = currentProjectDir(),
-                extraArgs = extraArgs,
-            )
             withContext(Dispatchers.Main) {
+                val newSession = createGeminiSheetSession(
+                    activity = currentActivity,
+                    bridge = bridge,
+                    workingDir = currentProjectDir(),
+                    extraArgs = extraArgs,
+                )
                 if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
                 session = newSession
                 appendLog("Gemini CLI running in sheet: ${currentProjectDir()}")
