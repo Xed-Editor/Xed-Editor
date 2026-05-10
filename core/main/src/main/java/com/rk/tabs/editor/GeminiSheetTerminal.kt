@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,10 +23,13 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -60,6 +64,7 @@ import com.termux.view.TerminalView
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Properties
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,11 +78,31 @@ fun GeminiCliSheet(
     controls: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var handleDrag = 0f
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier.fillMaxWidth(),
-        dragHandle = { BottomSheetDefaults.DragHandle() },
+        sheetState = sheetState,
+        sheetGesturesEnabled = false,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(
+                modifier = Modifier.pointerInput(sheetState) {
+                    detectVerticalDragGestures(
+                        onDragStart = { handleDrag = 0f },
+                        onVerticalDrag = { _, dragAmount -> handleDrag += dragAmount },
+                        onDragEnd = {
+                            when {
+                                handleDrag > 80f -> scope.launch { sheetState.hide(); onDismissRequest() }
+                                handleDrag < -80f -> scope.launch { sheetState.expand() }
+                            }
+                        },
+                    )
+                },
+            )
+        },
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = 8.dp),
@@ -297,7 +322,7 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
         "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-        "GEMINI_CLI_IDE_WORKSPACE_PATH=${bridge.workspacePath}",
+        "GEMINI_CLI_IDE_WORKSPACE_PATH=$workingDir",
     ).apply {
         if (!isFDroid) {
             add("PROOT_LOADER=${activity.applicationInfo.nativeLibraryDir}/libproot-loader.so")

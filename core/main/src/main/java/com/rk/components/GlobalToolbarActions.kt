@@ -3,24 +3,21 @@ package com.rk.components
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -42,7 +39,7 @@ import com.rk.file.createFileIfNot
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
-import com.rk.filetree.addProject
+import com.rk.filetree.drawerTabs
 import com.rk.filetree.currentDrawerTab
 import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcon
@@ -289,9 +286,11 @@ private fun HomeGeminiSheet(
     val activity = context as? Activity
     val scope = rememberCoroutineScope()
     val homeDir = if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
-    var askForProject by remember { mutableStateOf(session == null || !session.isRunning) }
+    val projectDir = ((currentDrawerTab as? FileTreeTab)?.root as? FileWrapper)?.getAbsolutePath()
+        ?: drawerTabs.filterIsInstance<FileTreeTab>().mapNotNull { it.root as? FileWrapper }.firstOrNull()?.getAbsolutePath()
+    val defaultDir = sessionCwd ?: projectDir ?: homeDir
 
-    fun startGemini(workingDir: String = sessionCwd ?: homeDir, extraArgs: List<String> = emptyList()) {
+    fun startGemini(workingDir: String = defaultDir, extraArgs: List<String> = emptyList()) {
         val currentActivity = activity ?: return
         session?.finishIfRunning()
         onSessionChange(null)
@@ -308,43 +307,17 @@ private fun HomeGeminiSheet(
         }
     }
 
-    fun openProject() {
-        MainActivity.instance?.fileManager?.requestOpenDirectory { uri ->
-            uri ?: return@requestOpenDirectory
-            val project = uri.toFileObject(expectedIsFile = false)
-            addProject(project, true)
-            val projectDir = project.getAbsolutePath()
-            askForProject = false
-            startGemini(projectDir)
-        }
-    }
-
-    fun continueWithHome() {
-        askForProject = false
-        if (session == null || !session.isRunning || sessionCwd != homeDir) startGemini(homeDir)
+    LaunchedEffect(Unit) {
+        if (session == null || !session.isRunning) startGemini(defaultDir)
     }
 
     GeminiCliSheet(
         onDismissRequest = onDismiss,
-        cwd = sessionCwd ?: homeDir,
+        cwd = defaultDir,
         session = session,
-        showTerminal = !askForProject,
-        headerContent = {
-            if (askForProject) {
-                Text(
-                    "No editor file is open. Open a project for workspace-aware AI, or continue in terminal home.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Button(onClick = { openProject() }) { Text("Open project") }
-                    TextButton(onClick = { continueWithHome() }) { Text("Continue home") }
-                }
-            }
-        },
         controls = {
-            TextButton(onClick = { startGemini(sessionCwd ?: homeDir) }) { Text("Restart") }
-            TextButton(onClick = { startGemini(sessionCwd ?: homeDir, listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
+            TextButton(onClick = { startGemini(defaultDir) }) { Text("Restart") }
+            TextButton(onClick = { startGemini(defaultDir, listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
             TextButton(onClick = {
                 session?.finishIfRunning()
                 onSessionChange(null)

@@ -27,7 +27,7 @@ fun EditorTab.GeminiAssistantSheet() {
         if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
 
     fun currentProjectDir(): String {
-        projectRoot?.getAbsolutePath()?.takeIf { it.isNotBlank() }?.let { return it }
+        projectRoot?.getAbsolutePath()?.takeIf { it.isNotBlank() && it.startsWith("/") }?.let { return it }
 
         val path = file.getAbsolutePath().takeIf { it.startsWith("/") } ?: return terminalHomeDir()
         val localFile = File(path)
