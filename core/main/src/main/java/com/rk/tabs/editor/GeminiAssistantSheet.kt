@@ -49,11 +49,12 @@ fun EditorTab.GeminiAssistantSheet() {
         editorState.geminiRunning = true
         editorState.geminiOutput = ""
         scope.launch(Dispatchers.IO) {
+            val workingDir = GeminiCli.workingDirFor(file)
             runCatching {
                 if (agentMode) {
-                    GeminiCli.agent(prompt, GeminiCli.workingDirFor(file))
+                    GeminiCli.agent(prompt, workingDir)
                 } else {
-                    GeminiCli.prompt(prompt, GeminiCli.workingDirFor(file))
+                    GeminiCli.prompt(prompt, workingDir)
                 }
             }
                 .onSuccess { result ->
@@ -136,7 +137,8 @@ fun EditorTab.GeminiAssistantSheet() {
                         val start = if (hasSelection) currentEditor.cursorRange.startIndex else 0
                         val end = if (hasSelection) currentEditor.cursorRange.endIndex else currentEditor.text.toString().length
                         runGemini(
-                            """
+                            prompt =
+                                """
                             Rewrite the ${if (hasSelection) "selected code" else "entire file"} for this request: ${editorState.geminiPrompt}
 
                             Return ONLY the replacement code/text. No markdown, no explanation.
@@ -147,10 +149,11 @@ fun EditorTab.GeminiAssistantSheet() {
                             $contextText
                             ```
                             """
-                                .trimIndent()
-                        ) { replacement ->
-                            currentEditor.text.replace(start, end, replacement)
-                        }
+                                    .trimIndent(),
+                            applyResult = { replacement: String ->
+                                currentEditor.text.replace(start, end, replacement)
+                            },
+                        )
                     },
                 ) {
                     Text(strings.apply.getString())
@@ -162,7 +165,8 @@ fun EditorTab.GeminiAssistantSheet() {
                         val currentEditor = editor ?: return@TextButton
                         val contextText = selectedOrFileText()
                         runGemini(
-                            """
+                            prompt =
+                                """
                             Generate code/text for this request: ${editorState.geminiPrompt}
 
                             Return ONLY the code/text to insert. No markdown, no explanation.
@@ -172,14 +176,15 @@ fun EditorTab.GeminiAssistantSheet() {
                             $contextText
                             ```
                             """
-                                .trimIndent()
-                        ) { insertion ->
-                            currentEditor.text.insert(
-                                currentEditor.cursor.leftLine,
-                                currentEditor.cursor.leftColumn,
-                                insertion,
-                            )
-                        }
+                                    .trimIndent(),
+                            applyResult = { insertion: String ->
+                                currentEditor.text.insert(
+                                    currentEditor.cursor.leftLine,
+                                    currentEditor.cursor.leftColumn,
+                                    insertion,
+                                )
+                            },
+                        )
                     },
                 ) {
                     Text(strings.insert.getString())

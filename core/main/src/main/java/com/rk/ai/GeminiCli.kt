@@ -31,7 +31,7 @@ object GeminiCli {
         return ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
     }
 
-    fun workingDirFor(file: FileObject): String? = (file as? FileWrapper)?.getParentFile()?.getAbsolutePath()
+    suspend fun workingDirFor(file: FileObject): String? = (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
 
     fun stripCodeFences(text: String): String {
         val trimmed = text.trim()
