@@ -1,0 +1,278 @@
+package com.rk.tabs.editor
+
+import android.app.Activity
+import android.graphics.Typeface
+import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.rk.ai.GeminiBridge
+import com.rk.editor.FontCache
+import com.rk.exec.getDefaultBindings
+import com.rk.file.child
+import com.rk.file.localBinDir
+import com.rk.file.localDir
+import com.rk.file.localLibDir
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
+import com.rk.settings.Settings
+import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
+import com.rk.terminal.TerminalBackEnd
+import com.rk.terminal.setupTerminalFiles
+import com.rk.terminal.terminalView
+import com.rk.theme.LocalThemeHolder
+import com.rk.utils.dpToPx
+import com.rk.utils.getSourceDirOfPackage
+import com.rk.utils.getTempDir
+import com.rk.utils.isFDroid
+import com.rk.xededitor.BuildConfig
+import com.termux.terminal.TerminalColors
+import com.termux.terminal.TerminalSession
+import com.termux.terminal.TextStyle
+import com.termux.view.TerminalView
+import java.io.File
+import java.lang.ref.WeakReference
+import java.util.Properties
+
+@Composable
+fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier) {
+    val colorScheme = MaterialTheme.colorScheme
+    val currentTheme = LocalThemeHolder.current
+    val isDarkMode = isSystemInDarkTheme()
+
+    Box(
+        modifier =
+            modifier
+                .height(520.dp)
+                .background(colorScheme.surface, RoundedCornerShape(14.dp))
+                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
+    ) {
+        if (session == null) {
+            Text(
+                text = "Starting Gemini CLI...",
+                modifier = Modifier.padding(16.dp),
+                color = colorScheme.onSurfaceVariant,
+                fontFamily = FontFamily.Monospace,
+            )
+            return@Box
+        }
+
+        AndroidView(
+            factory = { context ->
+                TerminalView(context, null).apply {
+                    terminalView = WeakReference(this)
+                    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
+                    val fontFile = sandboxDir().child("etc/font.ttf")
+                    if (fontFile.exists()) {
+                        setTypeface(Typeface.createFromFile(fontFile))
+                    } else {
+                        val font =
+                            Settings.terminal_font_path.takeIf { it.isNotEmpty() }?.let {
+                                FontCache.getTypeface(context, it, Settings.is_terminal_font_asset)
+                            } ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
+                        setTypeface(font)
+                    }
+                    val client = TerminalBackEnd()
+                    session.updateTerminalSessionClient(client)
+                    attachSession(session)
+                    setTerminalViewClient(client)
+                    applyGeminiSheetTerminalColors(
+                        surfaceColor = colorScheme.surface.toArgb(),
+                        onSurfaceColor = colorScheme.onSurface.toArgb(),
+                        terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                    )
+                    post {
+                        keepScreenOn = true
+                        isFocusableInTouchMode = true
+                        requestFocus()
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize(),
+            update = { view ->
+                terminalView = WeakReference(view)
+                if (view.mTermSession != session) {
+                    val client = TerminalBackEnd()
+                    session.updateTerminalSessionClient(client)
+                    view.attachSession(session)
+                    view.setTerminalViewClient(client)
+                }
+                view.applyGeminiSheetTerminalColors(
+                    surfaceColor = colorScheme.surface.toArgb(),
+                    onSurfaceColor = colorScheme.onSurface.toArgb(),
+                    terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                )
+            },
+        )
+    }
+}
+
+fun buildGeminiSheetPrompt(
+    request: String,
+    projectDir: String,
+    filePath: String,
+    contextText: String,
+    hasSelection: Boolean,
+    recentContext: String,
+): String =
+    """
+    You are running inside Xed-Editor's embedded Gemini CLI terminal.
+    Use Gemini CLI normally and continue interactively after the answer.
+
+    Project root: $projectDir
+    Current file: $filePath
+    Current ${if (hasSelection) "selection" else "file/context"}:
+    ```
+    ${contextText.take(32 * 1024)}
+    ```
+
+    $recentContext
+
+    User request:
+    $request
+    """.trimIndent()
+
+fun geminiStartupPrompt(projectDir: String, filePath: String): String =
+    """
+    You are Gemini CLI embedded directly inside Xed-Editor's AI sheet.
+
+    Xed editor binding is active:
+    - Project root: $projectDir
+    - Active file: $filePath
+    - Use IDE/editor tools for edits when available so Xed can review/update open tabs.
+    - Dirty Xed tabs sync before prompts; clean open tabs refresh after disk edits.
+
+    Briefly say you are connected to Xed and ask what the user wants to edit.
+    """.trimIndent()
+
+fun createGeminiSheetSession(
+    activity: Activity,
+    bridge: GeminiBridge.Info,
+    workingDir: String,
+    startupPrompt: String,
+    extraArgs: List<String> = emptyList(),
+): TerminalSession {
+    setupTerminalFiles()
+    val launchArgs = extraArgs.ifEmpty { listOf("--prompt-interactive", startupPrompt) }
+    val (shell, args) = geminiSheetProcessArgs(launchArgs, workingDir)
+    return TerminalSession(
+        shell,
+        localDir().absolutePath,
+        args,
+        buildGeminiSheetEnv(activity, workingDir, bridge),
+        Settings.terminal_scrollback_buffer,
+        TerminalBackEnd(),
+    ).also { it.mSessionName = "gemini-sheet" }
+}
+
+private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String): Pair<String, Array<String>> {
+    val tmpDir = File(getTempDir(), "terminal/gemini-sheet-proot").apply { mkdirs() }
+    val proot = localBinDir().child("proot").absolutePath
+    val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
+    val prootArgs =
+        mutableListOf<String>().apply {
+            add(proot)
+            add("--kill-on-exit")
+            add("-w")
+            add(workingDir)
+            getDefaultBindings().forEach { binding ->
+                if (File(binding.outside).exists()) {
+                    add("-b")
+                    add("${binding.outside}${binding.inside?.let { ":$it" }.orEmpty()}")
+                }
+            }
+            add("-b")
+            add(tmpDir.absolutePath)
+            add("-0")
+            add("--link2symlink")
+            add("--sysvipc")
+            add("-L")
+            add("-r")
+            add(sandboxDir().absolutePath)
+            add("/bin/bash")
+            add(localBinDir().child("gemini-cli").absolutePath)
+            add("--skip-trust")
+            add("--include-directories")
+            add(workingDir)
+            addAll(extraArgs)
+        }
+    return if (isFDroid) proot to prootArgs.toTypedArray() else linker to (listOf(linker) + prootArgs).toTypedArray()
+}
+
+private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: GeminiBridge.Info): Array<String> {
+    val tmpDir = File(getTempDir(), "terminal/gemini-sheet").apply { mkdirs() }
+    val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
+    return mutableListOf(
+        "PROOT_TMP_DIR=${tmpDir.absolutePath}",
+        "WKDIR=$workingDir",
+        "PUBLIC_HOME=${activity.getExternalFilesDir(null)?.absolutePath}",
+        "COLORTERM=truecolor",
+        "TERM=xterm-256color",
+        "LANG=C.UTF-8",
+        "DEBUG=${BuildConfig.DEBUG}",
+        "LOCAL=${localDir().absolutePath}",
+        "PRIVATE_DIR=${activity.filesDir.parentFile!!.absolutePath}",
+        "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
+        "EXT_HOME=${sandboxHomeDir()}",
+        "HOME=${if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath}",
+        "PROMPT_DIRTRIM=2",
+        "LINKER=$linker",
+        "NATIVE_LIB_DIR=${activity.applicationInfo.nativeLibraryDir}",
+        "FDROID=$isFDroid",
+        "SANDBOX=${Settings.sandbox}",
+        "TMP_DIR=${getTempDir()}",
+        "TMPDIR=${getTempDir()}",
+        "TZ=UTC",
+        "DOTNET_GCHeapHardLimit=1C0000000",
+        "SOURCE_DIR=${activity.applicationInfo.sourceDir}",
+        "TERMUX_X11_SOURCE_DIR=${getSourceDirOfPackage(activity, "com.termux.x11").orEmpty()}",
+        "DISPLAY=:0",
+        "PATH=${System.getenv("PATH")}:${localBinDir().absolutePath}",
+        "ANDROID_ART_ROOT=${System.getenv("ANDROID_ART_ROOT").orEmpty()}",
+        "ANDROID_DATA=${System.getenv("ANDROID_DATA").orEmpty()}",
+        "ANDROID_I18N_ROOT=${System.getenv("ANDROID_I18N_ROOT").orEmpty()}",
+        "ANDROID_ROOT=${System.getenv("ANDROID_ROOT").orEmpty()}",
+        "ANDROID_RUNTIME_ROOT=${System.getenv("ANDROID_RUNTIME_ROOT").orEmpty()}",
+        "ANDROID_TZDATA_ROOT=${System.getenv("ANDROID_TZDATA_ROOT").orEmpty()}",
+        "BOOTCLASSPATH=${System.getenv("BOOTCLASSPATH").orEmpty()}",
+        "DEX2OATBOOTCLASSPATH=${System.getenv("DEX2OATBOOTCLASSPATH").orEmpty()}",
+        "EXTERNAL_STORAGE=${System.getenv("EXTERNAL_STORAGE").orEmpty()}",
+        "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
+        "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
+        "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
+        "GEMINI_CLI_IDE_WORKSPACE_PATH=${bridge.workspacePath}",
+    ).apply {
+        if (!isFDroid) {
+            add("PROOT_LOADER=${activity.applicationInfo.nativeLibraryDir}/libproot-loader.so")
+            if (Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() && File(activity.applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()) {
+                add("PROOT_LOADER32=${activity.applicationInfo.nativeLibraryDir}/libproot-loader32.so")
+            }
+        }
+        if (Settings.seccomp) add("SECCOMP=1")
+    }.toTypedArray()
+}
+
+private fun TerminalView.applyGeminiSheetTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
+    onScreenUpdated()
+    mEmulator?.mColors?.reset()
+    TerminalColors.COLOR_SCHEME.updateWith(terminalColors)
+    mEmulator?.mColors?.mCurrentColors?.apply {
+        set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor)
+        set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor)
+        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
+    }
+    invalidate()
+}
