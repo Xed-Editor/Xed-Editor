@@ -49,6 +49,7 @@ import com.blankj.utilcode.util.ClipboardUtils
 import com.rk.ai.GeminiBridge
 import com.rk.ai.GeminiCli
 import com.rk.editor.FontCache
+import com.rk.exec.getDefaultBindings
 import com.rk.exec.ShellUtils
 import com.rk.exec.TerminalCommand
 import com.rk.exec.launchTerminal
@@ -57,6 +58,7 @@ import com.rk.file.localDir
 import com.rk.file.localBinDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
+import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -117,7 +119,10 @@ fun EditorTab.GeminiAssistantSheet() {
         }
     }
 
-    fun currentProjectDir(): String = projectRoot?.getAbsolutePath() ?: file.getAbsolutePath()
+    fun currentProjectDir(): String =
+        projectRoot?.getAbsolutePath()
+            ?: file.getParentFile()?.getAbsolutePath()
+            ?: file.getAbsolutePath()
 
     fun appendGeminiCli(text: String) {
         editorState.geminiCliTranscript =
@@ -585,6 +590,46 @@ fun EditorTab.GeminiAssistantSheet() {
             .toTypedArray()
     }
 
+    fun geminiSheetProcess(extraArgs: List<String>, workingDir: String): Pair<String, Array<String>> {
+        val tmpDir = File(getTempDir(), "terminal/gemini-sheet-proot").apply { mkdirs() }
+        val proot = localBinDir().child("proot").absolutePath
+        val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
+        val prootArgs =
+            mutableListOf<String>().apply {
+                add(proot)
+                add("--kill-on-exit")
+                add("-w")
+                add(workingDir)
+                getDefaultBindings().forEach { binding ->
+                    if (File(binding.outside).exists()) {
+                        add("-b")
+                        add("${binding.outside}${binding.inside?.let { ":$it" }.orEmpty()}")
+                    }
+                }
+                if (tmpDir.exists()) {
+                    add("-b")
+                    add(tmpDir.absolutePath)
+                }
+                add("-0")
+                add("--link2symlink")
+                add("--sysvipc")
+                add("-L")
+                add("-r")
+                add(sandboxDir().absolutePath)
+                add("/bin/bash")
+                add(localBinDir().child("gemini-cli").absolutePath)
+                add("--skip-trust")
+                add("--include-directories")
+                add(workingDir)
+                addAll(extraArgs)
+            }
+        return if (isFDroid) {
+            proot to prootArgs.toTypedArray()
+        } else {
+            linker to (listOf(linker) + prootArgs).toTypedArray()
+        }
+    }
+
     fun createEmbeddedGeminiSession(extraArgs: List<String> = emptyList()): TerminalSession? {
         if (activity == null) return null
         setupTerminalFiles()
@@ -594,21 +639,12 @@ fun EditorTab.GeminiAssistantSheet() {
             extraArgs.ifEmpty {
                 listOf("--prompt-interactive", geminiStartupPrompt())
             }
-        val args =
-            listOf(
-                localBinDir().child("gemini-cli").absolutePath,
-                "--skip-trust",
-                "--include-directories",
-                workingDir,
-            ) + launchArgs
-        val command =
-            (listOf(localBinDir().child("sandbox").absolutePath, "/bin/bash") + args)
-                .joinToString(" ") { shellQuote(it) }
+        val (shell, args) = geminiSheetProcess(launchArgs, workingDir)
         val session =
             TerminalSession(
-                "/system/bin/sh",
+                shell,
                 localDir().absolutePath,
-                arrayOf("sh", "-c", command),
+                args,
                 buildGeminiSheetEnv(workingDir, bridge),
                 Settings.terminal_scrollback_buffer,
                 TerminalBackEnd(),
