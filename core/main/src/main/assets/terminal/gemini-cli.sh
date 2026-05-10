@@ -23,7 +23,26 @@ ensure_gemini_cli() {
   fi
 }
 
+configure_xed_ide_integration() {
+  [ -n "${GEMINI_CLI_IDE_SERVER_PORT:-}" ] || return 0
+  [ -n "${GEMINI_CLI_IDE_WORKSPACE_PATH:-}" ] || return 0
+  mkdir -p "$HOME/.gemini"
+  node <<'NODE'
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const settingsFile = path.join(os.homedir(), '.gemini', 'settings.json');
+let settings = {};
+try {
+  settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
+} catch (_) {}
+settings.ide = { ...(settings.ide || {}), enabled: true, hasSeenNudge: true };
+fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
+NODE
+}
+
 ensure_node
+configure_xed_ide_integration
 ensure_gemini_cli
 
 info "Starting Gemini CLI in $(pwd)"

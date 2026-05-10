@@ -6,16 +6,27 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
@@ -52,6 +63,93 @@ import com.termux.view.TerminalView
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Properties
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GeminiCliSheet(
+    onDismissRequest: () -> Unit,
+    cwd: String,
+    session: TerminalSession?,
+    prompt: String,
+    onPromptChange: (String) -> Unit,
+    onSend: () -> Unit,
+    modifier: Modifier = Modifier,
+    showTerminal: Boolean = true,
+    headerContent: (@Composable () -> Unit)? = null,
+    controls: (@Composable RowScope.() -> Unit)? = null,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(18.dp))
+                        .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(18.dp))
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                    }
+
+                    headerContent?.invoke()
+
+                    if (showTerminal) {
+                        controls?.let {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                it.invoke(this)
+                            }
+                        }
+                        Text(
+                            text = "cwd $cwd",
+                            color = colorScheme.onSurfaceVariant,
+                            fontFamily = FontFamily.Monospace,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+
+                        GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
+
+                        Row(verticalAlignment = Alignment.Top) {
+                            Text(
+                                text = "> ",
+                                color = colorScheme.primary,
+                                fontFamily = FontFamily.Monospace,
+                                modifier = Modifier.padding(top = 18.dp),
+                            )
+                            OutlinedTextField(
+                                value = prompt,
+                                onValueChange = onPromptChange,
+                                modifier = Modifier.weight(1f).heightIn(min = 58.dp),
+                                label = { Text("Send to Gemini CLI in this terminal") },
+                                minLines = 1,
+                                maxLines = 4,
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Button(
+                                enabled = prompt.isNotBlank(),
+                                onClick = onSend,
+                                modifier = Modifier.padding(top = 8.dp),
+                            ) {
+                                Text("Send")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier) {

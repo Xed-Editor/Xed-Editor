@@ -19,6 +19,22 @@ if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
   install_nodejs >/dev/null 2>&1
 fi
 
+if [ -n "${GEMINI_CLI_IDE_SERVER_PORT:-}" ] && [ -n "${GEMINI_CLI_IDE_WORKSPACE_PATH:-}" ]; then
+  mkdir -p "$HOME/.gemini"
+  node <<'NODE'
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const settingsFile = path.join(os.homedir(), '.gemini', 'settings.json');
+let settings = {};
+try {
+  settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
+} catch (_) {}
+settings.ide = { ...(settings.ide || {}), enabled: true, hasSeenNudge: true };
+fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
+NODE
+fi
+
 if ! command -v gemini >/dev/null 2>&1; then
   log "Installing Gemini CLI..."
   npm install -g --prefix /usr @google/gemini-cli >/dev/null 2>&1

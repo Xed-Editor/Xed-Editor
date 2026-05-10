@@ -3,12 +3,14 @@ package com.rk.components
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -18,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -39,6 +42,7 @@ import com.rk.file.createFileIfNot
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
+import com.rk.filetree.addProject
 import com.rk.filetree.currentDrawerTab
 import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcon
@@ -49,7 +53,7 @@ import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.editor.GeminiSheetTerminal
+import com.rk.tabs.editor.GeminiCliSheet
 import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.utils.application
 import com.rk.utils.errorDialog
@@ -71,6 +75,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     var tempFileNameDialog by remember { mutableStateOf(false) }
     var showHomeGeminiSheet by remember { mutableStateOf(false) }
     var homeGeminiSession by remember { mutableStateOf<TerminalSession?>(null) }
+    var homeGeminiCwd by remember { mutableStateOf<String?>(null) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         val newFileCommand = CommandProvider.NewFileCommand
@@ -101,7 +106,9 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         HomeGeminiSheet(
             viewModel = viewModel,
             session = homeGeminiSession,
+            sessionCwd = homeGeminiCwd,
             onSessionChange = { homeGeminiSession = it },
+            onSessionCwdChange = { homeGeminiCwd = it },
             onDismiss = { showHomeGeminiSheet = false },
         )
     }
@@ -273,45 +280,92 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
 private fun HomeGeminiSheet(
     viewModel: MainViewModel,
     session: TerminalSession?,
+    sessionCwd: String?,
     onSessionChange: (TerminalSession?) -> Unit,
+    onSessionCwdChange: (String?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
     val scope = rememberCoroutineScope()
     val homeDir = if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
+    var askForProject by remember { mutableStateOf(session == null || !session.isRunning) }
+    var prompt by remember { mutableStateOf("") }
 
-    fun startGemini() {
+    fun startGemini(workingDir: String = sessionCwd ?: homeDir, extraArgs: List<String> = emptyList()) {
         val currentActivity = activity ?: return
         session?.finishIfRunning()
         onSessionChange(null)
         scope.launch {
-            val bridge = withContext(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, homeDir) }
+            val bridge = withContext(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
             val newSession = createGeminiSheetSession(
                 activity = currentActivity,
                 bridge = bridge,
-                workingDir = homeDir,
+                workingDir = workingDir,
+                extraArgs = extraArgs,
             )
             onSessionChange(newSession)
+            onSessionCwdChange(workingDir)
         }
     }
 
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        if (session == null || !session.isRunning) startGemini()
+    fun openProject() {
+        MainActivity.instance?.fileManager?.requestOpenDirectory { uri ->
+            uri ?: return@requestOpenDirectory
+            val project = uri.toFileObject(expectedIsFile = false)
+            addProject(project, true)
+            val projectDir = project.getAbsolutePath()
+            askForProject = false
+            startGemini(projectDir)
+        }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-            Text("✦ Gemini CLI")
-            Text("cwd $homeDir")
-            Row {
-                TextButton(onClick = { startGemini() }) { Text("Restart") }
-                TextButton(onClick = {
-                    session?.finishIfRunning()
-                    onSessionChange(null)
-                }) { Text("Stop") }
+    fun continueWithHome() {
+        askForProject = false
+        if (session == null || !session.isRunning || sessionCwd != homeDir) startGemini(homeDir)
+    }
+
+    fun sendToGemini() {
+        val text = prompt.trim()
+        if (text.isBlank()) return
+        val running = session
+        if (running?.isRunning == true && running.emulator != null) {
+            running.write("$text\r")
+        } else {
+            startGemini(sessionCwd ?: homeDir)
+        }
+        prompt = ""
+    }
+
+    GeminiCliSheet(
+        onDismissRequest = onDismiss,
+        cwd = sessionCwd ?: homeDir,
+        session = session,
+        prompt = prompt,
+        onPromptChange = { prompt = it },
+        onSend = { sendToGemini() },
+        showTerminal = !askForProject,
+        headerContent = {
+            if (askForProject) {
+                Text(
+                    "No editor file is open. Open a project for workspace-aware AI, or continue in terminal home.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Button(onClick = { openProject() }) { Text("Open project") }
+                    TextButton(onClick = { continueWithHome() }) { Text("Continue home") }
+                }
             }
-            GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
-        }
-    }
+        },
+        controls = {
+            TextButton(onClick = { startGemini(sessionCwd ?: homeDir) }) { Text("Restart") }
+            TextButton(onClick = { startGemini(sessionCwd ?: homeDir, listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
+            TextButton(onClick = {
+                session?.finishIfRunning()
+                onSessionChange(null)
+                onSessionCwdChange(null)
+            }) { Text("Stop") }
+        },
+    )
 }
