@@ -1,15 +1,12 @@
-# .github/workflows/close-duplicate-issues.yml
 name: Close Duplicate Crash Issues
 
 on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Dry run (no issues will be closed)"
+        description: "Dry run; no issues will be closed"
         type: boolean
         default: false
-  issues:
-    types: [opened]
 
 permissions:
   issues: write

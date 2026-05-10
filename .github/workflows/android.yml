@@ -1,12 +1,6 @@
-name: Android CI
+name: Android Release CI
 
 on:
-  push:
-    branches:
-      - main
-      - dev
-    paths-ignore:
-      - "**/*.md"
   workflow_dispatch:
 
 jobs:
@@ -27,6 +21,7 @@ jobs:
           java-version: "21"
           distribution: "temurin"
           cache: gradle
+
       - name: Cache Gradle Build Files
         uses: actions/cache@v5
         with:
@@ -46,7 +41,6 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set Commit Hash
-        id: commit_hash
         run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Clone submodules
@@ -57,7 +51,6 @@ jobs:
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
-        continue-on-error: false
 
       - name: Archive APK
         uses: actions/upload-artifact@v7
@@ -66,32 +59,5 @@ jobs:
           path: app/xed-editor-${{ env.COMMIT_HASH }}.apk
 
       - name: Delete secrets
-        run: rm /tmp/xed.keystore /tmp/signing.properties
-
-      - name: Send APK to Telegram
-        if: ${{ success() && github.event.head_commit.message != '' }}
-        env:
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
-        run: |
-          CAPTION=$(printf "%s" "$COMMIT_MSG" | jq -Rs .)
-          curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
-            -F chat_id="-1002408175863" \
-            -F message_thread_id="582" \
-            -F caption="$CAPTION" \
-            -F document=@"app/xed-editor-${{ env.COMMIT_HASH }}.apk"
-
-      - name: Generate Plugin Sdk
-        run: |
-          bash plugin-sdk/build-auto.sh
-
-      - name: Update Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "plugin-sdk/output/sdk.jar"
-          tag: "sdk-latest"
-          allowUpdates: true
-          replacesArtifacts: true
-          makeLatest: false
-          name: "Latest Plugin SDK Build"
-          body: "This release is automatically updated with the latest sdk.jar."
-          token: ${{ secrets.GITHUB_TOKEN }}
+        if: always()
+        run: rm -f /tmp/xed.keystore /tmp/signing.properties

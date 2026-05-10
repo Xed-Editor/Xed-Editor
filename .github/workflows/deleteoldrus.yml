@@ -1,18 +1,16 @@
 name: Delete old runs
 
 on:
-  schedule:
-    - cron: "0 */24 * * *"
   workflow_dispatch:
     inputs:
       days:
-        description: 'Number of retains days.'
+        description: "Number of retain days."
         required: true
-        default: '2'
+        default: "2"
       minimum_runs:
-        description: 'The minimum runs to keep for each workflow.'
+        description: "Minimum runs to keep for each workflow."
         required: true
-        default: '4'
+        default: "4"
 
 jobs:
   deleteWorkflowRuns:

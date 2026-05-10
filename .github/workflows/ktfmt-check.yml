@@ -1,10 +1,6 @@
 name: Kotlin format (ktfmt)
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
   workflow_dispatch:
 
 permissions:
@@ -42,7 +38,6 @@ jobs:
             echo "ktfmt would change these files:"
             git status --short
             git diff --stat
-            echo "This workflow does not commit or push, so your remote branch will not move ahead of local."
           else
             echo "No formatting changes."
           fi
