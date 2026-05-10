@@ -276,7 +276,7 @@ private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String):
 }
 
 private fun ideWorkspacePath(primary: String): String =
-    listOf(primary, "/home", "/storage/emulated/0")
+    listOf(primary, "/", "/home", "/storage/emulated/0")
         .filter { it.isNotBlank() }
         .distinct()
         .joinToString(File.pathSeparator)
@@ -296,8 +296,10 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "EDITOR=vim",
         "VISUAL=vim",
         "LANG=C.UTF-8",
-        "DEBUG=false",
-        "DEBUG_MODE=false",
+        "DEBUG=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}",
+        "DEBUG_MODE=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}",
+        "GEMINI_DEBUG_LOG_FILE=${System.getenv("XED_GEMINI_DEBUG_LOG_FILE") ?: "/home/.gemini/xed-debug.log"}",
+        "GEMINI_CONTEXT_TRACE_DIR=${System.getenv("XED_GEMINI_CONTEXT_TRACE_DIR") ?: "/home/.gemini/xed-traces"}",
         "LOCAL=${localDir().absolutePath}",
         "PRIVATE_DIR=${activity.filesDir.parentFile!!.absolutePath}",
         "LD_LIBRARY_PATH=${localLibDir().absolutePath}",

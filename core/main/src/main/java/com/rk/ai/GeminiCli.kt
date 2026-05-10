@@ -80,7 +80,7 @@ object GeminiCli {
     }
 
     private fun ideWorkspacePath(primary: String): String =
-        listOf(primary, "/home", "/storage/emulated/0")
+        listOf(primary, "/", "/home", "/storage/emulated/0")
             .filter { it.isNotBlank() }
             .distinct()
             .joinToString(File.pathSeparator)
@@ -98,8 +98,10 @@ object GeminiCli {
                     if (ideBridge != null) {
                         add("/usr/bin/env")
                         add("TMPDIR=${getTempDir().absolutePath}")
-                        add("DEBUG=false")
-                        add("DEBUG_MODE=false")
+                        add("DEBUG=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}")
+                        add("DEBUG_MODE=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}")
+                        add("GEMINI_DEBUG_LOG_FILE=${System.getenv("XED_GEMINI_DEBUG_LOG_FILE") ?: "/home/.gemini/xed-debug.log"}")
+                        add("GEMINI_CONTEXT_TRACE_DIR=${System.getenv("XED_GEMINI_CONTEXT_TRACE_DIR") ?: "/home/.gemini/xed-traces"}")
                         add("GEMINI_CLI_IDE_SERVER_PORT=${ideBridge.port}")
                         add("TERM_PROGRAM=vscode")
                         add("TERM_PROGRAM_VERSION=1.0.0")

@@ -11,8 +11,11 @@ export WKDIR="$(pwd)"
 export NO_UPDATE_NOTIFIER=1
 export GEMINI_TELEMETRY_ENABLED=false
 export GEMINI_TELEMETRY_TARGET=local
-export DEBUG=false
-export DEBUG_MODE=false
+export DEBUG=${XED_GEMINI_DEBUG:-true}
+export DEBUG_MODE=${XED_GEMINI_DEBUG:-true}
+export GEMINI_DEBUG_LOG_FILE=${GEMINI_DEBUG_LOG_FILE:-$HOME/.gemini/xed-debug.log}
+export GEMINI_CONTEXT_TRACE_DIR=${GEMINI_CONTEXT_TRACE_DIR:-$HOME/.gemini/xed-traces}
+mkdir -p "$(dirname "$GEMINI_DEBUG_LOG_FILE")" "$GEMINI_CONTEXT_TRACE_DIR"
 export PATH="$LOCAL/bin:$PATH"
 export EDITOR=vim
 export VISUAL=vim

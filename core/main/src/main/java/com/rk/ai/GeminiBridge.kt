@@ -18,6 +18,7 @@ import java.io.File
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.io.PrintWriter
+import java.net.URI
 import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -52,7 +53,7 @@ object GeminiBridge {
     }
 
     private fun ideWorkspacePath(primary: String): String =
-        listOf(primary, "/home", "/storage/emulated/0")
+        listOf(primary, "/", "/home", "/storage/emulated/0")
             .filter { it.isNotBlank() }
             .distinct()
             .joinToString(File.pathSeparator)
@@ -482,17 +483,52 @@ object GeminiBridge {
             }
         }
 
+        private fun workspaceRoots(): List<File> =
+            ideWorkspacePath(workspacePath)
+                .split(File.pathSeparator)
+                .mapNotNull { root -> runCatching { File(root).canonicalFile }.getOrNull() }
+                .distinctBy { it.path }
+
+        private fun isInsideRoot(file: File, root: File): Boolean =
+            root.path == File.separator || file.path == root.path || file.path.startsWith(root.path + File.separator)
+
+        private fun displayRootFor(file: File): File =
+            workspaceRoots()
+                .filter { root -> isInsideRoot(file, root) && root.path != File.separator }
+                .maxByOrNull { it.path.length }
+                ?: workspaceRoots().firstOrNull()
+                ?: file
+
+        private fun requestedFile(path: String): File {
+            val normalized = path.trim()
+            return if (normalized.startsWith("file:")) {
+                runCatching { File(URI(normalized)) }.getOrElse { File(normalized.removePrefix("file://")) }
+            } else {
+                File(normalized)
+            }
+        }
+
         private fun resolveWorkspacePath(path: String): File? {
-            val root = runCatching { File(workspacePath).canonicalFile }.getOrNull() ?: return null
-            val candidate = if (path.isBlank()) root else if (File(path).isAbsolute) File(path) else File(root, path)
-            val canonical = runCatching { candidate.canonicalFile }.getOrNull() ?: return null
-            return canonical.takeIf { it.path == root.path || it.path.startsWith(root.path + File.separator) }
+            val roots = workspaceRoots()
+            val primary = roots.firstOrNull() ?: File(workspacePath).absoluteFile
+            val normalized = path.trim()
+            if (normalized.isBlank()) return primary
+
+            val requested = requestedFile(normalized)
+            val candidate = if (requested.isAbsolute) requested else File(primary, normalized)
+            val canonical = runCatching { candidate.canonicalFile }.getOrElse { candidate.absoluteFile }
+
+            // Gemini CLI can send absolute paths from its terminal/proot workspace while the IDE
+            // bridge primary workspace is a project/home path. The discovery file exposes a
+            // multi-root workspace including "/", so keep the bridge lenient and never crash the
+            // CLI with MCP -32602 for valid file paths.
+            return canonical.takeIf { roots.isEmpty() || roots.any { root -> isInsideRoot(it, root) } } ?: canonical
         }
 
         private fun listWorkspaceFiles(dir: File, recursive: Boolean, maxFiles: Int): String {
             if (!dir.exists() || !dir.isDirectory) return ""
             val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules")
-            val root = runCatching { File(workspacePath).canonicalFile }.getOrNull() ?: return ""
+            val root = displayRootFor(dir)
             val output = mutableListOf<String>()
 
             fun visit(current: File) {
