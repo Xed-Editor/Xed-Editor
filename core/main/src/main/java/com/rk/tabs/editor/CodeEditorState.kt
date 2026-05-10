@@ -11,6 +11,7 @@ import com.rk.editor.Editor
 import com.rk.runner.RunnerImpl
 import com.rk.search.CodeItem
 import com.rk.settings.Settings
+import com.termux.terminal.TerminalSession
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.TextRange
 import java.lang.ref.WeakReference
@@ -89,6 +90,8 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var geminiOutput by mutableStateOf("")
     var geminiRawLog by mutableStateOf("")
     var geminiCliTranscript by mutableStateOf("")
+    var geminiCliSession by mutableStateOf<TerminalSession?>(null)
+    var geminiCliSessionCwd by mutableStateOf("")
     var geminiShellMode by mutableStateOf(false)
     var geminiRunning by mutableStateOf(false)
     var geminiJob: Job? = null

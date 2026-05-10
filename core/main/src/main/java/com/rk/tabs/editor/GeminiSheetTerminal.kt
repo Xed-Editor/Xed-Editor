@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.ai.GeminiBridge
 import com.rk.editor.FontCache
-import com.rk.exec.getDefaultBindings
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localDir
@@ -119,31 +118,6 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
     }
 }
 
-fun buildGeminiSheetPrompt(
-    request: String,
-    projectDir: String,
-    filePath: String,
-    contextText: String,
-    hasSelection: Boolean,
-    recentContext: String,
-): String =
-    """
-    You are running inside Xed-Editor's embedded Gemini CLI terminal.
-    Use Gemini CLI normally and continue interactively after the answer.
-
-    Project root: $projectDir
-    Current file: $filePath
-    Current ${if (hasSelection) "selection" else "file/context"}:
-    ```
-    ${contextText.take(32 * 1024)}
-    ```
-
-    $recentContext
-
-    User request:
-    $request
-    """.trimIndent()
-
 fun createGeminiSheetSession(
     activity: Activity,
     bridge: GeminiBridge.Info,
@@ -164,37 +138,21 @@ fun createGeminiSheetSession(
 }
 
 private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String): Pair<String, Array<String>> {
-    val tmpDir = File(getTempDir(), "terminal/gemini-sheet-proot").apply { mkdirs() }
     val proot = localBinDir().child("proot").absolutePath
+    val sandbox = localBinDir().child("sandbox").absolutePath
     val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
-    val prootArgs =
-        mutableListOf<String>().apply {
-            add(proot)
-            add("--kill-on-exit")
-            add("-w")
-            add(workingDir)
-            getDefaultBindings().forEach { binding ->
-                if (File(binding.outside).exists()) {
-                    add("-b")
-                    add("${binding.outside}${binding.inside?.let { ":$it" }.orEmpty()}")
-                }
-            }
-            add("-b")
-            add(tmpDir.absolutePath)
-            add("-0")
-            add("--link2symlink")
-            add("--sysvipc")
-            add("-L")
-            add("-r")
-            add(sandboxDir().absolutePath)
-            add("/bin/bash")
-            add("/usr/local/bin/gemini-sheet")
-            add("--skip-trust")
-            add("--include-directories")
-            add(workingDir)
-            addAll(extraArgs)
-        }
-    return if (isFDroid) proot to prootArgs.toTypedArray() else linker to (listOf(linker) + prootArgs).toTypedArray()
+    val command =
+        listOf(
+            "/usr/local/bin/gemini-sheet",
+            "--skip-trust",
+            "--include-directories",
+            workingDir,
+        ) + extraArgs
+    return if (isFDroid) {
+        "/system/bin/sh" to (listOf("-c", "exec " + listOf(sandbox, *command.toTypedArray()).joinToString(" ") { shellQuote(it) })).toTypedArray()
+    } else {
+        "/system/bin/sh" to (listOf("-c", "$linker $proot >/dev/null 2>&1; exec \"$sandbox\" " + command.joinToString(" ") { shellQuote(it) })).toTypedArray()
+    }
 }
 
 private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: GeminiBridge.Info): Array<String> {
@@ -288,6 +246,8 @@ private fun ensureGeminiSheetWrapper(workingDir: String): File {
     inSandbox.setExecutable(true, false)
     return wrapper
 }
+
+private fun shellQuote(value: String): String = "'${value.replace("'", "'\\''")}'"
 
 private fun TerminalView.applyGeminiSheetTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
     onScreenUpdated()

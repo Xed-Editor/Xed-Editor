@@ -26,16 +26,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.ai.GeminiBridge
-import com.termux.terminal.TerminalSession
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -48,25 +44,11 @@ fun EditorTab.GeminiAssistantSheet() {
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
     val colorScheme = MaterialTheme.colorScheme
-    var session by remember { mutableStateOf<TerminalSession?>(null) }
 
     fun currentProjectDir(): String =
         projectRoot?.getAbsolutePath()
             ?: File(file.getAbsolutePath()).parent
             ?: file.getAbsolutePath()
-
-    fun currentEditor() = editorState.editor.get()
-
-    fun selectedOrFileText(): String {
-        val editor = currentEditor() ?: return editorState.content?.toString().orEmpty()
-        return if (editor.isTextSelected) {
-            val start = minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex)
-            val end = maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex)
-            editor.text.substring(start, end)
-        } else {
-            editor.text.toString()
-        }
-    }
 
     fun appendLog(text: String) {
         editorState.geminiCliTranscript =
@@ -74,23 +56,6 @@ fun EditorTab.GeminiAssistantSheet() {
                 .filter { it.isNotBlank() }
                 .joinToString("\n\n")
     }
-
-    fun recentConversationContext(): String =
-        editorState.geminiCliTranscript
-            .takeLast(12 * 1024)
-            .takeIf { it.isNotBlank() }
-            ?.let { "Recent Xed Gemini notes:\n```\n$it\n```" }
-            .orEmpty()
-
-    fun geminiPrompt(request: String): String =
-        buildGeminiSheetPrompt(
-            request = request,
-            projectDir = currentProjectDir(),
-            filePath = file.getAbsolutePath(),
-            contextText = selectedOrFileText(),
-            hasSelection = currentEditor()?.isTextSelected == true,
-            recentContext = recentConversationContext(),
-        )
 
     suspend fun saveDirtyEditors(): Int {
         val dirtyTabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
@@ -111,8 +76,8 @@ fun EditorTab.GeminiAssistantSheet() {
 
     fun startGemini(extraArgs: List<String> = emptyList()) {
         val currentActivity = activity ?: return
-        session?.finishIfRunning()
-        session = null
+        editorState.geminiCliSession?.finishIfRunning()
+        editorState.geminiCliSession = null
         scope.launch(Dispatchers.IO) {
             val saved = saveDirtyEditors()
             val bridge = GeminiBridge.ensureStarted(viewModel, currentProjectDir())
@@ -124,7 +89,8 @@ fun EditorTab.GeminiAssistantSheet() {
                     extraArgs = extraArgs,
                 )
                 if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
-                session = newSession
+                editorState.geminiCliSession = newSession
+                editorState.geminiCliSessionCwd = currentProjectDir()
                 appendLog("Gemini CLI running in sheet: ${currentProjectDir()}")
             }
         }
@@ -132,18 +98,17 @@ fun EditorTab.GeminiAssistantSheet() {
 
     fun sendToGemini(text: String) {
         if (text.isBlank()) return
-        val runningSession = session
-        val prompt = geminiPrompt(text)
+        val runningSession = editorState.geminiCliSession
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
             scope.launch(Dispatchers.IO) {
                 val saved = saveDirtyEditors()
                 withContext(Dispatchers.Main) {
                     if (saved > 0) appendLog("Synced $saved dirty editor file(s).")
-                    runningSession.write("$prompt\r")
+                    runningSession.write("$text\r")
                 }
             }
         } else {
-            startGemini(listOf("--prompt-interactive", prompt))
+            startGemini(listOf("--prompt-interactive", text))
         }
     }
 
@@ -161,8 +126,8 @@ fun EditorTab.GeminiAssistantSheet() {
             }
             "/restart" -> startGemini()
             "/stop" -> {
-                session?.finishIfRunning()
-                session = null
+                editorState.geminiCliSession?.finishIfRunning()
+                editorState.geminiCliSession = null
                 appendLog("Gemini CLI stopped.")
             }
             else -> sendToGemini(input)
@@ -171,11 +136,14 @@ fun EditorTab.GeminiAssistantSheet() {
     }
 
     LaunchedEffect(Unit) {
-        if (session == null) startGemini()
+        val existing = editorState.geminiCliSession
+        if (existing == null || !existing.isRunning || editorState.geminiCliSessionCwd != currentProjectDir()) {
+            startGemini()
+        }
     }
 
-    LaunchedEffect(session) {
-        while (session?.isRunning == true) {
+    LaunchedEffect(editorState.geminiCliSession) {
+        while (editorState.geminiCliSession?.isRunning == true) {
             delay(1500)
             refreshCleanEditors()
         }
@@ -183,8 +151,7 @@ fun EditorTab.GeminiAssistantSheet() {
 
     DisposableEffect(Unit) {
         onDispose {
-            session?.finishIfRunning()
-            session = null
+            // Keep the embedded Gemini terminal session alive when the sheet is dismissed.
         }
     }
 
@@ -210,21 +177,16 @@ fun EditorTab.GeminiAssistantSheet() {
                         Spacer(Modifier.width(8.dp))
                         Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                     }
-                    Text(
-                        text = "cwd ${currentProjectDir()}",
-                        color = colorScheme.onSurfaceVariant,
-                        fontFamily = FontFamily.Monospace,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-
-                    GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
-
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[A") }) { Text("↑") }
+                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[B") }) { Text("↓") }
+                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[D") }) { Text("←") }
+                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[C") }) { Text("→") }
+                        TextButton(onClick = { editorState.geminiCliSession?.write("\r") }) { Text("Enter") }
+                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B") }) { Text("Esc") }
+                        TextButton(onClick = { editorState.geminiCliSession?.write("\u0003") }) { Text("Ctrl+C") }
                         TextButton(onClick = { startGemini() }) { Text("Restart") }
                         TextButton(onClick = { startGemini(listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
-                        TextButton(onClick = { session?.write("\u0003") }) { Text("Ctrl+C") }
-                        TextButton(onClick = { session?.write("\r") }) { Text("Enter") }
-                        TextButton(onClick = { session?.write("\u001B") }) { Text("Esc") }
                         TextButton(onClick = {
                             scope.launch(Dispatchers.IO) {
                                 val saved = saveDirtyEditors()
@@ -236,16 +198,19 @@ fun EditorTab.GeminiAssistantSheet() {
                             appendLog("Refreshed clean editor tabs.")
                         }) { Text("Refresh") }
                         TextButton(onClick = {
-                            session?.finishIfRunning()
-                            session = null
+                            editorState.geminiCliSession?.finishIfRunning()
+                            editorState.geminiCliSession = null
                             appendLog("Gemini CLI stopped.")
                         }) { Text("Stop") }
-                        TextButton(onClick = {
-                            editorState.geminiCliTranscript = ""
-                            editorState.geminiOutput = ""
-                            editorState.geminiRawLog = ""
-                        }) { Text("Clear") }
                     }
+                    Text(
+                        text = "cwd ${currentProjectDir()}",
+                        color = colorScheme.onSurfaceVariant,
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+
+                    GeminiSheetTerminal(session = editorState.geminiCliSession, modifier = Modifier.fillMaxWidth())
 
                     Row(verticalAlignment = Alignment.Top) {
                         Text(
