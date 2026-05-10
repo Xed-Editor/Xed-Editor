@@ -1,19 +1,26 @@
-package com.rk.tabs.editor
+package com.rk.ai
 
+import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import com.rk.ai.GeminiBridge
+import androidx.compose.ui.platform.LocalContext
+import com.rk.activities.main.MainViewModel
+import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
+import com.rk.filetree.FileTreeTab
+import com.rk.filetree.currentDrawerTab
+import com.rk.filetree.drawerTabs
 import com.rk.settings.Settings
+import com.rk.tabs.editor.EditorTab
+import com.rk.tabs.editor.GeminiCliSheet
+import com.rk.tabs.editor.GeminiSheetSessionStore
+import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.xededitor.BuildConfig
-import android.util.Log
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -22,28 +29,44 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
+fun UnifiedGeminiSheet(
+    viewModel: MainViewModel,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     fun d(msg: String) {
-        if (BuildConfig.DEBUG) Log.d("GeminiAssistantSheet", msg)
+        if (BuildConfig.DEBUG) Log.d("UnifiedGeminiSheet", msg)
     }
     val scope = rememberCoroutineScope()
-    val activity = LocalActivity.current
+    val context = LocalContext.current
+    val activity = context as? Activity
 
     fun terminalHomeDir(): String =
         if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
 
     fun currentProjectDir(): String {
-        projectRoot?.getAbsolutePath()?.takeIf { it.isNotBlank() && it.startsWith("/") }?.let { return it }
+        // 1. Try active editor tab
+        val activeTab = viewModel.currentTab as? EditorTab
+        activeTab?.projectRoot?.getAbsolutePath()?.takeIf { it.isNotBlank() && it.startsWith("/") }?.let { return it }
+        
+        // 2. Try drawer project
+        val projectDir = ((currentDrawerTab as? FileTreeTab)?.root as? FileWrapper)?.getAbsolutePath()
+            ?: drawerTabs.filterIsInstance<FileTreeTab>().mapNotNull { it.root as? FileWrapper }.firstOrNull()?.getAbsolutePath()
+        
+        if (projectDir != null && projectDir.isNotBlank()) return projectDir
 
-        val path = file.getAbsolutePath().takeIf { it.startsWith("/") } ?: return terminalHomeDir()
+        // 3. Fallback to active file parent or home
+        val path = activeTab?.file?.getAbsolutePath()?.takeIf { it.startsWith("/") } ?: return terminalHomeDir()
         val localFile = File(path)
         if (localFile.isDirectory) return localFile.absolutePath
         return localFile.parent?.takeIf { it.isNotBlank() } ?: terminalHomeDir()
     }
 
+    val defaultCwd = remember(viewModel.currentTab, currentDrawerTab) { currentProjectDir() }
+
     fun appendLog(text: String) {
-        editorState.geminiCliTranscript =
-            listOf(editorState.geminiCliTranscript, text)
+        viewModel.geminiCliTranscript =
+            listOf(viewModel.geminiCliTranscript, text)
                 .filter { it.isNotBlank() }
                 .joinToString("\n\n")
     }
@@ -65,9 +88,8 @@ fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
             .forEach { it.refresh() }
     }
 
-    fun startGemini(extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
+    fun startGemini(workingDir: String = defaultCwd, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
-        val workingDir = currentProjectDir()
         if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) {
             scope.launch(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
             appendLog("Reusing Gemini CLI session: ${GeminiSheetSessionStore.cwd}")
@@ -107,12 +129,12 @@ fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
                 }
             }
         } else {
-            startGemini(listOf("--prompt-interactive", text))
+            startGemini(defaultCwd, listOf("--prompt-interactive", text))
         }
     }
 
     fun handleSend() {
-        val input = editorState.geminiPrompt.trim()
+        val input = viewModel.geminiPrompt.trim()
         if (input.isBlank()) return
         when (input) {
             "/sync" -> scope.launch(Dispatchers.IO) {
@@ -131,12 +153,12 @@ fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
             }
             else -> sendToGemini(input)
         }
-        editorState.geminiPrompt = ""
+        viewModel.geminiPrompt = ""
     }
 
     LaunchedEffect(Unit) {
-        if (!GeminiSheetSessionStore.canReuseFor(currentProjectDir())) {
-            startGemini()
+        if (!GeminiSheetSessionStore.canReuseFor(defaultCwd)) {
+            startGemini(defaultCwd)
         }
     }
 
@@ -146,21 +168,22 @@ fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
             refreshCleanEditors()
         }
     }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            // Keep the embedded Gemini terminal session alive when the sheet is dismissed.
+    
+    // Handle external prompt requests (e.g. from editor selection)
+    LaunchedEffect(viewModel.geminiPrompt) {
+        if (viewModel.geminiPrompt.isNotBlank() && viewModel.showGeminiSheet) {
+            handleSend()
         }
     }
 
     GeminiCliSheet(
-        onDismissRequest = { editorState.showGeminiAssistant = false },
-        cwd = currentProjectDir(),
+        onDismissRequest = onDismissRequest,
+        cwd = defaultCwd,
         session = GeminiSheetSessionStore.session,
         modifier = modifier,
         controls = {
-            TextButton(onClick = { startGemini(forceRestart = true) }) { Text("Restart") }
-            TextButton(onClick = { startGemini(listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { Text("Auth") }
+            TextButton(onClick = { startGemini(defaultCwd, forceRestart = true) }) { Text("Restart") }
+            TextButton(onClick = { startGemini(defaultCwd, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { Text("Auth") }
             TextButton(onClick = {
                 scope.launch(Dispatchers.IO) {
                     val saved = saveDirtyEditors()

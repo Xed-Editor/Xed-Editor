@@ -61,6 +61,11 @@ class MainViewModel : ViewModel() {
         commandPaletteInitialPlaceholder = null
     }
 
+    var showGeminiSheet by mutableStateOf(false)
+    var geminiSheetCwd by mutableStateOf<String?>(null)
+    var geminiPrompt by mutableStateOf("")
+    var geminiCliTranscript by mutableStateOf("")
+
     private val sessionRestored = CompletableDeferred<Unit>()
 
     init {

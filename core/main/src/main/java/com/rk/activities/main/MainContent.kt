@@ -45,6 +45,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
+import com.rk.ai.UnifiedGeminiSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf
@@ -211,6 +212,14 @@ fun MainContent(
                 if (page < mainViewModel.tabs.size) {
                     mainViewModel.tabs[page].Content()
                 }
+            }
+            
+            if (mainViewModel.showGeminiSheet) {
+                UnifiedGeminiSheet(
+                    viewModel = mainViewModel,
+                    onDismissRequest = { mainViewModel.showGeminiSheet = false },
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
             }
         }
     }

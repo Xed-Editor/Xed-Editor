@@ -533,9 +533,6 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             }
                         },
                     )
-                    if (editorState.showGeminiAssistant) {
-                        GeminiAssistantSheet(modifier = Modifier.align(Alignment.BottomCenter))
-                    }
                 }
 
                 val showColorPicker = editorState.showColorPicker

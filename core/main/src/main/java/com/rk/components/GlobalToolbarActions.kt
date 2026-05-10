@@ -72,7 +72,6 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
-    var showHomeGeminiSheet by remember { mutableStateOf(false) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         val newFileCommand = CommandProvider.NewFileCommand
@@ -89,7 +88,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                 XedIcon(terminalCommand.getIcon())
             }
 
-            IconButton(onClick = { showHomeGeminiSheet = true }) {
+            IconButton(onClick = { viewModel.showGeminiSheet = true }) {
                 XedIcon(geminiCliCommand.getIcon())
             }
         }
@@ -97,13 +96,6 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         IconButton(onClick = { settingsCommand.action(ActionContext(context as Activity)) }) {
             XedIcon(settingsCommand.getIcon())
         }
-    }
-
-    if (showHomeGeminiSheet) {
-        HomeGeminiSheet(
-            viewModel = viewModel,
-            onDismiss = { showHomeGeminiSheet = false },
-        )
     }
 
     if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
@@ -270,58 +262,3 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HomeGeminiSheet(
-    viewModel: MainViewModel,
-    onDismiss: () -> Unit,
-) {
-    fun d(msg: String) {
-        if (BuildConfig.DEBUG) Log.d("HomeGeminiSheet", msg)
-    }
-    val context = LocalContext.current
-    val activity = context as? Activity
-    val scope = rememberCoroutineScope()
-    val homeDir = if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
-    val projectDir = ((currentDrawerTab as? FileTreeTab)?.root as? FileWrapper)?.getAbsolutePath()
-        ?: drawerTabs.filterIsInstance<FileTreeTab>().mapNotNull { it.root as? FileWrapper }.firstOrNull()?.getAbsolutePath()
-    val defaultDir = GeminiSheetSessionStore.cwd ?: projectDir ?: homeDir
-
-    fun startGemini(workingDir: String = defaultDir, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
-        val currentActivity = activity ?: return
-        if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) {
-            scope.launch(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
-            d("reused existing session cwd=$workingDir")
-            return
-        }
-        d("startGemini forceRestart=$forceRestart cwd=$workingDir extraArgs=${extraArgs.joinToString(" ")}")
-        GeminiSheetSessionStore.stop()
-        scope.launch {
-            val bridge = withContext(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
-            val newSession = createGeminiSheetSession(
-                activity = currentActivity,
-                bridge = bridge,
-                workingDir = workingDir,
-                extraArgs = extraArgs,
-            )
-            GeminiSheetSessionStore.session = newSession
-            GeminiSheetSessionStore.cwd = workingDir
-            d("session started cwd=$workingDir")
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        if (!GeminiSheetSessionStore.canReuseFor(defaultDir)) startGemini(defaultDir)
-    }
-
-    GeminiCliSheet(
-        onDismissRequest = onDismiss,
-        cwd = defaultDir,
-        session = GeminiSheetSessionStore.session,
-        controls = {
-            TextButton(onClick = { startGemini(defaultDir, forceRestart = true) }) { Text("Restart") }
-            TextButton(onClick = { startGemini(defaultDir, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { Text("Auth") }
-            TextButton(onClick = {
-                GeminiSheetSessionStore.stop()
-            }) { Text("Stop") }
-        },
-    )
-}

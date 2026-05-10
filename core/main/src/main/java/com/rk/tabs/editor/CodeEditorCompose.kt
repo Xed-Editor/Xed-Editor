@@ -144,7 +144,7 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
             shouldShow = { isTextSelected },
             onClick = {
                 val selectedText = getSelectedText().orEmpty()
-                editorTab.editorState.geminiPrompt =
+                viewModel.geminiPrompt =
                     """
                     Explain this selected code, find possible bugs, and suggest improvements.
 
@@ -153,7 +153,7 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
                     ```
                     """
                         .trimIndent()
-                editorTab.editorState.showGeminiAssistant = true
+                viewModel.showGeminiSheet = true
             },
         )
     )

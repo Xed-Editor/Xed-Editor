@@ -27,6 +27,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,15 +87,15 @@ private data class GeminiSheetUiState(
 
 @Composable
 private fun rememberGeminiSheetUiState(
-    minHeight: Dp = 260.dp,
-    initialHeight: Dp = 595.dp,
+    minHeight: Dp = 220.dp,
+    initialHeight: Dp = 560.dp,
     onModalMinimize: (() -> Unit)? = null,
     onModalExpand: (() -> Unit)? = null,
 ): GeminiSheetUiState {
     val density = LocalDensity.current
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.82f).dp
+    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.90f).dp
     var minimized by remember { mutableStateOf(false) }
-    var terminalHeight by remember { mutableStateOf(initialHeight.coerceAtMost(maxHeight)) }
+    var terminalHeight by remember { mutableStateOf(initialHeight.coerceIn(minHeight, maxHeight)) }
     var handleDrag by remember { mutableStateOf(0f) }
 
     return GeminiSheetUiState(
@@ -135,8 +136,8 @@ fun GeminiCliSheet(
     val ui = rememberGeminiSheetUiState()
 
     Column(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = if (ui.minimized) 0.dp else 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start,
     ) {
         GeminiSheetDragHandle(
             modifier = Modifier.fillMaxWidth(),
@@ -178,9 +179,12 @@ fun GeminiCliModalSheet(
             onModalMinimize = { scope.launch { runCatching { sheetState.partialExpand() } } },
             onModalExpand = { scope.launch { sheetState.expand() } },
         )
+    LaunchedEffect(Unit) {
+        runCatching { sheetState.expand() }
+    }
 
     ModalBottomSheet(
-        onDismissRequest = {},
+        onDismissRequest = onDismissRequest,
         modifier = modifier.fillMaxWidth(),
         sheetState = sheetState,
         sheetGesturesEnabled = false,
@@ -198,7 +202,7 @@ fun GeminiCliModalSheet(
             onDismissRequest,
             cwd,
             session,
-            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            Modifier.fillMaxWidth(),
             ui.terminalHeight,
             showTerminal,
             headerContent,
@@ -220,7 +224,7 @@ private fun GeminiSheetDragHandle(
         modifier =
             modifier
                 .background(backgroundColor, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-                .padding(vertical = 4.dp),
+                .padding(vertical = 2.dp),
         contentAlignment = Alignment.Center,
     ) {
         BottomSheetDefaults.DragHandle(
@@ -251,14 +255,14 @@ private fun GeminiCliSheetContent(
         modifier =
             modifier
                 .fillMaxWidth()
-                .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(18.dp))
-                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(18.dp))
-                .padding(horizontal = 6.dp, vertical = 8.dp),
+                .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+                .padding(horizontal = 8.dp, vertical = 6.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(6.dp))
                 Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = onDismissRequest) { Text("Hide") }
@@ -297,8 +301,8 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
         modifier =
             modifier
                 .height(height)
-                .background(colorScheme.surface, RoundedCornerShape(14.dp))
-                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
+                .background(colorScheme.surface, RoundedCornerShape(12.dp))
+                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
     ) {
         if (session == null) {
             Text(
