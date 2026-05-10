@@ -7,6 +7,7 @@ import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.terminal.setupTerminalFiles
 import com.rk.utils.getTempDir
+import java.io.File
 
 object GeminiCli {
     suspend fun prompt(
@@ -78,6 +79,12 @@ object GeminiCli {
         }
     }
 
+    private fun ideWorkspacePath(primary: String): String =
+        listOf(primary, "/home", "/storage/emulated/0")
+            .filter { it.isNotBlank() }
+            .distinct()
+            .joinToString(File.pathSeparator)
+
     private suspend fun runGemini(
         args: List<String>,
         workingDir: String?,
@@ -101,7 +108,7 @@ object GeminiCli {
                         add("VISUAL=vim")
                         add("GEMINI_CLI_IDE_AUTH_TOKEN=${ideBridge.token}")
                         add("GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}")
-                        add("GEMINI_CLI_IDE_WORKSPACE_PATH=${workingDir ?: ideBridge.workspacePath}")
+                        add("GEMINI_CLI_IDE_WORKSPACE_PATH=${ideWorkspacePath(workingDir ?: ideBridge.workspacePath)}")
                     }
                     add("/bin/bash")
                     add(localBinDir().child("gemini-cli-headless").absolutePath)

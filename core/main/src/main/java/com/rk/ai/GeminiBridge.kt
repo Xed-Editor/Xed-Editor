@@ -8,6 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.rk.activities.main.MainViewModel
 import com.rk.exec.ShellUtils
+import com.rk.file.FileWrapper
 import com.rk.tabs.editor.GeminiEditorPatch
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
@@ -50,6 +51,12 @@ object GeminiBridge {
         return created.info()
     }
 
+    private fun ideWorkspacePath(primary: String): String =
+        listOf(primary, "/home", "/storage/emulated/0")
+            .filter { it.isNotBlank() }
+            .distinct()
+            .joinToString(File.pathSeparator)
+
     private fun newToken(): String {
         val bytes = ByteArray(24)
         secureRandom.nextBytes(bytes)
@@ -73,7 +80,7 @@ object GeminiBridge {
                 val file = File(dir, "gemini-ide-server-${android.os.Process.myPid()}-$listeningPort.json")
                 val discovery = JsonObject().apply {
                     addProperty("port", listeningPort)
-                    addProperty("workspacePath", workspacePath)
+                    addProperty("workspacePath", ideWorkspacePath(workspacePath))
                     addProperty("authToken", token)
                     add("ideInfo", JsonObject().apply {
                         addProperty("name", "xed")
@@ -278,6 +285,7 @@ object GeminiBridge {
                 add(toolSchema("getSelection", "Return selected text in the active editor", emptyList(), emptyMap()))
                 add(toolSchema("replaceSelection", "Replace selected text in the active editor after user review", listOf("newContent"), mapOf("newContent" to "string")))
                 add(toolSchema("insertAtCursor", "Insert text at the active editor cursor after user review", listOf("newContent"), mapOf("newContent" to "string")))
+                add(toolSchema("openFile", "Open a workspace file in Xed and make it active", listOf("filePath"), mapOf("filePath" to "string")))
                 add(toolSchema("writeFile", "Write a workspace file and immediately refresh the matching open Xed editor tab", listOf("filePath", "content"), mapOf("filePath" to "string", "content" to "string")))
                 add(toolSchema("saveOpenFiles", "Save all dirty open Xed editor tabs to disk before reading/editing files", emptyList(), emptyMap()))
                 add(toolSchema("refreshOpenEditors", "Refresh all non-dirty open Xed editor tabs from disk after file edits", emptyList(), emptyMap()))
@@ -309,7 +317,16 @@ object GeminiBridge {
                             addProperty("content", newContent)
                         })
                     }
-                    if (shown) callToolEmptyResult(id) else callToolErrorResult(id, "No open editor tab is available for review; diff was not applied.")
+                    if (shown) callToolEmptyResult(id) else {
+                        file.parentFile?.mkdirs()
+                        file.writeText(newContent)
+                        refreshEditors(onlyClean = true)
+                        sendMcpNotification("ide/diffAccepted", JsonObject().apply {
+                            addProperty("filePath", file.absolutePath)
+                            addProperty("content", newContent)
+                        })
+                        callToolTextResult(id, "No open editor tab was available; wrote ${file.absolutePath} directly.")
+                    }
                 }
                 "closeDiff" -> {
                     val filePath = args.get("filePath")?.asString.orEmpty()
@@ -395,6 +412,16 @@ object GeminiBridge {
                         true
                     }
                     callToolTextResult(id, if (ok) "Insertion opened in Xed for user review." else "No editor available.")
+                }
+                "openFile" -> {
+                    val filePath = args.get("filePath")?.asString.orEmpty()
+                    if (filePath.isBlank()) return error(id, -32602, "filePath required")
+                    val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
+                    runBlocking(Dispatchers.Main) {
+                        viewModel.editorManager.openFile(FileWrapper(file), projectRoot = null, switchToTab = true)
+                    }
+                    sendMcpNotification("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)
+                    callToolTextResult(id, "opened ${file.absolutePath}")
                 }
                 "writeFile" -> {
                     val filePath = args.get("filePath")?.asString.orEmpty()
@@ -489,6 +516,10 @@ object GeminiBridge {
             runBlocking(Dispatchers.Main) {
                 val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }
                     ?: (viewModel.currentTab as? EditorTab)
+                    ?: run {
+                        viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
+                        viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }
+                    }
                     ?: return@runBlocking false
                 tab.editorState.pendingGeminiPatch =
                     GeminiEditorPatch(

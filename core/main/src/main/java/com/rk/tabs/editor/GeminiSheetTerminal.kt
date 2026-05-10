@@ -275,6 +275,12 @@ private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String):
     return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
 }
 
+private fun ideWorkspacePath(primary: String): String =
+    listOf(primary, "/home", "/storage/emulated/0")
+        .filter { it.isNotBlank() }
+        .distinct()
+        .joinToString(File.pathSeparator)
+
 private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: GeminiBridge.Info): Array<String> {
     val tmpDir = File(getTempDir(), "terminal/gemini-sheet").apply { mkdirs() }
     val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
@@ -322,7 +328,7 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
         "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-        "GEMINI_CLI_IDE_WORKSPACE_PATH=$workingDir",
+        "GEMINI_CLI_IDE_WORKSPACE_PATH=${ideWorkspacePath(workingDir)}",
     ).apply {
         if (!isFDroid) {
             add("PROOT_LOADER=${activity.applicationInfo.nativeLibraryDir}/libproot-loader.so")

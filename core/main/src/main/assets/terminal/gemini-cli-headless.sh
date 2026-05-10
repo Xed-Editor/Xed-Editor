@@ -5,12 +5,10 @@ set -e
 # stdout should contain Gemini response only; setup/status logs go to stderr.
 source "$LOCAL/bin/utils" >/dev/null 2>&1 || true
 
-target_dir="${GEMINI_CLI_IDE_WORKSPACE_PATH:-${WKDIR:-$HOME}}"
-cd "$target_dir" 2>/dev/null || cd "${WKDIR:-$HOME}" 2>/dev/null || cd "$HOME"
+workspace_dir="${GEMINI_CLI_IDE_WORKSPACE_PATH%%:*}"
+target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
+cd "$target_dir" 2>/dev/null || cd "$workspace_dir" 2>/dev/null || cd "$HOME"
 export WKDIR="$(pwd)"
-if [ -n "${GEMINI_CLI_IDE_WORKSPACE_PATH:-}" ]; then
-  export GEMINI_CLI_IDE_WORKSPACE_PATH="$(pwd)"
-fi
 
 export GEMINI_TELEMETRY_ENABLED=false
 export GEMINI_TELEMETRY_TARGET=local
