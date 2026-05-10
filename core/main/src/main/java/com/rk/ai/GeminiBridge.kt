@@ -7,12 +7,19 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.rk.activities.main.MainViewModel
+import com.rk.exec.ShellUtils
+import com.rk.tabs.editor.GeminiEditorPatch
 import com.rk.tabs.editor.EditorTab
+import com.rk.utils.toast
 import fi.iki.elonen.NanoHTTPD
 import com.rk.utils.getTempDir
 import java.io.File
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
+import java.io.PrintWriter
 import java.security.SecureRandom
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
@@ -47,8 +54,9 @@ object GeminiBridge {
     }
 
     private class BridgeServer(var viewModel: MainViewModel, private val token: String, var workspacePath: String) :
-        NanoHTTPD(0) {
+        NanoHTTPD("127.0.0.1", 0) {
         private val sessionId = UUID.randomUUID().toString()
+        private val sseClients = ConcurrentHashMap<String, PrintWriter>()
 
         fun info(): Info = Info(url = "http://127.0.0.1:$listeningPort", port = listeningPort, token = token, workspacePath)
 
@@ -56,6 +64,9 @@ object GeminiBridge {
             runCatching {
                 val dir = File(getTempDir(), "gemini/ide")
                 dir.mkdirs()
+                dir.listFiles { file -> file.name.startsWith("gemini-ide-server-${android.os.Process.myPid()}-") && file.name.endsWith(".json") }
+                    ?.filter { it.name != "gemini-ide-server-${android.os.Process.myPid()}-$listeningPort.json" }
+                    ?.forEach { it.delete() }
                 val file = File(dir, "gemini-ide-server-${android.os.Process.myPid()}-$listeningPort.json")
                 val discovery = JsonObject().apply {
                     addProperty("port", listeningPort)
@@ -67,10 +78,17 @@ object GeminiBridge {
                     })
                 }
                 file.writeText(gson.toJson(discovery))
+                file.setReadable(false, false)
+                file.setWritable(false, false)
+                file.setReadable(true, true)
+                file.setWritable(true, true)
             }
         }
 
         override fun serve(session: IHTTPSession): Response {
+            if (!hasValidHost(session)) {
+                return json(Response.Status.FORBIDDEN, error(null, -32003, "invalid host"))
+            }
             if (!isAuthorized(session)) {
                 return json(Response.Status.UNAUTHORIZED, error(null, -32001, "unauthorized"))
             }
@@ -89,7 +107,7 @@ object GeminiBridge {
 
         private fun serveMcp(session: IHTTPSession): Response {
             if (session.method == Method.GET) {
-                return json(Response.Status.OK, "")
+                return serveMcpStream(session)
             }
 
             val body = mutableMapOf<String, String>()
@@ -115,6 +133,51 @@ object GeminiBridge {
             return nanoResponse
         }
 
+        private fun serveMcpStream(session: IHTTPSession): Response {
+            val requestedSessionId = session.headers["mcp-session-id"] ?: sessionId
+            val input = PipedInputStream()
+            val output = PipedOutputStream(input)
+            val writer = PrintWriter(output, true)
+            sseClients[requestedSessionId] = writer
+            writer.print(": connected\n\n")
+            writer.flush()
+            runCatching {
+                writer.print("event: message\n")
+                writer.print("data: ${contextUpdateNotificationJson()}\n\n")
+                writer.flush()
+            }
+            return newChunkedResponse(Response.Status.OK, "text/event-stream", input).apply {
+                addHeader("mcp-session-id", requestedSessionId)
+                addHeader("Cache-Control", "no-store")
+                addHeader("Connection", "keep-alive")
+                addHeader("Access-Control-Allow-Origin", "*")
+            }
+        }
+
+        private fun sendMcpNotification(method: String, params: JsonObject) {
+            val notification = notificationJson(method, params)
+            val deadClients = mutableListOf<String>()
+            sseClients.forEach { (id, writer) ->
+                runCatching {
+                    writer.print("event: message\n")
+                    writer.print("data: $notification\n\n")
+                    writer.flush()
+                    if (writer.checkError()) deadClients.add(id)
+                }.onFailure { deadClients.add(id) }
+            }
+            deadClients.forEach { id -> sseClients.remove(id)?.close() }
+        }
+
+        private fun notificationJson(method: String, params: JsonObject): String =
+            gson.toJson(JsonObject().apply {
+                addProperty("jsonrpc", "2.0")
+                addProperty("method", method)
+                add("params", params)
+            })
+
+        private fun contextUpdateNotificationJson(): String =
+            notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)
+
         private fun initializeResult(id: String): String {
             val result = JsonObject().apply {
                 addProperty("protocolVersion", "2025-06-18")
@@ -127,53 +190,40 @@ object GeminiBridge {
             return result(id, result)
         }
 
+        private fun toolSchema(
+            name: String,
+            description: String,
+            required: List<String>,
+            properties: Map<String, String>,
+        ): JsonObject =
+            JsonObject().apply {
+                addProperty("name", name)
+                addProperty("description", description)
+                add("inputSchema", JsonObject().apply {
+                    addProperty("type", "object")
+                    add("properties", JsonObject().apply {
+                        properties.forEach { (propertyName, type) ->
+                            add(propertyName, JsonObject().apply { addProperty("type", type) })
+                        }
+                    })
+                    add("required", JsonArray().apply { required.forEach { add(it) } })
+                })
+            }
+
         private fun toolsListResult(id: String): String {
             val tools = JsonArray().apply {
-                add(JsonObject().apply {
-                    addProperty("name", "openDiff")
-                    addProperty("description", "Open/apply a proposed file diff in Xed-Editor")
-                    add("inputSchema", JsonObject().apply {
-                        addProperty("type", "object")
-                        add("properties", JsonObject().apply {
-                            add("filePath", JsonObject().apply { addProperty("type", "string") })
-                            add("newContent", JsonObject().apply { addProperty("type", "string") })
-                        })
-                        add("required", JsonArray().apply { add("filePath"); add("newContent") })
-                    })
-                })
-                add(JsonObject().apply {
-                    addProperty("name", "closeDiff")
-                    addProperty("description", "Close a diff and return final content")
-                    add("inputSchema", JsonObject().apply {
-                        addProperty("type", "object")
-                        add("properties", JsonObject().apply {
-                            add("filePath", JsonObject().apply { addProperty("type", "string") })
-                        })
-                        add("required", JsonArray().apply { add("filePath") })
-                    })
-                })
-                add(JsonObject().apply {
-                    addProperty("name", "readFile")
-                    addProperty("description", "Read the content of a file (prefers open editor content)")
-                    add("inputSchema", JsonObject().apply {
-                        addProperty("type", "object")
-                        add("properties", JsonObject().apply {
-                            add("filePath", JsonObject().apply { addProperty("type", "string") })
-                        })
-                        add("required", JsonArray().apply { add("filePath") })
-                    })
-                })
-                add(JsonObject().apply {
-                    addProperty("name", "listFiles")
-                    addProperty("description", "List files in a directory")
-                    add("inputSchema", JsonObject().apply {
-                        addProperty("type", "object")
-                        add("properties", JsonObject().apply {
-                            add("directoryPath", JsonObject().apply { addProperty("type", "string") })
-                        })
-                        add("required", JsonArray().apply { add("directoryPath") })
-                    })
-                })
+                add(toolSchema("openDiff", "Open a proposed file replacement in Xed-Editor for user review before writing", listOf("filePath", "newContent"), mapOf("filePath" to "string", "newContent" to "string")))
+                add(toolSchema("closeDiff", "Close a diff and return final file content", listOf("filePath"), mapOf("filePath" to "string")))
+                add(toolSchema("readFile", "Read the content of a file (prefers open editor content)", listOf("filePath"), mapOf("filePath" to "string")))
+                add(toolSchema("listFiles", "List files in a directory. Supports recursive and maxFiles.", listOf("directoryPath"), mapOf("directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")))
+                add(toolSchema("getOpenFiles", "Return currently open editor files", emptyList(), emptyMap()))
+                add(toolSchema("getActiveFile", "Return active editor file, cursor, selection, and content", emptyList(), emptyMap()))
+                add(toolSchema("getSelection", "Return selected text in the active editor", emptyList(), emptyMap()))
+                add(toolSchema("replaceSelection", "Replace selected text in the active editor after user review", listOf("newContent"), mapOf("newContent" to "string")))
+                add(toolSchema("insertAtCursor", "Insert text at the active editor cursor after user review", listOf("newContent"), mapOf("newContent" to "string")))
+                add(toolSchema("showMessage", "Show a short message in Xed", listOf("message"), mapOf("message" to "string")))
+                add(toolSchema("runCommand", "Run a shell command in the workspace and return stdout/stderr", listOf("command"), mapOf("command" to "string", "timeoutSeconds" to "number")))
+                add(toolSchema("refreshFile", "Refresh an open editor tab from disk", listOf("filePath"), mapOf("filePath" to "string")))
             }
             return result(id, JsonObject().apply { add("tools", tools) })
         }
@@ -187,24 +237,29 @@ object GeminiBridge {
                     val filePath = args.get("filePath")?.asString.orEmpty()
                     val newContent = args.get("newContent")?.asString.orEmpty()
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
-                    val file = if (File(filePath).isAbsolute) File(filePath) else File(workspacePath, filePath)
-                    file.apply {
-                        parentFile?.mkdirs()
-                        writeText(newContent)
+                    val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
+                    val oldContent = runCatching { file.readText() }.getOrDefault("")
+                    val shown = showPendingPatch(file.absolutePath, oldContent, newContent) {
+                        file.parentFile?.mkdirs()
+                        file.writeText(newContent)
+                        refreshEditors()
+                        sendMcpNotification("ide/diffAccepted", JsonObject().apply {
+                            addProperty("filePath", file.absolutePath)
+                            addProperty("content", newContent)
+                        })
                     }
-                    refreshEditors()
-                    callToolTextResult(id, "")
+                    if (shown) callToolEmptyResult(id) else callToolErrorResult(id, "No open editor tab is available for review; diff was not applied.")
                 }
                 "closeDiff" -> {
                     val filePath = args.get("filePath")?.asString.orEmpty()
-                    val file = if (File(filePath).isAbsolute) File(filePath) else File(workspacePath, filePath)
+                    val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
                     val content = runCatching { file.readText() }.getOrDefault("")
                     callToolTextResult(id, gson.toJson(JsonObject().apply { addProperty("content", content) }))
                 }
                 "readFile" -> {
                     val filePath = args.get("filePath")?.asString.orEmpty()
                     if (filePath.isBlank()) return error(id, -32602, "filePath required")
-                    val file = if (File(filePath).isAbsolute) File(filePath) else File(workspacePath, filePath)
+                    val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
                     val absolutePath = file.absolutePath
                     val openTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == absolutePath }
                     val content = if (openTab != null) {
@@ -216,13 +271,149 @@ object GeminiBridge {
                 }
                 "listFiles" -> {
                     val dirPath = args.get("directoryPath")?.asString.orEmpty()
-                    val dir = if (File(dirPath).isAbsolute) File(dirPath) else File(workspacePath, dirPath)
-                    val files = dir.listFiles()?.joinToString("\n") { it.name + if (it.isDirectory) "/" else "" }.orEmpty()
+                    val dir = resolveWorkspacePath(dirPath) ?: return error(id, -32602, "path outside workspace")
+                    val recursive = args.get("recursive")?.asBoolean ?: false
+                    val maxFiles = args.get("maxFiles")?.asInt ?: 500
+                    val files = listWorkspaceFiles(dir, recursive, maxFiles.coerceIn(1, 5000))
                     callToolTextResult(id, files)
+                }
+                "getOpenFiles" -> callToolTextResult(id, gson.toJson(JsonArray().apply {
+                    viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                        add(JsonObject().apply {
+                            addProperty("path", tab.file.getAbsolutePath())
+                            addProperty("isActive", tab == viewModel.currentTab)
+                        })
+                    }
+                }))
+                "getActiveFile" -> {
+                    val current = viewModel.currentTab as? EditorTab ?: return callToolTextResult(id, "{}")
+                    callToolTextResult(id, gson.toJson(current.toIdeFileJsonObject(active = true).apply {
+                        addProperty("content", runBlocking(Dispatchers.Main) { current.editorState.editor.get()?.text?.toString() }.orEmpty())
+                    }))
+                }
+                "getSelection" -> {
+                    val current = viewModel.currentTab as? EditorTab
+                    val selected = current?.let { runBlocking(Dispatchers.Main) { it.editorState.editor.get()?.getSelectedText().orEmpty() } }.orEmpty()
+                    callToolTextResult(id, selected)
+                }
+                "replaceSelection" -> {
+                    val newContent = args.get("newContent")?.asString.orEmpty()
+                    val current = viewModel.currentTab as? EditorTab ?: return error(id, -32602, "no active editor")
+                    val ok = runBlocking(Dispatchers.Main) {
+                        val editor = current.editorState.editor.get() ?: return@runBlocking false
+                        val hasSelection = editor.isTextSelected
+                        val start = if (hasSelection) editor.cursorRange.startIndex else 0
+                        val end = if (hasSelection) editor.cursorRange.endIndex else editor.text.toString().length
+                        val oldText = editor.text.substring(start, end)
+                        current.editorState.pendingGeminiPatch =
+                            GeminiEditorPatch(
+                                title = if (hasSelection) "Review Gemini selection replacement" else "Review Gemini file replacement",
+                                filePath = current.file.getAbsolutePath(),
+                                oldText = oldText,
+                                newText = newContent,
+                            ) {
+                                editor.text.replace(start, end, newContent)
+                                current.editorState.isDirty = true
+                            }
+                        current.editorState.showGeminiAssistant = false
+                        true
+                    }
+                    callToolTextResult(id, if (ok) "Replacement opened in Xed for user review." else "No editor available.")
+                }
+                "insertAtCursor" -> {
+                    val newContent = args.get("newContent")?.asString.orEmpty()
+                    val current = viewModel.currentTab as? EditorTab ?: return error(id, -32602, "no active editor")
+                    val ok = runBlocking(Dispatchers.Main) {
+                        val editor = current.editorState.editor.get() ?: return@runBlocking false
+                        val line = editor.cursor.leftLine
+                        val column = editor.cursor.leftColumn
+                        current.editorState.pendingGeminiPatch =
+                            GeminiEditorPatch("Review Gemini insertion", current.file.getAbsolutePath(), "", newContent) {
+                                editor.text.insert(line, column, newContent)
+                                current.editorState.isDirty = true
+                            }
+                        current.editorState.showGeminiAssistant = false
+                        true
+                    }
+                    callToolTextResult(id, if (ok) "Insertion opened in Xed for user review." else "No editor available.")
+                }
+                "showMessage" -> {
+                    val message = args.get("message")?.asString.orEmpty()
+                    runBlocking(Dispatchers.Main) { toast(message) }
+                    callToolTextResult(id, "shown")
+                }
+                "runCommand" -> {
+                    val command = args.get("command")?.asString.orEmpty()
+                    if (command.isBlank()) return error(id, -32602, "command required")
+                    val timeout = args.get("timeoutSeconds")?.asLong ?: 120L
+                    val result = runBlocking { ShellUtils.runUbuntu(workspacePath, "/bin/bash", "-lc", command, timeoutSeconds = timeout.coerceIn(1, 600)) }
+                    callToolTextResult(id, buildString {
+                        if (result.output.isNotBlank()) appendLine(result.output)
+                        if (result.error.isNotBlank()) appendLine(result.error)
+                        append("exit ${result.exitCode}")
+                        if (result.timedOut) append(" (timed out)")
+                    })
+                }
+                "refreshFile" -> {
+                    val filePath = args.get("filePath")?.asString.orEmpty()
+                    val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
+                    val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
+                    tab?.refresh()
+                    callToolTextResult(id, if (tab != null) "refreshed" else "file is not open")
                 }
                 else -> error(id, -32601, "unknown tool: $name")
             }
         }
+
+        private fun resolveWorkspacePath(path: String): File? {
+            val root = runCatching { File(workspacePath).canonicalFile }.getOrNull() ?: return null
+            val candidate = if (path.isBlank()) root else if (File(path).isAbsolute) File(path) else File(root, path)
+            val canonical = runCatching { candidate.canonicalFile }.getOrNull() ?: return null
+            return canonical.takeIf { it.path == root.path || it.path.startsWith(root.path + File.separator) }
+        }
+
+        private fun listWorkspaceFiles(dir: File, recursive: Boolean, maxFiles: Int): String {
+            if (!dir.exists() || !dir.isDirectory) return ""
+            val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules")
+            val root = runCatching { File(workspacePath).canonicalFile }.getOrNull() ?: return ""
+            val output = mutableListOf<String>()
+
+            fun visit(current: File) {
+                if (output.size >= maxFiles) return
+                current.listFiles()
+                    ?.sortedWith(compareBy<File> { !it.isDirectory }.thenBy { it.name.lowercase() })
+                    ?.forEach { child ->
+                        if (output.size >= maxFiles) return
+                        if (child.name in ignored) return@forEach
+                        val relative = child.relativeToOrSelf(root).path + if (child.isDirectory) "/" else ""
+                        output.add(relative)
+                        if (recursive && child.isDirectory) visit(child)
+                    }
+            }
+
+            visit(dir)
+            return output.joinToString("\n")
+        }
+
+        private fun showPendingPatch(filePath: String, oldContent: String, newContent: String, apply: () -> Unit): Boolean =
+            runBlocking(Dispatchers.Main) {
+                val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }
+                    ?: (viewModel.currentTab as? EditorTab)
+                    ?: return@runBlocking false
+                tab.editorState.pendingGeminiPatch =
+                    GeminiEditorPatch(
+                        title = "Review Gemini file change",
+                        filePath = filePath,
+                        oldText = oldContent,
+                        newText = newContent,
+                        apply = apply,
+                        reject = {
+                            sendMcpNotification("ide/diffRejected", JsonObject().apply { addProperty("filePath", filePath) })
+                        },
+                    )
+                tab.editorState.showGeminiAssistant = false
+                true
+            }
 
         private fun refreshEditors() {
             viewModel.tabs.filterIsInstance<EditorTab>().forEach { it.refresh() }
@@ -232,6 +423,12 @@ object GeminiBridge {
             val queryToken = session.parameters["token"]?.firstOrNull()
             val headerToken = session.headers["authorization"]?.removePrefix("Bearer ")
             return queryToken == token || headerToken == token
+        }
+
+        private fun hasValidHost(session: IHTTPSession): Boolean {
+            val host = session.headers["host"] ?: return true
+            val hostname = host.substringBefore(":")
+            return hostname == "127.0.0.1" || hostname == "localhost" || hostname == "[::1]"
         }
 
         private fun ideContextJson(): String = runBlocking {
@@ -273,6 +470,20 @@ object GeminiBridge {
             if (text.isNotEmpty()) content.add(JsonObject().apply { addProperty("type", "text"); addProperty("text", text) })
             return result(id, JsonObject().apply { add("content", content) })
         }
+
+        private fun callToolEmptyResult(id: String): String =
+            result(id, JsonObject().apply { add("content", JsonArray()) })
+
+        private fun callToolErrorResult(id: String, message: String): String =
+            result(id, JsonObject().apply {
+                addProperty("isError", true)
+                add("content", JsonArray().apply {
+                    add(JsonObject().apply {
+                        addProperty("type", "text")
+                        addProperty("text", message)
+                    })
+                })
+            })
 
         private fun error(id: String?, code: Int, message: String): String =
             JsonObject().apply {

@@ -15,8 +15,18 @@ import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.TextRange
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
 import org.ec4j.core.ResourceProperties
+
+data class GeminiEditorPatch(
+    val title: String,
+    val filePath: String,
+    val oldText: String,
+    val newText: String,
+    val reject: (() -> Unit)? = null,
+    val apply: () -> Unit,
+)
 
 data class CodeEditorState(val initialContent: Content? = null) {
     var editor: WeakReference<Editor?> = WeakReference(null)
@@ -81,4 +91,6 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var geminiCliTranscript by mutableStateOf("")
     var geminiShellMode by mutableStateOf(false)
     var geminiRunning by mutableStateOf(false)
+    var geminiJob: Job? = null
+    var pendingGeminiPatch by mutableStateOf<GeminiEditorPatch?>(null)
 }

@@ -10,6 +10,7 @@ cd "${WKDIR:-$HOME}" 2>/dev/null || cd "$HOME"
 export GEMINI_TELEMETRY_ENABLED=false
 export GEMINI_TELEMETRY_TARGET=local
 export NO_UPDATE_NOTIFIER=1
+configure_gemini_auth_browser
 
 log() { printf '%s\n' "$*" >&2; }
 

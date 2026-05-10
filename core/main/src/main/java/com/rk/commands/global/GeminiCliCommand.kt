@@ -48,6 +48,7 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
                         arrayOf(
                             "GEMINI_CLI_IDE_SERVER_PORT=${it.port}",
                             "GEMINI_CLI_IDE_AUTH_TOKEN=${it.token}",
+                            "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
                             "GEMINI_CLI_IDE_WORKSPACE_PATH=${it.workspacePath}",
                         )
                     } ?: arrayOf(),

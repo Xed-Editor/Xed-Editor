@@ -49,6 +49,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.toast
 import java.io.File
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -95,7 +96,7 @@ fun EditorTab.GeminiAssistantSheet() {
     }
 
     fun commandPreview(prompt: String, mode: GeminiActionMode): String {
-        val flag = if (mode == GeminiActionMode.Agent) "--yolo" else "-p"
+        val flag = if (mode == GeminiActionMode.Agent) "--approval-mode=auto_edit -p" else "-p"
         return "gemini $flag \"${prompt.lineSequence().firstOrNull().orEmpty().take(72)}${if (prompt.length > 72) "…" else ""}\""
     }
 
@@ -107,8 +108,10 @@ fun EditorTab.GeminiAssistantSheet() {
         /clear                 Clear visible sheet history
         /copy                  Copy last Gemini output/log
         /about                 Show Xed Gemini backend status
+        /doctor                Check Node/npm/Gemini CLI install and version
         /tools [desc]          Show available tool/back-end summary
         /ide status            Show IDE bridge status
+        /docs gemini           Show bundled Gemini CLI docs paths
         /directory show        Show active workspace directory
         /memory list           List GEMINI.md files in project parents
         /memory show           Show merged GEMINI.md memory
@@ -137,6 +140,41 @@ fun EditorTab.GeminiAssistantSheet() {
         return files.distinctBy { it.absolutePath }
     }
 
+    fun findUpward(relativePath: String): File? {
+        var dir: File? = File(currentProjectDir())
+        while (dir != null) {
+            val candidate = File(dir, relativePath)
+            if (candidate.exists()) return candidate
+            dir = dir.parentFile
+        }
+        return null
+    }
+
+    fun geminiDocsHint(): String {
+        val docsDir = findUpward("help_res/gemini-cli/docs") ?: return ""
+        val keyDocs =
+            listOf(
+                "ide-integration/ide-companion-spec.md",
+                "cli/cli-reference.md",
+                "cli/headless.md",
+                "cli/checkpointing.md",
+                "reference/configuration.md",
+            )
+                .map { File(docsDir, it) }
+                .filter { it.exists() }
+                .joinToString("\n") { "- ${it.absolutePath}" }
+        return """
+            Local Gemini CLI documentation is available under:
+            ${docsDir.absolutePath}
+
+            Important local docs:
+            $keyDocs
+
+            If the user references @help_res, Gemini CLI docs, IDE mode, MCP, headless mode, flags, checkpointing, or Gemini CLI behavior, inspect these local docs before answering or editing.
+        """
+            .trimIndent()
+    }
+
     fun appendMemory(text: String) {
         val target = File(currentProjectDir(), "GEMINI.md")
         target.parentFile?.mkdirs()
@@ -148,18 +186,21 @@ fun EditorTab.GeminiAssistantSheet() {
         if (command.isBlank() || editorState.geminiRunning) return
         editorState.geminiRunning = true
         appendGeminiCli("${currentProjectDir()} ${'$'} $command")
-        scope.launch(Dispatchers.IO) {
+        val job = scope.launch(Dispatchers.IO) {
             val result = runCatching {
-                ShellUtils.runUbuntu(
+                ShellUtils.runUbuntuStreaming(
                     currentProjectDir(),
                     "/bin/bash",
                     "-lc",
                     command,
                     timeoutSeconds = 120,
+                    onStdout = { line -> scope.launch(Dispatchers.Main) { appendGeminiCli(line) } },
+                    onStderr = { line -> scope.launch(Dispatchers.Main) { appendGeminiCli(line) } },
                 )
             }
             withContext(Dispatchers.Main) {
                 editorState.geminiRunning = false
+                editorState.geminiJob = null
                 result
                     .onSuccess { shellResult ->
                         val text =
@@ -181,6 +222,16 @@ fun EditorTab.GeminiAssistantSheet() {
                     }
             }
         }
+        editorState.geminiJob = job
+        job.invokeOnCompletion { cause ->
+            if (cause != null) {
+                scope.launch(Dispatchers.Main) {
+                    editorState.geminiRunning = false
+                    editorState.geminiJob = null
+                    appendGeminiCli("Cancelled.")
+                }
+            }
+        }
     }
 
     fun runGemini(prompt: String, mode: GeminiActionMode, applyResult: ((String) -> Unit)? = null) {
@@ -197,7 +248,7 @@ fun EditorTab.GeminiAssistantSheet() {
                 .trimIndent(),
         )
 
-        scope.launch(Dispatchers.IO) {
+        val job = scope.launch(Dispatchers.IO) {
             val workingDir = GeminiCli.workingDirFor(file, projectRoot)
             val bridge = GeminiBridge.ensureStarted(viewModel, workingDir)
             val bridgedPrompt =
@@ -205,8 +256,9 @@ fun EditorTab.GeminiAssistantSheet() {
                 Xed-Editor GUI bridge is available for this session.
                 - Context endpoint: ${bridge.url}/context?token=${bridge.token}
                 - Refresh editors endpoint: ${bridge.url}/refresh?token=${bridge.token}
-                Use the context endpoint when you need current open files, active Sora editor file, cursor, or selected text.
+                Use the context endpoint when you need current open files, active editor file, cursor, or selected text.
                 After editing files, call the refresh endpoint if possible so the Android GUI updates.
+                ${geminiDocsHint()}
 
                 $prompt
                 """
@@ -214,14 +266,27 @@ fun EditorTab.GeminiAssistantSheet() {
             val result =
                 runCatching {
                     if (mode == GeminiActionMode.Agent) {
-                        GeminiCli.agent(prompt = bridgedPrompt, workingDir = workingDir, projectDir = workingDir, ideBridge = bridge)
+                        GeminiCli.agent(
+                            prompt = bridgedPrompt,
+                            workingDir = workingDir,
+                            projectDir = workingDir,
+                            ideBridge = bridge,
+                            onOutput = { line -> scope.launch(Dispatchers.Main) { appendGeminiCli(line) } },
+                        )
                     } else {
-                        GeminiCli.prompt(prompt = bridgedPrompt, workingDir = workingDir, projectDir = workingDir, ideBridge = bridge)
+                        GeminiCli.prompt(
+                            prompt = bridgedPrompt,
+                            workingDir = workingDir,
+                            projectDir = workingDir,
+                            ideBridge = bridge,
+                            onOutput = { line -> scope.launch(Dispatchers.Main) { appendGeminiCli(line) } },
+                        )
                     }
                 }
 
             withContext(Dispatchers.Main) {
                 editorState.geminiRunning = false
+                editorState.geminiJob = null
                 result
                     .onSuccess { shellResult ->
                         val rawOutput = shellResult.output.ifBlank { shellResult.error }
@@ -263,6 +328,16 @@ fun EditorTab.GeminiAssistantSheet() {
                     }
             }
         }
+        editorState.geminiJob = job
+        job.invokeOnCompletion { cause ->
+            if (cause != null) {
+                scope.launch(Dispatchers.Main) {
+                    editorState.geminiRunning = false
+                    editorState.geminiJob = null
+                    appendGeminiCli("Cancelled.")
+                }
+            }
+        }
     }
 
     fun openFullCli() {
@@ -287,6 +362,7 @@ fun EditorTab.GeminiAssistantSheet() {
                     arrayOf(
                         "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
                         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
+                        "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
                         "GEMINI_CLI_IDE_WORKSPACE_PATH=${bridge.workspacePath}",
                     ),
             ),
@@ -357,6 +433,30 @@ fun EditorTab.GeminiAssistantSheet() {
                 editorState.geminiPrompt = ""
             }
 
+            input == "/doctor" || input == "/gemini doctor" -> {
+                runShellCommand(
+                    """
+                    printf 'Node: '; command -v node >/dev/null 2>&1 && node --version || echo missing
+                    printf 'npm: '; command -v npm >/dev/null 2>&1 && npm --version || echo missing
+                    printf 'Gemini: '; command -v gemini >/dev/null 2>&1 && gemini --version || echo missing
+                    printf 'Working directory: '; pwd
+                    printf 'IDE bridge port: '; echo '${GeminiBridge.ensureStarted(viewModel, currentProjectDir()).port}'
+                    """
+                        .trimIndent(),
+                )
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/docs gemini" || input == "/docs" -> {
+                val text =
+                    geminiDocsHint().ifBlank {
+                        "No bundled Gemini CLI docs found under help_res/gemini-cli/docs from ${currentProjectDir()}."
+                    }
+                appendGeminiCli(text)
+                editorState.geminiOutput = text
+                editorState.geminiPrompt = ""
+            }
+
             input.startsWith("/tools") -> {
                 val text =
                     """
@@ -365,9 +465,13 @@ fun EditorTab.GeminiAssistantSheet() {
                     Gemini CLI tools: file read/write, grep/glob, shell execution, web/MCP tools when configured in Gemini CLI.
                     Xed IDE bridge tools:
                     - readFile: reads open editor/file content
-                    - listFiles: lists project directories
-                    - openDiff: writes proposed file content and refreshes Xed
+                    - listFiles: lists project directories, optionally recursive
+                    - openDiff: opens proposed file content for review before writing
                     - closeDiff: returns final file content
+                    - getOpenFiles, getActiveFile, getSelection
+                    - replaceSelection: review then replace active editor selection/file
+                    - insertAtCursor: review then insert at active cursor
+                    - showMessage, runCommand, refreshFile
 
                     For Gemini's exact live tool registry, open CLI and run /tools${if (input.contains("desc")) " desc" else ""}.
                     """
@@ -694,6 +798,9 @@ fun EditorTab.GeminiAssistantSheet() {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator()
                     Text(strings.wait.getString())
+                    TextButton(onClick = { editorState.geminiJob?.cancel("Cancelled by user") }) {
+                        Text("Cancel")
+                    }
                 }
             }
 

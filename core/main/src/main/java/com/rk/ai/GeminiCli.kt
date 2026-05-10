@@ -15,12 +15,14 @@ object GeminiCli {
         projectDir: String? = workingDir,
         ideBridge: GeminiBridge.Info? = null,
         timeoutSeconds: Long = 180,
+        onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result {
         return runGemini(
             args = commonArgs(projectDir) + listOf("--approval-mode=default", "-p", prompt),
             workingDir = workingDir,
             ideBridge = ideBridge,
             timeoutSeconds = timeoutSeconds,
+            onOutput = onOutput,
         )
     }
 
@@ -30,19 +32,21 @@ object GeminiCli {
         projectDir: String? = workingDir,
         ideBridge: GeminiBridge.Info? = null,
         timeoutSeconds: Long = 600,
+        onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result {
         return runGemini(
             args = commonArgs(projectDir) + listOf("--approval-mode=auto_edit", "-p", prompt),
             workingDir = workingDir,
             ideBridge = ideBridge,
             timeoutSeconds = timeoutSeconds,
+            onOutput = onOutput,
         )
     }
 
     fun cleanOutput(text: String): String {
+        val ansiRegex = Regex("\\u001B\\[[;\\d]*m")
         val ignoreRegexes = listOf(
             Regex("^(INFO|WARN|ERROR|DEBUG|TRACE)\\s+.*"),
-            Regex("^\\x1B\\[[;\\d]*m.*"),
             Regex(".*ClearcutLogger.*"),
             Regex(".*Flush already in progress.*"),
             Regex(".*No GEMINI_API_KEY/GOOGLE_API_KEY.*"),
@@ -53,9 +57,10 @@ object GeminiCli {
 
         return text
             .lineSequence()
+            .map { line -> line.replace(ansiRegex, "") }
             .filterNot { line ->
                 val trimmed = line.trim()
-                ignoreRegexes.any { it.matches(trimmed) || trimmed.contains(it.pattern.replace("\\", "")) }
+                ignoreRegexes.any { it.matches(trimmed) }
             }
             .joinToString("\n")
             .trim()
@@ -78,6 +83,7 @@ object GeminiCli {
         workingDir: String?,
         ideBridge: GeminiBridge.Info?,
         timeoutSeconds: Long,
+        onOutput: ((String) -> Unit)?,
     ): ShellUtils.Result {
         setupTerminalFiles()
         val command =
@@ -87,6 +93,7 @@ object GeminiCli {
                         add("TMPDIR=${getTempDir().absolutePath}")
                         add("GEMINI_CLI_IDE_SERVER_PORT=${ideBridge.port}")
                         add("GEMINI_CLI_IDE_AUTH_TOKEN=${ideBridge.token}")
+                        add("GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}")
                         add("GEMINI_CLI_IDE_WORKSPACE_PATH=${ideBridge.workspacePath}")
                     }
                     add("/bin/bash")
@@ -94,7 +101,17 @@ object GeminiCli {
                     addAll(args)
                 }
                 .toTypedArray()
-        return ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
+        return if (onOutput == null) {
+            ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
+        } else {
+            ShellUtils.runUbuntuStreaming(
+                workingDir,
+                *command,
+                timeoutSeconds = timeoutSeconds,
+                onStdout = onOutput,
+                onStderr = onOutput,
+            )
+        }
     }
 
     suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String {

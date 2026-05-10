@@ -6,6 +6,7 @@ source "$LOCAL/bin/utils"
 cd "${WKDIR:-$HOME}" 2>/dev/null || cd "$HOME"
 
 export NO_UPDATE_NOTIFIER=1
+configure_gemini_auth_browser
 
 ensure_node() {
   if ! command_exists node || ! command_exists npm; then

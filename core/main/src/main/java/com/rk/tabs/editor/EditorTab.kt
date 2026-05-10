@@ -2,12 +2,15 @@ package com.rk.tabs.editor
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -25,11 +28,14 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.rk.DefaultScope
 import com.rk.activities.main.EditorCursorState
 import com.rk.activities.main.EditorTabState
@@ -405,6 +411,52 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             editorState.renameError = null
                             editorState.renameConfirm = null
                             editorState.showRenameDialog = false
+                        },
+                    )
+                }
+                editorState.pendingGeminiPatch?.let { patch ->
+                    AlertDialog(
+                        onDismissRequest = {
+                            patch.reject?.invoke()
+                            editorState.pendingGeminiPatch = null
+                        },
+                        title = { Text(patch.title) },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(patch.filePath, style = MaterialTheme.typography.bodySmall)
+                                if (patch.oldText.isNotBlank()) {
+                                    Text("Current", style = MaterialTheme.typography.labelMedium)
+                                    Text(
+                                        text = patch.oldText,
+                                        modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp).verticalScroll(rememberScrollState()),
+                                        fontFamily = FontFamily.Monospace,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                                Text("Proposed", style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    text = patch.newText,
+                                    modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp).verticalScroll(rememberScrollState()),
+                                    fontFamily = FontFamily.Monospace,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    patch.apply()
+                                    editorState.pendingGeminiPatch = null
+                                }
+                            ) { Text(strings.apply.getString()) }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    patch.reject?.invoke()
+                                    editorState.pendingGeminiPatch = null
+                                }
+                            ) { Text(strings.cancel.getString()) }
                         },
                     )
                 }
