@@ -9,15 +9,26 @@ import com.rk.terminal.setupTerminalFiles
 
 object GeminiCli {
     suspend fun prompt(prompt: String, workingDir: String? = null, timeoutSeconds: Long = 180): ShellUtils.Result {
+        return runGemini(listOf("-p", prompt), workingDir, timeoutSeconds)
+    }
+
+    suspend fun agent(prompt: String, workingDir: String? = null, timeoutSeconds: Long = 300): ShellUtils.Result {
+        return runGemini(listOf("--approval-mode=auto_edit", "-p", prompt), workingDir, timeoutSeconds)
+    }
+
+    private suspend fun runGemini(
+        args: List<String>,
+        workingDir: String?,
+        timeoutSeconds: Long,
+    ): ShellUtils.Result {
         setupTerminalFiles()
-        return ShellUtils.runUbuntu(
-            workingDir = workingDir,
-            "/bin/bash",
-            localBinDir().child("gemini-cli").absolutePath,
-            "-p",
-            prompt,
-            timeoutSeconds = timeoutSeconds,
-        )
+        val command =
+            arrayOf(
+                "/bin/bash",
+                localBinDir().child("gemini-cli-headless").absolutePath,
+                *args.toTypedArray(),
+            )
+        return ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
     }
 
     fun workingDirFor(file: FileObject): String? = (file as? FileWrapper)?.getParentFile()?.getAbsolutePath()

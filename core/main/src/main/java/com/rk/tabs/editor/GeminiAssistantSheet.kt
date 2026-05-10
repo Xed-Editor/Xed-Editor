@@ -44,12 +44,18 @@ fun EditorTab.GeminiAssistantSheet() {
         }
     }
 
-    fun runGemini(prompt: String, applyResult: ((String) -> Unit)? = null) {
+    fun runGemini(prompt: String, applyResult: ((String) -> Unit)? = null, agentMode: Boolean = false) {
         if (prompt.isBlank() || editorState.geminiRunning) return
         editorState.geminiRunning = true
         editorState.geminiOutput = ""
         scope.launch(Dispatchers.IO) {
-            runCatching { GeminiCli.prompt(prompt, GeminiCli.workingDirFor(file)) }
+            runCatching {
+                if (agentMode) {
+                    GeminiCli.agent(prompt, GeminiCli.workingDirFor(file))
+                } else {
+                    GeminiCli.prompt(prompt, GeminiCli.workingDirFor(file))
+                }
+            }
                 .onSuccess { result ->
                     val output = result.output.ifBlank { result.error }
                     withContext(Dispatchers.Main) {
@@ -82,6 +88,21 @@ fun EditorTab.GeminiAssistantSheet() {
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = { editorState.geminiPrompt = "Explain this code and point out important behavior." }) {
+                    Text("Explain")
+                }
+                TextButton(onClick = { editorState.geminiPrompt = "Find bugs and suggest a safe fix." }) {
+                    Text("Find bugs")
+                }
+                TextButton(onClick = { editorState.geminiPrompt = "Refactor this code to be cleaner without changing behavior." }) {
+                    Text("Refactor")
+                }
+                TextButton(onClick = { editorState.geminiPrompt = "Generate or improve tests for this code." }) {
+                    Text("Tests")
+                }
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank(),
                     onClick = {
@@ -91,7 +112,7 @@ fun EditorTab.GeminiAssistantSheet() {
                             You are an AI coding assistant inside Xed-Editor.
                             User request: ${editorState.geminiPrompt}
 
-                            File: ${file.getName()}
+                            File: ${file.getAbsolutePath()}
                             Current ${if (editor?.isTextSelected == true) "selection" else "file"}:
                             ```
                             $contextText
@@ -112,14 +133,14 @@ fun EditorTab.GeminiAssistantSheet() {
                         val hasSelection = currentEditor.isTextSelected
                         val contextText = selectedOrFileText()
                         val start = if (hasSelection) currentEditor.cursorRange.startIndex else 0
-                        val end = if (hasSelection) currentEditor.cursorRange.endIndex else currentEditor.text.length
+                        val end = if (hasSelection) currentEditor.cursorRange.endIndex else currentEditor.text.toString().length
                         runGemini(
                             """
                             Rewrite the ${if (hasSelection) "selected code" else "entire file"} for this request: ${editorState.geminiPrompt}
 
                             Return ONLY the replacement code/text. No markdown, no explanation.
 
-                            File: ${file.getName()}
+                            File: ${file.getAbsolutePath()}
                             Input:
                             ```
                             $contextText
@@ -155,6 +176,32 @@ fun EditorTab.GeminiAssistantSheet() {
                     },
                 ) {
                     Text(strings.insert.getString())
+                }
+
+                TextButton(
+                    enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank(),
+                    onClick = {
+                        runGemini(
+                            prompt =
+                                """
+                            Act as a coding agent for this project.
+                            User request: ${editorState.geminiPrompt}
+
+                            You may inspect and edit files in the current project directory if needed.
+                            After changes, summarize exactly what changed.
+
+                            Current file: ${file.getAbsolutePath()}
+                            Current editor context:
+                            ```
+                            ${selectedOrFileText()}
+                            ```
+                            """.trimIndent(),
+                            applyResult = { _ -> refresh() },
+                            agentMode = true,
+                        )
+                    },
+                ) {
+                    Text("Agent")
                 }
             }
 
