@@ -207,6 +207,7 @@ fun GeminiCliModalSheet(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GeminiSheetDragHandle(
     modifier: Modifier = Modifier,
