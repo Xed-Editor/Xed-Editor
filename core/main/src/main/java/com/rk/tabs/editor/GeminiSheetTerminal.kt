@@ -15,15 +15,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -70,9 +68,6 @@ fun GeminiCliSheet(
     onDismissRequest: () -> Unit,
     cwd: String,
     session: TerminalSession?,
-    prompt: String,
-    onPromptChange: (String) -> Unit,
-    onSend: () -> Unit,
     modifier: Modifier = Modifier,
     showTerminal: Boolean = true,
     headerContent: (@Composable () -> Unit)? = null,
@@ -83,6 +78,7 @@ fun GeminiCliSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier.fillMaxWidth(),
+        dragHandle = { BottomSheetDefaults.DragHandle() },
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = 8.dp),
@@ -119,31 +115,6 @@ fun GeminiCliSheet(
                         )
 
                         GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
-
-                        Row(verticalAlignment = Alignment.Top) {
-                            Text(
-                                text = "> ",
-                                color = colorScheme.primary,
-                                fontFamily = FontFamily.Monospace,
-                                modifier = Modifier.padding(top = 18.dp),
-                            )
-                            OutlinedTextField(
-                                value = prompt,
-                                onValueChange = onPromptChange,
-                                modifier = Modifier.weight(1f).heightIn(min = 58.dp),
-                                label = { Text("Send to Gemini CLI in this terminal") },
-                                minLines = 1,
-                                maxLines = 4,
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Button(
-                                enabled = prompt.isNotBlank(),
-                                onClick = onSend,
-                                modifier = Modifier.padding(top = 8.dp),
-                            ) {
-                                Text("Send")
-                            }
-                        }
                     }
                 }
             }
@@ -289,6 +260,9 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "PUBLIC_HOME=${activity.getExternalFilesDir(null)?.absolutePath}",
         "COLORTERM=truecolor",
         "TERM=xterm-256color",
+        "TERM_PROGRAM=vscode",
+        "TERM_PROGRAM_VERSION=1.0.0",
+        "VSCODE_PID=${android.os.Process.myPid()}",
         "LANG=C.UTF-8",
         "DEBUG=${BuildConfig.DEBUG}",
         "LOCAL=${localDir().absolutePath}",

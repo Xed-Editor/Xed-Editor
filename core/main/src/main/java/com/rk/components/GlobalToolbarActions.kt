@@ -290,7 +290,6 @@ private fun HomeGeminiSheet(
     val scope = rememberCoroutineScope()
     val homeDir = if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
     var askForProject by remember { mutableStateOf(session == null || !session.isRunning) }
-    var prompt by remember { mutableStateOf("") }
 
     fun startGemini(workingDir: String = sessionCwd ?: homeDir, extraArgs: List<String> = emptyList()) {
         val currentActivity = activity ?: return
@@ -325,25 +324,10 @@ private fun HomeGeminiSheet(
         if (session == null || !session.isRunning || sessionCwd != homeDir) startGemini(homeDir)
     }
 
-    fun sendToGemini() {
-        val text = prompt.trim()
-        if (text.isBlank()) return
-        val running = session
-        if (running?.isRunning == true && running.emulator != null) {
-            running.write("$text\r")
-        } else {
-            startGemini(sessionCwd ?: homeDir)
-        }
-        prompt = ""
-    }
-
     GeminiCliSheet(
         onDismissRequest = onDismiss,
         cwd = sessionCwd ?: homeDir,
         session = session,
-        prompt = prompt,
-        onPromptChange = { prompt = it },
-        onSend = { sendToGemini() },
         showTerminal = !askForProject,
         headerContent = {
             if (askForProject) {

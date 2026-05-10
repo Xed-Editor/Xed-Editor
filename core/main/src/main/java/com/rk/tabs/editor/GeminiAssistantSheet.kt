@@ -144,9 +144,6 @@ fun EditorTab.GeminiAssistantSheet() {
         onDismissRequest = { editorState.showGeminiAssistant = false },
         cwd = currentProjectDir(),
         session = editorState.geminiCliSession,
-        prompt = editorState.geminiPrompt,
-        onPromptChange = { editorState.geminiPrompt = it },
-        onSend = { handleSend() },
         controls = {
             TextButton(onClick = { startGemini() }) { Text("Restart") }
             TextButton(onClick = { startGemini(listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
