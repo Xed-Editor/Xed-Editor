@@ -98,111 +98,114 @@ fun MainContent(
         )
     }
 
-    Column(Modifier.fillMaxSize().padding(innerPadding)) {
-        if (mainViewModel.tabs.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                TextButton(onClick = { scope.launch { drawerState.open() } }) {
-                    Text(text = stringResource(strings.click_open), style = MaterialTheme.typography.bodyLarge)
-                }
-            }
-        } else {
-            val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
-
-            LaunchedEffect(mainViewModel.currentTabIndex) {
-                if (
-                    mainViewModel.tabs.isNotEmpty() &&
-                        mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
-                        pagerState.currentPage != mainViewModel.currentTabIndex
-                ) {
-                    if (Settings.smooth_tabs) {
-                        pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
-                    } else {
-                        pagerState.scrollToPage(mainViewModel.currentTabIndex)
+    Box(Modifier.fillMaxSize().padding(innerPadding)) {
+        Column(Modifier.fillMaxSize()) {
+            if (mainViewModel.tabs.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    TextButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Text(
+                            text = stringResource(strings.click_open),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
-            }
+            } else {
+                val pagerState = rememberPagerState(pageCount = { mainViewModel.tabs.size })
 
-            val reorderState = rememberReorderState<Tab>(dragAfterLongPress = true)
-
-            ReorderContainer(state = reorderState) {
-                PrimaryScrollableTabRow(
-                    selectedTabIndex =
-                        if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex
-                        else 0,
-                    modifier = Modifier.fillMaxWidth(),
-                    edgePadding = 0.dp,
-                    divider = {},
-                ) {
-                    mainViewModel.tabs.forEachIndexed { index, tabState ->
-                        key(tabState) {
-                            TabItem(
-                                mainViewModel = mainViewModel,
-                                fileTreeViewModel = fileTreeViewModel,
-                                reorderState = reorderState,
-                                tabState = tabState,
-                                index = index,
-                                showIcon = Settings.show_tab_icons,
-                                onCloseThis = {
-                                    val tabIndex = mainViewModel.tabs.indexOf(tabState)
-                                    if (tabIndex == -1) return@TabItem
-
-                                    if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                        dialog(
-                                            title = strings.file_unsaved.getString(),
-                                            msg = strings.ask_unsaved.getString(),
-                                            onOk = { mainViewModel.tabManager.removeTab(tabIndex) },
-                                            onCancel = {},
-                                            okString = strings.discard,
-                                        )
-                                    } else {
-                                        mainViewModel.tabManager.removeTab(tabIndex)
-                                    }
-                                },
-                                onCloseOthers = { index ->
-                                    mainViewModel.tabManager.setCurrentTab(index)
-
-                                    val unsavedOtherTabs =
-                                        mainViewModel.tabs.filterIndexed { tabIndex, tab ->
-                                            tabIndex != index && (tab as? EditorTab)?.editorState?.isDirty == true
-                                        }
-                                    if (unsavedOtherTabs.isNotEmpty()) {
-                                        dialog(
-                                            title = strings.files_unsaved.getString(),
-                                            msg = strings.ask_multiple_unsaved.getString(),
-                                            onOk = { mainViewModel.tabManager.removeOtherTabs() },
-                                            onCancel = {},
-                                            okString = strings.discard,
-                                        )
-                                    } else {
-                                        mainViewModel.tabManager.removeOtherTabs()
-                                    }
-                                },
-                                onCloseAll = {
-                                    val unsavedTabs =
-                                        mainViewModel.tabs.filter { tab ->
-                                            (tab as? EditorTab)?.editorState?.isDirty == true
-                                        }
-                                    if (unsavedTabs.isNotEmpty()) {
-                                        dialog(
-                                            title = strings.files_unsaved.getString(),
-                                            msg = strings.ask_multiple_unsaved.getString(),
-                                            onOk = { mainViewModel.tabManager.removeAllTabs() },
-                                            onCancel = {},
-                                            okString = strings.discard,
-                                        )
-                                    } else {
-                                        mainViewModel.tabManager.removeAllTabs()
-                                    }
-                                },
-                            )
+                LaunchedEffect(mainViewModel.currentTabIndex) {
+                    if (
+                        mainViewModel.tabs.isNotEmpty() &&
+                        mainViewModel.currentTabIndex < mainViewModel.tabs.size &&
+                        pagerState.currentPage != mainViewModel.currentTabIndex
+                    ) {
+                        if (Settings.smooth_tabs) {
+                            pagerState.animateScrollToPage(mainViewModel.currentTabIndex)
+                        } else {
+                            pagerState.scrollToPage(mainViewModel.currentTabIndex)
                         }
                     }
                 }
-            }
 
-            HorizontalDivider()
+                val reorderState = rememberReorderState<Tab>(dragAfterLongPress = true)
 
-            Box(Modifier.fillMaxSize()) {
+                ReorderContainer(state = reorderState) {
+                    PrimaryScrollableTabRow(
+                        selectedTabIndex =
+                        if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex
+                        else 0,
+                        modifier = Modifier.fillMaxWidth(),
+                        edgePadding = 0.dp,
+                        divider = {},
+                    ) {
+                        mainViewModel.tabs.forEachIndexed { index, tabState ->
+                            key(tabState) {
+                                TabItem(
+                                    mainViewModel = mainViewModel,
+                                    fileTreeViewModel = fileTreeViewModel,
+                                    reorderState = reorderState,
+                                    tabState = tabState,
+                                    index = index,
+                                    showIcon = Settings.show_tab_icons,
+                                    onCloseThis = {
+                                        val tabIndex = mainViewModel.tabs.indexOf(tabState)
+                                        if (tabIndex == -1) return@TabItem
+
+                                        if (tabState is EditorTab && tabState.editorState.isDirty) {
+                                            dialog(
+                                                title = strings.file_unsaved.getString(),
+                                                msg = strings.ask_unsaved.getString(),
+                                                onOk = { mainViewModel.tabManager.removeTab(tabIndex) },
+                                                onCancel = {},
+                                                okString = strings.discard,
+                                            )
+                                        } else {
+                                            mainViewModel.tabManager.removeTab(tabIndex)
+                                        }
+                                    },
+                                    onCloseOthers = { index ->
+                                        mainViewModel.tabManager.setCurrentTab(index)
+
+                                        val unsavedOtherTabs =
+                                            mainViewModel.tabs.filterIndexed { tabIndex, tab ->
+                                                tabIndex != index && (tab as? EditorTab)?.editorState?.isDirty == true
+                                            }
+                                        if (unsavedOtherTabs.isNotEmpty()) {
+                                            dialog(
+                                                title = strings.files_unsaved.getString(),
+                                                msg = strings.ask_multiple_unsaved.getString(),
+                                                onOk = { mainViewModel.tabManager.removeOtherTabs() },
+                                                onCancel = {},
+                                                okString = strings.discard,
+                                            )
+                                        } else {
+                                            mainViewModel.tabManager.removeOtherTabs()
+                                        }
+                                    },
+                                    onCloseAll = {
+                                        val unsavedTabs =
+                                            mainViewModel.tabs.filter { tab ->
+                                                (tab as? EditorTab)?.editorState?.isDirty == true
+                                            }
+                                        if (unsavedTabs.isNotEmpty()) {
+                                            dialog(
+                                                title = strings.files_unsaved.getString(),
+                                                msg = strings.ask_multiple_unsaved.getString(),
+                                                onOk = { mainViewModel.tabManager.removeAllTabs() },
+                                                onCancel = {},
+                                                okString = strings.discard,
+                                            )
+                                        } else {
+                                            mainViewModel.tabManager.removeAllTabs()
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+
+                HorizontalDivider()
+
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize().clipToBounds(),
@@ -214,15 +217,15 @@ fun MainContent(
                         mainViewModel.tabs[page].Content()
                     }
                 }
-
-                if (mainViewModel.showGeminiSheet) {
-                    UnifiedGeminiSheet(
-                        viewModel = mainViewModel,
-                        onDismissRequest = { mainViewModel.showGeminiSheet = false },
-                        modifier = Modifier.align(Alignment.BottomCenter)
-                    )
-                }
             }
+        }
+
+        if (mainViewModel.showGeminiSheet) {
+            UnifiedGeminiSheet(
+                viewModel = mainViewModel,
+                onDismissRequest = { mainViewModel.showGeminiSheet = false },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 }
