@@ -50,12 +50,12 @@ fun EditorTab.GeminiAssistantSheet() {
         editorState.geminiOutput = ""
         scope.launch(Dispatchers.IO) {
             runCatching {
-                if (agentMode) {
-                    GeminiCli.agent(prompt, GeminiCli.workingDirFor(file))
-                } else {
-                    GeminiCli.prompt(prompt, GeminiCli.workingDirFor(file))
+                    if (agentMode) {
+                        GeminiCli.agent(prompt, GeminiCli.workingDirFor(file))
+                    } else {
+                        GeminiCli.prompt(prompt, GeminiCli.workingDirFor(file))
+                    }
                 }
-            }
                 .onSuccess { result ->
                     val output = result.output.ifBlank { result.error }
                     withContext(Dispatchers.Main) {
@@ -88,13 +88,19 @@ fun EditorTab.GeminiAssistantSheet() {
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { editorState.geminiPrompt = "Explain this code and point out important behavior." }) {
+                TextButton(
+                    onClick = { editorState.geminiPrompt = "Explain this code and point out important behavior." }
+                ) {
                     Text("Explain")
                 }
                 TextButton(onClick = { editorState.geminiPrompt = "Find bugs and suggest a safe fix." }) {
                     Text("Find bugs")
                 }
-                TextButton(onClick = { editorState.geminiPrompt = "Refactor this code to be cleaner without changing behavior." }) {
+                TextButton(
+                    onClick = {
+                        editorState.geminiPrompt = "Refactor this code to be cleaner without changing behavior."
+                    }
+                ) {
                     Text("Refactor")
                 }
                 TextButton(onClick = { editorState.geminiPrompt = "Generate or improve tests for this code." }) {
@@ -134,7 +140,9 @@ fun EditorTab.GeminiAssistantSheet() {
                         val hasSelection = currentEditor.isTextSelected
                         val contextText = selectedOrFileText()
                         val start = if (hasSelection) currentEditor.cursorRange.startIndex else 0
-                        val end = if (hasSelection) currentEditor.cursorRange.endIndex else currentEditor.text.toString().length
+                        val end =
+                            if (hasSelection) currentEditor.cursorRange.endIndex
+                            else currentEditor.text.toString().length
                         runGemini(
                             """
                             Rewrite the ${if (hasSelection) "selected code" else "entire file"} for this request: ${editorState.geminiPrompt}
@@ -202,7 +210,8 @@ fun EditorTab.GeminiAssistantSheet() {
                             ```
                             ${selectedOrFileText()}
                             ```
-                            """.trimIndent(),
+                            """
+                                    .trimIndent(),
                             applyResult = { _ -> refresh() },
                             agentMode = true,
                         )
