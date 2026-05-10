@@ -18,7 +18,6 @@ import java.io.File
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.io.PrintWriter
-import java.net.URI
 import java.security.SecureRandom
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -52,12 +51,6 @@ object GeminiBridge {
         return created.info()
     }
 
-    private fun ideWorkspacePath(primary: String): String =
-        listOf(primary, "/", "/home", "/storage/emulated/0")
-            .filter { it.isNotBlank() }
-            .distinct()
-            .joinToString(File.pathSeparator)
-
     private fun newToken(): String {
         val bytes = ByteArray(24)
         secureRandom.nextBytes(bytes)
@@ -81,7 +74,7 @@ object GeminiBridge {
                 val file = File(dir, "gemini-ide-server-${android.os.Process.myPid()}-$listeningPort.json")
                 val discovery = JsonObject().apply {
                     addProperty("port", listeningPort)
-                    addProperty("workspacePath", ideWorkspacePath(workspacePath))
+                    addProperty("workspacePath", geminiIdeWorkspacePath(workspacePath))
                     addProperty("authToken", token)
                     add("ideInfo", JsonObject().apply {
                         addProperty("name", "xed")
@@ -255,47 +248,8 @@ object GeminiBridge {
             return result(id, result)
         }
 
-        private fun toolSchema(
-            name: String,
-            description: String,
-            required: List<String>,
-            properties: Map<String, String>,
-        ): JsonObject =
-            JsonObject().apply {
-                addProperty("name", name)
-                addProperty("description", description)
-                add("inputSchema", JsonObject().apply {
-                    addProperty("type", "object")
-                    add("properties", JsonObject().apply {
-                        properties.forEach { (propertyName, type) ->
-                            add(propertyName, JsonObject().apply { addProperty("type", type) })
-                        }
-                    })
-                    add("required", JsonArray().apply { required.forEach { add(it) } })
-                })
-            }
-
-        private fun toolsListResult(id: String): String {
-            val tools = JsonArray().apply {
-                add(toolSchema("openDiff", "Open a proposed file replacement in Xed-Editor for user review before writing", listOf("filePath", "newContent"), mapOf("filePath" to "string", "newContent" to "string")))
-                add(toolSchema("closeDiff", "Close a diff and return final file content", listOf("filePath"), mapOf("filePath" to "string")))
-                add(toolSchema("readFile", "Read the content of a file (prefers open editor content)", listOf("filePath"), mapOf("filePath" to "string")))
-                add(toolSchema("listFiles", "List files in a directory. Supports recursive and maxFiles.", listOf("directoryPath"), mapOf("directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")))
-                add(toolSchema("getOpenFiles", "Return currently open editor files", emptyList(), emptyMap()))
-                add(toolSchema("getActiveFile", "Return active editor file, cursor, selection, and content", emptyList(), emptyMap()))
-                add(toolSchema("getSelection", "Return selected text in the active editor", emptyList(), emptyMap()))
-                add(toolSchema("replaceSelection", "Replace selected text in the active editor after user review", listOf("newContent"), mapOf("newContent" to "string")))
-                add(toolSchema("insertAtCursor", "Insert text at the active editor cursor after user review", listOf("newContent"), mapOf("newContent" to "string")))
-                add(toolSchema("openFile", "Open a workspace file in Xed and make it active", listOf("filePath"), mapOf("filePath" to "string")))
-                add(toolSchema("writeFile", "Write a workspace file and immediately refresh the matching open Xed editor tab", listOf("filePath", "content"), mapOf("filePath" to "string", "content" to "string")))
-                add(toolSchema("saveOpenFiles", "Save all dirty open Xed editor tabs to disk before reading/editing files", emptyList(), emptyMap()))
-                add(toolSchema("refreshOpenEditors", "Refresh all non-dirty open Xed editor tabs from disk after file edits", emptyList(), emptyMap()))
-                add(toolSchema("showMessage", "Show a short message in Xed", listOf("message"), mapOf("message" to "string")))
-                add(toolSchema("runCommand", "Run a shell command in the workspace and return stdout/stderr", listOf("command"), mapOf("command" to "string", "timeoutSeconds" to "number")))
-                add(toolSchema("refreshFile", "Refresh an open editor tab from disk", listOf("filePath"), mapOf("filePath" to "string")))
-            }
-            return result(id, JsonObject().apply { add("tools", tools) })
-        }
+        private fun toolsListResult(id: String): String =
+            result(id, JsonObject().apply { add("tools", GeminiMcpTools.list()) })
 
         private fun toolsCallResult(id: String, request: JsonObject): String {
             val params = request.getAsJsonObject("params") ?: return error(id, -32602, "missing params")
@@ -483,52 +437,12 @@ object GeminiBridge {
             }
         }
 
-        private fun workspaceRoots(): List<File> =
-            ideWorkspacePath(workspacePath)
-                .split(File.pathSeparator)
-                .mapNotNull { root -> runCatching { File(root).canonicalFile }.getOrNull() }
-                .distinctBy { it.path }
-
-        private fun isInsideRoot(file: File, root: File): Boolean =
-            root.path == File.separator || file.path == root.path || file.path.startsWith(root.path + File.separator)
-
-        private fun displayRootFor(file: File): File =
-            workspaceRoots()
-                .filter { root -> isInsideRoot(file, root) && root.path != File.separator }
-                .maxByOrNull { it.path.length }
-                ?: workspaceRoots().firstOrNull()
-                ?: file
-
-        private fun requestedFile(path: String): File {
-            val normalized = path.trim()
-            return if (normalized.startsWith("file:")) {
-                runCatching { File(URI(normalized)) }.getOrElse { File(normalized.removePrefix("file://")) }
-            } else {
-                File(normalized)
-            }
-        }
-
-        private fun resolveWorkspacePath(path: String): File? {
-            val roots = workspaceRoots()
-            val primary = roots.firstOrNull() ?: File(workspacePath).absoluteFile
-            val normalized = path.trim()
-            if (normalized.isBlank()) return primary
-
-            val requested = requestedFile(normalized)
-            val candidate = if (requested.isAbsolute) requested else File(primary, normalized)
-            val canonical = runCatching { candidate.canonicalFile }.getOrElse { candidate.absoluteFile }
-
-            // Gemini CLI can send absolute paths from its terminal/proot workspace while the IDE
-            // bridge primary workspace is a project/home path. The discovery file exposes a
-            // multi-root workspace including "/", so keep the bridge lenient and never crash the
-            // CLI with MCP -32602 for valid file paths.
-            return canonical.takeIf { roots.isEmpty() || roots.any { root -> isInsideRoot(it, root) } } ?: canonical
-        }
+        private fun resolveWorkspacePath(path: String): File? = geminiResolveWorkspacePath(workspacePath, path)
 
         private fun listWorkspaceFiles(dir: File, recursive: Boolean, maxFiles: Int): String {
             if (!dir.exists() || !dir.isDirectory) return ""
             val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules")
-            val root = displayRootFor(dir)
+            val root = geminiDisplayRootFor(workspacePath, dir)
             val output = mutableListOf<String>()
 
             fun visit(current: File) {
@@ -646,17 +560,6 @@ object GeminiBridge {
 
         private fun callToolEmptyResult(id: String): String =
             result(id, JsonObject().apply { add("content", JsonArray()) })
-
-        private fun callToolErrorResult(id: String, message: String): String =
-            result(id, JsonObject().apply {
-                addProperty("isError", true)
-                add("content", JsonArray().apply {
-                    add(JsonObject().apply {
-                        addProperty("type", "text")
-                        addProperty("text", message)
-                    })
-                })
-            })
 
         private fun error(id: String?, code: Int, message: String): String =
             JsonObject().apply {

@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.ai.GeminiBridge
+import com.rk.ai.geminiIdeWorkspacePath
 import com.rk.editor.FontCache
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -275,12 +276,6 @@ private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String):
     return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
 }
 
-private fun ideWorkspacePath(primary: String): String =
-    listOf(primary, "/", "/home", "/storage/emulated/0")
-        .filter { it.isNotBlank() }
-        .distinct()
-        .joinToString(File.pathSeparator)
-
 private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: GeminiBridge.Info): Array<String> {
     val tmpDir = File(getTempDir(), "terminal/gemini-sheet").apply { mkdirs() }
     val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
@@ -330,7 +325,7 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
         "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-        "GEMINI_CLI_IDE_WORKSPACE_PATH=${ideWorkspacePath(workingDir)}",
+        "GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(workingDir)}",
     ).apply {
         if (!isFDroid) {
             add("PROOT_LOADER=${activity.applicationInfo.nativeLibraryDir}/libproot-loader.so")
