@@ -1179,7 +1179,7 @@ fun EditorTab.GeminiAssistantSheet() {
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(420.dp)
+                    .height(520.dp)
                     .background(colorScheme.surface, RoundedCornerShape(14.dp))
                     .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
         ) {
@@ -1269,21 +1269,41 @@ fun EditorTab.GeminiAssistantSheet() {
                         style = MaterialTheme.typography.bodySmall,
                     )
                     EmbeddedGeminiTerminal()
-                    Text(
-                        text = "Notifications",
-                        color = colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                    Text(
-                        text =
-                            editorState.geminiCliTranscript.ifBlank {
-                                geminiCliWelcomeText()
-                            },
-                        modifier = Modifier.fillMaxWidth().heightIn(max = 96.dp).verticalScroll(rememberScrollState()),
-                        color = colorScheme.onSurface,
-                        fontFamily = FontFamily.Monospace,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        TextButton(onClick = { startEmbeddedGemini() }) { Text("Restart") }
+                        TextButton(onClick = { openInteractiveGeminiCommand("/auth") }) { Text("Auth") }
+                        TextButton(onClick = { embeddedGeminiSession?.write("\u0003") }) { Text("Ctrl+C") }
+                        TextButton(onClick = { embeddedGeminiSession?.write("\r") }) { Text("Enter") }
+                        TextButton(onClick = { embeddedGeminiSession?.write("\u001B") }) { Text("Esc") }
+                        TextButton(
+                            onClick = {
+                                scope.launch(Dispatchers.IO) {
+                                    val saved = saveDirtyOpenEditorsForGemini()
+                                    withContext(Dispatchers.Main) { appendGeminiCli("Synced $saved dirty open editor file(s).") }
+                                }
+                            }
+                        ) { Text("Sync") }
+                        TextButton(
+                            onClick = {
+                                refreshCleanOpenEditorsFromDisk()
+                                appendGeminiCli("Refreshed clean open editor tabs.")
+                            }
+                        ) { Text("Refresh") }
+                        TextButton(
+                            onClick = {
+                                embeddedGeminiSession?.finishIfRunning()
+                                embeddedGeminiSession = null
+                                appendGeminiCli("Gemini CLI stopped.")
+                            }
+                        ) { Text("Stop") }
+                        TextButton(
+                            onClick = {
+                                editorState.geminiCliTranscript = ""
+                                editorState.geminiOutput = ""
+                                editorState.geminiRawLog = ""
+                            }
+                        ) { Text("Clear") }
+                    }
                     Text(
                         text = "Composer",
                         color = colorScheme.onSurfaceVariant,
@@ -1300,7 +1320,7 @@ fun EditorTab.GeminiAssistantSheet() {
                             value = editorState.geminiPrompt,
                             onValueChange = { editorState.geminiPrompt = it },
                             modifier = Modifier.weight(1f).heightIn(min = 58.dp),
-                            label = { Text(if (editorState.geminiShellMode) "Shell command" else "Type message, then Send opens Gemini Terminal UI") },
+                            label = { Text(if (editorState.geminiShellMode) "Shell command" else "Send to Gemini CLI in this terminal") },
                             minLines = 1,
                             maxLines = 4,
                         )
@@ -1310,7 +1330,7 @@ fun EditorTab.GeminiAssistantSheet() {
                             onClick = { handleGeminiSubmit() },
                             modifier = Modifier.padding(top = 8.dp),
                         ) {
-                            Text("Terminal")
+                            Text("Send")
                         }
                     }
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -1326,204 +1346,9 @@ fun EditorTab.GeminiAssistantSheet() {
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
-                    GeminiFooter()
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                SectionTitle("Prompt presets")
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    PromptChip("Explain", "/explain Explain this code and point out important behavior.")
-                    PromptChip("Find bugs", "/bugs Find bugs and suggest a safe fix.")
-                    PromptChip("Refactor", "/refactor Refactor this code to be cleaner without changing behavior.")
-                    PromptChip("Tests", "/tests Generate or improve tests for this code.")
-                    PromptChip("Plan", "/plan Analyze this task and propose a safe implementation plan.")
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                SectionTitle("Gemini CLI")
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    CommandChip("Flow", "/flow")
-                    CommandChip("Sheet ask", "/sheet ")
-                    CommandChip("Sync editors", "/sync")
-                    CommandChip("Refresh tabs", "/refresh")
-                    CommandChip("Auth", "/auth")
-                    CommandChip("Doctor", "/doctor")
-                    CommandChip("Sessions", "/sessions list")
-                    CommandChip("Resume", "/resume latest")
-                    CommandChip("Model", "/model flash")
-                    CommandChip("Extensions", "/extensions list")
-                    CommandChip("MCP", "/mcp")
-                    CommandChip("Memory", "/memory init")
-                }
-            }
-
-            SectionTitle("Editor actions")
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Button(
-                    enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank(),
-                    onClick = { handleGeminiSubmit() },
-                ) {
-                    Text("Terminal Ask")
-                }
-
-                Button(
-                    enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank() && currentEditor() != null,
-                    onClick = {
-                        val editor = currentEditor() ?: return@Button
-                        val hasSelection = editor.isTextSelected
-                        val contextText = selectedOrFileText()
-                        val start = if (hasSelection) editor.cursorRange.startIndex else 0
-                        val end = if (hasSelection) editor.cursorRange.endIndex else editor.text.toString().length
-                        runGemini(
-                            prompt =
-                                """
-                                Rewrite the ${if (hasSelection) "selected code" else "entire file"} for this request: ${editorState.geminiPrompt}
-
-                                CRITICAL: Return ONLY the replacement code/text. 
-                                DO NOT include any preamble, markdown code fences, or explanations. 
-                                The output will be inserted directly into the editor.
-
-                                Project root: ${currentProjectDir()}
-                                File: ${file.getAbsolutePath()}
-                                Input:
-                                ```
-                                $contextText
-                                ```
-                                """
-                                    .trimIndent(),
-                            mode = GeminiActionMode.Apply,
-                            applyResult = { replacement ->
-                                pendingPatch =
-                                    GeminiPendingPatch(
-                                        title = if (hasSelection) "Review selected-code rewrite" else "Review file rewrite",
-                                        oldText = contextText,
-                                        newText = replacement,
-                                        apply = { editor.text.replace(start, end, replacement) },
-                                    )
-                            },
-                        )
-                    },
-                ) {
-                    Text(strings.apply.getString())
-                }
-
-                TextButton(
-                    enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank() && currentEditor() != null,
-                    onClick = {
-                        val editor = currentEditor() ?: return@TextButton
-                        val contextText = selectedOrFileText()
-                        runGemini(
-                            prompt =
-                                """
-                                Generate code/text for this request: ${editorState.geminiPrompt}
-
-                                CRITICAL: Return ONLY the code/text to insert. 
-                                DO NOT include any preamble, markdown code fences, or explanations. 
-                                The output will be inserted directly into the editor.
-
-                                Project root: ${currentProjectDir()}
-                                Nearby context from ${file.getName()}:
-                                ```
-                                $contextText
-                                ```
-                                """
-                                    .trimIndent(),
-                            mode = GeminiActionMode.Insert,
-                            applyResult = { insertion ->
-                                pendingPatch =
-                                    GeminiPendingPatch(
-                                        title = "Review insertion",
-                                        oldText = "",
-                                        newText = insertion,
-                                        apply = {
-                                            editor.text.insert(
-                                                editor.cursor.leftLine,
-                                                editor.cursor.leftColumn,
-                                                insertion,
-                                            )
-                                        },
-                                    )
-                            },
-                        )
-                    },
-                ) {
-                    Text(strings.insert.getString())
-                }
-
-                TextButton(
-                    enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank(),
-                    onClick = {
-                        runGemini(
-                            prompt =
-                                """
-                                Act as a Gemini CLI coding agent for this project.
-                                User request: ${editorState.geminiPrompt}
-
-                                Use the full codebase under the project root. You may inspect files, search, and edit project files as needed.
-                                After changes, summarize exactly what changed and list modified files.
-
-                                Project root: ${currentProjectDir()}
-                                Current file: ${file.getAbsolutePath()}
-                                Current editor context:
-                                ```
-                                ${selectedOrFileText()}
-                                ```
-                                """
-                                    .trimIndent(),
-                            mode = GeminiActionMode.Agent,
-                            applyResult = { _ ->
-                                viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab -> tab.refresh() }
-                            },
-                        )
-                    },
-                ) {
-                    Text("Agent")
-                }
-
-                TextButton(enabled = activity != null, onClick = { openFullCli() }) { Text("CLI") }
-
-                TextButton(
-                    enabled = editorState.geminiOutput.isNotBlank(),
-                    onClick = {
-                        ClipboardUtils.copyText("Gemini log", editorState.geminiRawLog.ifBlank { editorState.geminiOutput })
-                        toast(strings.copied)
-                    },
-                ) {
-                    Text("Copy log")
-                }
-
-                TextButton(
-                    enabled = editorState.geminiOutput.isNotBlank(),
-                    onClick = {
-                        editorState.geminiOutput = ""
-                        editorState.geminiRawLog = ""
-                        editorState.geminiCliTranscript = ""
-                    },
-                ) {
-                    Text("Clear")
-                }
-            }
-
-            if (editorState.geminiRunning) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    CircularProgressIndicator()
-                    Text(strings.wait.getString())
-                    TextButton(onClick = { editorState.geminiJob?.cancel("Cancelled by user") }) {
-                        Text("Cancel")
-                    }
-                }
-            }
-
-            if (editorState.geminiOutput.isNotBlank()) {
-                Text(
-                    text = editorState.geminiOutput,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 280.dp).verticalScroll(rememberScrollState()),
-                    fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
         }
     }
 
