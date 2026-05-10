@@ -16,18 +16,10 @@ object GeminiCli {
         return runGemini(listOf("--approval-mode=auto_edit", "-p", prompt), workingDir, timeoutSeconds)
     }
 
-    private suspend fun runGemini(
-        args: List<String>,
-        workingDir: String?,
-        timeoutSeconds: Long,
-    ): ShellUtils.Result {
+    private suspend fun runGemini(args: List<String>, workingDir: String?, timeoutSeconds: Long): ShellUtils.Result {
         setupTerminalFiles()
         val command =
-            arrayOf(
-                "/bin/bash",
-                localBinDir().child("gemini-cli-headless").absolutePath,
-                *args.toTypedArray(),
-            )
+            arrayOf("/bin/bash", localBinDir().child("gemini-cli-headless").absolutePath, *args.toTypedArray())
         return ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
     }
 
