@@ -109,15 +109,37 @@ fun EditorTab.GeminiAssistantSheet() {
         /copy                  Copy last Gemini output/log
         /about                 Show Xed Gemini backend status
         /doctor                Check Node/npm/Gemini CLI install and version
+        /auth                  Open Gemini auth flow in the full CLI
+        /cli                   Open full interactive Gemini CLI
         /tools [desc]          Show available tool/back-end summary
         /ide status            Show IDE bridge status
         /docs gemini           Show bundled Gemini CLI docs paths
+        /sessions list         List saved Gemini sessions
+        /session delete <id>   Delete a saved Gemini session
+        /resume [latest|id]    Resume a Gemini CLI session in the full CLI
+        /extensions list       List available Gemini CLI extensions
+        /model <name>          Open CLI with selected model (pro/flash/etc.)
+        /plan <request>        Ask Gemini in plan/read-only mode
+        /worktree [name]       Open Gemini in worktree mode
+        /debug, /sandbox,
+        /screen-reader,
+        /approval-mode <mode>  Open CLI with these flags
+        /model, /mcp,
+        /extensions, /privacy,
+        /stats, /bug, /theme, /vim,
+        /agents, /skills,
+        /permissions, /policies,
+        /hooks, /restore,
+        /rewind, /shells,
+        /setup-github,
+        /terminal-setup,
+        /upgrade, /commands,
+        /settings              Open matching Gemini CLI feature
         /directory show        Show active workspace directory
         /memory list           List GEMINI.md files in project parents
         /memory show           Show merged GEMINI.md memory
         /memory add <text>     Append text to project GEMINI.md
-        /docs, /settings,
-        /theme, /auth, ...     Use the CLI button for full interactive Gemini CLI dialogs
+        /memory init           Create a project GEMINI.md starter file
 
         @path/file             Works in prompts through Gemini CLI file tools
         !                      Toggle shell mode
@@ -180,6 +202,31 @@ fun EditorTab.GeminiAssistantSheet() {
         target.parentFile?.mkdirs()
         target.appendText("\n\n$text\n")
         appendGeminiCli("✔ Added memory to ${target.absolutePath}")
+    }
+
+    fun initProjectMemory() {
+        val target = File(currentProjectDir(), "GEMINI.md")
+        if (target.exists()) {
+            appendGeminiCli("GEMINI.md already exists: ${target.absolutePath}")
+            editorState.geminiOutput = target.readText()
+            return
+        }
+        target.parentFile?.mkdirs()
+        val content =
+            """
+            # Xed-Editor project instructions for Gemini
+
+            - Keep changes minimal and focused.
+            - Prefer existing architecture, style, and naming.
+            - Inspect relevant files before editing.
+            - For Android/Kotlin changes, keep Compose UI theme-aware.
+            - After edits, summarize changed files and any commands to verify.
+            - Do not modify generated/build files unless explicitly asked.
+            """
+                .trimIndent()
+        target.writeText(content)
+        appendGeminiCli("✔ Created ${target.absolutePath}")
+        editorState.geminiOutput = content
     }
 
     fun runShellCommand(command: String) {
@@ -340,7 +387,7 @@ fun EditorTab.GeminiAssistantSheet() {
         }
     }
 
-    fun openFullCli() {
+    fun openFullCli(extraArgs: List<String> = emptyList()) {
         val currentActivity = activity ?: return
         val workingDir = currentProjectDir()
         val bridge = GeminiBridge.ensureStarted(viewModel, workingDir)
@@ -354,7 +401,7 @@ fun EditorTab.GeminiAssistantSheet() {
                         "--skip-trust",
                         "--include-directories",
                         workingDir,
-                    ),
+                    ) + extraArgs,
                 id = "gemini-cli-project",
                 terminatePreviousSession = false,
                 workingDir = workingDir,
@@ -367,6 +414,55 @@ fun EditorTab.GeminiAssistantSheet() {
                     ),
             ),
         )
+    }
+
+    fun openInteractiveGeminiCommand(command: String) {
+        appendGeminiCli("Opening full Gemini CLI for: $command")
+        openFullCli(listOf("--prompt-interactive", command))
+    }
+
+    fun openGeminiPromptWithArgs(prompt: String, args: List<String>) {
+        appendGeminiCli("Opening Gemini CLI: gemini ${args.joinToString(" ")} -p \"${prompt.take(72)}${if (prompt.length > 72) "…" else ""}\"")
+        openFullCli(args + listOf("-p", prompt))
+    }
+
+    fun shellQuote(value: String): String = "'${value.replace("'", "'\\''")}'"
+
+    fun knownInteractiveCommand(input: String): Boolean {
+        val command = input.substringBefore(" ")
+        return command in
+            setOf(
+                "/agents",
+                "/auth",
+                "/bug",
+                "/chat",
+                "/compress",
+                "/commands",
+                "/editor",
+                "/extensions",
+                "/hooks",
+                "/ide",
+                "/init",
+                "/mcp",
+                "/model",
+                "/permissions",
+                "/plan",
+                "/policies",
+                "/privacy",
+                "/restore",
+                "/rewind",
+                "/resume",
+                "/settings",
+                "/setup-github",
+                "/shells",
+                "/skills",
+                "/stats",
+                "/terminal-setup",
+                "/theme",
+                "/tools",
+                "/upgrade",
+                "/vim",
+            )
     }
 
     fun askCurrentPrompt() {
@@ -439,11 +535,104 @@ fun EditorTab.GeminiAssistantSheet() {
                     printf 'Node: '; command -v node >/dev/null 2>&1 && node --version || echo missing
                     printf 'npm: '; command -v npm >/dev/null 2>&1 && npm --version || echo missing
                     printf 'Gemini: '; command -v gemini >/dev/null 2>&1 && gemini --version || echo missing
+                    printf 'Gemini binary: '; command -v gemini || true
                     printf 'Working directory: '; pwd
                     printf 'IDE bridge port: '; echo '${GeminiBridge.ensureStarted(viewModel, currentProjectDir()).port}'
+                    printf 'Auth browser mode: '; [ -n "${'$'}NO_BROWSER" ] && echo manual || echo android/default
                     """
                         .trimIndent(),
                 )
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/auth" -> {
+                openInteractiveGeminiCommand("/auth")
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/cli" || input == "/open cli" -> {
+                openFullCli()
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/sessions list" || input == "/session list" -> {
+                runShellCommand("gemini --list-sessions")
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/session delete ") || input.startsWith("/sessions delete ") -> {
+                val target = input.substringAfter("delete ").trim()
+                runShellCommand("gemini --delete-session ${shellQuote(target)}")
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/extensions list" || input == "/extension list" -> {
+                runShellCommand("gemini --list-extensions")
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/model ") && input.split(Regex("\\s+")).size == 2 -> {
+                val model = input.removePrefix("/model ").trim()
+                appendGeminiCli("Opening Gemini CLI with model: $model")
+                openFullCli(listOf("--model", model))
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/plan ") -> {
+                val request = input.removePrefix("/plan ").trim()
+                if (request.isNotBlank()) {
+                    openGeminiPromptWithArgs(request, listOf("--approval-mode=plan"))
+                }
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/worktree" -> {
+                openFullCli(listOf("--worktree"))
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/worktree ") -> {
+                openFullCli(listOf("--worktree", input.removePrefix("/worktree ").trim()))
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/debug" -> {
+                openFullCli(listOf("--debug"))
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/sandbox" -> {
+                openFullCli(listOf("--sandbox"))
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/screen-reader" -> {
+                openFullCli(listOf("--screen-reader"))
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/approval-mode ") -> {
+                val mode = input.removePrefix("/approval-mode ").trim()
+                openFullCli(listOf("--approval-mode", mode))
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/extensions use ") -> {
+                val extensions = input.removePrefix("/extensions use ").trim()
+                openFullCli(listOf("--extensions", extensions))
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/resume latest" -> {
+                appendGeminiCli("Opening latest Gemini CLI session")
+                openFullCli(listOf("--resume", "latest"))
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/resume ") && input != "/resume list" -> {
+                val target = input.removePrefix("/resume ").trim()
+                appendGeminiCli("Opening Gemini CLI session: $target")
+                openFullCli(listOf("--resume", target))
                 editorState.geminiPrompt = ""
             }
 
@@ -525,6 +714,19 @@ fun EditorTab.GeminiAssistantSheet() {
                 editorState.geminiPrompt = ""
             }
 
+            input == "/memory init" -> {
+                initProjectMemory()
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/memory reload" || input == "/memory refresh" -> {
+                val text = "Xed reads GEMINI.md fresh for each request. Current memory files:\n" +
+                    memoryFiles().joinToString("\n") { it.absolutePath }.ifBlank { "No GEMINI.md files found." }
+                appendGeminiCli(text)
+                editorState.geminiOutput = text
+                editorState.geminiPrompt = ""
+            }
+
             input == "!" -> {
                 editorState.geminiShellMode = !editorState.geminiShellMode
                 appendGeminiCli(if (editorState.geminiShellMode) "Shell mode enabled. Type commands without !." else "Shell mode disabled.")
@@ -541,8 +743,14 @@ fun EditorTab.GeminiAssistantSheet() {
                 editorState.geminiPrompt = ""
             }
 
+            input.startsWith("/") && knownInteractiveCommand(input) -> {
+                openInteractiveGeminiCommand(input)
+                editorState.geminiPrompt = ""
+            }
+
             input.startsWith("/") && listOf("/explain", "/bugs", "/refactor", "/tests").none { input.startsWith(it) } -> {
-                appendGeminiCli("This command needs Gemini's interactive TUI. Tap CLI, then run: $input")
+                appendGeminiCli("Unknown Xed Gemini command. Tap CLI for Gemini's full interactive command set, or run /help.")
+                editorState.geminiPrompt = ""
             }
 
             else -> {
@@ -581,6 +789,7 @@ fun EditorTab.GeminiAssistantSheet() {
                                 Welcome to Gemini CLI
                                 Type a prompt below, or use /explain /bugs /refactor /tests.
                                 Use Agent for multi-file edits, CLI for the real interactive terminal.
+                                For first-time auth, tap CLI and follow the browser/manual URL prompt.
                                 """
                                     .trimIndent()
                             },
@@ -621,8 +830,8 @@ fun EditorTab.GeminiAssistantSheet() {
                         )
                         Spacer(Modifier.weight(1f))
                         Text(
-                            text = "no sandbox",
-                            color = colorScheme.error,
+                            text = if (editorState.geminiShellMode) "shell access" else "review edits",
+                            color = if (editorState.geminiShellMode) colorScheme.error else colorScheme.tertiary,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -645,6 +854,18 @@ fun EditorTab.GeminiAssistantSheet() {
                 }
                 TextButton(onClick = { editorState.geminiPrompt = "/tests Generate or improve tests for this code." }) {
                     Text("Tests")
+                }
+                TextButton(onClick = { editorState.geminiPrompt = "/auth" }) {
+                    Text("Auth")
+                }
+                TextButton(onClick = { editorState.geminiPrompt = "/doctor" }) {
+                    Text("Doctor")
+                }
+                TextButton(onClick = { editorState.geminiPrompt = "/sessions list" }) {
+                    Text("Sessions")
+                }
+                TextButton(onClick = { editorState.geminiPrompt = "/memory init" }) {
+                    Text("Memory")
                 }
             }
 
