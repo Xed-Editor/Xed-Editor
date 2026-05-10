@@ -221,6 +221,9 @@ object GeminiBridge {
                 add(toolSchema("getSelection", "Return selected text in the active editor", emptyList(), emptyMap()))
                 add(toolSchema("replaceSelection", "Replace selected text in the active editor after user review", listOf("newContent"), mapOf("newContent" to "string")))
                 add(toolSchema("insertAtCursor", "Insert text at the active editor cursor after user review", listOf("newContent"), mapOf("newContent" to "string")))
+                add(toolSchema("writeFile", "Write a workspace file and immediately refresh the matching open Xed editor tab", listOf("filePath", "content"), mapOf("filePath" to "string", "content" to "string")))
+                add(toolSchema("saveOpenFiles", "Save all dirty open Xed editor tabs to disk before reading/editing files", emptyList(), emptyMap()))
+                add(toolSchema("refreshOpenEditors", "Refresh all non-dirty open Xed editor tabs from disk after file edits", emptyList(), emptyMap()))
                 add(toolSchema("showMessage", "Show a short message in Xed", listOf("message"), mapOf("message" to "string")))
                 add(toolSchema("runCommand", "Run a shell command in the workspace and return stdout/stderr", listOf("command"), mapOf("command" to "string", "timeoutSeconds" to "number")))
                 add(toolSchema("refreshFile", "Refresh an open editor tab from disk", listOf("filePath"), mapOf("filePath" to "string")))
@@ -315,7 +318,6 @@ object GeminiBridge {
                                 editor.text.replace(start, end, newContent)
                                 current.editorState.isDirty = true
                             }
-                        current.editorState.showGeminiAssistant = false
                         true
                     }
                     callToolTextResult(id, if (ok) "Replacement opened in Xed for user review." else "No editor available.")
@@ -332,10 +334,36 @@ object GeminiBridge {
                                 editor.text.insert(line, column, newContent)
                                 current.editorState.isDirty = true
                             }
-                        current.editorState.showGeminiAssistant = false
                         true
                     }
                     callToolTextResult(id, if (ok) "Insertion opened in Xed for user review." else "No editor available.")
+                }
+                "writeFile" -> {
+                    val filePath = args.get("filePath")?.asString.orEmpty()
+                    val content = args.get("content")?.asString.orEmpty()
+                    if (filePath.isBlank()) return error(id, -32602, "filePath required")
+                    val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
+                    file.parentFile?.mkdirs()
+                    file.writeText(content)
+                    val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
+                    runBlocking(Dispatchers.Main) {
+                        tab?.let {
+                            it.editorState.editor.get()?.setText(content)
+                            it.editorState.content = it.editorState.editor.get()?.text
+                            it.editorState.updateUndoRedo()
+                            it.editorState.isDirty = false
+                        }
+                    }
+                    callToolTextResult(id, "wrote and refreshed ${file.absolutePath}")
+                }
+                "saveOpenFiles" -> {
+                    val tabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
+                    runBlocking { tabs.forEach { tab -> tab.quickSave() } }
+                    callToolTextResult(id, "saved ${tabs.size} dirty open file(s)")
+                }
+                "refreshOpenEditors" -> {
+                    refreshEditors(onlyClean = true)
+                    callToolTextResult(id, "refreshed non-dirty open editor tabs")
                 }
                 "showMessage" -> {
                     val message = args.get("message")?.asString.orEmpty()
@@ -358,7 +386,7 @@ object GeminiBridge {
                     val filePath = args.get("filePath")?.asString.orEmpty()
                     val file = resolveWorkspacePath(filePath) ?: return error(id, -32602, "path outside workspace")
                     val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == file.absolutePath }
-                    tab?.refresh()
+                    if (tab?.editorState?.isDirty != true) tab?.refresh()
                     callToolTextResult(id, if (tab != null) "refreshed" else "file is not open")
                 }
                 else -> error(id, -32601, "unknown tool: $name")
@@ -406,17 +434,21 @@ object GeminiBridge {
                         filePath = filePath,
                         oldText = oldContent,
                         newText = newContent,
-                        apply = apply,
+                        apply = {
+                            apply()
+                            viewModel.tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath }?.editorState?.showGeminiAssistant = true
+                        },
                         reject = {
                             sendMcpNotification("ide/diffRejected", JsonObject().apply { addProperty("filePath", filePath) })
                         },
                     )
-                tab.editorState.showGeminiAssistant = false
                 true
             }
 
-        private fun refreshEditors() {
-            viewModel.tabs.filterIsInstance<EditorTab>().forEach { it.refresh() }
+        private fun refreshEditors(onlyClean: Boolean = false) {
+            viewModel.tabs.filterIsInstance<EditorTab>().forEach {
+                if (!onlyClean || !it.editorState.isDirty) it.refresh()
+            }
         }
 
         private fun isAuthorized(session: IHTTPSession): Boolean {

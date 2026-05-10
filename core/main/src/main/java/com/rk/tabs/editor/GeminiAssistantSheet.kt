@@ -78,6 +78,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -143,6 +144,8 @@ fun EditorTab.GeminiAssistantSheet() {
         /cli                   Open full interactive Gemini CLI
         /flow [request]        Open persistent Gemini CLI flow with Xed context
         /sheet <request>       Ask once in the compact Xed sheet
+        /sync                  Save dirty open editors so Gemini reads latest content
+        /refresh               Refresh clean open editors after Gemini edits files
         /tools [desc]          Show available tool/back-end summary
         /ide status            Show IDE bridge status
         /docs gemini           Show bundled Gemini CLI docs paths
@@ -177,7 +180,7 @@ fun EditorTab.GeminiAssistantSheet() {
         !                      Toggle shell mode
         !command               Run shell command in project cwd
 
-        Default Send/Ask opens the real Gemini CLI in Terminal for the clean TUI response.
+        Embedded Gemini CLI is bound to Xed editors: dirty files sync before prompts, clean open tabs refresh after disk edits, and IDE tools can open review diffs.
         Smart Xed actions: Terminal Ask, Apply, Insert, Agent.
         """
             .trimIndent()
@@ -450,11 +453,6 @@ fun EditorTab.GeminiAssistantSheet() {
         editorState.showGeminiAssistant = false
     }
 
-    fun openInteractiveGeminiCommand(command: String) {
-        appendGeminiCli("Opening embedded Gemini CLI for: $command")
-        startEmbeddedGemini(listOf("--prompt-interactive", command))
-    }
-
     fun recentConversationContext(): String =
         editorState.geminiCliTranscript
             .takeLast(12 * 1024)
@@ -469,36 +467,6 @@ fun EditorTab.GeminiAssistantSheet() {
                     .trimIndent()
             }
             .orEmpty()
-
-    fun openGeminiFlow(request: String = "") {
-        val editor = currentEditor()
-        val contextText = selectedOrFileText().take(32 * 1024)
-        val prompt =
-            """
-            You are running as a persistent Gemini CLI coding flow inside Xed-Editor.
-            Continue interactively after answering so the user can keep giving follow-up instructions.
-
-            Project root: ${currentProjectDir()}
-            Current file: ${file.getAbsolutePath()}
-            Current ${if (editor?.isTextSelected == true) "selection" else "file/context"}:
-            ```
-            $contextText
-            ```
-
-            ${recentConversationContext()}
-
-            Initial request:
-            ${request.ifBlank { "Start an interactive coding assistant flow. Briefly explain what context you can see and ask what the user wants to do next." }}
-            """
-                .trimIndent()
-        appendGeminiCli("Opening persistent Gemini flow in embedded terminal...")
-        startEmbeddedGemini(listOf("--prompt-interactive", prompt))
-    }
-
-    fun openGeminiPromptWithArgs(prompt: String, args: List<String>) {
-        appendGeminiCli("Opening embedded Gemini CLI: gemini ${args.joinToString(" ")} -p \"${prompt.take(72)}${if (prompt.length > 72) "…" else ""}\"")
-        startEmbeddedGemini(args + listOf("-p", prompt))
-    }
 
     fun shellQuote(value: String): String = "'${value.replace("'", "'\\''")}'"
 
@@ -522,6 +490,40 @@ fun EditorTab.GeminiAssistantSheet() {
             $request
         """
             .trimIndent()
+    }
+
+    fun geminiStartupPrompt(): String =
+        """
+        You are Gemini CLI embedded directly inside Xed-Editor's AI sheet.
+
+        Xed editor binding is active:
+        - The current project root is ${currentProjectDir()}.
+        - The active file is ${file.getAbsolutePath()}.
+        - The Xed IDE bridge is available through Gemini CLI IDE integration.
+        - Prefer IDE/editor tools for edits so Xed can review and update open tabs.
+        - Before reading files, use the IDE context/open-file tools when relevant because open editors may contain unsaved content.
+        - When changing an open file, use IDE diff/write/editor tools when available.
+        - If you edit files directly on disk, call the IDE refresh tool or ask Xed to refresh open editors.
+
+        Start by briefly saying you are connected to Xed and ask what the user wants to edit.
+        """
+            .trimIndent()
+
+    suspend fun saveDirtyOpenEditorsForGemini(): Int {
+        val dirtyTabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
+        withContext(Dispatchers.Main) {
+            dirtyTabs.forEach { tab ->
+                tab.editorState.editor.get()?.let { editor -> tab.editorState.content = editor.text }
+            }
+        }
+        dirtyTabs.forEach { it.quickSave() }
+        return dirtyTabs.size
+    }
+
+    fun refreshCleanOpenEditorsFromDisk() {
+        viewModel.tabs.filterIsInstance<EditorTab>()
+            .filterNot { it.editorState.isDirty }
+            .forEach { it.refresh() }
     }
 
     fun buildGeminiSheetEnv(workingDir: String, bridge: GeminiBridge.Info): Array<String> {
@@ -588,13 +590,17 @@ fun EditorTab.GeminiAssistantSheet() {
         setupTerminalFiles()
         val workingDir = currentProjectDir()
         val bridge = GeminiBridge.ensureStarted(viewModel, workingDir)
+        val launchArgs =
+            extraArgs.ifEmpty {
+                listOf("--prompt-interactive", geminiStartupPrompt())
+            }
         val args =
             listOf(
                 localBinDir().child("gemini-cli").absolutePath,
                 "--skip-trust",
                 "--include-directories",
                 workingDir,
-            ) + extraArgs
+            ) + launchArgs
         val command =
             (listOf(localBinDir().child("sandbox").absolutePath, "/bin/bash") + args)
                 .joinToString(" ") { shellQuote(it) }
@@ -614,7 +620,14 @@ fun EditorTab.GeminiAssistantSheet() {
 
     fun startEmbeddedGemini(extraArgs: List<String> = emptyList()) {
         embeddedGeminiSession?.finishIfRunning()
-        embeddedGeminiSession = createEmbeddedGeminiSession(extraArgs)
+        embeddedGeminiSession = null
+        scope.launch(Dispatchers.IO) {
+            val saved = saveDirtyOpenEditorsForGemini()
+            withContext(Dispatchers.Main) {
+                if (saved > 0) appendGeminiCli("Synced $saved dirty open editor file(s) to disk for Gemini.")
+                embeddedGeminiSession = createEmbeddedGeminiSession(extraArgs)
+            }
+        }
     }
 
     fun sendPromptToEmbeddedGemini(request: String) {
@@ -623,8 +636,49 @@ fun EditorTab.GeminiAssistantSheet() {
         if (session == null || session.emulator == null || !session.isRunning) {
             startEmbeddedGemini(listOf("--prompt-interactive", geminiTerminalPrompt(request)))
         } else {
-            session.write("${geminiTerminalPrompt(request)}\r")
+            scope.launch(Dispatchers.IO) {
+                val saved = saveDirtyOpenEditorsForGemini()
+                withContext(Dispatchers.Main) {
+                    if (saved > 0) appendGeminiCli("Synced $saved dirty open editor file(s) to disk for Gemini.")
+                    session.write("${geminiTerminalPrompt(request)}\r")
+                }
+            }
         }
+    }
+
+    fun openInteractiveGeminiCommand(command: String) {
+        appendGeminiCli("Opening embedded Gemini CLI for: $command")
+        startEmbeddedGemini(listOf("--prompt-interactive", command))
+    }
+
+    fun openGeminiFlow(request: String = "") {
+        val editor = currentEditor()
+        val contextText = selectedOrFileText().take(32 * 1024)
+        val prompt =
+            """
+            You are running as a persistent Gemini CLI coding flow inside Xed-Editor.
+            Continue interactively after answering so the user can keep giving follow-up instructions.
+
+            Project root: ${currentProjectDir()}
+            Current file: ${file.getAbsolutePath()}
+            Current ${if (editor?.isTextSelected == true) "selection" else "file/context"}:
+            ```
+            $contextText
+            ```
+
+            ${recentConversationContext()}
+
+            Initial request:
+            ${request.ifBlank { "Start an interactive coding assistant flow. Briefly explain what context you can see and ask what the user wants to do next." }}
+            """
+                .trimIndent()
+        appendGeminiCli("Opening persistent Gemini flow in embedded terminal...")
+        startEmbeddedGemini(listOf("--prompt-interactive", prompt))
+    }
+
+    fun openGeminiPromptWithArgs(prompt: String, args: List<String>) {
+        appendGeminiCli("Opening embedded Gemini CLI: gemini ${args.joinToString(" ")} -p \"${prompt.take(72)}${if (prompt.length > 72) "…" else ""}\"")
+        startEmbeddedGemini(args + listOf("-p", prompt))
     }
 
     fun knownInteractiveCommand(input: String): Boolean {
@@ -776,6 +830,20 @@ fun EditorTab.GeminiAssistantSheet() {
                 editorState.geminiPrompt = ""
             }
 
+            input == "/sync" -> {
+                scope.launch(Dispatchers.IO) {
+                    val saved = saveDirtyOpenEditorsForGemini()
+                    withContext(Dispatchers.Main) { appendGeminiCli("Synced $saved dirty open editor file(s) to disk.") }
+                }
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/refresh" -> {
+                refreshCleanOpenEditorsFromDisk()
+                appendGeminiCli("Refreshing clean open editor tabs from disk.")
+                editorState.geminiPrompt = ""
+            }
+
             input == "/sessions list" || input == "/session list" -> {
                 runShellCommand("gemini --list-sessions")
                 editorState.geminiPrompt = ""
@@ -881,6 +949,9 @@ fun EditorTab.GeminiAssistantSheet() {
                     - getOpenFiles, getActiveFile, getSelection
                     - replaceSelection: review then replace active editor selection/file
                     - insertAtCursor: review then insert at active cursor
+                    - writeFile: write file and refresh matching open Xed tab
+                    - saveOpenFiles: save dirty open Xed tabs before Gemini reads files
+                    - refreshOpenEditors: refresh non-dirty open Xed tabs after disk edits
                     - showMessage, runCommand, refreshFile
 
                     For Gemini's exact live tool registry, open CLI and run /tools${if (input.contains("desc")) " desc" else ""}.
@@ -1019,6 +1090,7 @@ fun EditorTab.GeminiAssistantSheet() {
 
             Xed additions:
             • Send/Ask opens a real terminal-backed Gemini CLI flow
+            • Dirty editor tabs sync before Gemini reads; clean tabs refresh after edits
             • /flow starts a persistent Gemini CLI coding flow
             • /sheet asks once in this compact sheet
             • @path adds file context, ! toggles shell mode
@@ -1051,6 +1123,13 @@ fun EditorTab.GeminiAssistantSheet() {
 
         LaunchedEffect(Unit) {
             if (embeddedGeminiSession == null) startEmbeddedGemini()
+        }
+
+        LaunchedEffect(embeddedGeminiSession) {
+            while (embeddedGeminiSession?.isRunning == true) {
+                delay(1500)
+                refreshCleanOpenEditorsFromDisk()
+            }
         }
 
         DisposableEffect(Unit) {
@@ -1231,6 +1310,8 @@ fun EditorTab.GeminiAssistantSheet() {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     CommandChip("Flow", "/flow")
                     CommandChip("Sheet ask", "/sheet ")
+                    CommandChip("Sync editors", "/sync")
+                    CommandChip("Refresh tabs", "/refresh")
                     CommandChip("Auth", "/auth")
                     CommandChip("Doctor", "/doctor")
                     CommandChip("Sessions", "/sessions list")
