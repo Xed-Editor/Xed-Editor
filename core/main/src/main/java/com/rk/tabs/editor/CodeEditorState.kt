@@ -73,4 +73,9 @@ data class CodeEditorState(val initialContent: Content? = null) {
 
     var isWrapping by mutableStateOf(false)
     var isConnectingLsp by mutableStateOf(false)
+
+    var showGeminiAssistant by mutableStateOf(false)
+    var geminiPrompt by mutableStateOf("")
+    var geminiOutput by mutableStateOf("")
+    var geminiRunning by mutableStateOf(false)
 }

@@ -409,6 +409,10 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     )
                 }
 
+                if (editorState.showGeminiAssistant) {
+                    GeminiAssistantSheet()
+                }
+
                 if (editorState.showJumpToLineDialog) {
                     SingleInputDialog(
                         title = stringResource(strings.jump_to_line),

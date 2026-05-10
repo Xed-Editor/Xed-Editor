@@ -1,0 +1,69 @@
+name: Build Debug APK
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths-ignore:
+      - "**/*.md"
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths-ignore:
+      - "**/*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: Cache Gradle files
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-debug-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-debug-
+            ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Rename debug APK
+        run: |
+          COMMIT_HASH="$(git rev-parse --short HEAD)"
+          mkdir -p app/build/outputs/apk/upload
+          cp app/build/outputs/apk/debug/*.apk "app/build/outputs/apk/upload/xed-editor-debug-${COMMIT_HASH}.apk"
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: Xed-Editor-Debug-APK
+          path: app/build/outputs/apk/upload/*.apk
+          if-no-files-found: error
+          retention-days: 14

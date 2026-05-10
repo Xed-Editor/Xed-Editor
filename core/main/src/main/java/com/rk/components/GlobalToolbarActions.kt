@@ -62,6 +62,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         val newFileCommand = CommandProvider.NewFileCommand
         val terminalCommand = CommandProvider.TerminalCommand
+        val geminiCliCommand = CommandProvider.GeminiCliCommand
         val settingsCommand = CommandProvider.SettingsCommand
 
         IconButton(onClick = { newFileCommand.action(ActionContext(context as Activity)) }) {
@@ -71,6 +72,10 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         if (InbuiltFeatures.terminal.state.value) {
             IconButton(onClick = { terminalCommand.action(ActionContext(context as Activity)) }) {
                 XedIcon(terminalCommand.getIcon())
+            }
+
+            IconButton(onClick = { geminiCliCommand.action(ActionContext(context as Activity)) }) {
+                XedIcon(geminiCliCommand.getIcon())
             }
         }
 

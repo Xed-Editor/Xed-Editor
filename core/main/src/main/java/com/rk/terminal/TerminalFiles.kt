@@ -31,7 +31,7 @@ fun setupTerminalFiles() {
         }
     }
 
-    val internalFiles = listOf("init", "sandbox", "setup", "utils")
+    val internalFiles = listOf("init", "sandbox", "setup", "utils", "gemini-cli")
     internalFiles.forEach { setupAssetFile(it) }
 
     application!!.assets.list("terminal/lsp")?.forEach { setupLspFile(it.removeSuffix(".sh")) }

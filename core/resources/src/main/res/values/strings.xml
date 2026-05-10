@@ -41,6 +41,11 @@
     <string name="ask_deletion_many">Are you sure you want to permanently delete %d files?</string>
     <string name="cant_handle">No app found to handle the file</string>
     <string name="terminal">Terminal</string>
+    <string name="gemini_cli" translatable="false">Gemini CLI</string>
+    <string name="gemini_assistant" translatable="false">Gemini Assistant</string>
+    <string name="gemini_prompt">Ask Gemini</string>
+    <string name="ask">Ask</string>
+    <string name="insert">Insert</string>
     <string name="add_file">Add external file</string>
     <string name="open_as_project">Open as a project</string>
     <string name="replace_all">Replace all</string>
