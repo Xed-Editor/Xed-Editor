@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import com.rk.ai.GeminiBridge
 import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
@@ -19,7 +20,7 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditorTab.GeminiAssistantSheet() {
+fun EditorTab.GeminiAssistantSheet(modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
 
@@ -146,6 +147,7 @@ fun EditorTab.GeminiAssistantSheet() {
         onDismissRequest = { editorState.showGeminiAssistant = false },
         cwd = currentProjectDir(),
         session = GeminiSheetSessionStore.session,
+        modifier = modifier,
         controls = {
             TextButton(onClick = { startGemini(forceRestart = true) }) { Text("Restart") }
             TextButton(onClick = { startGemini(listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { Text("Auth") }

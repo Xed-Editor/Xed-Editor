@@ -27,7 +27,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -79,7 +83,51 @@ fun GeminiCliSheet(
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
+    var minimized by remember { mutableStateOf(false) }
+    var handleDrag = 0f
+
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = if (minimized) 0.dp else 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        BottomSheetDefaults.DragHandle(
+            modifier = Modifier.pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragStart = { handleDrag = 0f },
+                    onVerticalDrag = { _, dragAmount -> handleDrag += dragAmount },
+                    onDragEnd = {
+                        when {
+                            handleDrag > 60f -> minimized = true
+                            handleDrag < -60f -> minimized = false
+                        }
+                    },
+                )
+            },
+        )
+        if (!minimized) {
+            GeminiCliSheetContent(
+                onDismissRequest = onDismissRequest,
+                cwd = cwd,
+                session = session,
+                showTerminal = showTerminal,
+                headerContent = headerContent,
+                controls = controls,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GeminiCliModalSheet(
+    onDismissRequest: () -> Unit,
+    cwd: String,
+    session: TerminalSession?,
+    modifier: Modifier = Modifier,
+    showTerminal: Boolean = true,
+    headerContent: (@Composable () -> Unit)? = null,
+    controls: (@Composable RowScope.() -> Unit)? = null,
+) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var handleDrag = 0f
@@ -106,45 +154,54 @@ fun GeminiCliSheet(
             )
         },
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(18.dp))
-                        .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(18.dp))
-                        .padding(horizontal = 6.dp, vertical = 8.dp),
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-                        Spacer(Modifier.weight(1f))
-                        TextButton(onClick = onDismissRequest) { Text("Hide") }
-                    }
+        GeminiCliSheetContent(onDismissRequest, cwd, session, Modifier.fillMaxWidth().padding(vertical = 8.dp), showTerminal, headerContent, controls)
+    }
+}
 
-                    headerContent?.invoke()
+@Composable
+private fun GeminiCliSheetContent(
+    onDismissRequest: () -> Unit,
+    cwd: String,
+    session: TerminalSession?,
+    modifier: Modifier = Modifier,
+    showTerminal: Boolean = true,
+    headerContent: (@Composable () -> Unit)? = null,
+    controls: (@Composable RowScope.() -> Unit)? = null,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(18.dp))
+                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(18.dp))
+                .padding(horizontal = 6.dp, vertical = 8.dp),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.width(8.dp))
+                Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = onDismissRequest) { Text("Hide") }
+            }
 
-                    if (showTerminal) {
-                        controls?.let {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                it.invoke(this)
-                            }
-                        }
-                        Text(
-                            text = "cwd $cwd",
-                            color = colorScheme.onSurfaceVariant,
-                            fontFamily = FontFamily.Monospace,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+            headerContent?.invoke()
 
-                        GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
+            if (showTerminal) {
+                controls?.let {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        it.invoke(this)
                     }
                 }
+                Text(
+                    text = "cwd $cwd",
+                    color = colorScheme.onSurfaceVariant,
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+
+                GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
             }
         }
     }

@@ -3,8 +3,10 @@ package com.rk.tabs.editor
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -27,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.platform.LocalConfiguration
@@ -461,10 +464,6 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     )
                 }
 
-                if (editorState.showGeminiAssistant) {
-                    GeminiAssistantSheet()
-                }
-
                 if (editorState.showJumpToLineDialog) {
                     SingleInputDialog(
                         title = stringResource(strings.jump_to_line),
@@ -513,26 +512,31 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
                     }
 
-                CodeEditor(
-                    modifier = Modifier.weight(1f),
-                    intelligentFeatures = intelligentFeatures,
-                    onTextChange = {
-                        if (Settings.auto_save && !isTemp) {
-                            scope.launch(Dispatchers.IO) {
-                                quickSave()
-                                saveMutex.lock()
-                                delay(Settings.auto_save_delay)
-                                saveMutex.unlock()
+                Box(modifier = Modifier.weight(1f)) {
+                    CodeEditor(
+                        modifier = Modifier.fillMaxSize(),
+                        intelligentFeatures = intelligentFeatures,
+                        onTextChange = {
+                            if (Settings.auto_save && !isTemp) {
+                                scope.launch(Dispatchers.IO) {
+                                    quickSave()
+                                    saveMutex.lock()
+                                    delay(Settings.auto_save_delay)
+                                    saveMutex.unlock()
+                                }
+                            } else {
+                                editorState.isDirty = true
                             }
-                        } else {
-                            editorState.isDirty = true
-                        }
 
-                        if (file.getName() == ".editorconfig" && Settings.enable_editorconfig) {
-                            showNotice(EDITORCONFIG_NOTICE_KEY) { id -> EditorConfigNotice(id) }
-                        }
-                    },
-                )
+                            if (file.getName() == ".editorconfig" && Settings.enable_editorconfig) {
+                                showNotice(EDITORCONFIG_NOTICE_KEY) { id -> EditorConfigNotice(id) }
+                            }
+                        },
+                    )
+                    if (editorState.showGeminiAssistant) {
+                        GeminiAssistantSheet(modifier = Modifier.align(Alignment.BottomCenter))
+                    }
+                }
 
                 val showColorPicker = editorState.showColorPicker
                 if (showColorPicker != null) {
