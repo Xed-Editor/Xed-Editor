@@ -151,6 +151,7 @@ fun createGeminiSheetSession(
     extraArgs: List<String> = emptyList(),
 ): TerminalSession {
     setupTerminalFiles()
+    ensureGeminiSheetWrapper(workingDir)
     val (shell, args) = geminiSheetProcessArgs(extraArgs, workingDir)
     return TerminalSession(
         shell,
@@ -187,7 +188,7 @@ private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String):
             add("-r")
             add(sandboxDir().absolutePath)
             add("/bin/bash")
-            add(localBinDir().child("gemini-cli").absolutePath)
+            add("/usr/local/bin/gemini-sheet")
             add("--skip-trust")
             add("--include-directories")
             add(workingDir)
@@ -247,6 +248,45 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         }
         if (Settings.seccomp) add("SECCOMP=1")
     }.toTypedArray()
+}
+
+private fun ensureGeminiSheetWrapper(workingDir: String): File {
+    val wrapper = localBinDir().child("gemini-sheet")
+    val content =
+        """
+        #!/usr/bin/env bash
+        set -e
+
+        export LOCAL="${localDir().absolutePath}"
+        export WKDIR="$workingDir"
+        export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir().absolutePath}:$PATH"
+
+        if [ -f "$LOCAL/bin/utils" ]; then
+          # shellcheck disable=SC1091
+          source "$LOCAL/bin/utils"
+          configure_gemini_auth_browser || true
+        fi
+
+        cd "${'$'}WKDIR" 2>/dev/null || cd "${'$'}HOME"
+        export NO_UPDATE_NOTIFIER=1
+
+        if ! command -v gemini >/dev/null 2>&1; then
+          echo "Gemini CLI is not installed in this Ubuntu container." >&2
+          echo "Open the normal terminal and install/login Gemini first, then retry." >&2
+          exit 127
+        fi
+
+        exec gemini "$@"
+        """
+            .trimIndent()
+    wrapper.writeText(content)
+    wrapper.setExecutable(true, false)
+
+    val usrLocalBin = sandboxDir().child("usr/local/bin").apply { mkdirs() }
+    val inSandbox = usrLocalBin.child("gemini-sheet")
+    inSandbox.writeText(content)
+    inSandbox.setExecutable(true, false)
+    return wrapper
 }
 
 private fun TerminalView.applyGeminiSheetTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
