@@ -111,6 +111,7 @@ fun EditorTab.GeminiAssistantSheet() {
         /doctor                Check Node/npm/Gemini CLI install and version
         /auth                  Open Gemini auth flow in the full CLI
         /cli                   Open full interactive Gemini CLI
+        /flow [request]        Open persistent Gemini CLI flow with Xed context
         /tools [desc]          Show available tool/back-end summary
         /ide status            Show IDE bridge status
         /docs gemini           Show bundled Gemini CLI docs paths
@@ -421,6 +422,46 @@ fun EditorTab.GeminiAssistantSheet() {
         openFullCli(listOf("--prompt-interactive", command))
     }
 
+    fun recentConversationContext(): String =
+        editorState.geminiCliTranscript
+            .takeLast(12 * 1024)
+            .takeIf { it.isNotBlank() }
+            ?.let {
+                """
+                Recent Xed Gemini conversation:
+                ```
+                $it
+                ```
+                """
+                    .trimIndent()
+            }
+            .orEmpty()
+
+    fun openGeminiFlow(request: String = "") {
+        val editor = currentEditor()
+        val contextText = selectedOrFileText().take(32 * 1024)
+        val prompt =
+            """
+            You are running as a persistent Gemini CLI coding flow inside Xed-Editor.
+            Continue interactively after answering so the user can keep giving follow-up instructions.
+
+            Project root: ${currentProjectDir()}
+            Current file: ${file.getAbsolutePath()}
+            Current ${if (editor?.isTextSelected == true) "selection" else "file/context"}:
+            ```
+            $contextText
+            ```
+
+            ${recentConversationContext()}
+
+            Initial request:
+            ${request.ifBlank { "Start an interactive coding assistant flow. Briefly explain what context you can see and ask what the user wants to do next." }}
+            """
+                .trimIndent()
+        appendGeminiCli("Opening persistent Gemini flow...")
+        openFullCli(listOf("--prompt-interactive", prompt))
+    }
+
     fun openGeminiPromptWithArgs(prompt: String, args: List<String>) {
         appendGeminiCli("Opening Gemini CLI: gemini ${args.joinToString(" ")} -p \"${prompt.take(72)}${if (prompt.length > 72) "…" else ""}\"")
         openFullCli(args + listOf("-p", prompt))
@@ -476,6 +517,8 @@ fun EditorTab.GeminiAssistantSheet() {
 
                 Project root: ${currentProjectDir()}
                 File: ${file.getAbsolutePath()}
+                ${recentConversationContext()}
+
                 Current ${if (editor?.isTextSelected == true) "selection" else "file"}:
                 ```
                 $contextText
@@ -552,6 +595,16 @@ fun EditorTab.GeminiAssistantSheet() {
 
             input == "/cli" || input == "/open cli" -> {
                 openFullCli()
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/flow" -> {
+                openGeminiFlow()
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/flow ") -> {
+                openGeminiFlow(input.removePrefix("/flow ").trim())
                 editorState.geminiPrompt = ""
             }
 
@@ -760,6 +813,68 @@ fun EditorTab.GeminiAssistantSheet() {
         }
     }
 
+    @Composable
+    fun SectionTitle(text: String) {
+        Text(
+            text = text,
+            color = colorScheme.primary,
+            style = MaterialTheme.typography.labelMedium,
+        )
+    }
+
+    @Composable
+    fun PromptChip(label: String, prompt: String) {
+        TextButton(onClick = { editorState.geminiPrompt = prompt }) {
+            Text(label)
+        }
+    }
+
+    @Composable
+    fun CommandChip(label: String, command: String) {
+        TextButton(onClick = { editorState.geminiPrompt = command }) {
+            Text(label)
+        }
+    }
+
+    fun geminiCliWelcomeText(): String {
+        val tips =
+            if (memoryFiles().isEmpty()) {
+                "1. Create GEMINI.md files to customize your interactions\n2. /help for more information\n3. Ask coding questions, edit code or run commands\n4. Be specific for the best results"
+            } else {
+                "1. /help for more information\n2. Ask coding questions, edit code or run commands\n3. Be specific for the best results"
+            }
+        return """
+            Gemini CLI
+
+            Tips for getting started:
+            $tips
+
+            Xed additions:
+            • /flow starts a persistent Gemini CLI coding flow
+            • @path adds file context, ! toggles shell mode
+            • Apply/Insert review changes before editing
+        """
+            .trimIndent()
+    }
+
+    @Composable
+    fun GeminiFooter() {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                text = "Footer",
+                color = colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelSmall,
+            )
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("cwd ${currentProjectDir()}", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                Text("mode ${if (editorState.geminiShellMode) "shell" else "default"}", color = if (editorState.geminiShellMode) colorScheme.error else colorScheme.primary, style = MaterialTheme.typography.bodySmall)
+                Text("edits review", color = colorScheme.tertiary, style = MaterialTheme.typography.bodySmall)
+                Text("model auto", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                Text("${memoryFiles().size} GEMINI.md", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+
     ModalBottomSheet(onDismissRequest = { editorState.showGeminiAssistant = false }) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(
@@ -783,20 +898,24 @@ fun EditorTab.GeminiAssistantSheet() {
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
+                        text = "Notifications",
+                        color = colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                    Text(
                         text =
                             editorState.geminiCliTranscript.ifBlank {
-                                """
-                                Welcome to Gemini CLI
-                                Type a prompt below, or use /explain /bugs /refactor /tests.
-                                Use Agent for multi-file edits, CLI for the real interactive terminal.
-                                For first-time auth, tap CLI and follow the browser/manual URL prompt.
-                                """
-                                    .trimIndent()
+                                geminiCliWelcomeText()
                             },
                         modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp, max = 260.dp).verticalScroll(rememberScrollState()),
                         color = colorScheme.onSurface,
                         fontFamily = FontFamily.Monospace,
                         style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        text = "Composer",
+                        color = colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall,
                     )
                     Row(verticalAlignment = Alignment.Top) {
                         Text(
@@ -835,40 +954,37 @@ fun EditorTab.GeminiAssistantSheet() {
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
+                    GeminiFooter()
                 }
             }
 
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = { editorState.geminiPrompt = "/explain Explain this code and point out important behavior." }) {
-                    Text("Explain")
-                }
-                TextButton(onClick = { editorState.geminiPrompt = "/bugs Find bugs and suggest a safe fix." }) {
-                    Text("Find bugs")
-                }
-                TextButton(
-                    onClick = {
-                        editorState.geminiPrompt = "/refactor Refactor this code to be cleaner without changing behavior."
-                    }
-                ) {
-                    Text("Refactor")
-                }
-                TextButton(onClick = { editorState.geminiPrompt = "/tests Generate or improve tests for this code." }) {
-                    Text("Tests")
-                }
-                TextButton(onClick = { editorState.geminiPrompt = "/auth" }) {
-                    Text("Auth")
-                }
-                TextButton(onClick = { editorState.geminiPrompt = "/doctor" }) {
-                    Text("Doctor")
-                }
-                TextButton(onClick = { editorState.geminiPrompt = "/sessions list" }) {
-                    Text("Sessions")
-                }
-                TextButton(onClick = { editorState.geminiPrompt = "/memory init" }) {
-                    Text("Memory")
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SectionTitle("Prompt presets")
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    PromptChip("Explain", "/explain Explain this code and point out important behavior.")
+                    PromptChip("Find bugs", "/bugs Find bugs and suggest a safe fix.")
+                    PromptChip("Refactor", "/refactor Refactor this code to be cleaner without changing behavior.")
+                    PromptChip("Tests", "/tests Generate or improve tests for this code.")
+                    PromptChip("Plan", "/plan Analyze this task and propose a safe implementation plan.")
                 }
             }
 
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SectionTitle("Gemini CLI")
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    CommandChip("Flow", "/flow")
+                    CommandChip("Auth", "/auth")
+                    CommandChip("Doctor", "/doctor")
+                    CommandChip("Sessions", "/sessions list")
+                    CommandChip("Resume", "/resume latest")
+                    CommandChip("Model", "/model flash")
+                    CommandChip("Extensions", "/extensions list")
+                    CommandChip("MCP", "/mcp")
+                    CommandChip("Memory", "/memory init")
+                }
+            }
+
+            SectionTitle("Editor actions")
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Button(
                     enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank(),
