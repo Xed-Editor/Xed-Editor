@@ -12,6 +12,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.tabs.editor.EditorTab
 
 class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
     override val id: String = "global.gemini_cli"
@@ -19,13 +20,27 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
     override fun getLabel(): String = strings.gemini_cli.getString()
 
     override fun action(actionContext: ActionContext) {
+        val currentEditorTab = commandContext.mainViewModel.currentTab as? EditorTab
+        val projectDir = currentEditorTab?.projectRoot?.getAbsolutePath()
+        val args =
+            buildList {
+                    add(localBinDir().child("gemini-cli").absolutePath)
+                    add("--skip-trust")
+                    projectDir?.let {
+                        add("--include-directories")
+                        add(it)
+                    }
+                }
+                .toTypedArray()
+
         launchTerminal(
             actionContext.currentActivity,
             TerminalCommand(
                 exe = "/bin/bash",
-                args = arrayOf(localBinDir().child("gemini-cli").absolutePath),
+                args = args,
                 id = "gemini-cli",
                 terminatePreviousSession = false,
+                workingDir = projectDir,
             ),
         )
     }

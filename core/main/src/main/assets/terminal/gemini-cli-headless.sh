@@ -20,7 +20,7 @@ if ! command -v gemini >/dev/null 2>&1; then
 fi
 
 if [ -z "${GEMINI_API_KEY:-}" ] && [ -z "${GOOGLE_API_KEY:-}" ]; then
-  log "No GEMINI_API_KEY/GOOGLE_API_KEY found. Run Gemini CLI once from the terminal button to login, or export an API key."
+  log "No API key found. Headless mode will use any existing Gemini CLI Google login or cached auth. If auth is required, open the CLI button once and complete Gemini CLI login."
 fi
 
 exec gemini "$@"

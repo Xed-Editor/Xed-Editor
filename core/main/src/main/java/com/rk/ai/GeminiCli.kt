@@ -8,22 +8,60 @@ import com.rk.file.localBinDir
 import com.rk.terminal.setupTerminalFiles
 
 object GeminiCli {
-    suspend fun prompt(prompt: String, workingDir: String? = null, timeoutSeconds: Long = 180): ShellUtils.Result {
-        return runGemini(listOf("-p", prompt), workingDir, timeoutSeconds)
+    suspend fun prompt(
+        prompt: String,
+        workingDir: String? = null,
+        projectDir: String? = workingDir,
+        timeoutSeconds: Long = 180,
+    ): ShellUtils.Result {
+        return runGemini(
+            args = commonArgs(projectDir) + listOf("--approval-mode=default", "-p", prompt),
+            workingDir = workingDir,
+            timeoutSeconds = timeoutSeconds,
+        )
     }
 
-    suspend fun agent(prompt: String, workingDir: String? = null, timeoutSeconds: Long = 300): ShellUtils.Result {
-        return runGemini(listOf("--approval-mode=auto_edit", "-p", prompt), workingDir, timeoutSeconds)
+    suspend fun agent(
+        prompt: String,
+        workingDir: String? = null,
+        projectDir: String? = workingDir,
+        timeoutSeconds: Long = 600,
+    ): ShellUtils.Result {
+        return runGemini(
+            args = commonArgs(projectDir) + listOf("--approval-mode=auto_edit", "-p", prompt),
+            workingDir = workingDir,
+            timeoutSeconds = timeoutSeconds,
+        )
+    }
+
+    private fun commonArgs(projectDir: String?): List<String> {
+        return buildList {
+            add("--skip-trust")
+            add("--output-format")
+            add("text")
+            projectDir?.takeIf { it.isNotBlank() }?.let {
+                add("--include-directories")
+                add(it)
+            }
+        }
     }
 
     private suspend fun runGemini(args: List<String>, workingDir: String?, timeoutSeconds: Long): ShellUtils.Result {
         setupTerminalFiles()
         val command =
-            arrayOf("/bin/bash", localBinDir().child("gemini-cli-headless").absolutePath, *args.toTypedArray())
+            arrayOf(
+                "/bin/bash",
+                localBinDir().child("gemini-cli-headless").absolutePath,
+                *args.toTypedArray(),
+            )
         return ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
     }
 
-    suspend fun workingDirFor(file: FileObject): String? = (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
+    suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String {
+        return projectRoot?.getAbsolutePath()
+            ?: (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
+            ?: file.getAbsolutePath()
+    }
 
     fun stripCodeFences(text: String): String {
         val trimmed = text.trim()
