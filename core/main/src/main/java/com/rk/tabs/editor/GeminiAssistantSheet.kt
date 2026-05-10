@@ -46,23 +46,18 @@ fun EditorTab.GeminiAssistantSheet() {
 
     fun runGemini(prompt: String, applyResult: ((String) -> Unit)? = null, agentMode: Boolean = false) {
         if (prompt.isBlank() || editorState.geminiRunning) return
+
         editorState.geminiRunning = true
         editorState.geminiOutput = ""
+
         scope.launch(Dispatchers.IO) {
             val workingDir = GeminiCli.workingDirFor(file)
             runCatching {
-<<<<<<< HEAD
-                if (agentMode) {
-                    GeminiCli.agent(prompt, workingDir)
-                } else {
-                    GeminiCli.prompt(prompt, workingDir)
-=======
                     if (agentMode) {
-                        GeminiCli.agent(prompt, GeminiCli.workingDirFor(file))
+                        GeminiCli.agent(prompt, workingDir)
                     } else {
-                        GeminiCli.prompt(prompt, GeminiCli.workingDirFor(file))
+                        GeminiCli.prompt(prompt, workingDir)
                     }
->>>>>>> main
                 }
                 .onSuccess { result ->
                     val output = result.output.ifBlank { result.error }
@@ -96,9 +91,7 @@ fun EditorTab.GeminiAssistantSheet() {
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(
-                    onClick = { editorState.geminiPrompt = "Explain this code and point out important behavior." }
-                ) {
+                TextButton(onClick = { editorState.geminiPrompt = "Explain this code and point out important behavior." }) {
                     Text("Explain")
                 }
                 TextButton(onClick = { editorState.geminiPrompt = "Find bugs and suggest a safe fix." }) {
@@ -154,20 +147,18 @@ fun EditorTab.GeminiAssistantSheet() {
                         runGemini(
                             prompt =
                                 """
-                            Rewrite the ${if (hasSelection) "selected code" else "entire file"} for this request: ${editorState.geminiPrompt}
+                                Rewrite the ${if (hasSelection) "selected code" else "entire file"} for this request: ${editorState.geminiPrompt}
 
-                            Return ONLY the replacement code/text. No markdown, no explanation.
+                                Return ONLY the replacement code/text. No markdown, no explanation.
 
-                            File: ${file.getAbsolutePath()}
-                            Input:
-                            ```
-                            $contextText
-                            ```
-                            """
+                                File: ${file.getAbsolutePath()}
+                                Input:
+                                ```
+                                $contextText
+                                ```
+                                """
                                     .trimIndent(),
-                            applyResult = { replacement: String ->
-                                currentEditor.text.replace(start, end, replacement)
-                            },
+                            applyResult = { replacement: String -> currentEditor.text.replace(start, end, replacement) },
                         )
                     },
                 ) {
@@ -182,15 +173,15 @@ fun EditorTab.GeminiAssistantSheet() {
                         runGemini(
                             prompt =
                                 """
-                            Generate code/text for this request: ${editorState.geminiPrompt}
+                                Generate code/text for this request: ${editorState.geminiPrompt}
 
-                            Return ONLY the code/text to insert. No markdown, no explanation.
+                                Return ONLY the code/text to insert. No markdown, no explanation.
 
-                            Nearby context from ${file.getName()}:
-                            ```
-                            $contextText
-                            ```
-                            """
+                                Nearby context from ${file.getName()}:
+                                ```
+                                $contextText
+                                ```
+                                """
                                     .trimIndent(),
                             applyResult = { insertion: String ->
                                 currentEditor.text.insert(
@@ -211,18 +202,18 @@ fun EditorTab.GeminiAssistantSheet() {
                         runGemini(
                             prompt =
                                 """
-                            Act as a coding agent for this project.
-                            User request: ${editorState.geminiPrompt}
+                                Act as a coding agent for this project.
+                                User request: ${editorState.geminiPrompt}
 
-                            You may inspect and edit files in the current project directory if needed.
-                            After changes, summarize exactly what changed.
+                                You may inspect and edit files in the current project directory if needed.
+                                After changes, summarize exactly what changed.
 
-                            Current file: ${file.getAbsolutePath()}
-                            Current editor context:
-                            ```
-                            ${selectedOrFileText()}
-                            ```
-                            """
+                                Current file: ${file.getAbsolutePath()}
+                                Current editor context:
+                                ```
+                                ${selectedOrFileText()}
+                                ```
+                                """
                                     .trimIndent(),
                             applyResult = { _ -> refresh() },
                             agentMode = true,
@@ -234,10 +225,7 @@ fun EditorTab.GeminiAssistantSheet() {
             }
 
             if (editorState.geminiRunning) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator()
                     Text(strings.wait.getString())
                 }
