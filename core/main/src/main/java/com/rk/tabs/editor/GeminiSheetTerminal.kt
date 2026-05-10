@@ -171,8 +171,7 @@ private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String):
     val sandbox = localBinDir().child("sandbox").absolutePath
     val command =
         listOf(
-            "/bin/bash",
-            localBinDir().child("gemini-cli").absolutePath,
+            "/usr/local/bin/gemini",
             "--skip-trust",
             "--include-directories",
             workingDir,

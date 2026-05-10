@@ -6,8 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorTab.GeminiAssistantSheet() {
     val scope = rememberCoroutineScope()
@@ -177,14 +175,7 @@ fun EditorTab.GeminiAssistantSheet() {
                         Spacer(Modifier.width(8.dp))
                         Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                     }
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[A") }) { Text("↑") }
-                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[B") }) { Text("↓") }
-                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[D") }) { Text("←") }
-                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B[C") }) { Text("→") }
-                        TextButton(onClick = { editorState.geminiCliSession?.write("\r") }) { Text("Enter") }
-                        TextButton(onClick = { editorState.geminiCliSession?.write("\u001B") }) { Text("Esc") }
-                        TextButton(onClick = { editorState.geminiCliSession?.write("\u0003") }) { Text("Ctrl+C") }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         TextButton(onClick = { startGemini() }) { Text("Restart") }
                         TextButton(onClick = { startGemini(listOf("--prompt-interactive", "/auth")) }) { Text("Auth") }
                         TextButton(onClick = {
