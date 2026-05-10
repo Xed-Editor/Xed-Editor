@@ -1,8 +1,10 @@
 package com.rk.terminal
 
+import android.content.Context
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.activities.terminal.Terminal
@@ -167,7 +169,16 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
     }
 
     private fun showSoftInput() {
-        terminalView.get()?.requestFocus()
-        terminalView.get()?.let { KeyboardUtils.showSoftInput(it) }
+        val view = terminalView.get() ?: return
+        view.post {
+            view.isFocusable = true
+            view.isFocusableInTouchMode = true
+            view.requestFocus()
+            val inputMethodManager =
+                view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            inputMethodManager?.restartInput(view)
+            inputMethodManager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+            KeyboardUtils.showSoftInput(view)
+        }
     }
 }

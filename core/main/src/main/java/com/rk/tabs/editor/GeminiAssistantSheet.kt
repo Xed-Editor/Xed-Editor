@@ -1,8 +1,11 @@
 package com.rk.tabs.editor
 
+import android.graphics.Typeface
+import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,7 +13,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -25,29 +30,52 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.ui.unit.dp
 import com.blankj.utilcode.util.ClipboardUtils
 import com.rk.ai.GeminiBridge
 import com.rk.ai.GeminiCli
+import com.rk.editor.FontCache
 import com.rk.exec.ShellUtils
 import com.rk.exec.TerminalCommand
 import com.rk.exec.launchTerminal
 import com.rk.file.child
+import com.rk.file.localDir
 import com.rk.file.localBinDir
+import com.rk.file.localLibDir
+import com.rk.file.sandboxHomeDir
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
+import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
+import com.rk.terminal.TerminalBackEnd
+import com.rk.terminal.setupTerminalFiles
+import com.rk.terminal.terminalView
+import com.rk.theme.LocalThemeHolder
 import com.rk.utils.toast
+import com.rk.utils.getSourceDirOfPackage
+import com.rk.utils.getTempDir
+import com.rk.utils.isFDroid
+import com.rk.xededitor.BuildConfig
+import com.termux.terminal.TerminalColors
+import com.termux.terminal.TerminalSession
+import com.termux.terminal.TextStyle
+import com.termux.view.TerminalView
 import java.io.File
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -73,7 +101,9 @@ fun EditorTab.GeminiAssistantSheet() {
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
     val colorScheme = MaterialTheme.colorScheme
+    val currentTheme = LocalThemeHolder.current
     var pendingPatch by remember { mutableStateOf<GeminiPendingPatch?>(null) }
+    var embeddedGeminiSession by remember { mutableStateOf<TerminalSession?>(null) }
 
     fun currentEditor() = editorState.editor.get()
 
@@ -112,6 +142,7 @@ fun EditorTab.GeminiAssistantSheet() {
         /auth                  Open Gemini auth flow in the full CLI
         /cli                   Open full interactive Gemini CLI
         /flow [request]        Open persistent Gemini CLI flow with Xed context
+        /sheet <request>       Ask once in the compact Xed sheet
         /tools [desc]          Show available tool/back-end summary
         /ide status            Show IDE bridge status
         /docs gemini           Show bundled Gemini CLI docs paths
@@ -146,7 +177,8 @@ fun EditorTab.GeminiAssistantSheet() {
         !                      Toggle shell mode
         !command               Run shell command in project cwd
 
-        Smart Xed actions: Ask, Apply, Insert, Agent.
+        Default Send/Ask opens the real Gemini CLI in Terminal for the clean TUI response.
+        Smart Xed actions: Terminal Ask, Apply, Insert, Agent.
         """
             .trimIndent()
 
@@ -412,14 +444,15 @@ fun EditorTab.GeminiAssistantSheet() {
                         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
                         "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
                         "GEMINI_CLI_IDE_WORKSPACE_PATH=${bridge.workspacePath}",
-                    ),
+                ),
             ),
         )
+        editorState.showGeminiAssistant = false
     }
 
     fun openInteractiveGeminiCommand(command: String) {
-        appendGeminiCli("Opening full Gemini CLI for: $command")
-        openFullCli(listOf("--prompt-interactive", command))
+        appendGeminiCli("Opening embedded Gemini CLI for: $command")
+        startEmbeddedGemini(listOf("--prompt-interactive", command))
     }
 
     fun recentConversationContext(): String =
@@ -458,16 +491,141 @@ fun EditorTab.GeminiAssistantSheet() {
             ${request.ifBlank { "Start an interactive coding assistant flow. Briefly explain what context you can see and ask what the user wants to do next." }}
             """
                 .trimIndent()
-        appendGeminiCli("Opening persistent Gemini flow...")
-        openFullCli(listOf("--prompt-interactive", prompt))
+        appendGeminiCli("Opening persistent Gemini flow in embedded terminal...")
+        startEmbeddedGemini(listOf("--prompt-interactive", prompt))
     }
 
     fun openGeminiPromptWithArgs(prompt: String, args: List<String>) {
-        appendGeminiCli("Opening Gemini CLI: gemini ${args.joinToString(" ")} -p \"${prompt.take(72)}${if (prompt.length > 72) "…" else ""}\"")
-        openFullCli(args + listOf("-p", prompt))
+        appendGeminiCli("Opening embedded Gemini CLI: gemini ${args.joinToString(" ")} -p \"${prompt.take(72)}${if (prompt.length > 72) "…" else ""}\"")
+        startEmbeddedGemini(args + listOf("-p", prompt))
     }
 
     fun shellQuote(value: String): String = "'${value.replace("'", "'\\''")}'"
+
+    fun geminiTerminalPrompt(request: String): String {
+        val editor = currentEditor()
+        val contextText = selectedOrFileText().take(32 * 1024)
+        return """
+            You are running inside Xed-Editor's embedded Gemini CLI terminal.
+            Keep using Gemini CLI's normal terminal UI and continue interactively after the answer.
+
+            Project root: ${currentProjectDir()}
+            Current file: ${file.getAbsolutePath()}
+            Current ${if (editor?.isTextSelected == true) "selection" else "file/context"}:
+            ```
+            $contextText
+            ```
+
+            ${recentConversationContext()}
+
+            User request:
+            $request
+        """
+            .trimIndent()
+    }
+
+    fun buildGeminiSheetEnv(workingDir: String, bridge: GeminiBridge.Info): Array<String> {
+        val currentActivity = activity ?: return emptyArray()
+        val tmpDir = File(getTempDir(), "terminal/gemini-sheet").apply { mkdirs() }
+        val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
+        return mutableListOf(
+            "PROOT_TMP_DIR=${tmpDir.absolutePath}",
+            "WKDIR=$workingDir",
+            "PUBLIC_HOME=${currentActivity.getExternalFilesDir(null)?.absolutePath}",
+            "COLORTERM=truecolor",
+            "TERM=xterm-256color",
+            "LANG=C.UTF-8",
+            "DEBUG=${BuildConfig.DEBUG}",
+            "LOCAL=${localDir().absolutePath}",
+            "PRIVATE_DIR=${currentActivity.filesDir.parentFile!!.absolutePath}",
+            "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
+            "EXT_HOME=${sandboxHomeDir()}",
+            "HOME=${if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath}",
+            "PROMPT_DIRTRIM=2",
+            "LINKER=$linker",
+            "NATIVE_LIB_DIR=${currentActivity.applicationInfo.nativeLibraryDir}",
+            "FDROID=$isFDroid",
+            "SANDBOX=${Settings.sandbox}",
+            "TMP_DIR=${getTempDir()}",
+            "TMPDIR=${getTempDir()}",
+            "TZ=UTC",
+            "DOTNET_GCHeapHardLimit=1C0000000",
+            "SOURCE_DIR=${currentActivity.applicationInfo.sourceDir}",
+            "TERMUX_X11_SOURCE_DIR=${getSourceDirOfPackage(currentActivity, "com.termux.x11").orEmpty()}",
+            "DISPLAY=:0",
+            "PATH=${System.getenv("PATH")}:${localBinDir().absolutePath}",
+            "ANDROID_ART_ROOT=${System.getenv("ANDROID_ART_ROOT").orEmpty()}",
+            "ANDROID_DATA=${System.getenv("ANDROID_DATA").orEmpty()}",
+            "ANDROID_I18N_ROOT=${System.getenv("ANDROID_I18N_ROOT").orEmpty()}",
+            "ANDROID_ROOT=${System.getenv("ANDROID_ROOT").orEmpty()}",
+            "ANDROID_RUNTIME_ROOT=${System.getenv("ANDROID_RUNTIME_ROOT").orEmpty()}",
+            "ANDROID_TZDATA_ROOT=${System.getenv("ANDROID_TZDATA_ROOT").orEmpty()}",
+            "BOOTCLASSPATH=${System.getenv("BOOTCLASSPATH").orEmpty()}",
+            "DEX2OATBOOTCLASSPATH=${System.getenv("DEX2OATBOOTCLASSPATH").orEmpty()}",
+            "EXTERNAL_STORAGE=${System.getenv("EXTERNAL_STORAGE").orEmpty()}",
+            "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
+            "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
+            "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
+            "GEMINI_CLI_IDE_WORKSPACE_PATH=${bridge.workspacePath}",
+        )
+            .apply {
+                if (!isFDroid) {
+                    add("PROOT_LOADER=${currentActivity.applicationInfo.nativeLibraryDir}/libproot-loader.so")
+                    if (
+                        Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
+                            File(currentActivity.applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()
+                    ) {
+                        add("PROOT_LOADER32=${currentActivity.applicationInfo.nativeLibraryDir}/libproot-loader32.so")
+                    }
+                }
+                if (Settings.seccomp) add("SECCOMP=1")
+            }
+            .toTypedArray()
+    }
+
+    fun createEmbeddedGeminiSession(extraArgs: List<String> = emptyList()): TerminalSession? {
+        if (activity == null) return null
+        setupTerminalFiles()
+        val workingDir = currentProjectDir()
+        val bridge = GeminiBridge.ensureStarted(viewModel, workingDir)
+        val args =
+            listOf(
+                localBinDir().child("gemini-cli").absolutePath,
+                "--skip-trust",
+                "--include-directories",
+                workingDir,
+            ) + extraArgs
+        val command =
+            (listOf(localBinDir().child("sandbox").absolutePath, "/bin/bash") + args)
+                .joinToString(" ") { shellQuote(it) }
+        val session =
+            TerminalSession(
+                "/system/bin/sh",
+                localDir().absolutePath,
+                arrayOf("sh", "-c", command),
+                buildGeminiSheetEnv(workingDir, bridge),
+                Settings.terminal_scrollback_buffer,
+                TerminalBackEnd(),
+            )
+        session.mSessionName = "gemini-sheet"
+        appendGeminiCli("Embedded Gemini CLI terminal ready.")
+        return session
+    }
+
+    fun startEmbeddedGemini(extraArgs: List<String> = emptyList()) {
+        embeddedGeminiSession?.finishIfRunning()
+        embeddedGeminiSession = createEmbeddedGeminiSession(extraArgs)
+    }
+
+    fun sendPromptToEmbeddedGemini(request: String) {
+        if (request.isBlank()) return
+        val session = embeddedGeminiSession
+        if (session == null || session.emulator == null || !session.isRunning) {
+            startEmbeddedGemini(listOf("--prompt-interactive", geminiTerminalPrompt(request)))
+        } else {
+            session.write("${geminiTerminalPrompt(request)}\r")
+        }
+    }
 
     fun knownInteractiveCommand(input: String): Boolean {
         val command = input.substringBefore(" ")
@@ -506,14 +664,14 @@ fun EditorTab.GeminiAssistantSheet() {
             )
     }
 
-    fun askCurrentPrompt() {
+    fun askCurrentPrompt(userRequest: String = editorState.geminiPrompt) {
         val editor = currentEditor()
         val contextText = selectedOrFileText()
         runGemini(
             prompt =
                 """
                 You are an AI coding assistant inside Xed-Editor.
-                User request: ${editorState.geminiPrompt}
+                User request: $userRequest
 
                 Project root: ${currentProjectDir()}
                 File: ${file.getAbsolutePath()}
@@ -594,7 +752,7 @@ fun EditorTab.GeminiAssistantSheet() {
             }
 
             input == "/cli" || input == "/open cli" -> {
-                openFullCli()
+                startEmbeddedGemini()
                 editorState.geminiPrompt = ""
             }
 
@@ -605,6 +763,16 @@ fun EditorTab.GeminiAssistantSheet() {
 
             input.startsWith("/flow ") -> {
                 openGeminiFlow(input.removePrefix("/flow ").trim())
+                editorState.geminiPrompt = ""
+            }
+
+            input.startsWith("/sheet ") -> {
+                askCurrentPrompt(input.removePrefix("/sheet ").trim())
+                editorState.geminiPrompt = ""
+            }
+
+            input == "/sheet" -> {
+                appendGeminiCli("Type /sheet <request> to use compact sheet output. Normal Send opens the clean terminal-backed Gemini CLI UI.")
                 editorState.geminiPrompt = ""
             }
 
@@ -626,8 +794,8 @@ fun EditorTab.GeminiAssistantSheet() {
 
             input.startsWith("/model ") && input.split(Regex("\\s+")).size == 2 -> {
                 val model = input.removePrefix("/model ").trim()
-                appendGeminiCli("Opening Gemini CLI with model: $model")
-                openFullCli(listOf("--model", model))
+                appendGeminiCli("Opening embedded Gemini CLI with model: $model")
+                startEmbeddedGemini(listOf("--model", model))
                 editorState.geminiPrompt = ""
             }
 
@@ -640,52 +808,52 @@ fun EditorTab.GeminiAssistantSheet() {
             }
 
             input == "/worktree" -> {
-                openFullCli(listOf("--worktree"))
+                startEmbeddedGemini(listOf("--worktree"))
                 editorState.geminiPrompt = ""
             }
 
             input.startsWith("/worktree ") -> {
-                openFullCli(listOf("--worktree", input.removePrefix("/worktree ").trim()))
+                startEmbeddedGemini(listOf("--worktree", input.removePrefix("/worktree ").trim()))
                 editorState.geminiPrompt = ""
             }
 
             input == "/debug" -> {
-                openFullCli(listOf("--debug"))
+                startEmbeddedGemini(listOf("--debug"))
                 editorState.geminiPrompt = ""
             }
 
             input == "/sandbox" -> {
-                openFullCli(listOf("--sandbox"))
+                startEmbeddedGemini(listOf("--sandbox"))
                 editorState.geminiPrompt = ""
             }
 
             input == "/screen-reader" -> {
-                openFullCli(listOf("--screen-reader"))
+                startEmbeddedGemini(listOf("--screen-reader"))
                 editorState.geminiPrompt = ""
             }
 
             input.startsWith("/approval-mode ") -> {
                 val mode = input.removePrefix("/approval-mode ").trim()
-                openFullCli(listOf("--approval-mode", mode))
+                startEmbeddedGemini(listOf("--approval-mode", mode))
                 editorState.geminiPrompt = ""
             }
 
             input.startsWith("/extensions use ") -> {
                 val extensions = input.removePrefix("/extensions use ").trim()
-                openFullCli(listOf("--extensions", extensions))
+                startEmbeddedGemini(listOf("--extensions", extensions))
                 editorState.geminiPrompt = ""
             }
 
             input == "/resume latest" -> {
-                appendGeminiCli("Opening latest Gemini CLI session")
-                openFullCli(listOf("--resume", "latest"))
+                appendGeminiCli("Opening latest Gemini CLI session in embedded terminal")
+                startEmbeddedGemini(listOf("--resume", "latest"))
                 editorState.geminiPrompt = ""
             }
 
             input.startsWith("/resume ") && input != "/resume list" -> {
                 val target = input.removePrefix("/resume ").trim()
-                appendGeminiCli("Opening Gemini CLI session: $target")
-                openFullCli(listOf("--resume", target))
+                appendGeminiCli("Opening Gemini CLI session in embedded terminal: $target")
+                startEmbeddedGemini(listOf("--resume", target))
                 editorState.geminiPrompt = ""
             }
 
@@ -802,12 +970,12 @@ fun EditorTab.GeminiAssistantSheet() {
             }
 
             input.startsWith("/") && listOf("/explain", "/bugs", "/refactor", "/tests").none { input.startsWith(it) } -> {
-                appendGeminiCli("Unknown Xed Gemini command. Tap CLI for Gemini's full interactive command set, or run /help.")
+                appendGeminiCli("Unknown Xed Gemini command. Tap CLI for Gemini's full terminal UI, use /flow for terminal-backed AI, /sheet <request> for compact sheet output, or run /help.")
                 editorState.geminiPrompt = ""
             }
 
             else -> {
-                askCurrentPrompt()
+                sendPromptToEmbeddedGemini(input)
                 editorState.geminiPrompt = ""
             }
         }
@@ -850,7 +1018,9 @@ fun EditorTab.GeminiAssistantSheet() {
             $tips
 
             Xed additions:
+            • Send/Ask opens a real terminal-backed Gemini CLI flow
             • /flow starts a persistent Gemini CLI coding flow
+            • /sheet asks once in this compact sheet
             • @path adds file context, ! toggles shell mode
             • Apply/Insert review changes before editing
         """
@@ -875,21 +1045,107 @@ fun EditorTab.GeminiAssistantSheet() {
         }
     }
 
-    ModalBottomSheet(onDismissRequest = { editorState.showGeminiAssistant = false }) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    @Composable
+    fun EmbeddedGeminiTerminal() {
+        val isDarkMode = isSystemInDarkTheme()
+
+        LaunchedEffect(Unit) {
+            if (embeddedGeminiSession == null) startEmbeddedGemini()
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                embeddedGeminiSession?.finishIfRunning()
+                embeddedGeminiSession = null
+            }
+        }
+
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(420.dp)
+                    .background(colorScheme.surface, RoundedCornerShape(14.dp))
+                    .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
+        ) {
+            val session = embeddedGeminiSession
+            if (session == null) {
+                Text(
+                    text = "Starting embedded Gemini CLI terminal...",
+                    modifier = Modifier.padding(16.dp),
+                    color = colorScheme.onSurfaceVariant,
+                    fontFamily = FontFamily.Monospace,
+                )
+            } else {
+                AndroidView(
+                    factory = { context ->
+                        TerminalView(context, null).apply {
+                            terminalView = WeakReference(this)
+                            setTextSize(com.rk.utils.dpToPx(Settings.terminal_font_size.toFloat(), context))
+                            val fontFile = com.rk.file.sandboxDir().child("etc/font.ttf")
+                            if (fontFile.exists()) {
+                                setTypeface(Typeface.createFromFile(fontFile))
+                            } else {
+                                val font =
+                                    Settings.terminal_font_path.takeIf { it.isNotEmpty() }?.let {
+                                        FontCache.getTypeface(context, it, Settings.is_terminal_font_asset)
+                                    } ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
+                                setTypeface(font)
+                            }
+                            val client = TerminalBackEnd()
+                            session.updateTerminalSessionClient(client)
+                            attachSession(session)
+                            setTerminalViewClient(client)
+                            applyGeminiSheetTerminalColors(
+                                surfaceColor = colorScheme.surface.toArgb(),
+                                onSurfaceColor = colorScheme.onSurface.toArgb(),
+                                terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                            )
+                            post {
+                                keepScreenOn = true
+                                isFocusableInTouchMode = true
+                                requestFocus()
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    update = { view ->
+                        terminalView = WeakReference(view)
+                        if (view.mTermSession != session) {
+                            val client = TerminalBackEnd()
+                            session.updateTerminalSessionClient(client)
+                            view.attachSession(session)
+                            view.setTerminalViewClient(client)
+                        }
+                        view.applyGeminiSheetTerminalColors(
+                            surfaceColor = colorScheme.surface.toArgb(),
+                            onSurfaceColor = colorScheme.onSurface.toArgb(),
+                            terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = { editorState.showGeminiAssistant = false },
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 0.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
                         .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(18.dp))
                         .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(18.dp))
-                        .padding(14.dp),
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.width(8.dp))
-                        Text(text = "Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                        Text(text = "Terminal backed + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                     }
                     Text(
                         text = "cwd ${currentProjectDir()}",
@@ -897,6 +1153,7 @@ fun EditorTab.GeminiAssistantSheet() {
                         fontFamily = FontFamily.Monospace,
                         style = MaterialTheme.typography.bodySmall,
                     )
+                    EmbeddedGeminiTerminal()
                     Text(
                         text = "Notifications",
                         color = colorScheme.onSurfaceVariant,
@@ -907,7 +1164,7 @@ fun EditorTab.GeminiAssistantSheet() {
                             editorState.geminiCliTranscript.ifBlank {
                                 geminiCliWelcomeText()
                             },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp, max = 260.dp).verticalScroll(rememberScrollState()),
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 96.dp).verticalScroll(rememberScrollState()),
                         color = colorScheme.onSurface,
                         fontFamily = FontFamily.Monospace,
                         style = MaterialTheme.typography.bodySmall,
@@ -928,7 +1185,7 @@ fun EditorTab.GeminiAssistantSheet() {
                             value = editorState.geminiPrompt,
                             onValueChange = { editorState.geminiPrompt = it },
                             modifier = Modifier.weight(1f).heightIn(min = 58.dp),
-                            label = { Text(if (editorState.geminiShellMode) "Shell command" else "Type your message or @path/to/file") },
+                            label = { Text(if (editorState.geminiShellMode) "Shell command" else "Type message, then Send opens Gemini Terminal UI") },
                             minLines = 1,
                             maxLines = 4,
                         )
@@ -938,12 +1195,12 @@ fun EditorTab.GeminiAssistantSheet() {
                             onClick = { handleGeminiSubmit() },
                             modifier = Modifier.padding(top = 8.dp),
                         ) {
-                            Text("Send")
+                            Text("Terminal")
                         }
                     }
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Using: ${memoryFiles().size} GEMINI.md files | Xed IDE bridge | ${if (editorState.geminiShellMode) "shell mode" else "auto"}",
+                            text = "Using: Terminal Gemini CLI | ${memoryFiles().size} GEMINI.md files | Xed IDE bridge | ${if (editorState.geminiShellMode) "shell mode" else "auto"}",
                             color = colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodySmall,
                         )
@@ -973,6 +1230,7 @@ fun EditorTab.GeminiAssistantSheet() {
                 SectionTitle("Gemini CLI")
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     CommandChip("Flow", "/flow")
+                    CommandChip("Sheet ask", "/sheet ")
                     CommandChip("Auth", "/auth")
                     CommandChip("Doctor", "/doctor")
                     CommandChip("Sessions", "/sessions list")
@@ -990,7 +1248,7 @@ fun EditorTab.GeminiAssistantSheet() {
                     enabled = !editorState.geminiRunning && editorState.geminiPrompt.isNotBlank(),
                     onClick = { handleGeminiSubmit() },
                 ) {
-                    Text(strings.ask.getString())
+                    Text("Terminal Ask")
                 }
 
                 Button(
@@ -1201,4 +1459,16 @@ fun EditorTab.GeminiAssistantSheet() {
             },
         )
     }
+}
+
+private fun TerminalView.applyGeminiSheetTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: java.util.Properties) {
+    onScreenUpdated()
+    mEmulator?.mColors?.reset()
+    TerminalColors.COLOR_SCHEME.updateWith(terminalColors)
+    mEmulator?.mColors?.mCurrentColors?.apply {
+        set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor)
+        set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor)
+        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
+    }
+    invalidate()
 }

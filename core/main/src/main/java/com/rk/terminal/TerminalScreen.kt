@@ -2,6 +2,8 @@ package com.rk.terminal
 
 import android.graphics.Typeface
 import android.view.KeyEvent
+import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -160,7 +163,6 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
                             when (page) {
                                 0 -> {
-                                    terminalView.get()?.requestFocus()
                                     AndroidView(
                                         factory = { context ->
                                             VirtualKeysView(context, null).apply {
@@ -205,6 +207,12 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
                                                         terminalView.get()?.dispatchKeyEvent(eventUp)
                                                     } else {
                                                         terminalView.get()?.currentSession?.write(text)
+                                                        val eventDown =
+                                                            KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
+                                                        val eventUp =
+                                                            KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
+                                                        terminalView.get()?.dispatchKeyEvent(eventDown)
+                                                        terminalView.get()?.dispatchKeyEvent(eventUp)
                                                         text = ""
                                                     }
                                                 }
@@ -317,11 +325,20 @@ private fun ColumnScope.TerminalView(
                 post {
                     keepScreenOn = true
                     isFocusableInTouchMode = true
-                    requestFocus()
+                    focusAndShowKeyboard()
                 }
             }
         },
-        modifier = Modifier.fillMaxWidth().weight(1f),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .pointerInteropFilter { event ->
+                    if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
+                        terminalView.get()?.focusAndShowKeyboard()
+                    }
+                    false
+                },
         update = { terminalView ->
             val terminalColors =
                 if (isDarkMode) {
@@ -449,12 +466,23 @@ fun Terminal.changeSession(sessionId: String) {
         post {
             keepScreenOn = true
             setFocusableInTouchMode(true)
-            requestFocus()
+            focusAndShowKeyboard()
         }
     }
     virtualKeysView.get()?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
 
     binder.getService().currentSession.value = sessionId
+}
+
+private fun TerminalView.focusAndShowKeyboard() {
+    post {
+        isFocusable = true
+        isFocusableInTouchMode = true
+        requestFocus()
+        val inputMethodManager = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        inputMethodManager?.restartInput(this)
+        inputMethodManager?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+    }
 }
 
 private fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
