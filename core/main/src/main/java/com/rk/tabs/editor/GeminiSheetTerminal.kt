@@ -169,15 +169,17 @@ fun createGeminiSheetSession(
 
 private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String): Pair<String, Array<String>> {
     val sandbox = localBinDir().child("sandbox").absolutePath
+    val geminiLauncher = localBinDir().child("gemini-cli").absolutePath
     val command =
         listOf(
-            "/usr/local/bin/gemini",
+            sandbox,
+            "/bin/bash",
+            geminiLauncher,
             "--skip-trust",
             "--include-directories",
             workingDir,
         ) + extraArgs
-    val shellCommand = "exec " + listOf(sandbox, *command.toTypedArray()).joinToString(" ") { shellQuote(it) }
-    return "/system/bin/sh" to arrayOf("-c", shellCommand)
+    return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
 }
 
 private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: GeminiBridge.Info): Array<String> {
@@ -232,8 +234,6 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         if (Settings.seccomp) add("SECCOMP=1")
     }.toTypedArray()
 }
-
-private fun shellQuote(value: String): String = "'${value.replace("'", "'\\''")}'"
 
 private fun TerminalView.applyGeminiSheetTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
     onScreenUpdated()

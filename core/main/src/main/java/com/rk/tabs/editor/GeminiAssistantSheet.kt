@@ -30,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.ai.GeminiBridge
+import com.rk.file.sandboxHomeDir
+import com.rk.settings.Settings
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -43,10 +45,17 @@ fun EditorTab.GeminiAssistantSheet() {
     val activity = LocalActivity.current
     val colorScheme = MaterialTheme.colorScheme
 
-    fun currentProjectDir(): String =
-        projectRoot?.getAbsolutePath()
-            ?: File(file.getAbsolutePath()).parent
-            ?: file.getAbsolutePath()
+    fun terminalHomeDir(): String =
+        if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
+
+    fun currentProjectDir(): String {
+        projectRoot?.getAbsolutePath()?.takeIf { it.isNotBlank() }?.let { return it }
+
+        val path = file.getAbsolutePath().takeIf { it.startsWith("/") } ?: return terminalHomeDir()
+        val localFile = File(path)
+        if (localFile.isDirectory) return localFile.absolutePath
+        return localFile.parent?.takeIf { it.isNotBlank() } ?: terminalHomeDir()
+    }
 
     fun appendLog(text: String) {
         editorState.geminiCliTranscript =

@@ -4,10 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,11 +30,13 @@ import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
+import com.rk.ai.GeminiBridge
 import com.rk.commands.CommandProvider
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
+import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.currentDrawerTab
@@ -41,12 +47,17 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
+import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.tabs.editor.GeminiSheetTerminal
+import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
+import com.termux.terminal.TerminalSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
@@ -58,6 +69,8 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
+    var showHomeGeminiSheet by remember { mutableStateOf(false) }
+    var homeGeminiSession by remember { mutableStateOf<TerminalSession?>(null) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         val newFileCommand = CommandProvider.NewFileCommand
@@ -74,7 +87,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                 XedIcon(terminalCommand.getIcon())
             }
 
-            IconButton(onClick = { geminiCliCommand.action(ActionContext(context as Activity)) }) {
+            IconButton(onClick = { showHomeGeminiSheet = true }) {
                 XedIcon(geminiCliCommand.getIcon())
             }
         }
@@ -82,6 +95,15 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         IconButton(onClick = { settingsCommand.action(ActionContext(context as Activity)) }) {
             XedIcon(settingsCommand.getIcon())
         }
+    }
+
+    if (showHomeGeminiSheet) {
+        HomeGeminiSheet(
+            viewModel = viewModel,
+            session = homeGeminiSession,
+            onSessionChange = { homeGeminiSession = it },
+            onDismiss = { showHomeGeminiSheet = false },
+        )
     }
 
     if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
@@ -243,5 +265,53 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
             confirmText = stringResource(strings.ok),
             inputLabel = stringResource(strings.file_name),
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeGeminiSheet(
+    viewModel: MainViewModel,
+    session: TerminalSession?,
+    onSessionChange: (TerminalSession?) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+    val scope = rememberCoroutineScope()
+    val homeDir = if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
+
+    fun startGemini() {
+        val currentActivity = activity ?: return
+        session?.finishIfRunning()
+        onSessionChange(null)
+        scope.launch {
+            val bridge = withContext(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, homeDir) }
+            val newSession = createGeminiSheetSession(
+                activity = currentActivity,
+                bridge = bridge,
+                workingDir = homeDir,
+            )
+            onSessionChange(newSession)
+        }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        if (session == null || !session.isRunning) startGemini()
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+            Text("✦ Gemini CLI")
+            Text("cwd $homeDir")
+            Row {
+                TextButton(onClick = { startGemini() }) { Text("Restart") }
+                TextButton(onClick = {
+                    session?.finishIfRunning()
+                    onSessionChange(null)
+                }) { Text("Stop") }
+            }
+            GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth())
+        }
     }
 }
