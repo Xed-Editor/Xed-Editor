@@ -36,9 +36,8 @@ internal fun geminiResolveWorkspacePath(workspacePath: String, path: String): Fi
     val canonical = runCatching { candidate.canonicalFile }.getOrElse { candidate.absoluteFile }
 
     // Gemini CLI can send absolute paths from its terminal/proot workspace while the IDE
-    // bridge primary workspace is a project/home path. The discovery file exposes a
-    // multi-root workspace including "/", so keep the bridge lenient and never crash the
-    // CLI with MCP -32602 for valid file paths.
+    // bridge primary workspace is a project/home path. Keep path resolution lenient so
+    // valid absolute paths do not fail MCP calls with path validation errors.
     val isInside = roots.isEmpty() || roots.any { root -> geminiIsInsideRoot(canonical, root) }
     return canonical.takeIf { isInside }
 }

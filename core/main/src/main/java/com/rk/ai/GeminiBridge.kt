@@ -39,7 +39,11 @@ object GeminiBridge {
         d("ensureStarted(workspacePath=$workspacePath)")
         
         synchronized(workspacePathsLock) {
-            if (workspacePath.isNotBlank()) workspacePaths.add(workspacePath)
+            if (workspacePath.isNotBlank()) {
+                // Keep insertion order stable but move the active workspace to the end so it is primary.
+                workspacePaths.remove(workspacePath)
+                workspacePaths.add(workspacePath)
+            }
         }
 
         val currentServer = server
@@ -76,10 +80,12 @@ object GeminiBridge {
         server = null
         token = null
         port = 0
+        synchronized(workspacePathsLock) { workspacePaths.clear() }
+        clearDiscoveryFilesForProcess()
     }
 
-    /** Gets the first added workspace path as the primary one. */
-    fun primaryWorkspacePath(): String = synchronized(workspacePathsLock) { workspacePaths.firstOrNull().orEmpty() }
+    /** Gets the most recently added workspace path as the primary one. */
+    fun primaryWorkspacePath(): String = synchronized(workspacePathsLock) { workspacePaths.lastOrNull().orEmpty() }
     
     /** Gets all added workspace paths joined by the system path separator. */
     fun workspacePathForResolution(): String = synchronized(workspacePathsLock) { workspacePaths.joinToString(File.pathSeparator) }
@@ -115,6 +121,19 @@ object GeminiBridge {
                     ?.forEach { it.delete() }
 
                 File(dir, "gemini-ide-server-$pid-$port.json").writeText(json)
+            }
+        }
+    }
+
+    private fun clearDiscoveryFilesForProcess() {
+        runCatching {
+            val pid = Process.myPid()
+            listOf(
+                File(getTempDir(), "gemini/ide"),
+                File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
+            ).forEach { dir ->
+                dir.listFiles { file -> file.name.startsWith("gemini-ide-server-$pid-") && file.name.endsWith(".json") }
+                    ?.forEach { it.delete() }
             }
         }
     }

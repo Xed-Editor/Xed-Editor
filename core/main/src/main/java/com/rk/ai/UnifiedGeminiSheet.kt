@@ -2,8 +2,6 @@ package com.rk.ai
 
 import android.app.Activity
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Refresh
@@ -12,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.session.GeminiSessionManager
@@ -42,7 +39,6 @@ fun UnifiedGeminiSheet(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val activity = context as? Activity
-    var promptInput by remember { mutableStateOf("") }
 
     fun terminalHomeDir(): String =
         if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
@@ -138,14 +134,25 @@ fun UnifiedGeminiSheet(
         }
     }
 
+    fun consumePendingPrompt(): String? {
+        val pending = viewModel.geminiPrompt.trim()
+        if (pending.isBlank()) return null
+        viewModel.geminiPrompt = ""
+        return pending
+    }
+
     LaunchedEffect(Unit) {
-        val pendingPrompt = viewModel.geminiPrompt.trim()
-        if (pendingPrompt.isNotBlank()) {
-            viewModel.geminiPrompt = ""
+        val pendingPrompt = consumePendingPrompt()
+        if (pendingPrompt != null) {
             handleInput(pendingPrompt)
         } else if (!GeminiSessionManager.canReuseFor(defaultCwd)) {
             startGemini(defaultCwd)
         }
+    }
+
+    LaunchedEffect(viewModel.geminiPrompt, viewModel.showGeminiSheet) {
+        if (!viewModel.showGeminiSheet) return@LaunchedEffect
+        consumePendingPrompt()?.let { handleInput(it) }
     }
 
     LaunchedEffect(GeminiSessionManager.session) {
@@ -157,41 +164,11 @@ fun UnifiedGeminiSheet(
             delay(3000)
         }
     }
-    fun submitPrompt() {
-        val input = promptInput
-        if (input.isBlank()) return
-        promptInput = ""
-        handleInput(input)
-    }
-
     GeminiCliSheet(
         onDismissRequest = onDismissRequest,
         cwd = defaultCwd,
         session = GeminiSessionManager.session,
         modifier = modifier,
-        headerContent = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedTextField(
-                    value = promptInput,
-                    onValueChange = { promptInput = it },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("Message Gemini") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions(onSend = { submitPrompt() }),
-                )
-                IconButton(
-                    onClick = { submitPrompt() },
-                    enabled = promptInput.isNotBlank(),
-                ) {
-                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.send), contentDescription = "Send")
-                }
-            }
-        },
         controls = {
             val currentTab = viewModel.currentTab as? EditorTab
             val editor = currentTab?.editorState?.editor?.get()
