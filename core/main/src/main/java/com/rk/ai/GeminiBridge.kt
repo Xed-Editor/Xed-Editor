@@ -7,7 +7,7 @@ import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.bridge.server.GeminiBridgeServer
 import com.rk.ai.service.GeminiIdeServiceImpl
-import com.rk.file.getTempDir
+import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
 import java.io.File
 import java.security.SecureRandom
@@ -30,7 +30,7 @@ object GeminiBridge {
         return Info(s.port, t)
     }
 
-    fun startServer(viewModel: MainViewModel) {
+    fun ensureStarted(viewModel: MainViewModel) {
         if (server != null) return
 
         runCatching {
@@ -70,7 +70,7 @@ object GeminiBridge {
         }
     }
 
-    fun stopServer() {
+    fun stop() {
         server?.stop()
         server = null
         token = null
@@ -108,9 +108,6 @@ object GeminiBridge {
             }
             val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 
-            // Gemini CLI checks discovery files under "$TMPDIR/gemini/ide".
-            // The embedded sheet overrides TMPDIR to terminal/gemini-sheet, while
-            // normal terminal sessions use the app temp directory directly.
             listOf(
                 File(getTempDir(), "gemini/ide"),
                 File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
@@ -119,18 +116,15 @@ object GeminiBridge {
                 dir.listFiles { file -> file.name.startsWith("gemini-ide-server-") && file.name.endsWith(".json") }
                     ?.forEach { file ->
                         val fileName = file.name
-                        // Pattern: gemini-ide-server-$PID-$PORT.json or gemini-ide-server-$PID.json
                         val parts = fileName.removePrefix("gemini-ide-server-").removeSuffix(".json").split("-")
                         val filePid = parts.firstOrNull()?.toIntOrNull()
                         if (filePid != null) {
                             if (filePid == pid) {
-                                // Delete old ports for our own PID
                                 val filePort = parts.getOrNull(1)?.toIntOrNull()
                                 if (filePort != null && filePort != port) {
                                     file.delete()
                                 }
                             } else {
-                                // Prune dead PIDs
                                 if (!isPidAlive(filePid)) {
                                     file.delete()
                                 }

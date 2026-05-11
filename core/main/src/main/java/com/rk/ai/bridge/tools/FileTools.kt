@@ -26,15 +26,11 @@ class WriteFileTool : McpTool {
         
         val oldContent = ideService.getFileContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
         
-        val accepted = ideService.showPatch(file.absolutePath, oldContent, content, "Review Gemini file update") {
+        ideService.showPatch(file.absolutePath, oldContent, content, "Review Gemini file update") {
             ideService.writeFile(file, content)
         }
         
-        return if (accepted) {
-            textResult("File ${file.absolutePath} updated after user review.")
-        } else {
-            textResult("Update to ${file.absolutePath} was rejected or timed out.")
-        }
+        return textResult("File update opened in Xed Editor for ${file.absolutePath}. Results will be sent via notifications.")
     }
 }
 

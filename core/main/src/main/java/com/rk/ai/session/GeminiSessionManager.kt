@@ -45,8 +45,9 @@ object GeminiSessionManager {
         stopSession()
 
         return withContext(Dispatchers.IO) {
-            // GeminiBridge now handles the modular server and service initialization
-            val bridge = GeminiBridge.ensureStarted(viewModel, workingDir)
+            GeminiBridge.ensureStarted(viewModel)
+            GeminiBridge.setWorkspacePath(workingDir)
+            val bridgeInfo = GeminiBridge.getBridgeInfo()!!
             
             withContext(Dispatchers.Main) {
                 // The actual server is managed by GeminiBridge object for discovery file consistency
@@ -56,7 +57,7 @@ object GeminiSessionManager {
                 // Create CLI session
                 val newSession = createGeminiSheetSession(
                     activity = activity,
-                    bridge = bridge,
+                    bridge = bridgeInfo,
                     workingDir = workingDir,
                     extraArgs = extraArgs,
                 )

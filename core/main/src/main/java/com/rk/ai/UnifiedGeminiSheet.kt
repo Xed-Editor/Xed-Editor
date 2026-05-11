@@ -84,7 +84,10 @@ fun UnifiedGeminiSheet(
     fun startGemini(workingDir: String = defaultCwd, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
         if (!forceRestart && extraArgs.isEmpty() && GeminiSessionManager.canReuseFor(workingDir)) {
-            scope.launch(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
+            scope.launch(Dispatchers.IO) { 
+                GeminiBridge.ensureStarted(viewModel)
+                GeminiBridge.setWorkspacePath(workingDir)
+            }
             appendLog("Reusing Gemini CLI session: ${GeminiSessionManager.cwd}")
             return
         }

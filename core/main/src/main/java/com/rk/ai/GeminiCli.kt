@@ -104,7 +104,7 @@ object GeminiCli {
                         add("VISUAL=vim")
                         add("GEMINI_CLI_IDE_AUTH_TOKEN=${ideBridge.token}")
                         add("GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}")
-                        add("GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(workingDir ?: ideBridge.workspacePath)}")
+                        add("GEMINI_CLI_IDE_WORKSPACE_PATH=${GeminiBridge.workspacePathForResolution()}")
                     }
                     add("/bin/bash")
                     add(localBinDir().child("gemini-cli-headless").absolutePath)
