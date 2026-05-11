@@ -56,3 +56,24 @@ class OpenFileTool : McpTool {
         return textResult("opened ${file.absolutePath}")
     }
 }
+
+class CreateFileTool : McpTool {
+    override fun getName(): String = "createFile"
+    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+        val filePath = args.get("filePath")?.asString.orEmpty()
+        if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
+        val content = args.get("content")?.asString
+        val result = ideService.createFile(filePath, content)
+        return textResult(result)
+    }
+}
+
+class DeleteFileTool : McpTool {
+    override fun getName(): String = "deleteFile"
+    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+        val filePath = args.get("filePath")?.asString.orEmpty()
+        if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
+        val result = ideService.deleteFile(filePath)
+        return textResult(result)
+    }
+}

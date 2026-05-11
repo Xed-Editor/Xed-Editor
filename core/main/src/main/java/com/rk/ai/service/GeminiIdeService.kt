@@ -86,6 +86,21 @@ interface GeminiIdeService {
 
     /** Formats a document using the LSP. */
     suspend fun formatDocument(filePath: String)
+
+    /** Gets git status for the workspace repository. */
+    suspend fun getGitStatus(workspacePath: String): JsonObject
+
+    /** Creates a new file at the given path with optional content. */
+    suspend fun createFile(filePath: String, content: String?): String
+
+    /** Deletes a file from the workspace. */
+    suspend fun deleteFile(filePath: String): String
+
+    /** Gets the transcript text from the running Gemini terminal session. */
+    suspend fun getTerminalOutput(lines: Int?): String
+
+    /** Gets a high-level project directory tree structure. */
+    suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String
 }
 
 data class CommandResult(

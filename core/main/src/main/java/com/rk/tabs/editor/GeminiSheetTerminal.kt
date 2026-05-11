@@ -203,6 +203,7 @@ fun GeminiCliSheet(
     showTerminal: Boolean = true,
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
 ) {
     val ui = rememberGeminiSheetUiState()
 
@@ -218,6 +219,7 @@ fun GeminiCliSheet(
         onDragStart = ui.onDragStart,
         onDrag = ui.onDrag,
         onDragEnd = ui.onDragEndForInline,
+        bottomBar = bottomBar,
     )
 }
 
@@ -231,6 +233,7 @@ fun GeminiCliModalSheet(
     showTerminal: Boolean = true,
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -262,6 +265,7 @@ fun GeminiCliModalSheet(
             onDragStart = ui.onDragStart,
             onDrag = ui.onDrag,
             onDragEnd = { ui.onDragEndForModal?.invoke() },
+            bottomBar = bottomBar,
         )
     }
 }
@@ -276,6 +280,7 @@ private fun GeminiCliSheetContent(
     showTerminal: Boolean = true,
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
     onDragStart: () -> Unit,
     onDrag: (Float) -> Unit,
     onDragEnd: () -> Unit,
@@ -335,6 +340,11 @@ private fun GeminiCliSheetContent(
             if (showTerminal) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
                 GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
+            }
+
+            bottomBar?.let {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
+                it()
             }
         }
     }

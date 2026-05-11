@@ -30,9 +30,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.viewModelScope
+import com.rk.ai.session.GeminiSessionManager
 import com.rk.lsp.applyFormattingOptions
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 interface GeminiNotificationSender {
     fun sendNotification(method: String, params: JsonObject)
@@ -495,9 +498,9 @@ class GeminiIdeServiceImpl(
                     })
                     diag.code?.let { code ->
                         val codeValue: String = if (code.isLeft) {
-                            code.left
+                            code.left as String
                         } else {
-                            code.right.value.toString()
+                            (code.right.value as Any).toString()
                         }
                         addProperty("code", codeValue)
                     }
@@ -637,6 +640,131 @@ class GeminiIdeServiceImpl(
             applyFormattingOptions(eventManager, tab)
             eventManager.emitAsync(EventType.fullFormatting, editor.text)
         }
+    }
+
+    override suspend fun getGitStatus(workspacePath: String): JsonObject {
+        val result = JsonObject()
+        if (workspacePath.isBlank()) return result.apply { addProperty("error", "workspacePath required") }
+
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val repoDir = File(workspacePath)
+                val builder = FileRepositoryBuilder().readEnvironment().findGitDir(repoDir)
+                val repo = builder.build()
+                if (repo.directory == null) {
+                    result.addProperty("error", "not a git repository")
+                    return@withContext
+                }
+
+                Git(repo).use { git ->
+                    val status = git.status().call()
+                    val branch = repo.branch
+                    result.addProperty("branch", branch ?: "HEAD")
+
+                    result.add("changes", JsonArray().apply {
+                        status.added.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "added") }) }
+                        status.changed.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "staged") }) }
+                        status.modified.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "modified") }) }
+                        status.removed.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "removed") }) }
+                        status.untracked.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "untracked") }) }
+                        status.conflicting.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "conflicting") }) }
+                    })
+
+                    result.addProperty("totalChanges", result.getAsJsonArray("changes").size())
+                }
+            }.onFailure {
+                result.addProperty("error", it.message ?: "git error")
+            }
+        }
+        return result
+    }
+
+    override suspend fun createFile(filePath: String, content: String?): String {
+        val file = resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace: $filePath")
+        if (file.exists()) throw IllegalArgumentException("file already exists: $filePath")
+        withContext(Dispatchers.IO) {
+            file.parentFile?.mkdirs()
+            if (content != null) {
+                file.writeText(content, Charsets.UTF_8)
+            } else {
+                file.createNewFile()
+            }
+            refreshEditors(filePath = file.absolutePath, force = true)
+        }
+        return "created ${file.absolutePath}"
+    }
+
+    override suspend fun deleteFile(filePath: String): String {
+        val file = resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace: $filePath")
+        if (!file.exists()) throw IllegalArgumentException("file not found: $filePath")
+        if (!file.isFile) throw IllegalArgumentException("not a file: $filePath")
+
+        withContext(Dispatchers.Main) {
+            val tab = findTabByPath(file.absolutePath)
+            if (tab != null) {
+                viewModel.tabManager.removeTab(tab)
+            }
+        }
+
+        withContext(Dispatchers.IO) {
+            file.delete()
+        }
+        return "deleted ${file.absolutePath}"
+    }
+
+    override suspend fun getTerminalOutput(lines: Int?): String {
+        val session = GeminiSessionManager.session
+        if (session == null || !session.isRunning) return "No active Gemini terminal session"
+        return withContext(Dispatchers.IO) {
+            val emulator = session.emulator ?: return@withContext "Terminal emulator not available"
+            val screen = emulator.screen
+            val full = screen.getTranscriptTextWithoutJoinedLines()
+            if (lines != null && lines > 0) {
+                val all = full.split("\n")
+                all.takeLast(lines.coerceAtLeast(1)).joinToString("\n")
+            } else {
+                full
+            }
+        }
+    }
+
+    override suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String {
+        val dir = resolvePath(path) ?: throw IllegalArgumentException("path outside workspace: $path")
+        if (!dir.exists() || !dir.isDirectory) throw IllegalArgumentException("not a directory: $path")
+
+        val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules", ".dex", ".cache")
+        val output = StringBuilder()
+        val count = intArrayOf(0)
+
+        fun walk(current: File, depth: Int) {
+            if (count[0] >= maxItems) return
+            if (depth > maxDepth) return
+            val indent = "  ".repeat(depth)
+            val children = current.listFiles()?.sortedWith(compareBy<File> { !it.isDirectory }.thenBy { it.name.lowercase() })
+                ?: return
+
+            for (child in children) {
+                if (count[0] >= maxItems) return
+                if (child.name in ignored) continue
+                if (child.isHidden && child.name != ".env") continue
+
+                val prefix = if (child.isDirectory) "[D]" else "[F]"
+                output.appendLine("$indent$prefix ${child.name}")
+                count[0]++
+
+                if (child.isDirectory && depth < maxDepth) {
+                    walk(child, depth + 1)
+                }
+            }
+        }
+
+        withContext(Dispatchers.IO) {
+            output.appendLine("[D] ${dir.name}/")
+            walk(dir, 1)
+            if (count[0] >= maxItems) output.appendLine("  ... (truncated at $maxItems items)")
+        }
+
+        return output.toString()
     }
 
     private fun findTabByPath(path: String): EditorTab? {

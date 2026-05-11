@@ -29,6 +29,11 @@ internal object GeminiMcpTools {
             add(schema("findReferences", "Find references for a symbol at a position", listOf("filePath", "line", "column"), mapOf("filePath" to "string", "line" to "number", "column" to "number")))
             add(schema("renameSymbol", "Rename a symbol at a position project-wide", listOf("filePath", "line", "column", "newName"), mapOf("filePath" to "string", "line" to "number", "column" to "number", "newName" to "string")))
             add(schema("formatDocument", "Format a document using the LSP", listOf("filePath"), mapOf("filePath" to "string")))
+            add(schema("getGitStatus", "Get git status of the workspace repository (branch, changes, ahead/behind)", emptyList(), mapOf("path" to "string")))
+            add(schema("createFile", "Create a new file at the specified path with optional initial content", listOf("filePath"), mapOf("filePath" to "string", "content" to "string")))
+            add(schema("deleteFile", "Permanently delete a file or empty directory from the workspace", listOf("filePath"), mapOf("filePath" to "string")))
+            add(schema("getTerminalOutput", "Get recent output from the running Gemini CLI terminal session", emptyList(), mapOf("lines" to "number")))
+            add(schema("getProjectStructure", "Get a high-level directory tree of the project, showing folders and files up to a configurable depth", listOf("path"), mapOf("path" to "string", "maxDepth" to "number", "maxItems" to "number")))
         }
 
     private fun schema(
