@@ -138,12 +138,12 @@ class GeminiBridgeServer(
             return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, it.message ?: "cannot read newPath"))
         }
 
-        val accepted = ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review Gemini editor change") {
+        ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review Gemini editor change") {
             ideService.writeFile(targetFile, newContent)
             ideService.refreshEditors(targetFile.absolutePath, force = false)
         }
 
-        return json(Response.Status.OK, JsonObject().apply { addProperty("accepted", accepted) }.let { gson.toJson(it) })
+        return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
     }
 
     private fun serveMcp(session: IHTTPSession, rawPostBody: String?): Response {
