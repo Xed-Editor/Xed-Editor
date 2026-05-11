@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.components.ResponsiveDrawer
 import com.rk.filetree.DrawerContent
@@ -94,11 +95,12 @@ fun MainActivity.MainContentHost(
 
             LaunchedEffect(Settings.fullscreen) {
                 val controller = WindowCompat.getInsetsController(window, window.decorView)
-                val statusBarType = WindowInsetsCompat.Type.statusBars()
                 if (Settings.fullscreen) {
-                    controller.hide(statusBarType)
+                    controller.hide(WindowInsetsCompat.Type.systemBars())
+                    controller.systemBarsBehavior =
+                        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                 } else {
-                    controller.show(statusBarType)
+                    controller.show(WindowInsetsCompat.Type.systemBars())
                 }
             }
 

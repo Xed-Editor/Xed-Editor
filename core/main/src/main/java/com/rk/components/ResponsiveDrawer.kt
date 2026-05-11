@@ -50,7 +50,7 @@ fun ResponsiveDrawer(
     if (isPermanentDrawer) {
         PermanentNavigationDrawer(
             content = mainContent,
-            modifier = Modifier.imePadding().systemBarsPadding(),
+            modifier = Modifier.imePadding(),
             drawerContent = {
                 PermanentDrawerSheet(
                     windowInsets = if (fullscreen) WindowInsets() else DrawerDefaults.windowInsets,
@@ -61,7 +61,7 @@ fun ResponsiveDrawer(
         )
     } else {
         ModalNavigationDrawer(
-            modifier = Modifier.imePadding().systemBarsPadding(),
+            modifier = Modifier.imePadding(),
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
             content = mainContent,

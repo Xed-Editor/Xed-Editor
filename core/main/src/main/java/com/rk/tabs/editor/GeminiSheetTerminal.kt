@@ -474,7 +474,7 @@ fun createGeminiSheetSession(
     val (shell, args) = geminiSheetProcessArgs(extraArgs, workingDir)
     return TerminalSession(
         shell,
-        localDir().absolutePath,
+        workingDir,
         args,
         buildGeminiSheetEnv(activity, workingDir, bridge),
         Settings.terminal_scrollback_buffer,

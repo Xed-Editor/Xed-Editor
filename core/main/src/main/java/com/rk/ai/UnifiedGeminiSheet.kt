@@ -199,16 +199,16 @@ fun UnifiedGeminiSheet(
             }
 
             IconButton(onClick = { startGemini(defaultCwd, forceRestart = true) }) {
-                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.refresh), contentDescription = "Restart")
+                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), contentDescription = "Restart")
             }
-            
+
             IconButton(onClick = {
                 scope.launch(Dispatchers.IO) {
                     val saved = saveDirtyEditors()
                     withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
                 }
-            }) { 
-                Icon(Icons.Outlined.Refresh, contentDescription = "Sync", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }) {
+                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), contentDescription = "Sync")
             }
 
             IconButton(onClick = {
