@@ -5,7 +5,7 @@
     <string name="close">Chiudi</string>
     <string name="permission_denied">Permesso negato</string>
     <string name="path">Percorso</string>
-    <string name="manage_storage_reason">Xed-Editor ha bisogno dei permessi per modificare i file. Per favore concedi i permessi nella schermata seguente.</string>
+    <string name="manage_storage_reason">Xed-Editor ha bisogno di accedere all\'archiviazione per modificare i file. Concedi l\'accesso nella schermata seguente.</string>
     <string name="themes">Temi</string>
     <string name="open_directory">Apri una cartella</string>
     <string name="save">Salva</string>
