@@ -8,8 +8,6 @@ import com.rk.ai.GeminiBridge
 import com.rk.ai.geminiDisplayRootFor
 import com.rk.ai.geminiIdeWorkspacePath
 import com.rk.ai.geminiResolveWorkspacePath
-import com.rk.ai.workspacePathForResolution
-import com.rk.ai.primaryWorkspacePath
 import com.rk.exec.ShellUtils
 import com.rk.file.FileWrapper
 import com.rk.tabs.editor.EditorTab

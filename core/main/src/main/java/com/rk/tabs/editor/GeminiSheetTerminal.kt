@@ -285,14 +285,15 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
     Column(
         modifier = modifier.height(height),
     ) {
-        AndroidView(
+        AndroidView<TerminalView>(
             modifier = Modifier.fillMaxWidth().height(terminalBodyHeight),
             factory = { context ->
                 TerminalView(context, null).apply {
                     setTextSize(Settings.terminal_font_size)
                     runCatching {
                         val fontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
-                        typeface = FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset) ?: Typeface.MONOSPACE
+                        val font = FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset) ?: Typeface.MONOSPACE
+                        setTypeface(font)
                     }
                     applyGeminiSheetTerminalColors(
                         onSurfaceColor = colorScheme.onSurface.toArgb(),
@@ -312,18 +313,16 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
             },
         )
 
-        AndroidView(
+        AndroidView<VirtualKeysView>(
             modifier = Modifier.fillMaxWidth().height(keysHeight),
             factory = { context ->
                 VirtualKeysView(context, null).apply {
-                    mColors = VirtualKeysConstants.VirtualKeysColors(colorScheme.surface.toArgb(), colorScheme.onSurface.toArgb())
-                    virtualKeysInfo = VirtualKeysInfo(
+                    buttonTextColor = colorScheme.onSurface.toArgb()
+                    reload(VirtualKeysInfo(
                         Settings.terminal_extra_keys,
                         "",
                         VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                    )
-                    buttonTextColor = colorScheme.onSurface.toArgb()
-                    reload()
+                    ))
                 }
             },
             update = { keys ->

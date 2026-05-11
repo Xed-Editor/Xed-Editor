@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -179,7 +178,7 @@ fun UnifiedGeminiSheet(
         modifier = modifier,
         controls = {
             IconButton(onClick = { startGemini(defaultCwd, forceRestart = true) }) { 
-                Icon(Icons.Outlined.Replay, contentDescription = "Restart", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(Icons.Outlined.Refresh, contentDescription = "Restart", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             IconButton(onClick = { startGemini(defaultCwd, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { 
                 Icon(Icons.Outlined.Lock, contentDescription = "Auth", tint = MaterialTheme.colorScheme.onSurfaceVariant)
