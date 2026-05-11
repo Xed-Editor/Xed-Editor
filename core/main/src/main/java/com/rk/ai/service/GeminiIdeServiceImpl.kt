@@ -484,7 +484,8 @@ class GeminiIdeServiceImpl(
         withContext(Dispatchers.Main) {
             tab.editorState.diagnostics.forEach { diag ->
                 results.add(JsonObject().apply {
-                    addProperty("message", diag.message)
+                    val messageStr = if (diag.message.isLeft) diag.message.left else diag.message.right.toString()
+                    addProperty("message", messageStr)
                     addProperty("severity", diag.severity.name)
                     add("range", JsonObject().apply {
                         add("start", JsonObject().apply {
@@ -497,11 +498,7 @@ class GeminiIdeServiceImpl(
                         })
                     })
                     diag.code?.let { code ->
-                        val codeValue: String = if (code.isLeft) {
-                            code.left as String
-                        } else {
-                            (code.right.value as Any).toString()
-                        }
+                        val codeValue = if (code.isLeft) code.left else code.right.toString()
                         addProperty("code", codeValue)
                     }
                     diag.source?.let { addProperty("source", it) }

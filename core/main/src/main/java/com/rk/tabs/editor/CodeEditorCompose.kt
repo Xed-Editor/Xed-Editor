@@ -199,7 +199,7 @@ fun Editor.registerXedEvents(
         val viewModel = fileTreeViewModel.get()
         val diagnostics = event.newDiagnosticsEvent
 
-        editorTab.editorState.diagnostics = diagnostics.map { it.diagnostic }
+        editorTab.editorState.diagnostics = diagnostics.mapNotNull { it.detail?.extraData as? org.eclipse.lsp4j.Diagnostic }
 
         val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
 

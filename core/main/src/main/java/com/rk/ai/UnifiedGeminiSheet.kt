@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,10 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.DeleteSweep
-import androidx.compose.material.icons.outlined.ExpandLess
-import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,7 +39,6 @@ import com.rk.resources.drawables
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.GeminiCliSheet
-import com.blankj.utilcode.util.ClipboardUtils
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -301,14 +297,14 @@ private fun StatusBar(
             )
             if (transcript.isNotBlank()) {
                 Spacer(Modifier.width(4.dp))
-                IconButton(onClick = onClearTranscript, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Outlined.DeleteSweep, contentDescription = "Clear log", modifier = Modifier.size(16.dp), tint = colorScheme.onSurfaceVariant)
+                TextButton(onClick = onClearTranscript, modifier = Modifier.height(24.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
+                    Text("Clear", style = MaterialTheme.typography.labelSmall, color = colorScheme.onSurfaceVariant)
                 }
                 IconButton(onClick = onToggleTranscript, modifier = Modifier.size(24.dp)) {
                     Icon(
-                        if (showTranscript) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                        if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                         contentDescription = if (showTranscript) "Hide log" else "Show log",
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(20.dp),
                         tint = colorScheme.onSurfaceVariant,
                     )
                 }
@@ -334,12 +330,6 @@ private fun StatusBar(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text("Transcript", style = MaterialTheme.typography.labelSmall, color = colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                        IconButton(
-                            onClick = { ClipboardUtils.copyText(transcript) },
-                            modifier = Modifier.size(20.dp),
-                        ) {
-                            Icon(Icons.Outlined.ContentCopy, contentDescription = "Copy", modifier = Modifier.size(14.dp), tint = colorScheme.onSurfaceVariant)
-                        }
                     }
                     HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f))
                     Text(
