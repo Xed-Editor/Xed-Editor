@@ -41,13 +41,14 @@ import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.AgentCliSheet
 import java.io.File
+import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UnifiedGeminiSheet(
+fun AiAgentSheet(
     viewModel: MainViewModel,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -105,23 +106,23 @@ fun UnifiedGeminiSheet(
             .forEach { it.refresh() }
     }
 
-    fun startGemini(workingDir: String = cwd.value, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
+    fun startAgent(workingDir: String = cwd.value, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
         if (!forceRestart && extraArgs.isEmpty() && AiSessionManager.canReuseFor(workingDir)) {
             IdeBridge.setWorkspacePath(workingDir)
-            appendLog("Reusing Gemini CLI session: ${AiSessionManager.cwd}")
+            appendLog("Reusing agent session: ${AiSessionManager.cwd}")
             return
         }
         AiSessionManager.stopSession()
         scope.launch(Dispatchers.Main) {
             val saved = withContext(Dispatchers.IO) { saveDirtyEditors() }
             AiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
-            if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
-            appendLog("Gemini CLI running in sheet: $workingDir")
+            if (saved > 0) appendLog("Synced $saved dirty editor file(s) before agent start.")
+            appendLog("Agent running in sheet: $workingDir")
         }
     }
 
-    fun sendToGemini(text: String) {
+    fun sendToAgent(text: String) {
         if (text.isBlank()) return
         val runningSession = AiSessionManager.session
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
@@ -134,7 +135,7 @@ fun UnifiedGeminiSheet(
             }
         } else {
             val dir = cwd.value
-            startGemini(dir, listOf("--prompt-interactive", text))
+            startAgent(dir, listOf("--prompt-interactive", text))
         }
     }
 
@@ -150,13 +151,13 @@ fun UnifiedGeminiSheet(
                 refreshCleanEditors()
                 appendLog("Refreshed clean editor tabs from disk.")
             }
-            "/restart" -> startGemini(forceRestart = true)
+            "/restart" -> startAgent(forceRestart = true)
             "/stop" -> {
                 AiSessionManager.stopSession()
-                appendLog("Gemini CLI stopped.")
+                appendLog("Agent stopped.")
             }
             "/export" -> exportSession(viewModel, cwd.value)
-            else -> sendToGemini(input)
+            else -> sendToAgent(input)
         }
     }
 
@@ -172,7 +173,7 @@ fun UnifiedGeminiSheet(
         if (pendingPrompt != null) {
             handleInput(pendingPrompt)
         } else if (!AiSessionManager.canReuseFor(cwd.value)) {
-            startGemini(cwd.value)
+            startAgent(cwd.value)
         }
     }
 
@@ -206,7 +207,7 @@ fun UnifiedGeminiSheet(
                     showAgentMenu = false
                     if (agent != AiSessionManager.currentAgent) {
                         AiSessionManager.switchAgent(agent.name)
-                        startGemini(cwd.value, forceRestart = true)
+                        startAgent(cwd.value, forceRestart = true)
                     }
                 },
                 transcript = transcript,
@@ -246,7 +247,7 @@ fun UnifiedGeminiSheet(
                 XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), contentDescription = "Redo")
             }
 
-            IconButton(onClick = { startGemini(cwd.value, forceRestart = true) }) {
+            IconButton(onClick = { startAgent(cwd.value, forceRestart = true) }) {
                 XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), contentDescription = "Restart")
             }
 
@@ -261,7 +262,7 @@ fun UnifiedGeminiSheet(
 
             IconButton(onClick = {
                 AiSessionManager.stopSession()
-                appendLog("Gemini CLI stopped.")
+                appendLog("Agent stopped.")
             }, enabled = isRunning) {
                 Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error.copy(alpha = 0.7f))
             }
@@ -315,6 +316,7 @@ private fun StatusBar(
                 style = MaterialTheme.typography.labelSmall,
             )
             Spacer(Modifier.width(6.dp))
+
             if (bridgeOnline) {
                 Box(
                     modifier = Modifier
@@ -361,49 +363,12 @@ private fun StatusBar(
                             text = { Text(a.displayName, style = MaterialTheme.typography.bodySmall) },
                             onClick = { onSelectAgent(a) },
                             leadingIcon = if (a == agent) {
-                                { Text("✓", style = MaterialTheme.typography.bodySmall) }
+                                { Text("\u2713", style = MaterialTheme.typography.bodySmall) }
                             } else null,
                         )
-        }
-    }
-}
-
-private fun exportSession(viewModel: MainViewModel, cwd: String) {
-    val context = com.rk.utils.application ?: return
-    val agentName = AiSessionManager.currentAgent.displayName
-    val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).format(java.util.Date())
-    val transcript = viewModel.agentTranscript
-    val markdown = buildString {
-        appendLine("# AI Agent Session: $agentName")
-        appendLine("**Date:** $timestamp")
-        appendLine("**Workspace:** $cwd")
-        appendLine("**Agent:** $agentName")
-        appendLine()
-        appendLine("---")
-        appendLine()
-        if (transcript.isNotBlank()) {
-            appendLine(transcript)
-        } else {
-            appendLine("*No conversation history*")
-        }
-    }
-
-    try {
-        val file = java.io.File(context.cacheDir, "agent-session-${System.currentTimeMillis()}.md")
-        file.writeText(markdown, java.nio.charset.Charsets.UTF_8)
-        val uri = androidx.core.content.FileProvider.getUriForFile(
-            context, "${context.packageName}.fileprovider", file
-        )
-        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-            type = "text/markdown"
-            putExtra(android.content.Intent.EXTRA_STREAM, uri)
-            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        context.startActivity(android.content.Intent.createChooser(intent, "Export Agent Session"))
-    } catch (e: Exception) {
-        com.rk.utils.toast("Export failed: ${e.message}")
-    }
-}
+                    }
+                }
+            }
 
             if (model.isNotBlank()) {
                 Spacer(Modifier.width(6.dp))
@@ -479,6 +444,43 @@ private fun exportSession(viewModel: MainViewModel, cwd: String) {
                 }
             }
         }
+    }
+}
+
+private fun exportSession(viewModel: MainViewModel, cwd: String) {
+    val context = com.rk.utils.application ?: return
+    val agentName = AiSessionManager.currentAgent.displayName
+    val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).format(java.util.Date())
+    val transcript = viewModel.agentTranscript
+    val markdown = buildString {
+        appendLine("# AI Agent Session: $agentName")
+        appendLine("**Date:** $timestamp")
+        appendLine("**Workspace:** $cwd")
+        appendLine("**Agent:** $agentName")
+        appendLine()
+        appendLine("---")
+        appendLine()
+        if (transcript.isNotBlank()) {
+            appendLine(transcript)
+        } else {
+            appendLine("*No conversation history*")
+        }
+    }
+
+    try {
+        val file = java.io.File(context.cacheDir, "agent-session-${System.currentTimeMillis()}.md")
+        file.writeText(markdown, StandardCharsets.UTF_8)
+        val uri = androidx.core.content.FileProvider.getUriForFile(
+            context, "${context.packageName}.fileprovider", file
+        )
+        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+            type = "text/markdown"
+            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(android.content.Intent.createChooser(intent, "Export Agent Session"))
+    } catch (e: Exception) {
+        com.rk.utils.toast("Export failed: ${e.message}")
     }
 }
 

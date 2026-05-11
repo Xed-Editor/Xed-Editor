@@ -24,6 +24,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 class SessionService : Service() {
     private val sessions = hashMapOf<SessionId, TerminalSession>()
@@ -32,54 +33,62 @@ class SessionService : Service() {
     var currentSession = mutableStateOf("main")
     private var deamonRunning = false
 
-    inner class SessionBinder : Binder() {
-        fun getService(): SessionService {
-            return this@SessionService
+    class SessionBinder(svc: SessionService) : Binder() {
+        private val weakService = WeakReference(svc)
+
+        private val service: SessionService?
+            get() = weakService.get()
+
+        fun getService(): SessionService? {
+            return service
         }
 
-        fun createSession(id: SessionId, client: TerminalSessionClient, activity: Terminal): SessionInfo {
+        fun createSession(id: SessionId, client: TerminalSessionClient, activity: Terminal): SessionInfo? {
+            val s = service ?: return null
             return MkSession.createSession(activity, client, id).let {
                 val (session, pwd) = it
-                sessions[id] = session
-                sessionWorkDirs[id] = pwd
-                sessionList.add(id)
-                updateNotification()
+                s.sessions[id] = session
+                s.sessionWorkDirs[id] = pwd
+                s.sessionList.add(id)
+                s.updateNotification()
                 SessionInfo(id, pwd, session)
             }
         }
 
         fun getSession(id: SessionId): TerminalSession? {
-            return sessions[id]
+            return service?.sessions?.get(id)
         }
 
         fun getSessionInfoByPwd(pwd: SessionPwd): SessionInfo? {
-            return sessionWorkDirs.keys
-                .find { sessionWorkDirs[it] == pwd }
-                ?.let { SessionInfo(it, sessionWorkDirs[it]!!, sessions[it]!!) }
+            val s = service ?: return null
+            return s.sessionWorkDirs.keys
+                .find { s.sessionWorkDirs[it] == pwd }
+                ?.let { SessionInfo(it, s.sessionWorkDirs[it]!!, s.sessions[it]!!) }
         }
 
         fun terminateSession(id: SessionId) {
-            sessions[id]?.apply {
+            val s = service ?: return
+            s.sessions[id]?.apply {
                 if (emulator != null) {
-                    sessions[id]?.finishIfRunning()
+                    s.sessions[id]?.finishIfRunning()
                 }
             }
-            sessions.remove(id)
-            sessionList.remove(id)
-            sessionWorkDirs.remove(id)
+            s.sessions.remove(id)
+            s.sessionList.remove(id)
+            s.sessionWorkDirs.remove(id)
 
-            if (sessions.isEmpty()) {
-                stopSelf()
-                if (deamonRunning) {
-                    deamonRunning = false
+            if (s.sessions.isEmpty()) {
+                s.stopSelf()
+                if (s.deamonRunning) {
+                    s.deamonRunning = false
                 }
             } else {
-                updateNotification()
+                s.updateNotification()
             }
         }
     }
 
-    private val binder = SessionBinder()
+    private val binder = SessionBinder(this)
     private val notificationManager by lazy { getSystemService(NotificationManager::class.java) }
 
     override fun onBind(intent: Intent?): IBinder {

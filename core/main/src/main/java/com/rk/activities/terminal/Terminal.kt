@@ -127,7 +127,7 @@ class Terminal : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.Main) {
             val client = TerminalBackEnd()
-            val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
+            val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)!!
 
             this@Terminal.changeSession(info.id)
             setIntent(Intent())

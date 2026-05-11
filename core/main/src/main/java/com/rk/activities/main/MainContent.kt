@@ -51,7 +51,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import com.rk.ai.InlineAgentBar
-import com.rk.ai.UnifiedGeminiSheet
+import com.rk.ai.AiAgentSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf
@@ -232,7 +232,7 @@ fun MainContent(
             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            UnifiedGeminiSheet(
+            AiAgentSheet(
                 viewModel = mainViewModel,
                 onDismissRequest = { mainViewModel.showAiSheet = false }
             )

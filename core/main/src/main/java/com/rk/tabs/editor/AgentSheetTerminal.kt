@@ -384,7 +384,7 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
                     setTerminalViewClient(client)
                     session?.updateTerminalSessionClient(client)
                     
-                    setTextSize(Settings.terminal_font_size)
+                    setTextSize((Settings.terminal_font_size * 1.35).toInt())
                     runCatching {
                         val fontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
                         val font = FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset) ?: Typeface.MONOSPACE

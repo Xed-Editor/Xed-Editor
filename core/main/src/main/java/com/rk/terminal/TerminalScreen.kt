@@ -260,23 +260,23 @@ private fun ColumnScope.TerminalView(
 
                 val session =
                     if (pendingCommand != null) {
-                        terminalActivity.sessionBinder?.get()!!.getService().currentSession.value = pendingCommand!!.id
+                        terminalActivity.sessionBinder?.get()!!.getService()!!.currentSession.value = pendingCommand!!.id
                         terminalActivity.sessionBinder?.get()!!.getSession(pendingCommand!!.id)
                             ?: terminalActivity.sessionBinder
                                 ?.get()!!
-                                .createSession(pendingCommand!!.id, client, terminalActivity)
+                                .createSession(pendingCommand!!.id, client, terminalActivity)!!
                                 .session
                     } else {
                         terminalActivity.sessionBinder
                             ?.get()!!
-                            .getSession(terminalActivity.sessionBinder?.get()!!.getService().currentSession.value)
+                            .getSession(terminalActivity.sessionBinder?.get()!!.getService()!!.currentSession.value)
                             ?: terminalActivity.sessionBinder
                                 ?.get()!!
                                 .createSession(
-                                    terminalActivity.sessionBinder?.get()!!.getService().currentSession.value,
+                                    terminalActivity.sessionBinder?.get()!!.getService()!!.currentSession.value,
                                     client,
                                     terminalActivity,
-                                )
+                                )!!
                                 .session
                     }
 
@@ -386,7 +386,7 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                                     ?.get()!!
                                     .createSession(
                                         generateUniqueString(
-                                            terminalActivity.sessionBinder?.get()!!.getService().sessionList
+                                            terminalActivity.sessionBinder?.get()!!.getService()!!.sessionList
                                         ),
                                         client,
                                         terminalActivity,
@@ -456,7 +456,7 @@ fun Terminal.changeSession(sessionId: String) {
     val binder = sessionBinder!!.get()!!
 
     val client = TerminalBackEnd()
-    val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this).session
+    val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this)?.session ?: return
 
     session.updateTerminalSessionClient(client)
     terminalView.attachSession(session)
@@ -471,7 +471,7 @@ fun Terminal.changeSession(sessionId: String) {
     }
     virtualKeysView.get()?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
 
-    binder.getService().currentSession.value = sessionId
+    binder.getService()?.currentSession?.value = sessionId
 }
 
 private fun TerminalView.focusAndShowKeyboard() {
