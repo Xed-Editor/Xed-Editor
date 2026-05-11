@@ -101,6 +101,15 @@ interface IdeService {
 
     /** Gets a high-level project directory tree structure. */
     suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String
+
+    /** Gets the symbol (function/class/variable) under the cursor in the active editor. */
+    suspend fun getSymbolUnderCursor(): JsonObject
+
+    /** Detects project configuration: language, framework, build system from workspace files. */
+    suspend fun getProjectConfig(workspacePath: String): JsonObject
+
+    /** Gets the unstaged git diff for the workspace repository. */
+    suspend fun getGitDiff(workspacePath: String): String
 }
 
 data class CommandResult(

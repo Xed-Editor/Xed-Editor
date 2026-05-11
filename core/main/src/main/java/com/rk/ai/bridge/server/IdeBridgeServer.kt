@@ -83,6 +83,9 @@ class IdeBridgeServer(
             register(DeleteFileTool())
             register(GetTerminalOutputTool())
             register(GetProjectStructureTool())
+            register(GetSymbolUnderCursorTool())
+            register(GetProjectConfigTool())
+            register(GetGitDiffTool())
         }
     }
 

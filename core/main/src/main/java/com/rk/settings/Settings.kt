@@ -73,6 +73,7 @@ object Settings {
     var ai_auto_apply by CachedPreference("ai_auto_apply", false)
     var ai_agent by CachedPreference("ai_agent", "gemini")
     var ai_model by CachedPreference("ai_model", "")
+    var ai_profiles_json by CachedPreference("ai_profiles_json", "")
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
     var textmate_suggestions by CachedPreference("textmate_suggestions", true)
     var seccomp by CachedPreference("seccomp", false)

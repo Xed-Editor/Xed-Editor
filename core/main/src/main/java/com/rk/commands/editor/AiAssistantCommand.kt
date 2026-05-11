@@ -24,3 +24,20 @@ class AiAssistantCommand(commandContext: CommandContext) : EditorCommand(command
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)
 }
+
+class InlineAskCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+    override val id: String = "editor.inline_ask"
+
+    override fun getLabel(): String = "Ask AI"
+
+    override fun action(editorActionContext: EditorActionContext) {
+        val vm = commandContext.mainViewModel
+        vm.showAiSheet = false
+        vm.showInlineAgent = !vm.showInlineAgent
+    }
+
+    override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =
+        InbuiltFeatures.terminal.state.value
+
+    override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)
+}

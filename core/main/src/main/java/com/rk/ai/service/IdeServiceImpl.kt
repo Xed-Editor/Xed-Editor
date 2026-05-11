@@ -764,6 +764,111 @@ class IdeServiceImpl(
         return output.toString()
     }
 
+    override suspend fun getSymbolUnderCursor(): JsonObject {
+        val tab = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab } ?: return JsonObject()
+        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return JsonObject()
+        return withContext(Dispatchers.Main) {
+            val line = editor.cursor.leftLine
+            val column = editor.cursor.leftColumn
+            val text = editor.text.toString()
+            val lines = text.split("\n")
+            val currentLine = lines.getOrNull(line) ?: ""
+            // Extract surrounding context (5 lines before and after)
+            val contextStart = (line - 5).coerceAtLeast(0)
+            val contextEnd = (line + 5).coerceAtMost(lines.size - 1)
+            val contextLines = lines.subList(contextStart, contextEnd + 1)
+            // Try to find enclosing function/class by scanning backwards
+            val scopeLines = mutableListOf<String>()
+            for (i in line downTo 0) {
+                val l = lines.getOrNull(i) ?: break
+                scopeLines.add(l.trim())
+                if (l.contains("fun ") || l.contains("class ") || l.contains("def ") || l.contains("function ")) break
+            }
+            val selected = editor.getSelectedText().orEmpty()
+            JsonObject().apply {
+                addProperty("filePath", tab.file.getAbsolutePath())
+                addProperty("line", line + 1)
+                addProperty("column", column + 1)
+                addProperty("currentLine", currentLine)
+                addProperty("selectedText", selected.take(1024))
+                addProperty("context", contextLines.joinToString("\n"))
+                addProperty("enclosingScope", scopeLines.reversed().joinToString("\n").take(1024))
+            }
+        }
+    }
+
+    override suspend fun getProjectConfig(workspacePath: String): JsonObject {
+        val result = JsonObject()
+        val root = if (workspacePath.isNotBlank()) File(workspacePath) else File(getPrimaryWorkspacePath())
+        if (!root.exists() || !root.isDirectory) return result.apply { addProperty("error", "invalid workspace") }
+
+        withContext(Dispatchers.IO) {
+            val files = root.listFiles()?.map { it.name }?.toSet() ?: emptySet()
+
+            if ("package.json" in files) {
+                result.addProperty("language", "JavaScript/TypeScript")
+                result.addProperty("buildSystem", "npm/yarn/pnpm")
+                runCatching {
+                    val pkg = com.google.gson.JsonParser.parseString(File(root, "package.json").readText()).asJsonObject
+                    pkg.get("scripts")?.asJsonObject?.let { scripts ->
+                        result.add("scripts", scripts)
+                    }
+                }
+            } else if ("pubspec.yaml" in files) {
+                result.addProperty("language", "Dart")
+                result.addProperty("buildSystem", "pub")
+            } else if ("build.gradle.kts" in files || "build.gradle" in files) {
+                result.addProperty("language", "Kotlin/Java")
+                result.addProperty("buildSystem", "Gradle")
+            } else if ("Cargo.toml" in files) {
+                result.addProperty("language", "Rust")
+                result.addProperty("buildSystem", "Cargo")
+            } else if ("CMakeLists.txt" in files) {
+                result.addProperty("language", "C/C++")
+                result.addProperty("buildSystem", "CMake")
+            } else if ("go.mod" in files) {
+                result.addProperty("language", "Go")
+                result.addProperty("buildSystem", "go mod")
+            } else if ("requirements.txt" in files || "setup.py" in files || "pyproject.toml" in files) {
+                result.addProperty("language", "Python")
+                result.addProperty("buildSystem", "pip/poetry")
+            } else {
+                result.addProperty("language", "unknown")
+                result.addProperty("buildSystem", "unknown")
+            }
+
+            result.addProperty("workspace", root.absolutePath)
+            result.add("files", com.google.gson.JsonArray().apply {
+                files.filter { !it.startsWith(".") }.take(50).forEach { add(it) }
+            })
+        }
+        return result
+    }
+
+    override suspend fun getGitDiff(workspacePath: String): String {
+        if (workspacePath.isBlank()) return "workspacePath required"
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val repoDir = File(workspacePath)
+                val builder = FileRepositoryBuilder().readEnvironment().findGitDir(repoDir)
+                val repo = builder.build()
+                if (repo.directory == null) return@withContext "not a git repository"
+
+                Git(repo).use { git ->
+                    val diff = git.diff().call()
+                    val output = StringBuilder()
+                    diff.forEach { entry ->
+                        output.appendLine("diff --git a/${entry.newPath} b/${entry.newPath}")
+                        output.appendLine("--- a/${entry.oldPath}")
+                        output.appendLine("+++ b/${entry.newPath}")
+                        entry.asText?.let { output.appendLine(it) }
+                    }
+                    output.toString().ifEmpty { "no changes" }
+                }
+            }.getOrElse { "error: ${it.message}" }
+        }
+    }
+
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)
         val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)

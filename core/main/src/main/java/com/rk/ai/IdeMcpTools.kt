@@ -34,6 +34,9 @@ internal object IdeMcpTools {
             add(schema("deleteFile", "Permanently delete a file or empty directory from the workspace", listOf("filePath"), mapOf("filePath" to "string")))
             add(schema("getTerminalOutput", "Get recent output from the running Gemini CLI terminal session", emptyList(), mapOf("lines" to "number")))
             add(schema("getProjectStructure", "Get a high-level directory tree of the project, showing folders and files up to a configurable depth", listOf("path"), mapOf("path" to "string", "maxDepth" to "number", "maxItems" to "number")))
+            add(schema("getSymbolUnderCursor", "Get the symbol (function/class/variable name) under the editor cursor with surrounding context", emptyList(), emptyMap()))
+            add(schema("getProjectConfig", "Detect project language, framework, build system from workspace files", emptyList(), mapOf("path" to "string")))
+            add(schema("getGitDiff", "Get the unstaged git diff for the workspace repository", emptyList(), mapOf("path" to "string")))
         }
 
     private fun schema(

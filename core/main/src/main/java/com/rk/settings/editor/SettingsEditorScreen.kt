@@ -109,6 +109,58 @@ fun SettingsEditorScreen(navController: NavController) {
 
             var showModelDialog by remember { mutableStateOf(false) }
             var modelInputValue by remember { mutableStateOf(Settings.ai_model) }
+            var showProfileMenu by remember { mutableStateOf(false) }
+
+            val profiles = remember { com.rk.ai.agents.AgentProfileManager.loadProfiles() }
+
+            Surface(
+                onClick = { showProfileMenu = true },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Profile",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "Saved agent configurations",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    val activeProfile = profiles.find { it.agentType == Settings.ai_agent && it.model == Settings.ai_model }
+                    Text(
+                        text = activeProfile?.name ?: "Custom",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Box {
+                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        DropdownMenu(expanded = showProfileMenu, onDismissRequest = { showProfileMenu = false }) {
+                            profiles.forEach { p ->
+                                DropdownMenuItem(
+                                    text = { Text(p.displayLabel()) },
+                                    onClick = {
+                                        com.rk.ai.agents.AgentProfileManager.applyProfile(p)
+                                        showProfileMenu = false
+                                    },
+                                    leadingIcon = if (p.agentType == Settings.ai_agent && p.model == Settings.ai_model) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    } else null,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             Surface(
                 onClick = { showModelDialog = true },
@@ -124,7 +176,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         Text(
                             text = stringResource(strings.ai_model),
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            fontWeight = FontWeight.Bold,
                         )
                         Text(
                             text = stringResource(strings.ai_model_desc),

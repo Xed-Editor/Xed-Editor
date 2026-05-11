@@ -65,6 +65,7 @@ class MainViewModel : ViewModel() {
     var aiSheetCwd by mutableStateOf<String?>(null)
     var agentPrompt by mutableStateOf("")
     var agentTranscript by mutableStateOf("")
+    var showInlineAgent by mutableStateOf(false)
 
     private val sessionRestored = CompletableDeferred<Unit>()
 
