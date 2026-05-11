@@ -11,8 +11,10 @@ import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
@@ -333,7 +335,7 @@ private fun GeminiCliSheetContent(
             ) {
                 // Left: Title + CWD
                 Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                    Text("✦ Gemini", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Text("Gemini", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
@@ -345,7 +347,11 @@ private fun GeminiCliSheetContent(
                 }
                 
                 // Center & Right: Controls + Hide
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                ) {
                     controls?.invoke(this)
                     IconButton(onClick = onDismissRequest) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Hide", tint = colorScheme.onSurfaceVariant)
@@ -396,6 +402,11 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
                         terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
                     )
                     attachSession(session)
+                    post {
+                        isFocusable = true
+                        isFocusableInTouchMode = true
+                        requestFocus()
+                    }
                 }
             },
             update = { view ->

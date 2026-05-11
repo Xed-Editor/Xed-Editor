@@ -4,7 +4,7 @@ import com.rk.file.sandboxHomeDir
 import java.io.File
 import java.net.URI
 
-private val fallbackWorkspaceRoots = listOf("/", "/home", "/storage/emulated/0")
+private val fallbackWorkspaceRoots = listOf("/home", "/storage/emulated/0")
 
 internal fun geminiIdeWorkspacePath(primary: String): String =
     (listOf(primary) + fallbackWorkspaceRoots)

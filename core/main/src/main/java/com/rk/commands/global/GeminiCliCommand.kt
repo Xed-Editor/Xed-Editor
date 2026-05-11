@@ -15,6 +15,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
+import java.io.File
 
 class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
     override val id: String = "global.gemini_cli"
@@ -23,16 +24,21 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
 
     override fun action(actionContext: ActionContext) {
         val currentEditorTab = commandContext.mainViewModel.currentTab as? EditorTab
-        val projectDir = currentEditorTab?.projectRoot?.getAbsolutePath()
-        val bridge = projectDir?.let { GeminiBridge.ensureStarted(commandContext.mainViewModel, it) }
+        val workspaceDir = currentEditorTab?.projectRoot?.getAbsolutePath()?.takeIf { it.isNotBlank() }
+            ?: currentEditorTab?.file?.getAbsolutePath()
+                ?.takeIf { it.isNotBlank() && it.startsWith("/") }
+                ?.let { path ->
+                    val file = File(path)
+                    if (file.isDirectory) file.absolutePath else file.parent
+                }
+            ?: "/storage/emulated/0"
+        val bridge = GeminiBridge.ensureStarted(commandContext.mainViewModel, workspaceDir)
         val args =
             buildList {
                     add(localBinDir().child("gemini-cli").absolutePath)
                     add("--skip-trust")
-                    projectDir?.let {
-                        add("--include-directories")
-                        add(it)
-                    }
+                    add("--include-directories")
+                    add(workspaceDir)
                 }
                 .toTypedArray()
 
@@ -43,21 +49,19 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
                 args = args,
                 id = "gemini-cli",
                 terminatePreviousSession = false,
-                workingDir = projectDir,
+                workingDir = workspaceDir,
                 env =
-                    bridge?.let {
-                        arrayOf(
-                            "GEMINI_CLI_IDE_SERVER_PORT=${it.port}",
-                            "GEMINI_CLI_IDE_AUTH_TOKEN=${it.token}",
-                            "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-                            "GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(it.workspacePath)}",
-                            "TERM_PROGRAM=vscode",
-                            "TERM_PROGRAM_VERSION=1.0.0",
-                            "VSCODE_PID=${android.os.Process.myPid()}",
-                            "EDITOR=vim",
-                            "VISUAL=vim",
-                        )
-                    } ?: arrayOf(),
+                    arrayOf(
+                        "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
+                        "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
+                        "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
+                        "GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(bridge.workspacePath)}",
+                        "TERM_PROGRAM=vscode",
+                        "TERM_PROGRAM_VERSION=1.0.0",
+                        "VSCODE_PID=${android.os.Process.myPid()}",
+                        "EDITOR=vim",
+                        "VISUAL=vim",
+                    ),
             ),
         )
     }
