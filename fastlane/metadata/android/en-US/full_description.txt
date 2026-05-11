@@ -1,9 +1,12 @@
-Xed-Editor is a versatile text editor for Android, offering advanced functionality such as syntax highlighting, extensive customization options, and a streamlined interface for efficient editing.
+Xed-Editor is a versatile and extensible text editor for Android, featuring syntax highlighting, LSP-powered code intelligence, a built-in terminal, extensions, and fast project-wide tools for efficient editing.
 
 Key Features:
 
-- Advanced Editing Capabilities: Syntax highlighting for multiple programming languages, auto-indentation, search and undo-redo support.
-- File Management: Open and edit multiple files using tabs, integrated file browser, and options to create, rename, copy, and delete files/folders.
-- Customization: AMOLED theme for night use, multiple theme options.
-- Developer Tools: Built-in terminal with Ubuntu Linux support, ability to run Python and Node.js
-- Additional Features: Word wrap, print text documents, Markdown support with preview functionality, and a plugin system.
+- Advanced Editing: Powered by Sora Editor, supporting large files and smooth performance.
+- Code Intelligence: Full LSP (Language Server Protocol) support for code completion, diagnostics, and navigation.
+- Built-in Terminal: Integrated terminal emulator based on Termux, allowing you to run build commands and scripts directly.
+- Extension System: Customize your experience with community-driven extensions and icon packs.
+- AI Integration: Built-in Gemini AI assistant to help with coding tasks, debugging, and terminal commands.
+- Project Management: Efficient file drawer with multi-file selection, Git status integration, and fast search.
+- Enhanced Productivity: Integrated color picker, minimap support, and fullscreen mode for a more immersive experience.
+- Customization: Extensive settings for themes, fonts (app, editor, terminal), and editor behavior.

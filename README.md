@@ -20,6 +20,7 @@ efficient editing.
 - **Modern UI**: Fully built with Jetpack Compose, featuring a clean, responsive Material 3 design.
 - **AI Integration**: Built-in Gemini AI assistant to help with coding tasks, debugging, and terminal commands.
 - **Project Management**: Efficient file drawer with multi-file selection, Git status integration, and fast search.
+- **Enhanced Productivity**: Integrated color picker, minimap support, and fullscreen mode for a more immersive experience.
 - **Customization**: Extensive settings for themes, fonts (app, editor, terminal), and editor behavior (word wrap, auto-save, etc.).
 
 ---

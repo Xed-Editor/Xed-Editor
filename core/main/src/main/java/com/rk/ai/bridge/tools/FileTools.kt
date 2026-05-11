@@ -1,0 +1,62 @@
+package com.rk.ai.bridge.tools
+
+import com.google.gson.JsonObject
+import com.rk.ai.bridge.McpTool
+import com.rk.ai.service.GeminiIdeService
+import java.io.File
+
+class ReadFileTool : McpTool {
+    override fun getName(): String = "readFile"
+    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+        val filePath = args.get("filePath")?.asString.orEmpty()
+        if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
+        val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
+        val content = ideService.getFileContent(file.absolutePath).orEmpty()
+        return textResult(content)
+    }
+}
+
+class WriteFileTool : McpTool {
+    override fun getName(): String = "writeFile"
+    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+        val filePath = args.get("filePath")?.asString.orEmpty()
+        val content = args.get("content")?.asString.orEmpty()
+        if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
+        val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
+        
+        val oldContent = ideService.getFileContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
+        
+        val accepted = ideService.showPatch(file.absolutePath, oldContent, content, "Review Gemini file update") {
+            ideService.writeFile(file, content)
+        }
+        
+        return if (accepted) {
+            textResult("File ${file.absolutePath} updated after user review.")
+        } else {
+            textResult("Update to ${file.absolutePath} was rejected or timed out.")
+        }
+    }
+}
+
+class ListFilesTool : McpTool {
+    override fun getName(): String = "listFiles"
+    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+        val dirPath = args.get("directoryPath")?.asString.orEmpty()
+        val dir = ideService.resolvePath(dirPath) ?: throw IllegalArgumentException("path outside workspace")
+        val recursive = args.get("recursive")?.asBoolean ?: false
+        val maxFiles = args.get("maxFiles")?.asInt ?: 500
+        val files = ideService.listFiles(dir, recursive, maxFiles.coerceIn(1, 5000))
+        return textResult(files.joinToString("\n"))
+    }
+}
+
+class OpenFileTool : McpTool {
+    override fun getName(): String = "openFile"
+    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+        val filePath = args.get("filePath")?.asString.orEmpty()
+        if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
+        val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
+        ideService.openFile(file)
+        return textResult("opened ${file.absolutePath}")
+    }
+}

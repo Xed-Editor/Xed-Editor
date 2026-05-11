@@ -1,0 +1,69 @@
+package com.rk.ai.service
+
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.rk.tabs.editor.EditorTab
+import java.io.File
+
+interface GeminiIdeService {
+    /** Resolves a path (absolute or relative to active editor) to a File in the workspace. */
+    fun resolvePath(path: String): File?
+
+    /** Lists files in a directory within the workspace. */
+    fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String>
+
+    /** Gets the text content of a file, preferring an open editor tab if available. */
+    fun getFileContent(filePath: String): String?
+
+    /** Shows a patch for user review and returns true if applied. */
+    fun showPatch(
+        filePath: String,
+        oldContent: String,
+        newContent: String,
+        title: String = "Review AI change",
+        onApply: () -> Unit
+    ): Boolean
+
+    /** Directly writes text to a file and refreshes any associated editor tab. */
+    fun writeFile(file: File, content: String)
+
+    /** Refreshes one or more editor tabs from disk. */
+    fun refreshEditors(filePath: String? = null, force: Boolean = false)
+
+    /** Opens a file in the editor. */
+    fun openFile(file: File)
+
+    /** Gets metadata about all open editor tabs. */
+    fun getOpenFiles(): List<JsonObject>
+
+    /** Gets metadata and content for the currently active editor tab. */
+    fun getActiveFile(): JsonObject?
+
+    /** Gets the currently selected text in the active editor. */
+    fun getSelection(): String
+
+    /** Replaces the current selection (or entire file) with new content, after user review. */
+    fun replaceSelection(newContent: String): String
+
+    /** Inserts text at the current cursor position, after user review. */
+    fun insertAtCursor(newContent: String): String
+
+    /** Saves all dirty editor tabs in parallel. */
+    fun saveAll(): String
+
+    /** Shows a message (toast) to the user. */
+    fun showMessage(message: String)
+
+    /** Runs a shell command in the Ubuntu environment. */
+    suspend fun runCommand(command: String, timeoutSeconds: Long): CommandResult
+
+    /** Gets the primary workspace root path. */
+    fun getPrimaryWorkspacePath(): String
+}
+
+data class CommandResult(
+    val output: String,
+    val error: String,
+    val exitCode: Int,
+    val timedOut: Boolean
+)

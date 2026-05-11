@@ -3,13 +3,18 @@ package com.rk.ai
 import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.LocalActivity
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.RestartAlt
+import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.session.GeminiSessionManager
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeTab
@@ -18,7 +23,6 @@ import com.rk.filetree.drawerTabs
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.GeminiCliSheet
-import com.rk.tabs.editor.GeminiSheetSessionStore
 import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.xededitor.BuildConfig
 import java.io.File
@@ -90,36 +94,26 @@ fun UnifiedGeminiSheet(
 
     fun startGemini(workingDir: String = defaultCwd, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
-        if (!forceRestart && extraArgs.isEmpty() && GeminiSheetSessionStore.canReuseFor(workingDir)) {
+        if (!forceRestart && extraArgs.isEmpty() && GeminiSessionManager.canReuseFor(workingDir)) {
             scope.launch(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
-            appendLog("Reusing Gemini CLI session: ${GeminiSheetSessionStore.cwd}")
-            d("reuse session cwd=${GeminiSheetSessionStore.cwd} requested=$workingDir")
+            appendLog("Reusing Gemini CLI session: ${GeminiSessionManager.cwd}")
+            d("reuse session cwd=${GeminiSessionManager.cwd} requested=$workingDir")
             return
         }
         d("startGemini forceRestart=$forceRestart cwd=$workingDir extraArgs=${extraArgs.joinToString(" ")}")
-        GeminiSheetSessionStore.stop()
-        scope.launch(Dispatchers.IO) {
-            val saved = saveDirtyEditors()
-            val bridge = GeminiBridge.ensureStarted(viewModel, workingDir)
-            withContext(Dispatchers.Main) {
-                val newSession = createGeminiSheetSession(
-                    activity = currentActivity,
-                    bridge = bridge,
-                    workingDir = workingDir,
-                    extraArgs = extraArgs,
-                )
-                if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
-                GeminiSheetSessionStore.session = newSession
-                GeminiSheetSessionStore.cwd = workingDir
-                appendLog("Gemini CLI running in sheet: $workingDir")
-                d("session started cwd=$workingDir")
-            }
+        GeminiSessionManager.stopSession()
+        scope.launch(Dispatchers.Main) {
+            val saved = withContext(Dispatchers.IO) { saveDirtyEditors() }
+            GeminiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
+            if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
+            appendLog("Gemini CLI running in sheet: $workingDir")
+            d("session started cwd=$workingDir")
         }
     }
 
     fun sendToGemini(text: String) {
         if (text.isBlank()) return
-        val runningSession = GeminiSheetSessionStore.session
+        val runningSession = GeminiSessionManager.session
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
             scope.launch(Dispatchers.IO) {
                 val saved = saveDirtyEditors()
@@ -147,7 +141,7 @@ fun UnifiedGeminiSheet(
             }
             "/restart" -> startGemini(forceRestart = true)
             "/stop" -> {
-                GeminiSheetSessionStore.stop()
+                GeminiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
                 d("session stopped from command")
             }
@@ -157,14 +151,14 @@ fun UnifiedGeminiSheet(
     }
 
     LaunchedEffect(Unit) {
-        if (!GeminiSheetSessionStore.canReuseFor(defaultCwd)) {
+        if (!GeminiSessionManager.canReuseFor(defaultCwd)) {
             startGemini(defaultCwd)
         }
     }
 
-    LaunchedEffect(GeminiSheetSessionStore.session) {
+    LaunchedEffect(GeminiSessionManager.session) {
         while (true) {
-            val session = GeminiSheetSessionStore.session
+            val session = GeminiSessionManager.session
             if (session != null && session.isRunning) {
                 refreshCleanEditors()
             }
@@ -182,25 +176,35 @@ fun UnifiedGeminiSheet(
     GeminiCliSheet(
         onDismissRequest = onDismissRequest,
         cwd = defaultCwd,
-        session = GeminiSheetSessionStore.session,
+        session = GeminiSessionManager.session,
         modifier = modifier,
         controls = {
-            TextButton(onClick = { startGemini(defaultCwd, forceRestart = true) }) { Text("Restart") }
-            TextButton(onClick = { startGemini(defaultCwd, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { Text("Auth") }
-            TextButton(onClick = {
+            IconButton(onClick = { startGemini(defaultCwd, forceRestart = true) }) { 
+                Icon(Icons.Outlined.RestartAlt, contentDescription = "Restart", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            IconButton(onClick = { startGemini(defaultCwd, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { 
+                Icon(Icons.Outlined.Lock, contentDescription = "Auth", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            IconButton(onClick = {
                 scope.launch(Dispatchers.IO) {
                     val saved = saveDirtyEditors()
                     withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
                 }
-            }) { Text("Sync") }
-            TextButton(onClick = {
+            }) { 
+                Icon(Icons.Outlined.Sync, contentDescription = "Sync", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            IconButton(onClick = {
                 refreshCleanEditors()
                 appendLog("Refreshed clean editor tabs.")
-            }) { Text("Refresh") }
-            TextButton(onClick = {
-                GeminiSheetSessionStore.stop()
+            }) { 
+                Icon(Icons.Outlined.Refresh, contentDescription = "Refresh", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            IconButton(onClick = {
+                GeminiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
-            }) { Text("Stop") }
+            }) { 
+                Icon(Icons.Outlined.Stop, contentDescription = "Stop", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
+            }
         },
     )
 }

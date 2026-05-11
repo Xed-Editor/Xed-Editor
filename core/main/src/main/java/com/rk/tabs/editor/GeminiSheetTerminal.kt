@@ -3,36 +3,17 @@ package com.rk.tabs.editor
 import android.app.Activity
 import android.graphics.Typeface
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -223,8 +204,8 @@ private fun GeminiSheetDragHandle(
     Box(
         modifier =
             modifier
-                .background(backgroundColor, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-                .padding(vertical = 2.dp),
+                .background(backgroundColor, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .padding(top = 10.dp, bottom = 2.dp),
         contentAlignment = Alignment.Center,
     ) {
         BottomSheetDefaults.DragHandle(
@@ -255,34 +236,40 @@ private fun GeminiCliSheetContent(
         modifier =
             modifier
                 .fillMaxWidth()
-                .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+                .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .border(1.dp, colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .padding(horizontal = 12.dp, vertical = 8.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("✦ Gemini CLI", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.width(6.dp))
-                Text("Sheet terminal + Xed bridge", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-                Spacer(Modifier.weight(1f))
-                TextButton(onClick = onDismissRequest) { Text("Hide") }
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("✦ Gemini", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
+                        color = colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                        maxLines = 1,
+                        modifier = Modifier.background(colorScheme.surfaceContainerHigh, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    controls?.invoke(this)
+                    IconButton(onClick = onDismissRequest) {
+                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Hide", tint = colorScheme.onSurfaceVariant)
+                    }
+                }
             }
 
             headerContent?.invoke()
 
             if (showTerminal) {
-                controls?.let {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        it.invoke(this)
-                    }
-                }
-                Text(
-                    text = "cwd $cwd",
-                    color = colorScheme.onSurfaceVariant,
-                    fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
                 GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
             }
         }
@@ -298,92 +285,50 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
     val terminalBodyHeight = (height - keysHeight).coerceAtLeast(160.dp)
 
     Column(
-        modifier =
-            modifier
-                .height(height)
-                .background(colorScheme.surface, RoundedCornerShape(12.dp))
-                .border(1.dp, colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
+        modifier = modifier.height(height),
     ) {
-        if (session == null) {
-            Text(
-                text = "Starting Gemini CLI...",
-                modifier = Modifier.padding(16.dp),
-                color = colorScheme.onSurfaceVariant,
-                fontFamily = FontFamily.Monospace,
-            )
-        } else {
-            Box(modifier = Modifier.fillMaxWidth().height(terminalBodyHeight)) {
-                AndroidView(
-                    factory = { context ->
-                        TerminalView(context, null).apply {
-                            terminalView = WeakReference(this)
-                            setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                            val fontFile = sandboxDir().child("etc/font.ttf")
-                            if (fontFile.exists()) {
-                                setTypeface(Typeface.createFromFile(fontFile))
-                            } else {
-                                val font =
-                                    Settings.terminal_font_path.takeIf { it.isNotEmpty() }?.let {
-                                        FontCache.getTypeface(context, it, Settings.is_terminal_font_asset)
-                                    } ?: FontCache.getTypeface(context, DEFAULT_TERMINAL_FONT_PATH, true)
-                                setTypeface(font)
-                            }
-                            val client = TerminalBackEnd()
-                            session.updateTerminalSessionClient(client)
-                            attachSession(session)
-                            setTerminalViewClient(client)
-                            applyGeminiSheetTerminalColors(
-                                surfaceColor = colorScheme.surface.toArgb(),
-                                onSurfaceColor = colorScheme.onSurface.toArgb(),
-                                terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
-                            )
-                            post {
-                                keepScreenOn = true
-                                isFocusableInTouchMode = true
-                                requestFocus()
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                    update = { view ->
-                        terminalView = WeakReference(view)
-                        if (view.mTermSession != session) {
-                            val client = TerminalBackEnd()
-                            session.updateTerminalSessionClient(client)
-                            view.attachSession(session)
-                            view.setTerminalViewClient(client)
-                        }
-                        view.applyGeminiSheetTerminalColors(
-                            surfaceColor = colorScheme.surface.toArgb(),
-                            onSurfaceColor = colorScheme.onSurface.toArgb(),
-                            terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
-                        )
-                    },
-                )
-            }
-            AndroidView(
-                factory = { context ->
-                    VirtualKeysView(context, null).apply {
-                        virtualKeysView = WeakReference(this)
-                        virtualKeysViewClient = VirtualKeysListener(session)
-                        buttonTextColor = colorScheme.onSurface.toArgb()
-                        reload(
-                            VirtualKeysInfo(
-                                Settings.terminal_extra_keys,
-                                "",
-                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                            )
-                        )
+        AndroidView(
+            modifier = Modifier.fillMaxWidth().height(terminalBodyHeight),
+            factory = { context ->
+                terminalView(context).apply {
+                    setTextSize(Settings.terminal_font_size)
+                    runCatching {
+                        val fontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
+                        typeface = FontCache.getTypeface(context, fontPath) ?: Typeface.MONOSPACE
                     }
-                },
-                modifier = Modifier.fillMaxWidth().height(keysHeight),
-                update = { keys ->
-                    virtualKeysView = WeakReference(keys)
-                    keys.virtualKeysViewClient = VirtualKeysListener(session)
-                    keys.buttonTextColor = colorScheme.onSurface.toArgb()
-                },
-            )
-        }
+                    applyGeminiSheetTerminalColors(
+                        onSurfaceColor = colorScheme.onSurface.toArgb(),
+                        surfaceColor = colorScheme.surface.toArgb(),
+                        terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                    )
+                    attachSession(session)
+                }
+            },
+            update = { view ->
+                view.attachSession(session)
+                view.applyGeminiSheetTerminalColors(
+                    onSurfaceColor = colorScheme.onSurface.toArgb(),
+                    surfaceColor = colorScheme.surface.toArgb(),
+                    terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                )
+            },
+        )
+
+        VirtualKeysView(
+            modifier = Modifier.fillMaxWidth().height(keysHeight),
+            onInit = { keys ->
+                keys.mColors = VirtualKeysConstants.VirtualKeysColors(colorScheme.surface.toArgb(), colorScheme.onSurface.toArgb())
+                keys.virtualKeysInfo = VirtualKeysInfo(activity = it as Activity)
+                keys.buttonTextColor = colorScheme.onSurface.toArgb()
+                keys.reload()
+                virtualKeysView = WeakReference(keys)
+            },
+            update = { keys ->
+                virtualKeysView = WeakReference(keys)
+                keys.virtualKeysViewClient = VirtualKeysListener(session)
+                keys.buttonTextColor = colorScheme.onSurface.toArgb()
+            },
+        )
     }
 }
 
