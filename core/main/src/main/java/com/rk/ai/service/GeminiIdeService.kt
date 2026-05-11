@@ -51,6 +51,9 @@ interface GeminiIdeService {
     /** Saves all dirty editor tabs in parallel. */
     fun saveAll(): String
 
+    /** Ensures the Gemini CLI configuration has IDE integration enabled. */
+    fun ensureIdeEnabled()
+
     /** Shows a message (toast) to the user. */
     fun showMessage(message: String)
 

@@ -53,6 +53,8 @@ object GeminiBridge {
         
         // Initial service without notification sender
         val service = GeminiIdeServiceImpl(viewModel)
+        service.ensureIdeEnabled()
+        
         val newServer = GeminiBridgeServer(0, newToken, service)
         
         // Circular dependency injection: provide server (NotificationSender) to service

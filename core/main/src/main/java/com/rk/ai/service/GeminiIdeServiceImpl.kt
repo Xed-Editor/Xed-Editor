@@ -306,6 +306,42 @@ class GeminiIdeServiceImpl(
         return "saved ${tabs.size} dirty open file(s)"
     }
 
+    override fun ensureIdeEnabled() {
+        runBlocking(Dispatchers.IO) {
+            runCatching {
+                val home = com.rk.file.sandboxHomeDir()
+                val geminiDir = File(home, ".gemini")
+                geminiDir.mkdirs()
+                val settingsFile = File(geminiDir, "settings.json")
+                
+                val settings = if (settingsFile.exists()) {
+                    runCatching { com.google.gson.JsonParser.parseString(settingsFile.readText()).asJsonObject }.getOrDefault(JsonObject())
+                } else {
+                    JsonObject()
+                }
+
+                val general = settings.getAsJsonObject("general") ?: JsonObject()
+                general.addProperty("preferredEditor", "vim")
+                settings.add("general", general)
+
+                val ide = settings.getAsJsonObject("ide") ?: JsonObject()
+                ide.addProperty("enabled", true)
+                ide.addProperty("hasSeenNudge", true)
+                settings.add("ide", ide)
+
+                val privacy = settings.getAsJsonObject("privacy") ?: JsonObject()
+                privacy.addProperty("usageStatisticsEnabled", false)
+                settings.add("privacy", privacy)
+
+                val telemetry = settings.getAsJsonObject("telemetry") ?: JsonObject()
+                telemetry.addProperty("enabled", false)
+                settings.add("telemetry", telemetry)
+
+                settingsFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(settings))
+            }
+        }
+    }
+
     override fun showMessage(message: String) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             toast(message)

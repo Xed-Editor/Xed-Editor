@@ -340,16 +340,8 @@ private fun GeminiCliSheetContent(
                     )
                 }
                 
-                // Center: Drag Handle visual indicator
-                Icon(
-                    Icons.Outlined.DragHandle, 
-                    contentDescription = null, 
-                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-
-                // Right: Controls + Hide
-                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
+                // Center & Right: Controls + Hide
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
                     controls?.invoke(this)
                     IconButton(onClick = onDismissRequest) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Hide", tint = colorScheme.onSurfaceVariant)

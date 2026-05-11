@@ -3,14 +3,19 @@ package com.rk.ai
 import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.session.GeminiSessionManager
 import com.rk.file.FileWrapper
@@ -18,6 +23,8 @@ import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.currentDrawerTab
 import com.rk.filetree.drawerTabs
+import com.rk.icons.XedIcon
+import com.rk.resources.drawables
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.GeminiCliSheet
@@ -47,17 +54,11 @@ fun UnifiedGeminiSheet(
         if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
 
     fun currentProjectDir(): String {
-        // 1. Try active editor tab
         val activeTab = viewModel.currentTab as? EditorTab
         activeTab?.projectRoot?.getAbsolutePath()?.takeIf { it.isNotBlank() && it.startsWith("/") }?.let { return it }
-        
-        // 2. Try drawer project
         val projectDir = ((currentDrawerTab as? FileTreeTab)?.root as? FileWrapper)?.getAbsolutePath()
             ?: drawerTabs.filterIsInstance<FileTreeTab>().mapNotNull { it.root as? FileWrapper }.firstOrNull()?.getAbsolutePath()
-        
         if (projectDir != null && projectDir.isNotBlank()) return projectDir
-
-        // 3. Fallback to active file parent or home
         val path = activeTab?.file?.getAbsolutePath()?.takeIf { it.startsWith("/") } ?: return terminalHomeDir()
         val localFile = File(path)
         if (localFile.isDirectory) return localFile.absolutePath
@@ -95,17 +96,14 @@ fun UnifiedGeminiSheet(
         if (!forceRestart && extraArgs.isEmpty() && GeminiSessionManager.canReuseFor(workingDir)) {
             scope.launch(Dispatchers.IO) { GeminiBridge.ensureStarted(viewModel, workingDir) }
             appendLog("Reusing Gemini CLI session: ${GeminiSessionManager.cwd}")
-            d("reuse session cwd=${GeminiSessionManager.cwd} requested=$workingDir")
             return
         }
-        d("startGemini forceRestart=$forceRestart cwd=$workingDir extraArgs=${extraArgs.joinToString(" ")}")
         GeminiSessionManager.stopSession()
         scope.launch(Dispatchers.Main) {
             val saved = withContext(Dispatchers.IO) { saveDirtyEditors() }
             GeminiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
             if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
             appendLog("Gemini CLI running in sheet: $workingDir")
-            d("session started cwd=$workingDir")
         }
     }
 
@@ -141,7 +139,6 @@ fun UnifiedGeminiSheet(
             "/stop" -> {
                 GeminiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
-                d("session stopped from command")
             }
             else -> sendToGemini(input)
         }
@@ -164,7 +161,6 @@ fun UnifiedGeminiSheet(
         }
     }
     
-    // Handle external prompt requests (e.g. from editor selection)
     LaunchedEffect(viewModel.geminiPrompt) {
         if (viewModel.geminiPrompt.isNotBlank() && viewModel.showGeminiSheet) {
             handleSend()
@@ -177,12 +173,46 @@ fun UnifiedGeminiSheet(
         session = GeminiSessionManager.session,
         modifier = modifier,
         controls = {
+            val currentTab = viewModel.currentTab as? EditorTab
+            val editor = currentTab?.editorState?.editor?.get()
+
+            IconButton(
+                onClick = {
+                    if (editor?.canUndo() == true) {
+                        editor.undo()
+                        currentTab!!.editorState.updateUndoRedo()
+                    }
+                },
+                enabled = editor?.canUndo() == true
+            ) {
+                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), contentDescription = "Undo")
+            }
+
+            IconButton(
+                onClick = {
+                    if (editor?.canRedo() == true) {
+                        editor.redo()
+                        currentTab!!.editorState.updateUndoRedo()
+                    }
+                },
+                enabled = editor?.canRedo() == true
+            ) {
+                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), contentDescription = "Redo")
+            }
+
+            // Visual Drag Handle between buttons
+            Box(
+                Modifier
+                    .padding(horizontal = 8.dp)
+                    .width(32.dp)
+                    .height(4.dp)
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f), RoundedCornerShape(2.dp))
+            )
+
             IconButton(onClick = { startGemini(defaultCwd, forceRestart = true) }) { 
-                Icon(Icons.Outlined.Refresh, contentDescription = "Restart", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.refresh), contentDescription = "Restart")
             }
-            IconButton(onClick = { startGemini(defaultCwd, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { 
-                Icon(Icons.Outlined.Lock, contentDescription = "Auth", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            
             IconButton(onClick = {
                 scope.launch(Dispatchers.IO) {
                     val saved = saveDirtyEditors()
@@ -191,12 +221,7 @@ fun UnifiedGeminiSheet(
             }) { 
                 Icon(Icons.Outlined.Refresh, contentDescription = "Sync", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            IconButton(onClick = {
-                refreshCleanEditors()
-                appendLog("Refreshed clean editor tabs.")
-            }) { 
-                Icon(Icons.Outlined.Refresh, contentDescription = "Refresh", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+
             IconButton(onClick = {
                 GeminiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
