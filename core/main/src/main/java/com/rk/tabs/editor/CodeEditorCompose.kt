@@ -71,7 +71,7 @@ fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     intelligentFeatures: List<IntelligentFeature>,
     onTextChange: () -> Unit,
-    onGhostTextTrigger: (suspend (Editor) -> Unit)? = null,
+    onGhostTextTrigger: ((Editor) -> Unit)? = null,
 ) {
     val selectionColors = LocalTextSelectionColors.current
     val scope = rememberCoroutineScope()
@@ -169,7 +169,7 @@ fun Editor.registerXedEvents(
     intelligentFeatures: List<IntelligentFeature>,
     file: FileObject,
     onTextChange: () -> Unit,
-    onGhostTextTrigger: (suspend (Editor) -> Unit)? = null,
+    onGhostTextTrigger: ((Editor) -> Unit)? = null,
 ) {
     subscribeAlways(InlayHintClickEvent::class.java) { event ->
         val hint = event.inlayHint
