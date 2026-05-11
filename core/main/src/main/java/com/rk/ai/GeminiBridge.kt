@@ -90,7 +90,8 @@ object GeminiBridge {
 
     private fun writeDiscoveryFile(port: Int, token: String, workspacePath: String) {
         runCatching {
-            val dir = File(getTempDir(), "gemini/ide")
+            // Path inside Termux/Proot that maps to /tmp/gemini/ide
+            val dir = File(getTempDir(), "terminal/gemini-sheet/gemini/ide")
             dir.mkdirs()
             val pid = Process.myPid()
             

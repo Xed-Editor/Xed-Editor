@@ -15,6 +15,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DragHandle
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -207,30 +208,39 @@ fun GeminiCliSheet(
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
     val ui = rememberGeminiSheetUiState()
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
-    ) {
-        GeminiSheetDragHandle(
-            modifier = Modifier.fillMaxWidth(),
+    if (!ui.minimized) {
+        GeminiCliSheetContent(
+            onDismissRequest = onDismissRequest,
+            cwd = cwd,
+            session = session,
+            modifier = modifier,
+            terminalHeight = ui.terminalHeight,
+            showTerminal = showTerminal,
+            headerContent = headerContent,
+            controls = controls,
             onDragStart = ui.onDragStart,
             onDrag = ui.onDrag,
             onDragEnd = ui.onDragEndForInline,
-            backgroundColor = colorScheme.surfaceContainerHighest,
         )
-        if (!ui.minimized) {
-            GeminiCliSheetContent(
-                onDismissRequest = onDismissRequest,
-                cwd = cwd,
-                session = session,
-                terminalHeight = ui.terminalHeight,
-                showTerminal = showTerminal,
-                headerContent = headerContent,
-                controls = controls,
-            )
+    } else {
+        // Minimized handle
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(24.dp)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onDragStart = { ui.onDragStart() },
+                        onVerticalDrag = { _, dragAmount -> ui.onDrag(dragAmount) },
+                        onDragEnd = ui.onDragEndForInline,
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(Icons.Outlined.DragHandle, contentDescription = "Expand", tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -246,7 +256,6 @@ fun GeminiCliModalSheet(
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val ui =
@@ -263,53 +272,20 @@ fun GeminiCliModalSheet(
         modifier = modifier.fillMaxWidth(),
         sheetState = sheetState,
         sheetGesturesEnabled = false,
-        dragHandle = {
-            GeminiSheetDragHandle(
-                modifier = Modifier.fillMaxWidth(),
-                backgroundColor = colorScheme.surfaceContainerHighest,
-                onDragStart = ui.onDragStart,
-                onDrag = ui.onDrag,
-                onDragEnd = { ui.onDragEndForModal?.invoke() },
-            )
-        },
+        dragHandle = null,
     ) {
         GeminiCliSheetContent(
-            onDismissRequest,
-            cwd,
-            session,
-            Modifier.fillMaxWidth(),
-            ui.terminalHeight,
-            showTerminal,
-            headerContent,
-            controls,
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun GeminiSheetDragHandle(
-    modifier: Modifier = Modifier,
-    backgroundColor: androidx.compose.ui.graphics.Color,
-    onDragStart: () -> Unit,
-    onDrag: (Float) -> Unit,
-    onDragEnd: () -> Unit,
-) {
-    Box(
-        modifier =
-            modifier
-                .background(backgroundColor, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                .padding(top = 10.dp, bottom = 2.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        BottomSheetDefaults.DragHandle(
-            modifier = Modifier.pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onDragStart = { onDragStart() },
-                    onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                    onDragEnd = onDragEnd,
-                )
-            },
+            onDismissRequest = onDismissRequest,
+            cwd = cwd,
+            session = session,
+            modifier = Modifier.fillMaxWidth(),
+            terminalHeight = ui.terminalHeight,
+            showTerminal = showTerminal,
+            headerContent = headerContent,
+            controls = controls,
+            onDragStart = ui.onDragStart,
+            onDrag = ui.onDrag,
+            onDragEnd = { ui.onDragEndForModal?.invoke() },
         )
     }
 }
@@ -324,6 +300,9 @@ private fun GeminiCliSheetContent(
     showTerminal: Boolean = true,
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
+    onDragStart: () -> Unit,
+    onDrag: (Float) -> Unit,
+    onDragEnd: () -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(
@@ -335,12 +314,21 @@ private fun GeminiCliSheetContent(
                 .padding(horizontal = 12.dp, vertical = 8.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // Unified Header Row with Drag Support
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures(
+                            onDragStart = { onDragStart() },
+                            onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                            onDragEnd = onDragEnd,
+                        )
+                    },
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Left: Title + CWD
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Text("✦ Gemini", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.width(8.dp))
                     Text(
@@ -352,7 +340,16 @@ private fun GeminiCliSheetContent(
                     )
                 }
                 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Center: Drag Handle visual indicator
+                Icon(
+                    Icons.Outlined.DragHandle, 
+                    contentDescription = null, 
+                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+
+                // Right: Controls + Hide
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
                     controls?.invoke(this)
                     IconButton(onClick = onDismissRequest) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Hide", tint = colorScheme.onSurfaceVariant)
@@ -419,7 +416,7 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
             modifier = Modifier.fillMaxWidth().height(keysHeight),
             factory = { context ->
                 VirtualKeysView(context, null).apply {
-                    buttonTextColor = colorScheme.onSurface.toArgb()
+                    setButtonTextColor(colorScheme.onSurface.toArgb())
                     runCatching {
                         val info = VirtualKeysInfo(
                             Settings.terminal_extra_keys,
@@ -501,8 +498,8 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "NATIVE_LIB_DIR=${activity.applicationInfo.nativeLibraryDir}",
         "FDROID=$isFDroid",
         "SANDBOX=${Settings.sandbox}",
-        "TMP_DIR=${getTempDir()}",
-        "TMPDIR=${getTempDir()}",
+        "TMP_DIR=${tmpDir.absolutePath}",
+        "TMPDIR=${tmpDir.absolutePath}",
         "TZ=UTC",
         "DOTNET_GCHeapHardLimit=1C0000000",
         "SOURCE_DIR=${activity.applicationInfo.sourceDir}",
