@@ -98,9 +98,44 @@ class GeminiBridgeServer(
                 ideService.refreshEditors()
                 json(Response.Status.OK, "{\"ok\":true}")
             }
+            "/external-editor" -> serveExternalEditor(session)
             "/mcp" -> serveMcp(session)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
         }
+    }
+
+    private fun serveExternalEditor(session: IHTTPSession): Response {
+        if (session.method != Method.POST) {
+            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        }
+
+        val raw = readRequestBodyUtf8(session).getOrElse {
+            return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
+        }
+        val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
+            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
+
+        val newPath = request.get("newPath")?.asString.orEmpty()
+        if (newPath.isBlank()) {
+            return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "newPath required"))
+        }
+
+        val oldPath = request.get("oldPath")?.asString?.takeIf { it.isNotBlank() }
+        val newFile = ideService.resolvePath(newPath) ?: File(newPath)
+        val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
+        val targetFile = oldFile ?: newFile
+        val oldContent = oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
+            ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
+        val newContent = runCatching { newFile.readText() }.getOrElse {
+            return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, it.message ?: "cannot read newPath"))
+        }
+
+        val accepted = ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review Gemini editor change") {
+            ideService.writeFile(targetFile, newContent)
+            ideService.refreshEditors(targetFile.absolutePath, force = false)
+        }
+
+        return json(Response.Status.OK, JsonObject().apply { addProperty("accepted", accepted) }.let { gson.toJson(it) })
     }
 
     private fun serveMcp(session: IHTTPSession): Response {

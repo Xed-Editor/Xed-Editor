@@ -1,6 +1,7 @@
 package com.rk.commands.global
 
 import com.rk.ai.GeminiBridge
+import com.rk.ai.geminiIdeWorkspacePath
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
@@ -49,7 +50,12 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
                             "GEMINI_CLI_IDE_SERVER_PORT=${it.port}",
                             "GEMINI_CLI_IDE_AUTH_TOKEN=${it.token}",
                             "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-                            "GEMINI_CLI_IDE_WORKSPACE_PATH=${it.workspacePath}",
+                            "GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(it.workspacePath)}",
+                            "TERM_PROGRAM=vscode",
+                            "TERM_PROGRAM_VERSION=1.0.0",
+                            "VSCODE_PID=${android.os.Process.myPid()}",
+                            "EDITOR=vim",
+                            "VISUAL=vim",
                         )
                     } ?: arrayOf(),
             ),

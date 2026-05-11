@@ -92,17 +92,7 @@ object GeminiBridge {
 
     private fun writeDiscoveryFile(port: Int, token: String, workspacePath: String) {
         runCatching {
-            // Path inside Termux/Proot that maps to /tmp/gemini/ide
-            val dir = File(getTempDir(), "terminal/gemini-sheet/gemini/ide")
-            dir.mkdirs()
             val pid = Process.myPid()
-            
-            // Cleanup old files for this PID
-            dir.listFiles { file -> file.name.startsWith("gemini-ide-server-$pid-") && file.name.endsWith(".json") }
-                ?.filter { it.name != "gemini-ide-server-$pid-$port.json" }
-                ?.forEach { it.delete() }
-
-            val file = File(dir, "gemini-ide-server-$pid-$port.json")
             val config = JsonObject().apply {
                 addProperty("url", "http://127.0.0.1:$port")
                 addProperty("port", port)
@@ -110,7 +100,22 @@ object GeminiBridge {
                 addProperty("workspacePath", workspacePath)
                 addProperty("pid", pid)
             }
-            file.writeText(GsonBuilder().setPrettyPrinting().create().toJson(config))
+            val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
+
+            // Gemini CLI checks discovery files under "$TMPDIR/gemini/ide".
+            // The embedded sheet overrides TMPDIR to terminal/gemini-sheet, while
+            // normal terminal sessions use the app temp directory directly.
+            listOf(
+                File(getTempDir(), "gemini/ide"),
+                File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
+            ).forEach { dir ->
+                dir.mkdirs()
+                dir.listFiles { file -> file.name.startsWith("gemini-ide-server-$pid-") && file.name.endsWith(".json") }
+                    ?.filter { it.name != "gemini-ide-server-$pid-$port.json" }
+                    ?.forEach { it.delete() }
+
+                File(dir, "gemini-ide-server-$pid-$port.json").writeText(json)
+            }
         }
     }
 }

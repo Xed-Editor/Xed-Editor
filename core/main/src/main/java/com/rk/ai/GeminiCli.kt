@@ -7,6 +7,7 @@ import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.terminal.setupTerminalFiles
 import com.rk.utils.getTempDir
+import java.io.File
 
 object GeminiCli {
     suspend fun prompt(
