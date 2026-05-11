@@ -92,6 +92,13 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
             EditorSettingsToggle(
+                label = stringResource(strings.gemini_auto_apply),
+                description = stringResource(strings.gemini_auto_apply_desc),
+                default = Settings.gemini_auto_apply,
+                sideEffect = { Settings.gemini_auto_apply = it },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(strings.auto_close_tags),
                 description = stringResource(strings.auto_close_tags_desc),
                 default = Settings.auto_close_tags,
