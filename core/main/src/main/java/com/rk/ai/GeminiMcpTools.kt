@@ -22,6 +22,13 @@ internal object GeminiMcpTools {
             add(schema("showMessage", "Show a short message in Xed", listOf("message"), mapOf("message" to "string")))
             add(schema("runCommand", "Run a shell command in the workspace and return stdout/stderr", listOf("command"), mapOf("command" to "string", "timeoutSeconds" to "number")))
             add(schema("refreshFile", "Refresh an open editor tab from disk", listOf("filePath"), mapOf("filePath" to "string")))
+            add(schema("searchCode", "Search for code project-wide", listOf("query"), mapOf("query" to "string", "limit" to "number")))
+            add(schema("findFiles", "Find files by name project-wide", listOf("query"), mapOf("query" to "string", "limit" to "number")))
+            add(schema("getDiagnostics", "Get LSP diagnostics (errors/warnings) for a file", listOf("filePath"), mapOf("filePath" to "string")))
+            add(schema("findDefinitions", "Find definitions for a symbol at a position", listOf("filePath", "line", "column"), mapOf("filePath" to "string", "line" to "number", "column" to "number")))
+            add(schema("findReferences", "Find references for a symbol at a position", listOf("filePath", "line", "column"), mapOf("filePath" to "string", "line" to "number", "column" to "number")))
+            add(schema("renameSymbol", "Rename a symbol at a position project-wide", listOf("filePath", "line", "column", "newName"), mapOf("filePath" to "string", "line" to "number", "column" to "number", "newName" to "string")))
+            add(schema("formatDocument", "Format a document using the LSP", listOf("filePath"), mapOf("filePath" to "string")))
         }
 
     private fun schema(

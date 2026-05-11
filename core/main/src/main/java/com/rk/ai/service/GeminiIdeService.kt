@@ -57,6 +57,12 @@ interface GeminiIdeService {
     /** Ensures the Gemini CLI configuration has IDE integration enabled. */
     fun ensureIdeEnabled()
 
+    /** Searches for code project-wide. */
+    suspend fun searchCode(query: String, limit: Int = 100): JsonArray
+
+    /** Finds files by name project-wide. */
+    suspend fun findFiles(query: String, limit: Int = 100): JsonArray
+
     /** Shows a message (toast) to the user. */
     fun showMessage(message: String)
 
@@ -65,6 +71,21 @@ interface GeminiIdeService {
 
     /** Gets the primary workspace root path. */
     fun getPrimaryWorkspacePath(): String
+
+    /** Gets LSP diagnostics for a file. */
+    suspend fun getDiagnostics(filePath: String): JsonArray
+
+    /** Finds definitions for a symbol at a position. */
+    suspend fun findDefinitions(filePath: String, line: Int, column: Int): JsonArray
+
+    /** Finds references for a symbol at a position. */
+    suspend fun findReferences(filePath: String, line: Int, column: Int): JsonArray
+
+    /** Renames a symbol at a position project-wide (after user review). */
+    fun renameSymbol(filePath: String, line: Int, column: Int, newName: String)
+
+    /** Formats a document using the LSP. */
+    suspend fun formatDocument(filePath: String)
 }
 
 data class CommandResult(

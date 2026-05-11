@@ -71,6 +71,11 @@ class GeminiBridgeServer(
             register(RejectDiffTool())
             register(RunCommandTool())
             register(ShowMessageTool())
+            register(SearchCodeTool())
+            register(FindFilesTool())
+            register(GetDiagnosticsTool())
+            register(FindDefinitionsTool())
+            register(FindReferencesTool())
         }
     }
 

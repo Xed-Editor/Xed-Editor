@@ -198,6 +198,8 @@ fun Editor.registerXedEvents(
         val viewModel = fileTreeViewModel.get()
         val diagnostics = event.newDiagnosticsEvent
 
+        editorTab.editorState.diagnostics = diagnostics
+
         val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
 
         if (highestSeverity != null) {

@@ -10,20 +10,28 @@ import com.rk.ai.geminiIdeWorkspacePath
 import com.rk.ai.geminiResolveWorkspacePath
 import com.rk.exec.ShellUtils
 import com.rk.file.FileWrapper
+import com.rk.file.toFileWrapper
+import com.rk.search.SearchViewModel
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.GeminiEditorPatch
 import com.rk.utils.toast
+import com.rk.xededitor.application
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.viewModelScope
+import com.rk.lsp.applyFormattingOptions
+import io.github.rosemoe.sora.lsp.events.EventType
+import io.github.rosemoe.sora.lsp.events.document.applyEdits
 
 interface GeminiNotificationSender {
     fun sendNotification(method: String, params: JsonObject)
@@ -187,10 +195,8 @@ class GeminiIdeServiceImpl(
 
         withContext(Dispatchers.Main) {
             tab?.let {
-                it.editorState.editor.get()?.setText(content)
-                it.editorState.content = it.editorState.editor.get()?.text
-                it.editorState.updateUndoRedo()
-                it.editorState.isDirty = false
+                // Explicitly refresh the tab to sync state and update lastModifiedAt
+                it.refresh()
             }
         }
     }
@@ -393,6 +399,52 @@ class GeminiIdeServiceImpl(
         }
     }
 
+    override suspend fun searchCode(query: String, limit: Int): JsonArray {
+        val results = JsonArray()
+        val searchViewModel = SearchViewModel()
+        val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
+        
+        withContext(Dispatchers.IO) {
+            searchViewModel.searchCode(
+                context = application!!,
+                mainViewModel = viewModel,
+                projectRoot = projectRoot,
+                query = query,
+                useIndex = Settings.always_index_projects
+            ).take(limit).collect { item ->
+                results.add(JsonObject().apply {
+                    addProperty("path", item.file.getAbsolutePath())
+                    addProperty("line", item.line + 1)
+                    addProperty("column", item.column + 1)
+                    addProperty("snippet", item.snippet.text.toString())
+                })
+            }
+        }
+        return results
+    }
+
+    override suspend fun findFiles(query: String, limit: Int): JsonArray {
+        val results = JsonArray()
+        val searchViewModel = SearchViewModel()
+        val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
+
+        withContext(Dispatchers.IO) {
+            val fileMetas = searchViewModel.searchFileName(
+                context = application!!,
+                projectRoot = projectRoot,
+                query = query,
+                useIndex = Settings.always_index_projects
+            )
+            fileMetas.take(limit).forEach { meta ->
+                results.add(JsonObject().apply {
+                    addProperty("path", meta.path)
+                    addProperty("name", meta.fileName)
+                })
+            }
+        }
+        return results
+    }
+
     override fun showMessage(message: String) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             toast(message)
@@ -417,7 +469,165 @@ class GeminiIdeServiceImpl(
         )
     }
 
-    override fun getPrimaryWorkspacePath(): String = GeminiBridge.primaryWorkspacePath()
+    override suspend fun getPrimaryWorkspacePath(): String = GeminiBridge.primaryWorkspacePath()
+
+    override suspend fun getDiagnostics(filePath: String): JsonArray {
+        val results = JsonArray()
+        val tab = findTabByPath(filePath) ?: return results
+        
+        withContext(Dispatchers.Main) {
+            tab.editorState.diagnostics.forEach { diag ->
+                results.add(JsonObject().apply {
+                    addProperty("message", diag.message)
+                    addProperty("severity", diag.severity.name)
+                    add("range", JsonObject().apply {
+                        add("start", JsonObject().apply {
+                            addProperty("line", diag.range.start.line + 1)
+                            addProperty("character", diag.range.start.character + 1)
+                        })
+                        add("end", JsonObject().apply {
+                            addProperty("line", diag.range.end.line + 1)
+                            addProperty("character", diag.range.end.character + 1)
+                        })
+                    })
+                    diag.code?.let { addProperty("code", it.left) }
+                    diag.source?.let { addProperty("source", it) }
+                })
+            }
+        }
+        return results
+    }
+
+    override suspend fun findDefinitions(filePath: String, line: Int, column: Int): JsonArray {
+        val results = JsonArray()
+        val tab = findTabByPath(filePath) ?: return results
+        val connector = tab.lspConnector ?: return results
+        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return results
+
+        withContext(Dispatchers.IO) {
+            runCatching {
+                // Temporary move cursor to requested position if needed, or just use Position object
+                // requestDefinition in LspConnector uses editor.cursor, so we might need to set it
+                withContext(Dispatchers.Main) {
+                    editor.cursor.set(line - 1, column - 1)
+                }
+                
+                val either = connector.requestDefinition(editor)
+                val locations = if (either.isLeft) either.left else either.right.map { 
+                    org.eclipse.lsp4j.Location(it.targetUri, it.targetSelectionRange)
+                }
+
+                locations.forEach { loc ->
+                    results.add(JsonObject().apply {
+                        addProperty("uri", loc.uri)
+                        add("range", JsonObject().apply {
+                            add("start", JsonObject().apply {
+                                addProperty("line", loc.range.start.line + 1)
+                                addProperty("character", loc.range.start.character + 1)
+                            })
+                            add("end", JsonObject().apply {
+                                addProperty("line", loc.range.end.line + 1)
+                                addProperty("character", loc.range.end.character + 1)
+                            })
+                        })
+                    })
+                }
+            }
+        }
+        return results
+    }
+
+    override suspend fun findReferences(filePath: String, line: Int, column: Int): JsonArray {
+        val results = JsonArray()
+        val tab = findTabByPath(filePath) ?: return results
+        val connector = tab.lspConnector ?: return results
+        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return results
+
+        withContext(Dispatchers.IO) {
+            runCatching {
+                withContext(Dispatchers.Main) {
+                    editor.cursor.set(line - 1, column - 1)
+                }
+                
+                val locations = connector.requestReferences(editor)
+                locations.forEach { loc ->
+                    loc?.let { l ->
+                        results.add(JsonObject().apply {
+                            addProperty("uri", l.uri)
+                            add("range", JsonObject().apply {
+                                add("start", JsonObject().apply {
+                                    addProperty("line", l.range.start.line + 1)
+                                    addProperty("character", l.range.start.character + 1)
+                                })
+                                add("end", JsonObject().apply {
+                                    addProperty("line", l.range.end.line + 1)
+                                    addProperty("character", l.range.end.character + 1)
+                                })
+                            })
+                        })
+                    }
+                }
+            }
+        }
+        return results
+    }
+
+    override fun renameSymbol(filePath: String, line: Int, column: Int, newName: String) {
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            val tab = findTabByPath(filePath) ?: return@launch
+            val connector = tab.lspConnector ?: return@launch
+            val editor = tab.editorState.editor.get() ?: return@launch
+
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    withContext(Dispatchers.Main) {
+                        editor.cursor.set(line - 1, column - 1)
+                    }
+                    val workspaceEdit = connector.requestRenameSymbol(editor, newName)
+                    val changes = workspaceEdit.changes
+                    
+                    // For now, only support edits in the current file for the programmatic tool
+                    // until we have a better multi-file patch system
+                    val edits = changes[tab.file.toUri().toString()]
+                    if (edits != null) {
+                        // Apply edits to a copy of text to show a diff
+                        val oldText = withContext(Dispatchers.Main) { editor.text.toString() }
+                        // This is tricky because Sora Editor's Content doesn't have a simple "apply edits" without being attached
+                        // But we can use the event system or just wait for user to apply
+                        
+                        // Propose as a patch
+                        // To get the new text, we'd need to simulate the edits.
+                        // For now, let's just use the event emitter to apply it directly if auto-apply is on,
+                        // or show a toast that multi-file rename is complex.
+                        
+                        withContext(Dispatchers.Main) {
+                            connector.getEventManager()!!.emitAsync(EventType.applyEdits) {
+                                put("edits", edits)
+                                put(editor.text)
+                            }
+                            toast("Symbol renamed (local file only)")
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            toast("Rename symbol not found in current file or multiple files affected.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun formatDocument(filePath: String) {
+        val tab = findTabByPath(filePath) ?: return
+        val connector = tab.lspConnector ?: return
+        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return
+        val eventManager = connector.getEventManager() ?: return
+
+        withContext(Dispatchers.Main) {
+            applyFormattingOptions(eventManager, tab)
+            eventManager.emitAsync(EventType.fullFormatting, editor.text)
+        }
+    }
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)

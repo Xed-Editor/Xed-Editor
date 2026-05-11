@@ -86,4 +86,6 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var isConnectingLsp by mutableStateOf(false)
 
     var pendingGeminiPatch by mutableStateOf<GeminiEditorPatch?>(null)
+
+    var diagnostics by mutableStateOf(listOf<org.eclipse.lsp4j.Diagnostic>())
 }
