@@ -66,23 +66,28 @@ class GeminiBridgeServer(
     }
 
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
+    private var lastRequestBody: String? = null
 
     private fun d(msg: String) {
         if (BuildConfig.DEBUG) Log.d("GeminiBridgeServer", msg)
     }
 
     override fun serve(session: IHTTPSession): Response {
-        d("serve ${session.method} ${session.uri}")
+        d("serve ${session.method} ${session.uri} params=${session.parameters.keys} headers=${session.headers.keys}")
 
-        // parseBody must be called to access session.parameters for POST requests
         if (session.method == Method.POST) {
-            runCatching { session.parseBody(mutableMapOf()) }
+            lastRequestBody = readRequestBodyUtf8(session).getOrNull()
+            d("POST body length=${lastRequestBody?.length ?: 0}")
+        } else {
+            lastRequestBody = null
         }
 
         if (!hasValidHost(session)) {
+            d("Invalid host: ${session.headers["host"]}")
             return json(Response.Status.FORBIDDEN, errorJson(null, -32003, "invalid host"))
         }
         if (!isAuthorized(session)) {
+            d("Unauthorized: queryToken=${session.parameters["token"]?.firstOrNull()?.take(4)}... header=${session.headers["authorization"]?.take(10)}...")
             return json(Response.Status.UNAUTHORIZED, errorJson(null, -32001, "unauthorized"))
         }
 

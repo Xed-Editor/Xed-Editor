@@ -87,8 +87,10 @@ object GeminiCli {
         val command =
             buildList {
                     if (ideBridge != null) {
+                        val tmpDir = File(getTempDir(), "terminal/gemini-sheet")
                         add("/usr/bin/env")
-                        add("TMPDIR=${getTempDir().absolutePath}")
+                        add("TMPDIR=${tmpDir.absolutePath}")
+                        add("TMP_DIR=${tmpDir.absolutePath}")
                         add("DEBUG=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}")
                         add("DEBUG_MODE=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}")
                         add("GEMINI_DEBUG_LOG_FILE=${System.getenv("XED_GEMINI_DEBUG_LOG_FILE") ?: "/home/.gemini/xed-debug.log"}")
