@@ -108,13 +108,15 @@ class GeminiIdeServiceImpl(
         oldContent: String,
         newContent: String,
         title: String,
-        onApply: () -> Unit
+        onApply: suspend () -> Unit
     ) {
         if (Settings.gemini_auto_apply) {
-            onApply()
-            notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
-                addProperty("filePath", filePath)
-            })
+            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                onApply()
+                notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                    addProperty("filePath", filePath)
+                })
+            }
             return
         }
 
@@ -137,20 +139,22 @@ class GeminiIdeServiceImpl(
                     oldText = oldContent,
                     newText = newContent,
                     apply = {
-                        runCatching { onApply() }
-                            .onSuccess {
-                                viewModel.showGeminiSheet = true
-                                notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
-                                    addProperty("filePath", filePath)
-                                })
-                            }
-                            .onFailure {
-                                toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")
-                                notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply {
-                                    addProperty("filePath", filePath)
-                                    addProperty("reason", it.message ?: "apply failed")
-                                })
-                            }
+                        viewModel.viewModelScope.launch(Dispatchers.Main) {
+                            runCatching { onApply() }
+                                .onSuccess {
+                                    viewModel.showGeminiSheet = true
+                                    notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                                        addProperty("filePath", filePath)
+                                    })
+                                }
+                                .onFailure {
+                                    toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")
+                                    notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply {
+                                        addProperty("filePath", filePath)
+                                        addProperty("reason", it.message ?: "apply failed")
+                                    })
+                                }
+                        }
                     },
                     reject = {
                         notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply { addProperty("filePath", filePath) })

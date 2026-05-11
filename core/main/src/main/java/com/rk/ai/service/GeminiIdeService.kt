@@ -21,7 +21,7 @@ interface GeminiIdeService {
         oldContent: String,
         newContent: String,
         title: String = "Review AI change",
-        onApply: () -> Unit
+        onApply: suspend () -> Unit
     )
 
     /** Rejects a pending patch for the given file path. */
