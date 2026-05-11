@@ -15,7 +15,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DragHandle
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -240,7 +239,12 @@ fun GeminiCliSheet(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Outlined.DragHandle, contentDescription = "Expand", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Box(
+                Modifier
+                    .width(32.dp)
+                    .height(4.dp)
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f), RoundedCornerShape(2.dp))
+            )
         }
     }
 }
