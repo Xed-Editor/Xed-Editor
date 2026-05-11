@@ -423,11 +423,11 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
                         view.setTerminalViewClient(client)
                     }
                     view.post {
-                        isFocusable = true
-                        isFocusableInTouchMode = true
-                        requestFocus()
+                        view.isFocusable = true
+                        view.isFocusableInTouchMode = true
+                        view.requestFocus()
                         val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                        inputMethodManager?.restartInput(this)
+                        inputMethodManager?.restartInput(view)
                     }
                     lastBoundSession = session
                 }
