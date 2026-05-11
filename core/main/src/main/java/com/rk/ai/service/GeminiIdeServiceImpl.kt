@@ -90,17 +90,16 @@ class GeminiIdeServiceImpl(
         return output
     }
 
-    override fun getFileContent(filePath: String): String? {
+    override suspend fun getFileContent(filePath: String): String? {
         val openTab = findTabByPath(filePath)
         return if (openTab != null) {
-            val getEditorText = { openTab.editorState.editor.get()?.text?.toString() }
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                getEditorText()
-            } else {
-                runBlocking(Dispatchers.Main) { getEditorText() }
+            withContext(Dispatchers.Main) {
+                openTab.editorState.editor.get()?.text?.toString()
             }
         } else {
-            runCatching { File(filePath).readText() }.getOrNull()
+            withContext(Dispatchers.IO) {
+                runCatching { File(filePath).readText() }.getOrNull()
+            }
         }
     }
 
@@ -170,9 +169,9 @@ class GeminiIdeServiceImpl(
         }
     }
 
-    override fun writeFile(file: File, content: String) {
+    override suspend fun writeFile(file: File, content: String) {
         val tab = findTabByPath(file.absolutePath)
-        runBlocking(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             tab?.saveMutex?.withLock {
                 file.parentFile?.mkdirs()
                 file.writeText(content, Charsets.UTF_8)
@@ -182,19 +181,13 @@ class GeminiIdeServiceImpl(
             }
         }
 
-        val updateUi = {
+        withContext(Dispatchers.Main) {
             tab?.let {
                 it.editorState.editor.get()?.setText(content)
                 it.editorState.content = it.editorState.editor.get()?.text
                 it.editorState.updateUndoRedo()
                 it.editorState.isDirty = false
             }
-        }
-
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            updateUi()
-        } else {
-            runBlocking(Dispatchers.Main) { updateUi() }
         }
     }
 
@@ -223,31 +216,25 @@ class GeminiIdeServiceImpl(
         }
     }
 
-    override fun getOpenFiles(): List<JsonObject> {
-        val current = viewModel.currentTab as? EditorTab
+    override suspend fun getOpenFiles(): List<JsonObject> {
+        val current = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab }
         return viewModel.tabs.filterIsInstance<EditorTab>().map { it.toIdeFileJsonObject(it == current) }
     }
 
-    override fun getActiveFile(): JsonObject? {
-        val current = viewModel.currentTab as? EditorTab ?: return null
-        return current.toIdeFileJsonObject(active = true).apply {
-            val content = if (Looper.myLooper() == Looper.getMainLooper()) {
-                current.editorState.editor.get()?.text?.toString().orEmpty()
-            } else {
-                runBlocking(Dispatchers.Main) { current.editorState.editor.get()?.text?.toString().orEmpty() }
-            }
-            addProperty("content", content)
+    override suspend fun getActiveFile(): JsonObject? {
+        val current = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab } ?: return null
+        val json = current.toIdeFileJsonObject(active = true)
+        val content = withContext(Dispatchers.Main) {
+            current.editorState.editor.get()?.text?.toString().orEmpty()
         }
+        json.addProperty("content", content)
+        return json
     }
 
-    override fun getSelection(): String {
-        val current = viewModel.currentTab as? EditorTab
-        return if (current == null) "" else {
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                current.editorState.editor.get()?.getSelectedText().orEmpty()
-            } else {
-                runBlocking(Dispatchers.Main) { current.editorState.editor.get()?.getSelectedText().orEmpty() }
-            }
+    override suspend fun getSelection(): String {
+        val current = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab } ?: return ""
+        return withContext(Dispatchers.Main) {
+            current.editorState.editor.get()?.getSelectedText().orEmpty()
         }
     }
 
@@ -352,22 +339,22 @@ class GeminiIdeServiceImpl(
         }
     }
 
-    override fun saveAll(): String {
+    override suspend fun saveAll(): String {
         val tabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
-        runBlocking(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
             tabs.forEach { tab ->
                 tab.editorState.editor.get()?.let { editor -> tab.editorState.content = editor.text }
             }
         }
         // Run saves in parallel on IO dispatcher to avoid blocking the main thread sequentially
-        runBlocking(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             tabs.forEach { tab -> tab.quickSave() }
         }
         return "saved ${tabs.size} dirty open file(s)"
     }
 
     override fun ensureIdeEnabled() {
-        runBlocking(Dispatchers.IO) {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val home = com.rk.file.sandboxHomeDir()
                 val geminiDir = File(home, ".gemini")
@@ -406,7 +393,7 @@ class GeminiIdeServiceImpl(
         if (Looper.myLooper() == Looper.getMainLooper()) {
             toast(message)
         } else {
-            runBlocking(Dispatchers.Main) { toast(message) }
+            viewModel.viewModelScope.launch(Dispatchers.Main) { toast(message) }
         }
     }
 
@@ -438,12 +425,8 @@ class GeminiIdeServiceImpl(
         }
     }
 
-    private fun EditorTab.toIdeFileJsonObject(active: Boolean): JsonObject {
-        val editor = if (Looper.myLooper() == Looper.getMainLooper()) {
-            editorState.editor.get()
-        } else {
-            runBlocking(Dispatchers.Main) { editorState.editor.get() }
-        }
+    private suspend fun EditorTab.toIdeFileJsonObject(active: Boolean): JsonObject {
+        val editor = withContext(Dispatchers.Main) { editorState.editor.get() }
         val selected = editor?.getSelectedText().orEmpty()
         val line = editor?.cursor?.leftLine?.plus(1) ?: 1
         val column = editor?.cursor?.leftColumn?.plus(1) ?: 1

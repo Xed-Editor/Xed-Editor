@@ -285,15 +285,16 @@ private fun GeminiCliSheetContent(
         modifier =
             modifier
                 .fillMaxWidth()
-                .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                .border(1.dp, colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                .border(1.dp, colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                .padding(horizontal = 12.dp, vertical = 6.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             // Unified Header Row with Drag Support
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(32.dp)
                     .pointerInput(Unit) {
                         detectVerticalDragGestures(
                             onDragStart = { onDragStart() },
@@ -305,25 +306,25 @@ private fun GeminiCliSheetContent(
             ) {
                 // Left: Title + CWD
                 Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Gemini", color = colorScheme.onSurface, style = MaterialTheme.typography.titleMedium)
+                    Text("Gemini", color = colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
                         color = colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
                         modifier = Modifier.background(colorScheme.surfaceContainerHigh, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
                 
-                // Center & Right: Controls + Hide
+                // Right: Controls + Hide
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End,
                 ) {
                     controls?.invoke(this)
-                    IconButton(onClick = onDismissRequest) {
+                    IconButton(onClick = onDismissRequest, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Hide", tint = colorScheme.onSurfaceVariant)
                     }
                 }
@@ -332,7 +333,7 @@ private fun GeminiCliSheetContent(
             headerContent?.invoke()
 
             if (showTerminal) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
                 GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
             }
         }

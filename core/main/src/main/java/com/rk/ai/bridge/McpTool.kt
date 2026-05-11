@@ -5,7 +5,7 @@ import com.rk.ai.service.GeminiIdeService
 
 interface McpTool {
     fun getName(): String
-    fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject
+    suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject
 }
 
 class McpToolRegistry(private val ideService: GeminiIdeService) {
@@ -15,7 +15,7 @@ class McpToolRegistry(private val ideService: GeminiIdeService) {
         tools[tool.getName()] = tool
     }
 
-    fun execute(name: String, args: JsonObject): JsonObject? {
+    suspend fun execute(name: String, args: JsonObject): JsonObject? {
         return tools[name]?.execute(args, ideService)
     }
 

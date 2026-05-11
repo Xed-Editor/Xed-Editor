@@ -13,7 +13,7 @@ interface GeminiIdeService {
     fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String>
 
     /** Gets the text content of a file, preferring an open editor tab if available. */
-    fun getFileContent(filePath: String): String?
+    suspend fun getFileContent(filePath: String): String?
 
     /** Shows a patch for user review. Non-blocking. */
     fun showPatch(
@@ -28,7 +28,7 @@ interface GeminiIdeService {
     fun rejectPatch(filePath: String)
 
     /** Directly writes text to a file and refreshes any associated editor tab. */
-    fun writeFile(file: File, content: String)
+    suspend fun writeFile(file: File, content: String)
 
     /** Refreshes one or more editor tabs from disk. */
     fun refreshEditors(filePath: String? = null, force: Boolean = false)
@@ -37,13 +37,13 @@ interface GeminiIdeService {
     fun openFile(file: File)
 
     /** Gets metadata about all open editor tabs. */
-    fun getOpenFiles(): List<JsonObject>
+    suspend fun getOpenFiles(): List<JsonObject>
 
     /** Gets metadata and content for the currently active editor tab. */
-    fun getActiveFile(): JsonObject?
+    suspend fun getActiveFile(): JsonObject?
 
     /** Gets the currently selected text in the active editor. */
-    fun getSelection(): String
+    suspend fun getSelection(): String
 
     /** Replaces the current selection (or entire file) with new content, after user review. Non-blocking. */
     fun replaceSelection(newContent: String)
@@ -52,7 +52,7 @@ interface GeminiIdeService {
     fun insertAtCursor(newContent: String)
 
     /** Saves all dirty editor tabs in parallel. */
-    fun saveAll(): String
+    suspend fun saveAll(): String
 
     /** Ensures the Gemini CLI configuration has IDE integration enabled. */
     fun ensureIdeEnabled()

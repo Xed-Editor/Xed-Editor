@@ -204,19 +204,16 @@ class GeminiBridgeServer(
         val output = PipedOutputStream()
         val input = PipedInputStream(output)
         val writer = PrintWriter(output)
+synchronized(sseLock) {
+    sseClients[requestedSessionId] = writer
+}
 
-        synchronized(sseLock) {
-            sseClients[requestedSessionId] = writer
-        }
-        
-        // Notify IDE context on connection
-        runBlocking {
-            synchronized(sseLock) {
-                writer.print("event: message\n")
-                writer.print("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-                writer.flush()
-            }
-        }
+// Notify IDE context on connection
+synchronized(sseLock) {
+    writer.print("event: message\n")
+    writer.print("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+    writer.flush()
+}
 
         return newChunkedResponse(Response.Status.OK, "text/event-stream", input).apply {
             addHeader("mcp-session-id", requestedSessionId)
