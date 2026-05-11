@@ -31,10 +31,6 @@ class GeminiIdeServiceImpl(
     private val notificationSender: GeminiNotificationSender? = null
 ) : GeminiIdeService {
 
-    private fun d(msg: String) {
-        // Log if needed
-    }
-
     override fun resolvePath(path: String): File? {
         val normalized = path.trim()
         if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
