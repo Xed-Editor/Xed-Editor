@@ -23,7 +23,9 @@ import java.io.PipedOutputStream
 import java.io.PrintWriter
 import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 class IdeBridgeServer(
     requestedPort: Int,
@@ -35,6 +37,7 @@ class IdeBridgeServer(
 
     companion object {
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
+        private const val TOOL_TIMEOUT_MS = 60000L
     }
 
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
@@ -351,11 +354,15 @@ synchronized(sseLock) {
         
         return try {
             val result = runBlocking {
-                toolRegistry.execute(name, args)
+                withTimeout(TOOL_TIMEOUT_MS) {
+                    toolRegistry.execute(name, args)
+                }
             } ?: return errorJson(id, -32601, "unknown tool: $name")
             resultJson(id, result)
+        } catch (e: TimeoutCancellationException) {
+            errorJson(id, -32000, "tool '$name' timed out after ${TOOL_TIMEOUT_MS}ms")
         } catch (e: Exception) {
-            errorJson(id, -32603, e.message ?: "internal error")
+            errorJson(id, -32603, "${e::class.java.simpleName}: ${e.message ?: "internal error"}")
         }
     }
 

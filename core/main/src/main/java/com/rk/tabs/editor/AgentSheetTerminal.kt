@@ -53,6 +53,7 @@ import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
 import com.rk.utils.dpToPx
 import com.rk.utils.getSourceDirOfPackage
+import android.view.MotionEvent
 import com.rk.utils.getTempDir
 import com.rk.utils.isFDroid
 import com.termux.terminal.TerminalColors
@@ -376,7 +377,10 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
         modifier = modifier.height(height),
     ) {
         AndroidView<TerminalView>(
-            modifier = Modifier.fillMaxWidth().height(terminalBodyHeight),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(terminalBodyHeight)
+                .pointerInteropFilter { false },
             factory = { context ->
                 TerminalView(context, null).apply {
                     val client = AgentTerminalClient(this) { virtualKeysViewRef.get() }
@@ -384,7 +388,7 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
                     setTerminalViewClient(client)
                     session?.updateTerminalSessionClient(client)
                     
-                    setTextSize((Settings.terminal_font_size * 1.35).toInt())
+                    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
                     runCatching {
                         val fontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
                         val font = FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset) ?: Typeface.MONOSPACE
@@ -397,6 +401,17 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
                     )
                     attachSession(session)
                     lastBoundSession = session
+                    addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+                        val widthChanged = (right - left) != (oldRight - oldLeft)
+                        val heightChanged = (bottom - top) != (oldBottom - oldTop)
+                        if (widthChanged || heightChanged) {
+                            applyGeminiSheetTerminalColors(
+                                onSurfaceColor = colorScheme.onSurface.toArgb(),
+                                surfaceColor = colorScheme.surface.toArgb(),
+                                terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
+                            )
+                        }
+                    }
                     post {
                         isFocusable = true
                         isFocusableInTouchMode = true
