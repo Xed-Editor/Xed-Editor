@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -105,6 +107,45 @@ fun SettingsEditorScreen(navController: NavController) {
             val agents = com.rk.ai.session.AiSessionManager.availableAgents()
             val currentAgent = com.rk.ai.session.AiSessionManager.resolveAgent(Settings.ai_agent)
 
+            var showModelDialog by remember { mutableStateOf(false) }
+            var modelInputValue by remember { mutableStateOf(Settings.ai_model) }
+
+            Surface(
+                onClick = { showModelDialog = true },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(strings.ai_model),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        )
+                        Text(
+                            text = stringResource(strings.ai_model_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = Settings.ai_model.ifEmpty { "default" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Icon(
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
             SettingsToggle(
                 label = stringResource(strings.ai_agent),
                 description = stringResource(strings.ai_agent_desc),
@@ -152,6 +193,17 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                 },
             )
+
+            if (showModelDialog) {
+                SingleInputDialog(
+                    title = stringResource(strings.ai_model),
+                    inputLabel = stringResource(strings.ai_model),
+                    inputValue = modelInputValue,
+                    onInputValueChange = { modelInputValue = it },
+                    onConfirm = { Settings.ai_model = modelInputValue; showModelDialog = false },
+                    onFinish = { modelInputValue = Settings.ai_model; showModelDialog = false },
+                )
+            }
 
             EditorSettingsToggle(
                 label = stringResource(strings.gemini_auto_apply),

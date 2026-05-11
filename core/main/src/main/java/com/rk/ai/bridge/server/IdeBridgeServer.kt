@@ -89,6 +89,8 @@ class IdeBridgeServer(
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
     private val sseLock = Any()
     @Volatile private var activeMcpSessionId: String? = null
+    @Volatile var connectedClients: Int = 0
+        private set
 
     private fun d(msg: String) {
         if (BuildConfig.DEBUG) Log.d("IdeBridgeServer", msg)
@@ -124,6 +126,8 @@ class IdeBridgeServer(
             }
             "/mcp-info" -> json(Response.Status.OK, bridgeInfoJson())
             "/external-editor" -> serveExternalEditor(session, rawPostBody)
+            "/sse" -> serveSseStream(session)
+            "/messages" -> serveMessages(session, rawPostBody)
             "/mcp" -> serveMcp(session, rawPostBody)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
         }
@@ -210,6 +214,87 @@ class IdeBridgeServer(
         return activeMcpSessionId
     }
 
+    /** Standard MCP HTTP/SSE transport: GET establishes SSE stream */
+    private fun serveSseStream(session: IHTTPSession): Response {
+        val sessionId = UUID.randomUUID().toString()
+        val output = PipedOutputStream()
+        val input = PipedInputStream(output)
+        val writer = PrintWriter(output)
+
+        synchronized(sseLock) {
+            sseClients[sessionId] = writer
+            connectedClients = sseClients.size
+        }
+
+        // Send endpoint event (MCP HTTP transport standard)
+        synchronized(sseLock) {
+            writer.print("event: endpoint\n")
+            writer.print("data: /messages?sessionId=${sessionId}\n\n")
+            writer.flush()
+        }
+
+        // Send initial context
+        synchronized(sseLock) {
+            writer.print("event: message\n")
+            writer.print("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+            writer.flush()
+        }
+
+        return newChunkedResponse(Response.Status.OK, "text/event-stream", input).apply {
+            addHeader("mcp-session-id", sessionId)
+            addHeader("Cache-Control", "no-store")
+            addHeader("Connection", "keep-alive")
+            addHeader("Access-Control-Allow-Origin", "*")
+        }
+    }
+
+    /** Standard MCP HTTP/SSE transport: POST handles JSON-RPC messages */
+    private fun serveMessages(session: IHTTPSession, rawPostBody: String?): Response {
+        if (session.method != Method.POST) {
+            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        }
+
+        val raw = rawPostBody
+            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "invalid request"))
+
+        val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
+            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
+
+        val sessionId = session.parameters["sessionId"]?.firstOrNull()
+            ?: activeMcpSessionId
+            ?: "default"
+
+        val id = request.get("id") ?: JsonNull.INSTANCE
+        val method = request.get("method")?.asString.orEmpty()
+
+        val responseBody = when (method) {
+            "initialize" -> initializeResult(id, request)
+            "tools/list" -> toolsListResult(id)
+            "tools/call" -> toolsCallResult(id, request)
+            "notifications/initialized" -> resultJson(id, JsonObject())
+            "ping" -> resultJson(id, JsonObject())
+            else -> errorJson(id, -32601, "method not found: $method")
+        }
+
+        // If there's an SSE client for this session, push response through SSE
+        val writer = synchronized(sseLock) { sseClients[sessionId] }
+        if (writer != null) {
+            synchronized(sseLock) {
+                writer.print("event: message\n")
+                writer.print("data: $responseBody\n\n")
+                writer.flush()
+            }
+            return json(Response.Status.OK, resultJson(id, JsonObject().apply {
+                addProperty("_ack", true)
+            }))
+        }
+
+        // Fallback: return directly
+        return json(Response.Status.OK, responseBody).apply {
+            addHeader("mcp-session-id", sessionId)
+        }
+    }
+
     private fun serveMcpStream(session: IHTTPSession): Response {
         val requestedSessionId =
             session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
@@ -221,6 +306,7 @@ class IdeBridgeServer(
         val writer = PrintWriter(output)
 synchronized(sseLock) {
     sseClients[requestedSessionId] = writer
+    connectedClients = sseClients.size
 }
 
 // Notify IDE context on connection
@@ -251,6 +337,7 @@ synchronized(sseLock) {
                 }.onFailure { deadClients.add(id) }
             }
             deadClients.forEach { sseClients.remove(it) }
+            connectedClients = sseClients.size
         }
     }
 
@@ -297,7 +384,10 @@ synchronized(sseLock) {
             addProperty("version", "1.0.0")
             addProperty("protocol", "mcp")
             addProperty("tools", IdeMcpTools.list().size())
+            addProperty("clients", connectedClients)
             add("endpoints", JsonObject().apply {
+                addProperty("sse", "/sse")
+                addProperty("messages", "/messages")
                 addProperty("mcp", "/mcp")
                 addProperty("health", "/health")
                 addProperty("context", "/context")

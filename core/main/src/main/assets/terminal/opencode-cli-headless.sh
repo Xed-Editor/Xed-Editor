@@ -33,7 +33,7 @@ if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
   "mcp": {
     "xed-ide": {
       "type": "remote",
-      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
+      "url": "http://127.0.0.1:${IDE_PORT}/sse",
       "enabled": true,
       "headers": {
         "Authorization": "Bearer ${IDE_TOKEN}"

@@ -8,12 +8,18 @@ object GeminiAgent : AiAgent {
     override val displayName: String = "Gemini CLI"
     override val cliBinaryName: String = "gemini-cli-headless"
     override val shellScriptName: String = "gemini-cli"
+    override val modelFlagName: String = "--model"
+    override val defaultModel: String = "gemini-2.5-flash"
 
-    override fun buildArgs(extraArgs: List<String>, workingDir: String): List<String> =
+    override fun buildArgs(extraArgs: List<String>, workingDir: String, model: String?): List<String> =
         buildList {
             add("--skip-trust")
             add("--include-directories")
             add(workingDir)
+            if (!model.isNullOrBlank()) {
+                add(modelFlagName)
+                add(model)
+            }
             if (extraArgs.isNotEmpty()) {
                 addAll(extraArgs)
             }
@@ -27,6 +33,9 @@ object GeminiAgent : AiAgent {
             "EDITOR" to "vim",
             "VISUAL" to "vim",
         ).also { it.putAll(extraEnv) }
+
+    override fun modelArg(model: String?): List<String> =
+        if (!model.isNullOrBlank()) listOf(modelFlagName, model) else emptyList()
 
     override suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String =
         projectRoot?.getAbsolutePath()

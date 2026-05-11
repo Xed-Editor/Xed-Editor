@@ -82,6 +82,8 @@
     <string name="gemini_auto_apply_desc">Automatically apply changes without review</string>
     <string name="ai_agent">AI Agent</string>
     <string name="ai_agent_desc">Select the AI coding agent to use in the terminal sheet</string>
+    <string name="ai_model">Model</string>
+    <string name="ai_model_desc">AI model to use (leave empty for default)</string>
     <string name="app">Application</string>
     <string name="oled_desc">Applies a pure black theme</string>
     <string name="themes">Themes</string>

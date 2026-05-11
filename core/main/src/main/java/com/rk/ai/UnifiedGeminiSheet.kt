@@ -187,11 +187,17 @@ fun UnifiedGeminiSheet(
         cwd = cwd.value,
         session = session,
         modifier = modifier,
+        val currentAgent = AiSessionManager.currentAgent
+        val currentTab = viewModel.currentTab as? EditorTab
+        val editor = currentTab?.editorState?.editor?.get()
+        val selectedText = editor?.getSelectedText().orEmpty()
+
         headerContent = {
             StatusBar(
                 isRunning = isRunning,
                 cwd = cwd.value,
-                agent = AiSessionManager.currentAgent,
+                agent = currentAgent,
+                model = Settings.ai_model.ifEmpty { currentAgent.defaultModel },
                 availableAgents = AiSessionManager.availableAgents(),
                 showAgentMenu = showAgentMenu,
                 onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
@@ -262,6 +268,8 @@ fun UnifiedGeminiSheet(
         bottomBar = {
             QuickActions(
                 isRunning = isRunning,
+                currentFile = cwd.value.split("/").lastOrNull() ?: "",
+                hasSelection = selectedText.isNotBlank(),
                 onAction = { handleInput(it) },
             )
         },
@@ -273,6 +281,7 @@ private fun StatusBar(
     isRunning: Boolean,
     cwd: String,
     agent: AiAgent,
+    model: String,
     availableAgents: List<AiAgent>,
     showAgentMenu: Boolean,
     onToggleAgentMenu: () -> Unit,
@@ -284,6 +293,8 @@ private fun StatusBar(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val dotColor = if (isRunning) Color(0xFF4CAF50) else Color(0xFFEF5350)
+    val bridgeClients = IdeBridge.connectedClients()
+    val bridgeOnline = IdeBridge.isRunning()
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -302,7 +313,22 @@ private fun StatusBar(
                 color = dotColor,
                 style = MaterialTheme.typography.labelSmall,
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
+            if (bridgeOnline) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107))
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = if (bridgeClients > 0) "${bridgeClients} client" else "bridge",
+                    color = if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107),
+                    style = MaterialTheme.typography.labelSmall,
+                )
+                Spacer(Modifier.width(6.dp))
+            }
 
             Box {
                 Surface(
@@ -341,7 +367,20 @@ private fun StatusBar(
                 }
             }
 
-            Spacer(Modifier.width(8.dp))
+            if (model.isNotBlank()) {
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = model,
+                    color = colorScheme.tertiary,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .background(colorScheme.tertiaryContainer.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 5.dp, vertical = 2.dp),
+                )
+            }
+            Spacer(Modifier.width(6.dp))
             Text(
                 text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
                 color = colorScheme.onSurfaceVariant,
@@ -408,8 +447,16 @@ private fun StatusBar(
 @Composable
 private fun QuickActions(
     isRunning: Boolean,
+    currentFile: String,
+    hasSelection: Boolean,
     onAction: (String) -> Unit,
 ) {
+    fun prompt(text: String) = buildString {
+        append(text)
+        if (currentFile.isNotBlank()) append(" in $currentFile")
+        if (hasSelection) append(" (selected code provided as context)")
+    }
+
     val colorScheme = MaterialTheme.colorScheme
 
     Row(
@@ -422,7 +469,7 @@ private fun QuickActions(
         if (!isRunning) {
             AssistChip(
                 onClick = { onAction("/restart") },
-                label = { Text("Start Gemini", style = MaterialTheme.typography.labelSmall) },
+                label = { Text("Start Agent", style = MaterialTheme.typography.labelSmall) },
                 shape = RoundedCornerShape(16.dp),
             )
         } else {
@@ -437,33 +484,33 @@ private fun QuickActions(
                 shape = RoundedCornerShape(16.dp),
             )
             AssistChip(
-                onClick = { onAction("/refresh") },
-                label = { Text("Refresh", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction("Explain the current file") },
+                onClick = { onAction(prompt("Explain the code")) },
                 label = { Text("Explain", style = MaterialTheme.typography.labelSmall) },
                 shape = RoundedCornerShape(16.dp),
             )
             AssistChip(
-                onClick = { onAction("Find any bugs or issues in the current file") },
+                onClick = { onAction(prompt("Find bugs and issues")) },
                 label = { Text("Find Bugs", style = MaterialTheme.typography.labelSmall) },
                 shape = RoundedCornerShape(16.dp),
             )
             AssistChip(
-                onClick = { onAction("Suggest improvements for the current file") },
+                onClick = { onAction(prompt("Suggest improvements")) },
                 label = { Text("Refactor", style = MaterialTheme.typography.labelSmall) },
                 shape = RoundedCornerShape(16.dp),
             )
             AssistChip(
-                onClick = { onAction("Add unit tests for the current file") },
+                onClick = { onAction(prompt("Add unit tests")) },
                 label = { Text("Add Tests", style = MaterialTheme.typography.labelSmall) },
                 shape = RoundedCornerShape(16.dp),
             )
             AssistChip(
-                onClick = { onAction("Write documentation comments for the current file") },
+                onClick = { onAction(prompt("Write documentation")) },
                 label = { Text("Document", style = MaterialTheme.typography.labelSmall) },
+                shape = RoundedCornerShape(16.dp),
+            )
+            AssistChip(
+                onClick = { onAction("/refresh") },
+                label = { Text("Refresh", style = MaterialTheme.typography.labelSmall) },
                 shape = RoundedCornerShape(16.dp),
             )
         }

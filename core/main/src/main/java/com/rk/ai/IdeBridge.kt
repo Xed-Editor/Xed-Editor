@@ -16,6 +16,9 @@ object IdeBridge {
     data class Info(val port: Int, val token: String)
 
     private var server: IdeBridgeServer? = null
+
+    fun connectedClients(): Int = server?.connectedClients ?: 0
+    fun availableTools(): Int = 28
     private var token: String? = null
     private var port: Int = 0
     private val secureRandom = SecureRandom()

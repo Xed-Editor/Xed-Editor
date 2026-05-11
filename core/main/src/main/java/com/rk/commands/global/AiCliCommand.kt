@@ -14,6 +14,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import java.io.File
@@ -39,7 +40,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
         val bridge = IdeBridge.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
         val agent = AiSessionManager.currentAgent
         val launcher = localBinDir().child(agent.shellScriptName).absolutePath
-        val agentArgs = agent.buildArgs(emptyList(), workspaceDir)
+        val agentArgs = agent.buildArgs(emptyList(), workspaceDir, Settings.ai_model.takeIf { it.isNotBlank() })
         val args = buildList {
                 add(launcher)
                 addAll(agentArgs)

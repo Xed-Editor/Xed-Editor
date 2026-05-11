@@ -135,7 +135,7 @@ object AiSessionManager {
             add(sandbox)
             add("/bin/bash")
             add(launcher)
-            addAll(agent.buildArgs(extraArgs, workingDir))
+            addAll(agent.buildArgs(extraArgs, workingDir, Settings.ai_model.takeIf { it.isNotBlank() }))
         }
         return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
     }
