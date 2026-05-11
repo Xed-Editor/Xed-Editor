@@ -26,10 +26,12 @@ import java.util.UUID
 import kotlinx.coroutines.runBlocking
 
 class GeminiBridgeServer(
-    val port: Int,
+    requestedPort: Int,
     private val token: String,
     initialIdeService: GeminiIdeService
-) : NanoHTTPD(port), GeminiNotificationSender {
+) : NanoHTTPD(requestedPort), GeminiNotificationSender {
+
+    val port: Int get() = listeningPort
 
     companion object {
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
