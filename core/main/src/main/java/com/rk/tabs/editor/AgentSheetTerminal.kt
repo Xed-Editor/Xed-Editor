@@ -6,7 +6,6 @@ import android.graphics.Typeface
 import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
-import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,7 +52,6 @@ import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
 import com.rk.utils.dpToPx
 import com.rk.utils.getSourceDirOfPackage
-import android.view.MotionEvent
 import com.rk.utils.getTempDir
 import com.rk.utils.isFDroid
 import com.termux.terminal.TerminalColors
@@ -379,8 +377,7 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
         AndroidView<TerminalView>(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(terminalBodyHeight)
-                .pointerInteropFilter { false },
+                .height(terminalBodyHeight),
             factory = { context ->
                 TerminalView(context, null).apply {
                     val client = AgentTerminalClient(this) { virtualKeysViewRef.get() }

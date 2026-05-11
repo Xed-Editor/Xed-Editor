@@ -52,6 +52,7 @@ import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
 import org.eclipse.lsp4j.Diagnostic
 import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
+import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
@@ -70,6 +71,7 @@ fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     intelligentFeatures: List<IntelligentFeature>,
     onTextChange: () -> Unit,
+    onGhostTextTrigger: (suspend (Editor) -> Unit)? = null,
 ) {
     val selectionColors = LocalTextSelectionColors.current
     val scope = rememberCoroutineScope()
@@ -234,6 +236,14 @@ fun Editor.registerXedEvents(
             editorTab.editorState.updateUndoRedo()
             onTextChange.invoke()
         }
+
+        if (onGhostTextTrigger != null && Settings.ai_inline_completion && it.action == ContentChangeEvent.ACTION_INSERT && it.changedText.length == 1) {
+            onGhostTextTrigger(this)
+        }
+    }
+
+    subscribeAlways(SelectionChangeEvent::class.java) {
+        editorTab.editorState.ghostText = null
     }
 
     subscribeAlways(LayoutStateChangeEvent::class.java) { event ->
@@ -242,6 +252,24 @@ fun Editor.registerXedEvents(
 
     subscribeAlways(EditorKeyEvent::class.java) { event ->
         intelligentFeatures.forEach { it.handleKeyEvent(event, this) }
+
+        if (!event.isConsumed && event.keyEvent.keyCode == KeyEvent.KEYCODE_ESCAPE && event.action == EditorKeyEvent.ACTION_PRESS) {
+            editorTab.editorState.ghostText = null
+            event.isConsumed = true
+        }
+
+        if (!event.isConsumed && event.keyEvent.keyCode == KeyEvent.KEYCODE_TAB && event.action == EditorKeyEvent.ACTION_PRESS) {
+            val ghost = editorTab.editorState.ghostText
+            if (ghost != null) {
+                event.isConsumed = true
+                editorTab.editorState.ghostText = null
+                val line = editorTab.editorState.ghostCursorLine
+                val column = editorTab.editorState.ghostCursorColumn
+                val index = text.getCharIndex(line, column)
+                text.insert(line, column, ghost)
+                setSelection(line, column + ghost.length)
+            }
+        }
     }
 
     // Intercept the default handling of some keybinds because

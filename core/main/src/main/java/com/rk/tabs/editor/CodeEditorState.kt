@@ -87,5 +87,11 @@ data class CodeEditorState(val initialContent: Content? = null) {
 
     var pendingGeminiPatch by mutableStateOf<EditorPatch?>(null)
 
+    var ghostText by mutableStateOf<String?>(null)
+    var ghostCursorLine by mutableStateOf(0)
+    var ghostCursorColumn by mutableStateOf(0)
+    var ghostCursorX by mutableStateOf(0f)
+    var ghostCursorY by mutableStateOf(0f)
+
     var diagnostics by mutableStateOf(listOf<org.eclipse.lsp4j.Diagnostic>())
 }

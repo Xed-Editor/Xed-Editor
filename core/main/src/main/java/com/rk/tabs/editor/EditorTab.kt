@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
@@ -27,9 +28,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.platform.LocalConfiguration
@@ -43,6 +47,7 @@ import com.rk.DefaultScope
 import com.rk.activities.main.EditorCursorState
 import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
+import com.rk.ai.AiCompletionEngine
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
@@ -528,6 +533,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
                     }
 
+                var ghostJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
                 Box(modifier = Modifier.weight(1f)) {
                     CodeEditor(
                         modifier = Modifier.fillMaxSize(),
@@ -548,7 +554,46 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 showNotice(EDITORCONFIG_NOTICE_KEY) { id -> EditorConfigNotice(id) }
                             }
                         },
+                        onGhostTextTrigger = { editor ->
+                            ghostJob?.cancel()
+                            ghostJob = scope.launch(Dispatchers.Default) {
+                                delay(400)
+                                val content = withContext(Dispatchers.Main) { editor.text.toString() }
+                                val line = withContext(Dispatchers.Main) { editor.cursor.leftLine }
+                                val column = withContext(Dispatchers.Main) { editor.cursor.leftColumn }
+                                val lang = editorState.textmateScope ?: ""
+                                val path = file.getAbsolutePath()
+                                val result = AiCompletionEngine.getInlineCompletion(
+                                    filePath = path,
+                                    content = content,
+                                    cursorLine = line,
+                                    cursorColumn = column,
+                                    language = lang,
+                                )
+                                if (result != null) {
+                                    withContext(Dispatchers.Main) {
+                                        editorState.ghostText = result.text
+                                        editorState.ghostCursorLine = result.line
+                                        editorState.ghostCursorColumn = result.column
+                                    }
+                                }
+                            }
+                        },
                     )
+
+                    val ghostText = editorState.ghostText
+                    if (ghostText != null) {
+                        Text(
+                            text = ghostText,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .offset(x = 8.dp, y = 8.dp)
+                                .alpha(0.4f),
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
 
                 val showColorPicker = editorState.showColorPicker
