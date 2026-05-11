@@ -1,10 +1,7 @@
 package com.rk.settings.editor
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -113,6 +110,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(strings.ai_agent_desc),
                 state = remember { mutableStateOf(true) },
                 showSwitch = false,
+                default = true,
                 startWidget = {
                     Box {
                         Surface(

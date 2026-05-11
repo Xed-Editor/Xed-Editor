@@ -39,6 +39,10 @@ ensure_gemini_cli() {
 configure_xed_ide_integration() {
   [ -n "$IDE_PORT" ] || return 0
   [ -n "$IDE_WS" ] || return 0
+  BRIDGE_OK=$(curl -sf "http://127.0.0.1:${IDE_PORT}/health" 2>/dev/null || echo "")
+  if [ -z "$BRIDGE_OK" ]; then
+    warn "IDE bridge not reachable on port $IDE_PORT"
+  fi
   mkdir -p "$HOME/.gemini"
   node <<'NODE'
 const fs = require('fs');

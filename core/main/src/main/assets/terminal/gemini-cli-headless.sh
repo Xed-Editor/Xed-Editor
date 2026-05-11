@@ -30,6 +30,10 @@ fi
 
 # Wire with Xed Editor IDE bridge
 if [ -n "$IDE_PORT" ] && [ -n "$IDE_WS" ]; then
+  BRIDGE_OK=$(curl -sf "http://127.0.0.1:${IDE_PORT}/health" 2>/dev/null || echo "")
+  if [ -z "$BRIDGE_OK" ]; then
+    log "Warning: IDE bridge not reachable on port $IDE_PORT"
+  fi
   mkdir -p "$HOME/.gemini"
   node <<'NODE'
 const fs = require('fs');

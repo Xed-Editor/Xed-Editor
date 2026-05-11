@@ -122,6 +122,7 @@ class IdeBridgeServer(
                 ideService.refreshEditors()
                 json(Response.Status.OK, "{\"ok\":true}")
             }
+            "/mcp-info" -> json(Response.Status.OK, bridgeInfoJson())
             "/external-editor" -> serveExternalEditor(session, rawPostBody)
             "/mcp" -> serveMcp(session, rawPostBody)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
@@ -287,6 +288,20 @@ synchronized(sseLock) {
             add("serverInfo", JsonObject().apply {
                 addProperty("name", "xed-ide-bridge")
                 addProperty("version", "1.0.0")
+            })
+        })
+
+    private fun bridgeInfoJson(): String =
+        gson.toJson(JsonObject().apply {
+            addProperty("name", "xed-ide-bridge")
+            addProperty("version", "1.0.0")
+            addProperty("protocol", "mcp")
+            addProperty("tools", IdeMcpTools.list().size())
+            add("endpoints", JsonObject().apply {
+                addProperty("mcp", "/mcp")
+                addProperty("health", "/health")
+                addProperty("context", "/context")
+                addProperty("info", "/mcp-info")
             })
         })
 
