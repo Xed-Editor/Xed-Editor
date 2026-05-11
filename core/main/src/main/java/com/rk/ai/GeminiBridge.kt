@@ -103,8 +103,13 @@ object GeminiBridge {
                 addProperty("url", "http://127.0.0.1:$port")
                 addProperty("port", port)
                 addProperty("token", token)
+                addProperty("authToken", token)
                 addProperty("workspacePath", workspacePath)
                 addProperty("pid", pid)
+                add("ideInfo", JsonObject().apply {
+                    addProperty("name", "vscode")
+                    addProperty("displayName", "Xed Editor")
+                })
             }
             val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 

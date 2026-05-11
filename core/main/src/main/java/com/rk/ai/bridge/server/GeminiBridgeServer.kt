@@ -5,6 +5,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -21,7 +22,7 @@ import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.io.PrintWriter
 import java.util.concurrent.ConcurrentHashMap
-import kotlinx.coroutines.Dispatchers
+import java.util.UUID
 import kotlinx.coroutines.runBlocking
 
 class GeminiBridgeServer(
@@ -29,6 +30,10 @@ class GeminiBridgeServer(
     private val token: String,
     initialIdeService: GeminiIdeService
 ) : NanoHTTPD(port), GeminiNotificationSender {
+
+    companion object {
+        private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
+    }
 
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private var toolRegistry = McpToolRegistry(initialIdeService)
@@ -66,7 +71,7 @@ class GeminiBridgeServer(
     }
 
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
-    private var lastRequestBody: String? = null
+    @Volatile private var activeMcpSessionId: String? = null
 
     private fun d(msg: String) {
         if (BuildConfig.DEBUG) Log.d("GeminiBridgeServer", msg)
@@ -75,12 +80,14 @@ class GeminiBridgeServer(
     override fun serve(session: IHTTPSession): Response {
         d("serve ${session.method} ${session.uri} params=${session.parameters.keys} headers=${session.headers.keys}")
 
-        if (session.method == Method.POST) {
-            lastRequestBody = readRequestBodyUtf8(session).getOrNull()
-            d("POST body length=${lastRequestBody?.length ?: 0}")
-        } else {
-            lastRequestBody = null
-        }
+        val rawPostBody =
+            if (session.method == Method.POST) {
+                readRequestBodyUtf8(session).getOrElse {
+                    return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
+                }.also { d("POST body length=${it.length}") }
+            } else {
+                null
+            }
 
         if (!hasValidHost(session)) {
             d("Invalid host: ${session.headers["host"]}")
@@ -98,20 +105,19 @@ class GeminiBridgeServer(
                 ideService.refreshEditors()
                 json(Response.Status.OK, "{\"ok\":true}")
             }
-            "/external-editor" -> serveExternalEditor(session)
-            "/mcp" -> serveMcp(session)
+            "/external-editor" -> serveExternalEditor(session, rawPostBody)
+            "/mcp" -> serveMcp(session, rawPostBody)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
         }
     }
 
-    private fun serveExternalEditor(session: IHTTPSession): Response {
+    private fun serveExternalEditor(session: IHTTPSession, rawPostBody: String?): Response {
         if (session.method != Method.POST) {
             return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
         }
 
-        val raw = readRequestBodyUtf8(session).getOrElse {
-            return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
-        }
+        val raw = rawPostBody
+            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "invalid request"))
         val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
             ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
 
@@ -138,32 +144,58 @@ class GeminiBridgeServer(
         return json(Response.Status.OK, JsonObject().apply { addProperty("accepted", accepted) }.let { gson.toJson(it) })
     }
 
-    private fun serveMcp(session: IHTTPSession): Response {
+    private fun serveMcp(session: IHTTPSession, rawPostBody: String?): Response {
         if (session.method == Method.GET) {
             return serveMcpStream(session)
         }
-
-        val raw = readRequestBodyUtf8(session).getOrElse {
-            return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
+        if (session.method != Method.POST) {
+            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
         }
+
+        val raw = rawPostBody
+            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "invalid request"))
 
         val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
             ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
 
-        val id = request.get("id")?.asString ?: "null"
+        val id = request.get("id") ?: JsonNull.INSTANCE
         val method = request.get("method")?.asString.orEmpty()
+        val requestedSessionId = session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
+        val responseSessionId = resolveMcpSessionId(method, requestedSessionId)
 
-        return when (method) {
-            "initialize" -> json(Response.Status.OK, initializeResult(id))
-            "tools/list" -> json(Response.Status.OK, toolsListResult(id))
-            "tools/call" -> json(Response.Status.OK, toolsCallResult(id, request))
-            "notifications/initialized" -> json(Response.Status.OK, resultJson(id, JsonObject()))
-            else -> json(Response.Status.OK, errorJson(id, -32601, "method not found: $method"))
+        val responseBody =
+            when (method) {
+                "initialize" -> initializeResult(id, request)
+                "tools/list" -> toolsListResult(id)
+                "tools/call" -> toolsCallResult(id, request)
+                "notifications/initialized" -> resultJson(id, JsonObject())
+                else -> errorJson(id, -32601, "method not found: $method")
+            }
+
+        return json(Response.Status.OK, responseBody).apply {
+            responseSessionId?.let { addHeader(MCP_SESSION_ID_HEADER, it) }
         }
     }
 
+    private fun resolveMcpSessionId(method: String, requestedSessionId: String?): String? {
+        if (!requestedSessionId.isNullOrBlank()) {
+            activeMcpSessionId = requestedSessionId
+            return requestedSessionId
+        }
+        if (method == "initialize") {
+            val newSessionId = activeMcpSessionId ?: UUID.randomUUID().toString()
+            activeMcpSessionId = newSessionId
+            return newSessionId
+        }
+        return activeMcpSessionId
+    }
+
     private fun serveMcpStream(session: IHTTPSession): Response {
-        val requestedSessionId = session.parameters["sessionId"]?.firstOrNull() ?: "default"
+        val requestedSessionId =
+            session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
+                ?: session.parameters["sessionId"]?.firstOrNull()
+                ?: activeMcpSessionId
+                ?: "default"
         val output = PipedOutputStream()
         val input = PipedInputStream(output)
         val writer = PrintWriter(output)
@@ -199,7 +231,7 @@ class GeminiBridgeServer(
         deadClients.forEach { sseClients.remove(it) }
     }
 
-    private fun toolsCallResult(id: String, request: JsonObject): String {
+    private fun toolsCallResult(id: JsonElement, request: JsonObject): String {
         val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
         val name = params.get("name")?.asString.orEmpty()
         val args = params.getAsJsonObject("arguments") ?: JsonObject()
@@ -213,12 +245,19 @@ class GeminiBridgeServer(
         }
     }
 
-    private fun toolsListResult(id: String): String =
+    private fun toolsListResult(id: JsonElement): String =
         resultJson(id, JsonObject().apply { add("tools", GeminiMcpTools.list()) })
 
-    private fun initializeResult(id: String): String =
+    private fun initializeResult(id: JsonElement, request: JsonObject): String =
         resultJson(id, JsonObject().apply {
-            addProperty("protocolVersion", "2024-11-05")
+            val negotiatedProtocol =
+                request.getAsJsonObject("params")
+                    ?.get("protocolVersion")
+                    ?.takeIf { it.isJsonPrimitive }
+                    ?.asString
+                    ?.takeIf { it.isNotBlank() }
+                    ?: "2025-03-26"
+            addProperty("protocolVersion", negotiatedProtocol)
             add("capabilities", JsonObject().apply {
                 add("tools", JsonObject())
             })
@@ -242,7 +281,11 @@ class GeminiBridgeServer(
 
     private fun isAuthorized(session: IHTTPSession): Boolean {
         val queryToken = session.parameters["token"]?.firstOrNull()
-        val headerToken = session.headers["authorization"]?.removePrefix("Bearer ")
+        val authorization = session.headers["authorization"]?.trim().orEmpty()
+        val headerToken = authorization
+            .split(' ', limit = 2)
+            .takeIf { it.size == 2 && it[0].equals("Bearer", ignoreCase = true) }
+            ?.get(1)
         return queryToken == token || headerToken == token
     }
 
@@ -252,17 +295,17 @@ class GeminiBridgeServer(
         return hostname == "127.0.0.1" || hostname == "localhost" || hostname == "[::1]"
     }
 
-    private fun resultJson(id: String, result: JsonObject): String =
+    private fun resultJson(id: JsonElement?, result: JsonObject): String =
         JsonObject().apply { 
             addProperty("jsonrpc", "2.0")
-            add("id", if (id == "null") JsonNull.INSTANCE else JsonParser.parseString(id))
+            add("id", id ?: JsonNull.INSTANCE)
             add("result", result) 
         }.let { gson.toJson(it) }
 
-    private fun errorJson(id: String?, code: Int, message: String): String =
+    private fun errorJson(id: JsonElement?, code: Int, message: String): String =
         JsonObject().apply {
             addProperty("jsonrpc", "2.0")
-            add("id", if (id == null || id == "null") JsonNull.INSTANCE else JsonParser.parseString(id))
+            add("id", id ?: JsonNull.INSTANCE)
             add("error", JsonObject().apply { addProperty("code", code); addProperty("message", message) })
         }.let { gson.toJson(it) }
 

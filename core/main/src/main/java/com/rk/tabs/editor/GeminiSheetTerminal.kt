@@ -121,6 +121,7 @@ class GeminiTerminalClient(
             view.isFocusableInTouchMode = true
             view.requestFocus()
             val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            inputMethodManager?.restartInput(view)
             inputMethodManager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         }
     }
@@ -378,6 +379,8 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
     val terminalBodyHeight = (height - keysHeight).coerceAtLeast(160.dp)
     
     var virtualKeysViewRef by remember { mutableStateOf<WeakReference<VirtualKeysView>>(WeakReference(null)) }
+    var terminalClient by remember { mutableStateOf<GeminiTerminalClient?>(null) }
+    var lastBoundSession by remember { mutableStateOf<TerminalSession?>(null) }
 
     Column(
         modifier = modifier.height(height),
@@ -387,6 +390,7 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
             factory = { context ->
                 TerminalView(context, null).apply {
                     val client = GeminiTerminalClient(this) { virtualKeysViewRef.get() }
+                    terminalClient = client
                     setTerminalViewClient(client)
                     session?.updateTerminalSessionClient(client)
                     
@@ -402,14 +406,31 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
                         terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
                     )
                     attachSession(session)
+                    lastBoundSession = session
                     post {
                         isFocusable = true
                         isFocusableInTouchMode = true
                         requestFocus()
+                        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                        inputMethodManager?.restartInput(this)
                     }
                 }
             },
             update = { view ->
+                if (session !== lastBoundSession) {
+                    terminalClient?.let { client ->
+                        session?.updateTerminalSessionClient(client)
+                        view.setTerminalViewClient(client)
+                    }
+                    view.post {
+                        isFocusable = true
+                        isFocusableInTouchMode = true
+                        requestFocus()
+                        val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                        inputMethodManager?.restartInput(this)
+                    }
+                    lastBoundSession = session
+                }
                 view.attachSession(session)
                 view.applyGeminiSheetTerminalColors(
                     onSurfaceColor = colorScheme.onSurface.toArgb(),
