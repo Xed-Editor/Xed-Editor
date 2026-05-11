@@ -15,7 +15,8 @@ import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import com.rk.utils.getTempDir
-import android.util.Log
+import android.os.Log
+import android.os.Looper
 import java.io.File
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
@@ -425,8 +426,10 @@ object GeminiBridge {
                                 oldText = oldText,
                                 newText = newContent,
                             ) {
-                                editor.text.replace(start, end, newContent)
-                                current.editorState.isDirty = true
+                                runBlocking(Dispatchers.Main) {
+                                    editor.text.replace(start, end, newContent)
+                                    current.editorState.isDirty = true
+                                }
                             }
                         true
                     }
@@ -445,8 +448,10 @@ object GeminiBridge {
 
                         current.editorState.pendingGeminiPatch =
                             GeminiEditorPatch("Review Gemini insertion", current.file.getAbsolutePath(), "", newContent) {
-                                editor.text.insert(line, column, newContent)
-                                current.editorState.isDirty = true
+                                runBlocking(Dispatchers.Main) {
+                                    editor.text.insert(line, column, newContent)
+                                    current.editorState.isDirty = true
+                                }
                             }
                         true
                     }
@@ -657,30 +662,39 @@ object GeminiBridge {
 
         private fun openEditorContent(filePath: String): String? {
             val tab = findTabByPath(filePath) ?: return null
-            return runBlocking(Dispatchers.Main) { tab.editorState.editor.get()?.text?.toString() }
+            val getEditorText = { tab.editorState.editor.get()?.text?.toString() }
+            return if (Looper.myLooper() == Looper.getMainLooper()) {
+                getEditorText()
+            } else {
+                runBlocking(Dispatchers.Main) { getEditorText() }
+            }
         }
 
         private fun writeFileAndRefreshEditor(file: File, content: String) {
             val tab = findTabByPath(file.absolutePath)
-            runBlocking<Unit> {
+            runBlocking(Dispatchers.IO) {
                 tab?.saveMutex?.withLock {
-                    withContext(Dispatchers.IO) {
-                        file.parentFile?.mkdirs()
-                        file.writeText(content, Charsets.UTF_8)
-                    }
-                } ?: withContext(Dispatchers.IO) {
+                    file.parentFile?.mkdirs()
+                    file.writeText(content, Charsets.UTF_8)
+                } ?: run {
                     file.parentFile?.mkdirs()
                     file.writeText(content, Charsets.UTF_8)
                 }
             }
-            
-            runBlocking(Dispatchers.Main) {
+
+            val updateUi = {
                 tab?.let {
                     it.editorState.editor.get()?.setText(content)
                     it.editorState.content = it.editorState.editor.get()?.text
                     it.editorState.updateUndoRedo()
                     it.editorState.isDirty = false
                 }
+            }
+
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                updateUi()
+            } else {
+                runBlocking(Dispatchers.Main) { updateUi() }
             }
         }
 

@@ -127,6 +127,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         }
 
     val editorState by mutableStateOf(CodeEditorState())
+    private var lastModifiedAt: Long = 0L
 
     override fun onTabRemoved() {
         scope.cancel()
@@ -164,6 +165,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                 withContext(Dispatchers.IO) {
                     runCatching {
                             editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+                            lastModifiedAt = file.lastModified()
                             editorState.contentLoaded.complete(Unit)
 
                             if (Settings.detect_bin_files && hasBinaryChars(editorState.content.toString())) {
@@ -278,13 +280,24 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         scope.launch(Dispatchers.IO) {
             if (!file.exists() || !file.canRead()) return@launch
 
+            val currentLastModified = file.lastModified()
+            if (currentLastModified <= lastModifiedAt && lastModifiedAt != 0L) {
+                return@launch
+            }
+
             val newContent = file.getInputStream().use { ContentIO.createFrom(it, charset) }
 
             withContext(Dispatchers.Main) {
                 editorState.updateLock.withLock {
-                    editorState.content = newContent
-                    editorState.editor.get()?.setText(newContent)
-                    editorState.updateUndoRedo()
+                    val oldText = editorState.content?.toString()
+                    val newText = newContent.toString()
+
+                    if (oldText != newText) {
+                        editorState.content = newContent
+                        editorState.editor.get()?.setText(newContent)
+                        editorState.updateUndoRedo()
+                    }
+                    lastModifiedAt = currentLastModified
                     editorState.isDirty = false
                 }
             }
@@ -304,6 +317,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     val content = editorState.content.toString()
                     val normalizedContent = editorState.editor.get()!!.lineEnding.applyOn(content)
                     file.writeText(normalizedContent, charset)
+                    lastModifiedAt = file.lastModified()
 
                     editorState.isDirty = false
                     lspConnector?.notifySave()
@@ -448,7 +462,8 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    patch.apply()
+                                    val currentPatch = patch
+                                    scope.launch(Dispatchers.Default) { currentPatch.apply() }
                                     editorState.pendingGeminiPatch = null
                                 }
                             ) { Text(strings.apply.getString()) }
@@ -456,7 +471,8 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         dismissButton = {
                             TextButton(
                                 onClick = {
-                                    patch.reject?.invoke()
+                                    val currentPatch = patch
+                                    scope.launch(Dispatchers.Default) { currentPatch.reject?.invoke() }
                                     editorState.pendingGeminiPatch = null
                                 }
                             ) { Text(strings.cancel.getString()) }

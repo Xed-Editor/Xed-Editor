@@ -163,9 +163,12 @@ fun UnifiedGeminiSheet(
     }
 
     LaunchedEffect(GeminiSheetSessionStore.session) {
-        while (GeminiSheetSessionStore.session?.isRunning == true) {
-            delay(1500)
-            refreshCleanEditors()
+        while (true) {
+            val session = GeminiSheetSessionStore.session
+            if (session != null && session.isRunning) {
+                refreshCleanEditors()
+            }
+            delay(3000)
         }
     }
     
