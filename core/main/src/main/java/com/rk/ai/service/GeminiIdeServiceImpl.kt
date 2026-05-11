@@ -405,8 +405,9 @@ class GeminiIdeServiceImpl(
         val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
         
         withContext(Dispatchers.IO) {
+            val app = com.rk.App.application!!
             searchViewModel.searchCode(
-                context = application!!,
+                context = app,
                 mainViewModel = viewModel,
                 projectRoot = projectRoot,
                 query = query,
@@ -429,8 +430,9 @@ class GeminiIdeServiceImpl(
         val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
 
         withContext(Dispatchers.IO) {
+            val app = com.rk.App.application!!
             val fileMetas = searchViewModel.searchFileName(
-                context = application!!,
+                context = app,
                 projectRoot = projectRoot,
                 query = query,
                 useIndex = Settings.always_index_projects
@@ -469,7 +471,7 @@ class GeminiIdeServiceImpl(
         )
     }
 
-    override suspend fun getPrimaryWorkspacePath(): String = GeminiBridge.primaryWorkspacePath()
+    override fun getPrimaryWorkspacePath(): String = GeminiBridge.primaryWorkspacePath()
 
     override suspend fun getDiagnostics(filePath: String): JsonArray {
         val results = JsonArray()
@@ -490,7 +492,13 @@ class GeminiIdeServiceImpl(
                             addProperty("character", diag.range.end.character + 1)
                         })
                     })
-                    diag.code?.let { addProperty("code", it.left) }
+                    diag.code?.let { code ->
+                        if (code.isLeft) {
+                            addProperty("code", code.left)
+                        } else if (code.isRight) {
+                            addProperty("code", code.right.toString())
+                        }
+                    }
                     diag.source?.let { addProperty("source", it) }
                 })
             }

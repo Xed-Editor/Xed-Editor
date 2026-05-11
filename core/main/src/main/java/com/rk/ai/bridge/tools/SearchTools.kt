@@ -11,7 +11,14 @@ class SearchCodeTool : McpTool {
         val limit = args.get("limit")?.asInt ?: 100
         if (query.isBlank()) throw IllegalArgumentException("query required")
         val results = ideService.searchCode(query, limit)
-        return jsonResult(results)
+        return JsonObject().apply {
+            add("content", com.google.gson.JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("type", "text")
+                    addProperty("text", results.toString())
+                })
+            })
+        }
     }
 }
 
@@ -22,6 +29,13 @@ class FindFilesTool : McpTool {
         val limit = args.get("limit")?.asInt ?: 100
         if (query.isBlank()) throw IllegalArgumentException("query required")
         val results = ideService.findFiles(query, limit)
-        return jsonResult(results)
+        return JsonObject().apply {
+            add("content", com.google.gson.JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("type", "text")
+                    addProperty("text", results.toString())
+                })
+            })
+        }
     }
 }

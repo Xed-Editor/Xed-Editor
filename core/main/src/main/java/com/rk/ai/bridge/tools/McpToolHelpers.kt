@@ -1,6 +1,7 @@
 package com.rk.ai.bridge.tools
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 
 fun textResult(text: String): JsonObject {
@@ -16,7 +17,7 @@ fun textResult(text: String): JsonObject {
     }
 }
 
-fun jsonResult(data: JsonObject): JsonObject {
+fun jsonResult(data: JsonElement): JsonObject {
     return JsonObject().apply {
         add("content", JsonArray().apply {
             add(JsonObject().apply {

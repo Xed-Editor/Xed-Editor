@@ -9,7 +9,15 @@ class GetDiagnosticsTool : McpTool {
     override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
-        return jsonResult(ideService.getDiagnostics(filePath))
+        val results = ideService.getDiagnostics(filePath)
+        return JsonObject().apply {
+            add("content", com.google.gson.JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("type", "text")
+                    addProperty("text", results.toString())
+                })
+            })
+        }
     }
 }
 
@@ -20,7 +28,15 @@ class FindDefinitionsTool : McpTool {
         val line = args.get("line")?.asInt ?: throw IllegalArgumentException("line required")
         val column = args.get("column")?.asInt ?: throw IllegalArgumentException("column required")
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
-        return jsonResult(ideService.findDefinitions(filePath, line, column))
+        val results = ideService.findDefinitions(filePath, line, column)
+        return JsonObject().apply {
+            add("content", com.google.gson.JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("type", "text")
+                    addProperty("text", results.toString())
+                })
+            })
+        }
     }
 }
 
@@ -31,6 +47,14 @@ class FindReferencesTool : McpTool {
         val line = args.get("line")?.asInt ?: throw IllegalArgumentException("line required")
         val column = args.get("column")?.asInt ?: throw IllegalArgumentException("column required")
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
-        return jsonResult(ideService.findReferences(filePath, line, column))
+        val results = ideService.findReferences(filePath, line, column)
+        return JsonObject().apply {
+            add("content", com.google.gson.JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("type", "text")
+                    addProperty("text", results.toString())
+                })
+            })
+        }
     }
 }
