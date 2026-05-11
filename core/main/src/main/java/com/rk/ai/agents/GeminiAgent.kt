@@ -34,9 +34,6 @@ object GeminiAgent : AiAgent {
             "VISUAL" to "vim",
         ).also { it.putAll(extraEnv) }
 
-    override fun modelArg(model: String?): List<String> =
-        if (!model.isNullOrBlank()) listOf(modelFlagName, model) else emptyList()
-
     override suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String =
         projectRoot?.getAbsolutePath()
             ?: (file.getParentFile() as? FileWrapper)?.getAbsolutePath()

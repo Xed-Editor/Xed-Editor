@@ -182,16 +182,16 @@ fun UnifiedGeminiSheet(
 
     var showAgentMenu by remember { mutableStateOf(false) }
 
+    val currentAgent = AiSessionManager.currentAgent
+    val currentTab = viewModel.currentTab as? EditorTab
+    val editor = currentTab?.editorState?.editor?.get()
+    val selectedText = editor?.getSelectedText().orEmpty()
+
     AgentCliSheet(
         onDismissRequest = onDismissRequest,
         cwd = cwd.value,
         session = session,
         modifier = modifier,
-        val currentAgent = AiSessionManager.currentAgent
-        val currentTab = viewModel.currentTab as? EditorTab
-        val editor = currentTab?.editorState?.editor?.get()
-        val selectedText = editor?.getSelectedText().orEmpty()
-
         headerContent = {
             StatusBar(
                 isRunning = isRunning,
