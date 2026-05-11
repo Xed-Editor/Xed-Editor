@@ -41,16 +41,17 @@ class GeminiBridgeServer(
     var ideService: GeminiIdeService = initialIdeService
         set(value) {
             field = value
-            toolRegistry = McpToolRegistry(value)
-            registerTools()
+            val newRegistry = McpToolRegistry(value)
+            registerTools(newRegistry)
+            toolRegistry = newRegistry
         }
 
     init {
-        registerTools()
+        registerTools(toolRegistry)
     }
 
-    private fun registerTools() {
-        toolRegistry.apply {
+    private fun registerTools(registry: McpToolRegistry) {
+        registry.apply {
             register(ReadFileTool())
             register(WriteFileTool())
             register(ListFilesTool())
@@ -71,6 +72,7 @@ class GeminiBridgeServer(
     }
 
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
+    private val sseLock = Any()
     @Volatile private var activeMcpSessionId: String? = null
 
     private fun d(msg: String) {
@@ -200,13 +202,17 @@ class GeminiBridgeServer(
         val input = PipedInputStream(output)
         val writer = PrintWriter(output)
 
-        sseClients[requestedSessionId] = writer
+        synchronized(sseLock) {
+            sseClients[requestedSessionId] = writer
+        }
         
         // Notify IDE context on connection
         runBlocking {
-            writer.print("event: message\n")
-            writer.print("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-            writer.flush()
+            synchronized(sseLock) {
+                writer.print("event: message\n")
+                writer.print("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+                writer.flush()
+            }
         }
 
         return newChunkedResponse(Response.Status.OK, "text/event-stream", input).apply {
@@ -220,15 +226,17 @@ class GeminiBridgeServer(
     override fun sendNotification(method: String, params: JsonObject) {
         val notification = notificationJson(method, params)
         val deadClients = mutableListOf<String>()
-        sseClients.forEach { (id, writer) ->
-            runCatching {
-                writer.print("event: message\n")
-                writer.print("data: $notification\n\n")
-                writer.flush()
-                if (writer.checkError()) deadClients.add(id)
-            }.onFailure { deadClients.add(id) }
+        synchronized(sseLock) {
+            sseClients.forEach { (id, writer) ->
+                runCatching {
+                    writer.print("event: message\n")
+                    writer.print("data: $notification\n\n")
+                    writer.flush()
+                    if (writer.checkError()) deadClients.add(id)
+                }.onFailure { deadClients.add(id) }
+            }
+            deadClients.forEach { sseClients.remove(it) }
         }
-        deadClients.forEach { sseClients.remove(it) }
     }
 
     private fun toolsCallResult(id: JsonElement, request: JsonObject): String {

@@ -13,16 +13,12 @@ class OpenDiffTool : McpTool {
         val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
         val oldContent = ideService.getFileContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
         
-        val accepted = ideService.showPatch(file.absolutePath, oldContent, newContent, "Review Gemini file change") {
+        ideService.showPatch(file.absolutePath, oldContent, newContent, "Review Gemini file change") {
             ideService.writeFile(file, newContent)
             ideService.refreshEditors(force = false)
         }
         
-        return if (accepted) {
-            textResult("Change applied to ${file.absolutePath} after user review.")
-        } else {
-            textResult("Change to ${file.absolutePath} was rejected or timed out.")
-        }
+        return textResult("Review opened in Xed Editor for ${file.absolutePath}. Results will be sent via notifications.")
     }
 }
 

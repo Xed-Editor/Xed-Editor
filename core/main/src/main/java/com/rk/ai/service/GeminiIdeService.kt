@@ -15,14 +15,14 @@ interface GeminiIdeService {
     /** Gets the text content of a file, preferring an open editor tab if available. */
     fun getFileContent(filePath: String): String?
 
-    /** Shows a patch for user review and returns true if applied. */
+    /** Shows a patch for user review. Non-blocking. */
     fun showPatch(
         filePath: String,
         oldContent: String,
         newContent: String,
         title: String = "Review AI change",
         onApply: () -> Unit
-    ): Boolean
+    )
 
     /** Directly writes text to a file and refreshes any associated editor tab. */
     fun writeFile(file: File, content: String)
@@ -42,11 +42,11 @@ interface GeminiIdeService {
     /** Gets the currently selected text in the active editor. */
     fun getSelection(): String
 
-    /** Replaces the current selection (or entire file) with new content, after user review. */
-    fun replaceSelection(newContent: String): String
+    /** Replaces the current selection (or entire file) with new content, after user review. Non-blocking. */
+    fun replaceSelection(newContent: String)
 
-    /** Inserts text at the current cursor position, after user review. */
-    fun insertAtCursor(newContent: String): String
+    /** Inserts text at the current cursor position, after user review. Non-blocking. */
+    fun insertAtCursor(newContent: String)
 
     /** Saves all dirty editor tabs in parallel. */
     fun saveAll(): String

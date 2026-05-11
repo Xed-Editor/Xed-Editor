@@ -4,13 +4,25 @@ import com.rk.file.sandboxHomeDir
 import java.io.File
 import java.net.URI
 
-private val fallbackWorkspaceRoots = listOf("/home", "/storage/emulated/0")
+private val fallbackWorkspaceRoots = listOf("/home", "/storage/emulated/0", "/sdcard")
 
-internal fun geminiIdeWorkspacePath(primary: String): String =
-    (listOf(primary) + fallbackWorkspaceRoots)
+internal fun geminiIdeWorkspacePath(primary: String): String {
+    val primaryFile = File(primary)
+    val canonicalPrimary = runCatching { primaryFile.canonicalPath }.getOrDefault(primaryFile.absolutePath)
+    val variants = mutableListOf(canonicalPrimary)
+    
+    // Always provide both /storage/emulated/0 and /sdcard variants for Android compatibility
+    if (canonicalPrimary.startsWith("/storage/emulated/0")) {
+        variants.add(canonicalPrimary.replace("/storage/emulated/0", "/sdcard"))
+    } else if (canonicalPrimary.startsWith("/sdcard")) {
+        variants.add(canonicalPrimary.replace("/sdcard", "/storage/emulated/0"))
+    }
+
+    return (variants + fallbackWorkspaceRoots)
         .filter { it.isNotBlank() }
         .distinct()
         .joinToString(File.pathSeparator)
+}
 
 internal fun geminiWorkspaceRoots(workspacePath: String): List<File> =
     geminiIdeWorkspacePath(workspacePath)

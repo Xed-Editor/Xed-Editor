@@ -43,7 +43,8 @@ class ReplaceSelectionTool : McpTool {
     override fun getName(): String = "replaceSelection"
     override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
         val newContent = args.get("newContent")?.asString.orEmpty()
-        return textResult(ideService.replaceSelection(newContent))
+        ideService.replaceSelection(newContent)
+        return textResult("Replacement opened in Xed for user review. Results will be sent via notifications.")
     }
 }
 
@@ -51,7 +52,8 @@ class InsertAtCursorTool : McpTool {
     override fun getName(): String = "insertAtCursor"
     override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
         val newContent = args.get("newContent")?.asString.orEmpty()
-        return textResult(ideService.insertAtCursor(newContent))
+        ideService.insertAtCursor(newContent)
+        return textResult("Insertion opened in Xed for user review. Results will be sent via notifications.")
     }
 }
 

@@ -107,18 +107,15 @@ class GeminiIdeServiceImpl(
         newContent: String,
         title: String,
         onApply: () -> Unit
-    ): Boolean {
-        val latch = CountDownLatch(1)
-        val accepted = AtomicBoolean(false)
-
-        val shown = runBlocking(Dispatchers.Main) {
+    ) {
+        runBlocking(Dispatchers.Main) {
             var tab = findTabByPath(filePath)
             if (tab == null) {
                 viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
                 tab = findTabByPath(filePath)
             }
 
-            if (tab == null) return@runBlocking false
+            if (tab == null) return@runBlocking
 
             // Reject existing patch if any
             tab.editorState.pendingGeminiPatch?.reject?.invoke()
@@ -132,8 +129,10 @@ class GeminiIdeServiceImpl(
                     apply = {
                         runCatching { onApply() }
                             .onSuccess {
-                                accepted.set(true)
                                 viewModel.showGeminiSheet = true
+                                notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                                    addProperty("filePath", filePath)
+                                })
                             }
                             .onFailure {
                                 toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")
@@ -142,22 +141,12 @@ class GeminiIdeServiceImpl(
                                     addProperty("reason", it.message ?: "apply failed")
                                 })
                             }
-                        latch.countDown()
                     },
                     reject = {
                         notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply { addProperty("filePath", filePath) })
-                        latch.countDown()
                     },
                 )
-            true
         }
-
-        if (shown) {
-            // Wait up to 30 minutes for user to review
-            latch.await(30, TimeUnit.MINUTES)
-            return accepted.get()
-        }
-        return false
     }
 
     override fun writeFile(file: File, content: String) {
@@ -241,10 +230,10 @@ class GeminiIdeServiceImpl(
         }
     }
 
-    override fun replaceSelection(newContent: String): String {
-        val current = viewModel.currentTab as? EditorTab ?: return "no active editor"
-        val ok = runBlocking(Dispatchers.Main) {
-            val editor = current.editorState.editor.get() ?: return@runBlocking false
+    override fun replaceSelection(newContent: String) {
+        val current = viewModel.currentTab as? EditorTab ?: return
+        runBlocking(Dispatchers.Main) {
+            val editor = current.editorState.editor.get() ?: return@runBlocking
             val hasSelection = editor.isTextSelected
             val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
             val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
@@ -259,21 +248,28 @@ class GeminiIdeServiceImpl(
                     filePath = current.file.getAbsolutePath(),
                     oldText = oldText,
                     newText = newContent,
-                ) {
-                    runBlocking(Dispatchers.Main) {
-                        editor.text.replace(start, end, newContent)
-                        current.editorState.isDirty = true
+                    apply = {
+                        runBlocking(Dispatchers.Main) {
+                            editor.text.replace(start, end, newContent)
+                            current.editorState.isDirty = true
+                            notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                                addProperty("filePath", current.file.getAbsolutePath())
+                            })
+                        }
+                    },
+                    reject = {
+                        notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply {
+                            addProperty("filePath", current.file.getAbsolutePath())
+                        })
                     }
-                }
-            true
+                )
         }
-        return if (ok) "Replacement opened in Xed for user review." else "No editor available."
     }
 
-    override fun insertAtCursor(newContent: String): String {
-        val current = viewModel.currentTab as? EditorTab ?: return "no active editor"
-        val ok = runBlocking(Dispatchers.Main) {
-            val editor = current.editorState.editor.get() ?: return@runBlocking false
+    override fun insertAtCursor(newContent: String) {
+        val current = viewModel.currentTab as? EditorTab ?: return
+        runBlocking(Dispatchers.Main) {
+            val editor = current.editorState.editor.get() ?: return@runBlocking
             val line = editor.cursor.leftLine
             val column = editor.cursor.leftColumn
 
@@ -281,15 +277,27 @@ class GeminiIdeServiceImpl(
             current.editorState.pendingGeminiPatch?.reject?.invoke()
 
             current.editorState.pendingGeminiPatch =
-                GeminiEditorPatch("Review Gemini insertion", current.file.getAbsolutePath(), "", newContent) {
-                    runBlocking(Dispatchers.Main) {
-                        editor.text.insert(line, column, newContent)
-                        current.editorState.isDirty = true
+                GeminiEditorPatch(
+                    title = "Review Gemini insertion",
+                    filePath = current.file.getAbsolutePath(),
+                    oldText = "",
+                    newText = newContent,
+                    apply = {
+                        runBlocking(Dispatchers.Main) {
+                            editor.text.insert(line, column, newContent)
+                            current.editorState.isDirty = true
+                            notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                                addProperty("filePath", current.file.getAbsolutePath())
+                            })
+                        }
+                    },
+                    reject = {
+                        notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply {
+                            addProperty("filePath", current.file.getAbsolutePath())
+                        })
                     }
-                }
-            true
+                )
         }
-        return if (ok) "Insertion opened in Xed for user review." else "No editor available."
     }
 
     override fun saveAll(): String {

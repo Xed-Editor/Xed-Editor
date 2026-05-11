@@ -95,42 +95,66 @@ object GeminiBridge {
         secureRandom.nextBytes(bytes)
         return bytes.joinToString("") { "%02x".format(it) }
     }
+private fun writeDiscoveryFile(port: Int, token: String, workspacePath: String) {
+    runCatching {
+        val pid = Process.myPid()
+        val config = JsonObject().apply {
+            addProperty("url", "http://127.0.0.1:$port")
+            addProperty("port", port)
+            addProperty("token", token)
+            addProperty("authToken", token)
+            addProperty("workspacePath", workspacePath)
+            addProperty("pid", pid)
+            add("ideInfo", JsonObject().apply {
+                addProperty("name", "vscode")
+                addProperty("displayName", "Xed Editor")
+            })
+        }
+        val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 
-    private fun writeDiscoveryFile(port: Int, token: String, workspacePath: String) {
-        runCatching {
-            val pid = Process.myPid()
-            val config = JsonObject().apply {
-                addProperty("url", "http://127.0.0.1:$port")
-                addProperty("port", port)
-                addProperty("token", token)
-                addProperty("authToken", token)
-                addProperty("workspacePath", workspacePath)
-                addProperty("pid", pid)
-                add("ideInfo", JsonObject().apply {
-                    addProperty("name", "vscode")
-                    addProperty("displayName", "Xed Editor")
-                })
-            }
-            val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
+        // Gemini CLI checks discovery files under "$TMPDIR/gemini/ide".
+        // The embedded sheet overrides TMPDIR to terminal/gemini-sheet, while
+        // normal terminal sessions use the app temp directory directly.
+        listOf(
+            File(getTempDir(), "gemini/ide"),
+            File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
+        ).forEach { dir ->
+            dir.mkdirs()
+            dir.listFiles { file -> file.name.startsWith("gemini-ide-server-") && file.name.endsWith(".json") }
+                ?.forEach { file ->
+                    val fileName = file.name
+                    // Pattern: gemini-ide-server-$PID-$PORT.json or gemini-ide-server-$PID.json
+                    val parts = fileName.removePrefix("gemini-ide-server-").removeSuffix(".json").split("-")
+                    val filePid = parts.firstOrNull()?.toIntOrNull()
+                    if (filePid != null) {
+                        if (filePid == pid) {
+                            // Delete old ports for our own PID
+                            val filePort = parts.getOrNull(1)?.toIntOrNull()
+                            if (filePort != null && filePort != port) {
+                                file.delete()
+                            }
+                        } else {
+                            // Prune dead PIDs
+                            if (!isPidAlive(filePid)) {
+                                file.delete()
+                            }
+                        }
+                    }
+                }
 
-            // Gemini CLI checks discovery files under "$TMPDIR/gemini/ide".
-            // The embedded sheet overrides TMPDIR to terminal/gemini-sheet, while
-            // normal terminal sessions use the app temp directory directly.
-            listOf(
-                File(getTempDir(), "gemini/ide"),
-                File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
-            ).forEach { dir ->
-                dir.mkdirs()
-                dir.listFiles { file -> file.name.startsWith("gemini-ide-server-$pid-") && file.name.endsWith(".json") }
-                    ?.filter { it.name != "gemini-ide-server-$pid-$port.json" }
-                    ?.forEach { it.delete() }
-
-                File(dir, "gemini-ide-server-$pid-$port.json").writeText(json)
-            }
+            File(dir, "gemini-ide-server-$pid-$port.json").writeText(json)
         }
     }
+}
 
-    private fun clearDiscoveryFilesForProcess() {
+private fun isPidAlive(pid: Int): Boolean {
+    return runCatching {
+        File("/proc/$pid").exists()
+    }.getOrDefault(true)
+}
+
+private fun clearDiscoveryFilesForProcess() {
+...
         runCatching {
             val pid = Process.myPid()
             listOf(
