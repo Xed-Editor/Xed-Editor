@@ -45,6 +45,11 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderState
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import com.rk.ai.UnifiedGeminiSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
@@ -220,11 +225,15 @@ fun MainContent(
             }
         }
 
-        if (mainViewModel.showGeminiSheet) {
+        AnimatedVisibility(
+            visible = mainViewModel.showGeminiSheet,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
             UnifiedGeminiSheet(
                 viewModel = mainViewModel,
-                onDismissRequest = { mainViewModel.showGeminiSheet = false },
-                modifier = Modifier.align(Alignment.BottomCenter)
+                onDismissRequest = { mainViewModel.showGeminiSheet = false }
             )
         }
     }

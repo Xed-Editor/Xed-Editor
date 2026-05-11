@@ -155,7 +155,6 @@ class GeminiTerminalClient(
 }
 
 private data class GeminiSheetUiState(
-    val minimized: Boolean,
     val terminalHeight: Dp,
     val onDragStart: () -> Unit,
     val onDrag: (Float) -> Unit,
@@ -165,19 +164,17 @@ private data class GeminiSheetUiState(
 
 @Composable
 private fun rememberGeminiSheetUiState(
-    minHeight: Dp = 220.dp,
+    minHeight: Dp = 320.dp,
     initialHeight: Dp = 560.dp,
     onModalMinimize: (() -> Unit)? = null,
     onModalExpand: (() -> Unit)? = null,
 ): GeminiSheetUiState {
     val density = LocalDensity.current
     val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.90f).dp
-    var minimized by remember { mutableStateOf(false) }
     var terminalHeight by remember { mutableStateOf(initialHeight.coerceIn(minHeight, maxHeight)) }
     var handleDrag by remember { mutableStateOf(0f) }
 
     return GeminiSheetUiState(
-        minimized = minimized,
         terminalHeight = terminalHeight,
         onDragStart = { handleDrag = 0f },
         onDrag = { dragAmount ->
@@ -185,10 +182,7 @@ private fun rememberGeminiSheetUiState(
             terminalHeight = (terminalHeight - with(density) { dragAmount.toDp() }).coerceIn(minHeight, maxHeight)
         },
         onDragEndForInline = {
-            when {
-                handleDrag > 140f -> minimized = true
-                handleDrag < -30f -> minimized = false
-            }
+            // Snapping or other logic can go here if needed in the future
         },
         onDragEndForModal = {
             when {
@@ -212,44 +206,19 @@ fun GeminiCliSheet(
 ) {
     val ui = rememberGeminiSheetUiState()
 
-    if (!ui.minimized) {
-        GeminiCliSheetContent(
-            onDismissRequest = onDismissRequest,
-            cwd = cwd,
-            session = session,
-            modifier = modifier,
-            terminalHeight = ui.terminalHeight,
-            showTerminal = showTerminal,
-            headerContent = headerContent,
-            controls = controls,
-            onDragStart = ui.onDragStart,
-            onDrag = ui.onDrag,
-            onDragEnd = ui.onDragEndForInline,
-        )
-    } else {
-        // Minimized handle
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .height(24.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                .pointerInput(Unit) {
-                    detectVerticalDragGestures(
-                        onDragStart = { ui.onDragStart() },
-                        onVerticalDrag = { _, dragAmount -> ui.onDrag(dragAmount) },
-                        onDragEnd = ui.onDragEndForInline,
-                    )
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                Modifier
-                    .width(32.dp)
-                    .height(4.dp)
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f), RoundedCornerShape(2.dp))
-            )
-        }
-    }
+    GeminiCliSheetContent(
+        onDismissRequest = onDismissRequest,
+        cwd = cwd,
+        session = session,
+        modifier = modifier,
+        terminalHeight = ui.terminalHeight,
+        showTerminal = showTerminal,
+        headerContent = headerContent,
+        controls = controls,
+        onDragStart = ui.onDragStart,
+        onDrag = ui.onDrag,
+        onDragEnd = ui.onDragEndForInline,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -378,6 +347,16 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
     val keysHeight = 75.dp
     val terminalBodyHeight = (height - keysHeight).coerceAtLeast(160.dp)
     
+    if (session == null) {
+        Box(
+            modifier = modifier.height(height).background(colorScheme.surfaceContainerHigh, RoundedCornerShape(8.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Gemini CLI stopped", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+        }
+        return
+    }
+
     var virtualKeysViewRef by remember { mutableStateOf<WeakReference<VirtualKeysView>>(WeakReference(null)) }
     var terminalClient by remember { mutableStateOf<GeminiTerminalClient?>(null) }
     var lastBoundSession by remember { mutableStateOf<TerminalSession?>(null) }
