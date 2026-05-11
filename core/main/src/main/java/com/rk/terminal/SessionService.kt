@@ -36,15 +36,10 @@ class SessionService : Service() {
     class SessionBinder(svc: SessionService) : Binder() {
         private val weakService = WeakReference(svc)
 
-        private val service: SessionService?
-            get() = weakService.get()
-
-        fun getService(): SessionService? {
-            return service
-        }
+        fun getService(): SessionService? = weakService.get()
 
         fun createSession(id: SessionId, client: TerminalSessionClient, activity: Terminal): SessionInfo? {
-            val s = service ?: return null
+            val s = weakService.get() ?: return null
             return MkSession.createSession(activity, client, id).let {
                 val (session, pwd) = it
                 s.sessions[id] = session
@@ -56,18 +51,18 @@ class SessionService : Service() {
         }
 
         fun getSession(id: SessionId): TerminalSession? {
-            return service?.sessions?.get(id)
+            return weakService.get()?.sessions?.get(id)
         }
 
         fun getSessionInfoByPwd(pwd: SessionPwd): SessionInfo? {
-            val s = service ?: return null
+            val s = weakService.get() ?: return null
             return s.sessionWorkDirs.keys
                 .find { s.sessionWorkDirs[it] == pwd }
                 ?.let { SessionInfo(it, s.sessionWorkDirs[it]!!, s.sessions[it]!!) }
         }
 
         fun terminateSession(id: SessionId) {
-            val s = service ?: return
+            val s = weakService.get() ?: return
             s.sessions[id]?.apply {
                 if (emulator != null) {
                     s.sessions[id]?.finishIfRunning()
