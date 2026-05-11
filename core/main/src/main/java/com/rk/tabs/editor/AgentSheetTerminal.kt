@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

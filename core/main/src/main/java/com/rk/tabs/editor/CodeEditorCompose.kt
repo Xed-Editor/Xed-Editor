@@ -104,7 +104,7 @@ fun EditorTab.CodeEditor(
                     editorState.editor = WeakReference(this)
 
                     registerXedActions(scope, viewModel, this@CodeEditor)
-                    registerXedEvents(this@CodeEditor, intelligentFeatures, file, onTextChange)
+                    registerXedEvents(this@CodeEditor, intelligentFeatures, file, onTextChange, onGhostTextTrigger)
 
                     scope.launch(Dispatchers.IO) {
                         editorState.contentLoaded.await()
@@ -169,6 +169,7 @@ fun Editor.registerXedEvents(
     intelligentFeatures: List<IntelligentFeature>,
     file: FileObject,
     onTextChange: () -> Unit,
+    onGhostTextTrigger: (suspend (Editor) -> Unit)? = null,
 ) {
     subscribeAlways(InlayHintClickEvent::class.java) { event ->
         val hint = event.inlayHint
@@ -252,24 +253,6 @@ fun Editor.registerXedEvents(
 
     subscribeAlways(EditorKeyEvent::class.java) { event ->
         intelligentFeatures.forEach { it.handleKeyEvent(event, this) }
-
-        if (!event.isConsumed && event.keyEvent.keyCode == KeyEvent.KEYCODE_ESCAPE && event.action == EditorKeyEvent.ACTION_PRESS) {
-            editorTab.editorState.ghostText = null
-            event.isConsumed = true
-        }
-
-        if (!event.isConsumed && event.keyEvent.keyCode == KeyEvent.KEYCODE_TAB && event.action == EditorKeyEvent.ACTION_PRESS) {
-            val ghost = editorTab.editorState.ghostText
-            if (ghost != null) {
-                event.isConsumed = true
-                editorTab.editorState.ghostText = null
-                val line = editorTab.editorState.ghostCursorLine
-                val column = editorTab.editorState.ghostCursorColumn
-                val index = text.getCharIndex(line, column)
-                text.insert(line, column, ghost)
-                setSelection(line, column + ghost.length)
-            }
-        }
     }
 
     // Intercept the default handling of some keybinds because

@@ -77,6 +77,8 @@ object Settings {
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)
     var ai_api_key by CachedPreference("ai_api_key", "")
     var ai_inline_completion by CachedPreference("ai_inline_completion", false)
+    var ai_completion_url by CachedPreference("ai_completion_url", "")
+    var ai_completion_model by CachedPreference("ai_completion_model", "")
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
     var textmate_suggestions by CachedPreference("textmate_suggestions", true)
     var seccomp by CachedPreference("seccomp", false)

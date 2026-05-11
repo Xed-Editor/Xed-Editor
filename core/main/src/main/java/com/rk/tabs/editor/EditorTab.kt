@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
@@ -533,7 +534,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
                     }
 
-                var ghostJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+                val ghostJob = remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
                 Box(modifier = Modifier.weight(1f)) {
                     CodeEditor(
                         modifier = Modifier.fillMaxSize(),
@@ -555,8 +556,8 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             }
                         },
                         onGhostTextTrigger = { editor ->
-                            ghostJob?.cancel()
-                            ghostJob = scope.launch(Dispatchers.Default) {
+                            ghostJob.value?.cancel()
+                            ghostJob.value = scope.launch(Dispatchers.Default) {
                                 delay(400)
                                 val content = withContext(Dispatchers.Main) { editor.text.toString() }
                                 val line = withContext(Dispatchers.Main) { editor.cursor.leftLine }
