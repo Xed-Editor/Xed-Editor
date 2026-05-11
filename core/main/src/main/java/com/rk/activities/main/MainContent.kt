@@ -226,14 +226,14 @@ fun MainContent(
         }
 
         AnimatedVisibility(
-            visible = mainViewModel.showGeminiSheet,
+            visible = mainViewModel.showAiSheet,
             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             UnifiedGeminiSheet(
                 viewModel = mainViewModel,
-                onDismissRequest = { mainViewModel.showGeminiSheet = false }
+                onDismissRequest = { mainViewModel.showAiSheet = false }
             )
         }
     }

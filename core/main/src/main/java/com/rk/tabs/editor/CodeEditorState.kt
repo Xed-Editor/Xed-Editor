@@ -20,7 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.sync.Mutex
 import org.ec4j.core.ResourceProperties
 
-data class GeminiEditorPatch(
+data class EditorPatch(
     val title: String,
     val filePath: String,
     val oldText: String,
@@ -85,7 +85,7 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var isWrapping by mutableStateOf(false)
     var isConnectingLsp by mutableStateOf(false)
 
-    var pendingGeminiPatch by mutableStateOf<GeminiEditorPatch?>(null)
+    var pendingGeminiPatch by mutableStateOf<EditorPatch?>(null)
 
     var diagnostics by mutableStateOf(listOf<org.eclipse.lsp4j.Diagnostic>())
 }

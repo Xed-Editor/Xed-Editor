@@ -2,11 +2,11 @@ package com.rk.ai.bridge.tools
 
 import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpTool
-import com.rk.ai.service.GeminiIdeService
+import com.rk.ai.service.IdeService
 
 class RunCommandTool : McpTool {
     override fun getName(): String = "runCommand"
-    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val command = args.get("command")?.asString.orEmpty()
         if (command.isBlank()) throw IllegalArgumentException("command required")
         val timeout = args.get("timeoutSeconds")?.asLong ?: 120L
@@ -25,7 +25,7 @@ class RunCommandTool : McpTool {
 
 class ShowMessageTool : McpTool {
     override fun getName(): String = "showMessage"
-    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val message = args.get("message")?.asString.orEmpty()
         ideService.showMessage(message)
         return textResult("shown")

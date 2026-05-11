@@ -5,7 +5,7 @@ import com.google.gson.JsonObject
 import com.rk.tabs.editor.EditorTab
 import java.io.File
 
-interface GeminiIdeService {
+interface IdeService {
     /** Resolves a path (absolute or relative to active editor) to a File in the workspace. */
     fun resolvePath(path: String): File?
 

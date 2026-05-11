@@ -3,7 +3,12 @@ set -e
 
 source "$LOCAL/bin/utils"
 
-workspace_dir="${GEMINI_CLI_IDE_WORKSPACE_PATH%%:*}"
+# Support both Gemini-specific and generic IDE bridge env vars
+IDE_PORT="${GEMINI_CLI_IDE_SERVER_PORT:-${IDE_SERVER_PORT:-}}"
+IDE_TOKEN="${GEMINI_CLI_IDE_AUTH_TOKEN:-${IDE_AUTH_TOKEN:-}}"
+IDE_WS="${GEMINI_CLI_IDE_WORKSPACE_PATH:-${IDE_WORKSPACE_PATH:-}}"
+
+workspace_dir="${IDE_WS%%:*}"
 target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
 cd "$target_dir" 2>/dev/null || cd "$workspace_dir" 2>/dev/null || cd "$HOME"
 export WKDIR="$(pwd)"
@@ -11,11 +16,6 @@ export WKDIR="$(pwd)"
 export NO_UPDATE_NOTIFIER=1
 export GEMINI_TELEMETRY_ENABLED=false
 export GEMINI_TELEMETRY_TARGET=local
-export DEBUG=${XED_GEMINI_DEBUG:-true}
-export DEBUG_MODE=${XED_GEMINI_DEBUG:-true}
-export GEMINI_DEBUG_LOG_FILE=${GEMINI_DEBUG_LOG_FILE:-$HOME/.gemini/xed-debug.log}
-export GEMINI_CONTEXT_TRACE_DIR=${GEMINI_CONTEXT_TRACE_DIR:-$HOME/.gemini/xed-traces}
-mkdir -p "$(dirname "$GEMINI_DEBUG_LOG_FILE")" "$GEMINI_CONTEXT_TRACE_DIR"
 export PATH="$LOCAL/bin:$PATH"
 export EDITOR=vim
 export VISUAL=vim
@@ -23,7 +23,7 @@ configure_gemini_auth_browser
 
 ensure_node() {
   if ! command_exists node || ! command_exists npm; then
-    warn "Node.js/npm is required for Gemini CLI. Installing Node.js LTS..."
+    warn "Node.js/npm is required. Installing Node.js LTS..."
     install_nodejs
   fi
 }
@@ -37,8 +37,8 @@ ensure_gemini_cli() {
 }
 
 configure_xed_ide_integration() {
-  [ -n "${GEMINI_CLI_IDE_SERVER_PORT:-}" ] || return 0
-  [ -n "${GEMINI_CLI_IDE_WORKSPACE_PATH:-}" ] || return 0
+  [ -n "$IDE_PORT" ] || return 0
+  [ -n "$IDE_WS" ] || return 0
   mkdir -p "$HOME/.gemini"
   node <<'NODE'
 const fs = require('fs');

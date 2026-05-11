@@ -14,7 +14,7 @@ object GeminiCli {
         prompt: String,
         workingDir: String? = null,
         projectDir: String? = workingDir,
-        ideBridge: GeminiBridge.Info? = null,
+        ideBridge: IdeBridge.Info? = null,
         timeoutSeconds: Long = 180,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result {
@@ -31,7 +31,7 @@ object GeminiCli {
         prompt: String,
         workingDir: String? = null,
         projectDir: String? = workingDir,
-        ideBridge: GeminiBridge.Info? = null,
+        ideBridge: IdeBridge.Info? = null,
         timeoutSeconds: Long = 600,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result {
@@ -80,7 +80,7 @@ object GeminiCli {
     private suspend fun runGemini(
         args: List<String>,
         workingDir: String?,
-        ideBridge: GeminiBridge.Info?,
+        ideBridge: IdeBridge.Info?,
         timeoutSeconds: Long,
         onOutput: ((String) -> Unit)?,
     ): ShellUtils.Result {
@@ -104,7 +104,7 @@ object GeminiCli {
                         add("VISUAL=vim")
                         add("GEMINI_CLI_IDE_AUTH_TOKEN=${ideBridge.token}")
                         add("GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}")
-                        add("GEMINI_CLI_IDE_WORKSPACE_PATH=${GeminiBridge.workspacePathForResolution()}")
+                        add("GEMINI_CLI_IDE_WORKSPACE_PATH=${IdeBridge.workspacePathForResolution()}")
                     }
                     add("/bin/bash")
                     add(localBinDir().child("gemini-cli-headless").absolutePath)

@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
-# Headless Gemini wrapper for in-editor AI actions.
-# stdout should contain Gemini response only; setup/status logs go to stderr.
 source "$LOCAL/bin/utils" >/dev/null 2>&1 || true
 
-workspace_dir="${GEMINI_CLI_IDE_WORKSPACE_PATH%%:*}"
+# Support both Gemini-specific and generic IDE bridge env vars
+IDE_PORT="${GEMINI_CLI_IDE_SERVER_PORT:-${IDE_SERVER_PORT:-}}"
+IDE_TOKEN="${GEMINI_CLI_IDE_AUTH_TOKEN:-${IDE_AUTH_TOKEN:-}}"
+IDE_WS="${GEMINI_CLI_IDE_WORKSPACE_PATH:-${IDE_WORKSPACE_PATH:-}}"
+
+workspace_dir="${IDE_WS%%:*}"
 target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
 cd "$target_dir" 2>/dev/null || cd "$workspace_dir" 2>/dev/null || cd "$HOME"
 export WKDIR="$(pwd)"
@@ -13,11 +16,6 @@ export WKDIR="$(pwd)"
 export GEMINI_TELEMETRY_ENABLED=false
 export GEMINI_TELEMETRY_TARGET=local
 export NO_UPDATE_NOTIFIER=1
-export DEBUG=${XED_GEMINI_DEBUG:-true}
-export DEBUG_MODE=${XED_GEMINI_DEBUG:-true}
-export GEMINI_DEBUG_LOG_FILE=${GEMINI_DEBUG_LOG_FILE:-$HOME/.gemini/xed-debug.log}
-export GEMINI_CONTEXT_TRACE_DIR=${GEMINI_CONTEXT_TRACE_DIR:-$HOME/.gemini/xed-traces}
-mkdir -p "$(dirname "$GEMINI_DEBUG_LOG_FILE")" "$GEMINI_CONTEXT_TRACE_DIR"
 export PATH="$LOCAL/bin:$PATH"
 export EDITOR=vim
 export VISUAL=vim
@@ -30,7 +28,8 @@ if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
   install_nodejs >/dev/null 2>&1
 fi
 
-if [ -n "${GEMINI_CLI_IDE_SERVER_PORT:-}" ] && [ -n "${GEMINI_CLI_IDE_WORKSPACE_PATH:-}" ]; then
+# Wire with Xed Editor IDE bridge
+if [ -n "$IDE_PORT" ] && [ -n "$IDE_WS" ]; then
   mkdir -p "$HOME/.gemini"
   node <<'NODE'
 const fs = require('fs');

@@ -1,10 +1,21 @@
 package com.rk.settings.editor
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -14,8 +25,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewModelScope
@@ -91,11 +104,62 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
+            var showAgentMenu by remember { mutableStateOf(false) }
+            val agents = com.rk.ai.session.AiSessionManager.availableAgents()
+            val currentAgent = com.rk.ai.session.AiSessionManager.resolveAgent(Settings.ai_agent)
+
+            SettingsToggle(
+                label = stringResource(strings.ai_agent),
+                description = stringResource(strings.ai_agent_desc),
+                state = remember { mutableStateOf(true) },
+                showSwitch = false,
+                startWidget = {
+                    Box {
+                        Surface(
+                            onClick = { showAgentMenu = true },
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = currentAgent.displayName,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
+                        }
+                        DropdownMenu(expanded = showAgentMenu, onDismissRequest = { showAgentMenu = false }) {
+                            agents.forEach { agent ->
+                                DropdownMenuItem(
+                                    text = { Text(agent.displayName) },
+                                    onClick = {
+                                        Settings.ai_agent = agent.name
+                                        com.rk.ai.session.AiSessionManager.switchAgent(agent.name)
+                                        showAgentMenu = false
+                                    },
+                                    leadingIcon = if (agent.name == Settings.ai_agent) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    } else null,
+                                )
+                            }
+                        }
+                    }
+                },
+            )
+
             EditorSettingsToggle(
                 label = stringResource(strings.gemini_auto_apply),
                 description = stringResource(strings.gemini_auto_apply_desc),
-                default = Settings.gemini_auto_apply,
-                sideEffect = { Settings.gemini_auto_apply = it },
+                default = Settings.ai_auto_apply,
+                sideEffect = { Settings.ai_auto_apply = it },
             )
 
             EditorSettingsToggle(

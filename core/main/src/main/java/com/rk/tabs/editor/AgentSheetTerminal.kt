@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blankj.utilcode.util.ClipboardUtils
-import com.rk.ai.GeminiBridge
-import com.rk.ai.geminiIdeWorkspacePath
+import com.rk.ai.IdeBridge
+import com.rk.ai.ideWorkspacePath
 import com.rk.editor.FontCache
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -67,7 +67,7 @@ import java.lang.ref.WeakReference
 import java.util.Properties
 import kotlinx.coroutines.launch
 
-class GeminiTerminalClient(
+class AgentTerminalClient(
     private val view: TerminalView,
     private val virtualKeysViewRef: () -> VirtualKeysView?
 ) : TerminalViewClient, TerminalSessionClient {
@@ -154,7 +154,7 @@ class GeminiTerminalClient(
     }
 }
 
-private data class GeminiSheetUiState(
+private data class SheetUiState(
     val terminalHeight: Dp,
     val onDragStart: () -> Unit,
     val onDrag: (Float) -> Unit,
@@ -168,13 +168,13 @@ private fun rememberGeminiSheetUiState(
     initialHeight: Dp = 560.dp,
     onModalMinimize: (() -> Unit)? = null,
     onModalExpand: (() -> Unit)? = null,
-): GeminiSheetUiState {
+): SheetUiState {
     val density = LocalDensity.current
     val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.90f).dp
     var terminalHeight by remember { mutableStateOf(initialHeight.coerceIn(minHeight, maxHeight)) }
     var handleDrag by remember { mutableStateOf(0f) }
 
-    return GeminiSheetUiState(
+    return SheetUiState(
         terminalHeight = terminalHeight,
         onDragStart = { handleDrag = 0f },
         onDrag = { dragAmount ->
@@ -195,7 +195,7 @@ private fun rememberGeminiSheetUiState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GeminiCliSheet(
+fun AgentCliSheet(
     onDismissRequest: () -> Unit,
     cwd: String,
     session: TerminalSession?,
@@ -207,7 +207,7 @@ fun GeminiCliSheet(
 ) {
     val ui = rememberGeminiSheetUiState()
 
-    GeminiCliSheetContent(
+    AgentCliSheetContent(
         onDismissRequest = onDismissRequest,
         cwd = cwd,
         session = session,
@@ -225,7 +225,7 @@ fun GeminiCliSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GeminiCliModalSheet(
+fun AgentCliModalSheet(
     onDismissRequest: () -> Unit,
     cwd: String,
     session: TerminalSession?,
@@ -253,7 +253,7 @@ fun GeminiCliModalSheet(
         sheetGesturesEnabled = false,
         dragHandle = null,
     ) {
-        GeminiCliSheetContent(
+        AgentCliSheetContent(
             onDismissRequest = onDismissRequest,
             cwd = cwd,
             session = session,
@@ -271,7 +271,7 @@ fun GeminiCliModalSheet(
 }
 
 @Composable
-private fun GeminiCliSheetContent(
+private fun AgentCliSheetContent(
     onDismissRequest: () -> Unit,
     cwd: String,
     session: TerminalSession?,
@@ -339,7 +339,7 @@ private fun GeminiCliSheetContent(
 
             if (showTerminal) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
-                GeminiSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
+                AgentSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
             }
 
             bottomBar?.let {
@@ -351,7 +351,7 @@ private fun GeminiCliSheetContent(
 }
 
 @Composable
-fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier, height: Dp = 595.dp) {
+fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier, height: Dp = 595.dp) {
     val colorScheme = MaterialTheme.colorScheme
     val currentTheme = LocalThemeHolder.current
     val isDarkMode = isSystemInDarkTheme()
@@ -369,7 +369,7 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
     }
 
     var virtualKeysViewRef by remember { mutableStateOf<WeakReference<VirtualKeysView>>(WeakReference(null)) }
-    var terminalClient by remember { mutableStateOf<GeminiTerminalClient?>(null) }
+    var terminalClient by remember { mutableStateOf<AgentTerminalClient?>(null) }
     var lastBoundSession by remember { mutableStateOf<TerminalSession?>(null) }
 
     Column(
@@ -379,7 +379,7 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
             modifier = Modifier.fillMaxWidth().height(terminalBodyHeight),
             factory = { context ->
                 TerminalView(context, null).apply {
-                    val client = GeminiTerminalClient(this) { virtualKeysViewRef.get() }
+                    val client = AgentTerminalClient(this) { virtualKeysViewRef.get() }
                     terminalClient = client
                     setTerminalViewClient(client)
                     session?.updateTerminalSessionClient(client)
@@ -456,7 +456,7 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
 
 fun createGeminiSheetSession(
     activity: Activity,
-    bridge: GeminiBridge.Info,
+    bridge: IdeBridge.Info,
     workingDir: String,
     extraArgs: List<String> = emptyList(),
 ): TerminalSession {
@@ -487,7 +487,7 @@ private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String):
     return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
 }
 
-private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: GeminiBridge.Info): Array<String> {
+private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: IdeBridge.Info): Array<String> {
     val tmpDir = File(getTempDir(), "terminal/gemini-sheet").apply { mkdirs() }
     val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
     return mutableListOf(
@@ -536,7 +536,7 @@ private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: 
         "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
         "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-        "GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(workingDir)}",
+        "GEMINI_CLI_IDE_WORKSPACE_PATH=${ideWorkspacePath(workingDir)}",
     ).apply {
         if (!isFDroid) {
             add("PROOT_LOADER=${activity.applicationInfo.nativeLibraryDir}/libproot-loader.so")

@@ -10,13 +10,13 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 
-class GeminiAssistantCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class AiAssistantCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
     override val id: String = "editor.gemini_assistant"
 
     override fun getLabel(): String = strings.gemini_assistant.getString()
 
     override fun action(editorActionContext: EditorActionContext) {
-        commandContext.mainViewModel.showGeminiSheet = true
+        commandContext.mainViewModel.showAiSheet = true
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =

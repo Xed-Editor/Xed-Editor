@@ -28,7 +28,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
-import com.rk.ai.session.GeminiSessionManager
+import com.rk.ai.agents.AiAgent
+import com.rk.ai.session.AiSessionManager
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeTab
@@ -38,7 +39,7 @@ import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
-import com.rk.tabs.editor.GeminiCliSheet
+import com.rk.tabs.editor.AgentCliSheet
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,14 +76,14 @@ fun UnifiedGeminiSheet(
     LaunchedEffect(viewModel.currentTab, currentDrawerTab) {
         cwd.value = currentProjectDir()
     }
-    val session = GeminiSessionManager.session
+    val session = AiSessionManager.session
     val isRunning = session?.isRunning == true
     var showTranscript by remember { mutableStateOf(false) }
-    val transcript = viewModel.geminiCliTranscript
+    val transcript = viewModel.agentTranscript
 
     fun appendLog(text: String) {
-        viewModel.geminiCliTranscript =
-            listOf(viewModel.geminiCliTranscript, text)
+        viewModel.agentTranscript =
+            listOf(viewModel.agentTranscript, text)
                 .filter { it.isNotBlank() }
                 .joinToString("\n\n")
     }
@@ -106,15 +107,15 @@ fun UnifiedGeminiSheet(
 
     fun startGemini(workingDir: String = cwd.value, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
-        if (!forceRestart && extraArgs.isEmpty() && GeminiSessionManager.canReuseFor(workingDir)) {
-            GeminiBridge.setWorkspacePath(workingDir)
-            appendLog("Reusing Gemini CLI session: ${GeminiSessionManager.cwd}")
+        if (!forceRestart && extraArgs.isEmpty() && AiSessionManager.canReuseFor(workingDir)) {
+            IdeBridge.setWorkspacePath(workingDir)
+            appendLog("Reusing Gemini CLI session: ${AiSessionManager.cwd}")
             return
         }
-        GeminiSessionManager.stopSession()
+        AiSessionManager.stopSession()
         scope.launch(Dispatchers.Main) {
             val saved = withContext(Dispatchers.IO) { saveDirtyEditors() }
-            GeminiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
+            AiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
             if (saved > 0) appendLog("Synced $saved dirty editor file(s) before Gemini start.")
             appendLog("Gemini CLI running in sheet: $workingDir")
         }
@@ -122,7 +123,7 @@ fun UnifiedGeminiSheet(
 
     fun sendToGemini(text: String) {
         if (text.isBlank()) return
-        val runningSession = GeminiSessionManager.session
+        val runningSession = AiSessionManager.session
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
             scope.launch(Dispatchers.IO) {
                 val saved = saveDirtyEditors()
@@ -151,7 +152,7 @@ fun UnifiedGeminiSheet(
             }
             "/restart" -> startGemini(forceRestart = true)
             "/stop" -> {
-                GeminiSessionManager.stopSession()
+                AiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
             }
             else -> sendToGemini(input)
@@ -159,9 +160,9 @@ fun UnifiedGeminiSheet(
     }
 
     fun consumePendingPrompt(): String? {
-        val pending = viewModel.geminiPrompt.trim()
+        val pending = viewModel.agentPrompt.trim()
         if (pending.isBlank()) return null
-        viewModel.geminiPrompt = ""
+        viewModel.agentPrompt = ""
         return pending
     }
 
@@ -169,17 +170,19 @@ fun UnifiedGeminiSheet(
         val pendingPrompt = consumePendingPrompt()
         if (pendingPrompt != null) {
             handleInput(pendingPrompt)
-        } else if (!GeminiSessionManager.canReuseFor(cwd.value)) {
+        } else if (!AiSessionManager.canReuseFor(cwd.value)) {
             startGemini(cwd.value)
         }
     }
 
-    LaunchedEffect(viewModel.geminiPrompt, viewModel.showGeminiSheet) {
-        if (!viewModel.showGeminiSheet) return@LaunchedEffect
+    LaunchedEffect(viewModel.agentPrompt, viewModel.showAiSheet) {
+        if (!viewModel.showAiSheet) return@LaunchedEffect
         consumePendingPrompt()?.let { handleInput(it) }
     }
 
-    GeminiCliSheet(
+    var showAgentMenu by remember { mutableStateOf(false) }
+
+    AgentCliSheet(
         onDismissRequest = onDismissRequest,
         cwd = cwd.value,
         session = session,
@@ -188,11 +191,22 @@ fun UnifiedGeminiSheet(
             StatusBar(
                 isRunning = isRunning,
                 cwd = cwd.value,
+                agent = AiSessionManager.currentAgent,
+                availableAgents = AiSessionManager.availableAgents(),
+                showAgentMenu = showAgentMenu,
+                onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
+                onSelectAgent = { agent ->
+                    showAgentMenu = false
+                    if (agent != AiSessionManager.currentAgent) {
+                        AiSessionManager.switchAgent(agent.name)
+                        startGemini(cwd.value, forceRestart = true)
+                    }
+                },
                 transcript = transcript,
                 showTranscript = showTranscript,
                 onToggleTranscript = { showTranscript = !showTranscript },
                 onClearTranscript = {
-                    viewModel.geminiCliTranscript = ""
+                    viewModel.agentTranscript = ""
                     showTranscript = false
                 },
             )
@@ -239,7 +253,7 @@ fun UnifiedGeminiSheet(
             }
 
             IconButton(onClick = {
-                GeminiSessionManager.stopSession()
+                AiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
             }, enabled = isRunning) {
                 Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error.copy(alpha = 0.7f))
@@ -258,6 +272,11 @@ fun UnifiedGeminiSheet(
 private fun StatusBar(
     isRunning: Boolean,
     cwd: String,
+    agent: AiAgent,
+    availableAgents: List<AiAgent>,
+    showAgentMenu: Boolean,
+    onToggleAgentMenu: () -> Unit,
+    onSelectAgent: (AiAgent) -> Unit,
     transcript: String,
     showTranscript: Boolean,
     onToggleTranscript: () -> Unit,
@@ -283,7 +302,46 @@ private fun StatusBar(
                 color = dotColor,
                 style = MaterialTheme.typography.labelSmall,
             )
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(8.dp))
+
+            Box {
+                Surface(
+                    onClick = onToggleAgentMenu,
+                    shape = RoundedCornerShape(4.dp),
+                    color = colorScheme.primaryContainer,
+                    modifier = Modifier.height(22.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = agent.displayName,
+                            color = colorScheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                        Icon(
+                            Icons.Outlined.KeyboardArrowDown,
+                            contentDescription = "Switch agent",
+                            modifier = Modifier.size(14.dp),
+                            tint = colorScheme.onPrimaryContainer,
+                        )
+                    }
+                }
+                DropdownMenu(expanded = showAgentMenu, onDismissRequest = onToggleAgentMenu) {
+                    availableAgents.forEach { a ->
+                        DropdownMenuItem(
+                            text = { Text(a.displayName, style = MaterialTheme.typography.bodySmall) },
+                            onClick = { onSelectAgent(a) },
+                            leadingIcon = if (a == agent) {
+                                { Text("✓", style = MaterialTheme.typography.bodySmall) }
+                            } else null,
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.width(8.dp))
             Text(
                 text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
                 color = colorScheme.onSurfaceVariant,

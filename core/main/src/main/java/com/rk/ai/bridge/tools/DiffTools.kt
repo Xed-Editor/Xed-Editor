@@ -2,11 +2,11 @@ package com.rk.ai.bridge.tools
 
 import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpTool
-import com.rk.ai.service.GeminiIdeService
+import com.rk.ai.service.IdeService
 
 class OpenDiffTool : McpTool {
     override fun getName(): String = "openDiff"
-    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         val newContent = args.get("newContent")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
@@ -24,7 +24,7 @@ class OpenDiffTool : McpTool {
 
 class CloseDiffTool : McpTool {
     override fun getName(): String = "closeDiff"
-    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
         val content = ideService.getFileContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
@@ -34,7 +34,7 @@ class CloseDiffTool : McpTool {
 
 class RejectDiffTool : McpTool {
     override fun getName(): String = "rejectDiff"
-    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
         val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")

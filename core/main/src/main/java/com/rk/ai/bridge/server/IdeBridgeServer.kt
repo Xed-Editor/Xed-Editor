@@ -9,12 +9,12 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.rk.ai.GeminiBridge
-import com.rk.ai.GeminiMcpTools
+import com.rk.ai.IdeBridge
+import com.rk.ai.IdeMcpTools
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.tools.*
-import com.rk.ai.service.GeminiIdeService
-import com.rk.ai.service.GeminiNotificationSender
+import com.rk.ai.service.IdeService
+import com.rk.ai.service.IdeNotificationSender
 import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import java.io.File
@@ -25,11 +25,11 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 
-class GeminiBridgeServer(
+class IdeBridgeServer(
     requestedPort: Int,
     private val token: String,
-    initialIdeService: GeminiIdeService
-) : NanoHTTPD(requestedPort), GeminiNotificationSender {
+    initialIdeService: IdeService
+) : NanoHTTPD(requestedPort), IdeNotificationSender {
 
     val port: Int get() = listeningPort
 
@@ -40,7 +40,7 @@ class GeminiBridgeServer(
     private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     private var toolRegistry = McpToolRegistry(initialIdeService)
     
-    var ideService: GeminiIdeService = initialIdeService
+    var ideService: IdeService = initialIdeService
         set(value) {
             field = value
             val newRegistry = McpToolRegistry(value)
@@ -91,7 +91,7 @@ class GeminiBridgeServer(
     @Volatile private var activeMcpSessionId: String? = null
 
     private fun d(msg: String) {
-        if (BuildConfig.DEBUG) Log.d("GeminiBridgeServer", msg)
+        if (BuildConfig.DEBUG) Log.d("IdeBridgeServer", msg)
     }
 
     override fun serve(session: IHTTPSession): Response {
@@ -269,7 +269,7 @@ synchronized(sseLock) {
     }
 
     private fun toolsListResult(id: JsonElement): String =
-        resultJson(id, JsonObject().apply { add("tools", GeminiMcpTools.list()) })
+        resultJson(id, JsonObject().apply { add("tools", IdeMcpTools.list()) })
 
     private fun initializeResult(id: JsonElement, request: JsonObject): String =
         resultJson(id, JsonObject().apply {

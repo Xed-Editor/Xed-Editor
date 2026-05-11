@@ -5,7 +5,7 @@ import com.rk.commands.editor.CopyCommand
 import com.rk.commands.editor.CutCommand
 import com.rk.commands.editor.DuplicateLineCommand
 import com.rk.commands.editor.EmulateKeyCommand
-import com.rk.commands.editor.GeminiAssistantCommand
+import com.rk.commands.editor.AiAssistantCommand
 import com.rk.commands.editor.JumpToLineCommand
 import com.rk.commands.editor.LowerCaseCommand
 import com.rk.commands.editor.PasteCommand
@@ -25,7 +25,7 @@ import com.rk.commands.editor.UndoCommand
 import com.rk.commands.editor.UpperCaseCommand
 import com.rk.commands.global.CommandPaletteCommand
 import com.rk.commands.global.DocumentationCommand
-import com.rk.commands.global.GeminiCliCommand
+import com.rk.commands.global.AiCliCommand
 import com.rk.commands.global.NewFileCommand
 import com.rk.commands.global.SaveAllCommand
 import com.rk.commands.global.SearchCodeCommand
@@ -45,7 +45,7 @@ object CommandProvider {
 
     lateinit var DocumentationCommand: DocumentationCommand
     lateinit var TerminalCommand: TerminalCommand
-    lateinit var GeminiCliCommand: GeminiCliCommand
+    lateinit var AiCliCommand: AiCliCommand
     lateinit var SettingsCommand: SettingsCommand
     lateinit var NewFileCommand: NewFileCommand
     lateinit var CommandPaletteCommand: CommandPaletteCommand
@@ -73,7 +73,7 @@ object CommandProvider {
     lateinit var JumpToLineCommand: JumpToLineCommand
     lateinit var ShareCommand: ShareCommand
     lateinit var EmulateKeyCommand: EmulateKeyCommand
-    lateinit var GeminiAssistantCommand: GeminiAssistantCommand
+    lateinit var AiAssistantCommand: AiAssistantCommand
     lateinit var GoToDefinitionCommand: GoToDefinitionCommand
     lateinit var GoToReferencesCommand: GoToReferencesCommand
     lateinit var RenameSymbolCommand: RenameSymbolCommand
@@ -86,7 +86,7 @@ object CommandProvider {
 
             registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
             registerBuiltin(TerminalCommand(commandContext)) { TerminalCommand = it }
-            registerBuiltin(GeminiCliCommand(commandContext)) { GeminiCliCommand = it }
+            registerBuiltin(AiCliCommand(commandContext)) { AiCliCommand = it }
             registerBuiltin(SettingsCommand(commandContext)) { SettingsCommand = it }
             registerBuiltin(NewFileCommand(commandContext)) { NewFileCommand = it }
             registerBuiltin(CommandPaletteCommand(commandContext)) { CommandPaletteCommand = it }
@@ -114,7 +114,7 @@ object CommandProvider {
             registerBuiltin(JumpToLineCommand(commandContext)) { JumpToLineCommand = it }
             registerBuiltin(ShareCommand(commandContext)) { ShareCommand = it }
             registerBuiltin(EmulateKeyCommand(commandContext)) { EmulateKeyCommand = it }
-            registerBuiltin(GeminiAssistantCommand(commandContext)) { GeminiAssistantCommand = it }
+            registerBuiltin(AiAssistantCommand(commandContext)) { AiAssistantCommand = it }
             registerBuiltin(GoToDefinitionCommand(commandContext)) { GoToDefinitionCommand = it }
             registerBuiltin(GoToReferencesCommand(commandContext)) { GoToReferencesCommand = it }
             registerBuiltin(RenameSymbolCommand(commandContext)) { RenameSymbolCommand = it }

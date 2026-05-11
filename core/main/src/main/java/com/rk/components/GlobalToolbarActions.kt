@@ -30,7 +30,7 @@ import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
-import com.rk.ai.GeminiBridge
+import com.rk.ai.IdeBridge
 import com.rk.commands.CommandProvider
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -50,7 +50,7 @@ import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.editor.GeminiCliSheet
+import com.rk.tabs.editor.AgentCliSheet
 import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.utils.application
 import com.rk.utils.errorDialog
@@ -75,7 +75,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         val newFileCommand = CommandProvider.NewFileCommand
         val terminalCommand = CommandProvider.TerminalCommand
-        val geminiCliCommand = CommandProvider.GeminiCliCommand
+        val geminiCliCommand = CommandProvider.AiCliCommand
         val settingsCommand = CommandProvider.SettingsCommand
 
         IconButton(onClick = { newFileCommand.action(ActionContext(context as Activity)) }) {
@@ -87,7 +87,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                 XedIcon(terminalCommand.getIcon())
             }
 
-            IconButton(onClick = { viewModel.showGeminiSheet = true }) {
+            IconButton(onClick = { viewModel.showAiSheet = true }) {
                 XedIcon(geminiCliCommand.getIcon())
             }
         }

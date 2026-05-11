@@ -3,7 +3,7 @@ package com.rk.ai
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 
-internal object GeminiMcpTools {
+internal object IdeMcpTools {
     fun list(): JsonArray =
         JsonArray().apply {
             add(schema("openDiff", "Open a proposed file replacement in Xed-Editor for user review before writing", listOf("filePath", "newContent"), mapOf("filePath" to "string", "newContent" to "string")))

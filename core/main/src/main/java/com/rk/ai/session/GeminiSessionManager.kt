@@ -6,10 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.rk.activities.main.MainViewModel
-import com.rk.ai.GeminiBridge
-import com.rk.ai.bridge.server.GeminiBridgeServer
-import com.rk.ai.service.GeminiIdeService
-import com.rk.ai.service.GeminiIdeServiceImpl
+import com.rk.ai.IdeBridge
+import com.rk.ai.bridge.server.IdeBridgeServer
+import com.rk.ai.service.IdeService
+import com.rk.ai.service.IdeServiceImpl
 import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
@@ -19,8 +19,8 @@ import kotlinx.coroutines.withContext
 object GeminiSessionManager {
     var session by mutableStateOf<TerminalSession?>(null)
     var cwd by mutableStateOf<String?>(null)
-    var bridgeServer: GeminiBridgeServer? = null
-    var ideService: GeminiIdeService? = null
+    var bridgeServer: IdeBridgeServer? = null
+    var ideService: IdeService? = null
 
     private fun d(msg: String) {
         if (BuildConfig.DEBUG) Log.d("GeminiSessionManager", msg)
@@ -45,14 +45,14 @@ object GeminiSessionManager {
         stopSession()
 
         return withContext(Dispatchers.IO) {
-            GeminiBridge.ensureStarted(viewModel)
-            GeminiBridge.setWorkspacePath(workingDir)
-            val bridgeInfo = GeminiBridge.getBridgeInfo()!!
+            IdeBridge.ensureStarted(viewModel)
+            IdeBridge.setWorkspacePath(workingDir)
+            val bridgeInfo = IdeBridge.getBridgeInfo()!!
             
             withContext(Dispatchers.Main) {
-                // The actual server is managed by GeminiBridge object for discovery file consistency
+                // The actual server is managed by IdeBridge object for discovery file consistency
                 // but we can track it here if we want direct access to the service
-                ideService = GeminiIdeServiceImpl(viewModel) 
+                ideService = IdeServiceImpl(viewModel) 
                 
                 // Create CLI session
                 val newSession = createGeminiSheetSession(
@@ -74,7 +74,7 @@ object GeminiSessionManager {
         session?.finishIfRunning()
         session = null
         cwd = null
-        GeminiBridge.stop()
+        IdeBridge.stop()
         ideService = null
     }
 }

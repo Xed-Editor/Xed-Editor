@@ -4,61 +4,39 @@ import android.os.Looper
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
-import com.rk.ai.GeminiBridge
-import com.rk.ai.geminiDisplayRootFor
-import com.rk.ai.geminiIdeWorkspacePath
-import com.rk.ai.geminiResolveWorkspacePath
-import com.rk.exec.ShellUtils
-import com.rk.file.FileWrapper
-import com.rk.file.toFileWrapper
-import com.rk.search.SearchViewModel
-import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorTab
-import com.rk.tabs.editor.GeminiEditorPatch
-import com.rk.utils.toast
-import com.rk.utils.application
-import io.github.rosemoe.sora.lsp.events.format.fullFormatting
-import java.io.File
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import androidx.lifecycle.viewModelScope
-import com.rk.ai.session.GeminiSessionManager
+import com.rk.ai.IdeBridge
+import com.rk.ai.displayRootFor
+import com.rk.ai.ideWorkspacePath
+import com.rk.ai.resolveWorkspacePath
+import com.rk.ai.session.AiSessionManager
 import com.rk.lsp.applyFormattingOptions
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
-interface GeminiNotificationSender {
+interface IdeNotificationSender {
     fun sendNotification(method: String, params: JsonObject)
 }
 
-class GeminiIdeServiceImpl(
+class IdeServiceImpl(
     private val viewModel: MainViewModel,
-    private val notificationSender: GeminiNotificationSender? = null
-) : GeminiIdeService {
+    private val notificationSender: IdeNotificationSender? = null
+) : IdeService {
 
     override fun resolvePath(path: String): File? {
         val normalized = path.trim()
         if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
             resolveRelativePathFromOpenEditor(normalized)?.let { return it }
         }
-        return geminiResolveWorkspacePath(GeminiBridge.workspacePathForResolution(), path)
+        return resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
     }
 
     private fun resolveRelativePathFromOpenEditor(path: String): File? {
         val activeTab = viewModel.currentTab as? EditorTab
         val activeBase = activeTab?.let { File(it.file.getAbsolutePath()).parentFile }
         activeBase?.let { parent ->
-            geminiResolveWorkspacePath(GeminiBridge.workspacePathForResolution(), File(parent, path).path)?.let { return it }
+            resolveWorkspacePath(IdeBridge.workspacePathForResolution(), File(parent, path).path)?.let { return it }
         }
 
         val exactMatches = viewModel.tabs
@@ -66,7 +44,7 @@ class GeminiIdeServiceImpl(
             .mapNotNull { tab ->
                 val tabFile = File(tab.file.getAbsolutePath())
                 if (tabFile.path.endsWith(File.separator + path)) {
-                    geminiResolveWorkspacePath(GeminiBridge.workspacePathForResolution(), tabFile.path)
+                    resolveWorkspacePath(IdeBridge.workspacePathForResolution(), tabFile.path)
                 } else {
                     null
                 }
@@ -82,7 +60,7 @@ class GeminiIdeServiceImpl(
     override fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> {
         if (!directory.exists() || !directory.isDirectory) return emptyList()
         val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules")
-        val root = geminiDisplayRootFor(GeminiBridge.workspacePathForResolution(), directory)
+        val root = displayRootFor(IdeBridge.workspacePathForResolution(), directory)
         val output = mutableListOf<String>()
 
         fun visit(current: File) {
@@ -122,7 +100,7 @@ class GeminiIdeServiceImpl(
         title: String,
         onApply: suspend () -> Unit
     ) {
-        if (Settings.gemini_auto_apply) {
+        if (Settings.ai_auto_apply) {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
                 onApply()
                 notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
@@ -145,7 +123,7 @@ class GeminiIdeServiceImpl(
             tab.editorState.pendingGeminiPatch?.reject?.invoke()
 
             tab.editorState.pendingGeminiPatch =
-                GeminiEditorPatch(
+                EditorPatch(
                     title = title,
                     filePath = filePath,
                     oldText = oldContent,
@@ -154,7 +132,7 @@ class GeminiIdeServiceImpl(
                         viewModel.viewModelScope.launch(Dispatchers.Main) {
                             runCatching { onApply() }
                                 .onSuccess {
-                                    viewModel.showGeminiSheet = true
+                                    viewModel.showAiSheet = true
                                     notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
                                         addProperty("filePath", filePath)
                                     })
@@ -255,7 +233,7 @@ class GeminiIdeServiceImpl(
     override fun replaceSelection(newContent: String) {
         val current = viewModel.currentTab as? EditorTab ?: return
         
-        if (Settings.gemini_auto_apply) {
+        if (Settings.ai_auto_apply) {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
                 val editor = current.editorState.editor.get() ?: return@launch
                 val hasSelection = editor.isTextSelected
@@ -281,7 +259,7 @@ class GeminiIdeServiceImpl(
             current.editorState.pendingGeminiPatch?.reject?.invoke()
 
             current.editorState.pendingGeminiPatch =
-                GeminiEditorPatch(
+                EditorPatch(
                     title = if (hasSelection) "Review Gemini selection replacement" else "Review Gemini file replacement",
                     filePath = current.file.getAbsolutePath(),
                     oldText = oldText,
@@ -307,7 +285,7 @@ class GeminiIdeServiceImpl(
     override fun insertAtCursor(newContent: String) {
         val current = viewModel.currentTab as? EditorTab ?: return
         
-        if (Settings.gemini_auto_apply) {
+        if (Settings.ai_auto_apply) {
             viewModel.viewModelScope.launch(Dispatchers.Main) {
                 val editor = current.editorState.editor.get() ?: return@launch
                 val line = editor.cursor.leftLine
@@ -330,7 +308,7 @@ class GeminiIdeServiceImpl(
             current.editorState.pendingGeminiPatch?.reject?.invoke()
 
             current.editorState.pendingGeminiPatch =
-                GeminiEditorPatch(
+                EditorPatch(
                     title = "Review Gemini insertion",
                     filePath = current.file.getAbsolutePath(),
                     oldText = "",
@@ -406,7 +384,7 @@ class GeminiIdeServiceImpl(
     override suspend fun searchCode(query: String, limit: Int): JsonArray {
         val results = JsonArray()
         val searchViewModel = SearchViewModel()
-        val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
+        val projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper()
         
         withContext(Dispatchers.IO) {
             val app = application!!
@@ -431,7 +409,7 @@ class GeminiIdeServiceImpl(
     override suspend fun findFiles(query: String, limit: Int): JsonArray {
         val results = JsonArray()
         val searchViewModel = SearchViewModel()
-        val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
+        val projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper()
 
         withContext(Dispatchers.IO) {
             val app = application!!
@@ -461,7 +439,7 @@ class GeminiIdeServiceImpl(
 
     override suspend fun runCommand(command: String, timeoutSeconds: Long): CommandResult {
         val result = ShellUtils.runUbuntu(
-            GeminiBridge.primaryWorkspacePath(),
+            IdeBridge.primaryWorkspacePath(),
             "/bin/bash",
             "-lc",
             command,
@@ -475,7 +453,7 @@ class GeminiIdeServiceImpl(
         )
     }
 
-    override fun getPrimaryWorkspacePath(): String = GeminiBridge.primaryWorkspacePath()
+    override fun getPrimaryWorkspacePath(): String = IdeBridge.primaryWorkspacePath()
 
     override suspend fun getDiagnostics(filePath: String): JsonArray {
         val results = JsonArray()
@@ -710,7 +688,7 @@ class GeminiIdeServiceImpl(
     }
 
     override suspend fun getTerminalOutput(lines: Int?): String {
-        val session = GeminiSessionManager.session
+        val session = AiSessionManager.session
         if (session == null || !session.isRunning) return "No active Gemini terminal session"
         return withContext(Dispatchers.IO) {
             val emulator = session.emulator ?: return@withContext "Terminal emulator not available"

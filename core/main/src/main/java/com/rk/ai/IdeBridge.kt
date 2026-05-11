@@ -5,17 +5,17 @@ import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
-import com.rk.ai.bridge.server.GeminiBridgeServer
-import com.rk.ai.service.GeminiIdeServiceImpl
+import com.rk.ai.bridge.server.IdeBridgeServer
+import com.rk.ai.service.IdeServiceImpl
 import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
 import java.io.File
 import java.security.SecureRandom
 
-object GeminiBridge {
+object IdeBridge {
     data class Info(val port: Int, val token: String)
 
-    private var server: GeminiBridgeServer? = null
+    private var server: IdeBridgeServer? = null
     private var token: String? = null
     private var port: Int = 0
     private val secureRandom = SecureRandom()
@@ -38,20 +38,20 @@ object GeminiBridge {
             val t = newToken()
             token = t
             // Use 0 to let the OS pick an available port
-            val s = GeminiBridgeServer(0, t, GeminiIdeServiceImpl(viewModel))
+            val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
             s.start()
             server = s
             port = s.port
-            s.ideService = GeminiIdeServiceImpl(viewModel, s)
+            s.ideService = IdeServiceImpl(viewModel, s)
 
             synchronized(workspacePathsLock) {
                 if (workspacePaths.isNotEmpty()) {
                     writeDiscoveryFile(port, t, workspacePathForResolution())
                 }
             }
-            if (BuildConfig.DEBUG) Log.d("GeminiBridge", "Server started on port $port")
+            if (BuildConfig.DEBUG) Log.d("IdeBridge", "Server started on port $port")
         }.onFailure {
-            Log.e("GeminiBridge", "Failed to start server", it)
+            Log.e("IdeBridge", "Failed to start server", it)
             server = null
             token = null
             port = 0
@@ -114,12 +114,14 @@ object GeminiBridge {
             listOf(
                 File(getTempDir(), "gemini/ide"),
                 File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
+                File(getTempDir(), "ide-bridge"),
             ).forEach { dir ->
                 dir.mkdirs()
-                dir.listFiles { file -> file.name.startsWith("gemini-ide-server-") && file.name.endsWith(".json") }
+                val prefix = if (dir.name == "ide-bridge") "ide-server-" else "gemini-ide-server-"
+                dir.listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".json") }
                     ?.forEach { file ->
                         val fileName = file.name
-                        val parts = fileName.removePrefix("gemini-ide-server-").removeSuffix(".json").split("-")
+                        val parts = fileName.removePrefix(prefix).removeSuffix(".json").split("-")
                         val filePid = parts.firstOrNull()?.toIntOrNull()
                         if (filePid != null) {
                             if (filePid == pid) {
@@ -135,7 +137,8 @@ object GeminiBridge {
                         }
                     }
 
-                File(dir, "gemini-ide-server-$pid-$port.json").writeText(json)
+                val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-$port.json" else "gemini-ide-server-$pid-$port.json"
+                File(dir, fileName).writeText(json)
             }
         }
     }
@@ -152,8 +155,9 @@ object GeminiBridge {
             listOf(
                 File(getTempDir(), "gemini/ide"),
                 File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
+                File(getTempDir(), "ide-bridge"),
             ).forEach { dir ->
-                dir.listFiles { file -> file.name.startsWith("gemini-ide-server-$pid-") && file.name.endsWith(".json") }
+                dir.listFiles { file -> file.name.contains("-$pid-") && file.name.endsWith(".json") }
                     ?.forEach { it.delete() }
             }
         }

@@ -79,7 +79,9 @@
     <string name="ai_desc">AI settings and assistant preferences</string>
     <string name="gemini_ai">Gemini AI</string>
     <string name="gemini_auto_apply">Auto apply</string>
-    <string name="gemini_auto_apply_desc">Automatically apply Gemini changes without review</string>
+    <string name="gemini_auto_apply_desc">Automatically apply changes without review</string>
+    <string name="ai_agent">AI Agent</string>
+    <string name="ai_agent_desc">Select the AI coding agent to use in the terminal sheet</string>
     <string name="app">Application</string>
     <string name="oled_desc">Applies a pure black theme</string>
     <string name="themes">Themes</string>
