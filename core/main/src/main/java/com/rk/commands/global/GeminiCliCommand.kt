@@ -32,7 +32,7 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
                     if (file.isDirectory) file.absolutePath else file.parent
                 }
             ?: "/storage/emulated/0"
-        val bridge = GeminiBridge.ensureStarted(commandContext.mainViewModel, workspaceDir)
+        val bridge = GeminiBridge.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
         val args =
             buildList {
                     add(localBinDir().child("gemini-cli").absolutePath)
@@ -55,7 +55,7 @@ class GeminiCliCommand(commandContext: CommandContext) : GlobalCommand(commandCo
                         "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
                         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
                         "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-                        "GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(bridge.workspacePath)}",
+                        "GEMINI_CLI_IDE_WORKSPACE_PATH=${geminiIdeWorkspacePath(workspaceDir)}",
                         "TERM_PROGRAM=vscode",
                         "TERM_PROGRAM_VERSION=1.0.0",
                         "VSCODE_PID=${android.os.Process.myPid()}",

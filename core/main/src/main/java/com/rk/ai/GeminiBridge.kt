@@ -30,8 +30,9 @@ object GeminiBridge {
         return Info(s.port, t)
     }
 
-    fun ensureStarted(viewModel: MainViewModel) {
-        if (server != null) return
+    fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
+        workspacePath?.let { setWorkspacePath(it) }
+        if (server != null) return getBridgeInfo()
 
         runCatching {
             val t = newToken()
@@ -55,6 +56,8 @@ object GeminiBridge {
             token = null
             port = 0
         }
+        
+        return getBridgeInfo()
     }
 
     fun setWorkspacePath(path: String) {
