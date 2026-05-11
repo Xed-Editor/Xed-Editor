@@ -26,13 +26,10 @@ info "Workspace: $WKDIR"
 
 # Wire with Xed Editor IDE bridge via MCP
 if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
-  BRIDGE_OK=$(curl -sf "http://127.0.0.1:${IDE_PORT}/health" 2>/dev/null || echo "")
-  if [ -n "$BRIDGE_OK" ]; then
-    OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
-    mkdir -p "$OPENCODE_CONFIG_DIR"
-    cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
+  OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
+  mkdir -p "$OPENCODE_CONFIG_DIR"
+  cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
 {
-  "\$schema": "https://opencode.ai/config.json",
   "mcp": {
     "xed-ide": {
       "type": "remote",
@@ -46,10 +43,10 @@ if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
   }
 }
 OC_CONFIG
-    info "IDE bridge MCP configured for OpenCode on port $IDE_PORT"
-  else
-    warn "IDE bridge not reachable on port $IDE_PORT, starting without MCP tools"
-  fi
+  info "IDE bridge MCP configured for OpenCode on port $IDE_PORT"
+  curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
+    info "Bridge health check passed" || \
+    warn "Bridge health check failed, MCP may be unavailable"
 fi
 
 ensure_node() {

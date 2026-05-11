@@ -229,10 +229,10 @@ class IdeBridgeServer(
             connectedClients = sseClients.size
         }
 
-        // Send endpoint event (MCP HTTP transport standard)
+        // Send endpoint event (MCP HTTP transport standard - absolute URL)
         synchronized(sseLock) {
             writer.print("event: endpoint\n")
-            writer.print("data: /messages?sessionId=${sessionId}\n\n")
+            writer.print("data: http://127.0.0.1:${listeningPort}/messages?sessionId=${sessionId}\n\n")
             writer.flush()
         }
 

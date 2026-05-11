@@ -22,14 +22,10 @@ log() { printf '%s\n' "$*" >&2; }
 
 # Wire with Xed Editor IDE bridge via MCP
 if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
-  # Verify bridge is responsive
-  BRIDGE_OK=$(curl -sf "http://127.0.0.1:${IDE_PORT}/health" 2>/dev/null || echo "")
-  if [ -n "$BRIDGE_OK" ]; then
-    OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
-    mkdir -p "$OPENCODE_CONFIG_DIR"
-    cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
+  OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
+  mkdir -p "$OPENCODE_CONFIG_DIR"
+  cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
 {
-  "\$schema": "https://opencode.ai/config.json",
   "mcp": {
     "xed-ide": {
       "type": "remote",
@@ -43,10 +39,11 @@ if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
   }
 }
 OC_CONFIG
-    log "IDE bridge MCP configured for OpenCode on port $IDE_PORT"
-  else
-    log "Warning: IDE bridge not reachable on port $IDE_PORT, starting without MCP tools"
-  fi
+  log "IDE bridge MCP configured for OpenCode on port $IDE_PORT"
+  # Quick connectivity check (non-blocking)
+  curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
+    log "Bridge health check passed" || \
+    log "Warning: bridge health check failed, MCP may be unavailable"
 fi
 
 if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
