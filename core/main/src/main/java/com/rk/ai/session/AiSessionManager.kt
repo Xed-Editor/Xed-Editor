@@ -73,6 +73,15 @@ object AiSessionManager {
     ): TerminalSession {
         currentAgent = resolveAgent(agentType)
         d("startSession agent=${currentAgent.name} workingDir=$workingDir")
+
+        // Load and apply project-level agent config
+        val projectConfig = com.rk.ai.ProjectConfigLoader.loadForWorkspace(workingDir)
+        if (projectConfig != null) {
+            com.rk.ai.ProjectConfigLoader.applyConfig(projectConfig)
+            currentAgent = resolveAgent()
+            d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
+        }
+
         stopSession()
 
         return withContext(Dispatchers.IO) {

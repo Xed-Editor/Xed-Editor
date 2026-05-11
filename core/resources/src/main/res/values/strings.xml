@@ -84,6 +84,8 @@
     <string name="ai_agent_desc">Select the AI coding agent to use in the terminal sheet</string>
     <string name="ai_model">Model</string>
     <string name="ai_model_desc">AI model to use (leave empty for default)</string>
+    <string name="ai_project_config">Project config</string>
+    <string name="ai_project_config_desc">Load .xed/agent.json from project root</string>
     <string name="app">Application</string>
     <string name="oled_desc">Applies a pure black theme</string>
     <string name="themes">Themes</string>

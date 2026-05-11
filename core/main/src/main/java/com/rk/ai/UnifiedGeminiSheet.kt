@@ -155,6 +155,7 @@ fun UnifiedGeminiSheet(
                 AiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
             }
+            "/export" -> exportSession(viewModel, cwd.value)
             else -> sendToGemini(input)
         }
     }
@@ -363,9 +364,46 @@ private fun StatusBar(
                                 { Text("✓", style = MaterialTheme.typography.bodySmall) }
                             } else null,
                         )
-                    }
-                }
-            }
+        }
+    }
+}
+
+private fun exportSession(viewModel: MainViewModel, cwd: String) {
+    val context = com.rk.utils.application ?: return
+    val agentName = AiSessionManager.currentAgent.displayName
+    val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).format(java.util.Date())
+    val transcript = viewModel.agentTranscript
+    val markdown = buildString {
+        appendLine("# AI Agent Session: $agentName")
+        appendLine("**Date:** $timestamp")
+        appendLine("**Workspace:** $cwd")
+        appendLine("**Agent:** $agentName")
+        appendLine()
+        appendLine("---")
+        appendLine()
+        if (transcript.isNotBlank()) {
+            appendLine(transcript)
+        } else {
+            appendLine("*No conversation history*")
+        }
+    }
+
+    try {
+        val file = java.io.File(context.cacheDir, "agent-session-${System.currentTimeMillis()}.md")
+        file.writeText(markdown, java.nio.charset.Charsets.UTF_8)
+        val uri = androidx.core.content.FileProvider.getUriForFile(
+            context, "${context.packageName}.fileprovider", file
+        )
+        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+            type = "text/markdown"
+            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(android.content.Intent.createChooser(intent, "Export Agent Session"))
+    } catch (e: Exception) {
+        com.rk.utils.toast("Export failed: ${e.message}")
+    }
+}
 
             if (model.isNotBlank()) {
                 Spacer(Modifier.width(6.dp))
@@ -506,6 +544,11 @@ private fun QuickActions(
             AssistChip(
                 onClick = { onAction(prompt("Write documentation")) },
                 label = { Text("Document", style = MaterialTheme.typography.labelSmall) },
+                shape = RoundedCornerShape(16.dp),
+            )
+            AssistChip(
+                onClick = { onAction("/export") },
+                label = { Text("Export", style = MaterialTheme.typography.labelSmall) },
                 shape = RoundedCornerShape(16.dp),
             )
             AssistChip(

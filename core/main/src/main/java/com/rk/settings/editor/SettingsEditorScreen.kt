@@ -258,6 +258,13 @@ fun SettingsEditorScreen(navController: NavController) {
             }
 
             EditorSettingsToggle(
+                label = stringResource(strings.ai_project_config),
+                description = stringResource(strings.ai_project_config_desc),
+                default = Settings.ai_project_config_enabled,
+                sideEffect = { Settings.ai_project_config_enabled = it },
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(strings.gemini_auto_apply),
                 description = stringResource(strings.gemini_auto_apply_desc),
                 default = Settings.ai_auto_apply,
