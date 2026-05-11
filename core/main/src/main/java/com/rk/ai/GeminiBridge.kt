@@ -15,7 +15,7 @@ import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import com.rk.utils.getTempDir
-import android.os.Log
+import android.util.Log
 import android.os.Looper
 import java.io.File
 import java.io.PipedInputStream
