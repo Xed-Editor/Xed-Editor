@@ -70,6 +70,7 @@ object Settings {
     var terminate_sessions_on_exit by CachedPreference("terminate_sessions_on_exit", false)
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
+    var gemini_auto_apply by CachedPreference("gemini_auto_apply", false)
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
     var textmate_suggestions by CachedPreference("textmate_suggestions", true)
     var seccomp by CachedPreference("seccomp", false)

@@ -158,15 +158,6 @@ fun UnifiedGeminiSheet(
         consumePendingPrompt()?.let { handleInput(it) }
     }
 
-    LaunchedEffect(GeminiSessionManager.session) {
-        while (true) {
-            val session = GeminiSessionManager.session
-            if (session != null && session.isRunning) {
-                refreshCleanEditors()
-            }
-            delay(3000)
-        }
-    }
     GeminiCliSheet(
         onDismissRequest = onDismissRequest,
         cwd = defaultCwd,

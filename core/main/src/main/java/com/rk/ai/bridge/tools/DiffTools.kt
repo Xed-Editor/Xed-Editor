@@ -31,3 +31,14 @@ class CloseDiffTool : McpTool {
         return JsonObject().apply { addProperty("content", content) }.let { jsonResult(it) }
     }
 }
+
+class RejectDiffTool : McpTool {
+    override fun getName(): String = "rejectDiff"
+    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+        val filePath = args.get("filePath")?.asString.orEmpty()
+        if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
+        val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
+        ideService.rejectPatch(file.absolutePath)
+        return textResult("Rejected patch for ${file.absolutePath}")
+    }
+}

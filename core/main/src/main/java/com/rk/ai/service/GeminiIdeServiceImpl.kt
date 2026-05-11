@@ -10,6 +10,7 @@ import com.rk.ai.geminiIdeWorkspacePath
 import com.rk.ai.geminiResolveWorkspacePath
 import com.rk.exec.ShellUtils
 import com.rk.file.FileWrapper
+import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.GeminiEditorPatch
 import com.rk.utils.toast
@@ -18,9 +19,11 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.viewModelScope
 
 interface GeminiNotificationSender {
     fun sendNotification(method: String, params: JsonObject)
@@ -108,14 +111,22 @@ class GeminiIdeServiceImpl(
         title: String,
         onApply: () -> Unit
     ) {
-        runBlocking(Dispatchers.Main) {
+        if (Settings.gemini_auto_apply) {
+            onApply()
+            notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                addProperty("filePath", filePath)
+            })
+            return
+        }
+
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
             var tab = findTabByPath(filePath)
             if (tab == null) {
                 viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
                 tab = findTabByPath(filePath)
             }
 
-            if (tab == null) return@runBlocking
+            if (tab == null) return@launch
 
             // Reject existing patch if any
             tab.editorState.pendingGeminiPatch?.reject?.invoke()
@@ -146,6 +157,16 @@ class GeminiIdeServiceImpl(
                         notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply { addProperty("filePath", filePath) })
                     },
                 )
+        }
+    }
+
+    override fun rejectPatch(filePath: String) {
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            val tab = findTabByPath(filePath)
+            tab?.let {
+                it.editorState.pendingGeminiPatch?.reject?.invoke()
+                it.editorState.pendingGeminiPatch = null
+            }
         }
     }
 
@@ -197,7 +218,7 @@ class GeminiIdeServiceImpl(
     }
 
     override fun openFile(file: File) {
-        runBlocking(Dispatchers.Main) {
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
             viewModel.editorManager.openFile(FileWrapper(file), projectRoot = null, switchToTab = true)
         }
     }
@@ -232,8 +253,24 @@ class GeminiIdeServiceImpl(
 
     override fun replaceSelection(newContent: String) {
         val current = viewModel.currentTab as? EditorTab ?: return
-        runBlocking(Dispatchers.Main) {
-            val editor = current.editorState.editor.get() ?: return@runBlocking
+        
+        if (Settings.gemini_auto_apply) {
+            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                val editor = current.editorState.editor.get() ?: return@launch
+                val hasSelection = editor.isTextSelected
+                val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
+                val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
+                editor.text.replace(start, end, newContent)
+                current.editorState.isDirty = true
+                notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                    addProperty("filePath", current.file.getAbsolutePath())
+                })
+            }
+            return
+        }
+
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            val editor = current.editorState.editor.get() ?: return@launch
             val hasSelection = editor.isTextSelected
             val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
             val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
@@ -249,7 +286,7 @@ class GeminiIdeServiceImpl(
                     oldText = oldText,
                     newText = newContent,
                     apply = {
-                        runBlocking(Dispatchers.Main) {
+                        viewModel.viewModelScope.launch(Dispatchers.Main) {
                             editor.text.replace(start, end, newContent)
                             current.editorState.isDirty = true
                             notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
@@ -268,8 +305,23 @@ class GeminiIdeServiceImpl(
 
     override fun insertAtCursor(newContent: String) {
         val current = viewModel.currentTab as? EditorTab ?: return
-        runBlocking(Dispatchers.Main) {
-            val editor = current.editorState.editor.get() ?: return@runBlocking
+        
+        if (Settings.gemini_auto_apply) {
+            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                val editor = current.editorState.editor.get() ?: return@launch
+                val line = editor.cursor.leftLine
+                val column = editor.cursor.leftColumn
+                editor.text.insert(line, column, newContent)
+                current.editorState.isDirty = true
+                notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                    addProperty("filePath", current.file.getAbsolutePath())
+                })
+            }
+            return
+        }
+
+        viewModel.viewModelScope.launch(Dispatchers.Main) {
+            val editor = current.editorState.editor.get() ?: return@launch
             val line = editor.cursor.leftLine
             val column = editor.cursor.leftColumn
 
@@ -283,7 +335,7 @@ class GeminiIdeServiceImpl(
                     oldText = "",
                     newText = newContent,
                     apply = {
-                        runBlocking(Dispatchers.Main) {
+                        viewModel.viewModelScope.launch(Dispatchers.Main) {
                             editor.text.insert(line, column, newContent)
                             current.editorState.isDirty = true
                             notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {

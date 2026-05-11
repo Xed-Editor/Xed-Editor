@@ -68,6 +68,7 @@ class GeminiBridgeServer(
             register(RefreshFileTool())
             register(OpenDiffTool())
             register(CloseDiffTool())
+            register(RejectDiffTool())
             register(RunCommandTool())
             register(ShowMessageTool())
         }

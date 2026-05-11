@@ -18,8 +18,14 @@ internal fun geminiIdeWorkspacePath(primary: String): String {
         variants.add(canonicalPrimary.replace("/sdcard", "/storage/emulated/0"))
     }
 
-    return (variants + fallbackWorkspaceRoots)
-        .filter { it.isNotBlank() }
+    val roots = if (com.rk.settings.Settings.sandbox) {
+        // In sandbox mode, only include the internal home and the specific variants
+        (variants + "/home").filter { it.isNotBlank() }
+    } else {
+        (variants + fallbackWorkspaceRoots).filter { it.isNotBlank() }
+    }
+
+    return roots
         .distinct()
         .joinToString(File.pathSeparator)
 }

@@ -24,6 +24,9 @@ interface GeminiIdeService {
         onApply: () -> Unit
     )
 
+    /** Rejects a pending patch for the given file path. */
+    fun rejectPatch(filePath: String)
+
     /** Directly writes text to a file and refreshes any associated editor tab. */
     fun writeFile(file: File, content: String)
 
