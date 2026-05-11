@@ -853,16 +853,14 @@ class IdeServiceImpl(
                 val builder = FileRepositoryBuilder().readEnvironment().findGitDir(repoDir)
                 val repo = builder.build()
                 if (repo.directory == null) return@withContext "not a git repository"
-                val workTree = repo.workTree
-
                 Git(repo).use { git ->
                     val diff = git.diff().call()
-                    val output = StringBuilder()
-                    val formatter = org.eclipse.jgit.diff.DiffFormatter(java.io.StringWriter())
+                    val baos = java.io.ByteArrayOutputStream()
+                    val formatter = org.eclipse.jgit.diff.DiffFormatter(baos)
                     formatter.setRepository(repo)
                     formatter.format(diff)
-                    val text = formatter.toString()
                     formatter.close()
+                    val text = baos.toString(Charsets.UTF_8.name())
                     text.ifEmpty { "no changes" }
                 }
             }.getOrElse { "error: ${it.message}" }
