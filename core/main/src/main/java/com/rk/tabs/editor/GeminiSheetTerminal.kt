@@ -37,8 +37,6 @@ import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.setupTerminalFiles
-import com.rk.terminal.terminalView
-import com.rk.terminal.virtualKeysView
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.virtualkeys.VirtualKeysListener
@@ -290,11 +288,11 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
         AndroidView(
             modifier = Modifier.fillMaxWidth().height(terminalBodyHeight),
             factory = { context ->
-                terminalView(context).apply {
+                TerminalView(context, null).apply {
                     setTextSize(Settings.terminal_font_size)
                     runCatching {
                         val fontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
-                        typeface = FontCache.getTypeface(context, fontPath) ?: Typeface.MONOSPACE
+                        typeface = FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset) ?: Typeface.MONOSPACE
                     }
                     applyGeminiSheetTerminalColors(
                         onSurfaceColor = colorScheme.onSurface.toArgb(),
@@ -314,18 +312,22 @@ fun GeminiSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier
             },
         )
 
-        VirtualKeysView(
+        AndroidView(
             modifier = Modifier.fillMaxWidth().height(keysHeight),
-            onInit = { keys ->
-                keys.mColors = VirtualKeysConstants.VirtualKeysColors(colorScheme.surface.toArgb(), colorScheme.onSurface.toArgb())
-                keys.virtualKeysInfo = VirtualKeysInfo(activity = it as Activity)
-                keys.buttonTextColor = colorScheme.onSurface.toArgb()
-                keys.reload()
-                virtualKeysView = WeakReference(keys)
+            factory = { context ->
+                VirtualKeysView(context, null).apply {
+                    mColors = VirtualKeysConstants.VirtualKeysColors(colorScheme.surface.toArgb(), colorScheme.onSurface.toArgb())
+                    virtualKeysInfo = VirtualKeysInfo(
+                        Settings.terminal_extra_keys,
+                        "",
+                        VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                    )
+                    buttonTextColor = colorScheme.onSurface.toArgb()
+                    reload()
+                }
             },
             update = { keys ->
-                virtualKeysView = WeakReference(keys)
-                keys.virtualKeysViewClient = VirtualKeysListener(session)
+                keys.virtualKeysViewClient = session?.let { VirtualKeysListener(it) }
                 keys.buttonTextColor = colorScheme.onSurface.toArgb()
             },
         )

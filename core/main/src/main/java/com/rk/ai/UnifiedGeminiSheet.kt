@@ -4,11 +4,10 @@ import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.RestartAlt
-import androidx.compose.material.icons.outlined.Stop
-import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -180,7 +179,7 @@ fun UnifiedGeminiSheet(
         modifier = modifier,
         controls = {
             IconButton(onClick = { startGemini(defaultCwd, forceRestart = true) }) { 
-                Icon(Icons.Outlined.RestartAlt, contentDescription = "Restart", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(Icons.Outlined.Replay, contentDescription = "Restart", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             IconButton(onClick = { startGemini(defaultCwd, listOf("--prompt-interactive", "/auth"), forceRestart = true) }) { 
                 Icon(Icons.Outlined.Lock, contentDescription = "Auth", tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -191,7 +190,7 @@ fun UnifiedGeminiSheet(
                     withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
                 }
             }) { 
-                Icon(Icons.Outlined.Sync, contentDescription = "Sync", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(Icons.Outlined.Refresh, contentDescription = "Sync", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             IconButton(onClick = {
                 refreshCleanEditors()
@@ -203,7 +202,7 @@ fun UnifiedGeminiSheet(
                 GeminiSessionManager.stopSession()
                 appendLog("Gemini CLI stopped.")
             }) { 
-                Icon(Icons.Outlined.Stop, contentDescription = "Stop", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
+                Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
             }
         },
     )

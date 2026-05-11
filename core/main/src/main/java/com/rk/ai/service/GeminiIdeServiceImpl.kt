@@ -42,14 +42,14 @@ class GeminiIdeServiceImpl(
         if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
             resolveRelativePathFromOpenEditor(normalized)?.let { return it }
         }
-        return geminiResolveWorkspacePath(workspacePathForResolution(), path)
+        return geminiResolveWorkspacePath(GeminiBridge.workspacePathForResolution(), path)
     }
 
     private fun resolveRelativePathFromOpenEditor(path: String): File? {
         val activeTab = viewModel.currentTab as? EditorTab
         val activeBase = activeTab?.let { File(it.file.getAbsolutePath()).parentFile }
         activeBase?.let { parent ->
-            geminiResolveWorkspacePath(workspacePathForResolution(), File(parent, path).path)?.let { return it }
+            geminiResolveWorkspacePath(GeminiBridge.workspacePathForResolution(), File(parent, path).path)?.let { return it }
         }
 
         val exactMatches = viewModel.tabs
@@ -57,7 +57,7 @@ class GeminiIdeServiceImpl(
             .mapNotNull { tab ->
                 val tabFile = File(tab.file.getAbsolutePath())
                 if (tabFile.path.endsWith(File.separator + path)) {
-                    geminiResolveWorkspacePath(workspacePathForResolution(), tabFile.path)
+                    geminiResolveWorkspacePath(GeminiBridge.workspacePathForResolution(), tabFile.path)
                 } else {
                     null
                 }
@@ -73,7 +73,7 @@ class GeminiIdeServiceImpl(
     override fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> {
         if (!directory.exists() || !directory.isDirectory) return emptyList()
         val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules")
-        val root = geminiDisplayRootFor(workspacePathForResolution(), directory)
+        val root = geminiDisplayRootFor(GeminiBridge.workspacePathForResolution(), directory)
         val output = mutableListOf<String>()
 
         fun visit(current: File) {
@@ -322,7 +322,7 @@ class GeminiIdeServiceImpl(
 
     override suspend fun runCommand(command: String, timeoutSeconds: Long): CommandResult {
         val result = ShellUtils.runUbuntu(
-            primaryWorkspacePath(),
+            GeminiBridge.primaryWorkspacePath(),
             "/bin/bash",
             "-lc",
             command,
@@ -336,7 +336,7 @@ class GeminiIdeServiceImpl(
         )
     }
 
-    override fun getPrimaryWorkspacePath(): String = primaryWorkspacePath()
+    override fun getPrimaryWorkspacePath(): String = GeminiBridge.primaryWorkspacePath()
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)

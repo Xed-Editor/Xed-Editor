@@ -15,7 +15,7 @@ class OpenDiffTool : McpTool {
         
         val accepted = ideService.showPatch(file.absolutePath, oldContent, newContent, "Review Gemini file change") {
             ideService.writeFile(file, newContent)
-            ideService.refreshEditors(onlyClean = true)
+            ideService.refreshEditors(force = false)
         }
         
         return if (accepted) {
