@@ -50,6 +50,7 @@ import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.InlayHintClickEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.event.LayoutStateChangeEvent
+import org.eclipse.lsp4j.Diagnostic
 import io.github.rosemoe.sora.event.PublishDiagnosticsEvent
 import io.github.rosemoe.sora.lang.styling.inlayHint.ColorInlayHint
 import io.github.rosemoe.sora.text.CharPosition
@@ -198,7 +199,7 @@ fun Editor.registerXedEvents(
         val viewModel = fileTreeViewModel.get()
         val diagnostics = event.newDiagnosticsEvent
 
-        editorTab.editorState.diagnostics = diagnostics
+        editorTab.editorState.diagnostics = diagnostics.map { it.diagnostic }
 
         val highestSeverity = diagnostics.maxOfOrNull { it.severity.toInt() }
 

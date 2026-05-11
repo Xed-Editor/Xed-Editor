@@ -494,14 +494,12 @@ class GeminiIdeServiceImpl(
                         })
                     })
                     diag.code?.let { code ->
-                        addProperty(
-                            "code",
-                            if (code.isLeft) {
-                                code.left
-                            } else {
-                                code.right.value
-                            }
-                        )
+                        val codeValue: String = if (code.isLeft) {
+                            code.left
+                        } else {
+                            code.right.value.toString()
+                        }
+                        addProperty("code", codeValue)
                     }
                     diag.source?.let { addProperty("source", it) }
                 })
