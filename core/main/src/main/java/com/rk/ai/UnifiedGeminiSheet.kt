@@ -56,6 +56,7 @@ fun UnifiedGeminiSheet(
     }
 
     val defaultCwd = remember(viewModel.currentTab, currentDrawerTab) { currentProjectDir() }
+    var isToolActive by remember { mutableStateOf(false) }
 
     fun appendLog(text: String) {
         viewModel.geminiCliTranscript =
@@ -63,6 +64,7 @@ fun UnifiedGeminiSheet(
                 .filter { it.isNotBlank() }
                 .joinToString("\n\n")
     }
+
 
     suspend fun saveDirtyEditors(): Int {
         val dirtyTabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }

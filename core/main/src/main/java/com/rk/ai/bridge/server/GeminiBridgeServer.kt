@@ -247,8 +247,9 @@ synchronized(sseLock) {
         val args = params.getAsJsonObject("arguments") ?: JsonObject()
         
         return try {
-            val result = toolRegistry.execute(name, args)
-                ?: return errorJson(id, -32601, "unknown tool: $name")
+            val result = runBlocking {
+                toolRegistry.execute(name, args)
+            } ?: return errorJson(id, -32601, "unknown tool: $name")
             resultJson(id, result)
         } catch (e: Exception) {
             errorJson(id, -32603, e.message ?: "internal error")
@@ -282,7 +283,7 @@ synchronized(sseLock) {
             add("workspaceState", JsonObject().apply {
                 addProperty("isTrusted", true)
                 add("openFiles", JsonArray().apply {
-                    ideService.getOpenFiles().forEach { add(it) }
+                    runBlocking { ideService.getOpenFiles() }.forEach { add(it) }
                 })
             })
         }
