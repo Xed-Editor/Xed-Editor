@@ -453,7 +453,7 @@ fun createGeminiSheetSession(
         args,
         buildGeminiSheetEnv(activity, workingDir, bridge),
         Settings.terminal_scrollback_buffer,
-        null, // Client will be attached by TerminalView
+        TerminalBackEnd(), // Safe default client to avoid NPE during initialization
     ).also { it.mSessionName = "gemini-sheet" }
 }
 
