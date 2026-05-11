@@ -136,14 +136,16 @@ class GeminiBridgeServer(
         val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
         val targetFile = oldFile ?: newFile
         val oldContent = oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
-            ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
+            ?: runBlocking { ideService.getFileContent(targetFile.absolutePath) }.orEmpty()
         val newContent = runCatching { newFile.readText() }.getOrElse {
             return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, it.message ?: "cannot read newPath"))
         }
 
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review Gemini editor change") {
-            ideService.writeFile(targetFile, newContent)
-            ideService.refreshEditors(targetFile.absolutePath, force = false)
+            runBlocking {
+                ideService.writeFile(targetFile, newContent)
+                ideService.refreshEditors(targetFile.absolutePath, force = false)
+            }
         }
 
         return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })

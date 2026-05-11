@@ -335,8 +335,12 @@ class FileTreeViewModel : ViewModel() {
         expandedNodes[projectFile] = true
     }
 
-    suspend fun refreshEverything() =
-        withContext(Dispatchers.IO) { fileListCache.keys.toList().forEach { updateCache(it) } }
+    suspend fun refreshEverything() {
+        withContext(Dispatchers.IO) {
+            val keys = fileListCache.keys.toList()
+            keys.forEach { updateCache(it) }
+        }
+    }
 
     fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> {
         return fileListCache[node.file] ?: emptyList()

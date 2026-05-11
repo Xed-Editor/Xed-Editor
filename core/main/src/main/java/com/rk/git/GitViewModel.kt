@@ -28,6 +28,11 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
+
 class GitViewModel : ViewModel() {
     var currentRoot = mutableStateOf<File?>(null)
     var currentBranch by mutableStateOf("")
@@ -36,6 +41,10 @@ class GitViewModel : ViewModel() {
     var amends = mutableStateMapOf<String, Boolean>()
 
     var isLoading by mutableStateOf(false)
+
+    private val syncJobs = ConcurrentHashMap<String, Job>()
+    private val gitRootCache = ConcurrentHashMap<String, String>()
+    private val syncMutex = Mutex()
 
     fun loadRepository(root: String) {
         try {
@@ -88,38 +97,43 @@ class GitViewModel : ViewModel() {
     }
 
     fun toggleChange(change: GitChange) {
-        changes[currentRoot.value!!.absolutePath] =
-            changes[currentRoot.value!!.absolutePath]!!.map {
+        val gitRoot = currentRoot.value?.absolutePath ?: return
+        changes[gitRoot] =
+            changes[gitRoot]?.map {
                 if (it.path == change.path) it.copy(isChecked = !it.isChecked) else it
-            }
+            } ?: emptyList()
     }
 
     fun addChange(change: GitChange) {
-        changes[currentRoot.value!!.absolutePath] =
-            changes[currentRoot.value!!.absolutePath]!!.map {
+        val gitRoot = currentRoot.value?.absolutePath ?: return
+        changes[gitRoot] =
+            changes[gitRoot]?.map {
                 if (it.path == change.path) it.copy(isChecked = true) else it
-            }
+            } ?: emptyList()
     }
 
     fun removeChange(change: GitChange) {
-        changes[currentRoot.value!!.absolutePath] =
-            changes[currentRoot.value!!.absolutePath]!!.map {
+        val gitRoot = currentRoot.value?.absolutePath ?: return
+        changes[gitRoot] =
+            changes[gitRoot]?.map {
                 if (it.path == change.path) it.copy(isChecked = false) else it
-            }
+            } ?: emptyList()
     }
 
     fun changeCommitMessage(message: String) {
-        commitMessages[currentRoot.value!!.absolutePath] = message
+        val gitRoot = currentRoot.value?.absolutePath ?: return
+        commitMessages[gitRoot] = message
     }
 
     fun toggleAmend(amend: Boolean) {
-        amends[currentRoot.value!!.absolutePath] = amend
+        val gitRoot = currentRoot.value?.absolutePath ?: return
+        amends[gitRoot] = amend
     }
 
     fun getChangeType(path: String): ChangeType? {
-        changes.forEach { (gitRoot, changes) ->
+        changes.forEach { (gitRoot, repoChanges) ->
             if (path.startsWith(gitRoot)) {
-                return changes.find { change -> change.absolutePath == path }?.type
+                return repoChanges.find { change -> change.absolutePath == path }?.type
             }
         }
         return null
@@ -299,61 +313,90 @@ class GitViewModel : ViewModel() {
         return viewModelScope.launch {
             if (!InbuiltFeatures.git.state.value) return@launch
 
-            val gitRoot = findGitRoot(root)
+            val gitRoot = gitRootCache[root] ?: withContext(Dispatchers.IO) { findGitRoot(root) }
             if (gitRoot != null) {
-                syncChanges(File(gitRoot)).join()
+                gitRootCache[root] = gitRoot
+                syncChanges(File(gitRoot))
             }
         }
     }
 
     fun syncChanges(root: File): Job {
-        return viewModelScope.launch(Dispatchers.IO) {
-            if (!InbuiltFeatures.git.state.value) return@launch
-
-            withContext(Dispatchers.Main) { isLoading = true }
-            try {
-                val newChanges = mutableListOf<GitChange>()
-                Git.open(root).use { git ->
-                    val status = git.status().call()
-                    fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
-                    newChanges.addAll(status.added.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) })
-                    newChanges.addAll(
-                        status.changed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
-                    )
-                    newChanges.addAll(
-                        status.modified.map { GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED) }
-                    )
-                    newChanges.addAll(
-                        status.removed.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) }
-                    )
-                    newChanges.addAll(
-                        status.missing.map { GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED) }
-                    )
-                    newChanges.addAll(
-                        status.untracked.map { GitChange(it, fullPath(it).absolutePath, ChangeType.UNTRACKED) }
-                    )
-                    newChanges.addAll(
-                        status.conflicting.map { GitChange(it, fullPath(it).absolutePath, ChangeType.CONFLICTING) }
-                    )
-                }
-                val gitRoot = root.absolutePath
-                val oldChanges = changes[gitRoot]
-                val mergedChanges =
-                    if (oldChanges != null) {
-                        val oldMap = oldChanges.associateBy { it.path }
-                        newChanges.map { newChange ->
-                            oldMap[newChange.path]?.let { newChange.copy(isChecked = it.isChecked) } ?: newChange
-                        }
-                    } else {
-                        newChanges
-                    }
-                changes[gitRoot] = mergedChanges
-            } catch (e: Exception) {
-                toast(e.message)
-            } finally {
-                withContext(Dispatchers.Main) { isLoading = false }
-            }
+        val absolutePath = root.absolutePath
+        val existingJob = syncJobs[absolutePath]
+        if (existingJob != null && existingJob.isActive) {
+            return existingJob
         }
+
+        val job =
+            viewModelScope.launch(Dispatchers.IO) {
+                if (!InbuiltFeatures.git.state.value) return@launch
+                delay(500) // Debounce
+
+                syncMutex.withLock {
+                    withContext(Dispatchers.Main) { isLoading = true }
+                    try {
+                        val newChanges = mutableListOf<GitChange>()
+                        Git.open(root).use { git ->
+                            val status = git.status().call()
+                            fun fullPath(relativePath: String) = File(root, relativePath).absoluteFile
+                            newChanges.addAll(
+                                status.added.map { GitChange(it, fullPath(it).absolutePath, ChangeType.ADDED) }
+                            )
+                            newChanges.addAll(
+                                status.changed.map {
+                                    GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED)
+                                }
+                            )
+                            newChanges.addAll(
+                                status.modified.map {
+                                    GitChange(it, fullPath(it).absolutePath, ChangeType.MODIFIED)
+                                }
+                            )
+                            newChanges.addAll(
+                                status.removed.map {
+                                    GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED)
+                                }
+                            )
+                            newChanges.addAll(
+                                status.missing.map {
+                                    GitChange(it, fullPath(it).absolutePath, ChangeType.DELETED)
+                                }
+                            )
+                            newChanges.addAll(
+                                status.untracked.map {
+                                    GitChange(it, fullPath(it).absolutePath, ChangeType.UNTRACKED)
+                                }
+                            )
+                            newChanges.addAll(
+                                status.conflicting.map {
+                                    GitChange(it, fullPath(it).absolutePath, ChangeType.CONFLICTING)
+                                }
+                            )
+                        }
+                        val gitRoot = root.absolutePath
+                        val oldChanges = changes[gitRoot]
+                        val mergedChanges =
+                            if (oldChanges != null) {
+                                val oldMap = oldChanges.associateBy { it.path }
+                                newChanges.map { newChange ->
+                                    oldMap[newChange.path]?.let { newChange.copy(isChecked = it.isChecked) }
+                                        ?: newChange
+                                }
+                            } else {
+                                newChanges
+                            }
+                        withContext(Dispatchers.Main) { changes[gitRoot] = mergedChanges }
+                    } catch (e: Exception) {
+                        toast(e.message)
+                    } finally {
+                        withContext(Dispatchers.Main) { isLoading = false }
+                        syncJobs.remove(absolutePath)
+                    }
+                }
+            }
+        syncJobs[absolutePath] = job
+        return job
     }
 
     fun commit(): Job {
@@ -361,7 +404,8 @@ class GitViewModel : ViewModel() {
             withContext(Dispatchers.Main) { isLoading = true }
             try {
                 Git.open(currentRoot.value).use { git ->
-                    changes[currentRoot.value!!.absolutePath]!!
+                    val rootPath = currentRoot.value?.absolutePath ?: return@use
+                    changes[rootPath]!!
                         .filter { it.isChecked }
                         .forEach { change ->
                             when (change.type) {
@@ -375,8 +419,8 @@ class GitViewModel : ViewModel() {
                     git.commit()
                         .setAuthor(Settings.git_name, Settings.git_email)
                         .setCommitter(Settings.git_name, Settings.git_email)
-                        .setMessage(commitMessages[currentRoot.value!!.absolutePath])
-                        .setAmend(amends[currentRoot.value!!.absolutePath]!!)
+                        .setMessage(commitMessages[rootPath])
+                        .setAmend(amends[rootPath]!!)
                         .call()
                     toast(strings.commit_complete)
                 }

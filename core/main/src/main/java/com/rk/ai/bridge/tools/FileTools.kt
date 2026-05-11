@@ -7,7 +7,7 @@ import java.io.File
 
 class ReadFileTool : McpTool {
     override fun getName(): String = "readFile"
-    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
         val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
@@ -18,7 +18,7 @@ class ReadFileTool : McpTool {
 
 class WriteFileTool : McpTool {
     override fun getName(): String = "writeFile"
-    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         val content = args.get("content")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
@@ -36,7 +36,7 @@ class WriteFileTool : McpTool {
 
 class ListFilesTool : McpTool {
     override fun getName(): String = "listFiles"
-    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
         val dirPath = args.get("directoryPath")?.asString.orEmpty()
         val dir = ideService.resolvePath(dirPath) ?: throw IllegalArgumentException("path outside workspace")
         val recursive = args.get("recursive")?.asBoolean ?: false
@@ -48,7 +48,7 @@ class ListFilesTool : McpTool {
 
 class OpenFileTool : McpTool {
     override fun getName(): String = "openFile"
-    override fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
+    override suspend fun execute(args: JsonObject, ideService: GeminiIdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
         val file = ideService.resolvePath(filePath) ?: throw IllegalArgumentException("path outside workspace")
