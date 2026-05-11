@@ -16,7 +16,8 @@ import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.GeminiEditorPatch
 import com.rk.utils.toast
-import com.rk.xededitor.application
+import com.rk.utils.application
+import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -405,7 +406,7 @@ class GeminiIdeServiceImpl(
         val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
         
         withContext(Dispatchers.IO) {
-            val app = com.rk.App.application!!
+            val app = application!!
             searchViewModel.searchCode(
                 context = app,
                 mainViewModel = viewModel,
@@ -430,7 +431,7 @@ class GeminiIdeServiceImpl(
         val projectRoot = File(GeminiBridge.primaryWorkspacePath()).toFileWrapper()
 
         withContext(Dispatchers.IO) {
-            val app = com.rk.App.application!!
+            val app = application!!
             val fileMetas = searchViewModel.searchFileName(
                 context = app,
                 projectRoot = projectRoot,
