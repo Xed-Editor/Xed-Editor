@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
@@ -573,9 +574,14 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 )
                                 if (result != null) {
                                     withContext(Dispatchers.Main) {
+                                        val offset = runCatching { editor.getOffset(result.line, result.column) }.getOrNull()
                                         editorState.ghostText = result.text
                                         editorState.ghostCursorLine = result.line
                                         editorState.ghostCursorColumn = result.column
+                                        if (offset != null && offset.size >= 2) {
+                                            editorState.ghostCursorX = offset[0].toFloat()
+                                            editorState.ghostCursorY = offset[1].toFloat()
+                                        }
                                     }
                                 }
                             }
@@ -584,11 +590,13 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
                     val ghostText = editorState.ghostText
                     if (ghostText != null) {
+                        val density = LocalDensity.current
+                        val xDp = with(density) { editorState.ghostCursorX.toDp() }
+                        val yDp = with(density) { editorState.ghostCursorY.toDp() }
                         Text(
                             text = ghostText,
                             modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .offset(x = 8.dp, y = 8.dp)
+                                .offset(x = xDp, y = yDp)
                                 .alpha(0.4f),
                             fontFamily = FontFamily.Monospace,
                             fontSize = MaterialTheme.typography.bodySmall.fontSize,

@@ -76,7 +76,7 @@ object Settings {
     var ai_profiles_json by CachedPreference("ai_profiles_json", "")
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)
     var ai_api_key by CachedPreference("ai_api_key", "")
-    var ai_inline_completion by CachedPreference("ai_inline_completion", false)
+    var ai_inline_completion by CachedPreference("ai_inline_completion", true)
     var ai_completion_url by CachedPreference("ai_completion_url", "")
     var ai_completion_model by CachedPreference("ai_completion_model", "")
     var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
