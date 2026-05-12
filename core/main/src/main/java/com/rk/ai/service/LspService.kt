@@ -11,6 +11,7 @@ import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class LspService(private val viewModel: MainViewModel) {
