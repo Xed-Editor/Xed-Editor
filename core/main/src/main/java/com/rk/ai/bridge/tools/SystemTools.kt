@@ -1,21 +1,24 @@
 package com.rk.ai.bridge.tools
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.ai.IdeBridge
 import com.rk.ai.bridge.McpTool
 import com.rk.ai.service.IdeService
+import com.rk.utils.application
 
 class GetIdeInfoTool : McpTool {
     override fun getName(): String = "getIdeInfo"
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val info = IdeBridge.getBridgeInfo()
+        val version = runCatching { application?.packageManager?.getPackageInfo(application!!.packageName, 0)?.versionName }.getOrNull().orEmpty()
         return JsonObject().apply {
-            add("content", com.google.gson.JsonArray().apply {
-                add(com.google.gson.JsonObject().apply {
+            add("content", JsonArray().apply {
+                add(JsonObject().apply {
                     addProperty("type", "text")
                     addProperty("text", JsonObject().apply {
                         addProperty("name", "Xed Editor")
-                        addProperty("version", com.rk.xededitor.BuildConfig.VERSION_NAME)
+                        addProperty("version", version)
                         addProperty("bridgePort", info?.port ?: -1)
                         addProperty("bridgeRunning", IdeBridge.isRunning())
                         addProperty("clients", IdeBridge.connectedClients())
