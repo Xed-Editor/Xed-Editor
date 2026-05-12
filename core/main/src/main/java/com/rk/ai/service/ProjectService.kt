@@ -82,7 +82,7 @@ class ProjectService(private val viewModel: MainViewModel) {
                 .onEnter { it.name !in ignored && !it.isHidden }
                 .forEach { child ->
                     if (count >= maxItems || child == dir) return@forEach
-                    val depth = child.relativeTo(dir).nameCount
+                    val depth = child.toRelativeString(dir).split(File.separator).size
                     val indent = "  ".repeat(depth.coerceAtMost(maxDepth))
                     output.appendLine("$indent${if (child.isDirectory) "[D]" else "[F]"} ${child.name}")
                     count++

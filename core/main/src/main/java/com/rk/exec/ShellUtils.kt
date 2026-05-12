@@ -105,7 +105,7 @@ object ShellUtils {
 
             val outputThread = Thread {
                 runCatching {
-                    process.inputStream.bufferedReader(BUFFER_SIZE).forEachLine { line ->
+                    process.inputStream.bufferedReader(Charsets.UTF_8, BUFFER_SIZE).forEachLine { line ->
                         output.appendLine(line)
                         onStdout(line)
                     }
@@ -113,7 +113,7 @@ object ShellUtils {
             }
             val errorThread = Thread {
                 runCatching {
-                    process.errorStream.bufferedReader(BUFFER_SIZE).forEachLine { line ->
+                    process.errorStream.bufferedReader(Charsets.UTF_8, BUFFER_SIZE).forEachLine { line ->
                         error.appendLine(line)
                         onStderr(line)
                     }
