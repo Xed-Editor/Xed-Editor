@@ -32,11 +32,11 @@ if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
 import json, sys
 with open('$CONFIG_FILE') as f:
     cfg = json.load(f)
-# Remove legacy 'mcp' format to avoid duplicates
-cfg.pop('mcp', None)
-ms = cfg.setdefault('mcpServers', {})
+# Remove legacy formats
+cfg.pop('mcpServers', None)
+ms = cfg.setdefault('mcp', {})
 ms['xed-ide'] = {
-    'type': 'http',
+    'type': 'remote',
     'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
     'enabled': True,
     'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
@@ -47,9 +47,9 @@ with open('$CONFIG_FILE', 'w') as f:
       # fallback: write new config
       cat > "$CONFIG_FILE" << OC_CONFIG
 {
-  "mcpServers": {
+  "mcp": {
     "xed-ide": {
-      "type": "http",
+      "type": "remote",
       "url": "http://127.0.0.1:${IDE_PORT}/mcp",
       "enabled": true,
       "headers": {
@@ -63,9 +63,9 @@ OC_CONFIG
   else
     cat > "$CONFIG_FILE" << OC_CONFIG
 {
-  "mcpServers": {
+  "mcp": {
     "xed-ide": {
-      "type": "http",
+      "type": "remote",
       "url": "http://127.0.0.1:${IDE_PORT}/mcp",
       "enabled": true,
       "headers": {
