@@ -20,27 +20,63 @@ export VISUAL=vim
 
 log() { printf '%s\n' "$*" >&2; }
 
-# Wire with Xed Editor IDE bridge via MCP
+# Wire with Xed Editor IDE bridge via MCP (HTTP transport)
 if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
   OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
   mkdir -p "$OPENCODE_CONFIG_DIR"
-  cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
+  CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
+  # Merge with existing config instead of overwriting
+  if [ -f "$CONFIG_FILE" ]; then
+    tmp=$(mktemp)
+    python3 -c "
+import json, sys
+with open('$CONFIG_FILE') as f:
+    cfg = json.load(f)
+# Remove legacy 'mcp' format to avoid duplicates
+cfg.pop('mcp', None)
+ms = cfg.setdefault('mcpServers', {})
+ms['xed-ide'] = {
+    'type': 'http',
+    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
+    'enabled': True,
+    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
+}
+with open('$CONFIG_FILE', 'w') as f:
+    json.dump(cfg, f, indent=2)
+" 2>/dev/null || {
+      # fallback: write new config
+      cat > "$CONFIG_FILE" << OC_CONFIG
 {
-  "mcp": {
+  "mcpServers": {
     "xed-ide": {
-      "type": "remote",
-      "url": "http://127.0.0.1:${IDE_PORT}/sse",
+      "type": "http",
+      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
       "enabled": true,
       "headers": {
         "Authorization": "Bearer ${IDE_TOKEN}"
-      },
-      "timeout": 10000
+      }
     }
   }
 }
 OC_CONFIG
-  log "IDE bridge MCP configured for OpenCode on port $IDE_PORT"
-  # Quick connectivity check (non-blocking)
+    }
+  else
+    cat > "$CONFIG_FILE" << OC_CONFIG
+{
+  "mcpServers": {
+    "xed-ide": {
+      "type": "http",
+      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer ${IDE_TOKEN}"
+      }
+    }
+  }
+}
+OC_CONFIG
+  fi
+  log "IDE bridge MCP configured for OpenCode on port $IDE_PORT (HTTP transport)"
   curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
     log "Bridge health check passed" || \
     log "Warning: bridge health check failed, MCP may be unavailable"

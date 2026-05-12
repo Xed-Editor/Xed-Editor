@@ -57,6 +57,7 @@ class IdeBridgeServer(
 
     private fun registerTools(registry: McpToolRegistry) {
         registry.apply {
+            register(GetIdeInfoTool())
             register(ReadFileTool())
             register(WriteFileTool())
             register(ListFilesTool())
@@ -195,19 +196,22 @@ class IdeBridgeServer(
         val requestedSessionId = session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
         val responseSessionId = resolveMcpSessionId(method, requestedSessionId)
 
-        val responseBody =
-            when (method) {
-                "initialize" -> initializeResult(id, request)
-                "tools/list" -> toolsListResult(id)
-                "tools/call" -> toolsCallResult(id, request)
-                "notifications/initialized" -> resultJson(id, JsonObject())
-                else -> errorJson(id, -32601, "method not found: $method")
-            }
+        val responseBody = dispatchJsonRpc(id, method, request)
 
         return json(Response.Status.OK, responseBody).apply {
             responseSessionId?.let { addHeader(MCP_SESSION_ID_HEADER, it) }
         }
     }
+
+    private fun dispatchJsonRpc(id: JsonElement, method: String, request: JsonObject): String =
+        when (method) {
+            "initialize" -> initializeResult(id, request)
+            "tools/list" -> toolsListResult(id)
+            "tools/call" -> toolsCallResult(id, request)
+            "notifications/initialized" -> resultJson(id, JsonObject())
+            "ping" -> resultJson(id, JsonObject())
+            else -> errorJson(id, -32601, "method not found: $method")
+        }
 
     private fun resolveMcpSessionId(method: String, requestedSessionId: String?): String? {
         if (!requestedSessionId.isNullOrBlank()) {
@@ -225,7 +229,6 @@ class IdeBridgeServer(
     /** Standard MCP HTTP/SSE transport: GET establishes SSE stream */
     private fun serveSseStream(session: IHTTPSession): Response {
         val sessionId = UUID.randomUUID().toString()
-
         val output = PipedOutputStream()
         val writer = PrintWriter(output, true)
 
@@ -236,20 +239,34 @@ class IdeBridgeServer(
 
         val host = session.headers["host"] ?: "127.0.0.1"
 
-        val sseData = StringBuilder()
-        sseData.append("event: endpoint\n")
-        sseData.append("data: http://$host/messages?sessionId=$sessionId\n\n")
-        sseData.append("event: message\n")
-        sseData.append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-        sseData.append("event: message\n")
-        sseData.append("data: ${notificationJson("initialized", JsonObject())}\n\n")
-
-        writer.print(sseData.toString())
+        writer.print("event: endpoint\ndata: http://$host/messages?sessionId=$sessionId\n\n")
+        writer.print("event: message\ndata: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+        writer.print("event: message\ndata: ${notificationJson("initialized", JsonObject())}\n\n")
         writer.flush()
-        writer.close()
+
+        // Heartbeat keep-alive thread
+        Thread {
+            while (!Thread.currentThread().isInterrupted) {
+                try {
+                    Thread.sleep(15000)
+                    synchronized(sseLock) {
+                        val w = sseClients[sessionId] ?: return@synchronized
+                        w.print(": keepalive\n\n")
+                        w.flush()
+                        if (w.checkError()) {
+                            sseClients.remove(sessionId)
+                            connectedClients = sseClients.size
+                            Thread.currentThread().interrupt()
+                        }
+                    }
+                } catch (_: InterruptedException) {
+                    break
+                }
+            }
+        }.apply { isDaemon = true; start() }
 
         val input = PipedInputStream(output)
-        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, sseData.length.toLong()).apply {
+        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, -1).apply {
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")
@@ -276,14 +293,7 @@ class IdeBridgeServer(
         val id = request.get("id") ?: JsonNull.INSTANCE
         val method = request.get("method")?.asString.orEmpty()
 
-        val responseBody = when (method) {
-            "initialize" -> initializeResult(id, request)
-            "tools/list" -> toolsListResult(id)
-            "tools/call" -> toolsCallResult(id, request)
-            "notifications/initialized" -> resultJson(id, JsonObject())
-            "ping" -> resultJson(id, JsonObject())
-            else -> errorJson(id, -32601, "method not found: $method")
-        }
+        val responseBody = dispatchJsonRpc(id, method, request)
 
         // If there's an SSE client for this session, push response through SSE
         val writer = synchronized(sseLock) { sseClients[sessionId] }
@@ -319,18 +329,32 @@ class IdeBridgeServer(
             connectedClients = sseClients.size
         }
 
-        val sseData = StringBuilder()
-        sseData.append("event: message\n")
-        sseData.append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-        sseData.append("event: message\n")
-        sseData.append("data: ${notificationJson("initialized", JsonObject())}\n\n")
-
-        writer.print(sseData.toString())
+        writer.print("event: message\ndata: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+        writer.print("event: message\ndata: ${notificationJson("initialized", JsonObject())}\n\n")
         writer.flush()
-        writer.close()
+
+        Thread {
+            while (!Thread.currentThread().isInterrupted) {
+                try {
+                    Thread.sleep(15000)
+                    synchronized(sseLock) {
+                        val w = sseClients[requestedSessionId] ?: return@synchronized
+                        w.print(": keepalive\n\n")
+                        w.flush()
+                        if (w.checkError()) {
+                            sseClients.remove(requestedSessionId)
+                            connectedClients = sseClients.size
+                            Thread.currentThread().interrupt()
+                        }
+                    }
+                } catch (_: InterruptedException) {
+                    break
+                }
+            }
+        }.apply { isDaemon = true; start() }
 
         val input = PipedInputStream(output)
-        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, sseData.length.toLong()).apply {
+        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, -1).apply {
             addHeader("mcp-session-id", requestedSessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")

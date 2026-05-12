@@ -21,7 +21,7 @@ object IdeBridge {
     private var server: IdeBridgeServer? = null
 
     fun connectedClients(): Int = server?.connectedClients ?: 0
-    fun availableTools(): Int = 28
+    fun availableTools(): Int = IdeMcpTools.list().size()
     private var token: String? = null
     private var port: Int = 0
     private var host: String = "127.0.0.1"
@@ -133,7 +133,7 @@ object IdeBridge {
             }
             val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 
-            // Write/merge OpenCode config to use HTTP transport (not SSE)
+            // Write/merge OpenCode MCP config using standard mcpServers format
             runCatching {
                 val opencodeConfigDir = com.rk.file.sandboxHomeDir().let { File(it, ".config/opencode") }
                 opencodeConfigDir.mkdirs()
@@ -141,8 +141,12 @@ object IdeBridge {
                 val existingConfig = runCatching {
                     com.google.gson.JsonParser.parseString(configFile.readText()).asJsonObject
                 }.getOrDefault(JsonObject())
-                val mcpConfig = existingConfig.getAsJsonObject("mcp") ?: JsonObject()
-                mcpConfig.add("xed-ide", JsonObject().apply {
+                // Remove legacy 'mcp' key to avoid duplicate configs
+                existingConfig.remove("mcp")
+                val mcpServers = existingConfig.getAsJsonObject("mcpServers") ?: JsonObject().also {
+                    existingConfig.add("mcpServers", it)
+                }
+                mcpServers.add("xed-ide", JsonObject().apply {
                     addProperty("type", "http")
                     addProperty("url", "$url/mcp")
                     addProperty("enabled", true)
@@ -150,7 +154,6 @@ object IdeBridge {
                         addProperty("Authorization", "Bearer $token")
                     })
                 })
-                existingConfig.add("mcp", mcpConfig)
                 configFile.writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingConfig))
             }
 
@@ -214,8 +217,12 @@ object IdeBridge {
                         val existingMcp = runCatching {
                             com.google.gson.JsonParser.parseString(File(dir, "mcp.json").readText()).asJsonObject
                         }.getOrDefault(JsonObject())
-                        val mcpConfig = existingMcp.getAsJsonObject("mcp") ?: JsonObject()
-                        mcpConfig.add("xed-ide", JsonObject().apply {
+                        // Remove legacy 'mcp' key to avoid duplicate configs
+                        existingMcp.remove("mcp")
+                        val mcpServers = existingMcp.getAsJsonObject("mcpServers") ?: JsonObject().also {
+                            existingMcp.add("mcpServers", it)
+                        }
+                        mcpServers.add("xed-ide", JsonObject().apply {
                             addProperty("type", "http")
                             addProperty("url", "$url/mcp")
                             addProperty("enabled", true)
@@ -223,7 +230,6 @@ object IdeBridge {
                                 addProperty("Authorization", "Bearer $token")
                             })
                         })
-                        existingMcp.add("mcp", mcpConfig)
                         File(dir, "mcp.json").writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingMcp))
                     }
                 }

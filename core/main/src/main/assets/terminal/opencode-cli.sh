@@ -24,13 +24,36 @@ warn() { log "[WARN] $*"; }
 info "Starting OpenCode CLI..."
 info "Workspace: $WKDIR"
 
-# Wire with Xed Editor IDE bridge via MCP
+# Wire with Xed Editor IDE bridge via MCP (merge with existing config)
     if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
       OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
       mkdir -p "$OPENCODE_CONFIG_DIR"
-      cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
+      CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
+      if [ -f "$CONFIG_FILE" ]; then
+        if command_exists python3; then
+          python3 -c "
+import json
+with open('$CONFIG_FILE') as f:
+    cfg = json.load(f)
+cfg.pop('mcp', None)
+ms = cfg.setdefault('mcpServers', {})
+ms['xed-ide'] = {
+    'type': 'http',
+    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
+    'enabled': True,
+    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
+}
+with open('$CONFIG_FILE', 'w') as f:
+    json.dump(cfg, f, indent=2)
+" 2>/dev/null || fallback_merge=true
+        else
+          fallback_merge=true
+        fi
+      fi
+      if [ "${fallback_merge:-false}" = true ] || [ ! -f "$CONFIG_FILE" ]; then
+        cat > "$CONFIG_FILE" << OC_CONFIG
 {
-  "mcp": {
+  "mcpServers": {
     "xed-ide": {
       "type": "http",
       "url": "http://127.0.0.1:${IDE_PORT}/mcp",
@@ -42,6 +65,7 @@ info "Workspace: $WKDIR"
   }
 }
 OC_CONFIG
+      fi
       info "IDE bridge MCP configured for OpenCode on port $IDE_PORT (HTTP transport)"
       curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
         info "Bridge health check passed" || \

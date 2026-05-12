@@ -6,6 +6,7 @@ import com.google.gson.JsonObject
 internal object IdeMcpTools {
     fun list(): JsonArray =
         JsonArray().apply {
+            add(schema("getIdeInfo", "Get IDE information: bridge status, version, workspace, connected clients", emptyList(), emptyMap()))
             add(schema("openDiff", "Open a proposed file replacement in Xed-Editor for user review before writing", listOf("filePath", "newContent"), mapOf("filePath" to "string", "newContent" to "string")))
             add(schema("closeDiff", "Close a diff and return final file content", listOf("filePath"), mapOf("filePath" to "string")))
             add(schema("readFile", "Read the content of a file (prefers open editor content)", listOf("filePath"), mapOf("filePath" to "string")))
