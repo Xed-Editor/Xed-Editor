@@ -1,9 +1,7 @@
 package com.rk.ai.service
 
-import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.rk.activities.main.MainViewModel
 import com.rk.lsp.applyFormattingOptions
 import com.rk.tabs.editor.EditorTab
 import io.github.rosemoe.sora.lsp.events.EventType
@@ -14,7 +12,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LspService(private val viewModel: MainViewModel) {
+class LspService(
+    private val tabRepo: TabRepository,
+    private val scope: ScopeProvider,
+) {
 
     private val tabCache = mutableMapOf<String, EditorTab>()
 
@@ -90,7 +91,7 @@ class LspService(private val viewModel: MainViewModel) {
     }
 
     fun renameSymbol(filePath: String, line: Int, column: Int, newName: String) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        scope.viewModelScope.launch(Dispatchers.Main) {
             val tab = findTabByPath(filePath) ?: return@launch
             val connector = tab.lspConnector ?: return@launch
             val editor = tab.editorState.editor.get() ?: return@launch
@@ -131,11 +132,11 @@ class LspService(private val viewModel: MainViewModel) {
 
     private fun findTabByPath(path: String): EditorTab? {
         tabCache[path]?.let {
-            if (it in viewModel.tabs) return it
+            if (it in tabRepo.tabs) return it
         }
         val file = File(path)
         val canonical = file.absoluteFile
-        val tab = viewModel.tabs.filterIsInstance<EditorTab>().find {
+        val tab = tabRepo.tabs.filterIsInstance<EditorTab>().find {
             File(it.file.getAbsolutePath()).absoluteFile == canonical
         }
         if (tab != null) tabCache[path] = tab

@@ -11,6 +11,8 @@ interface McpTool {
     fun getOptionalParams(): Map<String, String> = emptyMap()
     suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject
 
+    fun getTimeoutMs(): Long = 60_000L
+
     fun getSchema(): JsonObject = JsonObject().apply {
         addProperty("name", getName())
         addProperty("description", getDescription())
@@ -45,4 +47,6 @@ class McpToolRegistry(private val ideService: IdeService) {
     fun listSchemas(): JsonArray = JsonArray().apply {
         tools.values.forEach { add(it.getSchema()) }
     }
+
+    fun getTimeoutMs(name: String): Long = tools[name]?.getTimeoutMs() ?: 60_000L
 }

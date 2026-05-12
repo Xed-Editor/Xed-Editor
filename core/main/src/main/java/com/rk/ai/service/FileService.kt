@@ -1,13 +1,11 @@
 package com.rk.ai.service
 
 import com.google.gson.JsonObject
-import com.rk.activities.main.MainViewModel
 import com.rk.ai.AiConfig
 import com.rk.ai.IdeBridge
 import com.rk.ai.displayRootFor
 import com.rk.ai.resolveRelativePathFromOpenEditor
 import com.rk.ai.resolveWorkspacePath
-import com.rk.file.FileWrapper
 import com.rk.tabs.editor.EditorTab
 import java.io.File
 import java.util.LinkedHashMap
@@ -18,7 +16,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-class FileService(private val viewModel: MainViewModel) {
+class FileService(tabRepository: TabRepository) {
 
     private val pathCache = LinkedHashMap<String, File>(32, 0.75f, true)
     private val pathCacheMaxSize = 128
@@ -27,7 +25,7 @@ class FileService(private val viewModel: MainViewModel) {
         val normalized = path.trim()
         pathCache[normalized]?.let { if (it.exists()) return it }
         val resolved = if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
-            resolveRelativePathFromOpenEditor(normalized, viewModel) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
+            resolveRelativePathFromOpenEditor(normalized, tabRepository) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         } else {
             resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         }
@@ -107,13 +105,12 @@ class FileService(private val viewModel: MainViewModel) {
     fun refreshEditors(filePath: String?, force: Boolean) {
         if (filePath != null) {
             val canonical = File(filePath).absoluteFile
-            val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { tab ->
-                File(tab.file.getAbsolutePath()).absoluteFile == canonical
+            val tab = tabRepository.tabs.filterIsInstance<EditorTab>().find { tab ->
             } ?: return
             if (!force && tab.editorState.isDirty) return
             tab.refresh()
         } else {
-            viewModel.tabs.filterIsInstance<EditorTab>().forEach {
+            tabRepository.tabs.filterIsInstance<EditorTab>().forEach {
                 if (force || !it.editorState.isDirty) it.refresh()
             }
         }
@@ -136,7 +133,7 @@ class FileService(private val viewModel: MainViewModel) {
         if (!file.exists()) throw IllegalArgumentException("file not found: $filePath")
         if (!file.isFile) throw IllegalArgumentException("not a file: $filePath")
         withContext(Dispatchers.Main) {
-            findTabByPath(file.absolutePath)?.let { viewModel.tabManager.removeTab(it) }
+            findTabByPath(file.absolutePath)?.let { tabRepository.tabManager.removeTab(it) }
         }
         withContext(Dispatchers.IO) { file.delete() }
         return "deleted ${file.absolutePath}"
@@ -148,7 +145,7 @@ class FileService(private val viewModel: MainViewModel) {
         if (!source.exists()) throw IllegalArgumentException("source not found: $sourcePath")
         if (dest.exists()) throw IllegalArgumentException("destination already exists: $destPath")
         withContext(Dispatchers.Main) {
-            findTabByPath(source.absolutePath)?.let { viewModel.tabManager.removeTab(it) }
+            findTabByPath(source.absolutePath)?.let { tabRepository.tabManager.removeTab(it) }
         }
         withContext(Dispatchers.IO) {
             dest.parentFile?.mkdirs()
@@ -162,7 +159,7 @@ class FileService(private val viewModel: MainViewModel) {
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path).absoluteFile
-        return viewModel.tabs.filterIsInstance<EditorTab>().find {
+        return tabRepository.tabs.filterIsInstance<EditorTab>().find {
             File(it.file.getAbsolutePath()).absoluteFile == file
         }
     }

@@ -5,6 +5,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpToolRegistry
+import com.rk.ai.bridge.tools.ToolError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
@@ -13,7 +14,6 @@ import kotlinx.coroutines.withTimeout
 class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
-    private val TOOL_TIMEOUT_MS = 60000L
 
     fun dispatch(id: JsonElement, method: String, request: JsonObject): String = when (method) {
         "initialize" -> initializeResult(id, request)
@@ -46,13 +46,16 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
         val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
         val name = params.get("name")?.asString.orEmpty()
         val args = params.getAsJsonObject("arguments") ?: JsonObject()
+        val timeoutMs = toolRegistry().getTimeoutMs(name)
         return try {
             val result = runBlocking(Dispatchers.IO) {
-                withTimeout(TOOL_TIMEOUT_MS) { toolRegistry().execute(name, args) }
+                withTimeout(timeoutMs) { toolRegistry().execute(name, args) }
             } ?: return errorJson(id, -32601, "unknown tool: $name")
             resultJson(id, result)
+        } catch (e: ToolError) {
+            errorJson(id, e.code, e.message)
         } catch (e: TimeoutCancellationException) {
-            errorJson(id, -32000, "tool '$name' timed out after ${TOOL_TIMEOUT_MS}ms")
+            errorJson(id, -32000, "tool '$name' timed out after ${timeoutMs}ms")
         } catch (e: Exception) {
             errorJson(id, -32603, "${e::class.java.simpleName}: ${e.message ?: "internal error"}")
         }

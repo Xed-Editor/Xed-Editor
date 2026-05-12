@@ -14,9 +14,11 @@ import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import java.io.File
 import java.util.UUID
+import java.util.concurrent.Semaphore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 
 class IdeBridgeServer(
@@ -45,10 +47,33 @@ class IdeBridgeServer(
             toolRegistry = McpToolRegistry(value).also { registerTools(it) }
         }
 
+    /** Max concurrent MCP tool executions. Prevents thread pool exhaustion under load. */
+    companion object {
+        const val MAX_CONCURRENT_TOOL_CALLS = 8
+        const val SERVER_TIMEOUT_MS = 10_000
+    }
+
+    private val toolExecutionPermits = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
+
     init {
         registerTools(toolRegistry)
         httpSessionTracker.startBackgroundCleanup(serverScope)
     }
+
+    override fun stop() {
+        serverScope.cancel()
+        super.stop()
+    }
+
+    override fun start() {
+        socketFactory = createServerSocketFactory(SERVER_TIMEOUT_MS)
+        super.start()
+    }
+
+    private fun createServerSocketFactory(timeout: Int) =
+        NanoHTTPD.ServerSocketFactory { host, port ->
+            java.net.ServerSocket(port, 50, host).apply { soTimeout = timeout }
+        }
 
     private fun registerTools(registry: McpToolRegistry) {
         registry.apply {
@@ -84,7 +109,14 @@ class IdeBridgeServer(
             "/debug" -> json(Response.Status.OK, debugJson())
             "/refresh" -> { ideService.refreshEditors(); json(Response.Status.OK, "{\"ok\":true}") }
             "/sse" -> sseManager.createSseStream(session)
-            "/mcp" -> handleMcp(session, rawPostBody)
+            "/mcp" -> {
+                toolExecutionPermits.acquireUninterruptibly()
+                try {
+                    handleMcp(session, rawPostBody)
+                } finally {
+                    toolExecutionPermits.release()
+                }
+            }
             "/messages" -> handleMessages(session, rawPostBody)
             "/external-editor" -> handleExternalEditor(session, rawPostBody)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))

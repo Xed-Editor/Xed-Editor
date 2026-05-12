@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 
-class ProjectService(private val viewModel: MainViewModel) {
+class ProjectService(private val tabRepo: TabRepository, private val viewModel: MainViewModel? = null) {
 
     private var cachedSearchVm: SearchViewModel? = null
 
@@ -133,7 +133,7 @@ class ProjectService(private val viewModel: MainViewModel) {
     }
 
     suspend fun getSymbolUnderCursor(): JsonObject {
-        val tab = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab } ?: return JsonObject()
+        val tab = withContext(Dispatchers.Main) { tabRepo.currentTab as? EditorTab } ?: return JsonObject()
         val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return JsonObject()
         return withContext(Dispatchers.Main) {
             val line = editor.cursor.leftLine; val column = editor.cursor.leftColumn
@@ -155,7 +155,7 @@ class ProjectService(private val viewModel: MainViewModel) {
     private fun resolvePath(path: String): File? {
         val normalized = path.trim()
         if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
-            resolveRelativePathFromOpenEditor(normalized, viewModel)?.let { return it }
+            resolveRelativePathFromOpenEditor(normalized, tabRepo)?.let { return it }
         }
         return com.rk.ai.resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
     }

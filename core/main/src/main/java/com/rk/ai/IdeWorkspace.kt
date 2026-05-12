@@ -87,13 +87,13 @@ suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String =
         ?: (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
         ?: file.getAbsolutePath()
 
-fun resolveRelativePathFromOpenEditor(path: String, viewModel: MainViewModel): File? {
-    val activeTab = viewModel.currentTab as? EditorTab
+fun resolveRelativePathFromOpenEditor(path: String, tabs: com.rk.ai.service.TabRepository): File? {
+    val activeTab = tabs.currentTab as? EditorTab
     val activeBase = activeTab?.let { File(it.file.getAbsolutePath()).parentFile }
     activeBase?.let { parent ->
         resolveWorkspacePath(com.rk.ai.IdeBridge.workspacePathForResolution(), File(parent, path).path)?.let { return it }
     }
-    val exactMatches = viewModel.tabs
+    val exactMatches = tabs.tabs
         .filterIsInstance<EditorTab>()
         .mapNotNull { tab ->
             val tabFile = File(tab.file.getAbsolutePath())

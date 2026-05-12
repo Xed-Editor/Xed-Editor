@@ -2,10 +2,8 @@ package com.rk.ai.service
 
 import android.os.Looper
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.rk.activities.main.MainViewModel
 import com.rk.ai.bridge.IdeNotificationSender
 import com.rk.file.FileWrapper
 import com.rk.settings.Settings
@@ -22,23 +20,23 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 class EditorService(
-    private val viewModel: MainViewModel,
+    private val tabRepo: TabRepository,
+    private val scope: ScopeProvider,
+    private val fileOpener: FileOpener,
     private val notificationSender: IdeNotificationSender?
 ) {
 
     fun openFile(file: File) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
-            viewModel.editorManager.openFile(FileWrapper(file), projectRoot = null, switchToTab = true)
-        }
+        fileOpener.openFileInEditor(file)
     }
 
     suspend fun getOpenFiles(): List<JsonObject> {
-        val current = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab }
-        return viewModel.tabs.filterIsInstance<EditorTab>().map { it.toIdeFileJsonObject(it == current) }
+        val current = withContext(Dispatchers.Main) { tabRepo.currentTab as? EditorTab }
+        return tabRepo.tabs.filterIsInstance<EditorTab>().map { it.toIdeFileJsonObject(it == current) }
     }
 
     suspend fun getActiveFile(): JsonObject? {
-        val current = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab } ?: return null
+        val current = withContext(Dispatchers.Main) { tabRepo.currentTab as? EditorTab } ?: return null
         val json = current.toIdeFileJsonObject(active = true)
         val content = withContext(Dispatchers.Main) {
             current.editorState.editor.get()?.text?.toString().orEmpty()
@@ -48,16 +46,16 @@ class EditorService(
     }
 
     suspend fun getSelection(): String {
-        val current = withContext(Dispatchers.Main) { viewModel.currentTab as? EditorTab } ?: return ""
+        val current = withContext(Dispatchers.Main) { tabRepo.currentTab as? EditorTab } ?: return ""
         return withContext(Dispatchers.Main) {
             current.editorState.editor.get()?.getSelectedText().orEmpty()
         }
     }
 
     fun replaceSelection(newContent: String) {
-        val current = viewModel.currentTab as? EditorTab ?: return
+        val current = tabRepo.currentTab as? EditorTab ?: return
         if (Settings.ai_auto_apply) {
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
+            scope.viewModelScope.launch(Dispatchers.Main) {
                 val editor = current.editorState.editor.get() ?: return@launch
                 val hasSelection = editor.isTextSelected
                 val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
@@ -70,7 +68,7 @@ class EditorService(
             }
             return
         }
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        scope.viewModelScope.launch(Dispatchers.Main) {
             val editor = current.editorState.editor.get() ?: return@launch
             val hasSelection = editor.isTextSelected
             val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
@@ -83,7 +81,7 @@ class EditorService(
                 oldText = oldText,
                 newText = newContent,
                 apply = {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    scope.viewModelScope.launch(Dispatchers.Main) {
                         editor.text.replace(start, end, newContent)
                         current.editorState.isDirty = true
                         notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
@@ -101,9 +99,9 @@ class EditorService(
     }
 
     fun insertAtCursor(newContent: String) {
-        val current = viewModel.currentTab as? EditorTab ?: return
+        val current = tabs.currentTab as? EditorTab ?: return
         if (Settings.ai_auto_apply) {
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
+            scope.viewModelScope.launch(Dispatchers.Main) {
                 val editor = current.editorState.editor.get() ?: return@launch
                 val line = editor.cursor.leftLine
                 val column = editor.cursor.leftColumn
@@ -115,7 +113,7 @@ class EditorService(
             }
             return
         }
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        scope.viewModelScope.launch(Dispatchers.Main) {
             val editor = current.editorState.editor.get() ?: return@launch
             val line = editor.cursor.leftLine
             val column = editor.cursor.leftColumn
@@ -126,7 +124,7 @@ class EditorService(
                 oldText = "",
                 newText = newContent,
                 apply = {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    scope.viewModelScope.launch(Dispatchers.Main) {
                         editor.text.insert(line, column, newContent)
                         current.editorState.isDirty = true
                         notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
@@ -144,21 +142,21 @@ class EditorService(
     }
 
     suspend fun saveAllFiles(): String {
-        val tabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
+        val dirtyTabs = tabRepo.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
         withContext(Dispatchers.Main) {
-            tabs.forEach { tab ->
+            dirtyTabs.forEach { tab ->
                 tab.editorState.editor.get()?.let { editor -> tab.editorState.content = editor.text }
             }
         }
-        withContext(Dispatchers.IO) { tabs.forEach { it.quickSave() } }
-        return "saved ${tabs.size} dirty open file(s)"
+        withContext(Dispatchers.IO) { dirtyTabs.forEach { it.quickSave() } }
+        return "saved ${dirtyTabs.size} dirty open file(s)"
     }
 
     fun showPatch(
         filePath: String, oldContent: String, newContent: String, title: String, onApply: suspend () -> Unit
     ) {
         if (Settings.ai_auto_apply) {
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
+            scope.viewModelScope.launch(Dispatchers.Main) {
                 onApply()
                 notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
                     addProperty("filePath", filePath)
@@ -166,14 +164,14 @@ class EditorService(
             }
             return
         }
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        scope.viewModelScope.launch(Dispatchers.Main) {
             var tab = findTabByPath(filePath)
             if (tab == null) {
-                viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
+                fileOpener.openFileInEditor(File(filePath))
                 tab = runCatching {
                     withTimeout(2000) {
-                        snapshotFlow { viewModel.tabs }
-                            .map { tabs -> tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } }
+                        snapshotFlow { tabRepo.tabs }
+                            .map { ts -> ts.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } }
                             .filterNotNull()
                             .first()
                     }
@@ -189,10 +187,9 @@ class EditorService(
             tab.editorState.pendingAiPatch = EditorPatch(
                 title = title, filePath = filePath, oldText = oldContent, newText = newContent,
                 apply = {
-                    viewModel.viewModelScope.launch(Dispatchers.Main) {
+                    scope.viewModelScope.launch(Dispatchers.Main) {
                         runCatching { onApply() }
                             .onSuccess {
-                                viewModel.showAiSheet = true
                                 notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
                                     addProperty("filePath", filePath)
                                 })
@@ -216,7 +213,7 @@ class EditorService(
     }
 
     fun rejectPatch(filePath: String) {
-        viewModel.viewModelScope.launch(Dispatchers.Main) {
+        scope.viewModelScope.launch(Dispatchers.Main) {
             findTabByPath(filePath)?.let {
                 it.editorState.pendingAiPatch?.reject?.invoke()
                 it.editorState.pendingAiPatch = null
@@ -226,11 +223,11 @@ class EditorService(
 
     fun showMessage(message: String) {
         if (Looper.myLooper() == Looper.getMainLooper()) toast(message)
-        else viewModel.viewModelScope.launch(Dispatchers.Main) { toast(message) }
+        else scope.viewModelScope.launch(Dispatchers.Main) { toast(message) }
     }
 
     fun ensureIdeEnabled() {
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
+        scope.viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val home = com.rk.file.sandboxHomeDir()
                 val geminiDir = File(home, ".gemini").also { it.mkdirs() }
@@ -254,7 +251,7 @@ class EditorService(
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)
         val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
-        return viewModel.tabs.filterIsInstance<EditorTab>().find {
+        return tabRepo.tabs.filterIsInstance<EditorTab>().find {
             val tabCanonical = runCatching { File(it.file.getAbsolutePath()).canonicalPath }
                 .getOrDefault(File(it.file.getAbsolutePath()).absolutePath)
             tabCanonical == canonical

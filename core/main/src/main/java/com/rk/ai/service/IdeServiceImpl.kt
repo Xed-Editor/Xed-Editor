@@ -4,6 +4,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.bridge.IdeNotificationSender
+import com.rk.file.FileWrapper
 import java.io.File
 
 class IdeServiceImpl(
@@ -11,12 +12,26 @@ class IdeServiceImpl(
     private val notificationSender: IdeNotificationSender? = null
 ) : IdeService {
 
-    private val fileService = FileService(viewModel)
-    private val editorService = EditorService(viewModel, notificationSender)
-    private val lspService = LspService(viewModel)
+    private val tabRepo = object : TabRepository {
+        override val tabs get() = viewModel.tabs
+        override val currentTab get() = viewModel.currentTab
+        override val tabManager get() = viewModel.tabManager
+    }
+    private val scope = object : ScopeProvider {
+        override val viewModelScope get() = viewModel.viewModelScope
+    }
+    private val fileOpener = object : FileOpener {
+        override fun openFileInEditor(file: File, switchToTab: Boolean) {
+            viewModel.editorManager.openFile(FileWrapper(file), projectRoot = null, switchToTab = switchToTab)
+        }
+    }
+
+    private val fileService = FileService(tabRepo)
+    private val editorService = EditorService(tabRepo, scope, fileOpener, notificationSender)
+    private val lspService = LspService(tabRepo, scope)
     private val gitService = GitService()
     private val terminalService = TerminalService()
-    private val projectService = ProjectService(viewModel)
+    private val projectService = ProjectService(tabRepo, viewModel)
 
     override fun resolvePath(path: String): File? = fileService.resolvePath(path)
     override fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> = fileService.listFiles(directory, recursive, maxFiles)
