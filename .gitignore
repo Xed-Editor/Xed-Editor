@@ -22,3 +22,7 @@ Todo.md
 **/build
 .vscode
 core/wasm3
+
+/.xed
+
+/.opencode

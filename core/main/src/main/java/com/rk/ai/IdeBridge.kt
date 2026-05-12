@@ -133,6 +133,26 @@ object IdeBridge {
             }
             val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 
+            // Write OpenCode MCP config (streamable HTTP transport, not SSE) to sandbox home
+            val mcpServerConfig = JsonObject().apply {
+                add("mcpServers", JsonObject().apply {
+                    add("xed-ide", JsonObject().apply {
+                        addProperty("type", "http")
+                        addProperty("url", "$url/mcp")
+                        add("headers", JsonObject().apply {
+                            addProperty("Authorization", "Bearer $token")
+                        })
+                    })
+                })
+            }
+            val mcpJson = GsonBuilder().setPrettyPrinting().create().toJson(mcpServerConfig)
+            runCatching {
+                val opencodeConfigDir = com.rk.file.sandboxHomeDir().let { File(it, ".config/opencode") }
+                opencodeConfigDir.mkdirs()
+                File(opencodeConfigDir, "mcp.json").writeText(mcpJson)
+            }
+
+
             val tmpDir = getTempDir()
             val agentSheetDirs = listOf(
                 "gemini",
@@ -175,7 +195,7 @@ object IdeBridge {
                         }
                     val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-$port.json" else "gemini-ide-server-$pid-$port.json"
                     File(dir, fileName).writeText(json)
-                    if (dir.name == ".xed" || dir.name == ".opencode") {
+                    if (dir.name == ".xed") {
                         File(dir, "ide.json").writeText(json)
                         File(dir, "ide.env").writeText(
                             buildString {
@@ -187,6 +207,22 @@ object IdeBridge {
                                 appendLine("export IDE_AUTH_TOKEN=$token")
                             }
                         )
+                    }
+                    if (dir.name == ".opencode") {
+                        val mcpJson = GsonBuilder().setPrettyPrinting().create().toJson(
+                            JsonObject().apply {
+                                add("mcpServers", JsonObject().apply {
+                                    add("xed-ide", JsonObject().apply {
+                                        addProperty("type", "http")
+                                        addProperty("url", "$url/mcp")
+                                        add("headers", JsonObject().apply {
+                                            addProperty("Authorization", "Bearer $token")
+                                        })
+                                    })
+                                })
+                            }
+                        )
+                        File(dir, "mcp.json").writeText(mcpJson)
                     }
                 }
             }
