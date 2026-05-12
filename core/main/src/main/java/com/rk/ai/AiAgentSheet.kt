@@ -157,6 +157,31 @@ fun AiAgentSheet(
                 appendLog("Agent stopped.")
             }
             "/export" -> exportSession(viewModel, cwd.value)
+            "/bridge" -> {
+                val alive = IdeBridge.isRunning()
+                val health = if (alive) IdeBridge.healthCheck() else false
+                val info = IdeBridge.getBridgeInfo()
+                val workspacePath = IdeBridge.primaryWorkspacePath()
+                appendLog(
+                    buildString {
+                        appendLine("Bridge status:")
+                        appendLine("  running=$alive health=$health")
+                        if (info != null) {
+                            appendLine("  url=http://${info.host}:${info.port}")
+                            appendLine("  token=${info.token.take(8)}...")
+                        }
+                        appendLine("  clients=${IdeBridge.connectedClients()}")
+                        appendLine("  workspace=$workspacePath")
+                        appendLine()
+                        appendLine("Inside agent terminal, run:")
+                        if (workspacePath.isNotBlank()) {
+                            appendLine("  source $workspacePath/.xed/ide.env")
+                            appendLine("  cat $workspacePath/.xed/ide.json")
+                        }
+                        appendLine("  curl http://127.0.0.1:${info?.port ?: "?"}/health")
+                    }
+                )
+            }
             else -> sendToAgent(input)
         }
     }

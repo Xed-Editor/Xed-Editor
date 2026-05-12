@@ -148,6 +148,12 @@ object IdeBridge {
                 }
                 add(File(tmpDir, "ide-bridge"))
                 add(File("/tmp", "xed-ide"))
+                workspacePath.split(File.pathSeparator).forEach { wp ->
+                    if (wp.isNotBlank()) {
+                        add(File(wp, ".xed"))
+                        add(File(wp, ".opencode"))
+                    }
+                }
             }
 
             dirs.forEach { dir ->
@@ -169,6 +175,19 @@ object IdeBridge {
                         }
                     val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-$port.json" else "gemini-ide-server-$pid-$port.json"
                     File(dir, fileName).writeText(json)
+                    if (dir.name == ".xed" || dir.name == ".opencode") {
+                        File(dir, "ide.json").writeText(json)
+                        File(dir, "ide.env").writeText(
+                            buildString {
+                                appendLine("export XED_IDE_URL=$url")
+                                appendLine("export XED_IDE_HOST=$host")
+                                appendLine("export XED_IDE_PORT=$port")
+                                appendLine("export XED_IDE_AUTH_TOKEN=$token")
+                                appendLine("export IDE_SERVER_PORT=$port")
+                                appendLine("export IDE_AUTH_TOKEN=$token")
+                            }
+                        )
+                    }
                 }
             }
         }
