@@ -311,7 +311,7 @@ private fun AgentCliSheetContent(
             ) {
                 // Left: Title + CWD
                 Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Gemini", color = colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
+                    Text("AI Agent", color = colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
@@ -363,7 +363,7 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
             modifier = modifier.height(height).background(colorScheme.surfaceContainerHigh, RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Text("Gemini CLI stopped", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+            Text("Agent CLI stopped", color = colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
         }
         return
     }
@@ -482,7 +482,7 @@ fun createGeminiSheetSession(
         buildGeminiSheetEnv(activity, workingDir, bridge),
         Settings.terminal_scrollback_buffer,
         TerminalBackEnd(), // Safe default client to avoid NPE during initialization
-    ).also { it.mSessionName = "gemini-sheet" }
+    )    .also { it.mSessionName = "agent-sheet" }
 }
 
 private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String): Pair<String, Array<String>> {

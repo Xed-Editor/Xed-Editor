@@ -2,10 +2,19 @@ name: Android Release CI
 
 on:
   workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Release version name (leave empty to auto-detect from build.gradle.kts)"
+        required: false
+        default: ""
+      pre_release:
+        description: "Mark as pre-release"
+        type: boolean
+        default: false
 
 jobs:
   build-release:
-    name: Build Release
+    name: Build & Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -40,23 +49,64 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Set Commit Hash
-        run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - name: Extract version from build.gradle.kts
+        id: version
+        run: |
+          VERSION_NAME="${{ github.event.inputs.version_name }}"
+          if [ -z "$VERSION_NAME" ]; then
+            VERSION_NAME=$(grep "versionName" app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          fi
+          VERSION_CODE=$(grep "versionCode" app/build.gradle.kts | sed 's/.*= *\([0-9]*\).*/\1/')
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION_NAME" >> $GITHUB_OUTPUT
 
       - name: Clone submodules
         run: git submodule update --init --recursive
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease --no-daemon && mv app/build/outputs/apk/release/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
+        run: |
+          VERSION="${{ steps.version.outputs.version_name }}"
+          ./gradlew assembleRelease --no-daemon
+          mv app/build/outputs/apk/release/*.apk "app/Xed-Editor-v${VERSION}.apk"
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
 
+      - name: Generate release notes
+        id: notes
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "## Changelog" > /tmp/release-notes.md
+          echo "" >> /tmp/release-notes.md
+          if [ -n "$PREV_TAG" ]; then
+            git log "$PREV_TAG..HEAD" --oneline --no-decorate >> /tmp/release-notes.md || true
+          else
+            git log --oneline --no-decorate -20 >> /tmp/release-notes.md
+          fi
+          echo "" >> /tmp/release-notes.md
+          echo "**Commit:** ${{ steps.version.outputs.commit_hash }}" >> /tmp/release-notes.md
+          echo "**Version Code:** ${{ steps.version.outputs.version_code }}" >> /tmp/release-notes.md
+
       - name: Archive APK
         uses: actions/upload-artifact@v7
         with:
-          name: Xed-Editor-Release
-          path: app/xed-editor-${{ env.COMMIT_HASH }}.apk
+          name: Xed-Editor-v${{ steps.version.outputs.version_name }}
+          path: app/Xed-Editor-v${{ steps.version.outputs.version_name }}.apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Xed-Editor v${{ steps.version.outputs.version_name }}
+          body_path: /tmp/release-notes.md
+          files: app/Xed-Editor-v${{ steps.version.outputs.version_name }}.apk
+          prerelease: ${{ github.event.inputs.pre_release }}
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete secrets
         if: always()

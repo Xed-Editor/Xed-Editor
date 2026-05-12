@@ -12,25 +12,34 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
 import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 
 class ProjectService(private val viewModel: MainViewModel) {
 
+    private var cachedSearchVm: SearchViewModel? = null
+
+    private fun searchViewModel(): SearchViewModel {
+        val vm = cachedSearchVm
+        if (vm != null) return vm
+        return SearchViewModel().also { cachedSearchVm = it }
+    }
+
     fun getPrimaryWorkspacePath(): String = IdeBridge.primaryWorkspacePath()
 
     suspend fun searchCode(query: String, limit: Int): JsonArray {
-        val results = JsonArray()
-        val searchViewModel = SearchViewModel()
-        val projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper()
-        withContext(Dispatchers.IO) {
-            val app = application!!
-            searchViewModel.searchCode(
-                context = app, mainViewModel = viewModel, projectRoot = projectRoot,
+        val app = application ?: return JsonArray()
+        val vm = searchViewModel()
+        val results = withContext(Dispatchers.IO) {
+            vm.searchCode(
+                context = app, mainViewModel = viewModel,
+                projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper(),
                 query = query, useIndex = Settings.always_index_projects
-            ).take(limit).collect { item ->
-                results.add(JsonObject().apply {
+            ).toList()
+        }
+        return JsonArray().apply {
+            results.take(limit).forEach { item ->
+                add(JsonObject().apply {
                     addProperty("path", item.file.getAbsolutePath())
                     addProperty("line", item.line + 1)
                     addProperty("column", item.column + 1)
@@ -38,65 +47,69 @@ class ProjectService(private val viewModel: MainViewModel) {
                 })
             }
         }
-        return results
     }
 
     suspend fun findFiles(query: String, limit: Int): JsonArray {
-        val results = JsonArray()
-        val searchViewModel = SearchViewModel()
-        val projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper()
-        withContext(Dispatchers.IO) {
-            val app = application!!
-            searchViewModel.searchFileName(
-                context = app, projectRoot = projectRoot,
+        val app = application ?: return JsonArray()
+        val vm = searchViewModel()
+        val results = withContext(Dispatchers.IO) {
+            vm.searchFileName(
+                context = app,
+                projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper(),
                 query = query, useIndex = Settings.always_index_projects
-            ).take(limit).forEach { meta ->
-                results.add(JsonObject().apply {
+            ).toList()
+        }
+        return JsonArray().apply {
+            results.take(limit).forEach { meta ->
+                add(JsonObject().apply {
                     addProperty("path", meta.path)
                     addProperty("name", meta.fileName)
                 })
             }
         }
-        return results
     }
 
     suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String {
         val dir = resolvePath(path) ?: throw IllegalArgumentException("path outside workspace: $path")
         if (!dir.exists() || !dir.isDirectory) throw IllegalArgumentException("not a directory: $path")
         val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules", ".dex", ".cache")
-        val output = StringBuilder()
-        val count = intArrayOf(0)
-        fun walk(current: File, depth: Int) {
-            if (count[0] >= maxItems || depth > maxDepth) return
-            val indent = "  ".repeat(depth)
-            val children = current.listFiles()?.sortedWith(compareBy<File> { !it.isDirectory }.thenBy { it.name.lowercase() }) ?: return
-            for (child in children) {
-                if (count[0] >= maxItems) return
-                if (child.name in ignored) continue
-                if (child.isHidden && child.name != ".env") continue
-                output.appendLine("$indent${if (child.isDirectory) "[D]" else "[F]"} ${child.name}")
-                count[0]++
-                if (child.isDirectory && depth < maxDepth) walk(child, depth + 1)
-            }
-        }
+        val output = StringBuilder(4096)
+        var count = 0
         withContext(Dispatchers.IO) {
             output.appendLine("[D] ${dir.name}/")
-            walk(dir, 1)
-            if (count[0] >= maxItems) output.appendLine("  ... (truncated at $maxItems items)")
+            dir.walkTopDown()
+                .maxDepth(maxDepth)
+                .onEnter { it.name !in ignored && !it.isHidden }
+                .forEach { child ->
+                    if (count >= maxItems || child == dir) return@forEach
+                    val depth = child.relativeTo(dir).nameCount
+                    val indent = "  ".repeat(depth.coerceAtMost(maxDepth))
+                    output.appendLine("$indent${if (child.isDirectory) "[D]" else "[F]"} ${child.name}")
+                    count++
+                }
+            if (count >= maxItems) output.appendLine("  ... (truncated at $maxItems items)")
         }
         return output.toString()
     }
 
     suspend fun getProjectConfig(workspacePath: String): JsonObject {
-        val result = JsonObject()
-        val root = if (workspacePath.isNotBlank()) File(workspacePath) else File(getPrimaryWorkspacePath())
-        if (!root.exists() || !root.isDirectory) return result.apply { addProperty("error", "invalid workspace") }
-        withContext(Dispatchers.IO) {
+        val root = runCatching {
+            if (workspacePath.isNotBlank()) File(workspacePath) else File(getPrimaryWorkspacePath())
+        }.getOrNull() ?: return JsonObject().apply { addProperty("error", "invalid workspace") }
+
+        if (!root.exists() || !root.isDirectory) return JsonObject().apply { addProperty("error", "invalid workspace") }
+
+        return withContext(Dispatchers.IO) {
+            val result = JsonObject()
             val files = root.listFiles()?.map { it.name }?.toSet() ?: emptySet()
             when {
                 "package.json" in files -> {
-                    result.addProperty("language", "JavaScript/TypeScript"); result.addProperty("buildSystem", "npm/yarn/pnpm")
-                    runCatching { com.google.gson.JsonParser.parseString(File(root, "package.json").readText()).asJsonObject.getAsJsonObject("scripts")?.let { result.add("scripts", it) } }
+                    result.addProperty("language", "JavaScript/TypeScript")
+                    result.addProperty("buildSystem", "npm/yarn/pnpm")
+                    runCatching {
+                        com.google.gson.JsonParser.parseString(File(root, "package.json").readText()).asJsonObject
+                            .getAsJsonObject("scripts")?.let { result.add("scripts", it) }
+                    }
                 }
                 "pubspec.yaml" in files -> { result.addProperty("language", "Dart"); result.addProperty("buildSystem", "pub") }
                 "build.gradle.kts" in files || "build.gradle" in files -> { result.addProperty("language", "Kotlin/Java"); result.addProperty("buildSystem", "Gradle") }
@@ -108,8 +121,8 @@ class ProjectService(private val viewModel: MainViewModel) {
             }
             result.addProperty("workspace", root.absolutePath)
             result.add("files", JsonArray().apply { files.filter { !it.startsWith(".") }.take(50).forEach { add(it) } })
+            result
         }
-        return result
     }
 
     suspend fun getSymbolUnderCursor(): JsonObject {
@@ -120,14 +133,13 @@ class ProjectService(private val viewModel: MainViewModel) {
             val text = editor.text.toString(); val lines = text.split("\n")
             val currentLine = lines.getOrNull(line) ?: ""
             val contextStart = (line - 5).coerceAtLeast(0); val contextEnd = (line + 5).coerceAtMost(lines.size - 1)
-            val contextLines = lines.subList(contextStart, contextEnd + 1)
             val scopeLines = mutableListOf<String>()
             for (i in line downTo 0) { val l = lines.getOrNull(i) ?: break; scopeLines.add(l.trim()); if (l.contains("fun ") || l.contains("class ") || l.contains("def ") || l.contains("function ")) break }
             val selected = editor.getSelectedText().orEmpty()
             JsonObject().apply {
                 addProperty("filePath", tab.file.getAbsolutePath()); addProperty("line", line + 1); addProperty("column", column + 1)
                 addProperty("currentLine", currentLine); addProperty("selectedText", selected.take(1024))
-                addProperty("context", contextLines.joinToString("\n"))
+                addProperty("context", lines.subList(contextStart, contextEnd + 1).joinToString("\n"))
                 addProperty("enclosingScope", scopeLines.reversed().joinToString("\n").take(1024))
             }
         }

@@ -8,18 +8,28 @@ import com.rk.ai.resolveWorkspacePath
 import com.rk.file.FileWrapper
 import com.rk.tabs.editor.EditorTab
 import java.io.File
+import java.util.WeakHashMap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class FileService(private val viewModel: MainViewModel) {
 
+    private val pathCache = WeakHashMap<String, File>()
+
     fun resolvePath(path: String): File? {
         val normalized = path.trim()
-        if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
-            resolveRelativePathFromOpenEditor(normalized)?.let { return it }
+        pathCache[normalized]?.let { if (it.exists()) return it }
+        val resolved = if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
+            resolveRelativePathFromOpenEditor(normalized) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
+        } else {
+            resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         }
-        return resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
+        if (resolved != null) pathCache[normalized] = resolved
+        return resolved
     }
 
     private fun resolveRelativePathFromOpenEditor(path: String): File? {
@@ -43,22 +53,28 @@ class FileService(private val viewModel: MainViewModel) {
 
     fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> {
         if (!directory.exists() || !directory.isDirectory) return emptyList()
-        val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules")
+        val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules", ".dex", ".cache", ".dex")
         val root = displayRootFor(IdeBridge.workspacePathForResolution(), directory)
         val output = mutableListOf<String>()
-        fun visit(current: File) {
-            if (output.size >= maxFiles) return
-            current.listFiles()
+        if (recursive) {
+            directory.walkTopDown()
+                .onEnter { it.name !in ignored }
+                .forEach { child ->
+                    if (output.size >= maxFiles) return@forEach
+                    if (child == directory) return@forEach
+                    val relative = child.relativeToOrSelf(root).path + if (child.isDirectory) "/" else ""
+                    output.add(relative)
+                }
+        } else {
+            directory.listFiles()
                 ?.sortedWith(compareBy<File> { !it.isDirectory }.thenBy { it.name.lowercase() })
                 ?.forEach { child ->
-                    if (output.size >= maxFiles) return
+                    if (output.size >= maxFiles) return@forEach
                     if (child.name in ignored) return@forEach
                     val relative = child.relativeToOrSelf(root).path + if (child.isDirectory) "/" else ""
                     output.add(relative)
-                    if (recursive && child.isDirectory) visit(child)
                 }
         }
-        visit(directory)
         return output
     }
 
@@ -70,7 +86,14 @@ class FileService(private val viewModel: MainViewModel) {
             }
         } else {
             withContext(Dispatchers.IO) {
-                runCatching { File(filePath).readText() }.getOrNull()
+                val file = File(filePath)
+                if (!file.exists() || !file.isFile) return@withContext null
+                val length = file.length()
+                if (length > 10 * 1024 * 1024) {
+                    file.useLines { it.take(5000).joinToString("\n") }
+                } else {
+                    file.readText()
+                }
             }
         }
     }
@@ -86,18 +109,16 @@ class FileService(private val viewModel: MainViewModel) {
                 file.writeText(content, Charsets.UTF_8)
             }
         }
-        withContext(Dispatchers.Main) {
-            tab?.let { it.refresh() }
+        if (tab != null) {
+            withContext(Dispatchers.Main) { tab.refresh() }
         }
     }
 
     fun refreshEditors(filePath: String?, force: Boolean) {
         if (filePath != null) {
-            val requested = runCatching { File(filePath).canonicalPath }.getOrDefault(File(filePath).absolutePath)
+            val canonical = File(filePath).absoluteFile
             val tab = viewModel.tabs.filterIsInstance<EditorTab>().find { tab ->
-                val tabPath = runCatching { File(tab.file.getAbsolutePath()).canonicalPath }
-                    .getOrDefault(File(tab.file.getAbsolutePath()).absolutePath)
-                tabPath == requested
+                File(tab.file.getAbsolutePath()).absoluteFile == canonical
             } ?: return
             if (!force && tab.editorState.isDirty) return
             tab.refresh()
@@ -115,8 +136,8 @@ class FileService(private val viewModel: MainViewModel) {
             file.parentFile?.mkdirs()
             if (content != null) file.writeText(content, Charsets.UTF_8)
             else file.createNewFile()
-            refreshEditors(filePath = file.absolutePath, force = true)
         }
+        refreshEditors(filePath = file.absolutePath, force = true)
         return "created ${file.absolutePath}"
     }
 
@@ -142,18 +163,15 @@ class FileService(private val viewModel: MainViewModel) {
         withContext(Dispatchers.IO) {
             dest.parentFile?.mkdirs()
             source.renameTo(dest)
-            refreshEditors(filePath = dest.absolutePath, force = true)
         }
+        refreshEditors(filePath = dest.absolutePath, force = true)
         return "renamed ${source.absolutePath} -> ${dest.absolutePath}"
     }
 
     private fun findTabByPath(path: String): EditorTab? {
-        val file = File(path)
-        val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
+        val file = File(path).absoluteFile
         return viewModel.tabs.filterIsInstance<EditorTab>().find {
-            val tabCanonical = runCatching { File(it.file.getAbsolutePath()).canonicalPath }
-                .getOrDefault(File(it.file.getAbsolutePath()).absolutePath)
-            tabCanonical == canonical
+            File(it.file.getAbsolutePath()).absoluteFile == file
         }
     }
 }

@@ -54,7 +54,7 @@ interface IdeService {
     /** Saves all dirty editor tabs in parallel. */
     suspend fun saveAll(): String
 
-    /** Ensures the Gemini CLI configuration has IDE integration enabled. */
+    /** Ensures the AI CLI configuration has IDE integration enabled. */
     fun ensureIdeEnabled()
 
     /** Searches for code project-wide. */

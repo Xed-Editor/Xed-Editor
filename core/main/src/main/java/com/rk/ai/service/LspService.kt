@@ -10,16 +10,19 @@ import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import java.io.File
+import java.util.WeakHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class LspService(private val viewModel: MainViewModel) {
 
+    private val tabCache = WeakHashMap<String, EditorTab>()
+
     suspend fun getDiagnostics(filePath: String): JsonArray {
-        val results = JsonArray()
-        val tab = findTabByPath(filePath) ?: return results
-        withContext(Dispatchers.Main) {
+        val tab = findTabByPath(filePath) ?: return JsonArray()
+        return withContext(Dispatchers.Main) {
+            val results = JsonArray()
             tab.editorState.diagnostics.forEach { diag ->
                 results.add(JsonObject().apply {
                     val messageStr = if (diag.message.isLeft) diag.message.left else diag.message.right.toString()
@@ -33,15 +36,15 @@ class LspService(private val viewModel: MainViewModel) {
                     diag.source?.let { addProperty("source", it) }
                 })
             }
+            results
         }
-        return results
     }
 
     suspend fun findDefinitions(filePath: String, line: Int, column: Int): JsonArray {
+        val tab = findTabByPath(filePath) ?: return JsonArray()
+        val connector = tab.lspConnector ?: return JsonArray()
+        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return JsonArray()
         val results = JsonArray()
-        val tab = findTabByPath(filePath) ?: return results
-        val connector = tab.lspConnector ?: return results
-        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return results
         withContext(Dispatchers.IO) {
             runCatching {
                 withContext(Dispatchers.Main) { editor.cursor.set(line - 1, column - 1) }
@@ -64,10 +67,10 @@ class LspService(private val viewModel: MainViewModel) {
     }
 
     suspend fun findReferences(filePath: String, line: Int, column: Int): JsonArray {
+        val tab = findTabByPath(filePath) ?: return JsonArray()
+        val connector = tab.lspConnector ?: return JsonArray()
+        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return JsonArray()
         val results = JsonArray()
-        val tab = findTabByPath(filePath) ?: return results
-        val connector = tab.lspConnector ?: return results
-        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return results
         withContext(Dispatchers.IO) {
             runCatching {
                 withContext(Dispatchers.Main) { editor.cursor.set(line - 1, column - 1) }
@@ -126,12 +129,15 @@ class LspService(private val viewModel: MainViewModel) {
     }
 
     private fun findTabByPath(path: String): EditorTab? {
-        val file = File(path)
-        val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
-        return viewModel.tabs.filterIsInstance<EditorTab>().find {
-            val tabCanonical = runCatching { File(it.file.getAbsolutePath()).canonicalPath }
-                .getOrDefault(File(it.file.getAbsolutePath()).absolutePath)
-            tabCanonical == canonical
+        tabCache[path]?.let {
+            if (it in viewModel.tabs) return it
         }
+        val file = File(path)
+        val canonical = file.absoluteFile
+        val tab = viewModel.tabs.filterIsInstance<EditorTab>().find {
+            File(it.file.getAbsolutePath()).absoluteFile == canonical
+        }
+        if (tab != null) tabCache[path] = tab
+        return tab
     }
 }

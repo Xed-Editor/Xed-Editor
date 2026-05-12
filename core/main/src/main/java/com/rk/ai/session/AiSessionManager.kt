@@ -21,7 +21,6 @@ import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
-import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.terminal.setupTerminalFiles
 import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig

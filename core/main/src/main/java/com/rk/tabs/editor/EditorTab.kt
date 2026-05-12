@@ -437,11 +437,11 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         },
                     )
                 }
-                editorState.pendingGeminiPatch?.let { patch ->
+                editorState.pendingAiPatch?.let { patch ->
                     AlertDialog(
                         onDismissRequest = {
                             patch.reject?.invoke()
-                            editorState.pendingGeminiPatch = null
+                            editorState.pendingAiPatch = null
                         },
                         title = { Text(patch.title) },
                         text = {
@@ -470,7 +470,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 onClick = {
                                     val currentPatch = patch
                                     scope.launch(Dispatchers.Default) { currentPatch.apply() }
-                                    editorState.pendingGeminiPatch = null
+                                    editorState.pendingAiPatch = null
                                 }
                             ) { Text(strings.apply.getString()) }
                         },
@@ -479,7 +479,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 onClick = {
                                     val currentPatch = patch
                                     scope.launch(Dispatchers.Default) { currentPatch.reject?.invoke() }
-                                    editorState.pendingGeminiPatch = null
+                                    editorState.pendingAiPatch = null
                                 }
                             ) { Text(strings.cancel.getString()) }
                         },

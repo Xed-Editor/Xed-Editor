@@ -85,7 +85,7 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var isWrapping by mutableStateOf(false)
     var isConnectingLsp by mutableStateOf(false)
 
-    var pendingGeminiPatch by mutableStateOf<EditorPatch?>(null)
+    var pendingAiPatch by mutableStateOf<EditorPatch?>(null)
 
     var ghostText by mutableStateOf<String?>(null)
     var ghostCursorLine by mutableStateOf(0)

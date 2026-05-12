@@ -71,8 +71,8 @@ class EditorService(
             val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
             val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
             val oldText = editor.text.substring(start, end)
-            current.editorState.pendingGeminiPatch?.reject?.invoke()
-            current.editorState.pendingGeminiPatch = EditorPatch(
+            current.editorState.pendingAiPatch?.reject?.invoke()
+            current.editorState.pendingAiPatch = EditorPatch(
                 title = if (hasSelection) "Review Gemini selection replacement" else "Review Gemini file replacement",
                 filePath = current.file.getAbsolutePath(),
                 oldText = oldText,
@@ -114,9 +114,9 @@ class EditorService(
             val editor = current.editorState.editor.get() ?: return@launch
             val line = editor.cursor.leftLine
             val column = editor.cursor.leftColumn
-            current.editorState.pendingGeminiPatch?.reject?.invoke()
-            current.editorState.pendingGeminiPatch = EditorPatch(
-                title = "Review Gemini insertion",
+            current.editorState.pendingAiPatch?.reject?.invoke()
+            current.editorState.pendingAiPatch = EditorPatch(
+                title = "Review AI insertion",
                 filePath = current.file.getAbsolutePath(),
                 oldText = "",
                 newText = newContent,
@@ -178,8 +178,8 @@ class EditorService(
                 })
                 return@launch
             }
-            tab.editorState.pendingGeminiPatch?.reject?.invoke()
-            tab.editorState.pendingGeminiPatch = EditorPatch(
+            tab.editorState.pendingAiPatch?.reject?.invoke()
+            tab.editorState.pendingAiPatch = EditorPatch(
                 title = title, filePath = filePath, oldText = oldContent, newText = newContent,
                 apply = {
                     viewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -191,7 +191,7 @@ class EditorService(
                                 })
                             }
                             .onFailure {
-                                toast("Gemini apply failed: ${it.message ?: it::class.java.simpleName}")
+                                toast("AI apply failed: ${it.message ?: it::class.java.simpleName}")
                                 notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply {
                                     addProperty("filePath", filePath)
                                     addProperty("reason", it.message ?: "apply failed")
@@ -211,8 +211,8 @@ class EditorService(
     fun rejectPatch(filePath: String) {
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             findTabByPath(filePath)?.let {
-                it.editorState.pendingGeminiPatch?.reject?.invoke()
-                it.editorState.pendingGeminiPatch = null
+                it.editorState.pendingAiPatch?.reject?.invoke()
+                it.editorState.pendingAiPatch = null
             }
         }
     }

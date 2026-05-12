@@ -1,5 +1,7 @@
 package com.rk.exec
 
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -9,18 +11,22 @@ import kotlinx.coroutines.withContext
 object ShellUtils {
     data class Result(val exitCode: Int, val output: String, val error: String, val timedOut: Boolean)
 
+    private const val BUFFER_SIZE = 8192
+
     suspend fun run(vararg command: String, timeoutSeconds: Long? = null): Result =
         withContext(Dispatchers.IO) {
-            val process = ProcessBuilder(*command).start()
+            val process = ProcessBuilder(*command)
+                .redirectErrorStream(false)
+                .start()
 
-            val output = StringBuilder()
-            val error = StringBuilder()
+            val stdout = StringBuilder(1024)
+            val stderr = StringBuilder(512)
 
             val outputThread = Thread {
-                runCatching { process.inputStream.bufferedReader().forEachLine { output.appendLine(it) } }
+                readStream(process.inputStream, stdout)
             }
             val errorThread = Thread {
-                runCatching { process.errorStream.bufferedReader().forEachLine { error.appendLine(it) } }
+                readStream(process.errorStream, stderr)
             }
 
             outputThread.start()
@@ -34,17 +40,15 @@ object ShellUtils {
                     false
                 }
 
-            if (timedOut) {
-                process.destroyForcibly()
-            }
+            if (timedOut) process.destroyForcibly()
 
-            outputThread.join()
-            errorThread.join()
+            outputThread.join(2000)
+            errorThread.join(2000)
 
             Result(
                 exitCode = if (timedOut) -1 else process.exitValue(),
-                output = output.toString().trim(),
-                error = error.toString().trim(),
+                output = stdout.trimEnd().toString(),
+                error = stderr.trimEnd().toString(),
                 timedOut = timedOut,
             )
         }
@@ -53,14 +57,14 @@ object ShellUtils {
         withContext(Dispatchers.IO) {
             val process = ubuntuProcess(workingDir = workingDir, command = command.toList())
 
-            val output = StringBuilder()
-            val error = StringBuilder()
+            val stdout = StringBuilder(1024)
+            val stderr = StringBuilder(512)
 
             val outputThread = Thread {
-                runCatching { process.inputStream.bufferedReader().forEachLine { output.appendLine(it) } }
+                readStream(process.inputStream, stdout)
             }
             val errorThread = Thread {
-                runCatching { process.errorStream.bufferedReader().forEachLine { error.appendLine(it) } }
+                readStream(process.errorStream, stderr)
             }
 
             outputThread.start()
@@ -74,17 +78,15 @@ object ShellUtils {
                     false
                 }
 
-            if (timedOut) {
-                process.destroyForcibly()
-            }
+            if (timedOut) process.destroyForcibly()
 
-            outputThread.join()
-            errorThread.join()
+            outputThread.join(2000)
+            errorThread.join(2000)
 
             Result(
                 exitCode = if (timedOut) -1 else process.exitValue(),
-                output = output.toString().trim(),
-                error = error.toString().trim(),
+                output = stdout.trimEnd().toString(),
+                error = stderr.trimEnd().toString(),
                 timedOut = timedOut,
             )
         }
@@ -98,12 +100,12 @@ object ShellUtils {
     ): Result =
         withContext(Dispatchers.IO) {
             val process = ubuntuProcess(workingDir = workingDir, command = command.toList())
-            val output = StringBuilder()
-            val error = StringBuilder()
+            val output = StringBuilder(1024)
+            val error = StringBuilder(512)
 
             val outputThread = Thread {
                 runCatching {
-                    process.inputStream.bufferedReader().forEachLine { line ->
+                    process.inputStream.bufferedReader(BUFFER_SIZE).forEachLine { line ->
                         output.appendLine(line)
                         onStdout(line)
                     }
@@ -111,7 +113,7 @@ object ShellUtils {
             }
             val errorThread = Thread {
                 runCatching {
-                    process.errorStream.bufferedReader().forEachLine { line ->
+                    process.errorStream.bufferedReader(BUFFER_SIZE).forEachLine { line ->
                         error.appendLine(line)
                         onStderr(line)
                     }
@@ -143,9 +145,19 @@ object ShellUtils {
 
             Result(
                 exitCode = if (timedOut) -1 else runCatching { process.exitValue() }.getOrDefault(-1),
-                output = output.toString().trim(),
-                error = error.toString().trim(),
+                output = output.trimEnd().toString(),
+                error = error.trimEnd().toString(),
                 timedOut = timedOut,
             )
         }
+
+    private fun readStream(stream: java.io.InputStream, sb: StringBuilder) {
+        val buf = CharArray(BUFFER_SIZE)
+        BufferedReader(InputStreamReader(stream), BUFFER_SIZE).use { reader ->
+            var read: Int
+            while (reader.read(buf).also { read = it } != -1) {
+                sb.append(buf, 0, read)
+            }
+        }
+    }
 }
