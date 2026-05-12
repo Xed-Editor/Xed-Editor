@@ -135,11 +135,23 @@ class IdeServiceImpl(
         viewModel.viewModelScope.launch(Dispatchers.Main) {
             var tab = findTabByPath(filePath)
             if (tab == null) {
+                // openFile is a suspend function that handles its own main thread switching
                 viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
-                tab = findTabByPath(filePath)
+                // Wait briefly for the tab to be added to viewModel.tabs if it's not immediate
+                var attempts = 0
+                while (tab == null && attempts < 20) {
+                    delay(50)
+                    tab = findTabByPath(filePath)
+                    attempts++
+                }
             }
 
-            if (tab == null) return@launch
+            if (tab == null) {
+                notificationSender?.sendNotification("ide/error", JsonObject().apply {
+                    addProperty("message", "Failed to open file for patching: $filePath")
+                })
+                return@launch
+            }
 
             // Reject existing patch if any
             tab.editorState.pendingGeminiPatch?.reject?.invoke()

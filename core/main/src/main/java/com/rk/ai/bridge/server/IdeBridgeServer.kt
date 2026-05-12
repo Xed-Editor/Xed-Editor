@@ -215,30 +215,41 @@ class IdeBridgeServer(
             return requestedSessionId
         }
         if (method == "initialize") {
-            val newSessionId = activeMcpSessionId ?: UUID.randomUUID().toString()
+            val newSessionId = UUID.randomUUID().toString()
             activeMcpSessionId = newSessionId
             return newSessionId
         }
         return activeMcpSessionId
     }
 
-    /** MCP SSE transport: sends initialization events and closes (OpenCode requires SSE to complete) */
+    /** Standard MCP HTTP/SSE transport: GET establishes SSE stream */
     private fun serveSseStream(session: IHTTPSession): Response {
         val sessionId = UUID.randomUUID().toString()
-        val body = buildString {
-            append("event: endpoint\n")
-            append("data: http://127.0.0.1:${listeningPort}/messages?sessionId=${sessionId}\n\n")
-            append("event: message\n")
-            append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-            append("event: initialized\n")
-            append("data: {}\n\n")
-        }
+
+        val output = PipedOutputStream()
+        val writer = PrintWriter(output, true)
 
         synchronized(sseLock) {
-            connectedClients = sseClients.size + 1
+            sseClients[sessionId] = writer
+            connectedClients = sseClients.size
         }
 
-        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", body).apply {
+        val host = session.headers["host"] ?: "127.0.0.1"
+
+        val sseData = StringBuilder()
+        sseData.append("event: endpoint\n")
+        sseData.append("data: http://$host/messages?sessionId=$sessionId\n\n")
+        sseData.append("event: message\n")
+        sseData.append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+        sseData.append("event: message\n")
+        sseData.append("data: ${notificationJson("initialized", JsonObject())}\n\n")
+
+        writer.print(sseData.toString())
+        writer.flush()
+        writer.close()
+
+        val input = PipedInputStream(output)
+        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, sseData.length.toLong()).apply {
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")
@@ -258,6 +269,7 @@ class IdeBridgeServer(
             ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
 
         val sessionId = session.parameters["sessionId"]?.firstOrNull()
+            ?: session.headers[MCP_SESSION_ID_HEADER]
             ?: activeMcpSessionId
             ?: "default"
 
@@ -298,13 +310,27 @@ class IdeBridgeServer(
                 ?: session.parameters["sessionId"]?.firstOrNull()
                 ?: activeMcpSessionId
                 ?: "default"
-        val body = buildString {
-            append("event: message\n")
-            append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-            append("event: initialized\n")
-            append("data: {}\n\n")
+
+        val output = PipedOutputStream()
+        val writer = PrintWriter(output, true)
+
+        synchronized(sseLock) {
+            sseClients[requestedSessionId] = writer
+            connectedClients = sseClients.size
         }
-        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", body).apply {
+
+        val sseData = StringBuilder()
+        sseData.append("event: message\n")
+        sseData.append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+        sseData.append("event: message\n")
+        sseData.append("data: ${notificationJson("initialized", JsonObject())}\n\n")
+
+        writer.print(sseData.toString())
+        writer.flush()
+        writer.close()
+
+        val input = PipedInputStream(output)
+        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, sseData.length.toLong()).apply {
             addHeader("mcp-session-id", requestedSessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")
