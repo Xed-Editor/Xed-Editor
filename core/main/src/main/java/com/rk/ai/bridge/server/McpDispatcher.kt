@@ -4,8 +4,8 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
-import com.rk.ai.IdeMcpTools
 import com.rk.ai.bridge.McpToolRegistry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -40,14 +40,14 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
     })
 
     private fun toolsListResult(id: JsonElement): String =
-        resultJson(id, JsonObject().apply { add("tools", IdeMcpTools.list()) })
+        resultJson(id, JsonObject().apply { add("tools", toolRegistry().listSchemas()) })
 
     private fun toolsCallResult(id: JsonElement, request: JsonObject): String {
         val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
         val name = params.get("name")?.asString.orEmpty()
         val args = params.getAsJsonObject("arguments") ?: JsonObject()
         return try {
-            val result = runBlocking {
+            val result = runBlocking(Dispatchers.IO) {
                 withTimeout(TOOL_TIMEOUT_MS) { toolRegistry().execute(name, args) }
             } ?: return errorJson(id, -32601, "unknown tool: $name")
             resultJson(id, result)

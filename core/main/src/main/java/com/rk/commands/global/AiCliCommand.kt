@@ -1,7 +1,7 @@
 package com.rk.commands.global
 
 import com.rk.ai.IdeBridge
-import com.rk.ai.ideWorkspacePath
+import com.rk.ai.session.AgentEnvironmentBuilder
 import com.rk.ai.session.AiSessionManager
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
@@ -54,21 +54,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 id = "${agent.name}-cli",
                 terminatePreviousSession = false,
                 workingDir = workspaceDir,
-                env = arrayOf(
-                    "WKDIR=$workspaceDir",
-                    "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
-                    "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
-                    "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-                    "GEMINI_CLI_IDE_WORKSPACE_PATH=${ideWorkspacePath(workspaceDir)}",
-                    "IDE_SERVER_PORT=${bridge.port}",
-                    "IDE_AUTH_TOKEN=${bridge.token}",
-                    "IDE_WORKSPACE_PATH=${ideWorkspacePath(workspaceDir)}",
-                    "TERM_PROGRAM=vscode",
-                    "TERM_PROGRAM_VERSION=1.0.0",
-                    "VSCODE_PID=${android.os.Process.myPid()}",
-                    "EDITOR=vim",
-                    "VISUAL=vim",
-                ),
+                env = AgentEnvironmentBuilder.buildMinimalBridgeEnv(bridge, workspaceDir),
             ),
         )
     }

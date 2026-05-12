@@ -16,35 +16,38 @@ object IdeBridge {
 
     private var server: IdeBridgeServer? = null
 
-    fun connectedClients(): Int = server?.connectedClients ?: 0
-    fun availableTools(): Int = IdeMcpTools.list().size()
+    fun connectedClients(): Int = synchronized(stateLock) { server?.connectedClients ?: 0 }
+    fun availableTools(): Int = synchronized(stateLock) { server?.toolsCount ?: 0 }
     private var token: String? = null
     private var port: Int = 0
     private var host: String = "127.0.0.1"
     private val secureRandom = SecureRandom()
     private val workspacePaths = mutableListOf<String>()
     private val workspacePathsLock = Any()
+    private val stateLock = Any()
 
-    fun isRunning(): Boolean = server != null
+    fun isRunning(): Boolean = synchronized(stateLock) { server != null }
 
-    fun getBridgeInfo(): Info? {
-        val s = server ?: return null
-        val t = token ?: return null
-        return Info(s.port, t, host)
+    fun getBridgeInfo(): Info? = synchronized(stateLock) {
+        val s = server ?: return@synchronized null
+        val t = token ?: return@synchronized null
+        Info(s.port, t, host)
     }
 
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
         workspacePath?.let { setWorkspacePath(it) }
-        if (server != null) return getBridgeInfo()
+        synchronized(stateLock) { if (server != null) return getBridgeInfo() }
 
         runCatching {
             val t = newToken()
-            token = t
-            val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
-            s.start()
-            server = s
-            port = s.port
-            s.ideService = IdeServiceImpl(viewModel, s)
+            synchronized(stateLock) {
+                token = t
+                val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
+                s.start()
+                server = s
+                port = s.port
+                s.ideService = IdeServiceImpl(viewModel, s)
+            }
 
             synchronized(workspacePathsLock) {
                 if (workspacePaths.isNotEmpty()) {
@@ -57,9 +60,11 @@ object IdeBridge {
             }
         }.onFailure {
             Log.e("IdeBridge", "Failed to start server", it)
-            server = null
-            token = null
-            port = 0
+            synchronized(stateLock) {
+                server = null
+                token = null
+                port = 0
+            }
         }
         
         return getBridgeInfo()
@@ -67,7 +72,7 @@ object IdeBridge {
 
     /** Check if the bridge is reachable via HTTP health check */
     fun healthCheck(): Boolean {
-        val s = server ?: return false
+        val s = synchronized(stateLock) { server } ?: return false
         return runCatching {
             val url = URL("http://$host:${s.port}/health")
             val conn = url.openConnection() as HttpURLConnection
@@ -81,8 +86,8 @@ object IdeBridge {
         synchronized(workspacePathsLock) {
             if (!workspacePaths.contains(path)) {
                 workspacePaths.add(path)
-                val s = server
-                val t = token
+                val s = synchronized(stateLock) { server }
+                val t = synchronized(stateLock) { token }
                 if (s != null && t != null) {
                     writeDiscoveryFile(host, s.port, t, workspacePathForResolution())
                 }
@@ -91,11 +96,13 @@ object IdeBridge {
     }
 
     fun stop() {
-        Log.d("IdeBridge", "Stopping server")
-        server?.stop()
-        server = null
-        token = null
-        port = 0
+        synchronized(stateLock) {
+            Log.d("IdeBridge", "Stopping server")
+            server?.stop()
+            server = null
+            token = null
+            port = 0
+        }
         synchronized(workspacePathsLock) { workspacePaths.clear() }
         clearDiscoveryFilesForProcess()
     }

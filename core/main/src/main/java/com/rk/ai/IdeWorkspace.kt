@@ -1,10 +1,12 @@
 package com.rk.ai
 
+import com.rk.activities.main.MainViewModel
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
+import com.rk.tabs.editor.EditorTab
 import java.io.File
 import java.net.URI
-
-private val fallbackWorkspaceRoots = listOf("/home", "/storage/emulated/0", "/sdcard")
 
 internal fun ideWorkspacePath(primary: String): String {
     val primaryFile = File(primary)
@@ -19,10 +21,9 @@ internal fun ideWorkspacePath(primary: String): String {
     }
 
     val roots = if (com.rk.settings.Settings.sandbox) {
-        // In sandbox mode, only include the internal home and the specific variants
         (variants + "/home").filter { it.isNotBlank() }
     } else {
-        (variants + fallbackWorkspaceRoots).filter { it.isNotBlank() }
+        (variants + AiConfig.fallbackWorkspaceRoots).filter { it.isNotBlank() }
     }
 
     return roots
@@ -79,4 +80,28 @@ private fun androidFileForProotPath(file: File): File {
     if (path == "/home") return sandboxHomeDir()
     if (path.startsWith("/home/")) return File(sandboxHomeDir(), path.removePrefix("/home/"))
     return file
+}
+
+suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String =
+    projectRoot?.getAbsolutePath()
+        ?: (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
+        ?: file.getAbsolutePath()
+
+fun resolveRelativePathFromOpenEditor(path: String, viewModel: MainViewModel): File? {
+    val activeTab = viewModel.currentTab as? EditorTab
+    val activeBase = activeTab?.let { File(it.file.getAbsolutePath()).parentFile }
+    activeBase?.let { parent ->
+        resolveWorkspacePath(com.rk.ai.IdeBridge.workspacePathForResolution(), File(parent, path).path)?.let { return it }
+    }
+    val exactMatches = viewModel.tabs
+        .filterIsInstance<EditorTab>()
+        .mapNotNull { tab ->
+            val tabFile = File(tab.file.getAbsolutePath())
+            if (tabFile.path.endsWith(File.separator + path)) {
+                resolveWorkspacePath(com.rk.ai.IdeBridge.workspacePathForResolution(), tabFile.path)
+            } else null
+        }
+        .distinctBy { it.absolutePath }
+    if (exactMatches.size == 1) return exactMatches.first()
+    return null
 }

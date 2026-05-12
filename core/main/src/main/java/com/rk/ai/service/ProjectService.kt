@@ -3,9 +3,14 @@ package com.rk.ai.service
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.AiConfig
 import com.rk.ai.IdeBridge
-import com.rk.file.FileWrapper
-import com.rk.file.toFileWrapper
+import com.rk.ai.displayRootFor
+import com.rk.ai.ideWorkspacePath
+import com.rk.ai.resolveRelativePathFromOpenEditor
+import com.rk.ai.resolveWorkspacePath
+import com.rk.ai.workspaceRoots
+import com.rk.filetree.FileTreeTab
 import com.rk.search.SearchViewModel
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
@@ -72,7 +77,7 @@ class ProjectService(private val viewModel: MainViewModel) {
     suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String {
         val dir = resolvePath(path) ?: throw IllegalArgumentException("path outside workspace: $path")
         if (!dir.exists() || !dir.isDirectory) throw IllegalArgumentException("not a directory: $path")
-        val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules", ".dex", ".cache")
+        val ignored = AiConfig.ignoredDirectories
         val output = StringBuilder(4096)
         var count = 0
         withContext(Dispatchers.IO) {
@@ -102,22 +107,23 @@ class ProjectService(private val viewModel: MainViewModel) {
         return withContext(Dispatchers.IO) {
             val result = JsonObject()
             val files = root.listFiles()?.map { it.name }?.toSet() ?: emptySet()
-            when {
-                "package.json" in files -> {
-                    result.addProperty("language", "JavaScript/TypeScript")
-                    result.addProperty("buildSystem", "npm/yarn/pnpm")
+            val detected = AiConfig.ProjectDetection.configFiles.entries.firstOrNull { (file, _) -> file in files }
+            if (detected != null) {
+                val (_, info) = detected
+                result.addProperty("language", info.first)
+                result.addProperty("buildSystem", info.second)
+                if (detected.key == "package.json") {
                     runCatching {
                         com.google.gson.JsonParser.parseString(File(root, "package.json").readText()).asJsonObject
                             .getAsJsonObject("scripts")?.let { result.add("scripts", it) }
                     }
                 }
-                "pubspec.yaml" in files -> { result.addProperty("language", "Dart"); result.addProperty("buildSystem", "pub") }
-                "build.gradle.kts" in files || "build.gradle" in files -> { result.addProperty("language", "Kotlin/Java"); result.addProperty("buildSystem", "Gradle") }
-                "Cargo.toml" in files -> { result.addProperty("language", "Rust"); result.addProperty("buildSystem", "Cargo") }
-                "CMakeLists.txt" in files -> { result.addProperty("language", "C/C++"); result.addProperty("buildSystem", "CMake") }
-                "go.mod" in files -> { result.addProperty("language", "Go"); result.addProperty("buildSystem", "go mod") }
-                "requirements.txt" in files || "setup.py" in files || "pyproject.toml" in files -> { result.addProperty("language", "Python"); result.addProperty("buildSystem", "pip/poetry") }
-                else -> { result.addProperty("language", "unknown"); result.addProperty("buildSystem", "unknown") }
+            } else if (AiConfig.ProjectDetection.pythonIndicators.any { it in files }) {
+                result.addProperty("language", "Python")
+                result.addProperty("buildSystem", "pip/poetry")
+            } else {
+                result.addProperty("language", "unknown")
+                result.addProperty("buildSystem", "unknown")
             }
             result.addProperty("workspace", root.absolutePath)
             result.add("files", JsonArray().apply { files.filter { !it.startsWith(".") }.take(50).forEach { add(it) } })
@@ -148,23 +154,8 @@ class ProjectService(private val viewModel: MainViewModel) {
     private fun resolvePath(path: String): File? {
         val normalized = path.trim()
         if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
-            resolveRelativePathFromOpenEditor(normalized)?.let { return it }
+            resolveRelativePathFromOpenEditor(normalized, viewModel)?.let { return it }
         }
         return com.rk.ai.resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
-    }
-
-    private fun resolveRelativePathFromOpenEditor(path: String): File? {
-        val activeTab = viewModel.currentTab as? EditorTab
-        val activeBase = activeTab?.let { File(it.file.getAbsolutePath()).parentFile }
-        activeBase?.let { parent ->
-            com.rk.ai.resolveWorkspacePath(IdeBridge.workspacePathForResolution(), File(parent, path).path)?.let { return it }
-        }
-        val exactMatches = viewModel.tabs.filterIsInstance<EditorTab>().mapNotNull { tab ->
-            val tabFile = File(tab.file.getAbsolutePath())
-            if (tabFile.path.endsWith(File.separator + path))
-                com.rk.ai.resolveWorkspacePath(IdeBridge.workspacePathForResolution(), tabFile.path) else null
-        }.distinctBy { it.absolutePath }
-        if (exactMatches.size == 1) return exactMatches.first()
-        return null
     }
 }

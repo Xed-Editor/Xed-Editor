@@ -1,8 +1,8 @@
 package com.rk.ai
 
+import com.rk.ai.AiConfig
+import com.rk.ai.session.AgentEnvironmentBuilder
 import com.rk.exec.ShellUtils
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.terminal.setupTerminalFiles
@@ -89,22 +89,10 @@ object GeminiCli {
             buildList {
                     if (ideBridge != null) {
                         val tmpDir = File(getTempDir(), "terminal/gemini-sheet")
-                        add("/usr/bin/env")
+                        addAll(AgentEnvironmentBuilder.buildMinimalBridgeEnv(ideBridge, workingDir ?: "").toList())
+                        addAll(AgentEnvironmentBuilder.buildDebugEnv().map { "${it.key}=${it.value}" })
                         add("TMPDIR=${tmpDir.absolutePath}")
                         add("TMP_DIR=${tmpDir.absolutePath}")
-                        add("DEBUG=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}")
-                        add("DEBUG_MODE=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}")
-                        add("GEMINI_DEBUG_LOG_FILE=${System.getenv("XED_GEMINI_DEBUG_LOG_FILE") ?: "/home/.gemini/xed-debug.log"}")
-                        add("GEMINI_CONTEXT_TRACE_DIR=${System.getenv("XED_GEMINI_CONTEXT_TRACE_DIR") ?: "/home/.gemini/xed-traces"}")
-                        add("GEMINI_CLI_IDE_SERVER_PORT=${ideBridge.port}")
-                        add("TERM_PROGRAM=vscode")
-                        add("TERM_PROGRAM_VERSION=1.0.0")
-                        add("VSCODE_PID=${android.os.Process.myPid()}")
-                        add("EDITOR=vim")
-                        add("VISUAL=vim")
-                        add("GEMINI_CLI_IDE_AUTH_TOKEN=${ideBridge.token}")
-                        add("GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}")
-                        add("GEMINI_CLI_IDE_WORKSPACE_PATH=${IdeBridge.workspacePathForResolution()}")
                     }
                     add("/bin/bash")
                     add(localBinDir().child("gemini-cli-headless").absolutePath)
@@ -122,12 +110,6 @@ object GeminiCli {
                 onStderr = onOutput,
             )
         }
-    }
-
-    suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String {
-        return projectRoot?.getAbsolutePath()
-            ?: (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
-            ?: file.getAbsolutePath()
     }
 
     fun stripCodeFences(text: String): String {

@@ -4,6 +4,7 @@ import android.os.Process
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.rk.ai.AiConfig
 import com.rk.ai.IdeBridge
 import com.rk.file.sandboxHomeDir
 import com.rk.utils.getTempDir
@@ -42,7 +43,7 @@ object DiscoveryFileWriter {
         runCatching {
             val configDir = sandboxHomeDir().let { File(it, ".config/opencode") }
             configDir.mkdirs()
-            val configFile = File(configDir, "opencode.json")
+            val configFile = File(configDir, AiConfig.Discovery.openCodeConfigFile)
             val existing = runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
             existing.remove("mcpServers")
             val mcp = existing.getAsJsonObject("mcp") ?: JsonObject().also { existing.add("mcp", it) }
@@ -58,7 +59,7 @@ object DiscoveryFileWriter {
         runCatching {
             val geminiDir = sandboxHomeDir().let { File(it, ".gemini") }
             geminiDir.mkdirs()
-            val settingsFile = File(geminiDir, "settings.json")
+            val settingsFile = File(geminiDir, AiConfig.Discovery.geminiSettingsFile)
             val existing = runCatching { JsonParser.parseString(settingsFile.readText()).asJsonObject }.getOrDefault(JsonObject())
             
             // Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
@@ -85,18 +86,15 @@ object DiscoveryFileWriter {
         val tmpDir = getTempDir()
         val agentSheetDirs = listOf("gemini", "opencode")
         val dirs = mutableListOf<File>().apply {
-            add(File(tmpDir, "gemini/ide"))
-            add(File(tmpDir, "terminal/gemini-sheet/gemini/ide"))
+            AiConfig.Discovery.discoveryDirs.forEach { add(File(tmpDir, it)) }
+            add(File(AiConfig.Discovery.tmpDiscoveryDir))
             agentSheetDirs.forEach { agent ->
-                add(File(tmpDir, "terminal/$agent-sheet/gemini/ide"))
                 add(File(tmpDir, "terminal/$agent-sheet/$agent/ide"))
             }
-            add(File(tmpDir, "ide-bridge"))
-            add(File("/tmp", "xed-ide"))
             info.workspacePath.split(File.pathSeparator).forEach { wp ->
                 if (wp.isNotBlank()) {
-                    add(File(wp, ".xed"))
-                    add(File(wp, ".opencode"))
+                    add(File(wp, AiConfig.Discovery.xedIdeDir))
+                    add(File(wp, AiConfig.Discovery.openCodeDir))
                 }
             }
         }
@@ -117,7 +115,7 @@ object DiscoveryFileWriter {
                     }
                 val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-${info.port}.json" else "gemini-ide-server-$pid-${info.port}.json"
                 File(dir, fileName).writeText(json)
-                if (dir.name == ".xed") {
+                if (dir.name == AiConfig.Discovery.xedIdeDir) {
                     File(dir, "ide.json").writeText(json)
                     File(dir, "ide.env").writeText(buildString {
                         appendLine("export XED_IDE_URL=$url"); appendLine("export XED_IDE_HOST=${info.host}")
@@ -125,8 +123,8 @@ object DiscoveryFileWriter {
                         appendLine("export IDE_SERVER_PORT=${info.port}"); appendLine("export IDE_AUTH_TOKEN=${info.token}")
                     })
                 }
-                if (dir.name == ".opencode") {
-                    val existingMcp = runCatching { JsonParser.parseString(File(dir, "mcp.json").readText()).asJsonObject }.getOrDefault(JsonObject())
+                if (dir.name == AiConfig.Discovery.openCodeDir) {
+                    val existingMcp = runCatching { JsonParser.parseString(File(dir, AiConfig.Discovery.openCodeMcpFile).readText()).asJsonObject }.getOrDefault(JsonObject())
                     existingMcp.remove("mcpServers")
                     val mcp = existingMcp.getAsJsonObject("mcp") ?: JsonObject().also { existingMcp.add("mcp", it) }
                     mcp.add("xed-ide", JsonObject().apply {
@@ -142,14 +140,7 @@ object DiscoveryFileWriter {
     fun clearForProcess() {
         val pid = Process.myPid()
         val tmpDir = getTempDir()
-        val dirs = listOf(
-            File(tmpDir, "gemini/ide"),
-            File(tmpDir, "terminal/gemini-sheet/gemini/ide"),
-            File(tmpDir, "terminal/opencode-sheet/gemini/ide"),
-            File(tmpDir, "terminal/opencode-sheet/opencode/ide"),
-            File(tmpDir, "ide-bridge"),
-            File("/tmp", "xed-ide"),
-        )
+        val dirs = AiConfig.Discovery.discoveryDirs.map { File(tmpDir, it) } + File(AiConfig.Discovery.tmpDiscoveryDir)
         dirs.forEach { dir ->
             dir.listFiles { file -> file.name.contains("-$pid-") && file.name.endsWith(".json") }
                 ?.forEach { it.delete() }

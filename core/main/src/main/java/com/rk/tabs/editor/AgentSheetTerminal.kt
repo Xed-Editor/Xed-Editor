@@ -1,9 +1,7 @@
 package com.rk.tabs.editor
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -31,20 +29,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blankj.utilcode.util.ClipboardUtils
-import com.rk.ai.IdeBridge
-import com.rk.ai.ideWorkspacePath
 import com.rk.editor.FontCache
-import com.rk.file.child
-import com.rk.file.localBinDir
-import com.rk.file.localDir
-import com.rk.file.localLibDir
-import com.rk.file.sandboxDir
-import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.settings.terminal.TerminalCursorStyle
-import com.rk.terminal.TerminalBackEnd
-import com.rk.terminal.setupTerminalFiles
 import com.rk.terminal.virtualkeys.SpecialButton
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
@@ -52,9 +40,6 @@ import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
 import com.rk.utils.dpToPx
-import com.rk.utils.getSourceDirOfPackage
-import com.rk.utils.getTempDir
-import com.rk.utils.isFDroid
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -62,7 +47,6 @@ import com.termux.terminal.TerminalSessionClient
 import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
-import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Properties
 import kotlinx.coroutines.launch
@@ -465,100 +449,6 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
             },
         )
     }
-}
-
-fun createGeminiSheetSession(
-    activity: Activity,
-    bridge: IdeBridge.Info,
-    workingDir: String,
-    extraArgs: List<String> = emptyList(),
-): TerminalSession {
-    setupTerminalFiles()
-    val (shell, args) = geminiSheetProcessArgs(extraArgs, workingDir)
-    return TerminalSession(
-        shell,
-        workingDir,
-        args,
-        buildGeminiSheetEnv(activity, workingDir, bridge),
-        Settings.terminal_scrollback_buffer,
-        TerminalBackEnd(), // Safe default client to avoid NPE during initialization
-    )    .also { it.mSessionName = "agent-sheet" }
-}
-
-private fun geminiSheetProcessArgs(extraArgs: List<String>, workingDir: String): Pair<String, Array<String>> {
-    val sandbox = localBinDir().child("sandbox").absolutePath
-    val geminiLauncher = localBinDir().child("gemini-cli").absolutePath
-    val command =
-        listOf(
-            sandbox,
-            "/bin/bash",
-            geminiLauncher,
-            "--skip-trust",
-            "--include-directories",
-            workingDir,
-        ) + extraArgs
-    return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
-}
-
-private fun buildGeminiSheetEnv(activity: Activity, workingDir: String, bridge: IdeBridge.Info): Array<String> {
-    val tmpDir = File(getTempDir(), "terminal/gemini-sheet").apply { mkdirs() }
-    val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
-    return mutableListOf(
-        "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-        "WKDIR=$workingDir",
-        "PUBLIC_HOME=${activity.getExternalFilesDir(null)?.absolutePath}",
-        "COLORTERM=truecolor",
-        "TERM=xterm-256color",
-        "TERM_PROGRAM=vscode",
-        "TERM_PROGRAM_VERSION=1.0.0",
-        "VSCODE_PID=${android.os.Process.myPid()}",
-        "EDITOR=vim",
-        "VISUAL=vim",
-        "LANG=C.UTF-8",
-        "DEBUG=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}",
-        "DEBUG_MODE=${System.getenv("XED_GEMINI_DEBUG") ?: "true"}",
-        "GEMINI_DEBUG_LOG_FILE=${System.getenv("XED_GEMINI_DEBUG_LOG_FILE") ?: "/home/.gemini/xed-debug.log"}",
-        "GEMINI_CONTEXT_TRACE_DIR=${System.getenv("XED_GEMINI_CONTEXT_TRACE_DIR") ?: "/home/.gemini/xed-traces"}",
-        "LOCAL=${localDir().absolutePath}",
-        "PRIVATE_DIR=${activity.filesDir.parentFile!!.absolutePath}",
-        "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
-        "EXT_HOME=${sandboxHomeDir()}",
-        "HOME=${if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath}",
-        "PROMPT_DIRTRIM=2",
-        "LINKER=$linker",
-        "NATIVE_LIB_DIR=${activity.applicationInfo.nativeLibraryDir}",
-        "FDROID=$isFDroid",
-        "SANDBOX=${Settings.sandbox}",
-        "TMP_DIR=${tmpDir.absolutePath}",
-        "TMPDIR=${tmpDir.absolutePath}",
-        "TZ=UTC",
-        "DOTNET_GCHeapHardLimit=1C0000000",
-        "SOURCE_DIR=${activity.applicationInfo.sourceDir}",
-        "TERMUX_X11_SOURCE_DIR=${getSourceDirOfPackage(activity, "com.termux.x11").orEmpty()}",
-        "DISPLAY=:0",
-        "PATH=${System.getenv("PATH")}:${localBinDir().absolutePath}",
-        "ANDROID_ART_ROOT=${System.getenv("ANDROID_ART_ROOT").orEmpty()}",
-        "ANDROID_DATA=${System.getenv("ANDROID_DATA").orEmpty()}",
-        "ANDROID_I18N_ROOT=${System.getenv("ANDROID_I18N_ROOT").orEmpty()}",
-        "ANDROID_ROOT=${System.getenv("ANDROID_ROOT").orEmpty()}",
-        "ANDROID_RUNTIME_ROOT=${System.getenv("ANDROID_RUNTIME_ROOT").orEmpty()}",
-        "ANDROID_TZDATA_ROOT=${System.getenv("ANDROID_TZDATA_ROOT").orEmpty()}",
-        "BOOTCLASSPATH=${System.getenv("BOOTCLASSPATH").orEmpty()}",
-        "DEX2OATBOOTCLASSPATH=${System.getenv("DEX2OATBOOTCLASSPATH").orEmpty()}",
-        "EXTERNAL_STORAGE=${System.getenv("EXTERNAL_STORAGE").orEmpty()}",
-        "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
-        "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
-        "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
-        "GEMINI_CLI_IDE_WORKSPACE_PATH=${ideWorkspacePath(workingDir)}",
-    ).apply {
-        if (!isFDroid) {
-            add("PROOT_LOADER=${activity.applicationInfo.nativeLibraryDir}/libproot-loader.so")
-            if (Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() && File(activity.applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()) {
-                add("PROOT_LOADER32=${activity.applicationInfo.nativeLibraryDir}/libproot-loader32.so")
-            }
-        }
-        if (Settings.seccomp) add("SECCOMP=1")
-    }.toTypedArray()
 }
 
 private fun TerminalView.applyGeminiSheetTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {

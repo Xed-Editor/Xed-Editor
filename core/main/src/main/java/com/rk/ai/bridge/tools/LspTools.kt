@@ -6,6 +6,8 @@ import com.rk.ai.service.IdeService
 
 class GetDiagnosticsTool : McpTool {
     override fun getName(): String = "getDiagnostics"
+    override fun getDescription(): String = "Returns LSP diagnostics for a file."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
@@ -23,6 +25,8 @@ class GetDiagnosticsTool : McpTool {
 
 class FindDefinitionsTool : McpTool {
     override fun getName(): String = "findDefinitions"
+    override fun getDescription(): String = "Finds the definition location of a symbol."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number", "column" to "number")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         val line = args.get("line")?.asInt ?: throw IllegalArgumentException("line required")
@@ -42,6 +46,8 @@ class FindDefinitionsTool : McpTool {
 
 class FindReferencesTool : McpTool {
     override fun getName(): String = "findReferences"
+    override fun getDescription(): String = "Finds all references to a symbol."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number", "column" to "number")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         val line = args.get("line")?.asInt ?: throw IllegalArgumentException("line required")

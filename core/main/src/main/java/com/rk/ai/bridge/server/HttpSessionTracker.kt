@@ -2,6 +2,10 @@ package com.rk.ai.bridge.server
 
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class HttpSessionTracker(private val onClientsChanged: (Int) -> Unit) {
 
@@ -12,7 +16,7 @@ class HttpSessionTracker(private val onClientsChanged: (Int) -> Unit) {
     val httpSessions: Map<String, Long> get() = httpClientSessions
     val httpSessionCount: Int get() = httpClientSessions.size
     val sseSessionCount: Int get() = sseCount
-    val sseSessionIds: Set<String> get() = emptySet() // not stored here
+    val sseSessionIds: Set<String> get() = emptySet()
 
     fun updateSseCount(count: Int) { sseCount = count; onClientsChanged(totalConnectedClients) }
 
@@ -38,12 +42,12 @@ class HttpSessionTracker(private val onClientsChanged: (Int) -> Unit) {
         onClientsChanged(totalConnectedClients)
     }
 
-    fun startBackgroundCleanup() {
-        Thread {
-            while (true) {
-                try { Thread.sleep(60_000); cleanupStale() }
-                catch (_: InterruptedException) { break }
+    fun startBackgroundCleanup(scope: CoroutineScope) {
+        scope.launch {
+            while (isActive) {
+                delay(60_000)
+                cleanupStale()
             }
-        }.apply { isDaemon = true; start() }
+        }
     }
 }

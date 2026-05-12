@@ -1,10 +1,12 @@
 package com.rk.ai.service
 
 import android.os.Looper
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.bridge.IdeNotificationSender
 import com.rk.file.FileWrapper
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
@@ -12,9 +14,12 @@ import com.rk.tabs.editor.EditorPatch
 import com.rk.utils.toast
 import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 class EditorService(
     private val viewModel: MainViewModel,
@@ -138,7 +143,7 @@ class EditorService(
         }
     }
 
-    suspend fun saveAll(): String {
+    suspend fun saveAllFiles(): String {
         val tabs = viewModel.tabs.filterIsInstance<EditorTab>().filter { it.editorState.isDirty }
         withContext(Dispatchers.Main) {
             tabs.forEach { tab ->
@@ -165,12 +170,14 @@ class EditorService(
             var tab = findTabByPath(filePath)
             if (tab == null) {
                 viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
-                var attempts = 0
-                while (tab == null && attempts < 20) {
-                    delay(50)
-                    tab = findTabByPath(filePath)
-                    attempts++
-                }
+                tab = runCatching {
+                    withTimeout(2000) {
+                        snapshotFlow { viewModel.tabs }
+                            .map { tabs -> tabs.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } }
+                            .filterNotNull()
+                            .first()
+                    }
+                }.getOrNull()
             }
             if (tab == null) {
                 notificationSender?.sendNotification("ide/error", JsonObject().apply {

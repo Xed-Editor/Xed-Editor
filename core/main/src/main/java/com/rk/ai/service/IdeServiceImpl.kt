@@ -3,11 +3,8 @@ package com.rk.ai.service
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.bridge.IdeNotificationSender
 import java.io.File
-
-interface IdeNotificationSender {
-    fun sendNotification(method: String, params: JsonObject)
-}
 
 class IdeServiceImpl(
     private val viewModel: MainViewModel,
@@ -36,7 +33,7 @@ class IdeServiceImpl(
     override suspend fun getSelection(): String = editorService.getSelection()
     override fun replaceSelection(newContent: String) = editorService.replaceSelection(newContent)
     override fun insertAtCursor(newContent: String) = editorService.insertAtCursor(newContent)
-    override suspend fun saveAll(): String = editorService.saveAll()
+    override suspend fun saveAllFiles(): String = editorService.saveAllFiles()
     override fun showPatch(filePath: String, oldContent: String, newContent: String, title: String, onApply: suspend () -> Unit) =
         editorService.showPatch(filePath, oldContent, newContent, title, onApply)
     override fun rejectPatch(filePath: String) = editorService.rejectPatch(filePath)

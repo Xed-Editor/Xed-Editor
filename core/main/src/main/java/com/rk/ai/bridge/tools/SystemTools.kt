@@ -9,6 +9,7 @@ import com.rk.utils.application
 
 class GetIdeInfoTool : McpTool {
     override fun getName(): String = "getIdeInfo"
+    override fun getDescription(): String = "Returns IDE bridge status, version, workspace path."
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val info = IdeBridge.getBridgeInfo()
         val version = runCatching { application?.packageManager?.getPackageInfo(application!!.packageName, 0)?.versionName }.getOrNull().orEmpty()
@@ -33,6 +34,9 @@ class GetIdeInfoTool : McpTool {
 
 class RunCommandTool : McpTool {
     override fun getName(): String = "runCommand"
+    override fun getDescription(): String = "Runs a shell command in the terminal environment."
+    override fun getRequiredParams(): Map<String, String> = mapOf("command" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("timeoutSeconds" to "number")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val command = args.get("command")?.asString.orEmpty()
         if (command.isBlank()) throw IllegalArgumentException("command required")
@@ -52,6 +56,8 @@ class RunCommandTool : McpTool {
 
 class ShowMessageTool : McpTool {
     override fun getName(): String = "showMessage"
+    override fun getDescription(): String = "Displays a short toast notification message."
+    override fun getRequiredParams(): Map<String, String> = mapOf("message" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val message = args.get("message")?.asString.orEmpty()
         ideService.showMessage(message)

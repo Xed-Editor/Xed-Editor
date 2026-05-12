@@ -10,14 +10,13 @@ import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import java.io.File
-import java.util.WeakHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class LspService(private val viewModel: MainViewModel) {
 
-    private val tabCache = WeakHashMap<String, EditorTab>()
+    private val tabCache = mutableMapOf<String, EditorTab>()
 
     suspend fun getDiagnostics(filePath: String): JsonArray {
         val tab = findTabByPath(filePath) ?: return JsonArray()
@@ -127,6 +126,8 @@ class LspService(private val viewModel: MainViewModel) {
             eventManager.emitAsync(EventType.fullFormatting, editor.text)
         }
     }
+
+    fun clearCache() { tabCache.clear() }
 
     private fun findTabByPath(path: String): EditorTab? {
         tabCache[path]?.let {

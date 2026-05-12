@@ -6,15 +6,17 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.rk.ai.IdeMcpTools
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.tools.*
-import com.rk.ai.service.IdeNotificationSender
+import com.rk.ai.bridge.IdeNotificationSender
 import com.rk.ai.service.IdeService
 import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import java.io.File
 import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 
 class IdeBridgeServer(
@@ -30,10 +32,12 @@ class IdeBridgeServer(
     private var toolRegistry = McpToolRegistry(initialIdeService)
     private val mcpDispatcher = McpDispatcher { toolRegistry }
     private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
-    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }) { httpSessionTracker.updateSseCount(it) }
+    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope)
 
     @Volatile var connectedClients: Int = 0; private set
+    val toolsCount: Int get() = toolRegistry.listSchemas().size()
     @Volatile private var activeMcpSessionId: String? = null
+    private val serverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     var ideService: IdeService = initialIdeService
         set(value) {
@@ -43,7 +47,7 @@ class IdeBridgeServer(
 
     init {
         registerTools(toolRegistry)
-        httpSessionTracker.startBackgroundCleanup()
+        httpSessionTracker.startBackgroundCleanup(serverScope)
     }
 
     private fun registerTools(registry: McpToolRegistry) {
@@ -52,7 +56,7 @@ class IdeBridgeServer(
             register(ListFilesTool()); register(OpenFileTool()); register(GetOpenFilesTool())
             register(GetActiveFileTool()); register(GetSelectionTool()); register(ReplaceSelectionTool())
             register(InsertAtCursorTool()); register(SaveOpenFilesTool()); register(RefreshOpenEditorsTool())
-            register(RefreshFileTool()); register(OpenDiffTool()); register(CloseDiffTool())
+            register(RefreshFileTool()); register(OpenDiffTool()); register(GetDiffResultTool())
             register(RejectDiffTool()); register(RunCommandTool()); register(ShowMessageTool())
             register(SearchCodeTool()); register(FindFilesTool()); register(GetDiagnosticsTool())
             register(FindDefinitionsTool()); register(FindReferencesTool()); register(RenameSymbolTool())
@@ -135,19 +139,19 @@ class IdeBridgeServer(
         val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
         val targetFile = oldFile ?: newFile
         val oldContent = oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
-            ?: runBlocking { ideService.getFileContent(targetFile.absolutePath) }.orEmpty()
+            ?: runBlocking(Dispatchers.IO) { ideService.getFileContent(targetFile.absolutePath) }.orEmpty()
         val newContent = runCatching { newFile.readText() }.getOrElse {
             return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, it.message ?: "cannot read newPath"))
         }
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review Gemini editor change") {
-            runBlocking { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
+            runBlocking(Dispatchers.IO) { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
         }
         return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
     }
 
     private fun bridgeInfoJson(): String = gson.toJson(JsonObject().apply {
         addProperty("name", "xed-ide-bridge"); addProperty("version", "1.0.0"); addProperty("protocol", "mcp")
-        addProperty("tools", IdeMcpTools.list().size()); addProperty("clients", connectedClients)
+        addProperty("tools", toolRegistry.listSchemas().size()); addProperty("clients", connectedClients)
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
     })
 
@@ -155,7 +159,7 @@ class IdeBridgeServer(
         add("workspaceState", JsonObject().apply {
             addProperty("isTrusted", true)
             add("openFiles", com.google.gson.JsonArray().apply {
-                runBlocking { ideService.getOpenFiles() }.forEach { add(it) }
+                runBlocking(Dispatchers.IO) { ideService.getOpenFiles() }.forEach { add(it) }
             })
         })
     })
@@ -164,7 +168,7 @@ class IdeBridgeServer(
         addProperty("port", listeningPort); addProperty("clients", connectedClients)
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
         addProperty("httpClients", httpSessionTracker.httpSessionCount)
-        addProperty("tools", IdeMcpTools.list().size()); addProperty("tokenPrefix", token.take(8))
+        addProperty("tools", toolRegistry.listSchemas().size()); addProperty("tokenPrefix", token.take(8))
         add("activeSessionId", if (activeMcpSessionId != null) JsonObject().apply { addProperty("id", activeMcpSessionId) } else JsonNull.INSTANCE)
     })
 

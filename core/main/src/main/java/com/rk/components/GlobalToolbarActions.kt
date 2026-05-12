@@ -51,7 +51,6 @@ import com.rk.search.FileSearchDialog
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.AgentCliSheet
-import com.rk.tabs.editor.createGeminiSheetSession
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir

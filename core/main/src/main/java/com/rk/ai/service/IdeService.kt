@@ -52,7 +52,7 @@ interface IdeService {
     fun insertAtCursor(newContent: String)
 
     /** Saves all dirty editor tabs in parallel. */
-    suspend fun saveAll(): String
+    suspend fun saveAllFiles(): String
 
     /** Ensures the AI CLI configuration has IDE integration enabled. */
     fun ensureIdeEnabled()

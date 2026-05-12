@@ -1,8 +1,5 @@
 package com.rk.ai.agents
 
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-
 object OpenCodeAgent : AiAgent {
     override val name: String = "opencode"
     override val displayName: String = "OpenCode"
@@ -33,9 +30,4 @@ object OpenCodeAgent : AiAgent {
             "VISUAL" to "vim",
             "NO_UPDATE_NOTIFIER" to "1",
         ).also { it.putAll(extraEnv) }
-
-    override suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String =
-        projectRoot?.getAbsolutePath()
-            ?: (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
-            ?: file.getAbsolutePath()
 }

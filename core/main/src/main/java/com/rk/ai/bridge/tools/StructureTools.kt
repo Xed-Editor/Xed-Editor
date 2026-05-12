@@ -6,6 +6,9 @@ import com.rk.ai.service.IdeService
 
 class GetProjectStructureTool : McpTool {
     override fun getName(): String = "getProjectStructure"
+    override fun getDescription(): String = "Returns a hierarchical project directory tree."
+    override fun getRequiredParams(): Map<String, String> = mapOf("path" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("maxDepth" to "number", "maxItems" to "number")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val path = args.get("path")?.asString
             ?: ideService.getPrimaryWorkspacePath()

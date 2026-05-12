@@ -2,13 +2,14 @@ package com.rk.ai.service
 
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.AiConfig
 import com.rk.ai.IdeBridge
 import com.rk.ai.displayRootFor
+import com.rk.ai.resolveRelativePathFromOpenEditor
 import com.rk.ai.resolveWorkspacePath
 import com.rk.file.FileWrapper
-import com.rk.tabs.editor.EditorTab
 import java.io.File
-import java.util.WeakHashMap
+import java.util.LinkedHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -18,42 +19,30 @@ import kotlinx.coroutines.withContext
 
 class FileService(private val viewModel: MainViewModel) {
 
-    private val pathCache = WeakHashMap<String, File>()
+    private val pathCache = LinkedHashMap<String, File>(32, 0.75f, true)
+    private const val PATH_CACHE_MAX_SIZE = 128
 
     fun resolvePath(path: String): File? {
         val normalized = path.trim()
         pathCache[normalized]?.let { if (it.exists()) return it }
         val resolved = if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
-            resolveRelativePathFromOpenEditor(normalized) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
+            resolveRelativePathFromOpenEditor(normalized, viewModel) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         } else {
             resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         }
-        if (resolved != null) pathCache[normalized] = resolved
-        return resolved
-    }
-
-    private fun resolveRelativePathFromOpenEditor(path: String): File? {
-        val activeTab = viewModel.currentTab as? EditorTab
-        val activeBase = activeTab?.let { File(it.file.getAbsolutePath()).parentFile }
-        activeBase?.let { parent ->
-            resolveWorkspacePath(IdeBridge.workspacePathForResolution(), File(parent, path).path)?.let { return it }
-        }
-        val exactMatches = viewModel.tabs
-            .filterIsInstance<EditorTab>()
-            .mapNotNull { tab ->
-                val tabFile = File(tab.file.getAbsolutePath())
-                if (tabFile.path.endsWith(File.separator + path)) {
-                    resolveWorkspacePath(IdeBridge.workspacePathForResolution(), tabFile.path)
-                } else null
+        if (resolved != null) {
+            pathCache[normalized] = resolved
+            if (pathCache.size > PATH_CACHE_MAX_SIZE) {
+                val oldest = pathCache.keys.firstOrNull()
+                if (oldest != null) pathCache.remove(oldest)
             }
-            .distinctBy { it.absolutePath }
-        if (exactMatches.size == 1) return exactMatches.first()
-        return null
+        }
+        return resolved
     }
 
     fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> {
         if (!directory.exists() || !directory.isDirectory) return emptyList()
-        val ignored = setOf(".git", ".gradle", ".idea", "build", "node_modules", ".dex", ".cache", ".dex")
+        val ignored = AiConfig.ignoredDirectories
         val root = displayRootFor(IdeBridge.workspacePathForResolution(), directory)
         val output = mutableListOf<String>()
         if (recursive) {
@@ -167,6 +156,8 @@ class FileService(private val viewModel: MainViewModel) {
         refreshEditors(filePath = dest.absolutePath, force = true)
         return "renamed ${source.absolutePath} -> ${dest.absolutePath}"
     }
+
+    fun clearCache() { pathCache.clear() }
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path).absoluteFile

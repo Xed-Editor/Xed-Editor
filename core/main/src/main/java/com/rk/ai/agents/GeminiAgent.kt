@@ -1,8 +1,5 @@
 package com.rk.ai.agents
 
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-
 object GeminiAgent : AiAgent {
     override val name: String = "gemini"
     override val displayName: String = "Gemini CLI"
@@ -33,9 +30,4 @@ object GeminiAgent : AiAgent {
             "EDITOR" to "vim",
             "VISUAL" to "vim",
         ).also { it.putAll(extraEnv) }
-
-    override suspend fun workingDirFor(file: FileObject, projectRoot: FileObject?): String =
-        projectRoot?.getAbsolutePath()
-            ?: (file.getParentFile() as? FileWrapper)?.getAbsolutePath()
-            ?: file.getAbsolutePath()
 }

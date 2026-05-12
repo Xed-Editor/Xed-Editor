@@ -17,8 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.session.AiSessionManager
-import com.rk.settings.Settings
-import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,20 +34,12 @@ fun InlineAgentBar(
     var isLoading by remember { mutableStateOf(false) }
 
     suspend fun runHeadless(prompt: String): String {
-        val bridge = IdeBridge.getBridgeInfo()
-        val tab = viewModel.currentTab as? EditorTab
-        val wd = tab?.projectRoot?.getAbsolutePath()
-            ?: tab?.file?.getAbsolutePath()?.let { java.io.File(it).parent }
-            ?: "/storage/emulated/0"
-
-        IdeBridge.ensureStarted(viewModel, wd)
-        val result = GeminiCli.agent(
-            prompt = prompt,
-            workingDir = wd,
-            ideBridge = bridge,
-            timeoutSeconds = 60,
-        )
-        return GeminiCli.stripCodeFences(result.output)
+        val state = viewModel.currentTab
+        val wd = if (state is com.rk.tabs.editor.EditorTab) {
+            state.projectRoot?.getAbsolutePath()
+                ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
+        } else null ?: "/storage/emulated/0"
+        return AiSessionManager.runHeadless(prompt, wd)
     }
 
     AnimatedVisibility(

@@ -7,6 +7,8 @@ import java.io.File
 
 class ReadFileTool : McpTool {
     override fun getName(): String = "readFile"
+    override fun getDescription(): String = "Reads the full content of a file at the given path."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
@@ -18,6 +20,8 @@ class ReadFileTool : McpTool {
 
 class WriteFileTool : McpTool {
     override fun getName(): String = "writeFile"
+    override fun getDescription(): String = "Opens a diff review for writing new content to a file."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "content" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         val content = args.get("content")?.asString.orEmpty()
@@ -36,6 +40,9 @@ class WriteFileTool : McpTool {
 
 class ListFilesTool : McpTool {
     override fun getName(): String = "listFiles"
+    override fun getDescription(): String = "Lists files and directories in a directory."
+    override fun getRequiredParams(): Map<String, String> = mapOf("directoryPath" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("recursive" to "boolean", "maxFiles" to "number")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val dirPath = args.get("directoryPath")?.asString.orEmpty()
         val dir = ideService.resolvePath(dirPath) ?: throw IllegalArgumentException("path outside workspace")
@@ -48,6 +55,8 @@ class ListFilesTool : McpTool {
 
 class OpenFileTool : McpTool {
     override fun getName(): String = "openFile"
+    override fun getDescription(): String = "Opens a file in the editor tab."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
@@ -59,6 +68,9 @@ class OpenFileTool : McpTool {
 
 class CreateFileTool : McpTool {
     override fun getName(): String = "createFile"
+    override fun getDescription(): String = "Creates a new file with optional initial content."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("content" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
@@ -70,6 +82,8 @@ class CreateFileTool : McpTool {
 
 class DeleteFileTool : McpTool {
     override fun getName(): String = "deleteFile"
+    override fun getDescription(): String = "Permanently deletes a file from the workspace."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = args.get("filePath")?.asString.orEmpty()
         if (filePath.isBlank()) throw IllegalArgumentException("filePath required")
@@ -80,6 +94,8 @@ class DeleteFileTool : McpTool {
 
 class RenameFileTool : McpTool {
     override fun getName(): String = "renameFile"
+    override fun getDescription(): String = "Renames or moves a file from source to destination."
+    override fun getRequiredParams(): Map<String, String> = mapOf("sourcePath" to "string", "destPath" to "string")
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         val sourcePath = args.get("sourcePath")?.asString.orEmpty()
         val destPath = args.get("destPath")?.asString.orEmpty()
