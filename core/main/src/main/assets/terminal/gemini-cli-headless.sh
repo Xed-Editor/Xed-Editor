@@ -49,14 +49,17 @@ s.setdefault('ide', {})['enabled'] = True
 s.setdefault('ide', {})['hasSeenNudge'] = True
 s.setdefault('privacy', {})['usageStatisticsEnabled'] = False
 s.setdefault('telemetry', {})['enabled'] = False
-s.pop('mcpServers', None)
-m = s.setdefault('mcp', {})
-m['xed-ide'] = {
-    'type': 'remote',
+
+# Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
+ms = s.setdefault('mcpServers', {})
+ms['xed-ide'] = {
     'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
-    'enabled': True,
     'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
 }
+
+# Cleanup any accidental 'xed-ide' entry in the 'mcp' object (used for global settings)
+if 'mcp' in s: s['mcp'].pop('xed-ide', None)
+
 with open('$SETTINGS_FILE', 'w') as f:
     json.dump(s, f, indent=2)
 " 2>/dev/null || fallback_to_node=true
@@ -76,14 +79,17 @@ s.general = { ...(s.general || {}), preferredEditor: 'vim' };
 s.ide = { ...(s.ide || {}), enabled: true, hasSeenNudge: true };
 s.privacy = { ...(s.privacy || {}), usageStatisticsEnabled: false };
 s.telemetry = { ...(s.telemetry || {}), enabled: false };
-delete s.mcpServers;
-s.mcp = s.mcp || {};
-s.mcp['xed-ide'] = {
-  type: 'remote',
+
+// Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
+s.mcpServers = s.mcpServers || {};
+s.mcpServers['xed-ide'] = {
   url: 'http://127.0.0.1:' + idePort + '/mcp',
-  enabled: true,
   headers: { Authorization: 'Bearer ' + ideToken }
 };
+
+// Cleanup any accidental 'xed-ide' entry in the 'mcp' object
+if (s.mcp) { delete s.mcp['xed-ide']; }
+
 fs.writeFileSync(settingsFile, JSON.stringify(s, null, 2));
 NODE
   fi

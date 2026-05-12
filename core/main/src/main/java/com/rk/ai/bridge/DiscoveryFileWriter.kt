@@ -60,12 +60,19 @@ object DiscoveryFileWriter {
             geminiDir.mkdirs()
             val settingsFile = File(geminiDir, "settings.json")
             val existing = runCatching { JsonParser.parseString(settingsFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-            existing.remove("mcpServers")
-            val mcp = existing.getAsJsonObject("mcp") ?: JsonObject().also { existing.add("mcp", it) }
-            mcp.add("xed-ide", JsonObject().apply {
-                addProperty("type", "remote"); addProperty("url", "http://${info.host}:${info.port}/mcp"); addProperty("enabled", true)
-                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
+            
+            // Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
+            val mcpServers = existing.getAsJsonObject("mcpServers") ?: JsonObject().also { existing.add("mcpServers", it) }
+            mcpServers.add("xed-ide", JsonObject().apply {
+                addProperty("url", "http://${info.host}:${info.port}/mcp")
+                add("headers", JsonObject().apply {
+                    addProperty("Authorization", "Bearer ${info.token}")
+                })
             })
+
+            // Cleanup any accidental 'xed-ide' entry in the 'mcp' object (used for global settings)
+            existing.getAsJsonObject("mcp")?.remove("xed-ide")
+
             existing.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
                 ?: existing.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
             existing.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
