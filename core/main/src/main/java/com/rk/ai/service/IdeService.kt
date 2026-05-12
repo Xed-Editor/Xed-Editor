@@ -96,6 +96,9 @@ interface IdeService {
     /** Deletes a file from the workspace. */
     suspend fun deleteFile(filePath: String): String
 
+    /** Renames or moves a file from source to destination path. */
+    suspend fun renameFile(sourcePath: String, destPath: String): String
+
     /** Gets the transcript text from the running Gemini terminal session. */
     suspend fun getTerminalOutput(lines: Int?): String
 

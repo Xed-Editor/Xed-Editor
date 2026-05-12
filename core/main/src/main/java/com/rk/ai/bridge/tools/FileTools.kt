@@ -77,3 +77,15 @@ class DeleteFileTool : McpTool {
         return textResult(result)
     }
 }
+
+class RenameFileTool : McpTool {
+    override fun getName(): String = "renameFile"
+    override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
+        val sourcePath = args.get("sourcePath")?.asString.orEmpty()
+        val destPath = args.get("destPath")?.asString.orEmpty()
+        if (sourcePath.isBlank()) throw IllegalArgumentException("sourcePath required")
+        if (destPath.isBlank()) throw IllegalArgumentException("destPath required")
+        val result = ideService.renameFile(sourcePath, destPath)
+        return textResult(result)
+    }
+}

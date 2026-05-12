@@ -1,162 +1,132 @@
 package com.rk.ai.bridge.server
 
-import android.os.Looper
 import android.util.Log
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.rk.ai.IdeBridge
 import com.rk.ai.IdeMcpTools
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.tools.*
 import com.rk.ai.service.IdeService
-import com.rk.ai.service.IdeNotificationSender
 import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import java.io.File
-import java.io.PipedInputStream
-import java.io.PipedOutputStream
-import java.io.PrintWriter
-import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 
 class IdeBridgeServer(
     requestedPort: Int,
     private val token: String,
     initialIdeService: IdeService
-) : NanoHTTPD(requestedPort), IdeNotificationSender {
+) : NanoHTTPD(requestedPort) {
 
     val port: Int get() = listeningPort
-
-    companion object {
-        private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
-        private const val TOOL_TIMEOUT_MS = 60000L
-    }
-
-    private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+    private val gson = GsonBuilder().setPrettyPrinting().create()
     private var toolRegistry = McpToolRegistry(initialIdeService)
-    
+    private val mcpDispatcher = McpDispatcher { toolRegistry }
+    private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
+    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }) { httpSessionTracker.updateSseCount(it) }
+
+    @Volatile var connectedClients: Int = 0; private set
+    @Volatile private var activeMcpSessionId: String? = null
+
     var ideService: IdeService = initialIdeService
         set(value) {
             field = value
-            val newRegistry = McpToolRegistry(value)
-            registerTools(newRegistry)
-            toolRegistry = newRegistry
+            toolRegistry = McpToolRegistry(value).also { registerTools(it) }
         }
 
     init {
         registerTools(toolRegistry)
+        httpSessionTracker.startBackgroundCleanup()
     }
 
     private fun registerTools(registry: McpToolRegistry) {
         registry.apply {
-            register(GetIdeInfoTool())
-            register(ReadFileTool())
-            register(WriteFileTool())
-            register(ListFilesTool())
-            register(OpenFileTool())
-            register(GetOpenFilesTool())
-            register(GetActiveFileTool())
-            register(GetSelectionTool())
-            register(ReplaceSelectionTool())
-            register(InsertAtCursorTool())
-            register(SaveOpenFilesTool())
-            register(RefreshOpenEditorsTool())
-            register(RefreshFileTool())
-            register(OpenDiffTool())
-            register(CloseDiffTool())
-            register(RejectDiffTool())
-            register(RunCommandTool())
-            register(ShowMessageTool())
-            register(SearchCodeTool())
-            register(FindFilesTool())
-            register(GetDiagnosticsTool())
-            register(FindDefinitionsTool())
-            register(FindReferencesTool())
-            register(RenameSymbolTool())
-            register(FormatDocumentTool())
-            register(GetGitStatusTool())
-            register(CreateFileTool())
-            register(DeleteFileTool())
-            register(GetTerminalOutputTool())
-            register(GetProjectStructureTool())
-            register(GetSymbolUnderCursorTool())
-            register(GetProjectConfigTool())
-            register(GetGitDiffTool())
+            register(GetIdeInfoTool()); register(ReadFileTool()); register(WriteFileTool())
+            register(ListFilesTool()); register(OpenFileTool()); register(GetOpenFilesTool())
+            register(GetActiveFileTool()); register(GetSelectionTool()); register(ReplaceSelectionTool())
+            register(InsertAtCursorTool()); register(SaveOpenFilesTool()); register(RefreshOpenEditorsTool())
+            register(RefreshFileTool()); register(OpenDiffTool()); register(CloseDiffTool())
+            register(RejectDiffTool()); register(RunCommandTool()); register(ShowMessageTool())
+            register(SearchCodeTool()); register(FindFilesTool()); register(GetDiagnosticsTool())
+            register(FindDefinitionsTool()); register(FindReferencesTool()); register(RenameSymbolTool())
+            register(FormatDocumentTool()); register(GetGitStatusTool()); register(CreateFileTool())
+            register(DeleteFileTool()); register(RenameFileTool()); register(GetTerminalOutputTool())
+            register(GetProjectStructureTool()); register(GetSymbolUnderCursorTool())
+            register(GetProjectConfigTool()); register(GetGitDiffTool())
         }
-    }
-
-    private val sseClients = ConcurrentHashMap<String, PrintWriter>()
-    private val sseLock = Any()
-    @Volatile private var activeMcpSessionId: String? = null
-    @Volatile var connectedClients: Int = 0
-        private set
-
-    private fun d(msg: String) {
-        if (BuildConfig.DEBUG) Log.d("IdeBridgeServer", msg)
     }
 
     override fun serve(session: IHTTPSession): Response {
-        d("serve ${session.method} ${session.uri} params=${session.parameters.keys} headers=${session.headers.keys}")
-
-        val rawPostBody =
-            if (session.method == Method.POST) {
-                readRequestBodyUtf8(session).getOrElse {
-                    return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
-                }.also { d("POST body length=${it.length}") }
-            } else {
-                null
+        d("serve ${session.method} ${session.uri}")
+        val rawPostBody = if (session.method == Method.POST) {
+            readRequestBodyUtf8(session).getOrElse {
+                return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
             }
-
-        if (!hasValidHost(session)) {
-            d("Invalid host: ${session.headers["host"]}")
-            return json(Response.Status.FORBIDDEN, errorJson(null, -32003, "invalid host"))
-        }
-        val requireAuth = session.uri != "/health" && session.uri != "/debug"
-        if (requireAuth && !isAuthorized(session)) {
-            d("Unauthorized: queryToken=${session.parameters["token"]?.firstOrNull()?.take(4)}... header=${session.headers["authorization"]?.take(10)}...")
+        } else null
+        if (!hasValidHost(session)) return json(Response.Status.FORBIDDEN, errorJson(null, -32003, "invalid host"))
+        if (session.uri != "/health" && session.uri != "/debug" && !isAuthorized(session))
             return json(Response.Status.UNAUTHORIZED, errorJson(null, -32001, "unauthorized"))
-        }
-
         return when (session.uri) {
             "/health" -> json(Response.Status.OK, "{\"ok\":true}")
             "/context" -> json(Response.Status.OK, ideContextJson())
-            "/refresh" -> {
-                ideService.refreshEditors()
-                json(Response.Status.OK, "{\"ok\":true}")
-            }
             "/mcp-info" -> json(Response.Status.OK, bridgeInfoJson())
-            "/external-editor" -> serveExternalEditor(session, rawPostBody)
-            "/sse" -> serveSseStream(session)
-            "/messages" -> serveMessages(session, rawPostBody)
-            "/mcp" -> serveMcp(session, rawPostBody)
             "/debug" -> json(Response.Status.OK, debugJson())
+            "/refresh" -> { ideService.refreshEditors(); json(Response.Status.OK, "{\"ok\":true}") }
+            "/sse" -> sseManager.createSseStream(session)
+            "/mcp" -> handleMcp(session, rawPostBody)
+            "/messages" -> handleMessages(session, rawPostBody)
+            "/external-editor" -> handleExternalEditor(session, rawPostBody)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
         }
     }
 
-    private fun serveExternalEditor(session: IHTTPSession, rawPostBody: String?): Response {
-        if (session.method != Method.POST) {
-            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+    private fun handleMcp(session: IHTTPSession, rawPostBody: String?): Response {
+        if (session.method == Method.GET) return sseManager.createMcpStream(
+            resolveMcpSessionId("initialize", null) ?: "default"
+        )
+        if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
+        val id = request.get("id") ?: JsonNull.INSTANCE
+        val method = request.get("method")?.asString.orEmpty()
+        val responseSessionId = resolveMcpSessionId(method, session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() })
+        return json(Response.Status.OK, mcpDispatcher.dispatch(id, method, request)).apply {
+            responseSessionId?.let { addHeader(MCP_SESSION_ID_HEADER, it) }
         }
+    }
 
-        val raw = rawPostBody
-            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "invalid request"))
-        val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
-            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
+    private fun handleMessages(session: IHTTPSession, rawPostBody: String?): Response {
+        if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
+        val method = request.get("method")?.asString.orEmpty()
+        val requestedSessionId = session.parameters["sessionId"]?.firstOrNull() ?: session.headers[MCP_SESSION_ID_HEADER]
+        val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
+        val id = request.get("id") ?: JsonNull.INSTANCE
+        val responseBody = mcpDispatcher.dispatch(id, method, request)
+        if (sseManager.pushToSession(sessionId, responseBody)) {
+            return json(Response.Status.OK, mcpDispatcher.resultJson(id, JsonObject().apply { addProperty("_ack", true) }))
+        }
+        return json(Response.Status.OK, responseBody).apply { addHeader(MCP_SESSION_ID_HEADER, sessionId) }
+    }
 
+    private fun resolveMcpSessionId(method: String, requestedSessionId: String?): String? {
+        if (!requestedSessionId.isNullOrBlank()) { activeMcpSessionId = requestedSessionId; return requestedSessionId }
+        if (method == "initialize") {
+            val newId = httpSessionTracker.createSession()
+            activeMcpSessionId = newId; return newId
+        }
+        activeMcpSessionId?.let { httpSessionTracker.touchSession(it) }
+        return activeMcpSessionId
+    }
+
+    private fun handleExternalEditor(session: IHTTPSession, rawPostBody: String?): Response {
+        if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
         val newPath = request.get("newPath")?.asString.orEmpty()
-        if (newPath.isBlank()) {
-            return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "newPath required"))
-        }
-
+        if (newPath.isBlank()) return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "newPath required"))
         val oldPath = request.get("oldPath")?.asString?.takeIf { it.isNotBlank() }
         val newFile = ideService.resolvePath(newPath) ?: File(newPath)
         val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
@@ -166,361 +136,70 @@ class IdeBridgeServer(
         val newContent = runCatching { newFile.readText() }.getOrElse {
             return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, it.message ?: "cannot read newPath"))
         }
-
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review Gemini editor change") {
-            runBlocking {
-                ideService.writeFile(targetFile, newContent)
-                ideService.refreshEditors(targetFile.absolutePath, force = false)
-            }
+            runBlocking { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
         }
-
         return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
     }
 
-    private fun serveMcp(session: IHTTPSession, rawPostBody: String?): Response {
-        if (session.method == Method.GET) {
-            return serveMcpStream(session)
-        }
-        if (session.method != Method.POST) {
-            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
-        }
+    private fun bridgeInfoJson(): String = gson.toJson(JsonObject().apply {
+        addProperty("name", "xed-ide-bridge"); addProperty("version", "1.0.0"); addProperty("protocol", "mcp")
+        addProperty("tools", IdeMcpTools.list().size()); addProperty("clients", connectedClients)
+        addProperty("sseClients", httpSessionTracker.sseSessionCount)
+    })
 
-        val raw = rawPostBody
-            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "invalid request"))
-
-        val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
-            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
-
-        val id = request.get("id") ?: JsonNull.INSTANCE
-        val method = request.get("method")?.asString.orEmpty()
-        val requestedSessionId = session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
-        val responseSessionId = resolveMcpSessionId(method, requestedSessionId)
-
-        val responseBody = dispatchJsonRpc(id, method, request)
-
-        return json(Response.Status.OK, responseBody).apply {
-            responseSessionId?.let { addHeader(MCP_SESSION_ID_HEADER, it) }
-        }
-    }
-
-    private fun dispatchJsonRpc(id: JsonElement, method: String, request: JsonObject): String =
-        when (method) {
-            "initialize" -> initializeResult(id, request)
-            "tools/list" -> toolsListResult(id)
-            "tools/call" -> toolsCallResult(id, request)
-            "notifications/initialized" -> resultJson(id, JsonObject())
-            "ping" -> resultJson(id, JsonObject())
-            else -> errorJson(id, -32601, "method not found: $method")
-        }
-
-    private fun resolveMcpSessionId(method: String, requestedSessionId: String?): String? {
-        if (!requestedSessionId.isNullOrBlank()) {
-            activeMcpSessionId = requestedSessionId
-            return requestedSessionId
-        }
-        if (method == "initialize") {
-            val newSessionId = UUID.randomUUID().toString()
-            activeMcpSessionId = newSessionId
-            return newSessionId
-        }
-        return activeMcpSessionId
-    }
-
-    /** Standard MCP HTTP/SSE transport: GET establishes SSE stream */
-    private fun serveSseStream(session: IHTTPSession): Response {
-        val sessionId = UUID.randomUUID().toString()
-        val output = PipedOutputStream()
-        val writer = PrintWriter(output, true)
-
-        synchronized(sseLock) {
-            sseClients[sessionId] = writer
-            connectedClients = sseClients.size
-        }
-
-        val host = session.headers["host"] ?: "127.0.0.1"
-
-        writer.print("event: endpoint\ndata: http://$host/messages?sessionId=$sessionId\n\n")
-        writer.print("event: message\ndata: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-        writer.print("event: message\ndata: ${notificationJson("initialized", JsonObject())}\n\n")
-        writer.flush()
-
-        // Heartbeat keep-alive thread
-        Thread {
-            while (!Thread.currentThread().isInterrupted) {
-                try {
-                    Thread.sleep(15000)
-                    synchronized(sseLock) {
-                        val w = sseClients[sessionId] ?: return@synchronized
-                        w.print(": keepalive\n\n")
-                        w.flush()
-                        if (w.checkError()) {
-                            sseClients.remove(sessionId)
-                            connectedClients = sseClients.size
-                            Thread.currentThread().interrupt()
-                        }
-                    }
-                } catch (_: InterruptedException) {
-                    break
-                }
-            }
-        }.apply { isDaemon = true; start() }
-
-        val input = PipedInputStream(output)
-        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, -1).apply {
-            addHeader("mcp-session-id", sessionId)
-            addHeader("Cache-Control", "no-store")
-            addHeader("Access-Control-Allow-Origin", "*")
-        }
-    }
-
-    /** Standard MCP HTTP/SSE transport: POST handles JSON-RPC messages */
-    private fun serveMessages(session: IHTTPSession, rawPostBody: String?): Response {
-        if (session.method != Method.POST) {
-            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
-        }
-
-        val raw = rawPostBody
-            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "invalid request"))
-
-        val request = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
-            ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
-
-        val sessionId = session.parameters["sessionId"]?.firstOrNull()
-            ?: session.headers[MCP_SESSION_ID_HEADER]
-            ?: activeMcpSessionId
-            ?: "default"
-
-        val id = request.get("id") ?: JsonNull.INSTANCE
-        val method = request.get("method")?.asString.orEmpty()
-
-        val responseBody = dispatchJsonRpc(id, method, request)
-
-        // If there's an SSE client for this session, push response through SSE
-        val writer = synchronized(sseLock) { sseClients[sessionId] }
-        if (writer != null) {
-            synchronized(sseLock) {
-                writer.print("event: message\n")
-                writer.print("data: $responseBody\n\n")
-                writer.flush()
-            }
-            return json(Response.Status.OK, resultJson(id, JsonObject().apply {
-                addProperty("_ack", true)
-            }))
-        }
-
-        // Fallback: return directly
-        return json(Response.Status.OK, responseBody).apply {
-            addHeader("mcp-session-id", sessionId)
-        }
-    }
-
-    private fun serveMcpStream(session: IHTTPSession): Response {
-        val requestedSessionId =
-            session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
-                ?: session.parameters["sessionId"]?.firstOrNull()
-                ?: activeMcpSessionId
-                ?: "default"
-
-        val output = PipedOutputStream()
-        val writer = PrintWriter(output, true)
-
-        synchronized(sseLock) {
-            sseClients[requestedSessionId] = writer
-            connectedClients = sseClients.size
-        }
-
-        writer.print("event: message\ndata: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-        writer.print("event: message\ndata: ${notificationJson("initialized", JsonObject())}\n\n")
-        writer.flush()
-
-        Thread {
-            while (!Thread.currentThread().isInterrupted) {
-                try {
-                    Thread.sleep(15000)
-                    synchronized(sseLock) {
-                        val w = sseClients[requestedSessionId] ?: return@synchronized
-                        w.print(": keepalive\n\n")
-                        w.flush()
-                        if (w.checkError()) {
-                            sseClients.remove(requestedSessionId)
-                            connectedClients = sseClients.size
-                            Thread.currentThread().interrupt()
-                        }
-                    }
-                } catch (_: InterruptedException) {
-                    break
-                }
-            }
-        }.apply { isDaemon = true; start() }
-
-        val input = PipedInputStream(output)
-        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", input, -1).apply {
-            addHeader("mcp-session-id", requestedSessionId)
-            addHeader("Cache-Control", "no-store")
-            addHeader("Access-Control-Allow-Origin", "*")
-        }
-    }
-
-    override fun sendNotification(method: String, params: JsonObject) {
-        val notification = notificationJson(method, params)
-        val deadClients = mutableListOf<String>()
-        synchronized(sseLock) {
-            sseClients.forEach { (id, writer) ->
-                runCatching {
-                    writer.print("event: message\n")
-                    writer.print("data: $notification\n\n")
-                    writer.flush()
-                    if (writer.checkError()) deadClients.add(id)
-                }.onFailure { deadClients.add(id) }
-            }
-            deadClients.forEach { sseClients.remove(it) }
-            connectedClients = sseClients.size
-        }
-    }
-
-    private fun toolsCallResult(id: JsonElement, request: JsonObject): String {
-        val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
-        val name = params.get("name")?.asString.orEmpty()
-        val args = params.getAsJsonObject("arguments") ?: JsonObject()
-        
-        return try {
-            val result = runBlocking {
-                withTimeout(TOOL_TIMEOUT_MS) {
-                    toolRegistry.execute(name, args)
-                }
-            } ?: return errorJson(id, -32601, "unknown tool: $name")
-            resultJson(id, result)
-        } catch (e: TimeoutCancellationException) {
-            errorJson(id, -32000, "tool '$name' timed out after ${TOOL_TIMEOUT_MS}ms")
-        } catch (e: Exception) {
-            errorJson(id, -32603, "${e::class.java.simpleName}: ${e.message ?: "internal error"}")
-        }
-    }
-
-    private fun toolsListResult(id: JsonElement): String =
-        resultJson(id, JsonObject().apply { add("tools", IdeMcpTools.list()) })
-
-    private fun initializeResult(id: JsonElement, request: JsonObject): String =
-        resultJson(id, JsonObject().apply {
-            val negotiatedProtocol =
-                request.getAsJsonObject("params")
-                    ?.get("protocolVersion")
-                    ?.takeIf { it.isJsonPrimitive }
-                    ?.asString
-                    ?.takeIf { it.isNotBlank() }
-                    ?: "2025-03-26"
-            addProperty("protocolVersion", negotiatedProtocol)
-            add("capabilities", JsonObject().apply {
-                add("tools", JsonObject())
-            })
-            add("serverInfo", JsonObject().apply {
-                addProperty("name", "xed-ide-bridge")
-                addProperty("version", "1.0.0")
+    private fun ideContextJson(): String = gson.toJson(JsonObject().apply {
+        add("workspaceState", JsonObject().apply {
+            addProperty("isTrusted", true)
+            add("openFiles", com.google.gson.JsonArray().apply {
+                runBlocking { ideService.getOpenFiles() }.forEach { add(it) }
             })
         })
+    })
 
-    private fun bridgeInfoJson(): String =
-        gson.toJson(JsonObject().apply {
-            addProperty("name", "xed-ide-bridge")
-            addProperty("version", "1.0.0")
-            addProperty("protocol", "mcp")
-            addProperty("tools", IdeMcpTools.list().size())
-            addProperty("clients", connectedClients)
-            add("endpoints", JsonObject().apply {
-                addProperty("sse", "/sse")
-                addProperty("messages", "/messages")
-                addProperty("mcp", "/mcp")
-                addProperty("health", "/health")
-                addProperty("context", "/context")
-                addProperty("info", "/mcp-info")
-            })
-        })
-
-    private fun ideContextJson(): String {
-        val context = JsonObject().apply {
-            add("workspaceState", JsonObject().apply {
-                addProperty("isTrusted", true)
-                add("openFiles", JsonArray().apply {
-                    runBlocking { ideService.getOpenFiles() }.forEach { add(it) }
-                })
-            })
-        }
-        return gson.toJson(context)
-    }
+    private fun debugJson(): String = gson.toJson(JsonObject().apply {
+        addProperty("port", listeningPort); addProperty("clients", connectedClients)
+        addProperty("sseClients", httpSessionTracker.sseSessionCount)
+        addProperty("httpClients", httpSessionTracker.httpSessionCount)
+        addProperty("tools", IdeMcpTools.list().size()); addProperty("tokenPrefix", token.take(8))
+        add("activeSessionId", if (activeMcpSessionId != null) JsonObject().apply { addProperty("id", activeMcpSessionId) } else JsonNull.INSTANCE)
+    })
 
     private fun isAuthorized(session: IHTTPSession): Boolean {
         val queryToken = session.parameters["token"]?.firstOrNull()
-        val authorization = session.headers["authorization"]?.trim().orEmpty()
-        val headerToken = authorization
-            .split(' ', limit = 2)
-            .takeIf { it.size == 2 && it[0].equals("Bearer", ignoreCase = true) }
-            ?.get(1)
+        val auth = session.headers["authorization"]?.trim().orEmpty()
+        val headerToken = auth.split(' ', limit = 2).takeIf { it.size == 2 && it[0].equals("Bearer", ignoreCase = true) }?.get(1)
         return queryToken == token || headerToken == token
     }
 
     private fun hasValidHost(session: IHTTPSession): Boolean {
-        val host = session.headers["host"] ?: return true
-        val hostname = host.substringBefore(":")
-        return hostname == "127.0.0.1" || hostname == "localhost" || hostname == "[::1]"
+        val host = session.headers["host"]?.substringBefore(":") ?: return true
+        return host == "127.0.0.1" || host == "localhost" || host == "[::1]"
     }
 
-    private fun resultJson(id: JsonElement?, result: JsonObject): String =
-        JsonObject().apply { 
-            addProperty("jsonrpc", "2.0")
-            add("id", id ?: JsonNull.INSTANCE)
-            add("result", result) 
-        }.let { gson.toJson(it) }
+    private fun parseJsonRequest(raw: String?): JsonObject? = runCatching { JsonParser.parseString(raw).asJsonObject }.getOrNull()
 
-    private fun errorJson(id: JsonElement?, code: Int, message: String): String =
-        JsonObject().apply {
-            addProperty("jsonrpc", "2.0")
-            add("id", id ?: JsonNull.INSTANCE)
-            add("error", JsonObject().apply { addProperty("code", code); addProperty("message", message) })
-        }.let { gson.toJson(it) }
+    private fun errorJson(id: JsonElement?, code: Int, message: String): String = mcpDispatcher.errorJson(id, code, message)
 
-    private fun notificationJson(method: String, params: JsonObject): String =
-        JsonObject().apply {
-            addProperty("jsonrpc", "2.0")
-            addProperty("method", method)
-            add("params", params)
-        }.let { gson.toJson(it) }
-
-    private fun debugJson(): String =
-        gson.toJson(JsonObject().apply {
-            addProperty("port", listeningPort)
-            addProperty("clients", connectedClients)
-            addProperty("tools", IdeMcpTools.list().size())
-            addProperty("tokenPrefix", token.take(8))
-            add("activeSessionId", if (activeMcpSessionId != null) JsonObject().apply { addProperty("id", activeMcpSessionId) } else JsonNull.INSTANCE)
-            add("sseClients", JsonArray().apply {
-                synchronized(sseLock) {
-                    sseClients.keys.forEach { add(it) }
-                }
-            })
-        })
-
-    private fun readRequestBodyUtf8(session: IHTTPSession): Result<String> =
-        runCatching {
-            val contentLength = (session.headers["content-length"] ?: session.headers["Content-Length"])?.toIntOrNull()
-            if (contentLength != null && contentLength > 0) {
-                val bytes = ByteArray(contentLength)
-                var offset = 0
-                while (offset < contentLength) {
-                    val read = session.inputStream.read(bytes, offset, contentLength - offset)
-                    if (read <= 0) break
-                    offset += read
-                }
-                String(bytes, 0, offset, Charsets.UTF_8)
-            } else {
-                val body = mutableMapOf<String, String>()
-                session.parseBody(body)
-                body["postData"].orEmpty()
-            }
+    private fun readRequestBodyUtf8(session: IHTTPSession): Result<String> = runCatching {
+        val contentLength = (session.headers["content-length"] ?: session.headers["Content-Length"])?.toIntOrNull()
+        if (contentLength != null && contentLength > 0) {
+            val bytes = ByteArray(contentLength); var offset = 0
+            while (offset < contentLength) { val read = session.inputStream.read(bytes, offset, contentLength - offset); if (read <= 0) break; offset += read }
+            String(bytes, 0, offset, Charsets.UTF_8)
+        } else {
+            val body = mutableMapOf<String, String>(); session.parseBody(body); body["postData"].orEmpty()
         }
+    }
 
     private fun json(status: Response.Status, body: String): Response =
-        newFixedLengthResponse(status, "application/json; charset=utf-8", body).apply {
-            addHeader("Access-Control-Allow-Origin", "*")
-            addHeader("Cache-Control", "no-store")
+        NanoHTTPD.newFixedLengthResponse(status, "application/json; charset=utf-8", body).apply {
+            addHeader("Access-Control-Allow-Origin", "*"); addHeader("Cache-Control", "no-store")
         }
+
+    private fun d(msg: String) { if (BuildConfig.DEBUG) Log.d("IdeBridgeServer", msg) }
+
+    companion object {
+        private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
+    }
 }

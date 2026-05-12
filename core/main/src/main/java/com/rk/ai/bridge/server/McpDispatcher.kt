@@ -1,0 +1,81 @@
+package com.rk.ai.bridge.server
+
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
+import com.google.gson.JsonNull
+import com.google.gson.JsonObject
+import com.rk.ai.IdeMcpTools
+import com.rk.ai.bridge.McpToolRegistry
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+
+class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
+
+    private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val TOOL_TIMEOUT_MS = 60000L
+
+    fun dispatch(id: JsonElement, method: String, request: JsonObject): String = when (method) {
+        "initialize" -> initializeResult(id, request)
+        "tools/list" -> toolsListResult(id)
+        "tools/call" -> toolsCallResult(id, request)
+        "notifications/initialized" -> resultJson(id, JsonObject())
+        "ping" -> resultJson(id, JsonObject())
+        else -> errorJson(id, -32601, "method not found: $method")
+    }
+
+    private fun initializeResult(id: JsonElement, request: JsonObject): String = resultJson(id, JsonObject().apply {
+        val negotiatedProtocol = request.getAsJsonObject("params")
+            ?.get("protocolVersion")
+            ?.takeIf { it.isJsonPrimitive }
+            ?.asString
+            ?.takeIf { it.isNotBlank() }
+            ?: "2025-03-26"
+        addProperty("protocolVersion", negotiatedProtocol)
+        add("capabilities", JsonObject().apply { add("tools", JsonObject()) })
+        add("serverInfo", JsonObject().apply {
+            addProperty("name", "xed-ide-bridge")
+            addProperty("version", "1.0.0")
+        })
+    })
+
+    private fun toolsListResult(id: JsonElement): String =
+        resultJson(id, JsonObject().apply { add("tools", IdeMcpTools.list()) })
+
+    private fun toolsCallResult(id: JsonElement, request: JsonObject): String {
+        val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
+        val name = params.get("name")?.asString.orEmpty()
+        val args = params.getAsJsonObject("arguments") ?: JsonObject()
+        return try {
+            val result = runBlocking {
+                withTimeout(TOOL_TIMEOUT_MS) { toolRegistry().execute(name, args) }
+            } ?: return errorJson(id, -32601, "unknown tool: $name")
+            resultJson(id, result)
+        } catch (e: TimeoutCancellationException) {
+            errorJson(id, -32000, "tool '$name' timed out after ${TOOL_TIMEOUT_MS}ms")
+        } catch (e: Exception) {
+            errorJson(id, -32603, "${e::class.java.simpleName}: ${e.message ?: "internal error"}")
+        }
+    }
+
+    fun resultJson(id: JsonElement?, result: JsonObject): String =
+        JsonObject().apply {
+            addProperty("jsonrpc", "2.0")
+            add("id", id ?: JsonNull.INSTANCE)
+            add("result", result)
+        }.let { gson.toJson(it) }
+
+    fun errorJson(id: JsonElement?, code: Int, message: String): String =
+        JsonObject().apply {
+            addProperty("jsonrpc", "2.0")
+            add("id", id ?: JsonNull.INSTANCE)
+            add("error", JsonObject().apply { addProperty("code", code); addProperty("message", message) })
+        }.let { gson.toJson(it) }
+
+    fun notificationJson(method: String, params: JsonObject): String =
+        JsonObject().apply {
+            addProperty("jsonrpc", "2.0")
+            addProperty("method", method)
+            add("params", params)
+        }.let { gson.toJson(it) }
+}
