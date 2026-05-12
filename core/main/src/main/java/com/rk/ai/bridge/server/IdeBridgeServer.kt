@@ -222,36 +222,25 @@ class IdeBridgeServer(
         return activeMcpSessionId
     }
 
-    /** Standard MCP HTTP/SSE transport: GET establishes SSE stream */
+    /** MCP SSE transport: sends initialization events and closes (OpenCode requires SSE to complete) */
     private fun serveSseStream(session: IHTTPSession): Response {
         val sessionId = UUID.randomUUID().toString()
-        val output = PipedOutputStream()
-        val input = PipedInputStream(output)
-        val writer = PrintWriter(output)
-
-        synchronized(sseLock) {
-            sseClients[sessionId] = writer
-            connectedClients = sseClients.size
+        val body = buildString {
+            append("event: endpoint\n")
+            append("data: http://127.0.0.1:${listeningPort}/messages?sessionId=${sessionId}\n\n")
+            append("event: message\n")
+            append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+            append("event: initialized\n")
+            append("data: {}\n\n")
         }
 
-        // Send endpoint event (MCP HTTP transport standard - absolute URL)
         synchronized(sseLock) {
-            writer.print("event: endpoint\n")
-            writer.print("data: http://127.0.0.1:${listeningPort}/messages?sessionId=${sessionId}\n\n")
-            writer.flush()
+            connectedClients = sseClients.size + 1
         }
 
-        // Send initial context
-        synchronized(sseLock) {
-            writer.print("event: message\n")
-            writer.print("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-            writer.flush()
-        }
-
-        return newChunkedResponse(Response.Status.OK, "text/event-stream", input).apply {
+        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", body).apply {
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")
-            addHeader("Connection", "keep-alive")
             addHeader("Access-Control-Allow-Origin", "*")
         }
     }
@@ -309,25 +298,15 @@ class IdeBridgeServer(
                 ?: session.parameters["sessionId"]?.firstOrNull()
                 ?: activeMcpSessionId
                 ?: "default"
-        val output = PipedOutputStream()
-        val input = PipedInputStream(output)
-        val writer = PrintWriter(output)
-synchronized(sseLock) {
-    sseClients[requestedSessionId] = writer
-    connectedClients = sseClients.size
-}
-
-// Notify IDE context on connection
-synchronized(sseLock) {
-    writer.print("event: message\n")
-    writer.print("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-    writer.flush()
-}
-
-        return newChunkedResponse(Response.Status.OK, "text/event-stream", input).apply {
+        val body = buildString {
+            append("event: message\n")
+            append("data: ${notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+            append("event: initialized\n")
+            append("data: {}\n\n")
+        }
+        return newFixedLengthResponse(Response.Status.OK, "text/event-stream", body).apply {
             addHeader("mcp-session-id", requestedSessionId)
             addHeader("Cache-Control", "no-store")
-            addHeader("Connection", "keep-alive")
             addHeader("Access-Control-Allow-Origin", "*")
         }
     }
