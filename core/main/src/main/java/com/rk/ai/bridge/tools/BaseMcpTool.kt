@@ -7,6 +7,9 @@ import java.io.File
 
 abstract class BaseMcpTool : McpTool {
 
+    @Volatile private var cachedRequiredKeys: Set<String>? = null
+    @Volatile private var cachedOptionalKeys: Set<String>? = null
+
     override suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject {
         validateRequired(args)
         return executeValidated(args, ideService)
@@ -50,10 +53,18 @@ abstract class BaseMcpTool : McpTool {
         return ideService.resolvePath(path) ?: throw ToolError.PathOutsideWorkspace(path)
     }
 
-    // ── Auto-validation from schema ──
+    // ── Auto-validation from schema (cached keys) ──
+
+    private fun requiredKeys(): Set<String> {
+        val cached = cachedRequiredKeys
+        if (cached != null) return cached
+        val keys = getRequiredParams().keys.toSet()
+        cachedRequiredKeys = keys
+        return keys
+    }
 
     private fun validateRequired(args: JsonObject) {
-        getRequiredParams().keys.forEach { name ->
+        requiredKeys().forEach { name ->
             val value = args.get(name)
             if (value == null || value.isJsonNull) throw ToolError.MissingParam(name)
             if (value.isJsonPrimitive && value.asString.isBlank()) throw ToolError.MissingParam(name)

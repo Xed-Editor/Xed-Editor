@@ -20,6 +20,11 @@ class FileService(tabRepository: TabRepository) {
 
     private val pathCache = LinkedHashMap<String, File>(32, 0.75f, true)
     private val pathCacheMaxSize = 128
+    private val contentCache = LinkedHashMap<String, CacheEntry>(16, 0.75f, true)
+    private val contentCacheMaxSize = 64
+    private val contentCacheMaxFileSize = 1_048_576L
+
+    private class CacheEntry(val content: String, val timestamp: Long)
 
     fun resolvePath(path: String): File? {
         val normalized = path.trim()
@@ -68,25 +73,37 @@ class FileService(tabRepository: TabRepository) {
 
     suspend fun getFileContent(filePath: String): String? {
         val openTab = findTabByPath(filePath)
-        return if (openTab != null) {
-            withContext(Dispatchers.Main) {
+        if (openTab != null) {
+            return withContext(Dispatchers.Main) {
                 openTab.editorState.editor.get()?.text?.toString()
             }
-        } else {
-            withContext(Dispatchers.IO) {
-                val file = File(filePath)
-                if (!file.exists() || !file.isFile) return@withContext null
-                val length = file.length()
-                if (length > 10 * 1024 * 1024) {
-                    file.useLines { it.take(5000).joinToString("\n") }
-                } else {
-                    file.readText()
+        }
+        val canonical = File(filePath).absolutePath
+        val now = System.currentTimeMillis()
+        contentCache[canonical]?.let {
+            if (now - it.timestamp < 2000) return it.content
+        }
+        return withContext(Dispatchers.IO) {
+            val file = File(canonical)
+            if (!file.exists() || !file.isFile) return@withContext null
+            val length = file.length()
+            val content = if (length > 10 * 1024 * 1024) {
+                file.useLines { it.take(5000).joinToString("\n") }
+            } else {
+                file.readText()
+            }
+            if (length <= contentCacheMaxFileSize) {
+                contentCache[canonical] = CacheEntry(content, now)
+                if (contentCache.size > contentCacheMaxSize) {
+                    contentCache.keys.firstOrNull()?.let { contentCache.remove(it) }
                 }
             }
+            content
         }
     }
 
     suspend fun writeFile(file: File, content: String) {
+        contentCache.remove(file.absolutePath)
         val tab = findTabByPath(file.absolutePath)
         withContext(Dispatchers.IO) {
             tab?.saveMutex?.withLock {
@@ -155,7 +172,7 @@ class FileService(tabRepository: TabRepository) {
         return "renamed ${source.absolutePath} -> ${dest.absolutePath}"
     }
 
-    fun clearCache() { pathCache.clear() }
+    fun clearCache() { pathCache.clear(); contentCache.clear() }
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path).absoluteFile

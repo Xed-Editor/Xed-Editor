@@ -17,7 +17,8 @@ class LspService(
     private val scope: ScopeProvider,
 ) {
 
-    private val tabCache = mutableMapOf<String, EditorTab>()
+    private val tabCache = LinkedHashMap<String, EditorTab>(16, 0.75f, true)
+    private val tabCacheMaxSize = 64
 
     suspend fun getDiagnostics(filePath: String): JsonArray {
         val tab = findTabByPath(filePath) ?: return JsonArray()
@@ -139,7 +140,12 @@ class LspService(
         val tab = tabRepo.tabs.filterIsInstance<EditorTab>().find {
             File(it.file.getAbsolutePath()).absoluteFile == canonical
         }
-        if (tab != null) tabCache[path] = tab
+        if (tab != null) {
+            tabCache[path] = tab
+            if (tabCache.size > tabCacheMaxSize) {
+                tabCache.keys.firstOrNull()?.let { tabCache.remove(it) }
+            }
+        }
         return tab
     }
 }

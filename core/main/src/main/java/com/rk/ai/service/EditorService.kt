@@ -248,14 +248,26 @@ class EditorService(
         }
     }
 
+    private val editorTabCache = mutableMapOf<String, EditorTab>()
+
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)
         val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
-        return tabRepo.tabs.filterIsInstance<EditorTab>().find {
+        editorTabCache[canonical]?.let {
+            if (it in tabRepo.tabs) return it
+        }
+        val tab = tabRepo.tabs.filterIsInstance<EditorTab>().find {
             val tabCanonical = runCatching { File(it.file.getAbsolutePath()).canonicalPath }
                 .getOrDefault(File(it.file.getAbsolutePath()).absolutePath)
             tabCanonical == canonical
         }
+        if (tab != null) {
+            editorTabCache[canonical] = tab
+            if (editorTabCache.size > 64) {
+                editorTabCache.keys.firstOrNull()?.let { editorTabCache.remove(it) }
+            }
+        }
+        return tab
     }
 
     private suspend fun EditorTab.toIdeFileJsonObject(active: Boolean): JsonObject {
