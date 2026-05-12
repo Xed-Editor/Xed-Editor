@@ -118,7 +118,8 @@ class IdeBridgeServer(
             d("Invalid host: ${session.headers["host"]}")
             return json(Response.Status.FORBIDDEN, errorJson(null, -32003, "invalid host"))
         }
-        if (!isAuthorized(session)) {
+        val requireAuth = session.uri != "/health" && session.uri != "/debug"
+        if (requireAuth && !isAuthorized(session)) {
             d("Unauthorized: queryToken=${session.parameters["token"]?.firstOrNull()?.take(4)}... header=${session.headers["authorization"]?.take(10)}...")
             return json(Response.Status.UNAUTHORIZED, errorJson(null, -32001, "unauthorized"))
         }
@@ -135,6 +136,7 @@ class IdeBridgeServer(
             "/sse" -> serveSseStream(session)
             "/messages" -> serveMessages(session, rawPostBody)
             "/mcp" -> serveMcp(session, rawPostBody)
+            "/debug" -> json(Response.Status.OK, debugJson())
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
         }
     }
@@ -453,6 +455,20 @@ synchronized(sseLock) {
             addProperty("method", method)
             add("params", params)
         }.let { gson.toJson(it) }
+
+    private fun debugJson(): String =
+        gson.toJson(JsonObject().apply {
+            addProperty("port", listeningPort)
+            addProperty("clients", connectedClients)
+            addProperty("tools", IdeMcpTools.list().size())
+            addProperty("tokenPrefix", token.take(8))
+            add("activeSessionId", if (activeMcpSessionId != null) JsonObject().apply { addProperty("id", activeMcpSessionId) } else JsonNull.INSTANCE)
+            add("sseClients", JsonArray().apply {
+                synchronized(sseLock) {
+                    sseClients.keys.forEach { add(it) }
+                }
+            })
+        })
 
     private fun readRequestBodyUtf8(session: IHTTPSession): Result<String> =
         runCatching {

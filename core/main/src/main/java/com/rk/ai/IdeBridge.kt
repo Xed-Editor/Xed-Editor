@@ -7,13 +7,16 @@ import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.bridge.server.IdeBridgeServer
 import com.rk.ai.service.IdeServiceImpl
+import com.rk.file.child
 import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 import java.security.SecureRandom
 
 object IdeBridge {
-    data class Info(val port: Int, val token: String)
+    data class Info(val port: Int, val token: String, val host: String = "127.0.0.1")
 
     private var server: IdeBridgeServer? = null
 
@@ -21,6 +24,7 @@ object IdeBridge {
     fun availableTools(): Int = 28
     private var token: String? = null
     private var port: Int = 0
+    private var host: String = "127.0.0.1"
     private val secureRandom = SecureRandom()
     private val workspacePaths = mutableListOf<String>()
     private val workspacePathsLock = Any()
@@ -30,7 +34,7 @@ object IdeBridge {
     fun getBridgeInfo(): Info? {
         val s = server ?: return null
         val t = token ?: return null
-        return Info(s.port, t)
+        return Info(s.port, t, host)
     }
 
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
@@ -40,7 +44,6 @@ object IdeBridge {
         runCatching {
             val t = newToken()
             token = t
-            // Use 0 to let the OS pick an available port
             val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
             s.start()
             server = s
@@ -49,10 +52,13 @@ object IdeBridge {
 
             synchronized(workspacePathsLock) {
                 if (workspacePaths.isNotEmpty()) {
-                    writeDiscoveryFile(port, t, workspacePathForResolution())
+                    writeDiscoveryFile(host, port, t, workspacePathForResolution())
                 }
             }
-            if (BuildConfig.DEBUG) Log.d("IdeBridge", "Server started on port $port")
+            if (BuildConfig.DEBUG) {
+                Log.d("IdeBridge", "Server started on $host:$port token=${t.take(8)}...")
+                Log.d("IdeBridge", "Health: http://$host:$port/health")
+            }
         }.onFailure {
             Log.e("IdeBridge", "Failed to start server", it)
             server = null
@@ -63,6 +69,18 @@ object IdeBridge {
         return getBridgeInfo()
     }
 
+    /** Check if the bridge is reachable via HTTP health check */
+    fun healthCheck(): Boolean {
+        val s = server ?: return false
+        return runCatching {
+            val url = URL("http://$host:${s.port}/health")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.connectTimeout = 2000
+            conn.readTimeout = 2000
+            conn.responseCode == 200
+        }.getOrDefault(false)
+    }
+
     fun setWorkspacePath(path: String) {
         synchronized(workspacePathsLock) {
             if (!workspacePaths.contains(path)) {
@@ -70,13 +88,14 @@ object IdeBridge {
                 val s = server
                 val t = token
                 if (s != null && t != null) {
-                    writeDiscoveryFile(s.port, t, workspacePathForResolution())
+                    writeDiscoveryFile(host, s.port, t, workspacePathForResolution())
                 }
             }
         }
     }
 
     fun stop() {
+        Log.d("IdeBridge", "Stopping server")
         server?.stop()
         server = null
         token = null
@@ -85,10 +104,8 @@ object IdeBridge {
         clearDiscoveryFilesForProcess()
     }
 
-    /** Gets the most recently added workspace path as the primary one. */
     fun primaryWorkspacePath(): String = synchronized(workspacePathsLock) { workspacePaths.lastOrNull().orEmpty() }
     
-    /** Gets all added workspace paths joined by the system path separator. */
     fun workspacePathForResolution(): String = synchronized(workspacePathsLock) { workspacePaths.joinToString(File.pathSeparator) }
 
     private fun newToken(): String {
@@ -97,51 +114,62 @@ object IdeBridge {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    private fun writeDiscoveryFile(port: Int, token: String, workspacePath: String) {
+    private fun writeDiscoveryFile(host: String, port: Int, token: String, workspacePath: String) {
         runCatching {
             val pid = Process.myPid()
+            val url = "http://$host:$port"
             val config = JsonObject().apply {
-                addProperty("url", "http://127.0.0.1:$port")
+                addProperty("url", url)
+                addProperty("host", host)
                 addProperty("port", port)
                 addProperty("token", token)
                 addProperty("authToken", token)
                 addProperty("workspacePath", workspacePath)
                 addProperty("pid", pid)
                 add("ideInfo", JsonObject().apply {
-                    addProperty("name", "vscode")
+                    addProperty("name", "xed-ide")
                     addProperty("displayName", "Xed Editor")
                 })
             }
             val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 
-            listOf(
-                File(getTempDir(), "gemini/ide"),
-                File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
-                File(getTempDir(), "ide-bridge"),
-            ).forEach { dir ->
-                dir.mkdirs()
-                val prefix = if (dir.name == "ide-bridge") "ide-server-" else "gemini-ide-server-"
-                dir.listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".json") }
-                    ?.forEach { file ->
-                        val fileName = file.name
-                        val parts = fileName.removePrefix(prefix).removeSuffix(".json").split("-")
-                        val filePid = parts.firstOrNull()?.toIntOrNull()
-                        if (filePid != null) {
-                            if (filePid == pid) {
-                                val filePort = parts.getOrNull(1)?.toIntOrNull()
-                                if (filePort != null && filePort != port) {
-                                    file.delete()
-                                }
-                            } else {
-                                if (!isPidAlive(filePid)) {
-                                    file.delete()
+            val tmpDir = getTempDir()
+            val agentSheetDirs = listOf(
+                "gemini",
+                "opencode",
+            )
+
+            val dirs = mutableListOf<File>().apply {
+                add(File(tmpDir, "gemini/ide"))
+                add(File(tmpDir, "terminal/gemini-sheet/gemini/ide"))
+                agentSheetDirs.forEach { agent ->
+                    add(File(tmpDir, "terminal/$agent-sheet/gemini/ide"))
+                    add(File(tmpDir, "terminal/$agent-sheet/$agent/ide"))
+                }
+                add(File(tmpDir, "ide-bridge"))
+                add(File("/tmp", "xed-ide"))
+            }
+
+            dirs.forEach { dir ->
+                runCatching {
+                    dir.mkdirs()
+                    val prefix = if (dir.name == "ide-bridge") "ide-server-" else "gemini-ide-server-"
+                    dir.listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".json") }
+                        ?.forEach { file ->
+                            val parts = file.name.removePrefix(prefix).removeSuffix(".json").split("-")
+                            val filePid = parts.firstOrNull()?.toIntOrNull()
+                            if (filePid != null) {
+                                if (filePid == pid) {
+                                    val filePort = parts.getOrNull(1)?.toIntOrNull()
+                                    if (filePort != null && filePort != port) file.delete()
+                                } else {
+                                    if (!isPidAlive(filePid)) file.delete()
                                 }
                             }
                         }
-                    }
-
-                val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-$port.json" else "gemini-ide-server-$pid-$port.json"
-                File(dir, fileName).writeText(json)
+                    val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-$port.json" else "gemini-ide-server-$pid-$port.json"
+                    File(dir, fileName).writeText(json)
+                }
             }
         }
     }
@@ -155,11 +183,16 @@ object IdeBridge {
     private fun clearDiscoveryFilesForProcess() {
         runCatching {
             val pid = Process.myPid()
-            listOf(
-                File(getTempDir(), "gemini/ide"),
-                File(getTempDir(), "terminal/gemini-sheet/gemini/ide"),
-                File(getTempDir(), "ide-bridge"),
-            ).forEach { dir ->
+            val tmpDir = getTempDir()
+            val dirs = listOf(
+                File(tmpDir, "gemini/ide"),
+                File(tmpDir, "terminal/gemini-sheet/gemini/ide"),
+                File(tmpDir, "terminal/opencode-sheet/gemini/ide"),
+                File(tmpDir, "terminal/opencode-sheet/opencode/ide"),
+                File(tmpDir, "ide-bridge"),
+                File("/tmp", "xed-ide"),
+            )
+            dirs.forEach { dir ->
                 dir.listFiles { file -> file.name.contains("-$pid-") && file.name.endsWith(".json") }
                     ?.forEach { it.delete() }
             }

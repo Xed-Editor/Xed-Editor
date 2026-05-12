@@ -198,6 +198,10 @@ object AiSessionManager {
             "BOOTCLASSPATH=${System.getenv("BOOTCLASSPATH").orEmpty()}",
             "DEX2OATBOOTCLASSPATH=${System.getenv("DEX2OATBOOTCLASSPATH").orEmpty()}",
             "EXTERNAL_STORAGE=${System.getenv("EXTERNAL_STORAGE").orEmpty()}",
+            "XED_IDE_URL=http://${bridge.host}:${bridge.port}",
+            "XED_IDE_HOST=${bridge.host}",
+            "XED_IDE_PORT=${bridge.port}",
+            "XED_IDE_AUTH_TOKEN=${bridge.token}",
             "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
             "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
             "GEMINI_CLI_IDE_PID=${android.os.Process.myPid()}",
@@ -205,6 +209,9 @@ object AiSessionManager {
             "IDE_SERVER_PORT=${bridge.port}",
             "IDE_AUTH_TOKEN=${bridge.token}",
             "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+            "MCP_HOST=${bridge.host}",
+            "MCP_PORT=${bridge.port}",
+            "MCP_AUTH_TOKEN=${bridge.token}",
         ).apply {
             addAll(agent.buildEnv(emptyMap()).map { "${it.key}=${it.value}" })
             if (!isFDroid && com.rk.file.localLibDir().child("libproot-loader.so").exists()) {
