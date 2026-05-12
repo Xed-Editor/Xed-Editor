@@ -1,11 +1,13 @@
 package com.rk.ai.service
 
+import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.bridge.IdeNotificationSender
 import com.rk.file.FileWrapper
 import java.io.File
+import kotlinx.coroutines.launch
 
 class IdeServiceImpl(
     private val viewModel: MainViewModel,
@@ -22,7 +24,9 @@ class IdeServiceImpl(
     }
     private val fileOpener = object : FileOpener {
         override fun openFileInEditor(file: File, switchToTab: Boolean) {
-            viewModel.editorManager.openFile(FileWrapper(file), projectRoot = null, switchToTab = switchToTab)
+            viewModel.viewModelScope.launch {
+                viewModel.editorManager.openFile(FileWrapper(file), projectRoot = null, switchToTab = switchToTab)
+            }
         }
     }
 

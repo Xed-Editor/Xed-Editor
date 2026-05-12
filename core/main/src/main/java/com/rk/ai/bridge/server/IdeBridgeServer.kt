@@ -47,10 +47,9 @@ class IdeBridgeServer(
             toolRegistry = McpToolRegistry(value).also { registerTools(it) }
         }
 
-    /** Max concurrent MCP tool executions. Prevents thread pool exhaustion under load. */
     companion object {
-        const val MAX_CONCURRENT_TOOL_CALLS = 8
-        const val SERVER_TIMEOUT_MS = 10_000
+        private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
+        private const val MAX_CONCURRENT_TOOL_CALLS = 8
     }
 
     private val toolExecutionPermits = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
@@ -64,16 +63,6 @@ class IdeBridgeServer(
         serverScope.cancel()
         super.stop()
     }
-
-    override fun start() {
-        socketFactory = createServerSocketFactory(SERVER_TIMEOUT_MS)
-        super.start()
-    }
-
-    private fun createServerSocketFactory(timeout: Int) =
-        NanoHTTPD.ServerSocketFactory { host, port ->
-            java.net.ServerSocket(port, 50, host).apply { soTimeout = timeout }
-        }
 
     private fun registerTools(registry: McpToolRegistry) {
         registry.apply {
@@ -237,8 +226,4 @@ class IdeBridgeServer(
         }
 
     private fun d(msg: String) { if (BuildConfig.DEBUG) Log.d("IdeBridgeServer", msg) }
-
-    companion object {
-        private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
-    }
 }

@@ -16,7 +16,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-class FileService(tabRepository: TabRepository) {
+class FileService(private val tabRepository: TabRepository) {
 
     private val pathCache = LinkedHashMap<String, File>(32, 0.75f, true)
     private val pathCacheMaxSize = 128
@@ -122,7 +122,8 @@ class FileService(tabRepository: TabRepository) {
     fun refreshEditors(filePath: String?, force: Boolean) {
         if (filePath != null) {
             val canonical = File(filePath).absoluteFile
-            val tab = tabRepository.tabs.filterIsInstance<EditorTab>().find { tab ->
+            val tab = tabRepository.tabs.filterIsInstance<EditorTab>().find { t ->
+                File(t.file.getAbsolutePath()).absoluteFile == canonical
             } ?: return
             if (!force && tab.editorState.isDirty) return
             tab.refresh()

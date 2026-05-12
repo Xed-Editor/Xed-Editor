@@ -36,9 +36,10 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
     suspend fun searchCode(query: String, limit: Int): JsonArray {
         val app = application ?: return JsonArray()
         val vm = searchViewModel()
+        val mv = viewModel ?: return JsonArray()
         val results = withContext(Dispatchers.IO) {
             vm.searchCode(
-                context = app, mainViewModel = viewModel,
+                context = app, mainViewModel = mv,
                 projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper(),
                 query = query, useIndex = Settings.always_index_projects
             ).toList()

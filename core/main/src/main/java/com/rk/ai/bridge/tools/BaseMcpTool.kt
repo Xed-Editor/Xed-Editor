@@ -17,7 +17,7 @@ abstract class BaseMcpTool : McpTool {
 
     protected abstract suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject
 
-    open fun getTimeoutMs(): Long = 60_000L
+    override fun getTimeoutMs(): Long = 60_000L
 
     // ── Argument extraction helpers ──
 

@@ -99,7 +99,7 @@ class EditorService(
     }
 
     fun insertAtCursor(newContent: String) {
-        val current = tabs.currentTab as? EditorTab ?: return
+        val current = tabRepo.currentTab as? EditorTab ?: return
         if (Settings.ai_auto_apply) {
             scope.viewModelScope.launch(Dispatchers.Main) {
                 val editor = current.editorState.editor.get() ?: return@launch
