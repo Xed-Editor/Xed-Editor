@@ -32,39 +32,41 @@ info "Workspace: $WKDIR"
       if [ -f "$CONFIG_FILE" ]; then
         if command_exists python3; then
           python3 -c "
-import json
-with open('$CONFIG_FILE') as f:
-    cfg = json.load(f)
-cfg.pop('mcp', None)
-ms = cfg.setdefault('mcpServers', {})
-ms['xed-ide'] = {
-    'type': 'http',
-    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
-    'enabled': True,
-    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
-}
-with open('$CONFIG_FILE', 'w') as f:
-    json.dump(cfg, f, indent=2)
-" 2>/dev/null || fallback_merge=true
+        import json
+        with open('$CONFIG_FILE') as f:
+        cfg = json.load(f)
+        # Remove legacy formats
+        cfg.pop('mcpServers', None)
+        ms = cfg.setdefault('mcp', {})
+        ms['xed-ide'] = {
+        'type': 'remote',
+        'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
+        'enabled': True,
+        'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
+        }
+        with open('$CONFIG_FILE', 'w') as f:
+        json.dump(cfg, f, indent=2)
+        " 2>/dev/null || fallback_merge=true
         else
           fallback_merge=true
         fi
-      fi
-      if [ "${fallback_merge:-false}" = true ] || [ ! -f "$CONFIG_FILE" ]; then
+        fi
+        if [ "${fallback_merge:-false}" = true ] || [ ! -f "$CONFIG_FILE" ]; then
         cat > "$CONFIG_FILE" << OC_CONFIG
-{
-  "mcpServers": {
-    "xed-ide": {
-      "type": "http",
-      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
-      "enabled": true,
-      "headers": {
+        {
+        "mcp": {
+        "xed-ide": {
+        "type": "remote",
+        "url": "http://127.0.0.1:${IDE_PORT}/mcp",
+        "enabled": true,
+        "headers": {
         "Authorization": "Bearer ${IDE_TOKEN}"
-      }
-    }
-  }
-}
-OC_CONFIG
+        }
+        }
+        }
+        }
+        OC_CONFIG
+        fi
       fi
       info "IDE bridge MCP configured for OpenCode on port $IDE_PORT (HTTP transport)"
       curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \

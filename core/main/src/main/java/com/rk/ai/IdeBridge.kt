@@ -133,7 +133,7 @@ object IdeBridge {
             }
             val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 
-            // Write/merge OpenCode MCP config using standard mcpServers format
+            // Write/merge OpenCode MCP config using the correct 'mcp' root key
             runCatching {
                 val opencodeConfigDir = com.rk.file.sandboxHomeDir().let { File(it, ".config/opencode") }
                 opencodeConfigDir.mkdirs()
@@ -141,13 +141,15 @@ object IdeBridge {
                 val existingConfig = runCatching {
                     com.google.gson.JsonParser.parseString(configFile.readText()).asJsonObject
                 }.getOrDefault(JsonObject())
-                // Remove legacy 'mcp' key to avoid duplicate configs
-                existingConfig.remove("mcp")
-                val mcpServers = existingConfig.getAsJsonObject("mcpServers") ?: JsonObject().also {
-                    existingConfig.add("mcpServers", it)
+
+                // Remove legacy 'mcpServers' key if it exists
+                existingConfig.remove("mcpServers")
+
+                val mcp = existingConfig.getAsJsonObject("mcp") ?: JsonObject().also {
+                    existingConfig.add("mcp", it)
                 }
-                mcpServers.add("xed-ide", JsonObject().apply {
-                    addProperty("type", "http")
+                mcp.add("xed-ide", JsonObject().apply {
+                    addProperty("type", "remote")
                     addProperty("url", "$url/mcp")
                     addProperty("enabled", true)
                     add("headers", JsonObject().apply {
@@ -156,7 +158,6 @@ object IdeBridge {
                 })
                 configFile.writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingConfig))
             }
-
 
             val tmpDir = getTempDir()
             val agentSheetDirs = listOf(
