@@ -159,6 +159,38 @@ object IdeBridge {
                 configFile.writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingConfig))
             }
 
+            // Write/merge Gemini MCP config
+            runCatching {
+                val geminiConfigDir = com.rk.file.sandboxHomeDir().let { File(it, ".gemini") }
+                geminiConfigDir.mkdirs()
+                val settingsFile = File(geminiConfigDir, "settings.json")
+                val existingSettings = runCatching {
+                    com.google.gson.JsonParser.parseString(settingsFile.readText()).asJsonObject
+                }.getOrDefault(JsonObject())
+                existingSettings.remove("mcpServers")
+                val mcp = existingSettings.getAsJsonObject("mcp") ?: JsonObject().also {
+                    existingSettings.add("mcp", it)
+                }
+                mcp.add("xed-ide", JsonObject().apply {
+                    addProperty("type", "remote")
+                    addProperty("url", "$url/mcp")
+                    addProperty("enabled", true)
+                    add("headers", JsonObject().apply {
+                        addProperty("Authorization", "Bearer $token")
+                    })
+                })
+                val general = existingSettings.getAsJsonObject("general") ?: JsonObject().also {
+                    existingSettings.add("general", it)
+                }
+                general.addProperty("preferredEditor", "vim")
+                val ide = existingSettings.getAsJsonObject("ide") ?: JsonObject().also {
+                    existingSettings.add("ide", it)
+                }
+                ide.addProperty("enabled", true)
+                ide.addProperty("hasSeenNudge", true)
+                settingsFile.writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingSettings))
+            }
+
             val tmpDir = getTempDir()
             val agentSheetDirs = listOf(
                 "gemini",

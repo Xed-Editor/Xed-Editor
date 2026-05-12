@@ -44,21 +44,65 @@ configure_xed_ide_integration() {
     warn "IDE bridge not reachable on port $IDE_PORT"
   fi
   mkdir -p "$HOME/.gemini"
-  node <<'NODE'
+  SETTINGS_FILE="$HOME/.gemini/settings.json"
+  # Merge MCP config into Gemini settings using python3 (preferred) or node
+  if command_exists python3; then
+    python3 -c "
+import json
+try:
+    with open('$SETTINGS_FILE') as f:
+        s = json.load(f)
+except:
+    s = {}
+s.setdefault('general', {})['preferredEditor'] = 'vim'
+s.setdefault('ide', {})['enabled'] = True
+s.setdefault('ide', {})['hasSeenNudge'] = True
+s.setdefault('privacy', {})['usageStatisticsEnabled'] = False
+s.setdefault('telemetry', {})['enabled'] = False
+# Remove legacy mcpServers key, use 'mcp' root key
+s.pop('mcpServers', None)
+m = s.setdefault('mcp', {})
+m['xed-ide'] = {
+    'type': 'remote',
+    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
+    'enabled': True,
+    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
+}
+with open('$SETTINGS_FILE', 'w') as f:
+    json.dump(s, f, indent=2)
+" 2>/dev/null || fallback_to_node=true
+  fi
+  if [ "${fallback_to_node:-false}" = true ]; then
+    warn "Falling back to Node.js for Gemini settings merge"
+    export IDE_PORT IDE_TOKEN
+    node <<'NODE'
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const settingsFile = path.join(os.homedir(), '.gemini', 'settings.json');
-let settings = {};
-try {
-  settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
-} catch (_) {}
-settings.general = { ...(settings.general || {}), preferredEditor: 'vim' };
-settings.ide = { ...(settings.ide || {}), enabled: true, hasSeenNudge: true };
-settings.privacy = { ...(settings.privacy || {}), usageStatisticsEnabled: false };
-settings.telemetry = { ...(settings.telemetry || {}), enabled: false };
-fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
+const idePort = process.env.IDE_PORT || '0';
+const ideToken = process.env.IDE_TOKEN || '';
+let s = {};
+try { s = JSON.parse(fs.readFileSync(settingsFile, 'utf8')); } catch (_) {}
+s.general = { ...(s.general || {}), preferredEditor: 'vim' };
+s.ide = { ...(s.ide || {}), enabled: true, hasSeenNudge: true };
+s.privacy = { ...(s.privacy || {}), usageStatisticsEnabled: false };
+s.telemetry = { ...(s.telemetry || {}), enabled: false };
+delete s.mcpServers;
+s.mcp = s.mcp || {};
+s.mcp['xed-ide'] = {
+  type: 'remote',
+  url: 'http://127.0.0.1:' + idePort + '/mcp',
+  enabled: true,
+  headers: { Authorization: 'Bearer ' + ideToken }
+};
+fs.writeFileSync(settingsFile, JSON.stringify(s, null, 2));
 NODE
+  fi
+  info "Xed Editor IDE bridge configured for Gemini on port $IDE_PORT"
+  if [ -n "$BRIDGE_OK" ]; then
+    info "Bridge health check passed"
+  fi
 }
 
 ensure_node
