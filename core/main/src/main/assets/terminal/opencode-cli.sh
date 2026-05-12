@@ -25,29 +25,28 @@ info "Starting OpenCode CLI..."
 info "Workspace: $WKDIR"
 
 # Wire with Xed Editor IDE bridge via MCP
-if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
-  OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
-  mkdir -p "$OPENCODE_CONFIG_DIR"
-  cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
+    if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
+      OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
+      mkdir -p "$OPENCODE_CONFIG_DIR"
+      cat > "$OPENCODE_CONFIG_DIR/opencode.json" << OC_CONFIG
 {
   "mcp": {
     "xed-ide": {
-      "type": "remote",
-      "url": "http://127.0.0.1:${IDE_PORT}/sse",
+      "type": "http",
+      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
       "enabled": true,
       "headers": {
         "Authorization": "Bearer ${IDE_TOKEN}"
-      },
-      "timeout": 10000
+      }
     }
   }
 }
 OC_CONFIG
-  info "IDE bridge MCP configured for OpenCode on port $IDE_PORT"
-  curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
-    info "Bridge health check passed" || \
-    warn "Bridge health check failed, MCP may be unavailable"
-fi
+      info "IDE bridge MCP configured for OpenCode on port $IDE_PORT (HTTP transport)"
+      curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
+        info "Bridge health check passed" || \
+        warn "Bridge health check failed, MCP may be unavailable"
+    fi
 
 ensure_node() {
   if ! command_exists node || ! command_exists npm; then

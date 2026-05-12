@@ -65,7 +65,7 @@ class SessionService : Service() {
             val s = weakService.get() ?: return
             s.sessions[id]?.apply {
                 if (emulator != null) {
-                    s.sessions[id]?.finishIfRunning()
+                    finishIfRunning()
                 }
             }
             s.sessions.remove(id)
