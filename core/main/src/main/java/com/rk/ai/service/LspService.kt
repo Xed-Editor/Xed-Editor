@@ -1,5 +1,6 @@
 package com.rk.ai.service
 
+import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel

@@ -122,7 +122,7 @@ object DiscoveryFileWriter {
                     val existingMcp = runCatching { JsonParser.parseString(File(dir, "mcp.json").readText()).asJsonObject }.getOrDefault(JsonObject())
                     existingMcp.remove("mcpServers")
                     val mcp = existingMcp.getAsJsonObject("mcp") ?: JsonObject().also { existingMcp.add("mcp", it) }
-                    mcpServers.add("xed-ide", JsonObject().apply {
+                    mcp.add("xed-ide", JsonObject().apply {
                         addProperty("type", "remote"); addProperty("url", "$url/mcp"); addProperty("enabled", true)
                         add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
                     })

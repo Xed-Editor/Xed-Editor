@@ -9,6 +9,7 @@ import com.google.gson.JsonParser
 import com.rk.ai.IdeMcpTools
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.tools.*
+import com.rk.ai.service.IdeNotificationSender
 import com.rk.ai.service.IdeService
 import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
@@ -20,7 +21,9 @@ class IdeBridgeServer(
     requestedPort: Int,
     private val token: String,
     initialIdeService: IdeService
-) : NanoHTTPD(requestedPort) {
+) : NanoHTTPD(requestedPort), IdeNotificationSender {
+
+    override fun sendNotification(method: String, params: JsonObject) = sseManager.sendNotification(method, params)
 
     val port: Int get() = listeningPort
     private val gson = GsonBuilder().setPrettyPrinting().create()
