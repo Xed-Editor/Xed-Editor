@@ -139,12 +139,12 @@ class IdeServiceImpl(
                 // openFile is a suspend function that handles its own main thread switching
                 viewModel.editorManager.openFile(FileWrapper(File(filePath)), projectRoot = null, switchToTab = true)
                 // Wait briefly for the tab to be added to viewModel.tabs if it's not immediate
-                var attempts = 0
-                while (tab == null && attempts < 20) {
-                    delay(50)
-                    tab = findTabByPath(filePath)
-                    attempts++
-                }
+                 var attempts = 0
+                 while (tab == null && attempts < 20) {
+                     kotlinx.coroutines.delay(50)
+                     tab = findTabByPath(filePath)
+                     attempts++
+                 }
             }
 
             if (tab == null) {

@@ -141,17 +141,16 @@ object IdeBridge {
                 val existingConfig = runCatching {
                     com.google.gson.JsonParser.parseString(configFile.readText()).asJsonObject
                 }.getOrDefault(JsonObject())
-                val mcpServers = existingConfig.getAsJsonObject("mcpServers") ?: JsonObject()
-                mcpServers.add("xed-ide", JsonObject().apply {
+                val mcpConfig = existingConfig.getAsJsonObject("mcp") ?: JsonObject()
+                mcpConfig.add("xed-ide", JsonObject().apply {
                     addProperty("type", "http")
                     addProperty("url", "$url/mcp")
+                    addProperty("enabled", true)
                     add("headers", JsonObject().apply {
                         addProperty("Authorization", "Bearer $token")
                     })
                 })
-                existingConfig.add("mcpServers", mcpServers)
-                // Remove SSE timeout if set
-                existingConfig.remove("timeout")
+                existingConfig.add("mcp", mcpConfig)
                 configFile.writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingConfig))
             }
 
@@ -215,15 +214,16 @@ object IdeBridge {
                         val existingMcp = runCatching {
                             com.google.gson.JsonParser.parseString(File(dir, "mcp.json").readText()).asJsonObject
                         }.getOrDefault(JsonObject())
-                        val mcpServers = existingMcp.getAsJsonObject("mcpServers") ?: JsonObject()
-                        mcpServers.add("xed-ide", JsonObject().apply {
+                        val mcpConfig = existingMcp.getAsJsonObject("mcp") ?: JsonObject()
+                        mcpConfig.add("xed-ide", JsonObject().apply {
                             addProperty("type", "http")
                             addProperty("url", "$url/mcp")
+                            addProperty("enabled", true)
                             add("headers", JsonObject().apply {
                                 addProperty("Authorization", "Bearer $token")
                             })
                         })
-                        existingMcp.add("mcpServers", mcpServers)
+                        existingMcp.add("mcp", mcpConfig)
                         File(dir, "mcp.json").writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingMcp))
                     }
                 }
