@@ -642,4 +642,8 @@
     <string name="git_status">Git 状态</string>
     <string name="color_picker">选择颜色</string>
     <string name="invalid_color">无效的颜色</string>
+    <string name="auto_closing_bracket">自动闭合括号</string>
+    <string name="auto_closing_bracket_desc">自动插入匹配的括号</string>
+    <string name="confirm_exit_dialog">确认退出对话框</string>
+    <string name="confirm_exit_dialog_desc">在关闭 App 前显示确认对话框</string>
 </resources>
