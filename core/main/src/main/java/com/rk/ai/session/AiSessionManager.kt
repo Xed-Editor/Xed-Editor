@@ -109,7 +109,6 @@ object AiSessionManager {
     }
 
     suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {
-        IdeBridge.ensureStarted(null, workingDir)
         val result = GeminiCli.agent(
             prompt = prompt,
             workingDir = workingDir,

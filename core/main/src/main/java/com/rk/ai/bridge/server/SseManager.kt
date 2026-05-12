@@ -72,7 +72,7 @@ class SseManager(
                     w.print(": keepalive\n\n"); w.flush()
                     if (w.checkError()) {
                         sseClients.remove(sessionId); onClientsChanged(sseClients.size)
-                        cancel()
+                        return@launch
                     }
                 }
             }

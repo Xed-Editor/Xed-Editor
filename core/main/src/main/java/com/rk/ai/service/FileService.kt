@@ -8,6 +8,7 @@ import com.rk.ai.displayRootFor
 import com.rk.ai.resolveRelativePathFromOpenEditor
 import com.rk.ai.resolveWorkspacePath
 import com.rk.file.FileWrapper
+import com.rk.tabs.editor.EditorTab
 import java.io.File
 import java.util.LinkedHashMap
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,7 @@ import kotlinx.coroutines.withContext
 class FileService(private val viewModel: MainViewModel) {
 
     private val pathCache = LinkedHashMap<String, File>(32, 0.75f, true)
-    private const val PATH_CACHE_MAX_SIZE = 128
+    private val pathCacheMaxSize = 128
 
     fun resolvePath(path: String): File? {
         val normalized = path.trim()
@@ -32,7 +33,7 @@ class FileService(private val viewModel: MainViewModel) {
         }
         if (resolved != null) {
             pathCache[normalized] = resolved
-            if (pathCache.size > PATH_CACHE_MAX_SIZE) {
+            if (pathCache.size > pathCacheMaxSize) {
                 val oldest = pathCache.keys.firstOrNull()
                 if (oldest != null) pathCache.remove(oldest)
             }

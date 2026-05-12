@@ -29,6 +29,7 @@ class IdeBridgeServer(
 
     val port: Int get() = listeningPort
     private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val serverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var toolRegistry = McpToolRegistry(initialIdeService)
     private val mcpDispatcher = McpDispatcher { toolRegistry }
     private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
@@ -37,7 +38,6 @@ class IdeBridgeServer(
     @Volatile var connectedClients: Int = 0; private set
     val toolsCount: Int get() = toolRegistry.listSchemas().size()
     @Volatile private var activeMcpSessionId: String? = null
-    private val serverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     var ideService: IdeService = initialIdeService
         set(value) {

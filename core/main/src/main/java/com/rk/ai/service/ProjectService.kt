@@ -13,6 +13,7 @@ import com.rk.ai.workspaceRoots
 import com.rk.filetree.FileTreeTab
 import com.rk.search.SearchViewModel
 import com.rk.settings.Settings
+import com.rk.file.toFileWrapper
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.application
 import java.io.File

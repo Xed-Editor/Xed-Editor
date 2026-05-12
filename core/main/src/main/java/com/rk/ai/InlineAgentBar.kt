@@ -38,8 +38,8 @@ fun InlineAgentBar(
         val wd = if (state is com.rk.tabs.editor.EditorTab) {
             state.projectRoot?.getAbsolutePath()
                 ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
-        } else null ?: "/storage/emulated/0"
-        return AiSessionManager.runHeadless(prompt, wd)
+        } else null
+        return AiSessionManager.runHeadless(prompt, wd ?: "/storage/emulated/0")
     }
 
     AnimatedVisibility(
