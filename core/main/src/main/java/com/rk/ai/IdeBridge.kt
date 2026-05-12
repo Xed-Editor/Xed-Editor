@@ -133,23 +133,26 @@ object IdeBridge {
             }
             val json = GsonBuilder().setPrettyPrinting().create().toJson(config)
 
-            // Write OpenCode MCP config (streamable HTTP transport, not SSE) to sandbox home
-            val mcpServerConfig = JsonObject().apply {
-                add("mcpServers", JsonObject().apply {
-                    add("xed-ide", JsonObject().apply {
-                        addProperty("type", "http")
-                        addProperty("url", "$url/mcp")
-                        add("headers", JsonObject().apply {
-                            addProperty("Authorization", "Bearer $token")
-                        })
-                    })
-                })
-            }
-            val mcpJson = GsonBuilder().setPrettyPrinting().create().toJson(mcpServerConfig)
+            // Write/merge OpenCode config to use HTTP transport (not SSE)
             runCatching {
                 val opencodeConfigDir = com.rk.file.sandboxHomeDir().let { File(it, ".config/opencode") }
                 opencodeConfigDir.mkdirs()
-                File(opencodeConfigDir, "mcp.json").writeText(mcpJson)
+                val configFile = File(opencodeConfigDir, "opencode.json")
+                val existingConfig = runCatching {
+                    com.google.gson.JsonParser.parseString(configFile.readText()).asJsonObject
+                }.getOrDefault(JsonObject())
+                val mcpServers = existingConfig.getAsJsonObject("mcpServers") ?: JsonObject()
+                mcpServers.add("xed-ide", JsonObject().apply {
+                    addProperty("type", "http")
+                    addProperty("url", "$url/mcp")
+                    add("headers", JsonObject().apply {
+                        addProperty("Authorization", "Bearer $token")
+                    })
+                })
+                existingConfig.add("mcpServers", mcpServers)
+                // Remove SSE timeout if set
+                existingConfig.remove("timeout")
+                configFile.writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingConfig))
             }
 
 
@@ -209,20 +212,19 @@ object IdeBridge {
                         )
                     }
                     if (dir.name == ".opencode") {
-                        val mcpJson = GsonBuilder().setPrettyPrinting().create().toJson(
-                            JsonObject().apply {
-                                add("mcpServers", JsonObject().apply {
-                                    add("xed-ide", JsonObject().apply {
-                                        addProperty("type", "http")
-                                        addProperty("url", "$url/mcp")
-                                        add("headers", JsonObject().apply {
-                                            addProperty("Authorization", "Bearer $token")
-                                        })
-                                    })
-                                })
-                            }
-                        )
-                        File(dir, "mcp.json").writeText(mcpJson)
+                        val existingMcp = runCatching {
+                            com.google.gson.JsonParser.parseString(File(dir, "mcp.json").readText()).asJsonObject
+                        }.getOrDefault(JsonObject())
+                        val mcpServers = existingMcp.getAsJsonObject("mcpServers") ?: JsonObject()
+                        mcpServers.add("xed-ide", JsonObject().apply {
+                            addProperty("type", "http")
+                            addProperty("url", "$url/mcp")
+                            add("headers", JsonObject().apply {
+                                addProperty("Authorization", "Bearer $token")
+                            })
+                        })
+                        existingMcp.add("mcpServers", mcpServers)
+                        File(dir, "mcp.json").writeText(GsonBuilder().setPrettyPrinting().create().toJson(existingMcp))
                     }
                 }
             }
