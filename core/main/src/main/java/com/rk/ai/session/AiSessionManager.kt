@@ -127,8 +127,11 @@ object AiSessionManager {
     ): TerminalSession {
         setupTerminalFiles()
         val tmpDir = File(getTempDir(), "terminal/${agent.name}-sheet").apply { mkdirs() }
-        writeBridgeEnvFile(tmpDir, bridge)
-        val (shell, args) = agentSheetProcessArgs(agent, extraArgs, workingDir, tmpDir)
+        val xedDir = if (workingDir.isNotBlank() && File(workingDir).exists()) {
+            File(workingDir, ".xed").also { it.mkdirs() }
+        } else null
+        writeBridgeEnvFile(tmpDir, xedDir, bridge)
+        val (shell, args) = agentSheetProcessArgs(agent, extraArgs, xedDir, workingDir)
         val env = buildAgentSheetEnv(activity, agent, workingDir, bridge)
         return TerminalSession(
             shell,
@@ -140,7 +143,7 @@ object AiSessionManager {
         ).also { it.mSessionName = "${agent.name}-sheet" }
     }
 
-    private fun writeBridgeEnvFile(tmpDir: File, bridge: IdeBridge.Info) {
+    private fun writeBridgeEnvFile(tmpDir: File, xedDir: File?, bridge: IdeBridge.Info) {
         val envContent = buildString {
             appendLine("export XED_IDE_URL=http://${bridge.host}:${bridge.port}")
             appendLine("export XED_IDE_HOST=${bridge.host}")
@@ -152,32 +155,28 @@ object AiSessionManager {
             appendLine("export MCP_AUTH_TOKEN=${bridge.token}")
         }
         runCatching { File(tmpDir, "xed-bridge.env").writeText(envContent) }
+        runCatching { xedDir?.let { File(it, "ide.env").writeText(envContent) } }
         runCatching { com.rk.file.sandboxHomeDir().let { if (it.exists()) File(it, ".xed-bridge.env").writeText(envContent) } }
     }
 
     private fun agentSheetProcessArgs(
         agent: AiAgent,
         extraArgs: List<String>,
+        xedDir: File?,
         workingDir: String,
-        tmpDir: File,
     ): Pair<String, Array<String>> {
         val sandbox = localBinDir().child("sandbox").absolutePath
         val launcher = localBinDir().child(agent.shellScriptName).absolutePath
-        val bridgeEnvFile = File(tmpDir, "xed-bridge.env")
-        val workspaceEnvFile = if (workingDir.isNotBlank() && File(workingDir).exists()) {
-            File(workingDir, ".xed/ide.env").also { it.parentFile?.mkdirs() }
-        } else null
 
-        val wrapperScript = File(tmpDir, "launcher.sh")
+        val wrapperDir = xedDir ?: File(getTempDir(), "terminal/${agent.name}-sheet").also { it.mkdirs() }
+        val envFile = File(wrapperDir, "ide.env")
+        val wrapperScript = File(wrapperDir, "launcher.sh")
         wrapperScript.writeText(
             buildString {
                 appendLine("#!/bin/bash")
                 appendLine("# Auto-generated launcher wrapper - sources IDE bridge env")
-                if (bridgeEnvFile.exists()) {
-                    appendLine("source ${bridgeEnvFile.absolutePath}")
-                }
-                if (workspaceEnvFile?.exists() == true) {
-                    appendLine("source ${workspaceEnvFile.absolutePath}")
+                if (envFile.exists()) {
+                    appendLine("source ${envFile.absolutePath}")
                 }
                 appendLine("exec $launcher \"\$@\"")
             }
