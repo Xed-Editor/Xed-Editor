@@ -46,6 +46,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val MAX_TRANSCRIPT_LENGTH = 50_000
+private const val MAX_SNIPPET_LINES = 10
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiAgentSheet(
@@ -83,10 +86,9 @@ fun AiAgentSheet(
     val transcript = viewModel.agentTranscript
 
     fun appendLog(text: String) {
-        viewModel.agentTranscript =
-            listOf(viewModel.agentTranscript, text)
-                .filter { it.isNotBlank() }
-                .joinToString("\n\n")
+        val current = viewModel.agentTranscript
+        val updated = if (current.isNotBlank()) "$current\n\n$text" else text
+        viewModel.agentTranscript = updated.takeLast(MAX_TRANSCRIPT_LENGTH)
     }
 
     suspend fun saveDirtyEditors(): Int {
@@ -107,7 +109,10 @@ fun AiAgentSheet(
     }
 
     fun startAgent(workingDir: String = cwd.value, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
-        val currentActivity = activity ?: return
+        val currentActivity = activity ?: run {
+            appendLog("Error: Activity reference lost")
+            return
+        }
         if (!forceRestart && extraArgs.isEmpty() && AiSessionManager.canReuseFor(workingDir)) {
             IdeBridge.setWorkspacePath(workingDir)
             appendLog("Reusing agent session: ${AiSessionManager.cwd}")
@@ -115,10 +120,14 @@ fun AiAgentSheet(
         }
         AiSessionManager.stopSession()
         scope.launch(Dispatchers.Main) {
-            val saved = withContext(Dispatchers.IO) { saveDirtyEditors() }
-            AiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
-            if (saved > 0) appendLog("Synced $saved dirty editor file(s) before agent start.")
-            appendLog("Agent running in sheet: $workingDir")
+            try {
+                val saved = withContext(Dispatchers.IO) { saveDirtyEditors() }
+                AiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
+                if (saved > 0) appendLog("Synced $saved dirty editor file(s) before agent start.")
+                appendLog("Agent running in sheet: $workingDir")
+            } catch (e: Exception) {
+                appendLog("Failed to start agent: ${e.message}")
+            }
         }
     }
 
@@ -127,10 +136,14 @@ fun AiAgentSheet(
         val runningSession = AiSessionManager.session
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
             scope.launch(Dispatchers.IO) {
-                val saved = saveDirtyEditors()
-                withContext(Dispatchers.Main) {
-                    if (saved > 0) appendLog("Synced $saved dirty editor file(s).")
-                    runningSession.write("$text\r")
+                try {
+                    val saved = saveDirtyEditors()
+                    withContext(Dispatchers.Main) {
+                        if (saved > 0) appendLog("Synced $saved dirty editor file(s).")
+                        runningSession.write("$text\r")
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) { appendLog("Error sending: ${e.message}") }
                 }
             }
         } else {
@@ -144,8 +157,12 @@ fun AiAgentSheet(
         if (input.isBlank()) return
         when (input) {
             "/sync" -> scope.launch(Dispatchers.IO) {
-                val saved = saveDirtyEditors()
-                withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                try {
+                    val saved = saveDirtyEditors()
+                    withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) { appendLog("Sync failed: ${e.message}") }
+                }
             }
             "/refresh" -> {
                 refreshCleanEditors()
@@ -278,8 +295,12 @@ fun AiAgentSheet(
 
             IconButton(onClick = {
                 scope.launch(Dispatchers.IO) {
-                    val saved = saveDirtyEditors()
-                    withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                    try {
+                        val saved = saveDirtyEditors()
+                        withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) { appendLog("Sync failed: ${e.message}") }
+                    }
                 }
             }) {
                 XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), contentDescription = "Sync")

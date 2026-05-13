@@ -68,7 +68,6 @@ object AiSessionManager {
         currentAgent = resolveAgent(agentType)
         d("startSession agent=${currentAgent.name} workingDir=$workingDir")
 
-        // Load and apply project-level agent config
         val projectConfig = com.rk.ai.ProjectConfigLoader.loadForWorkspace(workingDir)
         if (projectConfig != null) {
             com.rk.ai.ProjectConfigLoader.applyConfig(projectConfig)
@@ -85,23 +84,34 @@ object AiSessionManager {
 
             withContext(Dispatchers.Main) {
                 ideService = IdeServiceImpl(viewModel)
-                val newSession = createAgentSession(
-                    activity = activity,
-                    agent = currentAgent,
-                    bridge = bridgeInfo,
-                    workingDir = workingDir,
-                    extraArgs = extraArgs,
-                )
-                session = newSession
-                cwd = workingDir
-                newSession
+                try {
+                    val newSession = createAgentSession(
+                        activity = activity,
+                        agent = currentAgent,
+                        bridge = bridgeInfo,
+                        workingDir = workingDir,
+                        extraArgs = extraArgs,
+                    )
+                    session = newSession
+                    cwd = workingDir
+                    newSession
+                } catch (e: Exception) {
+                    d("Failed to create session: ${e.message}")
+                    session = null
+                    cwd = null
+                    throw e
+                }
             }
         }
     }
 
     fun stopSession() {
         d("stopSession")
-        session?.finishIfRunning()
+        try {
+            session?.finishIfRunning()
+        } catch (e: Exception) {
+            d("Error stopping session: ${e.message}")
+        }
         session = null
         cwd = null
         IdeBridge.stop()
@@ -109,13 +119,28 @@ object AiSessionManager {
     }
 
     suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {
-        val result = GeminiCli.agent(
-            prompt = prompt,
-            workingDir = workingDir,
-            ideBridge = IdeBridge.getBridgeInfo(),
-            timeoutSeconds = timeoutSeconds,
-        )
-        return GeminiCli.stripCodeFences(result.output)
+        val agent = currentAgent
+        val bridgeInfo = IdeBridge.getBridgeInfo()
+        return when (agent.name) {
+            "opencode" -> {
+                val result = com.rk.ai.GeminiCli.agent(
+                    prompt = prompt,
+                    workingDir = workingDir,
+                    ideBridge = bridgeInfo,
+                    timeoutSeconds = timeoutSeconds,
+                )
+                GeminiCli.stripCodeFences(result.output)
+            }
+            else -> {
+                val result = GeminiCli.agent(
+                    prompt = prompt,
+                    workingDir = workingDir,
+                    ideBridge = bridgeInfo,
+                    timeoutSeconds = timeoutSeconds,
+                )
+                GeminiCli.stripCodeFences(result.output)
+            }
+        }
     }
 
     private fun createAgentSession(
@@ -163,17 +188,19 @@ object AiSessionManager {
         val wrapperDir = xedDir ?: File(getTempDir(), "terminal/${agent.name}-sheet").also { it.mkdirs() }
         val envFile = File(wrapperDir, AiConfig.Discovery.ideEnvFile)
         val wrapperScript = File(wrapperDir, AiConfig.Discovery.launcherScriptFile)
-        wrapperScript.writeText(
-            buildString {
-                appendLine("#!/bin/bash")
-                appendLine("# Auto-generated launcher wrapper - sources IDE bridge env")
-                if (envFile.exists()) {
-                    appendLine("source ${envFile.absolutePath}")
+        if (!wrapperScript.exists()) {
+            wrapperScript.writeText(
+                buildString {
+                    appendLine("#!/bin/bash")
+                    appendLine("# Auto-generated launcher wrapper - sources IDE bridge env")
+                    if (envFile.exists()) {
+                        appendLine("source ${envFile.absolutePath}")
+                    }
+                    appendLine("exec $launcher \"\$@\"")
                 }
-                appendLine("exec $launcher \"\$@\"")
-            }
-        )
-        wrapperScript.setExecutable(true)
+            )
+            wrapperScript.setExecutable(true)
+        }
 
         val command = buildList {
             add(sandbox)

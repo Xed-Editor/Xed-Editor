@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.session.AiSessionManager
@@ -32,6 +33,7 @@ fun InlineAgentBar(
     var input by remember { mutableStateOf("") }
     var response by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     suspend fun runHeadless(prompt: String): String {
         val state = viewModel.currentTab
@@ -39,7 +41,17 @@ fun InlineAgentBar(
             state.projectRoot?.getAbsolutePath()
                 ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
         } else null
-        return AiSessionManager.runHeadless(prompt, wd ?: "/storage/emulated/0")
+        val currentAgent = AiSessionManager.currentAgent
+        return when (currentAgent.name) {
+            "opencode" -> {
+                com.rk.ai.GeminiCli.agent(prompt, wd ?: "/storage/emulated/0", IdeBridge.getBridgeInfo())
+                    .let { com.rk.ai.GeminiCli.stripCodeFences(it.output) }
+            }
+            else -> {
+                com.rk.ai.GeminiCli.agent(prompt, wd ?: "/storage/emulated/0", IdeBridge.getBridgeInfo())
+                    .let { com.rk.ai.GeminiCli.stripCodeFences(it.output) }
+            }
+        }
     }
 
     AnimatedVisibility(
@@ -66,6 +78,7 @@ fun InlineAgentBar(
                     )
                     TextButton(onClick = {
                         response = null
+                        errorMessage = null
                         onDismiss()
                     }) {
                         Icon(Icons.Outlined.Close, contentDescription = "Close", modifier = Modifier.size(18.dp))
@@ -86,20 +99,28 @@ fun InlineAgentBar(
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         textStyle = MaterialTheme.typography.bodySmall,
+                        isError = errorMessage != null,
                     )
                     Spacer(Modifier.width(8.dp))
                     FilledTonalIconButton(
                         onClick = {
                             if (input.isBlank()) return@FilledTonalIconButton
                             isLoading = true
+                            errorMessage = null
                             val prompt = input.trim()
                             input = ""
                             scope.launch(Dispatchers.IO) {
                                 try {
                                     val result = runHeadless(prompt)
-                                    withContext(Dispatchers.Main) { response = result }
+                                    withContext(Dispatchers.Main) {
+                                        response = result
+                                        errorMessage = null
+                                    }
                                 } catch (e: Exception) {
-                                    withContext(Dispatchers.Main) { response = "Error: ${e.message}" }
+                                    withContext(Dispatchers.Main) {
+                                        response = null
+                                        errorMessage = "Error: ${e.message ?: "Unknown error"}"
+                                    }
                                 } finally {
                                     isLoading = false
                                 }
@@ -115,19 +136,33 @@ fun InlineAgentBar(
                     }
                 }
 
+                errorMessage?.let { err ->
+                    Spacer(Modifier.height(4.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = err,
+                            modifier = Modifier.padding(8.dp),
+                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                    }
+                }
+
                 response?.let { text ->
                     Spacer(Modifier.height(8.dp))
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 250.dp),
                     ) {
-                        Column(modifier = Modifier.padding(10.dp).verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+                        Column(modifier = Modifier.padding(10.dp).verticalScroll(rememberScrollState())) {
                             Text(
                                 text = text,
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
-                                ),
+                                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                             )
                         }
                     }

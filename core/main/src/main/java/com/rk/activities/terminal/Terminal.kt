@@ -67,9 +67,7 @@ import java.lang.ref.WeakReference
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -84,7 +82,6 @@ class Terminal : AppCompatActivity() {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 val binder = service as SessionService.SessionBinder
                 sessionBinder = WeakReference(binder)
-                // sessionBinder = WeakReference(binder)
                 isBound = true
                 handleIntent(intent)
             }
@@ -120,9 +117,7 @@ class Terminal : AppCompatActivity() {
         terminalView.get() ?: return
 
         val pwd = intent.getStringExtra("cwd")
-        if (pwd == null) {
-            return
-        }
+        if (pwd == null) return
         val sessionId = File(pwd).name
 
         lifecycleScope.launch(Dispatchers.Main) {
@@ -160,7 +155,6 @@ class Terminal : AppCompatActivity() {
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -190,14 +184,15 @@ class Terminal : AppCompatActivity() {
             super.onDestroy()
             return
         }
-
         super.onDestroy()
     }
 
     var progressText by mutableStateOf(strings.installing.getString())
     var installNextStage by mutableStateOf<NEXT_STAGE?>(null)
 
-    @OptIn(DelicateCoroutinesApi::class)
+    private fun formatBytesToMB(bytes: Long): String =
+        "%.2f".format(bytes / (1024.0 * 1024.0))
+
     @Composable
     fun TerminalScreenHost(context: Context) {
         var progress by remember { mutableFloatStateOf(0f) }
@@ -206,62 +201,46 @@ class Terminal : AppCompatActivity() {
         var downloadedBytes by remember { mutableLongStateOf(0L) }
         var totalBytes by remember { mutableLongStateOf(0L) }
 
-        // Helper function to format bytes to MB string
-        fun formatBytesToMB(bytes: Long): String {
-            return "%.2f".format(bytes / (1024.0 * 1024.0))
-        }
-
         LaunchedEffect(Unit) {
             try {
                 val abi = Build.SUPPORTED_ABIS
 
-                val filesToDownload =
-                    listOf(
-                            DownloadFile(
-                                url =
-                                    if (abi.contains("x86_64")) {
-                                        XedConstants.TALLOC_X64
-                                    } else if (abi.contains("arm64-v8a")) {
-                                        XedConstants.TALLOC_ARM64
-                                    } else if (abi.contains("armeabi-v7a")) {
-                                        XedConstants.TALLOC_ARM
-                                    } else {
-                                        throw RuntimeException("Unsupported CPU")
-                                    },
-                                outputFile = localLibDir().child("libtalloc.so.2"),
-                            ),
-                            DownloadFile(
-                                url =
-                                    if (abi.contains("x86_64")) {
-                                        XedConstants.PROOT_X64
-                                    } else if (abi.contains("arm64-v8a")) {
-                                        XedConstants.PROOT_ARM64
-                                    } else if (abi.contains("armeabi-v7a")) {
-                                        XedConstants.PROOT_ARM
-                                    } else {
-                                        throw RuntimeException("Unsupported CPU")
-                                    },
-                                outputFile = localBinDir().child("proot"),
-                            ),
-                        )
-                        .toMutableList()
-
-                if (isTerminalInstalled().not()) {
-                    filesToDownload.add(
+                val filesToDownload = buildList {
+                    add(
                         DownloadFile(
-                            url =
-                                if (abi.contains("x86_64")) {
-                                    XedConstants.ROOTFS_X64
-                                } else if (abi.contains("arm64-v8a")) {
-                                    XedConstants.ROOTFS_ARM64
-                                } else if (abi.contains("armeabi-v7a")) {
-                                    XedConstants.ROOTFS_ARM
-                                } else {
-                                    throw RuntimeException("Unsupported CPU")
-                                },
-                            outputFile = getTempDir().child("sandbox.tar.gz"),
+                            url = when {
+                                abi.contains("x86_64") -> XedConstants.TALLOC_X64
+                                abi.contains("arm64-v8a") -> XedConstants.TALLOC_ARM64
+                                abi.contains("armeabi-v7a") -> XedConstants.TALLOC_ARM
+                                else -> throw RuntimeException("Unsupported CPU")
+                            },
+                            outputFile = localLibDir().child("libtalloc.so.2"),
                         )
                     )
+                    add(
+                        DownloadFile(
+                            url = when {
+                                abi.contains("x86_64") -> XedConstants.PROOT_X64
+                                abi.contains("arm64-v8a") -> XedConstants.PROOT_ARM64
+                                abi.contains("armeabi-v7a") -> XedConstants.PROOT_ARM
+                                else -> throw RuntimeException("Unsupported CPU")
+                            },
+                            outputFile = localBinDir().child("proot"),
+                        )
+                    )
+                    if (!isTerminalInstalled()) {
+                        add(
+                            DownloadFile(
+                                url = when {
+                                    abi.contains("x86_64") -> XedConstants.ROOTFS_X64
+                                    abi.contains("arm64-v8a") -> XedConstants.ROOTFS_ARM64
+                                    abi.contains("armeabi-v7a") -> XedConstants.ROOTFS_ARM
+                                    else -> throw RuntimeException("Unsupported CPU")
+                                },
+                                outputFile = getTempDir().child("sandbox.tar.gz"),
+                            )
+                        )
+                    }
                 }
 
                 needsDownload = filesToDownload.any { file -> file.outputFile.exists().not() }
@@ -284,21 +263,14 @@ class Terminal : AppCompatActivity() {
                     onComplete = { installNextStage = it },
                     onError = { error, file ->
                         when (error) {
-                            is UnknownHostException -> {
-                                toast(strings.network_err.getString())
-                            }
-
-                            is SocketTimeoutException -> {
-                                errorDialog(strings.timeout)
-                            }
-
+                            is UnknownHostException -> toast(strings.network_err.getString())
+                            is SocketTimeoutException -> errorDialog(strings.timeout)
                             else -> {
                                 error.printStackTrace()
-                                GlobalScope.launch(Dispatchers.IO) {
+                                lifecycleScope.launch {
                                     if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
                                         localBinDir().deleteRecursively()
                                     }
-
                                     if (file?.name == "sandbox.tar.gz") {
                                         sandboxDir().deleteRecursively()
                                         File(getTempDir(), "sandbox.tar.gz").delete()
@@ -311,13 +283,13 @@ class Terminal : AppCompatActivity() {
                     },
                 )
             } catch (e: Exception) {
-                if (e is UnknownHostException) {
-                    toast(strings.network_err.getString())
-                } else if (e is SocketTimeoutException) {
-                    errorDialog(strings.timeout)
-                } else {
-                    e.printStackTrace()
-                    toast("Setup failed: ${e.message}")
+                when (e) {
+                    is UnknownHostException -> toast(strings.network_err.getString())
+                    is SocketTimeoutException -> errorDialog(strings.timeout)
+                    else -> {
+                        e.printStackTrace()
+                        toast("Setup failed: ${e.message}")
+                    }
                 }
                 finish()
             }
@@ -329,7 +301,6 @@ class Terminal : AppCompatActivity() {
 
             DisposableEffect(Unit) {
                 activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
                 onDispose { activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
             }
 
@@ -341,15 +312,13 @@ class Terminal : AppCompatActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(text = progressText, style = MaterialTheme.typography.bodyLarge)
-
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(0.8f))
+                            val currentProgress = if (totalBytes > 0) downloadedBytes.toFloat() / totalBytes else 0f
+                            LinearProgressIndicator(progress = { currentProgress }, modifier = Modifier.fillMaxWidth(0.8f))
 
                             if (totalBytes > 0) {
                                 val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
-                                progress = downloadedBytes.toFloat() / totalBytes
-
                                 Text(
                                     text = "$percent%",
                                     style = MaterialTheme.typography.bodyMedium,
@@ -375,49 +344,42 @@ class Terminal : AppCompatActivity() {
 
     data class DownloadFile(val url: String, val outputFile: File)
 
-    @OptIn(DelicateCoroutinesApi::class)
     private suspend fun setupEnvironment(
         context: Context,
         filesToDownload: List<DownloadFile>,
         onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
         onComplete: (NEXT_STAGE) -> Unit,
         onError: (Exception, File?) -> Unit,
-    ) {
+    ) = withContext(Dispatchers.IO) {
         var currentFile: File? = null
 
-        withContext(Dispatchers.IO) {
-            try {
-                var completedFiles = 0
+        try {
+            filesToDownload.forEach { file ->
+                val outputFile = file.outputFile
+                currentFile = outputFile
 
-                filesToDownload.forEach { file ->
-                    val outputFile = file.outputFile
-                    currentFile = outputFile
+                outputFile.parentFile?.mkdirs()
 
-                    outputFile.parentFile?.mkdirs()
-
-                    if (!outputFile.exists()) {
-                        downloadFile(
-                            url = file.url,
-                            outputFile = outputFile,
-                            onProgress = { downloaded, total -> onProgress(file.outputFile.name, downloaded, total) },
-                        )
-                    } else {
-                        // Report existing file as already downloaded
-                        onProgress(file.outputFile.name, outputFile.length(), outputFile.length())
-                    }
-                    completedFiles++
-
-                    runCatching { outputFile.setExecutable(true) }.onFailure { it.printStackTrace() }
+                if (!outputFile.exists()) {
+                    downloadFile(
+                        url = file.url,
+                        outputFile = outputFile,
+                        onProgress = { downloaded, total -> onProgress(file.outputFile.name, downloaded, total) },
+                    )
+                } else {
+                    onProgress(file.outputFile.name, outputFile.length(), outputFile.length())
                 }
 
-                val stage = getNextStage(this@Terminal)
-                onComplete(stage)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) { onError(e, currentFile) }
-                if (currentFile?.exists() == true) {
-                    currentFile.delete()
-                }
+                runCatching { outputFile.setExecutable(true) }.onFailure { it.printStackTrace() }
+            }
+
+            val stage = getNextStage(this@Terminal)
+            onComplete(stage)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            onError(e, currentFile)
+            if (currentFile?.exists() == true) {
+                currentFile.delete()
             }
         }
     }
@@ -427,36 +389,32 @@ class Terminal : AppCompatActivity() {
         outputFile: File,
         onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit,
     ) {
-        withContext(Dispatchers.IO) {
-            val client =
-                OkHttpClient.Builder()
-                    .connectTimeout(1, TimeUnit.MINUTES)
-                    .readTimeout(1, TimeUnit.MINUTES)
-                    .writeTimeout(1, TimeUnit.MINUTES)
-                    .callTimeout(10, TimeUnit.MINUTES)
-                    .build()
-            val request = Request.Builder().url(url).build()
+        val client = OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(1, TimeUnit.MINUTES)
+            .writeTimeout(1, TimeUnit.MINUTES)
+            .callTimeout(10, TimeUnit.MINUTES)
+            .build()
+        val request = Request.Builder().url(url).build()
 
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw Exception("Failed to download file: ${response.code}")
-                }
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw Exception("Failed to download file: ${response.code}")
+            }
 
-                val body = response.body
-                val totalBytes = body.contentLength()
+            val body = response.body ?: throw Exception("Empty response body")
+            val totalBytes = body.contentLength()
+            var downloadedBytes = 0L
 
-                var downloadedBytes = 0L
+            outputFile.outputStream().use { output ->
+                body.byteStream().use { input ->
+                    val buffer = ByteArray(8 * 1024)
+                    var bytesRead: Int
 
-                outputFile.outputStream().use { output ->
-                    body.byteStream().use { input ->
-                        val buffer = ByteArray(8 * 1024)
-                        var bytesRead: Int
-
-                        while (input.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, 0, bytesRead)
-                            downloadedBytes += bytesRead
-                            withContext(Dispatchers.Main) { onProgress(downloadedBytes, totalBytes) }
-                        }
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        downloadedBytes += bytesRead
+                        withContext(Dispatchers.Main) { onProgress(downloadedBytes, totalBytes) }
                     }
                 }
             }

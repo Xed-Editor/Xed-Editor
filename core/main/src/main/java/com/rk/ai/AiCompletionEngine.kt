@@ -17,12 +17,13 @@ import java.util.concurrent.TimeUnit
 
 object AiCompletionEngine {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
-        .writeTimeout(10, TimeUnit.SECONDS)
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
         .build()
     private val gson = Gson()
     private const val TAG = "AiCompletion"
+    private const val MAX_RETRIES = 2
 
     data class CompletionResult(
         val text: String,
@@ -31,53 +32,45 @@ object AiCompletionEngine {
     )
 
     private data class ApiConfig(
-        val url: String,
+        val baseUrl: String,
         val apiKey: String,
         val model: String,
+        val provider: String = "openai",
     )
 
     private fun resolveConfig(): ApiConfig? {
         val agentName = AiSessionManager.currentAgent.name
-
-        val customUrl = Settings.ai_completion_url.ifBlank { null }
         val customKey = Settings.ai_api_key.ifBlank { null }
-        val customModel = Settings.ai_completion_model.ifBlank { null }
 
-        if (customUrl != null && customKey != null && customModel != null) {
-            return ApiConfig(customUrl, customKey, customModel)
+        val provider = when (agentName) {
+            "opencode" -> "openai"
+            "gemini" -> "gemini"
+            else -> "openai"
         }
 
-        return when (agentName) {
-            "opencode" -> {
-                val key = Settings.ai_api_key.ifBlank {
-                    System.getenv("OPENCODE_API_KEY") ?: return null
-                }
-                ApiConfig(
-                    url = Settings.ai_completion_url.ifBlank { "https://api.litellm.ai/v1/chat/completions" },
-                    apiKey = key,
-                    model = Settings.ai_completion_model.ifBlank { "deepseek/deepseek-v4-flash" },
-                )
-            }
-            "gemini" -> {
-                val key = Settings.ai_api_key.ifBlank {
-                    System.getenv("GEMINI_API_KEY") ?: System.getenv("GOOGLE_API_KEY") ?: return null
-                }
-                val model = Settings.ai_completion_model.ifBlank { "gemini-2.5-flash" }
-                ApiConfig(
-                    url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key",
-                    apiKey = key,
-                    model = model,
-                )
-            }
-            else -> {
-                val key = Settings.ai_api_key.ifBlank { return null }
-                ApiConfig(
-                    url = Settings.ai_completion_url.ifBlank { "https://api.openai.com/v1/chat/completions" },
-                    apiKey = key,
-                    model = Settings.ai_completion_model.ifBlank { "gpt-4o" },
-                )
-            }
+        val model = when {
+            Settings.ai_completion_model.isNotBlank() -> Settings.ai_completion_model
+            provider == "gemini" -> "gemini-2.5-flash"
+            provider == "opencoed" -> "deepseek/deepseek-v4-flash"
+            else -> "gpt-4o"
         }
+
+        val key = when {
+            customKey != null -> customKey
+            provider == "gemini" -> System.getenv("GEMINI_API_KEY") ?: System.getenv("GOOGLE_API_KEY") ?: return null
+            provider == "opencode" -> System.getenv("OPENCODE_API_KEY") ?: return null
+            else -> return null
+        }
+
+        return ApiConfig(
+            baseUrl = Settings.ai_completion_url.ifBlank {
+                if (provider == "gemini") "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
+                else "https://api.openai.com/v1/chat/completions"
+            },
+            apiKey = key,
+            model = model,
+            provider = provider,
+        )
     }
 
     suspend fun getInlineCompletion(
@@ -103,66 +96,77 @@ object AiCompletionEngine {
             appendLine("CURSOR_HERE")
         }
 
-        try {
-            val isGemini = config.url.contains("generativelanguage.googleapis.com")
+        val isGemini = config.provider == "gemini"
 
-            val requestBody = if (isGemini) {
-                JsonObject().apply {
-                    add("contents", JsonArray().apply {
-                        add(JsonObject().apply {
-                            add("parts", JsonArray().apply {
-                                add(JsonObject().apply { addProperty("text", "$systemPrompt\n\n$userPrompt") })
-                            })
+        val requestBody = if (isGemini) {
+            JsonObject().apply {
+                add("contents", JsonArray().apply {
+                    add(JsonObject().apply {
+                        add("parts", JsonArray().apply {
+                            add(JsonObject().apply { addProperty("text", "$systemPrompt\n\n$userPrompt") })
                         })
                     })
-                    add("generationConfig", JsonObject().apply {
-                        addProperty("maxOutputTokens", 60)
-                        addProperty("temperature", 0.2)
-                        addProperty("topP", 0.9)
-                        add("stopSequences", gson.toJsonTree(listOf("\n\n")))
-                    })
-                }
-            } else {
-                JsonObject().apply {
-                    addProperty("model", config.model)
-                    add("messages", JsonArray().apply {
-                        add(JsonObject().apply { addProperty("role", "system"); addProperty("content", systemPrompt) })
-                        add(JsonObject().apply { addProperty("role", "user"); addProperty("content", userPrompt) })
-                    })
-                    addProperty("max_tokens", 60)
+                })
+                add("generationConfig", JsonObject().apply {
+                    addProperty("maxOutputTokens", 60)
                     addProperty("temperature", 0.2)
-                    addProperty("top_p", 0.9)
-                    add("stop", gson.toJsonTree(listOf("\n\n", "\n\r", "\r\n")))
-                }
+                    addProperty("topP", 0.9)
+                    add("stopSequences", gson.toJsonTree(listOf("\n\n")))
+                })
             }
-
-            val httpRequest = Request.Builder()
-                .url(config.url)
-                .addHeader("Content-Type", "application/json")
-                .apply {
-                    if (!isGemini) addHeader("Authorization", "Bearer ${config.apiKey}")
-                }
-                .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
-                .build()
-
-            val response = client.newCall(httpRequest).execute()
-            val body = response.body?.string() ?: return@withContext null
-
-            if (BuildConfig.DEBUG) Log.d(TAG, "API response: $body")
-
-            val text = if (isGemini) {
-                parseGeminiResponse(body)
-            } else {
-                parseOpenAiResponse(body)
-            } ?: return@withContext null
-
-            if (text.isBlank()) return@withContext null
-
-            CompletionResult(text = text, line = cursorLine, column = cursorColumn)
-        } catch (e: Exception) {
-            if (BuildConfig.DEBUG) Log.e(TAG, "Completion failed", e)
-            null
+        } else {
+            JsonObject().apply {
+                addProperty("model", config.model)
+                add("messages", JsonArray().apply {
+                    add(JsonObject().apply { addProperty("role", "system"); addProperty("content", systemPrompt) })
+                    add(JsonObject().apply { addProperty("role", "user"); addProperty("content", userPrompt) })
+                })
+                addProperty("max_tokens", 60)
+                addProperty("temperature", 0.2)
+                addProperty("top_p", 0.9)
+                add("stop", gson.toJsonTree(listOf("\n\n", "\n\r", "\r\n")))
+            }
         }
+
+        val requestUrl = if (isGemini) "$config.baseUrl?key=${config.apiKey}" else config.baseUrl
+
+        for (attempt in 0..MAX_RETRIES) {
+            try {
+                val httpRequest = Request.Builder()
+                    .url(requestUrl)
+                    .addHeader("Content-Type", "application/json")
+                    .apply {
+                        if (!isGemini) addHeader("Authorization", "Bearer ${config.apiKey}")
+                    }
+                    .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
+                    .build()
+
+                val response = client.newCall(httpRequest).execute()
+                val body = response.body?.string() ?: continue
+
+                if (!response.isSuccessful) {
+                    if (attempt < MAX_RETRIES && response.code in 429..503) continue
+                    if (BuildConfig.DEBUG) Log.w(TAG, "API error ${response.code}: $body")
+                    return@withContext null
+                }
+
+                if (BuildConfig.DEBUG) Log.d(TAG, "API response: ${body.take(200)}")
+
+                val text = if (isGemini) {
+                    parseGeminiResponse(body)
+                } else {
+                    parseOpenAiResponse(body)
+                } ?: continue
+
+                if (text.isBlank()) return@withContext null
+
+                return@withContext CompletionResult(text = text, line = cursorLine, column = cursorColumn)
+            } catch (e: Exception) {
+                if (attempt < MAX_RETRIES) continue
+                if (BuildConfig.DEBUG) Log.e(TAG, "Completion failed after $MAX_RETRIES retries", e)
+            }
+        }
+        null
     }
 
     private fun parseGeminiResponse(body: String): String? {
