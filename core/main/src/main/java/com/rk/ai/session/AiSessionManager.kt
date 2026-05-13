@@ -12,7 +12,6 @@ import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.ai.agents.GeminiAgent
-import com.rk.ai.service.IdeService
 import com.rk.ai.service.IdeServiceImpl
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -72,13 +71,15 @@ object AiSessionManager {
             d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
         }
 
+        stopSession()
+
         return withContext(Dispatchers.IO) {
-            stopSession()
             IdeBridge.ensureStarted(viewModel)
             IdeBridge.setWorkspacePath(workingDir)
             val bridgeInfo = IdeBridge.getBridgeInfo()!!
 
-            withContext(Dispatchers.Default) {
+            withContext(Dispatchers.Main) {
+                IdeServiceImpl(viewModel)
                 try {
                     val newSession = createAgentSession(
                         activity = activity,
