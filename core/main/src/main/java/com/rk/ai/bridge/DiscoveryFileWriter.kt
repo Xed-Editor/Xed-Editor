@@ -43,19 +43,20 @@ object DiscoveryFileWriter {
     }
 
     private fun writeOpenCodeConfig(info: BridgeInfo) {
-        runCatching {
-            val configDir = sandboxHomeDir().let { File(it, ".config/opencode") }
-            configDir.mkdirs()
-            val configFile = File(configDir, AiConfig.Discovery.openCodeConfigFile)
-            val existing = runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-            existing.remove("mcpServers")
-            val mcp = existing.getAsJsonObject("mcp") ?: JsonObject().also { existing.add("mcp", it) }
-            mcp.add("xed-ide", JsonObject().apply {
-                addProperty("type", "remote"); addProperty("url", "http://${info.host}:${info.port}/mcp"); addProperty("enabled", true)
-                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
-            })
-            configFile.writeText(gson.toJson(existing))
-        }
+                runCatching {
+                    val configDir = sandboxHomeDir().let { File(it, ".config/opencode") }
+                    configDir.mkdirs()
+                    val configFile = File(configDir, AiConfig.Discovery.openCodeConfigFile)
+                    val existing = runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
+                    existing.remove("mcpServers")
+                    val mcp = existing.getAsJsonObject("mcp") ?: JsonObject().also { existing.add("mcp", it) }
+                    mcp.add("xed-ide", JsonObject().apply {
+                        addProperty("type", "remote"); addProperty("url", "http://${info.host}:${info.port}/mcp"); addProperty("enabled", true)
+                        addProperty("timeout", 120000)
+                        add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
+                    })
+                    configFile.writeText(gson.toJson(existing))
+                }
     }
 
     private fun writeGeminiConfig(info: BridgeInfo) {
@@ -99,19 +100,16 @@ object DiscoveryFileWriter {
         dirs.forEach { dir ->
             runCatching {
                 dir.mkdirs()
-                val prefix = if (dir.name == "ide-bridge") "ide-server-" else "gemini-ide-server-"
+                val prefix = if (dir.name == "ide-bridge") "ide-server-" else "xed-ide-server-"
                 dir.listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".json") }
-                    ?.forEach { file ->
+                    ?.filter { file ->
                         val parts = file.name.removePrefix(prefix).removeSuffix(".json").split("-")
                         val filePid = parts.firstOrNull()?.toIntOrNull()
-                        if (filePid != null) {
-                            if (filePid == pid) {
-                                val filePort = parts.getOrNull(1)?.toIntOrNull()
-                                if (filePort != null && filePort != info.port) file.delete()
-                            } else if (!isPidAlive(filePid)) file.delete()
-                        }
+                        val filePort = parts.getOrNull(1)?.toIntOrNull()
+                        filePid == pid && filePort != null && filePort != info.port
                     }
-                val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-${info.port}.json" else "gemini-ide-server-$pid-${info.port}.json"
+                    ?.forEach { it.delete() }
+                val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-${info.port}.json" else "xed-ide-server-$pid-${info.port}.json"
                 File(dir, fileName).writeText(json)
                 if (dir.name == AiConfig.Discovery.xedIdeDir) {
                     File(dir, "ide.json").writeText(json)
@@ -119,6 +117,7 @@ object DiscoveryFileWriter {
                         appendLine("export XED_IDE_URL=$url"); appendLine("export XED_IDE_HOST=${info.host}")
                         appendLine("export XED_IDE_PORT=${info.port}"); appendLine("export XED_IDE_AUTH_TOKEN=${info.token}")
                         appendLine("export IDE_SERVER_PORT=${info.port}"); appendLine("export IDE_AUTH_TOKEN=${info.token}")
+                        appendLine("export MCP_PORT=${info.port}"); appendLine("export MCP_AUTH_TOKEN=${info.token}")
                     })
                 }
                 if (dir.name == AiConfig.Discovery.openCodeDir) {

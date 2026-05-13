@@ -27,8 +27,9 @@ class SseManager(
 
     fun createSseStream(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val sessionId = UUID.randomUUID().toString()
-        val host = session.headers["host"]?.substringBefore(":") ?: "127.0.0.1"
-        val port = session.headers["host"]?.substringAfter(":", "")?.takeIf { it.isNotBlank() } ?: "36765"
+        val hostHeader = session.headers["host"] ?: "127.0.0.1:36765"
+        val host = hostHeader.substringBeforeLast(":").ifEmpty { "127.0.0.1" }
+        val port = hostHeader.substringAfterLast(":").let { if (it == hostHeader) "36765" else it }
         val (response, writer) = createStream(sessionId)
         writer.print("event: endpoint\ndata: http://$host:$port/messages?sessionId=$sessionId\n\n")
         writeInitialEvents(writer)
@@ -54,6 +55,7 @@ class SseManager(
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")
+            addHeader("Connection", "keep-alive")
         }
         return response to writer
     }

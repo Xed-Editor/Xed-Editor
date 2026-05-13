@@ -77,10 +77,6 @@ object AgentEnvironmentBuilder {
             "XED_IDE_HOST=${bridge.host}",
             "XED_IDE_PORT=${bridge.port}",
             "XED_IDE_AUTH_TOKEN=${bridge.token}",
-            "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
-            "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
-            "GEMINI_CLI_IDE_PID=${Process.myPid()}",
-            "GEMINI_CLI_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
             "IDE_SERVER_PORT=${bridge.port}",
             "IDE_AUTH_TOKEN=${bridge.token}",
             "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
@@ -98,17 +94,6 @@ object AgentEnvironmentBuilder {
             }
             if (Settings.seccomp) add("SECCOMP=1")
         }.toTypedArray()
-    }
-
-    fun buildDebugEnv(extraVars: Map<String, String> = emptyMap()): Map<String, String> {
-        val env = mutableMapOf(
-            "DEBUG" to (System.getenv("XED_GEMINI_DEBUG") ?: AiConfig.Debug.defaultDebugEnvValue),
-            "DEBUG_MODE" to (System.getenv("XED_GEMINI_DEBUG") ?: AiConfig.Debug.defaultDebugEnvValue),
-            "GEMINI_DEBUG_LOG_FILE" to (System.getenv("XED_GEMINI_DEBUG_LOG_FILE") ?: AiConfig.Debug.defaultDebugLogFile),
-            "GEMINI_CONTEXT_TRACE_DIR" to (System.getenv("XED_GEMINI_CONTEXT_TRACE_DIR") ?: AiConfig.Debug.defaultContextTraceDir),
-        )
-        env.putAll(extraVars)
-        return env
     }
 
     fun bridgeEnvContent(bridge: IdeBridge.Info): String = buildString {
@@ -131,13 +116,16 @@ object AgentEnvironmentBuilder {
 
     fun buildMinimalBridgeEnv(bridge: IdeBridge.Info, workingDir: String): Array<String> = arrayOf(
         "WKDIR=$workingDir",
-        "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
-        "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
-        "GEMINI_CLI_IDE_PID=${Process.myPid()}",
-        "GEMINI_CLI_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
         "IDE_SERVER_PORT=${bridge.port}",
         "IDE_AUTH_TOKEN=${bridge.token}",
         "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+        "XED_IDE_URL=http://${bridge.host}:${bridge.port}",
+        "XED_IDE_HOST=${bridge.host}",
+        "XED_IDE_PORT=${bridge.port}",
+        "XED_IDE_AUTH_TOKEN=${bridge.token}",
+        "MCP_HOST=${bridge.host}",
+        "MCP_PORT=${bridge.port}",
+        "MCP_AUTH_TOKEN=${bridge.token}",
         "TERM_PROGRAM=vscode",
         "TERM_PROGRAM_VERSION=1.0.0",
         "VSCODE_PID=${Process.myPid()}",

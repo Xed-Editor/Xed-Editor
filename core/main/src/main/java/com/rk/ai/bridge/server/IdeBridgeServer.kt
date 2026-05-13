@@ -161,7 +161,7 @@ class IdeBridgeServer(
     private fun resolveMcpSessionId(method: String, requestedSessionId: String?): String? {
         if (!requestedSessionId.isNullOrBlank()) { activeMcpSessionId = requestedSessionId; return requestedSessionId }
         if (method == "initialize") {
-            val newId = httpSessionTracker.createSession()
+            val newId = UUID.randomUUID().toString()
             activeMcpSessionId = newId; return newId
         }
         activeMcpSessionId?.let { httpSessionTracker.touchSession(it) }
@@ -182,9 +182,7 @@ class IdeBridgeServer(
                 ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
         }
         val newContent = runBlocking(Dispatchers.IO) {
-            runCatching { newFile.readText() }.getOrElse {
-                return@runBlocking null
-            }
+            runCatching { newFile.readText() }.getOrElse { return@runBlocking null }
         } ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "cannot read newPath"))
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
             runBlocking(Dispatchers.IO) { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }

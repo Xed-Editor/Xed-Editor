@@ -40,16 +40,14 @@ object IdeBridge {
 
         runCatching {
             val t = newToken()
-            val ideService = IdeServiceImpl(viewModel)
+            val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
+            s.start()
             synchronized(stateLock) {
-                token = t
-                val s = IdeBridgeServer(0, t, ideService)
-                s.start()
                 server = s
+                token = t
                 port = s.port
                 s.ideService = IdeServiceImpl(viewModel, s)
             }
-
             synchronized(workspacePathsLock) {
                 if (workspacePaths.isNotEmpty()) {
                     writeDiscoveryFile(host, port, t, workspacePathForResolution())
