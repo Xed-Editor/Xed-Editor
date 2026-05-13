@@ -12,8 +12,8 @@ class ReadFileTool : BaseMcpTool() {
     override fun getOptionalParams(): Map<String, String> = mapOf("startLine" to "number", "endLine" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
-        val startLine = optionalInt(args, "startLine").takeIf { it > 0 }
-        val endLine = optionalInt(args, "endLine").takeIf { it > 0 }
+        val startLine = optionalInt(args, "startLine")
+        val endLine = optionalInt(args, "endLine")
         val file = resolvePathOrThrow(ideService, filePath)
         val content = ideService.getFileContent(file.absolutePath, startLine, endLine).orEmpty()
         return textResult(content)
@@ -68,7 +68,7 @@ class ListFilesTool : BaseMcpTool() {
         val dirPath = requireString(args, "directoryPath")
         val dir = resolvePathOrThrow(ideService, dirPath)
         val recursive = optionalBoolean(args, "recursive")
-        val maxFiles = optionalInt(args, "maxFiles", 500).coerceIn(1, 5000)
+        val maxFiles = (optionalInt(args, "maxFiles") ?: 500).coerceIn(1, 5000)
         val files = ideService.listFiles(dir, recursive, maxFiles)
         return textResult(files.joinToString("\n"))
     }

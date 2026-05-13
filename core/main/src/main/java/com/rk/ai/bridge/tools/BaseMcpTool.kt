@@ -41,8 +41,9 @@ abstract class BaseMcpTool : McpTool {
         return args.get(name)?.takeIf { it.isJsonPrimitive }?.asString?.take(maxLength) ?: default
     }
 
-    protected fun optionalInt(args: JsonObject, name: String, default: Int): Int {
-        return args.get(name)?.takeIf { it.isJsonPrimitive }?.asInt ?: default
+    protected fun optionalInt(args: JsonObject, name: String, default: Int = 0): Int? {
+        val value = args.get(name)?.takeIf { it.isJsonPrimitive }?.asInt
+        return if (value != null && value > 0) value else null
     }
 
     protected fun optionalBoolean(args: JsonObject, name: String, default: Boolean = false): Boolean {
