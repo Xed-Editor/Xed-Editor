@@ -101,7 +101,7 @@ class FileService(private val tabRepository: TabRepository) {
                 val s = startLine ?: 1
                 val e = endLine ?: Int.MAX_VALUE
                 file.useLines { lines ->
-                    lines.drop(s - 1).take(e - s + 1L).joinToString("\n")
+                    lines.drop(s - 1).take(e - s + 1).joinToString("\n")
                 }
             } else if (length > 10 * 1024 * 1024) {
                 file.useLines { it.take(5000).joinToString("\n") } + "\n\n... (file >10MB, truncated to 5000 lines)"
