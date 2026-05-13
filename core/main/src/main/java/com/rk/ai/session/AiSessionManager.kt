@@ -72,31 +72,30 @@ object AiSessionManager {
             d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
         }
 
-        // Only stop bridge if we can't reuse the existing session
-        if (!canReuseFor(workingDir) || extraArgs.isNotEmpty()) {
+        return withContext(Dispatchers.IO) {
             stopSession()
-        }
+            IdeBridge.ensureStarted(viewModel)
+            IdeBridge.setWorkspacePath(workingDir)
+            val bridgeInfo = IdeBridge.getBridgeInfo()!!
 
-        IdeBridge.ensureStarted(viewModel, workingDir)
-        val bridgeInfo = IdeBridge.getBridgeInfo()!!
-
-        return withContext(Dispatchers.Default) {
-            try {
-                val newSession = createAgentSession(
-                    activity = activity,
-                    agent = currentAgent,
-                    bridge = bridgeInfo,
-                    workingDir = workingDir,
-                    extraArgs = extraArgs,
-                )
-                session = newSession
-                cwd = workingDir
-                newSession
-            } catch (e: Exception) {
-                d("Failed to create session: ${e.message}")
-                session = null
-                cwd = null
-                throw e
+            withContext(Dispatchers.Default) {
+                try {
+                    val newSession = createAgentSession(
+                        activity = activity,
+                        agent = currentAgent,
+                        bridge = bridgeInfo,
+                        workingDir = workingDir,
+                        extraArgs = extraArgs,
+                    )
+                    session = newSession
+                    cwd = workingDir
+                    newSession
+                } catch (e: Exception) {
+                    d("Failed to create session: ${e.message}")
+                    session = null
+                    cwd = null
+                    throw e
+                }
             }
         }
     }
