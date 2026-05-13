@@ -66,14 +66,14 @@ class IdeBridgeServer(
 
     private fun registerTools(registry: McpToolRegistry) {
         registry.apply {
-            register(GetIdeInfoTool()); register(GetGuidelinesTool()); register(ReadFileTool())
-            register(ReadFilesTool()); register(WriteFileTool()); register(ListFilesTool())
+            register(GetIdeInfoTool()); register(GetGuidelinesTool()); register(ReadFileTool()); register(CatTool())
+            register(ReadFilesTool()); register(WriteFileTool()); register(ListFilesTool()); register(LsTool())
             register(GetOpenFilesTool()); register(GetActiveFileTool()); register(GetSelectionTool())
             register(ReplaceSelectionTool()); register(InsertAtCursorTool()); register(SaveOpenFilesTool())
             register(RefreshOpenEditorsTool()); register(RefreshFileTool()); register(OpenDiffTool())
             register(GetDiffResultTool()); register(RejectDiffTool()); register(RunCommandTool())
-            register(ShowMessageTool()); register(SearchCodeTool()); register(SearchSymbolsTool())
-            register(FindFilesTool()); register(GetDiagnosticsTool()); register(FindDefinitionsTool())
+            register(ShowMessageTool()); register(SearchCodeTool()); register(GrepTool()); register(SearchSymbolsTool())
+            register(FindFilesTool()); register(GlobTool()); register(GetDiagnosticsTool()); register(FindDefinitionsTool())
             register(RenameSymbolTool()); register(FormatDocumentTool()); register(GetGitStatusTool())
             register(GitCommitTool()); register(GitCheckoutTool()); register(GetGitDiffTool())
             register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool())

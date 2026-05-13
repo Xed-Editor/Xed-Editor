@@ -50,6 +50,28 @@ abstract class BaseMcpTool : McpTool {
         return args.get(name)?.takeIf { it.isJsonPrimitive }?.asBoolean ?: default
     }
 
+    // ── Multi-param helpers for CLI compatibility ──
+
+    protected fun getPathParam(args: JsonObject): String? {
+        return args.get("path")?.asString
+            ?: args.get("filePath")?.asString
+            ?: args.get("file")?.asString
+            ?: args.get("name")?.asString
+    }
+
+    protected fun getContentParam(args: JsonObject): String? {
+        return args.get("content")?.asString
+            ?: args.get("text")?.asString
+            ?: args.get("newContent")?.asString
+    }
+
+    protected fun getQueryParam(args: JsonObject): String? {
+        return args.get("query")?.asString
+            ?: args.get("pattern")?.asString
+            ?: args.get("search")?.asString
+            ?: args.get("text")?.asString
+    }
+
     protected fun resolvePathOrThrow(ideService: IdeService, path: String): File {
         return ideService.resolvePath(path) ?: run {
             val workspace = ideService.getPrimaryWorkspacePath()

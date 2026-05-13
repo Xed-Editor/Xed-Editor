@@ -7,11 +7,26 @@ import java.io.File
 
 class ReadFileTool : BaseMcpTool() {
     override fun getName(): String = "readFile"
-    override fun getDescription(): String = "Reads the content of a file. Supports optional line range for large files."
-    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
-    override fun getOptionalParams(): Map<String, String> = mapOf("startLine" to "number", "endLine" to "number")
+    override fun getDescription(): String = "cat equivalent - Reads file content. Supports line range (startLine/endLine). Accepts: path, filePath, file."
+    override fun getRequiredParams(): Map<String, String> = emptyMap()
+    override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "filePath" to "string", "file" to "string", "startLine" to "number", "endLine" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val filePath = requireString(args, "filePath")
+        val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
+        val startLine = optionalInt(args, "startLine")
+        val endLine = optionalInt(args, "endLine")
+        val file = resolvePathOrThrow(ideService, filePath)
+        val content = ideService.getFileContent(file.absolutePath, startLine, endLine).orEmpty()
+        return textResult(content)
+    }
+}
+
+class CatTool : BaseMcpTool() {
+    override fun getName(): String = "cat"
+    override fun getDescription(): String = "ALIAS for readFile - Reads file content. Accepts: path, filePath, file."
+    override fun getRequiredParams(): Map<String, String> = emptyMap()
+    override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "filePath" to "string", "file" to "string", "startLine" to "number", "endLine" to "number")
+    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+        val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val startLine = optionalInt(args, "startLine")
         val endLine = optionalInt(args, "endLine")
         val file = resolvePathOrThrow(ideService, filePath)
@@ -61,11 +76,26 @@ class WriteFileTool : BaseMcpTool() {
 
 class ListFilesTool : BaseMcpTool() {
     override fun getName(): String = "listFiles"
-    override fun getDescription(): String = "Lists the contents of a directory. Use this to explore the project structure if 'getProjectSummary' or 'getProjectStructure' didn't provide enough detail."
-    override fun getRequiredParams(): Map<String, String> = mapOf("directoryPath" to "string")
-    override fun getOptionalParams(): Map<String, String> = mapOf("recursive" to "boolean", "maxFiles" to "number")
+    override fun getDescription(): String = "ls equivalent - Lists directory contents. Accepts: path, directoryPath."
+    override fun getRequiredParams(): Map<String, String> = emptyMap()
+    override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val dirPath = requireString(args, "directoryPath")
+        val dirPath = getPathParam(args) ?: throw ToolError.MissingParam("path/directoryPath")
+        val dir = resolvePathOrThrow(ideService, dirPath)
+        val recursive = optionalBoolean(args, "recursive")
+        val maxFiles = (optionalInt(args, "maxFiles") ?: 500).coerceIn(1, 5000)
+        val files = ideService.listFiles(dir, recursive, maxFiles)
+        return textResult(files.joinToString("\n"))
+    }
+}
+
+class LsTool : BaseMcpTool() {
+    override fun getName(): String = "ls"
+    override fun getDescription(): String = "ALIAS for listFiles - Lists directory contents. Accepts: path, directoryPath."
+    override fun getRequiredParams(): Map<String, String> = emptyMap()
+    override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")
+    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+        val dirPath = getPathParam(args) ?: throw ToolError.MissingParam("path/directoryPath")
         val dir = resolvePathOrThrow(ideService, dirPath)
         val recursive = optionalBoolean(args, "recursive")
         val maxFiles = (optionalInt(args, "maxFiles") ?: 500).coerceIn(1, 5000)
