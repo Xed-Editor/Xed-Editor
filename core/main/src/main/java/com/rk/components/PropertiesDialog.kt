@@ -125,13 +125,15 @@ fun GeneralProperties(file: FileObject) {
     var itemsCount by remember { mutableStateOf("0") }
     val numberFormatter = rememberNumberFormatter()
 
-    val lastModified =
-        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault())
-            .format(Date(file.lastModified()))
+    var lastModified by remember { mutableStateOf("") }
 
     LaunchedEffect(file) {
+        val timestamp = withContext(Dispatchers.IO) { file.lastModified() }
+        lastModified = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault())
+            .format(Date(timestamp))
+
         if (file.isFile()) {
-            size = formatFileSize(file.length())
+            size = formatFileSize(withContext(Dispatchers.IO) { file.length() })
         } else {
             FileOperations.calculateContent(file) {
                 size = formatFileSize(it.totalSize)

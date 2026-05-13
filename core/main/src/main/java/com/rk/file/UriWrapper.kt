@@ -253,7 +253,7 @@ class UriWrapper : FileObject {
         return false
     }
 
-    override fun lastModified(): Long {
+    override suspend fun lastModified(): Long {
         return file.lastModified()
     }
 

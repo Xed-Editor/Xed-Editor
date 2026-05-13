@@ -248,6 +248,10 @@ class SFTPFileObject(
         return remotePath.substringAfterLast('/', if (remotePath.contains('/')) "" else remotePath)
     }
 
+    override fun getExtension(): String {
+        TODO("Not yet implemented")
+    }
+
     override fun getAbsolutePath(): String {
         return absolutePath.also { println(it) }
     }
@@ -396,6 +400,10 @@ class SFTPFileObject(
         }
     }
 
+    override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getOutPutStream(append: Boolean): OutputStream {
         val mode = if (append) EnumSet.of(net.schmizz.sshj.sftp.OpenMode.APPEND) else EnumSet.of(
             net.schmizz.sshj.sftp.OpenMode.WRITE
@@ -410,7 +418,7 @@ class SFTPFileObject(
     }
 
     override suspend fun length(): Long = attrs?.size ?: 0L
-    override suspend fun calcSize(): Long = withContext(Dispatchers.IO) {
+    suspend fun calcSize(): Long = withContext(Dispatchers.IO) {
         return@withContext if (isFile()) length() else getFolderSize(this@SFTPFileObject)
     }
 
@@ -426,8 +434,8 @@ class SFTPFileObject(
         return length
     }
 
-    suspend fun lastModified(): Long =
-        getSftpAttrs()?.mtime?.toLong()?.times(1000L) ?: 0L // sftp mTime is in seconds
+    override suspend fun lastModified(): Long =
+        getSftpAttrs()?.mtime?.times(1000L) ?: 0L // sftp mTime is in seconds
 
     override suspend fun exists(): Boolean {
         if (attrsFetched?.not() == true) {
@@ -442,7 +450,7 @@ class SFTPFileObject(
             sftpClient?.open(remotePath, EnumSet.of(net.schmizz.sshj.sftp.OpenMode.CREAT))?.close()
             true
         } catch (e: Exception) {
-            Log.e("SFTPFileObject", "createNewFile failed for $remotePath: ${e.message}", e)
+            Log.e("SFTPFileObject", "createNewFile failed for $remotePath: ${e.printStackTrace()}", e)
             false
         }
     }

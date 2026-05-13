@@ -35,6 +35,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -46,6 +48,7 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -569,7 +572,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                                 repoURLError = null
                                                 repoBranchError = null
                                                 if (success) {
-                                                    addProject(fileObject)
+                                                    scope.launch { addProject(fileObject) }
                                                 }
                                             },
                                         )
@@ -885,7 +888,7 @@ private fun AddProjectDialog(
                         title = name,
                         description = stringResource(description),
                     ) {
-                        addProject(FileWrapper(root))
+                        lifecycleScope.launch { addProject(FileWrapper(root)) }
                         onDismiss()
                     }
                 }
