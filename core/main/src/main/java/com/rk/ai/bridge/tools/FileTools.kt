@@ -7,30 +7,44 @@ import java.io.File
 
 class ReadFileTool : BaseMcpTool() {
     override fun getName(): String = "readFile"
-    override fun getDescription(): String = "cat equivalent - Reads file content. Supports line range (startLine/endLine). Accepts: path, filePath, file."
+    override fun getDescription(): String = "cat equivalent - Reads file content. Supports line range (startLine/endLine) and count. Use startLine/endLine for ranges, or lines/count for first N lines. Accepts: path, filePath, file, startLine, endLine, lines, count."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
-    override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "filePath" to "string", "file" to "string", "startLine" to "number", "endLine" to "number")
+    override fun getOptionalParams(): Map<String, String> = mapOf(
+        "path" to "string", "filePath" to "string", "file" to "string",
+        "startLine" to "number", "endLine" to "number",
+        "lines" to "number", "count" to "number"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
+        val file = resolvePathOrThrow(ideService, filePath)
         val startLine = optionalInt(args, "startLine")
         val endLine = optionalInt(args, "endLine")
-        val file = resolvePathOrThrow(ideService, filePath)
-        val content = ideService.getFileContent(file.absolutePath, startLine, endLine).orEmpty()
+        val count = optionalInt(args, "lines") ?: optionalInt(args, "count")
+        val s = if (startLine == null && count != null) 1 else startLine
+        val e = if (startLine == null && count != null) count else endLine
+        val content = ideService.getFileContent(file.absolutePath, s, e).orEmpty()
         return textResult(content)
     }
 }
 
 class CatTool : BaseMcpTool() {
     override fun getName(): String = "cat"
-    override fun getDescription(): String = "ALIAS for readFile - Reads file content. Accepts: path, filePath, file."
+    override fun getDescription(): String = "ALIAS for readFile - Reads file content. Accepts: path, filePath, file, startLine, endLine, lines, count."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
-    override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "filePath" to "string", "file" to "string", "startLine" to "number", "endLine" to "number")
+    override fun getOptionalParams(): Map<String, String> = mapOf(
+        "path" to "string", "filePath" to "string", "file" to "string",
+        "startLine" to "number", "endLine" to "number",
+        "lines" to "number", "count" to "number"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
+        val file = resolvePathOrThrow(ideService, filePath)
         val startLine = optionalInt(args, "startLine")
         val endLine = optionalInt(args, "endLine")
-        val file = resolvePathOrThrow(ideService, filePath)
-        val content = ideService.getFileContent(file.absolutePath, startLine, endLine).orEmpty()
+        val count = optionalInt(args, "lines") ?: optionalInt(args, "count")
+        val s = if (startLine == null && count != null) 1 else startLine
+        val e = if (startLine == null && count != null) count else endLine
+        val content = ideService.getFileContent(file.absolutePath, s, e).orEmpty()
         return textResult(content)
     }
 }
