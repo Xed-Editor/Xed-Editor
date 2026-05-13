@@ -84,6 +84,15 @@ class ReadFilesTool : BaseMcpTool() {
     override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
         "filePaths" to "Comma-separated list of paths or JSON array of path strings"
     )
+    override fun getOptionalParams(): Map<String, String> = mapOf(
+        "startLine" to "number", "endLine" to "number", "lines" to "number", "count" to "number"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "startLine" to "First line to read per file (1-indexed)",
+        "endLine" to "Last line to read per file (inclusive)",
+        "lines" to "Number of lines to read per file",
+        "count" to "Alias for lines"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val input = requireString(args, "filePaths")
         val paths = if (input.startsWith("[")) {
@@ -91,11 +100,18 @@ class ReadFilesTool : BaseMcpTool() {
         } else {
             input.split(",").map { it.trim() }
         }
+        val startLine = optionalInt(args, "startLine")
+        val endLine = optionalInt(args, "endLine")
+        val count = optionalInt(args, "lines") ?: optionalInt(args, "count")
         val output = StringBuilder()
         paths.forEach { path ->
             runCatching {
                 val file = resolvePathOrThrow(ideService, path)
-                val content = ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+                val content = if (startLine != null || endLine != null || count != null) {
+                    readLineRange(file, startLine ?: 1, endLine ?: if (count != null) startLine!! + count - 1 else null)
+                } else {
+                    ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+                }
                 output.append("--- FILE: ").append(path).append(" ---\n")
                 val limited = if (content.length > 500_000) content.take(500_000) + "\n... (truncated at 500KB)" else content
                 output.append(limited).append("\n\n")
@@ -119,6 +135,7 @@ class WriteFileTool : BaseMcpTool() {
         val filePath = requireString(args, "filePath")
         val content = requireString(args, "content")
         val file = resolvePathOrThrow(ideService, filePath)
+        file.parentFile?.mkdirs()
         val msg = showPatchAndApply(ideService, file, content, "Review AI file update", refreshAfterApply = false)
         return textResult(msg)
     }
@@ -176,6 +193,7 @@ class OpenFileTool : BaseMcpTool() {
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val file = resolvePathOrThrow(ideService, filePath)
+        file.parentFile?.mkdirs()
         ideService.openFile(file)
         return textResult("opened ${file.absolutePath}")
     }

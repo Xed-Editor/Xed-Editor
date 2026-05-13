@@ -22,7 +22,13 @@ Xed-Editor provides NATIVE tool implementations (Kotlin/Java, NO terminal overhe
 | First N lines | `head` | `head -n 20` |
 | Last N lines | `tail` | `tail -n 20` |
 | File metadata | `stat` | `stat \| ls -la` |
+| File info + preview | `getFileInfo` | `stat + head + git log` |
 | Line count | `countLines` | `wc -l` |
+| Code context (scope-aware) | `getCodeFrame` | reading 50 lines blindly |
+| Read files by pattern | `readProjectFiles` | `find + cat` |
+| Git log | `gitLog` | `git log` |
+| List git branches | `listGitBranches` | `git branch` |
+| Batch find+replace | `searchAndReplace` | `sed -i` across files |
 | Diagnostics | `getDiagnostics` | parsing LSP by hand |
 | Symbol search | `searchSymbols` | `grep class` |
 
@@ -34,6 +40,30 @@ Use `runCommand` ONLY for: installing packages, compiling/running code, git oper
 3. **Surgical edits**: Use `editFile` to make targeted changes (find-and-replace) instead of rewriting the entire file with writeFile.
 4. **Diagnostics**: Do not poll `getDiagnostics`. The IDE will send you a notification (`ide/diagnosticsUpdated`) automatically after a write if errors are found.
 5. **File reading**: Use `readFile` with `startLine`/`endLine` or `lines`/`count` params to read only what you need instead of whole files.
+
+## 🔍 When to Use Each Tool
+
+| Goal | CRITICAL: Use THIS tool | NOT this |
+|------|------------------------|----------|
+| Understand a file | `getFileInfo` first | `stat` then `head` separately |
+| Orient on new project | `getProjectSummary` | reading files one by one |
+| Edit specific lines | `editFile` (surgical) | `writeFile` (full rewrite) |
+| Refactor across files | `searchAndReplace` | `editFile` on each file |
+| Find code by text | `searchCode` | `runCommand grep` |
+| Find code by name | `searchSymbols` | `searchCode` |
+| Navigate to definition | `findDefinitions` | `searchCode` |
+| Read multiple files | `readFiles` or `readProjectFiles` | sequential `readFile` |
+| Get context around code | `getCodeFrame` | `readFile` with line ranges |
+| Check git changes | `getGitStatus` then `getGitDiff` | `runCommand git status` |
+| View git history | `gitLog` | `runCommand git log` |
+| Switch branches | `listGitBranches` then `gitCheckout` | `runCommand git checkout` |
+| Pull latest | `gitPull` | `runCommand git pull` |
+| Push commits | `gitPush` (avoid force) | `runCommand git push` |
+| Fetch remote | `gitFetch` | `runCommand git fetch` |
+| Create branch | `gitCreateBranch` then `gitCheckout` | `runCommand git branch` |
+| Stash changes | `gitStash` | `runCommand git stash` |
+| Restore stash | `gitStashPop` | `runCommand git stash pop` |
+| Large file ops | `head`/`tail`/`countLines` | `readFile` whole file |
 
 ## 🔍 Semantic Search
 - Prefer `searchSymbols` over `searchCode`.

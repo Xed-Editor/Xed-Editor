@@ -18,9 +18,10 @@ class ApplyBatchEditsTool : BaseMcpTool() {
             val path = entry.key
             val content = entry.value.asString
             val file = resolvePathOrThrow(ideService, path)
+            file.parentFile?.mkdirs()
             edits[file.absolutePath] = content
         }
-        
+        if (edits.isEmpty()) return textResult("No edits provided.")
         ideService.applyBatchEdits(edits)
         return textResult("Batch edits for ${edits.size} files opened in Xed Editor for review.")
     }

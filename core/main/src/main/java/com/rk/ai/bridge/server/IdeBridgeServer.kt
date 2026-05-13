@@ -82,12 +82,17 @@ class IdeBridgeServer(
             register(GetDiagnosticsTool()); register(FindDefinitionsTool()); register(FindReferencesTool())
             register(RenameSymbolTool()); register(FormatDocumentTool())
             register(GetGitStatusTool()); register(GetGitDiffTool()); register(GitCommitTool()); register(GitCheckoutTool())
+            register(GitLogTool()); register(ListGitBranchesTool()); register(GitPullTool()); register(GitPushTool())
+            register(GitFetchTool()); register(GitCreateBranchTool()); register(GitStashTool()); register(GitStashPopTool())
             register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool())
             register(ApplyBatchEditsTool())
             register(EditFileTool())
             register(GetTerminalOutputTool())
             register(GetProjectStructureTool()); register(GetProjectSummaryTool())
             register(GetSymbolUnderCursorTool()); register(GetProjectConfigTool())
+            register(GetFileInfoTool())
+            register(GetCodeFrameTool()); register(ReadProjectFilesTool())
+            register(SearchAndReplaceTool())
         }
     }
 

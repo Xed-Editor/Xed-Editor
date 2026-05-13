@@ -83,21 +83,21 @@ class WcTool : BaseMcpTool() {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(ideService, filePath)
         if (!file.exists()) throw ToolError.PathOutsideWorkspace("$filePath (file does not exist)")
-
         var lines = 0L
         var words = 0L
         var chars = 0L
-
         if (file.isFile) {
-            val text = file.readText()
-            if (text.isNotEmpty()) {
-                lines = text.count { it == '\n' }.toLong()
-                if (text.last() != '\n') lines++
-                words = text.split(Regex("\\s+")).count { it.isNotBlank() }.toLong()
-                chars = text.length.toLong()
+            file.bufferedReader().use { reader ->
+                var line = reader.readLine()
+                while (line != null) {
+                    lines++
+                    words += line.split(Regex("\\s+")).count { it.isNotBlank() }
+                    chars += line.length + 1
+                    line = reader.readLine()
+                }
             }
+            if (chars > 0) chars--
         }
-
         return jsonResult(JsonObject().apply {
             addProperty("lines", lines)
             addProperty("words", words)
@@ -123,7 +123,7 @@ class StatTool : BaseMcpTool() {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(ideService, filePath)
         val exists = file.exists()
-
+        val size = if (exists) file.length() else 0L
         return jsonResult(JsonObject().apply {
             addProperty("path", file.absolutePath)
             addProperty("name", file.name)
@@ -134,8 +134,8 @@ class StatTool : BaseMcpTool() {
             addProperty("isReadable", file.canRead())
             addProperty("isWritable", file.canWrite())
             addProperty("isExecutable", file.canExecute())
-            addProperty("size", if (exists) file.length() else 0)
-            addProperty("sizeHuman", if (exists) humanReadableSize(file.length()) else "0 B")
+            addProperty("size", size)
+            addProperty("sizeHuman", if (exists) humanReadableSize(size) else "0 B")
             addProperty("lastModified", if (exists) file.lastModified() else 0)
             addProperty("extension", file.extension)
             addProperty("parent", file.parent)
@@ -168,7 +168,6 @@ class CountLinesTool : BaseMcpTool() {
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(ideService, filePath)
-
         var lines = 0L
         var lastByte = -1
         val buf = ByteArray(8192)
@@ -183,7 +182,6 @@ class CountLinesTool : BaseMcpTool() {
             }
         }
         if (lastByte != -1 && lastByte != 10) lines++
-
         return jsonResult(JsonObject().apply {
             addProperty("lines", lines)
             addProperty("path", file.absolutePath)
