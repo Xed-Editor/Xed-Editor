@@ -7,18 +7,16 @@ import com.rk.utils.application
 
 class GetIdeInfoTool : BaseMcpTool() {
     override fun getName(): String = "getIdeInfo"
-    override fun getDescription(): String = "Returns IDE bridge status, version, workspace path."
+    override fun getDescription(): String = "Returns IDE status and a pointer to system guidelines."
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val info = IdeBridge.getBridgeInfo()
         val version = runCatching { application?.packageManager?.getPackageInfo(application!!.packageName, 0)?.versionName }.getOrNull().orEmpty()
         val text = JsonObject().apply {
             addProperty("name", "Xed Editor")
             addProperty("version", version)
-            addProperty("bridgePort", info?.port ?: -1)
             addProperty("bridgeRunning", IdeBridge.isRunning())
-            addProperty("clients", IdeBridge.connectedClients())
             addProperty("workspace", ideService.getPrimaryWorkspacePath())
-            addProperty("toolsAvailable", IdeBridge.availableTools())
+            addProperty("guidelines", "Call 'getGuidelines' for recommended high-performance workflows.")
         }.toString()
         return textResult(text)
     }

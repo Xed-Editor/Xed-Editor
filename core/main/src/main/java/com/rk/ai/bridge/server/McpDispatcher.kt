@@ -36,6 +36,7 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
         add("serverInfo", JsonObject().apply {
             addProperty("name", "xed-ide-bridge")
             addProperty("version", "1.0.0")
+            addProperty("instructions", "Call the 'getGuidelines' tool to learn about high-performance workflow patterns for this IDE.")
         })
     })
 

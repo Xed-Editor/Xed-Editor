@@ -5,7 +5,7 @@ import com.rk.ai.service.IdeService
 
 class GetOpenFilesTool : BaseMcpTool() {
     override fun getName(): String = "getOpenFiles"
-    override fun getDescription(): String = "Returns metadata about all open editor tabs."
+    override fun getDescription(): String = "Lists all files currently open in editor tabs. Use this to understand the user's current working set."
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         return textResult(ideService.getOpenFiles().toString())
     }
@@ -13,7 +13,7 @@ class GetOpenFilesTool : BaseMcpTool() {
 
 class GetActiveFileTool : BaseMcpTool() {
     override fun getName(): String = "getActiveFile"
-    override fun getDescription(): String = "Gets the active editor tab info including file path and content."
+    override fun getDescription(): String = "Gets the path and full content of the file currently visible in the editor. Use this to focus on what the user is currently looking at."
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val activeFile = ideService.getActiveFile()
         return textResult(activeFile?.toString() ?: "{}")
@@ -22,7 +22,7 @@ class GetActiveFileTool : BaseMcpTool() {
 
 class GetSelectionTool : BaseMcpTool() {
     override fun getName(): String = "getSelection"
-    override fun getDescription(): String = "Returns the currently selected text in the active editor."
+    override fun getDescription(): String = "Returns the text currently selected by the user in the active editor. Use this to perform actions on a specific block of code the user has highlighted."
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         return textResult(ideService.getSelection())
     }
@@ -30,7 +30,7 @@ class GetSelectionTool : BaseMcpTool() {
 
 class ReplaceSelectionTool : BaseMcpTool() {
     override fun getName(): String = "replaceSelection"
-    override fun getDescription(): String = "Replaces the current selection with new content after user review."
+    override fun getDescription(): String = "Replaces the user's current selection with new text. Use this for surgical edits within the active file. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("newContent" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val newContent = requireString(args, "newContent")
@@ -41,7 +41,7 @@ class ReplaceSelectionTool : BaseMcpTool() {
 
 class InsertAtCursorTool : BaseMcpTool() {
     override fun getName(): String = "insertAtCursor"
-    override fun getDescription(): String = "Inserts text at the current cursor position after user review."
+    override fun getDescription(): String = "Inserts text at the user's current cursor position. Useful for adding new code without replacing anything. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("newContent" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val newContent = requireString(args, "newContent")
@@ -52,7 +52,7 @@ class InsertAtCursorTool : BaseMcpTool() {
 
 class SaveOpenFilesTool : BaseMcpTool() {
     override fun getName(): String = "saveOpenFiles"
-    override fun getDescription(): String = "Saves all dirty open editor tabs."
+    override fun getDescription(): String = "Saves all unsaved changes in all open editor tabs. Recommended before running external commands or terminal tasks."
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         return textResult(ideService.saveAllFiles())
     }

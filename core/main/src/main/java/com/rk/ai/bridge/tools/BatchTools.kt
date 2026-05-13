@@ -5,7 +5,7 @@ import com.rk.ai.service.IdeService
 
 class ApplyBatchEditsTool : BaseMcpTool() {
     override fun getName(): String = "applyBatchEdits"
-    override fun getDescription(): String = "Applies multiple file changes at once. Takes a JSON object where keys are file paths and values are new content."
+    override fun getDescription(): String = "RECOMMENDED: Applies multiple file changes at once. ALWAYS use this for cross-file refactorings to ensure consistency and minimize turns. Takes a JSON object where keys are absolute file paths and values are new content."
     override fun getRequiredParams(): Map<String, String> = mapOf("edits" to "object")
     
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {

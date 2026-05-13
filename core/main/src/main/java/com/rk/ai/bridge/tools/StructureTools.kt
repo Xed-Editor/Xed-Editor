@@ -19,7 +19,7 @@ class GetProjectStructureTool : BaseMcpTool() {
 
 class GetProjectSummaryTool : BaseMcpTool() {
     override fun getName(): String = "getProjectSummary"
-    override fun getDescription(): String = "Returns a high-level summary of the project (README, build files, config)."
+    override fun getDescription(): String = "CRITICAL: Use this as your FIRST tool call to get a high-level overview of the project (README, build files, config, open tabs, and git status). It is much more efficient than getProjectStructure for initial orientation."
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val rootPath = ideService.getPrimaryWorkspacePath()
         if (rootPath.isBlank()) return textResult("No workspace open.")

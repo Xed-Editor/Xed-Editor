@@ -18,7 +18,7 @@ class SearchCodeTool : BaseMcpTool() {
 
 class SearchSymbolsTool : BaseMcpTool() {
     override fun getName(): String = "searchSymbols"
-    override fun getDescription(): String = "Searches for code declarations (classes, functions, variables) project-wide."
+    override fun getDescription(): String = "RECOMMENDED: Searches for code declarations (classes, functions, variables) project-wide. Much faster and more precise than searchCode for finding where a symbol is defined."
     override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf("limit" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {

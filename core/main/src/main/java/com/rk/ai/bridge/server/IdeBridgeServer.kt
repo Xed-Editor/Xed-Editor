@@ -66,8 +66,8 @@ class IdeBridgeServer(
 
     private fun registerTools(registry: McpToolRegistry) {
         registry.apply {
-            register(GetIdeInfoTool()); register(ReadFileTool()); register(ReadFilesTool())
-            register(WriteFileTool()); register(ListFilesTool()); register(OpenFileTool())
+            register(GetIdeInfoTool()); register(GetGuidelinesTool()); register(ReadFileTool())
+            register(ReadFilesTool()); register(WriteFileTool()); register(ListFilesTool())
             register(GetOpenFilesTool()); register(GetActiveFileTool()); register(GetSelectionTool())
             register(ReplaceSelectionTool()); register(InsertAtCursorTool()); register(SaveOpenFilesTool())
             register(RefreshOpenEditorsTool()); register(RefreshFileTool()); register(OpenDiffTool())

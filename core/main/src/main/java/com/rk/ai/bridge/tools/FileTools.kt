@@ -7,7 +7,7 @@ import java.io.File
 
 class ReadFileTool : BaseMcpTool() {
     override fun getName(): String = "readFile"
-    override fun getDescription(): String = "Reads the full content of a file at the given path."
+    override fun getDescription(): String = "Reads the full content of a file. Use this for deep analysis of a single file. For multiple files, use 'readFiles' instead."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
@@ -19,7 +19,7 @@ class ReadFileTool : BaseMcpTool() {
 
 class ReadFilesTool : BaseMcpTool() {
     override fun getName(): String = "readFiles"
-    override fun getDescription(): String = "Reads multiple files at once. Paths should be comma-separated or a JSON array."
+    override fun getDescription(): String = "RECOMMENDED: Reads multiple files at once. Use this to gather context across several related files in a single turn. Input 'filePaths' can be a comma-separated string or a JSON array of strings."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePaths" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val input = requireString(args, "filePaths")
@@ -45,7 +45,7 @@ class ReadFilesTool : BaseMcpTool() {
 
 class WriteFileTool : BaseMcpTool() {
     override fun getName(): String = "writeFile"
-    override fun getDescription(): String = "Opens a diff review for writing new content to a file."
+    override fun getDescription(): String = "Writes new content to a file. Use this for single-file updates. For cross-file changes, prefer 'applyBatchEdits'. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "content" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
@@ -58,7 +58,7 @@ class WriteFileTool : BaseMcpTool() {
 
 class ListFilesTool : BaseMcpTool() {
     override fun getName(): String = "listFiles"
-    override fun getDescription(): String = "Lists files and directories in a directory."
+    override fun getDescription(): String = "Lists the contents of a directory. Use this to explore the project structure if 'getProjectSummary' or 'getProjectStructure' didn't provide enough detail."
     override fun getRequiredParams(): Map<String, String> = mapOf("directoryPath" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf("recursive" to "boolean", "maxFiles" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
@@ -73,7 +73,7 @@ class ListFilesTool : BaseMcpTool() {
 
 class OpenFileTool : BaseMcpTool() {
     override fun getName(): String = "openFile"
-    override fun getDescription(): String = "Opens a file in the editor tab."
+    override fun getDescription(): String = "Opens a file in an editor tab. Use this to focus the user's attention on a specific file."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
@@ -85,7 +85,7 @@ class OpenFileTool : BaseMcpTool() {
 
 class CreateFileTool : BaseMcpTool() {
     override fun getName(): String = "createFile"
-    override fun getDescription(): String = "Creates a new file with optional initial content."
+    override fun getDescription(): String = "Creates a new file on disk. Use this when starting new modules or adding assets."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf("content" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
@@ -98,7 +98,7 @@ class CreateFileTool : BaseMcpTool() {
 
 class DeleteFileTool : BaseMcpTool() {
     override fun getName(): String = "deleteFile"
-    override fun getDescription(): String = "Permanently deletes a file from the workspace."
+    override fun getDescription(): String = "Deletes a file from the workspace. Use with caution."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
@@ -109,7 +109,7 @@ class DeleteFileTool : BaseMcpTool() {
 
 class RenameFileTool : BaseMcpTool() {
     override fun getName(): String = "renameFile"
-    override fun getDescription(): String = "Renames or moves a file from source to destination."
+    override fun getDescription(): String = "Moves or renames a file. Updates disk state immediately."
     override fun getRequiredParams(): Map<String, String> = mapOf("sourcePath" to "string", "destPath" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val sourcePath = requireString(args, "sourcePath")
