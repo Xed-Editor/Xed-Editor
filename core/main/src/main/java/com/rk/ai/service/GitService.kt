@@ -177,19 +177,7 @@ class GitService {
             result.addProperty("current", repo.branch ?: "HEAD")
             val local = JsonArray()
             val remote = JsonArray()
-            git.branchList().call().forEach { ref ->
-                local.add(JsonObject().apply {
-                    addProperty("name", repo.shorten(ref.name))
-                    addProperty("fullName", ref.name)
-                })
-            }
-            runCatching {
-                git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call().forEach { ref ->
-                    remote.add(JsonObject().apply {
-                        addProperty("name", repo.shorten(ref.name))
-                        addProperty("fullName", ref.name)
-                    })
-                }
+            git.branchList().call().forEach { ref ->\n                local.add(JsonObject().apply {\n                    addProperty(\"name\", org.eclipse.jgit.lib.Repository.shortenRefName(ref.name))\n                    addProperty(\"fullName\", ref.name)\n                })\n            }\n            runCatching {\n                git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call().forEach { ref ->\n                    remote.add(JsonObject().apply {\n                        addProperty(\"name\", org.eclipse.jgit.lib.Repository.shortenRefName(ref.name))\n                        addProperty(\"fullName\", ref.name)\n                    })\n                }
             }
             result.add("local", local)
             result.add("remote", remote)

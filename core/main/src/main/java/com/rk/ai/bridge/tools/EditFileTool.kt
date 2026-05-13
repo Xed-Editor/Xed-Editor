@@ -130,7 +130,7 @@ class EditFileTool : BaseMcpTool() {
                         val matched = window.joinToString("\n")
                         val lineNum = startLine + 1
                         val newContentLines = contentLines.toMutableList()
-                        newContentLines.removeRange(startLine, startLine + oldLines.size)
+                        repeat(oldLines.size) { newContentLines.removeAt(startLine) }
                         newContentLines.addAll(startLine, newString.split("\n"))
                         val newContent = newContentLines.joinToString("\n")
                         return Triple(newContent, lineNum, matched)
