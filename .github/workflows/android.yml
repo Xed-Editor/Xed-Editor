@@ -64,7 +64,10 @@ jobs:
           echo "tag=v$VERSION_NAME" >> $GITHUB_OUTPUT
 
       - name: Clone submodules
-        run: git submodule update --init --recursive
+        run: |
+          git config --global url."https://github.com/algospider/soraX.git".insteadOf "https://github.com/RohitKushvaha01/soraX.git"
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
       - name: Build with Gradle
         run: |
