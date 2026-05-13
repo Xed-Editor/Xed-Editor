@@ -1,15 +1,21 @@
 package com.rk.components
 
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
@@ -32,11 +38,11 @@ var isPermanentDrawer by mutableStateOf(false)
 @Composable
 fun ResponsiveDrawer(
     drawerState: DrawerState,
+    fullscreen: Boolean,
     mainContent: @Composable () -> Unit,
     sheetContent: @Composable ColumnScope.() -> Unit,
 ) {
-
-    if (Settings.desktopMode) {
+    if (Settings.desktop_mode) {
         val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
         isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }
     }
@@ -45,7 +51,13 @@ fun ResponsiveDrawer(
         PermanentNavigationDrawer(
             content = mainContent,
             modifier = Modifier.imePadding().systemBarsPadding(),
-            drawerContent = { PermanentDrawerSheet(drawerShape = RectangleShape, content = sheetContent) },
+            drawerContent = {
+                PermanentDrawerSheet(
+                    windowInsets = if (fullscreen) WindowInsets() else DrawerDefaults.windowInsets,
+                    drawerShape = RectangleShape,
+                    content = sheetContent,
+                )
+            },
         )
     } else {
         ModalNavigationDrawer(
@@ -55,6 +67,7 @@ fun ResponsiveDrawer(
             content = mainContent,
             drawerContent = {
                 ModalDrawerSheet(
+                    windowInsets = if (fullscreen) WindowInsets() else DrawerDefaults.windowInsets,
                     modifier = Modifier.width(getDrawerWidth()),
                     drawerShape = RectangleShape,
                     content = sheetContent,

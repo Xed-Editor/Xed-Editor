@@ -1,13 +1,11 @@
 package com.rk.settings
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -46,11 +44,8 @@ fun SettingsScreen(navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Categories(navController: NavController) {
-    val activity = LocalActivity.current
-
     PreferenceCategory(
         label = stringResource(id = strings.app),
         description = stringResource(id = strings.app_desc),
@@ -68,9 +63,25 @@ private fun Categories(navController: NavController) {
     PreferenceCategory(
         label = stringResource(id = strings.editor),
         description = stringResource(id = strings.editor_desc),
-        iconResource = drawables.edit,
+        iconResource = drawables.edit_note,
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
     )
+
+    PreferenceCategory(
+        label = stringResource(strings.keybindings),
+        description = stringResource(strings.keybindings_desc),
+        iconResource = drawables.keyboard,
+        onNavigate = { navController.navigate(SettingsRoutes.Keybindings.route) },
+    )
+
+    if (InbuiltFeatures.git.state.value) {
+        PreferenceCategory(
+            label = stringResource(strings.git),
+            description = stringResource(strings.git_desc),
+            iconResource = drawables.git,
+            onNavigate = { navController.navigate(SettingsRoutes.Git.route) },
+        )
+    }
 
     if (InbuiltFeatures.terminal.state.value) {
         PreferenceCategory(
@@ -85,6 +96,15 @@ private fun Categories(navController: NavController) {
             description = stringResource(id = strings.runners_desc),
             iconResource = drawables.run,
             onNavigate = { navController.navigate(SettingsRoutes.Runners.route) },
+        )
+    }
+
+    if (InbuiltFeatures.extensions.state.value) {
+        PreferenceCategory(
+            label = stringResource(strings.ext),
+            description = stringResource(strings.ext_desc),
+            iconResource = drawables.extension,
+            onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
         )
     }
 
@@ -126,7 +146,7 @@ private fun Categories(navController: NavController) {
                 .background(Color.Transparent),
         verticalPadding = 14.dp,
         title = { Text(stringResource(strings.support)) },
-        description = { Text(stringResource(id = strings.sponsor_desc)) },
+        description = { Text(stringResource(id = strings.support_desc)) },
         startWidget = { HeartbeatIcon() },
     )
 }

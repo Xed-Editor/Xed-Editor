@@ -3,13 +3,17 @@ package com.rk.exec
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import com.rk.App
 import com.rk.file.child
 import com.rk.file.localBinDir
+import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
+import com.rk.settings.Settings
 import com.rk.utils.application
+import com.rk.utils.getSourceDirOfPackage
+import com.rk.utils.getTempDir
+import com.rk.utils.isFDroid
 import com.rk.xededitor.BuildConfig
 import java.io.File
 import java.io.IOException
@@ -64,23 +68,23 @@ fun getDefaultBindings(): List<Binding> {
         bind("/linkerconfig/com.android.art/ld.config.txt")
         bind("/plat_property_contexts", "/property_contexts")
         bind("/sys")
-        bind("${App.getTempDir().absolutePath}", "/dev/shm")
+        bind("${getTempDir().absolutePath}", "/dev/shm")
     }
 
     return list
 }
 
 suspend fun ubuntuProcess(
-    excludeMounts: List<String> = listOf<String>(),
+    excludeMounts: List<String> = listOf(),
     root: File = sandboxDir(),
     workingDir: String? = null,
-    command: MutableList<String>,
+    command: List<String>,
 ): Process =
     withContext(Dispatchers.IO) {
         if (!root.exists()) throw NoSuchFileException(root)
 
         val randomInt = Random.nextInt()
-        val tmpDir = App.getTempDir().child("$randomInt-sandbox")
+        val tmpDir = getTempDir().child("$randomInt-sandbox")
         if (!tmpDir.exists()) {
             tmpDir.mkdirs()
         }
@@ -118,14 +122,55 @@ suspend fun ubuntuProcess(
         val processBuilder = ProcessBuilder(linker, *args.toTypedArray())
 
         processBuilder.environment().let { env ->
+            env["WKDIR"] = workingDir.orEmpty()
+            env["COLORTERM"] = "truecolor"
+            env["TERM"] = "xterm-256color"
+            env["LANG"] = "C.UTF-8"
+            env["PUBLIC_HOME"] = application!!.getExternalFilesDir(null)?.absolutePath.orEmpty()
+            env["DEBUG"] = BuildConfig.DEBUG.toString()
+            env["LOCAL"] = localDir().absolutePath
+            env["PRIVATE_DIR"] = application!!.filesDir.parentFile!!.absolutePath
+            env["EXT_HOME"] = sandboxHomeDir().absolutePath
+            env["HOME"] =
+                if (Settings.sandbox) {
+                    "/home"
+                } else {
+                    sandboxHomeDir().absolutePath
+                }
+            env["PROMPT_DIRTRIM"] = "2"
+            env["LINKER"] =
+                if (File("/system/bin/linker64").exists()) {
+                    "/system/bin/linker64"
+                } else {
+                    "/system/bin/linker"
+                }
+            env["NATIVE_LIB_DIR"] = application!!.applicationInfo.nativeLibraryDir
+            env["FDROID"] = isFDroid.toString()
+            env["SANDBOX"] = Settings.sandbox.toString()
+            env["TMP_DIR"] = getTempDir().absolutePath
+            env["TMPDIR"] = getTempDir().absolutePath
+            env["TZ"] = "UTC"
+            env["DOTNET_GCHeapHardLimit"] = "1C0000000"
+            env["SOURCE_DIR"] = application!!.applicationInfo.sourceDir
+            env["TERMUX_X11_SOURCE_DIR"] = getSourceDirOfPackage(application!!, "com.termux.x11").orEmpty()
+            env["DISPLAY"] = ":0"
             env["LD_LIBRARY_PATH"] = localLibDir().absolutePath
-
             env["PROOT_TMP_DIR"] = tmpDir.absolutePath
+
+            env["ANDROID_ART_ROOT"] = System.getenv("ANDROID_ART_ROOT").orEmpty()
+            env["ANDROID_DATA"] = System.getenv("ANDROID_DATA").orEmpty()
+            env["ANDROID_I18N_ROOT"] = System.getenv("ANDROID_I18N_ROOT").orEmpty()
+            env["ANDROID_ROOT"] = System.getenv("ANDROID_ROOT").orEmpty()
+            env["ANDROID_RUNTIME_ROOT"] = System.getenv("ANDROID_RUNTIME_ROOT").orEmpty()
+            env["ANDROID_TZDATA_ROOT"] = System.getenv("ANDROID_TZDATA_ROOT").orEmpty()
+            env["BOOTCLASSPATH"] = System.getenv("BOOTCLASSPATH").orEmpty()
+            env["DEX2OATBOOTCLASSPATH"] = System.getenv("DEX2OATBOOTCLASSPATH").orEmpty()
+            env["EXTERNAL_STORAGE"] = System.getenv("EXTERNAL_STORAGE").orEmpty()
 
             env["PATH"] =
                 "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}:${System.getenv("PATH")}"
 
-            if (!App.isFDroid) {
+            if (!isFDroid) {
                 env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader.so"
                 if (
                     Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
@@ -134,6 +179,10 @@ suspend fun ubuntuProcess(
                     env["PROOT_LOADER32"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader32.so"
                 }
             }
+
+            if (Settings.seccomp) {
+                env["SECCOMP"] = "1"
+            }
         }
 
         return@withContext processBuilder.start()
@@ -141,7 +190,7 @@ suspend fun ubuntuProcess(
 
 @SuppressLint("SdCardPath")
 suspend fun ubuntuProcess(
-    excludeMounts: List<String> = listOf<String>(),
+    excludeMounts: List<String> = listOf(),
     root: File = sandboxDir(),
     workingDir: String? = null,
     vararg command: String,

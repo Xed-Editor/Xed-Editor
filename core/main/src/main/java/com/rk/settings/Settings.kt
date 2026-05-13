@@ -1,29 +1,49 @@
 package com.rk.settings
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
+import com.rk.filetree.SortMode
+import com.rk.settings.editor.DEFAULT_ACTION_ITEMS
+import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_DRAWER
+import com.rk.settings.editor.DEFAULT_EXCLUDED_FILES_SEARCH
+import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_COMMANDS
+import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
+import com.rk.settings.terminal.DEFAULT_TERMINAL_EXTRA_KEYS
 import com.rk.theme.blueberry
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
+import com.termux.terminal.TerminalEmulator
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.jvm.isAccessible
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
+// NOTE: USE snake_case FOR KEYS!
 object Settings {
-    var read_only_default by CachedPreference("readOnly", false)
-    var amoled by CachedPreference("oled", false)
+    var detect_bin_files by CachedPreference("detect_bin_files", true)
+    var oom_prediction by CachedPreference("disable_oom_prediction", false)
+
+    var read_only_default by CachedPreference("read_only_default", false)
+    var shown_disclaimer by CachedPreference("shown_disclaimer", false)
+    var amoled by CachedPreference("amoled", false)
     var monet by CachedPreference("monet", false)
-    var pin_line_number by CachedPreference("pinline", false)
-    var word_wrap_for_text by CachedPreference("ww_txt", true)
-    var word_wrap by CachedPreference("wordwrap", false)
+    var pin_line_number by CachedPreference("pin_line_number", false)
+    var word_wrap_text by CachedPreference("word_wrap_text", true)
+    var word_wrap by CachedPreference("word_wrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
     var cursor_animation by CachedPreference("cursor_animation", true)
-    var show_extra_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
+    var show_extra_keys by CachedPreference("show_extra_keys", hasHardwareKeyboard(application!!).not())
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)
@@ -32,65 +52,147 @@ object Settings {
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
     var check_for_update by CachedPreference("check_update", false)
-    var is_selected_font_asset by CachedPreference("is_font_asset", false)
+    var is_editor_font_asset by CachedPreference("is_font_asset", false)
+    var is_app_font_asset by CachedPreference("is_app_font_asset", false)
+    var is_terminal_font_asset by CachedPreference("is_terminal_font_asset", false)
     var smooth_tabs by CachedPreference("smooth_tab", false)
     var actual_tabs by CachedPreference("actual_tab", false)
-    var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
     var hide_soft_keyboard_if_hardware by CachedPreference("always_show_soft_keyboard", true)
     var ignore_storage_permission by CachedPreference("ignore_storage_permission", false)
     var github by CachedPreference("github", true)
     var has_shown_private_data_dir_warning by CachedPreference("has_shown_private_data_dir_warning", false)
     var has_shown_terminal_dir_warning by CachedPreference("has_shown_terminal_dir_warning", false)
     var anr_watchdog by CachedPreference("anr", BuildConfig.DEBUG)
-    var strict_mode by CachedPreference("strictMode", BuildConfig.DEBUG)
+    var strict_mode by CachedPreference("strict_mode", BuildConfig.DEBUG)
     var expose_home_dir by CachedPreference("expose_home_dir", false)
     var verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
     var project_as_pwd by CachedPreference("project_as_pwd", true)
+    var terminate_sessions_on_exit by CachedPreference("terminate_sessions_on_exit", false)
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
-    var terminalVirusNotice by CachedPreference("terminal-virus-notice", false)
-    var textmate_suggestion by CachedPreference("textMateSuggestion", true)
+    var terminal_virus_notice by CachedPreference("terminal_virus_notice", false)
+    var textmate_suggestions by CachedPreference("textmate_suggestions", true)
     var seccomp by CachedPreference("seccomp", false)
-    var desktopMode by CachedPreference("desktopMode", false)
-    var themeFlipper by CachedPreference("theme_flipper", false)
-    var show_nav_extra_keys by CachedPreference("show_nav_extra_keys", true)
+    var desktop_mode by CachedPreference("desktop_mode", false)
+    var theme_flipper by CachedPreference("theme_flipper", false)
     var format_on_save by CachedPreference("format_on_save", false)
+    var show_hidden_files_drawer by CachedPreference("show_hidden_files_drawer", true)
+    var compact_folders_drawer by CachedPreference("compact_folders_drawer", true)
+    var show_hidden_files_search by CachedPreference("show_hidden_files_search", false)
+    var show_tab_icons by CachedPreference("show_tab_icons", true)
+    var split_extra_keys by CachedPreference("split_extra_keys", false)
+    var extra_keys_bg by CachedPreference("extra_keys_bg", false)
+    var auto_open_new_files by CachedPreference("auto_open_new_files", true)
+    var complete_on_enter by CachedPreference("complete_on_enter", true)
+    var enable_html_runner by CachedPreference("enable_html_runner", true)
+    var enable_md_runner by CachedPreference("enable_md_runner", true)
+    var enable_universal_runner by CachedPreference("enable_universal_runner", true)
+    var http_server_port by CachedPreference("http_server_port", 8357)
+    var launch_in_browser by CachedPreference("launch_in_browser", false)
+    var inject_eruda by CachedPreference("inject_eruda", true)
+    var auto_close_tags by CachedPreference("auto_close_tags", true)
+    var bullet_continuation by CachedPreference("bullet_continuation", true)
+    var insert_final_newline by CachedPreference("insert_final_newline", true)
+    var trim_trailing_whitespace by CachedPreference("trim_trailing_whitespace", true)
+    var enable_editorconfig by CachedPreference("enable_editorconfig", true)
+    var git_colorize_names by CachedPreference("git_colorize_names", true)
+    var git_submodules by CachedPreference("git_submodules", true)
+    var git_recursive_submodules by CachedPreference("git_recursive_submodules", true)
+    var always_index_projects by CachedPreference("always_index_projects", false)
+    var fullscreen by CachedPreference("fullscreen", false)
+    var smart_toolbar by CachedPreference("smart_toolbar", false)
+    var show_minimap by CachedPreference("show_minimap", false)
+    var auto_closing_bracket by CachedPreference("auto_closing_bracket", true)
+    var confirm_exit by CachedPreference("confirm_exit", true)
 
     // Int settings
-    var tab_size by CachedPreference("tabsize", 4)
-    var editor_text_size by CachedPreference("textsize", 14)
-    var default_night_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+    var tab_size by CachedPreference("tab_size", 4)
+    var editor_text_size by CachedPreference("text_size", 14)
+    var theme_mode by CachedPreference("default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     var terminal_font_size by CachedPreference("terminal_font_size", 13)
-    var visits by CachedPreference("visits", 0)
+    var terminal_scrollback_buffer by
+        CachedPreference("terminal_scrollback_buffer", TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS)
+    var auto_save_delay by CachedPreference("auto_save_delay", 400L)
+
+    var user_declined_value by CachedPreference("user_declined_value", false)
+    var user_said_maybe_later by CachedPreference("user_said_maybe_later", false)
+    var user_has_supported by CachedPreference("user_has_supported", false)
+    var donation_ask_count by CachedPreference("donation_ask_count", 0)
+    var saves by CachedPreference("saves", 0)
+    var runs by CachedPreference("runs", 0)
+    var last_donation_dialog_timestamp by CachedPreference("last_donation_dialog_timestamp", 0L)
+    var sort_mode by CachedPreference("sort_mode", SortMode.SORT_BY_NAME.ordinal)
 
     // String settings
-    var selectedProject by CachedPreference("selected_project", "")
+    var selected_project by CachedPreference("selected_project", "")
     var font_gson by CachedPreference("selected_font", "")
     var theme by CachedPreference("theme", blueberry.id)
-    var selected_font_path by CachedPreference("selected_font_path", "")
-    var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
-    var currentLang: String? by
-        CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
-    var extra_keys by CachedPreference("extra_keys", "()\"{}[];")
+    var icon_pack: String by CachedPreference("icon_pack", "")
+    var editor_font_path by CachedPreference("selected_font_path", "")
+    var app_font_path by CachedPreference("app_font_path", "")
+    var terminal_font_path by CachedPreference("terminal_font_path", "")
+    var terminal_cursor_style by CachedPreference("terminal_cursor_style", "block")
+    var terminal_extra_keys by CachedPreference("terminal_extra_keys", DEFAULT_TERMINAL_EXTRA_KEYS)
+    var encoding: String by CachedPreference("encoding", Charset.defaultCharset().name())
+    var line_ending by CachedPreference("line_ending", "lf")
+    var current_lang: String by
+        CachedPreference("current_lang", application!!.resources.configuration.locales[0].language)
+    var extra_keys_symbols by CachedPreference("extra_keys_symbols", DEFAULT_EXTRA_KEYS_SYMBOLS)
+    var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
+    var git_username by CachedPreference("git_username", "")
+    var git_password by CachedPreference("git_password", "")
+    var git_name by CachedPreference("git_name", "")
+    var git_email by CachedPreference("git_email", "")
+    var excluded_files_search by
+        CachedPreference("excluded_files_search", DEFAULT_EXCLUDED_FILES_SEARCH.joinToString("\n"))
+    var excluded_files_drawer by
+        CachedPreference("excluded_files_drawer", DEFAULT_EXCLUDED_FILES_DRAWER.joinToString("\n"))
+    var file_mask by CachedPreference("file_mask", "")
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
-    var lastVersionCode by CachedPreference("last_version_code", -1L)
+    var last_version_code by CachedPreference("last_version_code", -1L)
 
     // Float settings
     var line_spacing by CachedPreference("line_spacing", 1f)
 
     var last_used_command by CachedPreference("last_used_command", "")
-    var action_items by
-        CachedPreference(
-            "action_items",
-            "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|global.settings",
-        )
+    var action_items by CachedPreference("action_items", DEFAULT_ACTION_ITEMS)
 }
 
 object Preference {
     private var sharedPreferences: SharedPreferences =
         application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+
+    val preferenceTypes: Map<String, KClass<*>> by lazy {
+        Settings::class
+            .declaredMemberProperties
+            .mapNotNull { prop ->
+                try {
+                    prop.isAccessible = true
+                    val delegate = prop.getDelegate(Settings)
+                    if (delegate is CachedPreference<*>) {
+                        delegate.key to delegate.defaultValue!!::class
+                    } else null
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            .toMap()
+    }
+
+    // Registry mapping preference keys to their CachedPreference delegates so that
+    // external Preference.setXxx() calls can propagate updates into the MutableState.
+    private val delegateRegistry = mutableMapOf<String, CachedPreference<*>>()
+
+    internal fun registerDelegate(key: String, delegate: CachedPreference<*>) {
+        delegateRegistry[key] = delegate
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> notifyDelegate(key: String, value: T) {
+        (delegateRegistry[key] as? CachedPreference<T>)?.applyStateValue(value)
+    }
 
     // Weak reference caches to allow garbage collection of unused settings
     private val stringCache = mutableMapOf<String, WeakReference<String?>>()
@@ -99,22 +201,37 @@ object Preference {
     private val longCache = mutableMapOf<String, WeakReference<Long>>()
     private val floatCache = mutableMapOf<String, WeakReference<Float>>()
 
-    // Preload all settings at startup
-    fun preloadAllSettings() {
-        // This will force all settings to be loaded into cache
-        // The weak references will allow GC if settings aren't used
-        Settings::class.members.forEach { member ->
-            if (member is KProperty<*>) {
-                try {
-                    member.getter.call(Settings)
-                } catch (e: Exception) {
-                    // Ignore - some properties might not be accessible
-                }
-            }
+    fun getAll(): Map<String, Any?> {
+        return sharedPreferences.all
+    }
+
+    fun put(key: String, value: Any) {
+        when (value) {
+            is String -> setString(key, value)
+            is Boolean -> setBoolean(key, value)
+            is Int -> setInt(key, value)
+            is Long -> setLong(key, value)
+            is Float -> setFloat(key, value)
+            else -> throw IllegalArgumentException("Unsupported preference type")
         }
     }
 
-    @SuppressLint("ApplySharedPref")
+    // Preload all settings at startup
+    suspend fun preloadAllSettings() =
+        withContext(Dispatchers.IO) {
+            // This will force all settings to be loaded into cache
+            // The weak references will allow GC if settings aren't used
+            Settings::class.members.forEach { member ->
+                if (member is KProperty<*>) {
+                    try {
+                        member.getter.call(Settings)
+                    } catch (e: Exception) {
+                        // Ignore - some properties might not be accessible
+                    }
+                }
+            }
+        }
+
     fun clearData() {
         sharedPreferences.edit(commit = true) { clear() }
         clearCaches()
@@ -162,6 +279,7 @@ object Preference {
     }
 
     fun setBoolean(key: String, value: Boolean) {
+        notifyDelegate(key, value)
         boolCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putBoolean(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -183,6 +301,7 @@ object Preference {
     }
 
     fun setString(key: String, value: String?) {
+        notifyDelegate(key, value)
         stringCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putString(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -204,6 +323,7 @@ object Preference {
     }
 
     fun setInt(key: String, value: Int) {
+        notifyDelegate(key, value)
         intCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putInt(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -225,6 +345,7 @@ object Preference {
     }
 
     fun setLong(key: String, value: Long) {
+        notifyDelegate(key, value)
         longCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putLong(key, value) } }.onFailure { it.printStackTrace() }
     }
@@ -246,14 +367,21 @@ object Preference {
     }
 
     fun setFloat(key: String, value: Float) {
+        notifyDelegate(key, value)
         floatCache[key] = WeakReference(value)
         runCatching { sharedPreferences.edit { putFloat(key, value) } }.onFailure { it.printStackTrace() }
     }
 }
 
 @Suppress("UNCHECKED_CAST")
-class CachedPreference<T>(private val key: String, private val defaultValue: T) : ReadWriteProperty<Any?, T> {
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWriteProperty<Any?, T> {
+    private var state by mutableStateOf(loadInitialValue())
+
+    init {
+        Preference.registerDelegate(key, this)
+    }
+
+    private fun loadInitialValue(): T {
         return when (defaultValue) {
             is Boolean -> Preference.getBoolean(key, defaultValue) as T
             is String -> Preference.getString(key, defaultValue) as T
@@ -264,6 +392,8 @@ class CachedPreference<T>(private val key: String, private val defaultValue: T) 
         }
     }
 
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T = state
+
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         when (value) {
             is Boolean -> Preference.setBoolean(key, value)
@@ -273,5 +403,9 @@ class CachedPreference<T>(private val key: String, private val defaultValue: T) 
             is Float -> Preference.setFloat(key, value)
             else -> throw IllegalArgumentException("Unsupported preference type")
         }
+    }
+
+    internal fun applyStateValue(value: T) {
+        state = value
     }
 }

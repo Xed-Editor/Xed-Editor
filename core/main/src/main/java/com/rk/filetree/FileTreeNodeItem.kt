@@ -1,10 +1,9 @@
 package com.rk.filetree
 
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -24,36 +23,59 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.utils.addIf
 import com.rk.components.getDrawerWidth
+import com.rk.file.FileObject
 import com.rk.resources.drawables
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.rk.settings.Settings
+import com.rk.utils.drawErrorUnderline
+import com.rk.utils.getGitColor
+import com.rk.utils.getUnderlineColor
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FileTreeNodeItem(
     modifier: Modifier,
+    root: FileObject,
     node: FileTreeNode,
     depth: Int,
     onFileClick: (FileTreeNode) -> Unit,
-    onFileLongClick: (FileTreeNode) -> Unit,
     viewModel: FileTreeViewModel,
 ) {
+    val isHidden = node.file.getName().startsWith(".")
+    if (isHidden && !Settings.show_hidden_files_drawer) return
+
     val isExpanded = viewModel.isNodeExpanded(node.file)
     val horizontalPadding = (depth * 16).dp
 
     val isLoading = viewModel.isNodeLoading(node.file)
     val isCut = viewModel.isNodeCut(node.file)
+
+    val isFileSelected = viewModel.isFileSelected(root, node.file)
+    val isFileFocused = viewModel.isFileFocused(root, node.file)
+
+    val context = LocalContext.current
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val selectionColor = MaterialTheme.colorScheme.primaryContainer
+
+    val nodeBackground = remember { Animatable(surfaceColor) }
+    LaunchedEffect(isFileFocused, isFileSelected) {
+        if (isFileFocused || isFileSelected) {
+            nodeBackground.animateTo(selectionColor, animationSpec = tween(300))
+        } else {
+            nodeBackground.animateTo(surfaceColor, animationSpec = tween(300))
+        }
+    }
 
     // Load children when expanded
     LaunchedEffect(node.file, isExpanded) {
@@ -73,37 +95,41 @@ fun FileTreeNodeItem(
             }
         }
 
-    val scope = rememberCoroutineScope()
+    var displayedChildren by remember { mutableStateOf(children) }
+    var displayName by remember { mutableStateOf(node.name) }
+
+    LaunchedEffect(children, Settings.compact_folders_drawer) {
+        displayedChildren =
+            if (Settings.compact_folders_drawer && children.size == 1 && children[0].isDirectory) {
+                val collapsedNode = viewModel.collapseNode(node)
+                viewModel.getNodeChildren(collapsedNode)
+            } else children
+        displayName =
+            if (Settings.compact_folders_drawer) {
+                viewModel.getCollapsedName(node)
+            } else node.name
+    }
+
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier =
-                Modifier.addIf(isCut) { Modifier.alpha(0.5f) }
+                Modifier.addIf(isCut) { alpha(0.5f) }
+                    .background(nodeBackground.value)
                     .combinedClickable(
                         onClick = {
+                            if (viewModel.isAnyFileSelected(root)) {
+                                viewModel.toggleSelection(root, node.file)
+                                return@combinedClickable
+                            }
+
                             if (node.isDirectory) {
                                 viewModel.toggleNodeExpansion(node.file)
-                            } else {
-                                scope.launch {
-                                    delay(100)
-                                    onFileClick(node)
-                                }
+                                return@combinedClickable
                             }
-                            viewModel.selectedFile[currentProject!!] = node.file
+
+                            onFileClick(node)
                         },
-                        onLongClick = {
-                            viewModel.selectedFile[currentProject!!] = node.file
-                            scope.launch {
-                                delay(50)
-                                onFileLongClick(node)
-                            }
-                        },
-                    )
-                    .then(
-                        if (viewModel.selectedFile[currentProject] == node.file && !isCut) {
-                            Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
-                        } else {
-                            Modifier
-                        }
+                        onLongClick = { viewModel.toggleSelection(root, node.file) },
                     )
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
@@ -133,30 +159,36 @@ fun FileTreeNodeItem(
                 Spacer(modifier = Modifier.width(24.dp))
             }
 
-            FileIcon(node.file)
+            Box(modifier = Modifier.addIf(isHidden) { alpha(0.5f) }) { FileIcon(node.file, isExpanded = isExpanded) }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            Text(
-                text = node.name,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.width((getDrawerWidth() - 61.dp)),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            val underlineColor = getUnderlineColor(context, viewModel, node.file)
+            Row(modifier = Modifier.width((getDrawerWidth() - 61.dp)), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
+                    color = getGitColor(node.file) ?: MaterialTheme.colorScheme.onSurface,
+                )
+            }
         }
 
-        AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(
+            modifier = Modifier.width(getDrawerWidth()),
+            visible = isExpanded && node.isDirectory && children.isNotEmpty(),
+        ) {
             Column {
-                children.forEach { childNode ->
-                    key(childNode.file.hashCode()) {
+                displayedChildren.forEach { childNode ->
+                    key(childNode.file.hashCode(), childNode.name) {
                         FileTreeNodeItem(
                             modifier = Modifier.fillMaxWidth(),
+                            root = root,
                             node = childNode,
                             depth = depth + 1,
                             onFileClick = onFileClick,
-                            onFileLongClick = onFileLongClick,
                             viewModel = viewModel,
                         )
                     }

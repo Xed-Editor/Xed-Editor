@@ -1,49 +1,62 @@
 package com.rk.settings.editor
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
+import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.settings.SettingsRoutes
+import com.rk.activities.settings.settingsNavController
 import com.rk.components.EditorSettingsToggle
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsToggle
 import com.rk.components.SingleInputDialog
+import com.rk.components.ValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.resources.getString
+import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.editor.KeywordManager
+import com.rk.filetree.SortMode
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.tabs.EditorTab
-import com.rk.utils.toast
+import com.rk.tabs.editor.EditorTab
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
-
-        var showTextSizeDialog by remember { mutableStateOf(false) }
-        var textSizeValue by remember { mutableStateOf(Settings.editor_text_size.toString()) }
-        var textSizeError by remember { mutableStateOf<String?>(null) }
-
-        var showTabSizeDialog by remember { mutableStateOf(false) }
-        var tabSizeValue by remember { mutableStateOf(Settings.tab_size.toString()) }
-        var tabSizeError by remember { mutableStateOf<String?>(null) }
+        val scope = rememberCoroutineScope()
 
         var showLineSpacingDialog by remember { mutableStateOf(false) }
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
-        var showExtraKeysDialog by remember { mutableStateOf(false) }
-        var extraKeysValue by remember { mutableStateOf(Settings.extra_keys) }
-        var extraKeysError by remember { mutableStateOf<String?>(null) }
+        var showAutoSaveDialog by remember { mutableStateOf(false) }
+        var autoSaveDelayValue by remember { mutableStateOf(Settings.auto_save_delay.toString()) }
+        var autoSaveDelayError by remember { mutableStateOf<String?>(null) }
+
+        var showSortingModeDialog by remember { mutableStateOf(false) }
+        var sortingModeValue by remember { mutableIntStateOf(Settings.sort_mode) }
 
         if (InbuiltFeatures.terminal.state.value) {
             PreferenceGroup(heading = stringResource(strings.language_server)) {
@@ -60,20 +73,48 @@ fun SettingsEditorScreen(navController: NavController) {
                     default = Settings.format_on_save,
                     sideEffect = { Settings.format_on_save = it },
                 )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.insert_final_newline),
+                    description = stringResource(strings.insert_final_newline_desc),
+                    default = Settings.insert_final_newline,
+                    sideEffect = { Settings.insert_final_newline = it },
+                )
+
+                EditorSettingsToggle(
+                    label = stringResource(strings.trim_trailing_whitespace),
+                    description = stringResource(strings.trim_trailing_whitespace_desc),
+                    default = Settings.trim_trailing_whitespace,
+                    sideEffect = { Settings.trim_trailing_whitespace = it },
+                )
             }
         }
 
-        PreferenceGroup(heading = stringResource(strings.content)) {
-            if (InbuiltFeatures.mutators.state.value) {
-                NextScreenCard(
-                    label = stringResource(strings.mutators),
-                    description = stringResource(strings.mutator_desc),
-                    route = SettingsRoutes.ManageMutators,
-                )
-            }
+        PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
+            EditorSettingsToggle(
+                label = stringResource(strings.auto_close_tags),
+                description = stringResource(strings.auto_close_tags_desc),
+                default = Settings.auto_close_tags,
+                sideEffect = {
+                    Settings.auto_close_tags = it
+                    refreshEditors()
+                },
+            )
 
+            EditorSettingsToggle(
+                label = stringResource(strings.bullet_continuation),
+                description = stringResource(strings.bullet_continuation_desc),
+                default = Settings.bullet_continuation,
+                sideEffect = {
+                    Settings.bullet_continuation = it
+                    refreshEditors()
+                },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.content)) {
             val wordWrap = remember { mutableStateOf(Settings.word_wrap) }
-            val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_for_text || Settings.word_wrap) }
+            val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_text || Settings.word_wrap) }
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.word_wrap),
@@ -95,8 +136,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 state = wordWrapTxt,
                 sideEffect = {
                     wordWrapTxt.value = it
-                    Settings.word_wrap_for_text = it
-                    toast(strings.restart_required)
+                    Settings.word_wrap_text = it
                 },
             )
 
@@ -129,6 +169,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 description = stringResource(id = strings.cursor_anim_desc),
                 default = Settings.cursor_animation,
                 sideEffect = { Settings.cursor_animation = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.show_minimap),
+                description = stringResource(strings.show_minimap_desc),
+                default = Settings.show_minimap,
+                sideEffect = { Settings.show_minimap = it },
             )
 
             EditorSettingsToggle(
@@ -179,77 +226,124 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.EditorFontScreen,
             )
 
-            EditorSettingsToggle(
+            ValueSlider(
                 label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = { showTextSizeDialog = true },
+                default = Settings.editor_text_size,
+                min = 6,
+                max = 50,
+                useSteps = false,
+            ) {
+                Settings.editor_text_size = it
+                scope.launch { refreshEditorSettings() }
+            }
+
+            EditorSettingsToggle(
+                label = stringResource(strings.auto_closing_bracket),
+                description = stringResource(strings.auto_closing_bracket_desc),
+                default = Settings.auto_closing_bracket,
+                sideEffect = { Settings.auto_closing_bracket = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.complete_on_enter),
+                description = stringResource(strings.complete_on_enter_desc),
+                default = Settings.complete_on_enter,
+                sideEffect = { Settings.complete_on_enter = it },
             )
 
             SettingsToggle(
                 label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),
-                default = Settings.textmate_suggestion,
+                default = Settings.textmate_suggestions,
+                sideEffect = { newValue ->
+                    Settings.textmate_suggestions = newValue
+
+                    scope.launch {
+                        MainActivity.instance?.apply {
+                            viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                                val scope = tab.editorState.textmateScope ?: return@forEach
+                                val language = tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage
+
+                                if (newValue) {
+                                    val keywords = KeywordManager.getKeywords(scope)
+                                    keywords?.let { language?.setCompleterKeywords(it.toTypedArray()) }
+                                } else {
+                                    language?.setCompleterKeywords(null)
+                                }
+                            }
+                        }
+                    }
+                },
+            )
+
+            ValueSlider(
+                label = stringResource(id = strings.tab_size),
+                description = stringResource(id = strings.tab_size_desc),
+                default = Settings.tab_size,
+                min = 1,
+                max = 16,
+            ) {
+                Settings.tab_size = it
+                scope.launch { refreshEditorSettings() }
+            }
+
+            EditorSettingsToggle(
+                label = stringResource(strings.use_tabs),
+                description = stringResource(strings.use_tabs_desc),
+                default = Settings.actual_tabs,
                 sideEffect = {
-                    Settings.textmate_suggestion = it
-                    toast(strings.restart_required)
+                    Settings.actual_tabs = it
+
+                    MainActivity.instance?.apply {
+                        viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
+                            val language = tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage
+                            language?.useTab(it)
+                        }
+                    }
                 },
             )
         }
 
-        PreferenceGroup(heading = stringResource(strings.other)) {
-            EditorSettingsToggle(
-                label = stringResource(id = strings.restore_sessions),
-                description = stringResource(id = strings.restore_sessions_desc),
-                default = Settings.restore_sessions,
-                sideEffect = { Settings.restore_sessions = it },
-            )
-
+        PreferenceGroup(heading = stringResource(strings.actions)) {
             NextScreenCard(
                 label = stringResource(strings.toolbar_actions),
                 description = stringResource(strings.toolbar_actions_desc),
                 route = SettingsRoutes.ToolbarActions,
             )
 
-            var extraKeysEnabled by remember { mutableStateOf(Settings.show_extra_keys) }
-
             EditorSettingsToggle(
                 label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
                 default = Settings.show_extra_keys,
-                sideEffect = {
-                    extraKeysEnabled = it
-                    Settings.show_extra_keys = it
-                },
+                sideEffect = { Settings.show_extra_keys = it },
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.show_nav_extra_keys),
-                description = stringResource(id = strings.show_nav_extra_keys_desc),
-                isEnabled = extraKeysEnabled,
-                default = Settings.show_nav_extra_keys,
-                sideEffect = {
-                    Settings.show_nav_extra_keys = it
-                    toast(strings.restart_required)
-                },
+                label = stringResource(id = strings.extra_key_bg),
+                description = stringResource(id = strings.extra_key_bg_desc),
+                isEnabled = Settings.show_extra_keys,
+                default = Settings.extra_keys_bg,
+                sideEffect = { Settings.extra_keys_bg = it },
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.change_extra_keys),
-                description = stringResource(id = strings.change_extra_keys_desc),
-                isEnabled = extraKeysEnabled,
-                showSwitch = false,
-                default = false,
-                sideEffect = { showExtraKeysDialog = true },
+                label = stringResource(id = strings.split_extra_keys),
+                description = stringResource(id = strings.split_extra_keys_desc),
+                isEnabled = Settings.show_extra_keys,
+                default = Settings.split_extra_keys,
+                sideEffect = { Settings.split_extra_keys = it },
             )
 
             NextScreenCard(
-                label = stringResource(strings.default_encoding),
-                description = stringResource(strings.default_encoding_desc),
-                route = SettingsRoutes.DefaultEncoding,
+                label = stringResource(strings.change_extra_keys),
+                description = stringResource(strings.change_extra_keys_desc),
+                route = SettingsRoutes.ExtraKeys,
+                isEnabled = Settings.show_extra_keys,
             )
+        }
 
+        PreferenceGroup(heading = stringResource(strings.drawer)) {
             EditorSettingsToggle(
                 label = stringResource(id = strings.keep_drawer_locked),
                 description = stringResource(id = strings.drawer_lock_desc),
@@ -258,10 +352,80 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.auto_save),
-                description = stringResource(id = strings.auto_save_desc),
-                default = Settings.auto_save,
-                sideEffect = { Settings.auto_save = it },
+                label = stringResource(id = strings.sort_mode),
+                description = stringResource(id = strings.sort_mode_desc),
+                showSwitch = false,
+                sideEffect = { showSortingModeDialog = true },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_drawer),
+                description = stringResource(id = strings.show_hidden_files_drawer_desc),
+                default = Settings.show_hidden_files_drawer,
+                sideEffect = { Settings.show_hidden_files_drawer = it },
+            )
+
+            NextScreenCard(
+                label = stringResource(strings.exclude_files_drawer),
+                description = stringResource(strings.exclude_files_drawer_desc),
+                onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/true") },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.compact_folders_drawer),
+                description = stringResource(id = strings.compact_folders_drawer_desc),
+                default = Settings.compact_folders_drawer,
+                sideEffect = { Settings.compact_folders_drawer = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_hidden_files_search),
+                description = stringResource(id = strings.show_hidden_files_search_desc),
+                default = Settings.show_hidden_files_search,
+                sideEffect = { Settings.show_hidden_files_search = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.always_index_projects),
+                description = stringResource(strings.always_index_projects_desc),
+                default = Settings.always_index_projects,
+                sideEffect = { Settings.always_index_projects = it },
+            )
+
+            NextScreenCard(
+                label = stringResource(strings.exclude_files_search),
+                description = stringResource(strings.exclude_files_search_desc),
+                onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/false") },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.auto_open_new_files),
+                description = stringResource(strings.auto_open_new_files_desc),
+                default = Settings.auto_open_new_files,
+                sideEffect = { Settings.auto_open_new_files = it },
+            )
+        }
+
+        PreferenceGroup(heading = stringResource(strings.other)) {
+            EditorSettingsToggle(
+                label = stringResource(strings.detect_bin_files),
+                description = stringResource(strings.detect_bin_files_desc),
+                default = Settings.detect_bin_files,
+                sideEffect = { Settings.detect_bin_files = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.oom_prediction),
+                description = stringResource(strings.oom_prediction_desc),
+                default = Settings.oom_prediction,
+                sideEffect = { Settings.oom_prediction = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.restore_sessions),
+                description = stringResource(id = strings.restore_sessions_desc),
+                default = Settings.restore_sessions,
+                sideEffect = { Settings.restore_sessions = it },
             )
 
             EditorSettingsToggle(
@@ -272,27 +436,45 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.tab_size),
-                description = stringResource(id = strings.tab_size_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = { showTabSizeDialog = true },
+                label = stringResource(id = strings.show_tab_icons),
+                description = stringResource(id = strings.show_tab_icons_desc),
+                default = Settings.show_tab_icons,
+                sideEffect = { Settings.show_tab_icons = it },
+            )
+
+            NextScreenCard(
+                label = stringResource(strings.default_encoding),
+                description = stringResource(strings.default_encoding_desc),
+                route = SettingsRoutes.DefaultEncoding,
+            )
+
+            NextScreenCard(
+                label = stringResource(strings.line_ending),
+                description = stringResource(strings.line_ending_desc),
+                route = SettingsRoutes.DefaultLineEnding,
             )
 
             EditorSettingsToggle(
-                label = stringResource(strings.use_tabs),
-                description = stringResource(strings.use_tabs_desc),
-                default = Settings.actual_tabs,
-                sideEffect = {
-                    Settings.actual_tabs = it
+                label = stringResource(id = strings.auto_save),
+                description = stringResource(id = strings.auto_save_desc),
+                default = Settings.auto_save,
+                sideEffect = { Settings.auto_save = it },
+            )
 
-                    MainActivity.instance?.apply {
-                        viewModel.tabs.forEach { tab ->
-                            if (tab is EditorTab) {
-                                (tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage)?.useTab(it)
-                            }
-                        }
-                    }
+            EditorSettingsToggle(
+                label = stringResource(id = strings.auto_save_delay),
+                description = stringResource(id = strings.auto_save_delay_desc),
+                showSwitch = false,
+                sideEffect = { showAutoSaveDialog = true },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.enable_editorconfig),
+                description = stringResource(id = strings.enable_editorconfig_desc),
+                default = Settings.enable_editorconfig,
+                sideEffect = {
+                    Settings.enable_editorconfig = it
+                    scope.launch { refreshEditorSettings() }
                 },
             )
         }
@@ -314,7 +496,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.line_spacing = lineSpacingValue.toFloat()
-                    reapplyEditorSettings()
+                    scope.launch { refreshEditorSettings() }
                 },
                 onFinish = {
                     lineSpacingValue = Settings.line_spacing.toString()
@@ -324,96 +506,102 @@ fun SettingsEditorScreen(navController: NavController) {
             )
         }
 
-        if (showTextSizeDialog) {
+        if (showAutoSaveDialog) {
             SingleInputDialog(
-                title = stringResource(id = strings.text_size),
-                inputLabel = stringResource(id = strings.text_size),
-                inputValue = textSizeValue,
-                errorMessage = textSizeError,
+                title = stringResource(id = strings.auto_save_delay),
+                inputLabel = stringResource(id = strings.auto_save_delay),
+                inputValue = autoSaveDelayValue,
+                errorMessage = autoSaveDelayError,
                 onInputValueChange = {
-                    textSizeValue = it
-                    textSizeError = null
-                    if (it.toIntOrNull() == null) {
-                        textSizeError = context.getString(strings.value_invalid)
-                    } else if (it.toInt() > 100) {
-                        textSizeError = context.getString(strings.value_large)
-                    } else if (it.toInt() < 6) {
-                        textSizeError = context.getString(strings.value_small)
+                    autoSaveDelayValue = it
+                    autoSaveDelayError = null
+                    if (autoSaveDelayValue.toIntOrNull() == null) {
+                        autoSaveDelayError = context.getString(strings.value_invalid)
+                    } else if (autoSaveDelayValue.toInt() > 4000) {
+                        autoSaveDelayError = context.getString(strings.value_large)
+                    } else if (autoSaveDelayValue.toInt() < 5) {
+                        autoSaveDelayError = context.getString(strings.value_small)
                     }
                 },
                 onConfirm = {
-                    Settings.editor_text_size = textSizeValue.toInt()
-                    reapplyEditorSettings()
+                    Settings.auto_save_delay = autoSaveDelayValue.toLong()
+                    scope.launch { refreshEditorSettings() }
                 },
                 onFinish = {
-                    textSizeValue = Settings.editor_text_size.toString()
-                    textSizeError = null
-                    showTextSizeDialog = false
+                    autoSaveDelayValue = Settings.auto_save_delay.toString()
+                    autoSaveDelayError = null
+                    showAutoSaveDialog = false
                 },
             )
         }
 
-        if (showTabSizeDialog) {
-            SingleInputDialog(
-                title = stringResource(id = strings.tab_size),
-                inputLabel = stringResource(id = strings.tab_size),
-                inputValue = tabSizeValue,
-                errorMessage = tabSizeError,
-                onInputValueChange = {
-                    tabSizeValue = it
-                    tabSizeError = null
-                    if (tabSizeValue.toIntOrNull() == null) {
-                        tabSizeError = context.getString(strings.value_invalid)
-                    } else if (tabSizeValue.toInt() > 16) {
-                        tabSizeError = context.getString(strings.value_large)
-                    } else if (tabSizeValue.toInt() < 1) {
-                        tabSizeError = context.getString(strings.value_small)
+        if (showSortingModeDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showSortingModeDialog = false
+                    sortingModeValue = Settings.sort_mode
+                },
+                title = { Text(stringResource(strings.sort_mode)) },
+                text = {
+                    Column {
+                        SortMode.entries.forEach { sortMode ->
+                            PreferenceTemplate(
+                                modifier =
+                                    Modifier.clip(MaterialTheme.shapes.large).clickable {
+                                        sortingModeValue = sortMode.ordinal
+                                    },
+                                title = { Text(stringResource(sortMode.stringRes)) },
+                                startWidget = {
+                                    RadioButton(selected = sortingModeValue == sortMode.ordinal, onClick = null)
+                                },
+                            )
+                        }
                     }
                 },
-                onConfirm = {
-                    Settings.tab_size = tabSizeValue.toInt()
-                    reapplyEditorSettings()
-                },
-                onFinish = {
-                    tabSizeValue = Settings.tab_size.toString()
-                    tabSizeError = null
-                    showTabSizeDialog = false
-                },
-            )
-        }
-
-        if (showExtraKeysDialog) {
-            SingleInputDialog(
-                title = stringResource(id = strings.extra_keys),
-                inputLabel = stringResource(id = strings.extra_keys),
-                inputValue = extraKeysValue,
-                errorMessage = extraKeysError,
-                onInputValueChange = {
-                    extraKeysValue = it
-                    extraKeysError = null
-                    if (extraKeysValue.isEmpty()) {
-                        extraKeysError = strings.name_empty_err.getString()
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showSortingModeDialog = false
+                            Settings.sort_mode = sortingModeValue
+                            fileTreeViewModel.get()?.apply {
+                                sortMode = SortMode.entries[sortingModeValue]
+                                viewModelScope.launch { refreshEverything() }
+                            }
+                        }
+                    ) {
+                        Text(stringResource(strings.apply))
                     }
                 },
-                onConfirm = {
-                    Settings.extra_keys = extraKeysValue
-                    toast(strings.restart_required)
-                },
-                onFinish = {
-                    extraKeysValue = Settings.extra_keys
-                    extraKeysError = null
-                    showExtraKeysDialog = false
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showSortingModeDialog = false
+                            sortingModeValue = Settings.sort_mode
+                        }
+                    ) {
+                        Text(stringResource(strings.cancel))
+                    }
                 },
             )
         }
     }
 }
 
-private fun reapplyEditorSettings() {
+fun refreshEditors() {
     MainActivity.instance?.apply {
         viewModel.tabs.forEach {
             if (it is EditorTab) {
-                it.editorState.editor.get()?.applySettings()
+                it.refreshKey++
+            }
+        }
+    }
+}
+
+suspend fun refreshEditorSettings() {
+    MainActivity.instance?.apply {
+        viewModel.tabs.forEach {
+            if (it is EditorTab) {
+                it.reapplyEditorSettings()
             }
         }
     }

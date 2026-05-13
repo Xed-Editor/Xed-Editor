@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="restart_required">Harus dimula semula</string>
+    <string name="save">Simpan</string>
+    <string name="open_directory">Buka direktori</string>
+    <string name="new_file">Fail baru</string>
+    <string name="wait">Sila tunggu…</string>
+    <string name="report_issue">Laporkan isu</string>
+    <string name="copy">Salin</string>
+    <string name="save_all">Simpan semua</string>
+    <string name="undo">Asal</string>
+    <string name="settings">Aturan</string>
+    <string name="search">Cari</string>
+    <string name="go_next">Seterusnya</string>
+    <string name="go_prev">Sebelumnya</string>
+    <string name="replace">Tukar</string>
+    <string name="share">Kongsi</string>
+    <string name="open_file">Buka fail</string>
+    <string name="new_folder">Folder baru</string>
+    <string name="rename">Tukar nama</string>
+    <string name="open_with">Buka dengan…</string>
+    <string name="save_as">Simpan sbg</string>
+    <string name="paste">Tampal</string>
+    <string name="delete">Padam</string>
+    <string name="close_this">Tutup ni</string>
+    <string name="close_others">Tutup yang lain</string>
+    <string name="close_all">Tutup semua</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="other">%d saat lalu</item>
+    </plurals>
+    <string name="theme_id_missing">Fail JSON tidak memberikan ID tema yang sah. Sila tambah satu dan cuba lagi.</string>
+</resources>

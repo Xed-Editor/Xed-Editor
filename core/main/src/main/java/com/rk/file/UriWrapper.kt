@@ -17,10 +17,10 @@ import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class UriWrapper : FileObject {
-
     private val uri: String
     private val isTree: Boolean
 
@@ -60,6 +60,8 @@ class UriWrapper : FileObject {
     override fun isFile(): Boolean = file.isFile
 
     override fun getName(): String = file.name ?: "Invalid"
+
+    override fun getExtension(): String = MimeTypeMap.getFileExtensionFromUrl(file.uri.toString())
 
     override suspend fun getParentFile(): FileObject? = file.parentFile?.let { UriWrapper(it) }
 
@@ -139,6 +141,13 @@ class UriWrapper : FileObject {
                 ?: throw IOException("Could not open input stream for: ${file.uri}")
         }
 
+    override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
+        return withContext(Dispatchers.IO) {
+            application!!.contentResolver?.openInputStream(file.uri)?.use { block(it) }
+                ?: throw IOException("Could not open input stream for: ${file.uri}")
+        }
+    }
+
     override suspend fun getOutPutStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             val mode = if (append) "wa" else "wt"
@@ -157,10 +166,16 @@ class UriWrapper : FileObject {
             }
         }
 
-    override suspend fun renameTo(string: String): Boolean =
-        withContext(Dispatchers.IO) {
-            return@withContext file.renameTo(string)
+    override suspend fun renameTo(string: String): Boolean {
+        return try {
+            withContext(Dispatchers.IO) {
+                return@withContext file.renameTo(string)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
+    }
 
     override suspend fun hasChild(name: String): Boolean =
         withContext(Dispatchers.IO) {
@@ -190,24 +205,6 @@ class UriWrapper : FileObject {
             return@withContext file.length()
         }
 
-    override suspend fun calcSize(): Long =
-        withContext(Dispatchers.IO) {
-            return@withContext if (isFile()) length() else folderSize(this@UriWrapper)
-        }
-
-    private suspend fun folderSize(folder: FileObject): Long {
-        var length: Long = 0
-        for (file in folder.listFiles()) {
-            length +=
-                if (file.isFile()) {
-                    file.length()
-                } else {
-                    folderSize(file)
-                }
-        }
-        return length
-    }
-
     override suspend fun delete(): Boolean =
         withContext(Dispatchers.IO) {
             fun deleteFolder(documentFile: DocumentFile): Boolean {
@@ -227,15 +224,37 @@ class UriWrapper : FileObject {
         }
 
     override fun canWrite(): Boolean {
-        return file.canWrite()
+        if (file.canWrite()) {
+            return true
+        }
+
+        runCatching {
+            runBlocking { getOutPutStream(true).close() }
+            return true
+        }
+
+        return false
     }
 
     override fun canRead(): Boolean {
-        return file.canRead()
+        if (file.canRead()) {
+            return true
+        }
+
+        runCatching {
+            runBlocking { getInputStream().close() }
+            return true
+        }
+
+        return false
     }
 
     override fun canExecute(): Boolean {
         return false
+    }
+
+    override fun lastModified(): Long {
+        return file.lastModified()
     }
 
     override suspend fun getChildForName(name: String): FileObject =

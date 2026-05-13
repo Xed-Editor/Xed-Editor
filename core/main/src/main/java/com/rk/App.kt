@@ -7,18 +7,31 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.activities.main.SessionManager
+import com.rk.commands.CommandProvider
+import com.rk.commands.KeybindingsManager
 import com.rk.crashhandler.CrashHandler
-import com.rk.editor.Editor
+import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
+import com.rk.editor.KeywordManager
+import com.rk.editor.LanguageManager
+import com.rk.extension.ExtensionAPIManager
+import com.rk.extension.ExtensionManager
+import com.rk.extension.loadAllExtensions
+import com.rk.icons.pack.IconPackManager
+import com.rk.lsp.FileIconProvider
+import com.rk.lsp.LspPersistence
 import com.rk.lsp.MarkdownImageProvider
 import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.debugOptions.startThemeFlipperIfNotRunning
+import com.rk.settings.editor.DEFAULT_APP_FONT_PATH
+import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
+import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.theme.updateThemes
 import com.rk.utils.application
+import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
-import java.io.File
 import java.util.Locale
 import java.util.concurrent.Executors
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -29,18 +42,25 @@ import kotlinx.coroutines.launch
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
     companion object {
-        fun getTempDir(): File {
-            val tmp = File(application!!.cacheDir.parentFile, "tmp")
-            if (!tmp.exists()) {
-                tmp.mkdir()
-            }
-            return tmp
-        }
+        private var _extensionManager: ExtensionManager? = null
+        val extensionManager: ExtensionManager
+            get() {
+                if (_extensionManager == null) {
+                    _extensionManager = ExtensionManager(application!!)
+                }
 
-        val isFDroid by lazy {
-            val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
-            targetSdkVersion == 28
-        }
+                return _extensionManager!!
+            }
+
+        private var _iconPackManager: IconPackManager? = null
+        val iconPackManager: IconPackManager
+            get() {
+                if (_iconPackManager == null) {
+                    _iconPackManager = IconPackManager(application!!)
+                }
+
+                return _iconPackManager!!
+            }
     }
 
     init {
@@ -54,29 +74,51 @@ class App : Application() {
         Res.application = this
 
         updateThemes()
-        MarkdownImageProvider.register()
+        LspPersistence.restoreServers()
 
-        val currentLocale = Locale.forLanguageTag(Settings.currentLang)
+        MarkdownImageProvider.register()
+        FileIconProvider.register()
+
+        CommandProvider.buildCommands()
+        KeybindingsManager.loadKeybindings()
+
+        val currentLocale = Locale.forLanguageTag(Settings.current_lang)
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
 
         GlobalScope.launch(Dispatchers.IO) {
-            launch { Editor.initGrammarRegistry() }
+            launch(Dispatchers.IO) {
+                extensionManager.indexLocalExtensions()
+                extensionManager.loadAllExtensions()
+                registerActivityLifecycleCallbacks(ExtensionAPIManager)
+            }
+
+            launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
+
+            launch { LanguageManager.initGrammarRegistry() }
+
+            launch { KeywordManager.initKeywordRegistry(this@App) }
+
+            launch { CodeHighlighter.registerMarkdownCodeHighlighter(this@App) }
 
             launch(Dispatchers.IO) { SessionManager.preloadSession() }
 
             launch(Dispatchers.IO) {
-                val fontPath = Settings.selected_font_path
-                if (fontPath.isNotEmpty()) {
-                    FontCache.loadFont(this@App, fontPath, Settings.is_selected_font_asset)
-                } else {
-                    FontCache.loadFont(this@App, "fonts/Default.ttf", true)
-                }
+                val editorFontPath = Settings.editor_font_path.ifEmpty { DEFAULT_EDITOR_FONT_PATH }
+                val isEditorAsset = if (editorFontPath.isNotEmpty()) Settings.is_editor_font_asset else true
+
+                val appFontPath = Settings.app_font_path.ifEmpty { DEFAULT_APP_FONT_PATH }
+                val isAppAsset = if (editorFontPath.isNotEmpty()) Settings.is_app_font_asset else true
+
+                val terminalFontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
+                val isTerminalAsset = if (terminalFontPath.isNotEmpty()) Settings.is_terminal_font_asset else true
+
+                FontCache.loadFont(this@App, editorFontPath, isEditorAsset)
+                FontCache.loadFont(this@App, appFontPath, isAppAsset)
+                FontCache.loadFont(this@App, terminalFontPath, isTerminalAsset)
             }
 
-            if (Settings.restore_sessions) {
-                launch(Dispatchers.IO) { Preference.preloadAllSettings() }
-            }
+            launch(Dispatchers.IO) { Preference.preloadAllSettings() }
 
             launch { DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir) }
 
@@ -88,9 +130,7 @@ class App : Application() {
                 }
             }
 
-            launch { runCatching { UpdateChecker.checkForUpdates("dev") } }
-
-            Settings.visits = Settings.visits + 1
+            launch { runCatching { UpdateChecker.checkForUpdates("main") } }
 
             // wait until UpdateManager is done, it should only take few milliseconds
             UpdateManager.inspect()

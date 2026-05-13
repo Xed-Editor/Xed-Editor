@@ -1,7 +1,6 @@
 plugins {
-    //alias(libs.plugins.android.test)
-    id("com.android.test")
-    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.android.test)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -31,14 +30,10 @@ android {
 }
 
 dependencies {
-    implementation(libs.ext.junit)
-    implementation(libs.espresso.core)
+    implementation(libs.junit)
+    implementation(libs.androidx.test.espresso)
     implementation(libs.androidx.uiautomator)
     implementation(libs.androidx.benchmark.macro.junit4)
 }
 
-androidComponents {
-    beforeVariants(selector().all()) {
-        it.enable = it.buildType == "benchmark"
-    }
-}
+androidComponents { beforeVariants(selector().all()) { it.enable = it.buildType == "benchmark" } }

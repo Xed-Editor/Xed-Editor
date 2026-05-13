@@ -13,8 +13,10 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -36,7 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 // Data class to hold locale with its availability status
-data class LocaleInfo(val locale: Locale, val isInstalled: Boolean, val tag: String, val displayName: String)
+data class LocaleInfo(val locale: Locale, val isInstalled: Boolean, val displayName: String)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -60,7 +62,6 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
                     LocaleInfo(
                         locale = locale,
                         isInstalled = installedTags.contains(tag),
-                        tag = tag,
                         displayName = "${locale.getDisplayLanguage(locale)} ($tag)",
                     )
                 }
@@ -91,11 +92,18 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
 
         PreferenceGroup {
             val locales = localeInfoList.value
+            val selectedLocaleInfo =
+                remember(currentLocale, locales) {
+                    locales?.let { list ->
+                        // Exact match (e.g. "en-US")
+                        list.find { it.locale.toLanguageTag() == currentLocale.toLanguageTag() }
+                            // Fallback to language match (e.g. "en")
+                            ?: list.find { it.locale.language == currentLocale.language }
+                    }
+                }
 
             if (locales != null) {
                 locales.forEach { localeInfo ->
-                    val isSelected = currentLocale.toLanguageTag() == localeInfo.tag
-
                     SettingsToggle(
                         modifier = Modifier,
                         label = localeInfo.displayName,
@@ -104,7 +112,10 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
                         showSwitch = false,
                         isEnabled = localeInfo.isInstalled,
                         startWidget = {
-                            RadioButton(selected = isSelected, onClick = { setAppLanguage(localeInfo.locale) })
+                            RadioButton(
+                                selected = selectedLocaleInfo == localeInfo,
+                                onClick = { setAppLanguage(localeInfo.locale) },
+                            )
                         },
                     )
                 }
@@ -137,5 +148,5 @@ private suspend fun readSupportedLocales(context: Context): List<Locale> =
 fun setAppLanguage(locale: Locale) {
     val appLocale = LocaleListCompat.create(locale)
     AppCompatDelegate.setApplicationLocales(appLocale)
-    Settings.currentLang = locale.toLanguageTag()
+    Settings.current_lang = locale.toLanguageTag()
 }

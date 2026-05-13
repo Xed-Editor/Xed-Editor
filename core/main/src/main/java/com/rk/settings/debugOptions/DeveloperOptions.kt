@@ -9,9 +9,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -19,6 +19,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.dialog
+import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -34,7 +35,6 @@ private var flipperJob: Job? = null
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController) {
-    val context = LocalContext.current
     val activity = LocalActivity.current
 
     val memoryUsage = remember { mutableStateOf("Unknown") }
@@ -63,7 +63,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                         title = strings.force_crash.getString(),
                         msg = strings.force_crash_confirm.getString(),
                         onCancel = {},
-                        onOk = { Thread { throw HarmlessException("Force Crash") }.start() },
+                        onOk = { Thread { throw HarmlessException("Force crash") }.start() },
                     )
                 },
             )
@@ -102,21 +102,40 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 label = stringResource(strings.desktop_mode),
                 description = stringResource(strings.desktop_mode_desc),
                 showSwitch = true,
-                default = Settings.desktopMode,
-                sideEffect = { Settings.desktopMode = it },
+                default = Settings.desktop_mode,
+                sideEffect = { Settings.desktop_mode = it },
             )
 
             SettingsToggle(
                 label = stringResource(strings.theme_flipper),
                 description = stringResource(strings.theme_flipper_desc),
                 showSwitch = true,
-                default = Settings.themeFlipper,
+                default = Settings.theme_flipper,
                 sideEffect = {
-                    Settings.themeFlipper = it
+                    Settings.theme_flipper = it
                     if (it) {
                         startThemeFlipperIfNotRunning()
                     }
                 },
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.reset_consent),
+                description = stringResource(strings.reset_consent_desc),
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    Settings.shown_disclaimer = false
+                    toast(strings.restart_required)
+                },
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.view_logs),
+                description = stringResource(strings.view_app_logs),
+                default = false,
+                showSwitch = false,
+                onClick = { navController.navigate(SettingsRoutes.AppLogs.route) },
             )
         }
     }
@@ -127,17 +146,17 @@ fun startThemeFlipperIfNotRunning() {
         flipperJob =
             GlobalScope.launch(Dispatchers.IO) {
                 runCatching {
-                        while (isActive && Settings.themeFlipper) {
+                        while (isActive && Settings.theme_flipper) {
                             delay(7000)
 
                             val mode =
-                                if (Settings.default_night_mode == AppCompatDelegate.MODE_NIGHT_NO) {
+                                if (Settings.theme_mode == AppCompatDelegate.MODE_NIGHT_NO) {
                                     AppCompatDelegate.MODE_NIGHT_YES
                                 } else {
                                     AppCompatDelegate.MODE_NIGHT_NO
                                 }
 
-                            Settings.default_night_mode = mode
+                            Settings.theme_mode = mode
 
                             withContext(Dispatchers.Main) { AppCompatDelegate.setDefaultNightMode(mode) }
                         }

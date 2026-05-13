@@ -1,7 +1,9 @@
 {
   "name": "C#",
   "scopeName": "source.cs",
-  "fileTypes": ["cs"],
+  "fileTypes": [
+    "cs"
+  ],
   "uuid": "f7de61e2-bdde-4e2a-a139-8221b179584e",
   "patterns": [
     {

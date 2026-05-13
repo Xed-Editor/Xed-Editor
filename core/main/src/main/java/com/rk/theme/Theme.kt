@@ -2,10 +2,10 @@ package com.rk.theme
 
 import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
@@ -17,8 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.material.color.MaterialColors
 import com.rk.settings.Settings
+import com.rk.settings.editor.rememberAppTypography
 import com.rk.settings.theme.themes
-import com.rk.utils.isDarkMode
+import com.rk.utils.isDarkTheme
 import com.rk.utils.toast
 
 val currentTheme = mutableStateOf<ThemeHolder?>(null)
@@ -29,12 +30,7 @@ val LocalThemeHolder = staticCompositionLocalOf<ThemeHolder> { error("No ThemeHo
 
 @Composable
 fun XedTheme(
-    darkTheme: Boolean =
-        when (Settings.default_night_mode) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isDarkMode(LocalContext.current)
-        },
+    darkTheme: Boolean = isDarkTheme(LocalContext.current),
     highContrastDarkTheme: Boolean = amoled.value,
     dynamicColor: Boolean = dynamicTheme.value,
     content: @Composable () -> Unit,
@@ -94,7 +90,9 @@ fun XedTheme(
         }
 
     CompositionLocalProvider(LocalThemeHolder provides themeHolder) {
-        MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+        MaterialTheme(colorScheme = colorScheme, typography = rememberAppTypography(LocalContext.current)) {
+            Surface(color = MaterialTheme.colorScheme.background) { content() }
+        }
     }
 }
 
@@ -114,5 +112,22 @@ val ColorScheme.warningSurface: Color
 val ColorScheme.onWarningSurface: Color
     @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFDDB4)) else Color(harmonize(0xFF633F00))
 
-val ColorScheme.folderSurface: Color
-    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFC857)) else Color(harmonize(0xFFFAB72D))
+// Status colors
+val ColorScheme.greenStatus: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFA6DA95)) else Color(harmonize(0xFF44842E))
+
+val ColorScheme.yellowStatus: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFE082)) else Color(harmonize(0xFFE6AC00))
+
+// Git change colors
+val ColorScheme.gitAdded: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF81C784)) else Color(harmonize(0xFF2E7D32))
+
+val ColorScheme.gitModified: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF64B5F6)) else Color(harmonize(0xFF1565C0))
+
+val ColorScheme.gitDeleted: Color
+    get() = this.onSurface.copy(alpha = 0.6f)
+
+val ColorScheme.gitConflicted: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFE57373)) else Color(harmonize(0xFFC62828))

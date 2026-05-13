@@ -1,24 +1,10 @@
 package com.rk.lsp
 
 import android.content.Context
-import android.graphics.Typeface
 import android.net.Uri
-import android.text.Spannable
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.text.style.StrikethroughSpan
-import android.text.style.StyleSpan
-import android.text.style.UnderlineSpan
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
+import com.rk.activities.main.EditorManager
 import com.rk.activities.main.MainViewModel
-import com.rk.components.CodeItem
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.sandboxDir
@@ -28,23 +14,18 @@ import com.rk.file.toFileWrapper
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
-import com.rk.theme.currentTheme
-import com.rk.utils.isDarkMode
+import com.rk.search.CodeItem
+import com.rk.search.SnippetBuilder
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.toast
-import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.lsp.editor.LspEventManager
 import io.github.rosemoe.sora.lsp.editor.getOption
-import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
 import io.github.rosemoe.sora.lsp.events.EventType
 import io.github.rosemoe.sora.lsp.events.document.applyEdits
 import io.github.rosemoe.sora.lsp.events.format.fullFormatting
 import io.github.rosemoe.sora.lsp.events.format.rangeFormatting
 import io.github.rosemoe.sora.widget.component.TextActionItem
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
-import kotlin.text.substring
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,122 +56,14 @@ fun fixHomeLocation(context: Context, uri: String): String {
     return fixedPath?.let { Uri.fromFile(it).toString() } ?: uri
 }
 
-/** Converts a [Spanned] text object to an [AnnotatedString]. */
-private fun Spanned.toAnnotatedString(): AnnotatedString {
-    val builder = AnnotatedString.Builder(this.toString())
-    val spans = getSpans(0, length, Any::class.java)
-    spans.forEach { span ->
-        val start = getSpanStart(span)
-        val end = getSpanEnd(span)
-        val style =
-            when (span) {
-                is ForegroundColorSpan -> SpanStyle(color = androidx.compose.ui.graphics.Color(span.foregroundColor))
-                is StyleSpan ->
-                    when (span.style) {
-                        Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
-                        Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
-                        Typeface.BOLD_ITALIC -> SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
-                        else -> null
-                    }
-                is UnderlineSpan -> SpanStyle(textDecoration = TextDecoration.Underline)
-                is StrikethroughSpan -> SpanStyle(textDecoration = TextDecoration.LineThrough)
-                else -> null
-            }
-        if (style != null) {
-            builder.addStyle(style, start, end)
-        }
-    }
-    return builder.toAnnotatedString()
-}
-
-/**
- * Generates a text portion of the line in the provided file that contains the range.
- *
- * The text of the range is printed bold. The code is highlighted with the help of the
- * [MarkdownCodeHighlighterRegistry].
- *
- * @return An [AnnotatedString] containing the highlighted code.
- */
-suspend fun generateSnippet(
-    viewModel: MainViewModel,
-    context: Context,
-    targetFile: FileObject,
-    range: Range,
-): AnnotatedString {
-    return withContext(Dispatchers.Default) {
-        val openedTab = viewModel.tabs.find { it is EditorTab && it.file == targetFile } as? EditorTab
-
-        // Only read file if it's not already opened as a tab
-        val lines =
-            if (openedTab != null) {
-                openedTab.editorState.editor.get()?.text.toString().lines()
-            } else {
-                targetFile.getInputStream().bufferedReader().use { it.readLines() }
-            }
-
-        val targetLine = lines[range.start.line]
-        val trimmedTargetLine = targetLine.trim()
-        val leadingWhitespace = targetLine.indexOf(trimmedTargetLine)
-
-        val rangeStartTrimmed = range.start.character - leadingWhitespace
-        val rangeEndTrimmed = range.end.character - leadingWhitespace
-
-        val fileExt = targetFile.getName().substringAfterLast(".")
-
-        val highlightedSpanned =
-            MarkdownCodeHighlighterRegistry.global.highlightAsync(
-                code = trimmedTargetLine,
-                language = fileExt,
-                codeTypeface = Typeface.MONOSPACE,
-            )
-
-        val highlightedAnnotated = (highlightedSpanned as Spannable).toAnnotatedString()
-
-        val editorColors =
-            if (isDarkMode(context)) {
-                currentTheme.value?.darkEditorColors
-            } else {
-                currentTheme.value?.lightEditorColors
-            }
-        val selectionColor =
-            editorColors?.find { it.key == EditorColorScheme.SELECTED_TEXT_BACKGROUND }?.color?.let { Color(it) }
-                ?: Color.Unspecified
-
-        buildAnnotatedString {
-            append(highlightedAnnotated)
-            addStyle(style = SpanStyle(background = selectionColor), start = rangeStartTrimmed, end = rangeEndTrimmed)
-        }
-    }
-}
-
-/** Go to or open tab that contains the range and select it. */
-suspend fun goToTabAndSelect(viewModel: MainViewModel, file: FileObject, range: Range) {
-    withContext(Dispatchers.Main) { viewModel.newTab(file, switchToTab = true) }
-
-    val targetTab = viewModel.tabs.filterIsInstance<EditorTab>().find { it.file == file }
-
-    // Wait until editor content is loaded
-    targetTab!!.editorState.contentRendered.await()
-
-    withContext(Dispatchers.Main) {
-        targetTab.editorState.editor
-            .get()
-            ?.setSelectionRegion(
-                range.start.line,
-                range.start.character,
-                range.end.line,
-                range.end.character,
-                SelectionChangeEvent.CAUSE_SEARCH,
-            )
-
-        targetTab.editorState.editor.get()?.ensureSelectionVisible()
-    }
+suspend fun EditorManager.jumpToPosition(file: FileObject, projectRoot: FileObject?, range: Range) {
+    jumpToPosition(file, projectRoot, range.start.line, range.start.character, range.end.line, range.end.character)
 }
 
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
 
@@ -215,14 +88,15 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { goToTabAndSelect(viewModel, targetFile, range) }
+                    scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
                     return@launch
                 }
 
                 // If multiple definitions exist, ask user which one to view
                 withContext(Dispatchers.Main) {
+                    val snippetBuilder = SnippetBuilder(context)
                     editorState.findingsItems =
-                        definitions.mapIndexed { index, definition ->
+                        List(definitions.size) { index ->
                             val range =
                                 if (eitherDefinitions.isLeft) eitherDefinitions.left[index].range
                                 else eitherDefinitions.right[index].targetSelectionRange
@@ -235,12 +109,17 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
                             val targetFile =
                                 if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
+                            val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
                             CodeItem(
-                                snippet = generateSnippet(viewModel, context, targetFile, range),
-                                fileName = targetFile.getName(),
-                                line = range.start.line + 1,
-                                column = range.start.character + 1,
-                                onClick = { scope.launch { goToTabAndSelect(viewModel, targetFile, range) } },
+                                snippet = snippetResult,
+                                file = targetFile,
+                                line = range.start.line,
+                                column = range.start.character,
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
+                                    }
+                                },
                             )
                         }
                 }
@@ -258,7 +137,7 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
 fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
 
@@ -278,28 +157,34 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
                     val uri = uriString.toUri()
                     val targetFile = if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
-                    scope.launch { goToTabAndSelect(viewModel, targetFile, range) }
+                    scope.launch { viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range) }
                     return@launch
                 }
 
                 // If multiple references exist, ask user which one to view
                 withContext(Dispatchers.Main) {
+                    val snippetBuilder = SnippetBuilder(context)
                     editorState.findingsItems =
-                        references.mapIndexed { index, reference ->
-                            val range = references[index]!!.range
-                            var uriString = references[index]!!.uri
+                        references.mapNotNull { reference ->
+                            val range = reference?.range ?: return@mapNotNull null
+                            var uriString = reference.uri
                             uriString = fixHomeLocation(context, uriString)
 
                             val uri = uriString.toUri()
                             val targetFile =
                                 if (uri.scheme == null) File(uriString).toFileWrapper() else uri.toFileObject(true)
 
+                            val snippetResult = snippetBuilder.generateLspSnippet(viewModel, targetFile, range)
                             CodeItem(
-                                snippet = generateSnippet(viewModel, context, targetFile, range),
-                                fileName = targetFile.getName(),
-                                line = range.start.line + 1,
-                                column = range.start.character + 1,
-                                onClick = { scope.launch { goToTabAndSelect(viewModel, targetFile, range) } },
+                                snippet = snippetResult,
+                                file = targetFile,
+                                line = range.start.line,
+                                column = range.start.character,
+                                onClick = {
+                                    scope.launch {
+                                        viewModel.editorManager.jumpToPosition(targetFile, editorTab.projectRoot, range)
+                                    }
+                                },
                             )
                         }
                 }
@@ -320,7 +205,7 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                 var currentName = ""
 
                 val file = editorTab.file
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
 
@@ -355,23 +240,29 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                 editorState.showRenameDialog = true
                 editorState.renameConfirm = { newName ->
                     scope.launch(Dispatchers.Default) {
-                        val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
+                        runCatching {
+                                val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
 
-                        // TODO: Handle documentChanges too
-                        val changes = workspaceEdit.changes
+                                // TODO: Handle documentChanges too
+                                val changes = workspaceEdit.changes
 
-                        // Edits only supported in currently opened file
-                        // TODO: Support edits in other files
-                        if (changes.size > 1) {
-                            toast(strings.rename_symbol_multiple_files)
-                            return@launch
-                        }
+                                // Edits only supported in currently opened file
+                                // TODO: Support edits in other files
+                                if (changes.size > 1) {
+                                    toast(strings.rename_symbol_multiple_files)
+                                    return@launch
+                                }
 
-                        val edits = changes[file.toUri().toString()]!!
-                        baseLspConnector.getEventManager()!!.emitAsync(EventType.applyEdits) {
-                            put("edits", edits)
-                            put(editor.text)
-                        }
+                                val edits = changes[file.toUri().toString()]!!
+                                baseLspConnector.getEventManager()!!.emitAsync(EventType.applyEdits) {
+                                    put("edits", edits)
+                                    put(editor.text)
+                                }
+                            }
+                            .onFailure {
+                                it.printStackTrace()
+                                toast(strings.rename_symbol_error)
+                            }
                     }
                 }
             }
@@ -382,10 +273,13 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
     }
 }
 
-fun applyFormattingOptions(eventManager: LspEventManager) {
+fun applyFormattingOptions(eventManager: LspEventManager, editorTab: EditorTab) {
+    val editor = editorTab.editorState.editor.get() ?: return
     val formattingOptions = eventManager.getOption<FormattingOptions>()!!
-    formattingOptions.tabSize = Settings.tab_size
-    formattingOptions.isInsertSpaces = !Settings.actual_tabs
+    formattingOptions.tabSize = editor.tabWidth
+    formattingOptions.isInsertSpaces = !editor.editorLanguage.useTab()
+    formattingOptions.isInsertFinalNewline = editor.insertFinalNewline
+    formattingOptions.isTrimTrailingWhitespace = editor.trimTrailingWhitespace
 }
 
 /**
@@ -394,12 +288,12 @@ fun applyFormattingOptions(eventManager: LspEventManager) {
  */
 suspend fun formatDocumentSuspend(editorTab: EditorTab) {
     runCatching {
-            val baseLspConnector = editorTab.baseLspConnector!!
+            val baseLspConnector = editorTab.lspConnector!!
             val editorState = editorTab.editorState
             val editor = editorState.editor.get()!!
             val eventManager = baseLspConnector.getEventManager()!!
 
-            applyFormattingOptions(eventManager)
+            applyFormattingOptions(eventManager, editorTab)
 
             eventManager.emitAsync(EventType.fullFormatting, editor.text)
         }
@@ -416,12 +310,12 @@ fun formatDocument(scope: CoroutineScope, editorTab: EditorTab) {
 fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.baseLspConnector!!
+                val baseLspConnector = editorTab.lspConnector!!
                 val editorState = editorTab.editorState
                 val editor = editorState.editor.get()!!
                 val eventManager = baseLspConnector.getEventManager()!!
 
-                applyFormattingOptions(eventManager)
+                applyFormattingOptions(eventManager, editorTab)
 
                 eventManager.emitAsync(EventType.rangeFormatting) {
                     put("text", editor.text)
@@ -442,12 +336,15 @@ fun createLspTextActions(
     viewModel: MainViewModel,
     editorTab: EditorTab,
 ): List<TextActionItem> {
+    fun isUrlSelected(): Boolean {
+        return editorTab.editorState.editor.get()?.isUrlSelected() == true
+    }
 
     val goToDefinition =
         TextActionItem(
             titleRes = strings.go_to_definition,
             iconRes = drawables.jump_to_element,
-            shouldShow = { _ -> editorTab.baseLspConnector?.isGoToDefinitionSupported() == true },
+            shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToDefinitionSupported() == true },
         ) { _ ->
             goToDefinition(scope, context, viewModel, editorTab)
         }
@@ -456,7 +353,7 @@ fun createLspTextActions(
         TextActionItem(
             titleRes = strings.go_to_references,
             iconRes = drawables.manage_search,
-            shouldShow = { _ -> editorTab.baseLspConnector?.isGoToReferencesSupported() == true },
+            shouldShow = { _ -> !isUrlSelected() && editorTab.lspConnector?.isGoToReferencesSupported() == true },
         ) { _ ->
             goToReferences(scope, context, viewModel, editorTab)
         }
@@ -466,7 +363,7 @@ fun createLspTextActions(
             titleRes = strings.rename_symbol,
             iconRes = drawables.edit_note,
             shouldShow = { editor ->
-                editor.isEditable && editorTab.baseLspConnector?.isRenameSymbolSupported() == true
+                !isUrlSelected() && editor.isEditable && editorTab.lspConnector?.isRenameSymbolSupported() == true
             },
         ) { _ ->
             renameSymbol(scope, editorTab)

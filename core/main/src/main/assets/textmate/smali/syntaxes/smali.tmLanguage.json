@@ -1,5 +1,7 @@
 {
-  "fileTypes": ["smali"],
+  "fileTypes": [
+    "smali"
+  ],
   "foldingStartMarker": "\\.method",
   "foldingStopMarker": "\\.end method",
   "name": "Smali",

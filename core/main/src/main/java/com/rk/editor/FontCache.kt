@@ -2,46 +2,60 @@ package com.rk.editor
 
 import android.content.Context
 import android.graphics.Typeface
+import androidx.compose.ui.text.font.Font
 import java.io.File
 
 object FontCache {
-    private val cachedFonts = mutableMapOf<String, Typeface>()
+    private val cachedFonts = mutableMapOf<String, CachedFont>()
+
+    data class CachedFont(val typeface: Typeface, val composeFont: Font)
 
     fun loadFont(context: Context, path: String, isAsset: Boolean) {
-        try {
-            val font =
-                if (isAsset) {
-                    context.assets.open(path).close()
-                    Typeface.createFromAsset(context.assets, path)
-                } else {
-                    val file = File(path)
-                    if (!file.exists()) {
-                        return
-                    }
-                    Typeface.createFromFile(file)
+        if (cachedFonts.containsKey(path)) return
+        doLoadFont(context, path, isAsset).onFailure { it.printStackTrace() }
+    }
+
+    private fun doLoadFont(context: Context, path: String, isAsset: Boolean) = runCatching {
+        val font =
+            if (isAsset) {
+                context.assets.open(path).close()
+                val typeface = Typeface.createFromAsset(context.assets, path)
+                val composeFont = Font(path, context.assets)
+                CachedFont(typeface, composeFont)
+            } else {
+                val file = File(path)
+                if (!file.exists()) {
+                    return@runCatching
                 }
-            cachedFonts[path] = font
-        } catch (e: Exception) {
-            e.printStackTrace()
+                val typeface = Typeface.createFromFile(file)
+                val composeFont = Font(file)
+                CachedFont(typeface, composeFont)
+            }
+        cachedFonts[path] = font
+    }
+
+    private fun getCachedFont(context: Context, path: String, isAsset: Boolean): CachedFont? {
+        if (cachedFonts.containsKey(path)) {
+            return cachedFonts[path]
+        } else {
+            doLoadFont(context, path, isAsset)
+                .fold(
+                    onFailure = {
+                        it.printStackTrace()
+                        return null
+                    },
+                    onSuccess = {
+                        return cachedFonts[path]
+                    },
+                )
         }
     }
 
-    fun getFont(context: Context, path: String, isAsset: Boolean): Typeface? {
-        return if (cachedFonts.containsKey(path)) {
-            cachedFonts[path]
-        } else {
-            try {
-                val font =
-                    if (isAsset) {
-                        Typeface.createFromAsset(context.assets, path)
-                    } else {
-                        Typeface.createFromFile(File(path))
-                    }
-                cachedFonts[path] = font
-                font
-            } catch (e: Exception) {
-                null
-            }
-        }
+    fun getTypeface(context: Context, path: String, isAsset: Boolean): Typeface? {
+        return getCachedFont(context, path, isAsset)?.typeface
+    }
+
+    fun getFont(context: Context, path: String, isAsset: Boolean): Font? {
+        return getCachedFont(context, path, isAsset)?.composeFont
     }
 }

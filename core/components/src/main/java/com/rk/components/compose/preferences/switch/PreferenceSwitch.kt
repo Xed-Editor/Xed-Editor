@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -16,9 +17,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 
@@ -35,9 +38,12 @@ fun PreferenceSwitch(
     label: String,
     modifier: Modifier = Modifier,
     description: String? = null,
+    singleLineDescription: Boolean = false,
     onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
+    startWidget: (@Composable () -> Unit)? = null,
+    endWidget: (@Composable () -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -62,31 +68,43 @@ fun PreferenceSwitch(
             ),
         contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
-        description = { description?.let { Text(text = it) } },
-        endWidget = {
-            if (onClick != null) {
-                Spacer(
-                    modifier =
-                        Modifier.height(32.dp)
-                            .width(1.dp)
-                            .fillMaxHeight()
-                            .background(MaterialTheme.colorScheme.outlineVariant)
+        description = {
+            description?.let {
+                Text(
+                    text = it,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = if (singleLineDescription) 1 else Int.MAX_VALUE,
                 )
             }
-            Switch(
-                modifier = Modifier.padding(all = 16.dp).height(24.dp),
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                enabled = enabled,
-                interactionSource = interactionSource,
-                colors =
-                    SwitchDefaults.colors()
-                        .copy(
-                            uncheckedThumbColor = MaterialTheme.colorScheme.background,
-                            uncheckedTrackColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                            uncheckedBorderColor = Color.Transparent,
-                        ),
-            )
+        },
+        startWidget = startWidget,
+        endWidget = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                endWidget?.invoke()
+                if (onClick != null) {
+                    Spacer(
+                        modifier =
+                            Modifier.height(32.dp)
+                                .width(1.dp)
+                                .fillMaxHeight()
+                                .background(MaterialTheme.colorScheme.outlineVariant)
+                    )
+                }
+                Switch(
+                    modifier = Modifier.padding(all = 16.dp).height(24.dp),
+                    checked = checked,
+                    onCheckedChange = onCheckedChange,
+                    enabled = enabled,
+                    interactionSource = interactionSource,
+                    colors =
+                        SwitchDefaults.colors()
+                            .copy(
+                                uncheckedThumbColor = MaterialTheme.colorScheme.background,
+                                uncheckedTrackColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                                uncheckedBorderColor = Color.Transparent,
+                            ),
+                )
+            }
         },
         enabled = enabled,
         applyPaddings = false,

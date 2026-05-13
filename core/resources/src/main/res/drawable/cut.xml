@@ -1,37 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?><!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~    sora-editor - the awesome code editor for Android
-  ~    https://github.com/Rosemoe/sora-editor
-  ~    Copyright (C) 2020-2024  Rosemoe
-  ~
-  ~     This library is free software; you can redistribute it and/or
-  ~     modify it under the terms of the GNU Lesser General Public
-  ~     License as published by the Free Software Foundation; either
-  ~     version 2.1 of the License, or (at your option) any later version.
-  ~
-  ~     This library is distributed in the hope that it will be useful,
-  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  ~     Lesser General Public License for more details.
-  ~
-  ~     You should have received a copy of the GNU Lesser General Public
-  ~     License along with this library; if not, write to the Free Software
-  ~     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
-  ~     USA
-  ~
-  ~     Please contact Rosemoe by email 2073412493@qq.com if you need
-  ~     additional information or have any questions
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="20dp"
-    android:height="20dp"
+    android:width="24dp"
+    android:height="24dp"
     android:tint="?attr/colorControlNormal"
-    android:viewportWidth="20"
-    android:viewportHeight="20">
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+
     <path
         android:fillColor="@android:color/white"
-        android:pathData="M12.12,9.29l5.59,-5.59c0.37,-0.37 0.39,-0.97 0.04,-1.37c-0.38,-0.43 -1.05,-0.45 -1.46,-0.05l-5.59,5.59L12.12,9.29z" />
-    <path
-        android:fillColor="@android:color/white"
-        android:pathData="M8.13,6.72C8.36,6.28 8.5,5.78 8.5,5.25C8.5,3.46 7.04,2 5.25,2S2,3.46 2,5.25S3.46,8.5 5.25,8.5c0.53,0 1.03,-0.14 1.47,-0.37L8.59,10l-1.87,1.87c-0.44,-0.23 -0.94,-0.37 -1.47,-0.37C3.46,11.5 2,12.96 2,14.75S3.46,18 5.25,18s3.25,-1.46 3.25,-3.25c0,-0.53 -0.14,-1.03 -0.37,-1.47L10,11.41l6.29,6.29c0.41,0.41 1.08,0.39 1.46,-0.05c0.35,-0.4 0.33,-0.99 -0.04,-1.37L8.13,6.72zM5.25,7C4.29,7 3.5,6.21 3.5,5.25S4.29,3.5 5.25,3.5S7,4.29 7,5.25S6.21,7 5.25,7zM5.25,16.5c-0.96,0 -1.75,-0.79 -1.75,-1.75S4.29,13 5.25,13S7,13.79 7,14.75S6.21,16.5 5.25,16.5zM10,10.5c-0.28,0 -0.5,-0.22 -0.5,-0.5S9.72,9.5 10,9.5s0.5,0.22 0.5,0.5S10.28,10.5 10,10.5z" />
+        android:pathData="M480,560L386,654Q394,669 397,686Q400,703 400,720Q400,786 353,833Q306,880 240,880Q174,880 127,833Q80,786 80,720Q80,654 127,607Q174,560 240,560Q257,560 274,563Q291,566 306,574L400,480L306,386Q291,394 274,397Q257,400 240,400Q174,400 127,353Q80,306 80,240Q80,174 127,127Q174,80 240,80Q306,80 353,127Q400,174 400,240Q400,257 397,274Q394,291 386,306L824,744Q851,771 836,805.5Q821,840 783,840Q772,840 761.5,835.5Q751,831 743,823L480,560ZM600,440L520,360L743,137Q751,129 761.5,124.5Q772,120 783,120Q821,120 835.5,155Q850,190 823,217L600,440ZM296.5,296.5Q320,273 320,240Q320,207 296.5,183.5Q273,160 240,160Q207,160 183.5,183.5Q160,207 160,240Q160,273 183.5,296.5Q207,320 240,320Q273,320 296.5,296.5ZM494,494Q500,488 500,480Q500,472 494,466Q488,460 480,460Q472,460 466,466Q460,472 460,480Q460,488 466,494Q472,500 480,500Q488,500 494,494ZM296.5,776.5Q320,753 320,720Q320,687 296.5,663.5Q273,640 240,640Q207,640 183.5,663.5Q160,687 160,720Q160,753 183.5,776.5Q207,800 240,800Q273,800 296.5,776.5Z" />
+
 </vector>

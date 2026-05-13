@@ -17,8 +17,8 @@ fun File.child(fileName: String): File {
 }
 
 fun File.createFileIfNot(): File {
-    if (getParentFile()?.exists()?.not() == true) {
-        getParentFile()!!.mkdirs()
+    if (parentFile?.exists()?.not() == true) {
+        parentFile!!.mkdirs()
     }
     if (exists().not()) {
         createNewFile()

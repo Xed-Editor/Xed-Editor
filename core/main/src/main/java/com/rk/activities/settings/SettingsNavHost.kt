@@ -1,24 +1,43 @@
 package com.rk.activities.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.rk.App
 import com.rk.animations.NavigationAnimationTransitions
+import com.rk.lsp.LspRegistry
 import com.rk.settings.SettingsScreen
 import com.rk.settings.about.AboutScreen
 import com.rk.settings.app.SettingsAppScreen
+import com.rk.settings.debugOptions.AppLogs
 import com.rk.settings.debugOptions.DeveloperOptions
+import com.rk.settings.editor.AppFontScreen
 import com.rk.settings.editor.DefaultEncoding
+import com.rk.settings.editor.DefaultLineEnding
+import com.rk.settings.editor.EditExtraKeys
+import com.rk.settings.editor.EditToolbarActions
 import com.rk.settings.editor.EditorFontScreen
+import com.rk.settings.editor.ExcludeFiles
 import com.rk.settings.editor.SettingsEditorScreen
-import com.rk.settings.editor.ToolbarActions
+import com.rk.settings.editor.TerminalFontScreen
+import com.rk.settings.extension.ExtensionDetail
+import com.rk.settings.extension.ExtensionScreen
+import com.rk.settings.git.GitSettings
+import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
+import com.rk.settings.lsp.LspServerDetail
+import com.rk.settings.lsp.LspServerLogs
 import com.rk.settings.lsp.LspSettings
-import com.rk.settings.mutators.ManageMutators
-import com.rk.settings.runners.Runners
+import com.rk.settings.runners.HtmlRunnerSettings
+import com.rk.settings.runners.RunnerSettings
 import com.rk.settings.support.Support
 import com.rk.settings.terminal.SettingsTerminalScreen
+import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.settings.theme.ThemeScreen
 
 @Composable
@@ -34,17 +53,62 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity, navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
+        composable(SettingsRoutes.Keybindings.route) { KeybindingsScreen() }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
+        composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
+        composable(SettingsRoutes.AppFontScreen.route) { AppFontScreen() }
+        composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
-        composable(SettingsRoutes.ToolbarActions.route) { ToolbarActions() }
+        composable(SettingsRoutes.DefaultLineEnding.route) { DefaultLineEnding() }
+        composable(SettingsRoutes.ToolbarActions.route) { EditToolbarActions() }
+        composable(SettingsRoutes.ExtraKeys.route) { EditExtraKeys() }
+        composable(
+            "${SettingsRoutes.ExcludeFiles.route}/{isDrawer}",
+            arguments = listOf(navArgument("isDrawer", builder = { type = NavType.BoolType })),
+        ) {
+            val isDrawer = it.arguments?.getBoolean("isDrawer")!!
+            ExcludeFiles(isDrawer)
+        }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
-        composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
+        composable(SettingsRoutes.AppLogs.route) { AppLogs() }
         composable(SettingsRoutes.Support.route) { Support() }
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
-        composable(SettingsRoutes.Runners.route) { Runners() }
-        composable(SettingsRoutes.LspSettings.route) { LspSettings() }
+        composable(SettingsRoutes.Runners.route) { RunnerSettings(navController = navController) }
+        composable(SettingsRoutes.HtmlRunner.route) { HtmlRunnerSettings() }
+        composable(SettingsRoutes.LspSettings.route) { LspSettings(navController = navController) }
+        composable(
+            "${SettingsRoutes.LspServerDetail.route}/{serverId}",
+            arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
+        ) { backStackEntry ->
+            val serverId = backStackEntry.arguments?.getString("serverId")!!
+            val server = LspRegistry.getForId(serverId)!!
+            LspServerDetail(navController, server)
+        }
+        composable(
+            "${SettingsRoutes.LspServerLogs.route}/{serverId}/{instanceId}",
+            arguments =
+                listOf(
+                    navArgument("serverId", builder = { type = NavType.StringType }),
+                    navArgument("instanceId", builder = { type = NavType.StringType }),
+                ),
+        ) { backStackEntry ->
+            val serverId = backStackEntry.arguments?.getString("serverId")!!
+            val server = LspRegistry.getForId(serverId)!!
+            val instanceId = backStackEntry.arguments?.getString("instanceId")!!
+            LspServerLogs(server, instanceId)
+        }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
+        composable(SettingsRoutes.Extensions.route) { ExtensionScreen(navController = navController) }
+        composable(
+            "${SettingsRoutes.ExtensionDetail.route}/{extensionId}",
+            arguments = listOf(navArgument("extensionId", builder = { type = NavType.StringType })),
+        ) {
+            val extensionId = it.arguments?.getString("extensionId")
+            val extension = extensionId?.let { App.extensionManager.getExtension(it) }
+            ExtensionDetail(extension)
+        }
+        composable(SettingsRoutes.Git.route) { GitSettings() }
     }
 }

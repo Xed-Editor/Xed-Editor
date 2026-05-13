@@ -35,23 +35,29 @@ object DefaultEncoding {
 fun DefaultEncoding(modifier: Modifier = Modifier) {
     PreferenceLayout(label = stringResource(strings.default_encoding), backArrowVisible = true) {
         var selectedEncoding by remember { mutableStateOf(Settings.encoding) }
-        val intraction = remember { MutableInteractionSource() }
+        val interaction = remember { MutableInteractionSource() }
 
         InfoBlock(
             icon = { Icon(imageVector = Icons.Outlined.Warning, contentDescription = null) },
             text = strings.encoding_warning.getString(),
+            warning = true,
         )
 
         PreferenceGroup {
             PreferenceTemplate(
                 modifier =
-                    modifier.clickable(indication = ripple(), interactionSource = intraction) {
+                    modifier.clickable(indication = ripple(), interactionSource = interaction) {
                         // MainActivity.instance?.adapter?.clearAllFragments()
                         selectedEncoding = Charset.defaultCharset().name()
                         Settings.encoding = selectedEncoding
                     },
                 contentModifier = Modifier.fillMaxHeight(),
-                title = { Text(fontWeight = FontWeight.Bold, text = Charset.defaultCharset().name() + " (Default)") },
+                title = {
+                    Text(
+                        fontWeight = FontWeight.Bold,
+                        text = Charset.defaultCharset().name() + " (${stringResource(strings.default_option)})",
+                    )
+                },
                 enabled = true,
                 applyPaddings = true,
                 startWidget = {
@@ -60,11 +66,11 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
             )
 
             DefaultEncoding.charsets.forEach { charset ->
-                val intraction = remember { MutableInteractionSource() }
+                val interaction = remember { MutableInteractionSource() }
                 if (charset.name().lowercase(Locale.getDefault()) != "utf-8") {
                     PreferenceTemplate(
                         modifier =
-                            modifier.clickable(indication = ripple(), interactionSource = intraction) {
+                            modifier.clickable(indication = ripple(), interactionSource = interaction) {
                                 // MainActivity.instance?.adapter?.clearAllFragments()
                                 selectedEncoding = charset.name()
                                 Settings.encoding = charset.name()

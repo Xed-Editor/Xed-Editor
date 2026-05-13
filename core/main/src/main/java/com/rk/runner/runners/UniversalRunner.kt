@@ -2,17 +2,16 @@ package com.rk.runner.runners
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Environment
 import com.rk.DefaultScope
 import com.rk.exec.TerminalCommand
-import com.rk.exec.launchInternalTerminal
+import com.rk.exec.launchTerminal
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.localBinDir
+import com.rk.icons.Icon
 import com.rk.resources.drawables
-import com.rk.resources.getDrawable
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
@@ -50,7 +49,7 @@ class UniversalRunner : RunnerImpl() {
     }
 
     suspend fun launchUniversalRunner(context: Context, fileObject: FileObject) {
-        launchInternalTerminal(
+        launchTerminal(
             context,
             terminalCommand =
                 TerminalCommand(
@@ -65,11 +64,11 @@ class UniversalRunner : RunnerImpl() {
     }
 
     override fun getName(): String {
-        return "Universal Runner"
+        return strings.universal_runner.getString()
     }
 
-    override fun getIcon(context: Context): Drawable? {
-        return drawables.run.getDrawable(context)
+    override fun getIcon(context: Context): Icon {
+        return Icon.DrawableRes(drawables.run)
     }
 
     override suspend fun isRunning(): Boolean {

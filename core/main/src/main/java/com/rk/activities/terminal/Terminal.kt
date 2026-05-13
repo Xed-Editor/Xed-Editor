@@ -1,14 +1,19 @@
 package com.rk.activities.terminal
 
+import android.Manifest
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -31,10 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.App.Companion.getTempDir
-import com.rk.SessionService
+import com.rk.XedConstants
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -43,14 +52,15 @@ import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.terminal.NEXT_STAGE
+import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
 import com.rk.terminal.TerminalScreen
 import com.rk.terminal.changeSession
 import com.rk.terminal.getNextStage
-import com.rk.terminal.getPwd
 import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
+import com.rk.utils.getTempDir
 import com.rk.utils.toast
 import java.io.File
 import java.lang.ref.WeakReference
@@ -69,13 +79,14 @@ class Terminal : AppCompatActivity() {
     var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
 
-    private val serviceConnection =
+    val serviceConnection =
         object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 val binder = service as SessionService.SessionBinder
                 sessionBinder = WeakReference(binder)
                 // sessionBinder = WeakReference(binder)
                 isBound = true
+                handleIntent(intent)
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
@@ -86,6 +97,8 @@ class Terminal : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        ContextCompat.startForegroundService(this, Intent(this, SessionService::class.java))
+
         Intent(this, SessionService::class.java).also { intent ->
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
@@ -93,19 +106,31 @@ class Terminal : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
+    }
 
+    override fun onResume() {
+        super.onResume()
+        instance = this
+    }
+
+    fun handleIntent(intent: Intent) {
         this.intent = intent
         val binder = sessionBinder?.get() ?: return
-        val terminalView = terminalView.get() ?: return
+        terminalView.get() ?: return
+
+        val pwd = intent.getStringExtra("cwd")
+        if (pwd == null) {
+            return
+        }
+        val sessionId = File(pwd).name
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val pwd = getPwd()
-            val client = TerminalBackEnd(terminalView, this@Terminal)
-            val sessionId = File(pwd).name
-
+            val client = TerminalBackEnd()
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)
 
             this@Terminal.changeSession(info.id)
+            setIntent(Intent())
         }
     }
 
@@ -117,10 +142,33 @@ class Terminal : AppCompatActivity() {
         }
     }
 
+    private fun needsNotificationPermission(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+    }
+
+    companion object {
+        private var activityRef = WeakReference<Terminal?>(null)
+        var instance: Terminal?
+            get() = activityRef.get()
+            private set(value) {
+                activityRef = WeakReference(value)
+            }
+    }
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> }
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        instance = this
+
+        if (needsNotificationPermission()) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
 
         setContent {
             XedTheme {
@@ -129,12 +177,21 @@ class Terminal : AppCompatActivity() {
                         TerminalScreenHost(this)
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("No service connection")
+                            Text("Error: No service connection")
                         }
                     }
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        if (!isFinishing) {
+            super.onDestroy()
+            return
+        }
+
+        super.onDestroy()
     }
 
     var progressText by mutableStateOf(strings.installing.getString())
@@ -163,11 +220,11 @@ class Terminal : AppCompatActivity() {
                             DownloadFile(
                                 url =
                                     if (abi.contains("x86_64")) {
-                                        talloc_x86_64
+                                        XedConstants.TALLOC_X64
                                     } else if (abi.contains("arm64-v8a")) {
-                                        talloc_aarch64
+                                        XedConstants.TALLOC_ARM64
                                     } else if (abi.contains("armeabi-v7a")) {
-                                        talloc_arm
+                                        XedConstants.TALLOC_ARM
                                     } else {
                                         throw RuntimeException("Unsupported CPU")
                                     },
@@ -176,11 +233,11 @@ class Terminal : AppCompatActivity() {
                             DownloadFile(
                                 url =
                                     if (abi.contains("x86_64")) {
-                                        proot_x86_64
+                                        XedConstants.PROOT_X64
                                     } else if (abi.contains("arm64-v8a")) {
-                                        proot_aarch64
+                                        XedConstants.PROOT_ARM64
                                     } else if (abi.contains("armeabi-v7a")) {
-                                        proot_arm
+                                        XedConstants.PROOT_ARM
                                     } else {
                                         throw RuntimeException("Unsupported CPU")
                                     },
@@ -194,11 +251,11 @@ class Terminal : AppCompatActivity() {
                         DownloadFile(
                             url =
                                 if (abi.contains("x86_64")) {
-                                    sandbox_x86_64
+                                    XedConstants.ROOTFS_X64
                                 } else if (abi.contains("arm64-v8a")) {
-                                    sandbox_aarch64
+                                    XedConstants.ROOTFS_ARM64
                                 } else if (abi.contains("armeabi-v7a")) {
-                                    sandbox_arm
+                                    XedConstants.ROOTFS_ARM
                                 } else {
                                     throw RuntimeException("Unsupported CPU")
                                 },
@@ -226,23 +283,29 @@ class Terminal : AppCompatActivity() {
                     },
                     onComplete = { installNextStage = it },
                     onError = { error, file ->
-                        if (error is UnknownHostException) {
-                            toast(strings.network_err.getString())
-                        } else if (error is SocketTimeoutException) {
-                            errorDialog(strings.timeout)
-                        } else {
-                            error.printStackTrace()
-                            GlobalScope.launch(Dispatchers.IO) {
-                                if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
-                                    localBinDir().deleteRecursively()
-                                }
-
-                                if (file?.name == "sandbox.tar.gz") {
-                                    sandboxDir().deleteRecursively()
-                                    File(getTempDir(), "sandbox.tar.gz").delete()
-                                }
+                        when (error) {
+                            is UnknownHostException -> {
+                                toast(strings.network_err.getString())
                             }
-                            errorDialog("Setup Failed: ${error.message}")
+
+                            is SocketTimeoutException -> {
+                                errorDialog(strings.timeout)
+                            }
+
+                            else -> {
+                                error.printStackTrace()
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
+                                        localBinDir().deleteRecursively()
+                                    }
+
+                                    if (file?.name == "sandbox.tar.gz") {
+                                        sandboxDir().deleteRecursively()
+                                        File(getTempDir(), "sandbox.tar.gz").delete()
+                                    }
+                                }
+                                errorDialog("Setup failed: ${error.message}")
+                            }
                         }
                         finish()
                     },
@@ -254,29 +317,54 @@ class Terminal : AppCompatActivity() {
                     errorDialog(strings.timeout)
                 } else {
                     e.printStackTrace()
-                    toast("Setup Failed: ${e.message}")
+                    toast("Setup failed: ${e.message}")
                 }
                 finish()
             }
         }
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            val context = LocalContext.current
+            val activity = context as? Activity
+
+            DisposableEffect(Unit) {
+                activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+                onDispose { activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
+            }
+
             if (installNextStage == null) {
                 if (needsDownload) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = progressText, style = MaterialTheme.typography.bodyLarge)
-                        Spacer(modifier = Modifier.height(16.dp))
+                    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(text = progressText, style = MaterialTheme.typography.bodyLarge)
 
-                        LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(0.8f))
-                        if (totalBytes > 0) {
-                            val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
-                            progress = (downloadedBytes.toFloat() / totalBytes * 1)
-                            Text(
-                                text = "${percent}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(top = 8.dp),
-                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth(0.8f))
+
+                            if (totalBytes > 0) {
+                                val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
+                                progress = downloadedBytes.toFloat() / totalBytes
+
+                                Text(
+                                    text = "$percent%",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(top = 8.dp),
+                                )
+                            }
                         }
+
+                        Text(
+                            text = stringResource(strings.warn_dont_leave_setup),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp),
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
             } else {
@@ -354,7 +442,7 @@ class Terminal : AppCompatActivity() {
                     throw Exception("Failed to download file: ${response.code}")
                 }
 
-                val body = response.body ?: throw Exception("Empty response body")
+                val body = response.body
                 val totalBytes = body.contentLength()
 
                 var downloadedBytes = 0L
@@ -375,19 +463,3 @@ class Terminal : AppCompatActivity() {
         }
     }
 }
-
-private const val talloc_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/libtalloc.so.2"
-private const val talloc_aarch64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/libtalloc.so.2"
-private const val talloc_x86_64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/libtalloc.so.2"
-private const val proot_arm = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/proot"
-private const val proot_aarch64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
-private const val proot_x86_64 = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
-
-private const val sandbox_arm =
-    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-armhf.tar.gz"
-private const val sandbox_aarch64 =
-    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-arm64.tar.gz"
-private const val sandbox_x86_64 =
-    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-amd64.tar.gz"

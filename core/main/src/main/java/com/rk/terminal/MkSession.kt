@@ -1,9 +1,6 @@
 package com.rk.terminal
 
 import android.os.Build
-import com.rk.App
-import com.rk.App.Companion.getTempDir
-import com.rk.SessionPwd
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.exec.pendingCommand
@@ -13,12 +10,12 @@ import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
-import com.rk.filetree.currentProject
 import com.rk.settings.Settings
-import com.rk.tabs.EditorTab
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.getSourceDirOfPackage
+import com.rk.utils.getTempDir
+import com.rk.utils.isFDroid
 import com.rk.xededitor.BuildConfig
-import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
@@ -73,7 +70,7 @@ object MkSession {
                     "PROMPT_DIRTRIM=2",
                     "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                     "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
-                    "FDROID=${App.isFDroid}",
+                    "FDROID=${isFDroid}",
                     "SANDBOX=${Settings.sandbox}",
                     "TMP_DIR=${getTempDir()}",
                     "TMPDIR=${getTempDir()}",
@@ -84,7 +81,7 @@ object MkSession {
                     "DISPLAY=:0",
                 )
 
-            if (!App.isFDroid) {
+            if (!isFDroid) {
                 env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
                 if (
                     Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
@@ -146,7 +143,7 @@ object MkSession {
                 localDir().absolutePath,
                 actualArgs,
                 env.toTypedArray(),
-                TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
+                Settings.terminal_scrollback_buffer,
                 sessionClient,
             ) to workingDir
         }
@@ -163,22 +160,36 @@ suspend fun Terminal.getPwd(): String {
         return intent.getStringExtra("cwd").toString()
     }
 
+    val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab
     if (Settings.project_as_pwd) {
-        if (currentProject != null && currentProject is FileWrapper) {
-            val absolutePath = currentProject!!.getAbsolutePath()
-            return if (Settings.sandbox) {
-                absolutePath.removePrefix(localDir().absolutePath)
-            } else {
-                absolutePath
-            }
-        }
-    } else {
-        MainActivity.instance?.viewModel?.currentTab?.let {
+        //        if (currentProject != null && currentProject is FileWrapper) {
+        //            val absolutePath = currentProject!!.getAbsolutePath()
+        //            return if (Settings.sandbox) {
+        //                absolutePath.removePrefix(localDir().absolutePath)
+        //            } else {
+        //                absolutePath
+        //            }
+        //        }
+
+        currentTab?.let {
             if (it is EditorTab && it.file is FileWrapper) {
                 val parent = it.file.getParentFile()
                 if (parent != null && parent is FileWrapper) {
                     return if (Settings.sandbox) {
-                        parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
+                        parent.getAbsolutePath().removePrefix(localDir().absolutePath)
+                    } else {
+                        parent.getAbsolutePath()
+                    }
+                }
+            }
+        }
+    } else {
+        currentTab?.let {
+            if (it is EditorTab && it.file is FileWrapper) {
+                val parent = it.file.getParentFile()
+                if (parent != null && parent is FileWrapper) {
+                    return if (Settings.sandbox) {
+                        parent.getAbsolutePath().removePrefix(localDir().absolutePath)
                     } else {
                         parent.getAbsolutePath()
                     }

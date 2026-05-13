@@ -4,12 +4,13 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import com.rk.App
 import com.rk.utils.PathUtils.toPath
+import com.rk.utils.getTempDir
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
+import java.net.URL
 import java.nio.charset.Charset
 
 interface FileObject : Serializable {
@@ -20,6 +21,8 @@ interface FileObject : Serializable {
     fun isFile(): Boolean
 
     fun getName(): String
+
+    fun getExtension(): String
 
     suspend fun getParentFile(): FileObject?
 
@@ -37,13 +40,17 @@ interface FileObject : Serializable {
 
     suspend fun getInputStream(): InputStream
 
+    /**
+     * This method is required to prevent crashes caused by an unclosed stream. This can occur when using
+     * [getInputStream] because there is a suspension point before the [InputStream.use] call.
+     */
+    suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R
+
     suspend fun getOutPutStream(append: Boolean): OutputStream
 
     fun getAbsolutePath(): String
 
     suspend fun length(): Long
-
-    suspend fun calcSize(): Long
 
     suspend fun delete(): Boolean
 
@@ -63,6 +70,8 @@ interface FileObject : Serializable {
 
     fun canExecute(): Boolean
 
+    fun lastModified(): Long
+
     suspend fun getChildForName(name: String): FileObject
 
     suspend fun readText(): String?
@@ -75,14 +84,18 @@ interface FileObject : Serializable {
 }
 
 suspend fun FileObject.copyToTempDir() = run {
-    val file = File(App.getTempDir(), getName()).createFileIfNot()
+    val file = File(getTempDir(), getName()).createFileIfNot()
 
     getInputStream().use { input -> file.outputStream().use { output -> input.copyTo(output) } }
 
     file
 }
 
-suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+    if (this.toString().startsWith("http")) {
+        return NetWrapper(URL(toString()))
+    }
+
     // First, try to resolve to a real File (for direct access when possible)
     val file = File(this.toPath())
 
@@ -100,6 +113,6 @@ suspend fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
     return UriWrapper(this, !expectedIsFile)
 }
 
-private suspend fun needsUriFallback(): Boolean {
+private fun needsUriFallback(): Boolean {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()
 }

@@ -42,12 +42,13 @@ import com.rk.components.compose.edges.StretchEdgeEffect
  * TODO: Allow horizontal stretch
  */
 @Composable
-fun NestedScrollStretch(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun NestedScrollStretch(modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable () -> Unit) {
     val invalidateTick = remember { mutableIntStateOf(0) }
     val invalidate = Runnable { invalidateTick.intValue++ }
 
     val context = LocalContext.current
     val connection = remember { NestedScrollStretchConnection(context, invalidate) }
+    connection.enabled = enabled
 
     val tmpOut = remember { FloatArray(5) }
 
@@ -98,11 +99,21 @@ private inline fun StretchEdgeEffect.draw(
 private class NestedScrollStretchConnection(context: Context, invalidate: Runnable) : NestedScrollConnection {
 
     var height = 0
+    var enabled = true
+        set(value) {
+            if (field && !value) {
+                // Release any stretch that's currently in progress so it doesn't freeze
+                topEdgeEffect.onRelease()
+                bottomEdgeEffect.onRelease()
+            }
+            field = value
+        }
 
     val topEdgeEffect = StretchEdgeEffect(context, invalidate, invalidate)
     val bottomEdgeEffect = StretchEdgeEffect(context, invalidate, invalidate)
 
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        if (!enabled) return Offset.Zero
         val availableY = available.y
         when {
             source != NestedScrollSource.UserInput || height == 0 -> return Offset.Zero
@@ -123,6 +134,7 @@ private class NestedScrollStretchConnection(context: Context, invalidate: Runnab
     }
 
     override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+        if (!enabled) return Offset.Zero
         val availableY = available.y
         when {
             source != NestedScrollSource.UserInput || height == 0 -> return Offset.Zero
@@ -149,6 +161,7 @@ private class NestedScrollStretchConnection(context: Context, invalidate: Runnab
     }
 
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+        if (!enabled) return Velocity.Zero
         if (height == 0) return Velocity.Zero
         val availableY = available.y
         if (availableY > 0f) {

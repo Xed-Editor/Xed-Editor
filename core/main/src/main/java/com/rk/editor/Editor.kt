@@ -1,47 +1,31 @@
 package com.rk.editor
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.text.InputType
 import android.util.AttributeSet
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.unit.Density
-import com.google.gson.JsonArray
-import com.google.gson.JsonParser
-import com.google.gson.JsonPrimitive
-import com.rk.file.FileType
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.dp
 import com.rk.settings.Settings
-import com.rk.theme.currentTheme
-import com.rk.utils.application
+import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
+import com.rk.settings.editor.LineEnding
 import com.rk.utils.errorDialog
-import com.rk.utils.isDarkMode
-import io.github.rosemoe.sora.lang.Language
-import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
-import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
-import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
-import io.github.rosemoe.sora.lsp.editor.text.MarkdownCodeHighlighterRegistry
-import io.github.rosemoe.sora.lsp.editor.text.withEditorHighlighter
+import io.github.rosemoe.sora.text.CharPosition
+import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.TextActionItem
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import java.io.ByteArrayInputStream
-import java.io.InputStreamReader
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import org.eclipse.tm4e.core.registry.IThemeSource
+import org.ec4j.core.ResourceProperties
+import org.ec4j.core.model.PropertyType
 
 @Suppress("NOTHING_TO_INLINE")
 class Editor : CodeEditor {
@@ -52,227 +36,101 @@ class Editor : CodeEditor {
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     private val scope = CoroutineScope(Dispatchers.Default)
-    private val themeRegistry: ThemeRegistry = ThemeRegistry()
+
+    var lineEnding = LineEnding.LF
+    var insertFinalNewline = false
+    var trimTrailingWhitespace = false
+
+    data class PatchArgs(
+        val isDarkMode: Boolean,
+        val editorSurface: Int,
+        val surfaceContainer: Int,
+        val highSurfaceContainer: Int,
+        val onSurface: Int,
+        val colorPrimary: Int,
+        val selectionBg: Int,
+        val handleColor: Int,
+        val gutterColor: Int,
+        val currentLine: Int,
+        val dividerColor: Int,
+        val errorColor: Int,
+    )
 
     init {
         applyFont()
         applySettings()
-        lineNumberMarginLeft = 9f
 
-        getComponent<EditorAutoCompletion>(EditorAutoCompletion::class.java).apply {
-            val metrics = context.resources.displayMetrics
-            val density = Density(density = metrics.density, fontScale = context.resources.configuration.fontScale)
+        getComponent(EditorAutoCompletion::class.java).setEnabledAnimation(true)
+    }
 
-            setAdapter(AutoCompletionLayoutAdapter(density))
-        }
+    fun setThemeColors(isDarkMode: Boolean, selectionColors: TextSelectionColors, colorScheme: ColorScheme) {
+        val surfaceColor = if (isDarkMode) colorScheme.surfaceDim else colorScheme.surface
+        val surfaceContainer = colorScheme.surfaceContainer
+        val highSurfaceContainer = colorScheme.surfaceContainerHigh
+        val onSurfaceColor = colorScheme.onSurface
+        val colorPrimary = colorScheme.primary
+        val divider = colorScheme.outlineVariant
+        val errorColor = colorScheme.error
+
+        val selectionBackground = selectionColors.backgroundColor
+        val handleColor = selectionColors.handleColor
+
+        val gutterColor = colorScheme.surfaceColorAtElevation(1.dp)
+        val currentLineColor = colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
+
+        setThemeColors(
+            isDarkMode = isDarkMode,
+            editorSurface = surfaceColor.toArgb(),
+            surfaceContainer = surfaceContainer.toArgb(),
+            highSurfaceContainer = highSurfaceContainer.toArgb(),
+            onSurface = onSurfaceColor.toArgb(),
+            colorPrimary = colorPrimary.toArgb(),
+            selectionBg = selectionBackground.toArgb(),
+            handleColor = handleColor.toArgb(),
+            gutterColor = gutterColor.toArgb(),
+            currentLine = currentLineColor.toArgb(),
+            dividerColor = divider.toArgb(),
+            errorColor = errorColor.toArgb(),
+        )
     }
 
     fun setThemeColors(
         isDarkMode: Boolean,
         editorSurface: Int,
         surfaceContainer: Int,
-        surface: Int,
-        onSurface: Int,
         highSurfaceContainer: Int,
+        onSurface: Int,
         colorPrimary: Int,
-        colorPrimaryContainer: Int,
-        colorSecondary: Int,
-        secondaryContainer: Int,
         selectionBg: Int,
         handleColor: Int,
         gutterColor: Int,
         currentLine: Int,
         dividerColor: Int,
+        errorColor: Int,
     ) {
-        updateColors { colors ->
-            with(colors) {
-                setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+        val patchArgs =
+            PatchArgs(
+                isDarkMode,
+                editorSurface,
+                surfaceContainer,
+                highSurfaceContainer,
+                onSurface,
+                colorPrimary,
+                selectionBg,
+                handleColor,
+                gutterColor,
+                currentLine,
+                dividerColor,
+                errorColor,
+            )
 
-                fun EditorColorScheme.setColors(color: Int, vararg types: Int) {
-                    types.forEach { setColor(it, color) }
-                }
-
-                setColors(editorSurface, EditorColorScheme.WHOLE_BACKGROUND)
-
-                setColors(
-                    surfaceContainer,
-                    EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND,
-                    EditorColorScheme.COMPLETION_WND_BACKGROUND,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,
-                    EditorColorScheme.SIGNATURE_BACKGROUND,
-                    EditorColorScheme.HOVER_BACKGROUND,
-                )
-
-                setColors(highSurfaceContainer, EditorColorScheme.COMPLETION_WND_ITEM_CURRENT)
-
-                setColors(
-                    onSurface,
-                    EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR,
-                    EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY,
-                    EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG,
-                    EditorColorScheme.SIGNATURE_TEXT_NORMAL,
-                    EditorColorScheme.HOVER_TEXT_NORMAL,
-                    EditorColorScheme.LINE_NUMBER,
-                    EditorColorScheme.LINE_NUMBER_CURRENT,
-                )
-
-                setColors(handleColor, EditorColorScheme.SELECTION_HANDLE)
-                setColors(
-                    selectionBg,
-                    EditorColorScheme.SELECTION_INSERT,
-                    EditorColorScheme.MATCHED_TEXT_BACKGROUND,
-                    EditorColorScheme.SELECTED_TEXT_BACKGROUND,
-                )
-                setColors(
-                    colorPrimary,
-                    EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
-                    EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
-                    EditorColorScheme.HOVER_TEXT_HIGHLIGHTED,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION,
-                    EditorColorScheme.COMPLETION_WND_TEXT_MATCHED,
-                )
-
-                setColors(setAlpha(onSurface, 0.6f), EditorColorScheme.BLOCK_LINE_CURRENT)
-                setColors(setAlpha(onSurface, 0.4f), EditorColorScheme.NON_PRINTABLE_CHAR, EditorColorScheme.BLOCK_LINE)
-                setColors(setAlpha(onSurface, 0.3f), EditorColorScheme.SCROLL_BAR_THUMB)
-                setColors(setAlpha(onSurface, 0.2f), EditorColorScheme.SCROLL_BAR_THUMB_PRESSED)
-
-                setColors(currentLine, EditorColorScheme.CURRENT_LINE)
-                setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
-                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER, EditorColorScheme.STICKY_SCROLL_DIVIDER)
-
-                val editorColors =
-                    if (isDarkMode) {
-                        currentTheme.value?.darkEditorColors
-                    } else {
-                        currentTheme.value?.lightEditorColors
-                    }
-
-                if (editorColors.isNullOrEmpty().not()) {
-                    editorColors.forEach { setColor(it.key, it.color) }
-                }
-            }
+        XedColorScheme.applyPatchesTo(colorScheme, patchArgs) // pre-apply patches
+        scope.launch {
+            // TextMate color scheme with patches
+            val createdColorScheme = ThemeManager.createColorScheme(context, patchArgs)
+            withContext(Dispatchers.Main) { colorScheme = createdColorScheme }
         }
     }
-
-    private fun setAlpha(color: Int, factor: Float): Int {
-        val a = Color.alpha(color)
-        val r = Color.red(color)
-        val g = Color.green(color)
-        val b = Color.blue(color)
-
-        val newAlpha = (a * factor).toInt().coerceIn(0, 255)
-        return Color.argb(newAlpha, r, g, b)
-    }
-
-    fun applyMarkdownHighlighting() {
-        MarkdownCodeHighlighterRegistry.global.withEditorHighlighter { languageName ->
-            val textmateScope =
-                FileType.fromMarkdownName(languageName).textmateScope ?: return@withEditorHighlighter null
-
-            Pair(loadLanguage(scope, textmateScope), colorScheme)
-        }
-    }
-
-    private fun updateColors(postAndPreColor: (EditorColorScheme) -> Unit) {
-        postAndPreColor(colorScheme)
-        scope.launch(Dispatchers.IO) {
-            val cacheKey = getCacheKey(context)
-            val cachedScheme = colorSchemeCache[cacheKey]
-
-            if (cachedScheme != null) {
-                // Use cached scheme if available
-                withContext(Dispatchers.Main) {
-                    colorScheme = cachedScheme
-                    postAndPreColor(colorScheme)
-                }
-            } else {
-                // Load and cache the scheme if not available
-                val darkTheme = cacheKey.startsWith("dark")
-                val amoled = cacheKey.endsWith("true")
-
-                val themeModel =
-                    when {
-                        darkTheme && amoled -> buildThemeModel("textmate/black/darcula.json", "darcula.json", true)
-                        darkTheme -> buildThemeModel("textmate/darcula.json", "darcula.json", true)
-                        else -> buildThemeModel("textmate/quietlight.json", "quietlight.json", false)
-                    }
-
-                themeRegistry.loadTheme(themeModel)
-
-                val colors = TextMateColorScheme.create(themeRegistry)
-
-                // Cache the scheme
-                colorSchemeCache[cacheKey] = colors
-
-                withContext(Dispatchers.Main) {
-                    colorScheme = colors
-                    postAndPreColor(colorScheme)
-                }
-            }
-        }
-    }
-
-    /**
-     * Build a [ThemeModel] by applying the user's theme onto a base theme that serves as a fallback.
-     *
-     * The method:
-     * 1. Reads the JSON base theme file from the specified asset path.
-     * 2. Merges additional token colors from the currently selected app theme.
-     * 3. Converts the modified JSON back into a byte stream and builds a [ThemeModel].
-     *
-     * @param basePath The relative path of the base theme file inside the app's assets directory.
-     * @param baseName The logical name of the theme (used when creating the [ThemeModel]).
-     * @param darkTheme Whether to apply the dark variant of the current app theme’s token colors.
-     * @return A [ThemeModel] representing the base theme (as a fallback) merged with the user's theme.
-     */
-    private suspend fun buildThemeModel(basePath: String, baseName: String, darkTheme: Boolean) =
-        withContext(Dispatchers.IO) {
-            val inputStream = context.assets.open(basePath)
-            InputStreamReader(inputStream).use { reader ->
-                val jsonElement = JsonParser.parseReader(reader)
-                val jsonObject = jsonElement.asJsonObject
-
-                val selectedTheme = currentTheme.value
-                val tokenArray =
-                    when {
-                        selectedTheme == null -> JsonArray()
-                        darkTheme -> selectedTheme.darkTokenColors
-                        else -> selectedTheme.lightTokenColors
-                    }
-
-                // In some TextMate theme files the token colors are saved in an array
-                // called settings and in some it's called tokenColors
-                val arrayName =
-                    if (jsonObject.has("settings")) {
-                        "settings"
-                    } else if (jsonObject.has("tokenColors")) {
-                        "tokenColors"
-                    } else null
-
-                selectedTheme?.let { jsonObject.add("name", JsonPrimitive(it.name)) }
-
-                if (!tokenArray.isEmpty) {
-                    if (arrayName != null) {
-                        if (selectedTheme!!.inheritBase) {
-                            val existingTokenColors = jsonObject[arrayName].asJsonArray
-                            existingTokenColors.addAll(tokenArray)
-                        } else {
-                            jsonObject.remove(arrayName)
-                            jsonObject.add(arrayName, tokenArray)
-                        }
-                    } else {
-                        jsonObject.add("tokenColors", tokenArray)
-                    }
-                }
-
-                val bytes = jsonObject.toString().toByteArray(Charsets.UTF_8)
-                val bais = ByteArrayInputStream(bytes)
-                ThemeModel(IThemeSource.fromInputStream(bais, baseName, null))
-            }
-        }
 
     override fun release() {
         scope.cancel()
@@ -291,20 +149,35 @@ class Editor : CodeEditor {
         val keyboardSuggestion = Settings.show_suggestions
         val lineSpacing = Settings.line_spacing
         val renderWhitespace = Settings.render_whitespace
+        val hideSoftKbd = Settings.hide_soft_keyboard_if_hardware
+        val lineEndingSetting = Settings.line_ending
+        val finalNewline = Settings.insert_final_newline
+        val trailingWhitespace = Settings.trim_trailing_whitespace
+        val completeOnEnter = Settings.complete_on_enter
+        val autoClosingBracket = Settings.auto_closing_bracket
+        val showMinimap = Settings.show_minimap
 
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
         props.deleteEmptyLineFast = fastDelete
         props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
+        props.selectCompletionItemOnEnterForSoftKbd = completeOnEnter
+        props.symbolPairAutoCompletion = autoClosingBracket
+        props.showMinimap = showMinimap
         setPinLineNumber(pinLineNumber)
         isLineNumberEnabled = showLineNumber
         isCursorAnimationEnabled = cursorAnimation
         setTextSize(textSize.toFloat())
-        isWordwrap = wordWrap
+        setWordwrap(wordWrap, true, true)
         lineSpacingMultiplier = lineSpacing
-        isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
+        isDisableSoftKbdIfHardKbdAvailable = hideSoftKbd
         showSuggestions(keyboardSuggestion)
+
+        LineEnding.fromValue(lineEndingSetting)?.let { lineEnding = it }
+        lineSeparator = lineEnding.type
+        insertFinalNewline = finalNewline
+        trimTrailingWhitespace = trailingWhitespace
 
         val minScaleSize: Float = 6f * resources.displayMetrics.scaledDensity
         val maxScaleSize: Float = 100f * resources.displayMetrics.scaledDensity
@@ -319,17 +192,52 @@ class Editor : CodeEditor {
                     FLAG_DRAW_WHITESPACE_FOR_EMPTY_LINE or
                     FLAG_DRAW_WHITESPACE_IN_SELECTION
             } else 0
+
+        lineNumberMarginLeft = 9f
+        searcher.isEnsureOccurrenceVisible = true
+    }
+
+    fun applySettings(resourceProperties: ResourceProperties) {
+        val indentStyle: PropertyType.IndentStyleValue? =
+            resourceProperties.getValue(PropertyType.indent_style, null, false)
+        val indentSize: Int? = resourceProperties.getValue(PropertyType.indent_size, null, false)
+        val tabSize: Int? = resourceProperties.getValue(PropertyType.tab_width, null, false)
+
+        indentStyle?.let {
+            val useTabs = it == PropertyType.IndentStyleValue.tab
+            (editorLanguage as? TextMateLanguage)?.useTab(useTabs)
+        }
+
+        val actualTabSize = indentSize ?: tabSize
+        actualTabSize?.let {
+            props.deleteMultiSpaces = it
+            tabWidth = it
+        }
+
+        val endOfLine: PropertyType.EndOfLineValue? = resourceProperties.getValue(PropertyType.end_of_line, null, false)
+        lineEnding =
+            when (endOfLine) {
+                PropertyType.EndOfLineValue.cr -> LineEnding.CR
+                PropertyType.EndOfLineValue.lf -> LineEnding.LF
+                PropertyType.EndOfLineValue.crlf -> LineEnding.CRLF
+                else -> lineEnding
+            }
+        lineSeparator = lineEnding.type
+
+        insertFinalNewline = resourceProperties.getValue(PropertyType.insert_final_newline, insertFinalNewline, false)
+        trimTrailingWhitespace =
+            resourceProperties.getValue(PropertyType.trim_trailing_whitespace, trimTrailingWhitespace, false)
     }
 
     fun applyFont() {
         runCatching {
-                val fontPath = Settings.selected_font_path
+                val fontPath = Settings.editor_font_path
                 val font =
                     if (fontPath.isNotEmpty()) {
-                        FontCache.getFont(context, fontPath, Settings.is_selected_font_asset)
-                            ?: FontCache.getFont(context, "fonts/Default.ttf", true)
+                        FontCache.getTypeface(context, fontPath, Settings.is_editor_font_asset)
+                            ?: FontCache.getTypeface(context, DEFAULT_EDITOR_FONT_PATH, true)
                     } else {
-                        FontCache.getFont(context, "fonts/Default.ttf", true)
+                        FontCache.getTypeface(context, DEFAULT_EDITOR_FONT_PATH, true)
                     }
 
                 typefaceText = font ?: Typeface.DEFAULT
@@ -347,87 +255,16 @@ class Editor : CodeEditor {
             }
     }
 
-    companion object {
-        private val completionFuture = CompletableDeferred<Unit>()
+    suspend fun setLanguage(textmateScope: String) {
+        val language = LanguageManager.createLanguage(textmateScope)
+        language.useTab(Settings.actual_tabs)
 
-        private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
-        private val highlightingCache = hashMapOf<String, TextMateLanguage>()
-
-        private fun getCacheKey(context: Context): String {
-            val darkTheme =
-                when (Settings.default_night_mode) {
-                    AppCompatDelegate.MODE_NIGHT_YES -> true
-                    AppCompatDelegate.MODE_NIGHT_NO -> false
-                    else -> isDarkMode(context)
-                }
-
-            val prefix = if (darkTheme) "dark" else "light"
-
-            // do not change order of prefix and amoled
-            return buildString {
-                append(prefix)
-                append('_')
-                append(Settings.theme)
-                append('_')
-                append(currentTheme.value?.darkEditorColors.hashCode())
-                append('_')
-                append(currentTheme.value?.lightEditorColors.hashCode())
-                append('_')
-                append(currentTheme.value?.darkTokenColors.hashCode())
-                append('_')
-                append(currentTheme.value?.lightTokenColors.hashCode())
-                append('_')
-                append(Settings.amoled)
-            }
+        if (Settings.textmate_suggestions) {
+            val keywords = KeywordManager.getKeywords(textmateScope)
+            keywords?.let { language.setCompleterKeywords(it.toTypedArray()) }
         }
 
-        suspend fun initGrammarRegistry() =
-            withContext(Dispatchers.IO) {
-                if (!completionFuture.isCompleted) {
-                    FileProviderRegistry.getInstance().addFileProvider(AssetsFileResolver(application!!.assets))
-                    GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-
-                    completionFuture.complete(Unit)
-                }
-            }
-    }
-
-    private val langMutex = Mutex()
-
-    suspend fun setLanguage(languageScopeName: String) =
-        withContext(Dispatchers.IO) {
-            langMutex.withLock {
-                if (!completionFuture.isCompleted) {
-                    completionFuture.await()
-                }
-
-                delay(100)
-
-                val language = loadLanguage(this, languageScopeName)
-
-                language.useTab(Settings.actual_tabs)
-
-                withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
-            }
-        }
-
-    fun loadLanguage(scope: CoroutineScope, languageScopeName: String): TextMateLanguage {
-        return highlightingCache.getOrPut(getCacheKey(context) + languageScopeName) {
-            TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
-                if (Settings.textmate_suggestion) {
-                    scope.launch {
-                        context.assets.open("textmate/keywords.json").use {
-                            JsonParser.parseReader(InputStreamReader(it))
-                                .asJsonObject[languageScopeName]
-                                ?.asJsonArray
-                                ?.map { el -> el.asString }
-                                ?.toTypedArray()
-                                ?.let(::setCompleterKeywords)
-                        }
-                    }
-                }
-            }
-        }
+        withContext(Dispatchers.Main) { setEditorLanguage(language) }
     }
 
     /**
@@ -446,5 +283,53 @@ class Editor : CodeEditor {
      */
     fun unregisterTextAction(item: TextActionItem) {
         textActionWindow.unregisterTextAction(item)
+    }
+
+    /**
+     * Retrieves the currently selected text in the editor.
+     *
+     * @return The selected text or `null` if no text is currently selected.
+     */
+    fun getSelectedText(): String? {
+        if (!isTextSelected) return null
+
+        val selectionStart = cursorRange.startIndex
+        val selectionEnd = cursorRange.endIndex
+        return text.substring(selectionStart, selectionEnd)
+    }
+
+    companion object {
+        private val uriRegex =
+            Regex(
+                "([a-z0-9+.-]+):(?:\\/\\/(?:((?:[a-z0-9-._~!\$&'()*+,;=:]|%[0-9A-F]{2})*)@)?((?:[a-z0-9-._~!\$&'()*+,;=]|%[0-9A-F]{2})*)(?::(\\d*))?(\\/(?:[a-z0-9-._~!\$&'()*+,;=:@/]|%[0-9A-F]{2})*)?|(\\/?(?:[a-z0-9-._~!\$&'()*+,;=:@]|%[0-9A-F]{2})+(?:[a-z0-9-._~!\$&'()*+,;=:@/]|%[0-9A-F]{2})*)?)(?:\\?((?:[a-z0-9-._~!\$&'()*+,;=:/?@]|%[0-9A-F]{2})*))?(?:#((?:[a-z0-9-._~!\$&'()*+,;=:/?@]|%[0-9A-F]{2})*))?"
+            )
+        private val urlRegex =
+            Regex(
+                "(?i)https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&/=]*)"
+            )
+    }
+
+    /**
+     * Overrides the default word range detection to prioritize identifying URIs at the given position before falling
+     * back to standard word boundaries.
+     */
+    override fun getWordRange(line: Int, column: Int, useIcu: Boolean): TextRange? {
+        val urls = uriRegex.findAll(text.getLine(line))
+        val foundUrl = urls.find { column in it.range.first..it.range.last }
+        if (foundUrl != null) {
+            return TextRange(CharPosition(line, foundUrl.range.first), CharPosition(line, foundUrl.range.last + 1))
+        }
+
+        return super.getWordRange(line, column, useIcu)
+    }
+
+    /**
+     * Returns whether a URL is selected in the editor.
+     *
+     * @return True if a valid URL is selected, false otherwise.
+     */
+    fun isUrlSelected(): Boolean {
+        val text = getSelectedText() ?: return false
+        return urlRegex.matches(text)
     }
 }

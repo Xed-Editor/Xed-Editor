@@ -7,21 +7,37 @@ sealed class SettingsRoutes(val route: String) {
 
     data object EditorSettings : SettingsRoutes("editor_settings")
 
+    data object Keybindings : SettingsRoutes("keybindings")
+
     data object TerminalSettings : SettingsRoutes("terminal_settings")
+
+    data object TerminalExtraKeys : SettingsRoutes("terminal_extra_keys")
 
     data object About : SettingsRoutes("about")
 
     data object EditorFontScreen : SettingsRoutes("editor_font_screen")
 
+    data object AppFontScreen : SettingsRoutes("app_font_screen")
+
+    data object TerminalFontScreen : SettingsRoutes("terminal_font_screen")
+
     data object DefaultEncoding : SettingsRoutes("default_encoding")
+
+    data object DefaultLineEnding : SettingsRoutes("default_line_ending")
 
     data object ToolbarActions : SettingsRoutes("toolbar_actions")
 
-    data object ManageMutators : SettingsRoutes("manage_mutators")
+    data object ExtraKeys : SettingsRoutes("extra_keys")
+
+    data object ExcludeFiles : SettingsRoutes("exclude_files")
 
     data object Extensions : SettingsRoutes("extensions")
 
+    data object ExtensionDetail : SettingsRoutes("extension_detail")
+
     data object DeveloperOptions : SettingsRoutes("developer_options")
+
+    data object AppLogs : SettingsRoutes("app_logs")
 
     data object Support : SettingsRoutes("support")
 
@@ -29,7 +45,15 @@ sealed class SettingsRoutes(val route: String) {
 
     data object Runners : SettingsRoutes("runners")
 
+    data object HtmlRunner : SettingsRoutes("html_preview")
+
     data object Themes : SettingsRoutes("theme")
 
     data object LspSettings : SettingsRoutes("lsp_settings")
+
+    data object LspServerDetail : SettingsRoutes("lsp_server_detail")
+
+    data object LspServerLogs : SettingsRoutes("lsp_server_logs")
+
+    data object Git : SettingsRoutes("git")
 }

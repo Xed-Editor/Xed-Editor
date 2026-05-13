@@ -1,19 +1,29 @@
 package com.rk.commands
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -26,19 +36,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
-import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.utils.addIf
+import com.rk.icons.XedIcon
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.Typography
@@ -50,11 +65,15 @@ fun CommandPalette(
     progress: Float,
     commands: List<Command>,
     lastUsedCommand: Command?,
-    viewModel: MainViewModel,
+    initialChildCommands: List<Command>? = null,
+    initialPlaceholder: String? = null,
     onDismissRequest: () -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+
+    var childCommands by remember { mutableStateOf(initialChildCommands) }
+    var placeholderOverride by remember { mutableStateOf(initialPlaceholder) }
 
     val sortedCommands by
         remember(commands, lastUsedCommand) {
@@ -66,16 +85,19 @@ fun CommandPalette(
             }
         }
 
+    val visibleCommands = childCommands ?: sortedCommands
+
     val filteredCommands by
-        remember(sortedCommands, searchQuery) {
+        remember(visibleCommands, searchQuery) {
             derivedStateOf {
-                sortedCommands.filter {
-                    it.label.value.contains(searchQuery, ignoreCase = true) ||
-                        it.description?.contains(searchQuery, ignoreCase = true) == true ||
+                visibleCommands.filter {
+                    it.getLabel().contains(searchQuery, ignoreCase = true) ||
                         it.prefix?.contains(searchQuery, ignoreCase = true) == true
                 }
             }
         }
+
+    val groupedCommands = filteredCommands.groupBy { it.sectionId }
 
     val offsetY = with(LocalDensity.current) { (1f - progress) * 100.dp.toPx() }
 
@@ -88,6 +110,12 @@ fun CommandPalette(
                 }
                 .imePadding(),
     ) {
+        BackHandler(enabled = childCommands != null && initialChildCommands == null) {
+            childCommands = null
+            placeholderOverride = null
+            searchQuery = ""
+        }
+
         Column(modifier = Modifier.animateContentSize()) {
             TextField(
                 value = searchQuery,
@@ -95,16 +123,54 @@ fun CommandPalette(
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                placeholder = { Text(stringResource(strings.type_command)) },
+                placeholder = {
+                    Text(
+                        if (childCommands != null && placeholderOverride != null) {
+                            placeholderOverride!!
+                        } else {
+                            stringResource(strings.type_command)
+                        }
+                    )
+                },
             )
 
             LaunchedEffect(progress) { if (progress == 1f) focusRequester.requestFocus() }
 
-            LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
-                items(items = filteredCommands, key = { it.id }) { command ->
-                    Box(modifier = Modifier.animateItem()) {
-                        val isRecentlyUsed = command == lastUsedCommand
-                        CommandItem(viewModel, command, isRecentlyUsed, onDismissRequest)
+            AnimatedContent(
+                targetState = childCommands != null,
+                transitionSpec = {
+                    if (targetState) {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
+                    } else {
+                        slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) togetherWith
+                            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
+                    }
+                },
+            ) { isSubpage ->
+                LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
+                    groupedCommands.forEach { (index, commands) ->
+                        items(items = commands, key = { it.id }) { command ->
+                            Box(modifier = Modifier.animateItem()) {
+                                val isRecentlyUsed = command == lastUsedCommand
+                                CommandItem(
+                                    command,
+                                    isRecentlyUsed,
+                                    searchQuery,
+                                    onDismissRequest,
+                                    onNavigateToChildren = { placeholder, commands ->
+                                        childCommands = commands
+                                        placeholderOverride = placeholder
+                                        searchQuery = ""
+                                    },
+                                    isSubpage = isSubpage,
+                                )
+                            }
+                        }
+
+                        if (index != groupedCommands.keys.last()) {
+                            item { HorizontalDivider() }
+                        }
                     }
                 }
             }
@@ -113,53 +179,124 @@ fun CommandPalette(
 }
 
 @Composable
-fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolean, onDismissRequest: () -> Unit) {
+fun CommandItem(
+    command: Command,
+    recentlyUsed: Boolean,
+    searchQuery: String,
+    onDismissRequest: () -> Unit,
+    onNavigateToChildren: (String?, List<Command>) -> Unit,
+    isSubpage: Boolean,
+) {
     val activity = LocalActivity.current
-    val enabled = command.isSupported.value && command.isEnabled.value
+    val enabled by remember { derivedStateOf { command.isSupported() && command.isEnabled() } }
+    val childCommands = command.childCommands
+    val keyCombination = KeybindingsManager.getKeyCombinationForCommand(command.id)
 
-    PreferenceTemplate(
-        enabled = enabled,
+    val startIndex = command.getLabel().indexOf(searchQuery, ignoreCase = true)
+    val endIndex = startIndex + searchQuery.length
+    val highlightColor = MaterialTheme.colorScheme.primary
+    val highlightedString =
+        remember(searchQuery) {
+            buildAnnotatedString {
+                append(command.getLabel())
+
+                if (startIndex != -1) {
+                    addStyle(
+                        style = SpanStyle(color = highlightColor, fontWeight = FontWeight.Bold),
+                        start = startIndex,
+                        end = endIndex,
+                    )
+                }
+            }
+        }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier =
-            Modifier.clickable(
-                enabled = enabled,
-                onClick = {
-                    onDismissRequest()
-                    Settings.last_used_command = command.id
-                    command.action(viewModel, activity)
-                },
-            ),
-        verticalPadding = 8.dp,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = command.icon.value,
-                    contentDescription = command.label.value,
-                    modifier = Modifier.padding(end = 8.dp).size(16.dp),
+            Modifier.fillMaxWidth()
+                .clickable(
+                    enabled = enabled,
+                    onClick = {
+                        Settings.last_used_command = command.id
+                        if (childCommands.isNotEmpty()) {
+                            onNavigateToChildren(command.getChildSearchPlaceholder(), childCommands)
+                        } else {
+                            onDismissRequest()
+                            command.action(ActionContext(activity!!))
+                        }
+                    },
                 )
+                .addIf(!enabled) { alpha(0.38f) }
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        XedIcon(
+            icon = command.getIcon(),
+            modifier = Modifier.size(16.dp),
+            contentDescription = command.getLabel(),
+            tint =
+                if (command is ToggleableCommand && command.isOn()) {
+                    MaterialTheme.colorScheme.primary
+                } else LocalContentColor.current,
+        )
 
+        Column(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 command.prefix?.let { Text(text = "$it: ", color = MaterialTheme.colorScheme.primary) }
-                Text(text = command.label.value)
+                Text(
+                    text = highlightedString,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color =
+                        if (command is ToggleableCommand && command.isOn()) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            Color.Unspecified
+                        },
+                )
                 if (recentlyUsed) {
                     Text(
                         text = stringResource(strings.recently_used),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
                         modifier = Modifier.padding(start = 8.dp),
                     )
                 }
             }
-        },
-        description = { command.description?.let { Text(text = it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
-        endWidget = {
-            command.keybinds?.let {
+
+            if (!isSubpage) {
+                CommandProvider.getParentCommand(command)?.getLabel()?.let {
+                    Text(
+                        text = it,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    )
+                }
+            }
+        }
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            keyCombination?.let {
                 Text(
-                    text = command.keybinds,
+                    text = keyCombination.getDisplayName(),
                     fontFamily = FontFamily.Monospace,
                     style = Typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-        },
-    )
+            if (childCommands.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.height(16.dp),
+                )
+            }
+        }
+    }
 }

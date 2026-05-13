@@ -4,23 +4,69 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Typeface
 import android.os.Build
 import android.telephony.TelephonyManager
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
+import com.rk.activities.main.gitViewModel
+import com.rk.file.BuiltinFileType
+import com.rk.file.FileObject
+import com.rk.filetree.FileTreeViewModel
+import com.rk.git.ChangeType
+import com.rk.resources.getQuantityString
 import com.rk.resources.getString
+import com.rk.resources.plurals
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.settings.app.InbuiltFeatures
+import com.rk.theme.currentTheme
+import com.rk.theme.gitAdded
+import com.rk.theme.gitConflicted
+import com.rk.theme.gitDeleted
+import com.rk.theme.gitModified
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import java.io.File
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -31,6 +77,16 @@ inline fun toast(@StringRes resId: Int) {
     toast(resId.getString())
 }
 
+suspend fun FileObject.writeObject(obj: Any) =
+    withContext(Dispatchers.IO) { ObjectOutputStream(getOutPutStream(false)).use { oos -> oos.writeObject(obj) } }
+
+suspend fun FileObject.readObject(): Any? =
+    withContext(Dispatchers.IO) {
+        ObjectInputStream(getInputStream()).use { ois ->
+            return@withContext ois.readObject()
+        }
+    }
+
 fun toast(message: String?) {
     if (message.isNullOrBlank()) {
         Log.w("UTILS", "Toast with null or empty message")
@@ -40,10 +96,20 @@ fun toast(message: String?) {
         Log.w("TOAST", message)
         return
     }
-    runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
+    runOnUiThread { Toast.makeText(application!!, message, Toast.LENGTH_SHORT).show() }
 }
 
-fun isDarkMode(ctx: Context): Boolean {
+/** Returns true if the currently selected user theme is dark. If it's set to system, the system theme is used. */
+fun isDarkTheme(ctx: Context): Boolean {
+    return when (Settings.theme_mode) {
+        AppCompatDelegate.MODE_NIGHT_YES -> true
+        AppCompatDelegate.MODE_NIGHT_NO -> false
+        else -> isSystemInDarkTheme(ctx)
+    }
+}
+
+/** Returns true if the system theme is dark. **NOTE:** Prefer [isDarkTheme] to respect user settings. */
+fun isSystemInDarkTheme(ctx: Context): Boolean {
     return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
         Configuration.UI_MODE_NIGHT_YES)
 }
@@ -69,7 +135,7 @@ fun <K> x(m: MutableCollection<K>, c: Int) {
 }
 
 fun Activity.openUrl(url: String) {
-    val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     startActivity(intent)
 }
 
@@ -98,7 +164,7 @@ fun copyToClipboard(label: String, text: String, showToast: Boolean = true) {
 }
 
 fun copyToClipboard(text: String, showToast: Boolean = true) {
-    copyToClipboard(label = "xed-editor", text, showToast = showToast)
+    copyToClipboard(label = "Xed-Editor", text, showToast = showToast)
 }
 
 fun expectOOM(requiredMemBytes: Long): Boolean {
@@ -108,7 +174,7 @@ fun expectOOM(requiredMemBytes: Long): Boolean {
     val freeMemory = runtime.freeMemory()
     val usedMemory = allocatedMemory - freeMemory
     val availableMemory = maxMemory - usedMemory
-    val safetyBuffer = 32L * 1024 * 1024 // 32MB
+    val safetyBuffer = 8L * 1024 * 1024 // 8MB
     val requiredMemory = requiredMemBytes + safetyBuffer
 
     return requiredMemory > availableMemory
@@ -138,13 +204,13 @@ fun isChinaDevice(context: Context): Boolean {
 }
 
 fun showTerminalNotice(activity: Activity, onOk: () -> Unit) {
-    if (isChinaDevice(activity) && !Settings.terminalVirusNotice) {
+    if (isChinaDevice(activity) && !Settings.terminal_virus_notice) {
         dialog(
             context = activity,
             title = strings.attention.getString(),
             msg = strings.terminal_virus_notice.getString(),
             onOk = {
-                Settings.terminalVirusNotice = true
+                Settings.terminal_virus_notice = true
                 it?.dismiss()
                 onOk()
             },
@@ -171,5 +237,242 @@ fun getSourceDirOfPackage(context: Context, packageName: String): String? {
         info.sourceDir
     } catch (e: PackageManager.NameNotFoundException) {
         null // App not found
+    }
+}
+
+fun getTempDir(): File {
+    val tmp = File(application!!.filesDir.parentFile, "tmp")
+    if (!tmp.exists()) {
+        tmp.mkdir()
+    }
+    return tmp
+}
+
+val isFDroid by lazy {
+    val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
+    targetSdkVersion == 28
+}
+
+/** Converts a [Spanned] text object to an [AnnotatedString]. */
+fun Spanned.toAnnotatedString(): AnnotatedString {
+    val builder = AnnotatedString.Builder(this.toString())
+    val spans = getSpans(0, length, Any::class.java)
+    spans.forEach { span ->
+        val start = getSpanStart(span)
+        val end = getSpanEnd(span)
+        val style =
+            when (span) {
+                is ForegroundColorSpan -> SpanStyle(color = Color(span.foregroundColor))
+                is StyleSpan ->
+                    when (span.style) {
+                        Typeface.BOLD -> SpanStyle(fontWeight = FontWeight.Bold)
+                        Typeface.ITALIC -> SpanStyle(fontStyle = FontStyle.Italic)
+                        Typeface.BOLD_ITALIC -> SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
+                        else -> null
+                    }
+                is UnderlineSpan -> SpanStyle(textDecoration = TextDecoration.Underline)
+                is StrikethroughSpan -> SpanStyle(textDecoration = TextDecoration.LineThrough)
+                else -> null
+            }
+        if (style != null) {
+            builder.addStyle(style, start, end)
+        }
+    }
+    return builder.toAnnotatedString()
+}
+
+// Helper function copied from
+// https://github.com/MohamedRejeb/compose-dnd/blob/65d48ed0f0bd83a0b01263b7e046864bdd4a9048/sample/common/src/commonMain/kotlin/utils/ScrollUtils.kt
+suspend fun handleLazyListScroll(lazyListState: LazyListState, dropIndex: Int): Unit = coroutineScope {
+    val firstVisibleItemIndex = lazyListState.firstVisibleItemIndex
+    val firstVisibleItemScrollOffset = lazyListState.firstVisibleItemScrollOffset
+
+    // Workaround to fix scroll issue when dragging the first item
+    if (dropIndex == 0 || dropIndex == 1) {
+        launch { lazyListState.scrollToItem(firstVisibleItemIndex, firstVisibleItemScrollOffset) }
+    }
+
+    // Animate scroll when entering the first or last item
+    val lastVisibleItemIndex = lazyListState.firstVisibleItemIndex + lazyListState.layoutInfo.visibleItemsInfo.lastIndex
+
+    val firstVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.firstOrNull() ?: return@coroutineScope
+    val scrollAmount = firstVisibleItem.size * 2f
+
+    if (dropIndex <= firstVisibleItemIndex + 1) {
+        launch { lazyListState.animateScrollBy(-scrollAmount) }
+    } else if (dropIndex == lastVisibleItemIndex) {
+        launch { lazyListState.animateScrollBy(scrollAmount) }
+    }
+}
+
+@Composable
+fun getUnderlineColor(context: Context, fileTreeViewModel: FileTreeViewModel, file: FileObject?): Color? {
+    val diagnosticSeverity = file?.let { fileTreeViewModel.getNodeSeverity(it) } ?: -1
+    val editorColors =
+        if (isDarkTheme(context)) {
+            currentTheme.value?.darkEditorColors
+        } else {
+            currentTheme.value?.lightEditorColors
+        }
+    val underlineColor =
+        when (diagnosticSeverity) {
+            1 -> {
+                editorColors?.find { it.key == EditorColorScheme.PROBLEM_TYPO }?.color?.let { Color(it) }
+                    ?: Color(0x6600ff11) // Color was taken from EditorColorScheme.java
+            }
+            2 -> {
+                editorColors?.find { it.key == EditorColorScheme.PROBLEM_WARNING }?.color?.let { Color(it) }
+                    ?: Color(0xaafff100) // Color was taken from EditorColorScheme.java
+            }
+            3 -> {
+                editorColors?.find { it.key == EditorColorScheme.PROBLEM_ERROR }?.color?.let { Color(it) }
+                    ?: MaterialTheme.colorScheme.error
+            }
+            else -> null
+        }
+
+    return underlineColor
+}
+
+fun Modifier.drawErrorUnderline(errorColor: Color): Modifier = drawBehind {
+    val strokeWidth = 3f
+    val waveOffset = 5f
+    val waveHeight = 6f
+    val waveLength = 20f
+
+    val path = Path()
+    var x = 0f
+    val y = size.height + waveOffset - strokeWidth
+    var up = true
+
+    path.moveTo(0f, y)
+
+    while (x < size.width) {
+        val remaining = size.width - x
+        val segment = minOf(waveLength / 2, remaining)
+
+        val controlX = x + segment / 2
+        val endX = x + segment
+
+        val controlY = if (up) y - waveHeight else y + waveHeight
+
+        path.quadraticTo(controlX, controlY, endX, y)
+
+        up = !up
+        x = endX
+    }
+
+    drawPath(path = path, color = errorColor, style = Stroke(width = strokeWidth, cap = StrokeCap.Round))
+}
+
+@Composable
+fun getGitColor(file: FileObject?): Color? {
+    if (!InbuiltFeatures.git.state.value || !Settings.git_colorize_names) return null
+    val gitChangeType = file?.let { gitViewModel.get()?.getChangeType(file.getAbsolutePath()) } ?: return null
+    return getGitColor(gitChangeType)
+}
+
+@Composable
+fun getGitColor(changeType: ChangeType): Color =
+    when (changeType) {
+        ChangeType.ADDED,
+        ChangeType.UNTRACKED -> MaterialTheme.colorScheme.gitAdded
+        ChangeType.DELETED -> MaterialTheme.colorScheme.gitDeleted
+        ChangeType.CONFLICTING -> MaterialTheme.colorScheme.gitConflicted
+        ChangeType.MODIFIED -> MaterialTheme.colorScheme.gitModified
+    }
+
+suspend fun findGitRoot(path: String): String? =
+    withContext(Dispatchers.IO) {
+        val startDir = File(path).let { if (it.isDirectory) it else it.parentFile }
+        val repo = FileRepositoryBuilder().findGitDir(startDir).takeIf { it.gitDir != null }?.build()
+        repo?.workTree?.canonicalPath
+    }
+
+fun hasBinaryChars(text: String): Boolean {
+    val threshold = 0.3
+    val checkedCharacters = 1024
+
+    val checkText = text.take(checkedCharacters)
+    if (checkText.isEmpty()) return false
+
+    // Null character
+    if (checkText.any { it.code == 0 }) return true
+
+    // Amount of unusual control characters
+    val unusualCharCount =
+        checkText.count { c -> c.isISOControl() && c.code != 9 && c.code != 10 && c.code != 12 && c.code != 13 }
+
+    // If the amount of unusual control chars in the file content is over 30%
+    return unusualCharCount.toDouble() / checkText.length > threshold
+}
+
+private val binaryExtensions: Set<String> =
+    (BuiltinFileType.IMAGE.extensions +
+            BuiltinFileType.AUDIO.extensions +
+            BuiltinFileType.VIDEO.extensions +
+            BuiltinFileType.ARCHIVE.extensions +
+            BuiltinFileType.APK.extensions +
+            BuiltinFileType.EXECUTABLE.extensions)
+        .map { it.lowercase() }
+        .toSet()
+
+fun isBinaryExtension(fileExt: String): Boolean {
+    return fileExt.lowercase() in binaryExtensions
+}
+
+fun formatFileSize(bytes: Long): String {
+    if (bytes < 1024) return "$bytes B"
+    val kb = bytes / 1024.0
+    if (kb < 1024) return String.format(Locale.getDefault(), "%.1f KB", kb)
+    val mb = kb / 1024.0
+    if (mb < 1024) return String.format(Locale.getDefault(), "%.1f MB", mb)
+    val gb = mb / 1024.0
+    return String.format(Locale.getDefault(), "%.1f GB", gb)
+}
+
+fun formatNumberCompact(number: Int): String {
+    if (number < 1000) return number.toString()
+
+    val suffix = arrayOf("k", "m", "b")
+    var value = number.toDouble()
+    var index = -1
+
+    while (value >= 1000 && index < suffix.lastIndex) {
+        value /= 1000
+        index++
+    }
+
+    return String.format("%.1f%s", value, suffix[index]).replace(".0", "")
+}
+
+@Composable
+fun rememberNumberFormatter(): NumberFormat {
+    return remember { NumberFormat.getNumberInstance() }
+}
+
+/** Parses a string of comma or space-separated file extensions into a uniform list of extensions (without the dot). */
+fun parseExtensions(input: String): List<String> {
+    return input.split(",", " ").map { it.trim().trimStart('.') }.filter { it.isNotEmpty() }
+}
+
+fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
+    if (startTimeMillis == -1L) return null
+
+    val diff = (currentTimeMillis - startTimeMillis)
+    if (diff < 0) return null
+
+    val seconds = (diff / 1000).toInt()
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    val days = hours / 24
+
+    if (seconds < 1) return strings.time_just_now.getString()
+
+    return when {
+        seconds < 60 -> plurals.time_seconds_ago.getQuantityString(seconds, seconds)
+        minutes < 60 -> plurals.time_minutes_ago.getQuantityString(minutes, minutes)
+        hours < 24 -> plurals.time_hours_ago.getQuantityString(hours, hours)
+        else -> plurals.time_days_ago.getQuantityString(days, days)
     }
 }

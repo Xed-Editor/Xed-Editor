@@ -1,48 +1,40 @@
 package com.rk.lsp.servers
 
 import android.content.Context
-import com.rk.file.FileObject
-import com.rk.lsp.BaseLspConnector
-import com.rk.lsp.BaseLspServer
+import com.rk.file.FileTypeManager
 import com.rk.lsp.LspConnectionConfig
-import java.net.URI
-import kotlin.String
+import com.rk.lsp.LspServer
 import kotlin.random.Random
 
 // DO not put this in lsp registry
 class ExternalSocketServer(
-    override val languageName: String,
     val host: String,
     val port: Int,
     override val supportedExtensions: List<String>,
-) : BaseLspServer() {
+    override val id: String = "${supportedExtensions.firstOrNull()}_${Random.nextInt()}",
+) : LspServer() {
+    override val languageName = supportedExtensions.firstOrNull()?.let { FileTypeManager.fromExtension(it).title } ?: ""
 
-    override val id: String = "${languageName}_${Random.nextInt()}"
-    override val serverName: String = "$host:$port"
+    override val serverName = "$host:$port"
+    override val icon = supportedExtensions.firstOrNull()?.let { FileTypeManager.fromExtension(it).icon }
+    override val canBeUninstalled = false
 
-    override fun isInstalled(context: Context): Boolean {
+    override suspend fun isInstalled(context: Context): Boolean {
         return true
     }
 
     override fun install(context: Context) {}
 
+    override fun uninstall(context: Context) {}
+
+    override suspend fun isUpdatable(context: Context): Boolean {
+        return false
+    }
+
+    override fun update(context: Context) {}
+
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Socket(host = host, port = port)
-    }
-
-    override suspend fun beforeConnect() {}
-
-    override suspend fun connectionSuccess(lspConnector: BaseLspConnector) {}
-
-    override suspend fun connectionFailure(msg: String?) {}
-
-    override fun isSupported(file: FileObject): Boolean {
-        val fileExt = file.getName().substringAfterLast(".")
-        return supportedExtensions.contains(fileExt)
-    }
-
-    override fun getInitializationOptions(uri: URI?): Any? {
-        return null
     }
 
     override fun toString(): String {
@@ -50,17 +42,30 @@ class ExternalSocketServer(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is ExternalSocketServer) {
-            return false
-        }
-        return other.port == port && other.host == host && supportedExtensions.containsAll(other.supportedExtensions)
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as ExternalSocketServer
+
+        if (port != other.port) return false
+        if (icon != other.icon) return false
+        if (host != other.host) return false
+        if (supportedExtensions != other.supportedExtensions) return false
+        if (languageName != other.languageName) return false
+        if (id != other.id) return false
+        if (serverName != other.serverName) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        var result = port
-        result = 31 * result + languageName.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + port
+        result = 31 * result + (icon ?: 0)
         result = 31 * result + host.hashCode()
         result = 31 * result + supportedExtensions.hashCode()
+        result = 31 * result + languageName.hashCode()
         result = 31 * result + id.hashCode()
         result = 31 * result + serverName.hashCode()
         return result

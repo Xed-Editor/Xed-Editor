@@ -13,6 +13,12 @@
       "languageConfiguration": "textmate/asm/language-configuration.json"
     },
     {
+      "grammar": "textmate/cmake/syntaxes/cmake.tmLanguage.json",
+      "name": "CMake",
+      "scopeName": "source.cmake",
+      "languageConfiguration": "textmate/cmake/language-configuration.json"
+    },
+    {
       "grammar": "textmate/pascal/Pascal.tmLanguage.json",
       "name": "Pascal",
       "scopeName": "source.pascal",
@@ -83,6 +89,12 @@
       "name": "python",
       "scopeName": "source.python",
       "languageConfiguration": "textmate/python/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/r/syntaxes/r.tmLanguage.json",
+      "name": "R",
+      "scopeName": "source.r",
+      "languageConfiguration": "textmate/r/language-configuration.json"
     },
     {
       "grammar": "textmate/ruby/syntaxes/ruby.tmLanguage.json",
@@ -231,6 +243,12 @@
       "languageConfiguration": "textmate/csharp/language-configuration.json"
     },
     {
+      "name": "diff",
+      "scopeName": "source.diff",
+      "grammar": "textmate/diff/syntaxes/diff.tmLanguage.json",
+      "languageConfiguration": "textmate/diff/language-configuration.json"
+    },
+    {
       "name": "go",
       "scopeName": "source.go",
       "grammar": "textmate/go/syntaxes/go.tmLanguage.json",
@@ -285,7 +303,7 @@
       "grammar": "textmate/lisp/syntaxes/lisp.tmLanguage.json",
       "languageConfiguration": "textmate/lisp/language-configuration.json"
     },
-     {
+    {
       "name": "sql",
       "scopeName": "source.sql",
       "grammar": "textmate/sql/syntaxes/sql.tmLanguage.json",

@@ -1,7 +1,7 @@
 package com.rk
 
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.activities.main.MainActivity
 import com.rk.resources.getString
@@ -51,10 +51,8 @@ object UpdateChecker {
                 val request = Request.Builder().url(url).build()
 
                 client.newCall(request).execute().use { response ->
-                    val jsonResponse = response.body?.string()
-                    if (jsonResponse != null) {
-                        parseJson(jsonResponse)
-                    }
+                    val jsonResponse = response.body.string()
+                    parseJson(jsonResponse)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -107,7 +105,7 @@ object UpdateChecker {
                         setMessage(updates.joinToString("\n"))
                         setPositiveButton(strings.update.getString()) { _, _ ->
                             val url = "https://github.com/Xed-Editor/Xed-Editor"
-                            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                            val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                             context.startActivity(intent)
                         }
                         setNegativeButton(strings.ignore.getString(), null)

@@ -1,6 +1,5 @@
 package com.rk.components
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
@@ -25,12 +25,19 @@ fun BasicToggle(
     description: String? = null,
     checked: Boolean,
     onSwitch: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    startWidget: (@Composable () -> Unit)? = null,
+    endWidget: (@Composable () -> Unit)? = null,
 ) {
     PreferenceSwitch(
         checked = checked,
         description = description,
         onCheckedChange = { onSwitch.invoke(it) },
         label = label,
+        enabled = enabled,
+        modifier = modifier,
+        startWidget = startWidget,
+        endWidget = endWidget,
     )
 }
 
@@ -42,23 +49,21 @@ fun SettingsToggle(
     default: Boolean,
     state: MutableState<Boolean> = remember { mutableStateOf(default) },
     description: String? = null,
-    @DrawableRes iconRes: Int? = null,
+    singleLineDescription: Boolean = false,
     reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
+    onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     isEnabled: Boolean = true,
     isSwitchLocked: Boolean = false,
     startWidget: (@Composable () -> Unit)? = null,
     endWidget: (@Composable () -> Unit)? = null,
 ) {
-    if (showSwitch && endWidget != null) {
-        throw IllegalStateException("endWidget with show switch")
-    }
-
     if (showSwitch) {
         PreferenceSwitch(
             checked = state.value,
+            onClick = onClick,
             onLongClick = onLongClick,
             onCheckedChange = {
                 if (isSwitchLocked.not()) {
@@ -70,9 +75,12 @@ fun SettingsToggle(
                     sideEffect?.invoke(state.value)
                 }
             },
+            startWidget = startWidget,
+            endWidget = endWidget,
             label = label,
             modifier = modifier,
             description = description,
+            singleLineDescription = singleLineDescription,
             enabled = isEnabled,
         )
     } else {
@@ -84,11 +92,19 @@ fun SettingsToggle(
                     indication = ripple(),
                     interactionSource = interactionSource,
                     onLongClick = onLongClick,
-                    onClick = { sideEffect?.invoke(false) },
+                    onClick = { onClick?.invoke() ?: sideEffect?.invoke(false) },
                 ),
             contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
             title = { Text(fontWeight = FontWeight.Bold, text = label) },
-            description = { description?.let { Text(text = it) } },
+            description = {
+                description?.let {
+                    Text(
+                        text = it,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = if (singleLineDescription) 1 else Int.MAX_VALUE,
+                    )
+                }
+            },
             enabled = isEnabled,
             applyPaddings = false,
             endWidget = endWidget,

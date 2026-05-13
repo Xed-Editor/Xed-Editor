@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"
+        tools:node="remove" />
 
     <queries>
         <package android:name="com.github.android" />
@@ -43,7 +46,7 @@
             tools:targetApi="29" />
 
         <service
-            android:name="com.rk.SessionService"
+            android:name="com.rk.terminal.SessionService"
             android:foregroundServiceType="specialUse" />
 
         <activity
@@ -95,13 +98,9 @@
             android:exported="false"
             tools:ignore="Instantiatable" />
         <activity
-            android:name="com.rk.runner.runners.web.WebActivity"
-            android:exported="false" />
-        <activity
             android:name="com.rk.activities.terminal.Terminal"
             android:exported="true"
             android:label="Terminal"
-            android:taskAffinity="com.rk.activities.terminal.Terminal"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>

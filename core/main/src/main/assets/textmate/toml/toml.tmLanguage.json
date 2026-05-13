@@ -1,6 +1,8 @@
 {
   "name": "TOML",
-  "fileTypes": ["toml"],
+  "fileTypes": [
+    "toml"
+  ],
   "patterns": [
     {
       "name": "comment.line.number-sign.toml",

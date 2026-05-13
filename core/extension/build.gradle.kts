@@ -1,6 +1,7 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktfmt)
 }
 
@@ -30,13 +31,12 @@ android {
 }
 
 dependencies {
-    implementation(libs.core.ktx)
-
+    implementation(libs.androidx.core.ktx)
     implementation(libs.gson)
     implementation(libs.okhttp)
-    implementation(libs.compose.runtime)
-
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.espresso)
 }

@@ -1,0 +1,148 @@
+fix: inverted snackbar color
+feat: refactor extension system (#1340)
+style: reorder imports and remove debug println
+feat: add toggle for exit confirmation dialog (Closes #1332)
+feat: add auto-closing bracket setting (#1333)
+fix: remove issue title workflow
+Added translation using Weblate (Dutch)
+style: auto-format Kotlin with ktfmt
+fix: lsp server config
+feat: implement plugin download
+feat: improved caching
+feat: use new extension registry
+feat: add integrated color picker (#1280)
+fix: ensure keyboard is hidden on terminal screen disposal
+feat: add integrated color picker and improve terminal navigation
+feat: enhance properties, use slider and migrate from Gson (#1279)
+feat: fix LSP persistence migration issues
+feat: replace Gson with Kotlin Serialization and migrate LSP storage
+feat: refactor `ValueSlider` and improve settings screens
+feat: enhance properties dialog with Git status and file information
+chore: enhance file drawer and remove debug extension (#1278)
+chore: enhance file drawer and remove debug extensions
+perf: optimize code search and indexing in `SearchViewModel` (#1277)
+fix: preserve insertion order in code search results
+fix: fix code search crashes and improve file stream handling
+perf: optimize code search and indexing in `SearchViewModel`
+ci: safely handle commit messages in Telegram uploads (#1276)
+ci: safely handle commit messages in Telegram uploads
+feat(terminal): fix terminal focus issue & modernize (#1275)
+feat: extend terminal settings and customization
+refactor(terminal): replace legacy `EditText` with Compose `TextField` and fix focus issues
+chore: format and cleanup drawable resources (#1273)
+chore: format and cleanup drawable resources
+feat: implement extension detail screen (#1265)
+refactor: refactor and modularize extension and LSP settings UI
+feat: add extension repository button and implement placeholder for reviews tab
+feat: enhance extension discovery screen with sorting, searching and filtering capabilities
+feat: enhance extension details with size and download statistics
+Added translation using Weblate (Korean)
+Added translation using Weblate (Finnish)
+feat: add review section, show author icon, make extension detail page refreshable
+feat: enhance extension details and UI
+style: enhance UI layout in About and Extension detail screens
+feat: enhance about screen and improve extension/language settings
+fix: attempt to fix race condition and improving reload command (#1264)
+fix: fix duplicate command keys, fix broken session restoration, fix toolbar actions not recomposing, fix syntax highlighting issue
+feat: enhance extension management and refactor extension metadata
+feat: tiny UI improvements
+feat: implement extension detail screen and navigation
+fix: attempt to fix race condition and improving reload command
+fix: fix tab wipe by adding unique keys to pager (#1261)
+fix: fix tab wipe by adding unique keys to pager
+feat: implement font management for app, editor, and terminal (#1260)
+feat: improve warning UI in terminal font screen
+feat: implement comprehensive font management for app, editor, and terminal (Closes #1236)
+fix: improve duplicate issue detection (#1257)
+fix: improve duplicate issue detection by including closed issues and adding version checking
+feat: add URI tap detection and link opening action in editor (#1254)
+refactor: cleanup
+refactor: decouple tab and editor management in `MainViewModel`
+feat: proper focus handling and new `Tab` methods
+feat: add URI tap detection and link opening action in editor
+feat: minimap support (#1250)
+feat: minimap support, theme and font fixes, move OOB and binary settings to category "Other"
+support new marker
+close duplicate issues
+chore: cleanup project (#1242)
+feat: implement multi-file selection and refactor (#1240)
+fix: fix rememberCoroutineScope left the composition exception on pasting
+fix: fix inconsistent background TODO and fix `open_in_terminal` casing
+chore: fix merge conflicts
+refactor: remove duplicate methods
+fix: fix `no_instances` text not showing if no visible instances
+fix: hide `NOT_RUNNING` instances that are not forced
+feat: improve delete confirmation dialog text for multiple files
+fix: revert properties action to be a single file action
+chore: resolve file tree focus TODO and fix bug where only one file tree node was marked as cut
+fix: fix crash on closing project
+feat: implement multi-file selection and refactor
+fix: compile
+feat: improve drawer UI and animations
+feat: fullscreen-mode, smart toolbar and fix various crashes (#1217)
+chore: move smart toolbar handling out of EditorTab and change folder color
+feat: implement smart toolbar setting
+feat: add fullscreen-mode support (Closes #1178)
+fix: fix terminal restore/backup crash (Closes #1209)
+fix: fix LSP status not showing if no icon is present and fix `MonotonicFrameClock` error (Closes #1214)
+feat: enhance LSP management and infrastructure (#1208)
+fix: cleanup `DefinitionPrevention` project cache when list/map is empty
+fix: fix expensive `isUpdatable` call slowing down lsp connection
+fix: fix greptile issues
+fix: show warning for unsaved files on close other/close all
+fix: enable language servers by default, fix icon inconsistency in toolbar, fix language server not connecting when no TextMate scope exists
+feat: enhance LSP management and infrastructure
+feat: enhance editor theming and LSP logging capabilities (#1198)
+feat: enhance editor theming and LSP logging capabilities
+fix: fix editor not loading content (#1196)
+fix: fix editor not loading content
+fix(lsp): fix LSP project and workspace paths (#1195)
+fix(lsp): use project root instead of parent file for workspace and fix workspace URI
+feat: added toggles for oom prediction dialog
+fix(extension-api): fix extension language server installation (#1193)
+fix(extension-api): fix extension language server installation prompt not showing
+fix(extension-api): fix extension language servers not connecting (#1192)
+fix(extension-api): fix extension language servers not connecting
+feat: R language support & dynamic `FileType` registration (#1191)
+fix(core): fix color scheme of exclude files editor
+feat(extension-api): allow dynamic registration of `FileType`s
+feat: add R syntax highlighting support
+fix: fix index database crash and improve binary detection (#1190)
+fix: fix SQLiteClosable IllegalStateException (Closes #1176)
+fix: improve binary detection (Closes #1188)
+feat: add proper exclusion system (#1169)
+feat(core): improve LSP functionality (#1031)
+feat: add proper disable-feature toggles
+feat: add syntax highlighting for luau (Closes #1183)
+feat: added 'file' output in file properties
+feat: auto connect to all editors when language server is installed
+fix: fix `setLanguage()` crash, implement auto start/stop for enabling/disabling language server
+feat: improve start/stop, refactor
+feat: implement proper exclusion system
+fix: fix crashes (#1165)
+feat: add replace everywhere button (#1164)
+feat: add replace everywhere button
+feat: center terminal leave warning
+feat: improve language server status, separate by instances
+fix: remove unwanted `READ_PHONE_STATE` permission (#1163)
+fix(core): remove indexing key on project removal
+fix: remove unwanted `READ_PHONE_STATE` permission
+fix: fix build issue
+fix: fix lsp installation info and id of language servers
+feat(core): add external server editing (Closes #1116)
+feat(core): remove external lsp extension limitation (see #1116)
+feat(core): add app logs to debug options
+chore: remove TODO
+chore: resolve merge conflicts
+fix(core): fix `ExternalLspDialog` not following Material Design guidelines, sync extensions value of the dialog
+chore: format code
+chore: fix merge conflicts and improve `LspRegistry`
+fix(core): fix extension settings layout (use `PreferenceLayout` in order for scroll stretch to work)
+feat(core): use snackbar for language server installation prompt, fix snackbar overlapping extra keys
+refactor(core): move report code into separate new method
+fix(core): fix theming
+fix(core): fix `IllegalFormatConversionException`
+chore(core): extract hardcoded strings into string resources, reduce duplicate code with additional `setThemeColors(...)` method
+fix(core): fix build failing because of wrong signature of `onStatusChange`
+feat(core): add LSP server detail page, add lsp logging mechanism, add setting for auto-completion on enter, fix duplicate language server connection
+feat(core): improve LSP settings UI, add saving mechanism for restoring external LSP servers after restart

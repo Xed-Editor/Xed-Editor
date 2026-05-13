@@ -4,13 +4,13 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -81,7 +81,7 @@ object FilePermission {
                 onOk = {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.setData(Uri.parse("package:${activity.packageName}"))
+                        intent.setData("package:${activity.packageName}".toUri())
                         activity.startActivity(intent)
                     } else {
                         // below 11

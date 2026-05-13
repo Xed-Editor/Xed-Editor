@@ -55,6 +55,10 @@ class FileWrapper(var file: File) : FileObject {
         return file.name
     }
 
+    override fun getExtension(): String {
+        return file.extension
+    }
+
     override suspend fun getParentFile(): FileObject? =
         withContext(Dispatchers.IO) {
             return@withContext file.parentFile?.let { FileWrapper(it) }
@@ -90,6 +94,10 @@ class FileWrapper(var file: File) : FileObject {
             return@withContext FileInputStream(file)
         }
 
+    override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
+        return withContext(Dispatchers.IO) { FileInputStream(file).use { block(it) } }
+    }
+
     override suspend fun getOutPutStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             return@withContext if (append) {
@@ -107,24 +115,6 @@ class FileWrapper(var file: File) : FileObject {
         withContext(Dispatchers.IO) {
             return@withContext file.length()
         }
-
-    override suspend fun calcSize(): Long =
-        withContext(Dispatchers.IO) {
-            return@withContext if (isFile()) length() else getFolderSize(this@FileWrapper)
-        }
-
-    private suspend fun getFolderSize(folder: FileObject): Long {
-        var length: Long = 0
-        for (file in folder.listFiles()) {
-            length +=
-                if (file.isFile()) {
-                    file.length()
-                } else {
-                    getFolderSize(file)
-                }
-        }
-        return length
-    }
 
     override suspend fun delete(): Boolean =
         withContext(Dispatchers.IO) {
@@ -165,7 +155,7 @@ class FileWrapper(var file: File) : FileObject {
     override suspend fun createChild(createFile: Boolean, name: String): FileObject =
         withContext(Dispatchers.IO) {
             if (name.isBlank()) {
-                throw IllegalArgumentException("name cannot be blank")
+                throw IllegalArgumentException("Name cannot be blank")
             }
             return@withContext if (createFile) {
                 FileWrapper(File(file, name)).createFileIfNot()
@@ -184,6 +174,10 @@ class FileWrapper(var file: File) : FileObject {
 
     override fun canExecute(): Boolean {
         return file.canExecute()
+    }
+
+    override fun lastModified(): Long {
+        return file.lastModified()
     }
 
     override suspend fun getChildForName(name: String): FileObject {
