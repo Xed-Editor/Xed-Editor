@@ -87,4 +87,25 @@ class GitService {
             }.getOrElse { "error: ${it.message}" }
         }
     }
+
+    suspend fun gitCommit(workspacePath: String, message: String, all: Boolean): String = withContext(Dispatchers.IO) {
+        runCatching {
+            val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
+            val commit = git.commit()
+            commit.setMessage(message)
+            if (all) commit.setAll(true)
+            val rev = commit.call()
+            lastStatus = null // Invalidate cache
+            "committed ${rev.name.take(7)}: $message"
+        }.getOrElse { "error: ${it.message}" }
+    }
+
+    suspend fun gitCheckout(workspacePath: String, target: String): String = withContext(Dispatchers.IO) {
+        runCatching {
+            val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
+            git.checkout().setName(target).call()
+            lastStatus = null // Invalidate cache
+            "checked out $target"
+        }.getOrElse { "error: ${it.message}" }
+    }
 }

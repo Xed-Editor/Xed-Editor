@@ -71,28 +71,38 @@ class FileService(private val tabRepository: TabRepository) {
         return output
     }
 
-    suspend fun getFileContent(filePath: String): String? {
+    suspend fun getFileContent(filePath: String, startLine: Int? = null, endLine: Int? = null): String? {
         val openTab = findTabByPath(filePath)
-        if (openTab != null) {
+        if (openTab != null && startLine == null && endLine == null) {
             return withContext(Dispatchers.Main) {
                 openTab.editorState.editor.get()?.text?.toString()
             }
         }
         val canonical = File(filePath).absolutePath
         val now = System.currentTimeMillis()
-        contentCache[canonical]?.let {
-            if (now - it.timestamp < 2000) return it.content
+        if (startLine == null && endLine == null) {
+            contentCache[canonical]?.let {
+                if (now - it.timestamp < 2000) return it.content
+            }
         }
         return withContext(Dispatchers.IO) {
             val file = File(canonical)
             if (!file.exists() || !file.isFile) return@withContext null
             val length = file.length()
-            val content = if (length > 10 * 1024 * 1024) {
+            
+            val content = if (startLine != null || endLine != null) {
+                val s = startLine ?: 1
+                val e = endLine ?: 1000000
+                file.useLines { lines ->
+                    lines.drop(s - 1).take(e - s + 1).joinToString("\n")
+                }
+            } else if (length > 10 * 1024 * 1024) {
                 file.useLines { it.take(5000).joinToString("\n") }
             } else {
                 file.readText()
             }
-            if (length <= contentCacheMaxFileSize) {
+            
+            if (startLine == null && endLine == null && length <= contentCacheMaxFileSize) {
                 contentCache[canonical] = CacheEntry(content, now)
                 if (contentCache.size > contentCacheMaxSize) {
                     contentCache.keys.firstOrNull()?.let { contentCache.remove(it) }

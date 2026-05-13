@@ -7,12 +7,15 @@ import java.io.File
 
 class ReadFileTool : BaseMcpTool() {
     override fun getName(): String = "readFile"
-    override fun getDescription(): String = "Reads the full content of a file. Use this for deep analysis of a single file. For multiple files, use 'readFiles' instead."
+    override fun getDescription(): String = "Reads the content of a file. Supports optional line range for large files."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("startLine" to "number", "endLine" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
+        val startLine = optionalInt(args, "startLine").takeIf { it > 0 }
+        val endLine = optionalInt(args, "endLine").takeIf { it > 0 }
         val file = resolvePathOrThrow(ideService, filePath)
-        val content = ideService.getFileContent(file.absolutePath).orEmpty()
+        val content = ideService.getFileContent(file.absolutePath, startLine, endLine).orEmpty()
         return textResult(content)
     }
 }
@@ -32,7 +35,7 @@ class ReadFilesTool : BaseMcpTool() {
         paths.forEach { path ->
             runCatching {
                 val file = resolvePathOrThrow(ideService, path)
-                val content = ideService.getFileContent(file.absolutePath).orEmpty()
+                val content = ideService.getFileContent(file.absolutePath, null, null).orEmpty()
                 output.append("--- FILE: ").append(path).append(" ---\n")
                 output.append(content).append("\n\n")
             }.onFailure {

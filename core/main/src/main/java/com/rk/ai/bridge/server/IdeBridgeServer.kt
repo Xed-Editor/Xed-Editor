@@ -75,6 +75,7 @@ class IdeBridgeServer(
             register(ShowMessageTool()); register(SearchCodeTool()); register(SearchSymbolsTool())
             register(FindFilesTool()); register(GetDiagnosticsTool()); register(FindDefinitionsTool())
             register(RenameSymbolTool()); register(FormatDocumentTool()); register(GetGitStatusTool())
+            register(GitCommitTool()); register(GitCheckoutTool()); register(GetGitDiffTool())
             register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool())
             register(ApplyBatchEditsTool()); register(GetTerminalOutputTool()); register(GetProjectStructureTool())
             register(GetProjectSummaryTool()); register(GetSymbolUnderCursorTool())
