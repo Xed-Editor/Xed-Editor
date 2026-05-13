@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.AiConfig
-import com.rk.ai.GeminiCli
+import com.rk.ai.AgentCli
 import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
@@ -119,28 +119,14 @@ object AiSessionManager {
     }
 
     suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {
-        val agent = currentAgent
-        val bridgeInfo = IdeBridge.getBridgeInfo()
-        return when (agent.name) {
-            "opencode" -> {
-                val result = com.rk.ai.GeminiCli.agent(
-                    prompt = prompt,
-                    workingDir = workingDir,
-                    ideBridge = bridgeInfo,
-                    timeoutSeconds = timeoutSeconds,
-                )
-                GeminiCli.stripCodeFences(result.output)
-            }
-            else -> {
-                val result = GeminiCli.agent(
-                    prompt = prompt,
-                    workingDir = workingDir,
-                    ideBridge = bridgeInfo,
-                    timeoutSeconds = timeoutSeconds,
-                )
-                GeminiCli.stripCodeFences(result.output)
-            }
-        }
+        val result = com.rk.ai.AgentCli.runAgent(
+            prompt = prompt,
+            agent = currentAgent,
+            workingDir = workingDir,
+            ideBridge = IdeBridge.getBridgeInfo(),
+            timeoutSeconds = timeoutSeconds,
+        )
+        return com.rk.ai.AgentCli.stripCodeFences(result.output)
     }
 
     private fun createAgentSession(

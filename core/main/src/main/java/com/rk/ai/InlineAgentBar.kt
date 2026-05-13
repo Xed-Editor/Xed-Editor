@@ -42,16 +42,12 @@ fun InlineAgentBar(
                 ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
         } else null
         val currentAgent = AiSessionManager.currentAgent
-        return when (currentAgent.name) {
-            "opencode" -> {
-                com.rk.ai.GeminiCli.agent(prompt, wd ?: "/storage/emulated/0", IdeBridge.getBridgeInfo())
-                    .let { com.rk.ai.GeminiCli.stripCodeFences(it.output) }
-            }
-            else -> {
-                com.rk.ai.GeminiCli.agent(prompt, wd ?: "/storage/emulated/0", IdeBridge.getBridgeInfo())
-                    .let { com.rk.ai.GeminiCli.stripCodeFences(it.output) }
-            }
-        }
+        return com.rk.ai.AgentCli.runAgent(
+            prompt = prompt,
+            agent = currentAgent,
+            workingDir = wd,
+            ideBridge = com.rk.ai.IdeBridge.getBridgeInfo(),
+        ).let { com.rk.ai.AgentCli.stripCodeFences(it.output) }
     }
 
     AnimatedVisibility(
