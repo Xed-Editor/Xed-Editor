@@ -7,6 +7,10 @@ class OpenDiffTool : BaseMcpTool() {
     override fun getName(): String = "openDiff"
     override fun getDescription(): String = "Opens a side-by-side diff view for user review."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "newContent" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path to the file",
+        "newContent" to "Proposed new content to diff against"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val newContent = requireString(args, "newContent")
@@ -20,6 +24,9 @@ class GetDiffResultTool : BaseMcpTool() {
     override fun getName(): String = "getDiffResult"
     override fun getDescription(): String = "Returns the current file content after a diff review."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path to the file"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val file = resolvePathOrThrow(ideService, filePath)
@@ -32,6 +39,9 @@ class RejectDiffTool : BaseMcpTool() {
     override fun getName(): String = "rejectDiff"
     override fun getDescription(): String = "Rejects a pending diff/patch for a file."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path to the file with the pending diff"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val file = resolvePathOrThrow(ideService, filePath)

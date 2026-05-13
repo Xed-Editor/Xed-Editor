@@ -27,6 +27,12 @@ class RunCommandTool : BaseMcpTool() {
     override fun getDescription(): String = "Runs a shell command in the terminal environment. PREFER NATIVE MCP TOOLS instead: use readFile/cat for reading, searchCode/grep for search, findFiles/glob for file find, head for head, tail for tail, wc for word count, stat for metadata, listFiles/ls for directory listing. Only use runCommand for compiling, running, or package installs that have no native tool."
     override fun getRequiredParams(): Map<String, String> = mapOf("command" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf("timeoutSeconds" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "command" to "Shell command to execute"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "timeoutSeconds" to "Timeout in seconds (default: 120)"
+    )
     override fun getTimeoutMs(): Long = 120_000L
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val command = requireString(args, "command")
@@ -50,6 +56,9 @@ class ShowMessageTool : BaseMcpTool() {
     override fun getName(): String = "showMessage"
     override fun getDescription(): String = "Displays a short toast notification message."
     override fun getRequiredParams(): Map<String, String> = mapOf("message" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "message" to "Message text to display"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val message = requireString(args, "message")
         ideService.showMessage(message)
@@ -61,6 +70,9 @@ class GetProjectConfigTool : BaseMcpTool() {
     override fun getName(): String = "getProjectConfig"
     override fun getDescription(): String = "Detects project configuration."
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Project path (default: workspace root)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
         val config = ideService.getProjectConfig(path)

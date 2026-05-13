@@ -7,6 +7,9 @@ class GetGitStatusTool : BaseMcpTool() {
     override fun getName(): String = "getGitStatus"
     override fun getDescription(): String = "Returns the git status (staged, modified, untracked files). Use this to see what work has already been done or to prepare for a commit."
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Repository path (default: workspace root)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
         val result = ideService.getGitStatus(path)
@@ -18,6 +21,9 @@ class GetGitDiffTool : BaseMcpTool() {
     override fun getName(): String = "getGitDiff"
     override fun getDescription(): String = "Returns the unstaged diff for the repository. Use this to review exactly what code has changed in the working tree."
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Repository path (default: workspace root)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
         val diff = ideService.getGitDiff(path)
@@ -30,6 +36,13 @@ class GitCommitTool : BaseMcpTool() {
     override fun getDescription(): String = "Commits staged changes to the repository. If 'all' is true, it automatically stages modified/deleted files (git commit -a)."
     override fun getRequiredParams(): Map<String, String> = mapOf("message" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "all" to "boolean")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "message" to "Commit message"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Repository path (default: workspace root)",
+        "all" to "Auto-stage all modified/deleted files before committing (default: false)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
         val message = requireString(args, "message")
@@ -44,6 +57,12 @@ class GitCheckoutTool : BaseMcpTool() {
     override fun getDescription(): String = "Switches branches or restores working tree files. Use this to move between branches or undo changes to specific files."
     override fun getRequiredParams(): Map<String, String> = mapOf("target" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "target" to "Branch name or commit hash to switch to"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Repository path (default: workspace root)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
         val target = requireString(args, "target")

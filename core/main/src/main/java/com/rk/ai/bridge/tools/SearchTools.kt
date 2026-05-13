@@ -10,6 +10,14 @@ class SearchCodeTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE text search - DO NOT use runCommand('grep ...'). Searches text patterns project-wide with pre-built index. Much faster than terminal grep. Accepts: query, pattern, search, text."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Text to search for",
+        "pattern" to "Alternative to query",
+        "search" to "Alternative to query",
+        "text" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 50)",
+        "path" to "Scope search to a specific directory"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
         val limit = optionalPositiveInt(args, "limit") ?: 50
@@ -24,6 +32,14 @@ class GrepTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE grep - DO NOT use runCommand('grep ...'). Alias for searchCode. Searches text patterns project-wide. Accepts: query, pattern, search, text."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Regex pattern to search for",
+        "pattern" to "Alternative to query",
+        "search" to "Alternative to query",
+        "text" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 50)",
+        "path" to "Scope search to a specific directory"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
         val limit = optionalPositiveInt(args, "limit") ?: 50
@@ -38,6 +54,13 @@ class SearchSymbolsTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE symbol search - DO NOT use runCommand('grep class ...'). Searches code declarations (classes, functions, variables). Faster and more precise than grep. Accepts: query, pattern, symbol."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "symbol" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Symbol name to search for",
+        "pattern" to "Alternative to query",
+        "symbol" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 50)",
+        "path" to "Scope search to a specific directory"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/symbol")
         val limit = optionalPositiveInt(args, "limit") ?: 50
@@ -53,6 +76,12 @@ class FindFilesTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE file finder - DO NOT use runCommand('find ...'). Finds files by glob patterns like '*.kt' or '**/*.java'. Much faster than terminal find. Accepts: query, pattern, limit, path."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "File name or glob pattern to search for (e.g. *.kt, **/*.java)",
+        "pattern" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 100)",
+        "path" to "Directory to search in (default: workspace root)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
         val limit = optionalPositiveInt(args, "limit") ?: 100
@@ -67,6 +96,12 @@ class GlobTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE glob finder - DO NOT use runCommand('find ...'). Alias for findFiles. Finds files by glob patterns. Accepts: query, pattern, limit, path."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "File name or glob pattern to search for (e.g. *.kt, **/*.java)",
+        "pattern" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 100)",
+        "path" to "Directory to search in (default: workspace root)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
         val limit = optionalPositiveInt(args, "limit") ?: 100

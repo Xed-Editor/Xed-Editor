@@ -32,6 +32,9 @@ class ReplaceSelectionTool : BaseMcpTool() {
     override fun getName(): String = "replaceSelection"
     override fun getDescription(): String = "Replaces the user's current selection with new text. Use this for surgical edits within the active file. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("newContent" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "newContent" to "Text to replace the selection with"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val newContent = requireString(args, "newContent")
         ideService.replaceSelection(newContent)
@@ -43,6 +46,9 @@ class InsertAtCursorTool : BaseMcpTool() {
     override fun getName(): String = "insertAtCursor"
     override fun getDescription(): String = "Inserts text at the user's current cursor position. Useful for adding new code without replacing anything. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("newContent" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "newContent" to "Text to insert at the cursor"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val newContent = requireString(args, "newContent")
         ideService.insertAtCursor(newContent)
@@ -71,6 +77,9 @@ class RefreshFileTool : BaseMcpTool() {
     override fun getName(): String = "refreshFile"
     override fun getDescription(): String = "Refreshes a specific editor tab from disk."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path of the file to refresh"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val file = resolvePathOrThrow(ideService, filePath)

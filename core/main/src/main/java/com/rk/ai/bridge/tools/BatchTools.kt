@@ -7,6 +7,9 @@ class ApplyBatchEditsTool : BaseMcpTool() {
     override fun getName(): String = "applyBatchEdits"
     override fun getDescription(): String = "RECOMMENDED: Applies multiple file changes at once. ALWAYS use this for cross-file refactorings to ensure consistency and minimize turns. Takes a JSON object where keys are absolute file paths and values are new content."
     override fun getRequiredParams(): Map<String, String> = mapOf("edits" to "object")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "edits" to "JSON object mapping file paths to their new content: {\"path/to/file.kt\": \"new content...\"}"
+    )
     
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val editsObj = args.getAsJsonObject("edits") ?: throw ToolError.MissingParam("edits")

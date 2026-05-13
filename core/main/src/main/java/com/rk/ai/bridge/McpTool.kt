@@ -9,6 +9,8 @@ interface McpTool {
     fun getDescription(): String
     fun getRequiredParams(): Map<String, String> = emptyMap()
     fun getOptionalParams(): Map<String, String> = emptyMap()
+    fun getRequiredParamDescriptions(): Map<String, String> = emptyMap()
+    fun getOptionalParamDescriptions(): Map<String, String> = emptyMap()
     suspend fun execute(args: JsonObject, ideService: IdeService): JsonObject
 
     fun getTimeoutMs(): Long = 60_000L
@@ -19,14 +21,23 @@ interface McpTool {
         add("inputSchema", JsonObject().apply {
             addProperty("type", "object")
             add("properties", JsonObject().apply {
-                getRequiredParams().forEach { (name, type) ->
-                    add(name, JsonObject().apply { addProperty("type", type) })
-                }
-                getOptionalParams().forEach { (name, type) ->
-                    add(name, JsonObject().apply { addProperty("type", type) })
+                val allParams = linkedMapOf<String, String>()
+                allParams.putAll(getRequiredParams())
+                allParams.putAll(getOptionalParams())
+                val allDescriptions = linkedMapOf<String, String>()
+                allDescriptions.putAll(getRequiredParamDescriptions())
+                allDescriptions.putAll(getOptionalParamDescriptions())
+                allParams.forEach { (name, type) ->
+                    add(name, JsonObject().apply {
+                        addProperty("type", type)
+                        allDescriptions[name]?.let { addProperty("description", it) }
+                    })
                 }
             })
-            add("required", JsonArray().apply { getRequiredParams().keys.forEach { add(it) } })
+            val required = getRequiredParams().keys
+            if (required.isNotEmpty()) {
+                add("required", JsonArray().apply { required.forEach { add(it) } })
+            }
         })
     }
 }

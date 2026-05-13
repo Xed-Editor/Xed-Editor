@@ -7,6 +7,9 @@ class GetDiagnosticsTool : BaseMcpTool() {
     override fun getName(): String = "getDiagnostics"
     override fun getDescription(): String = "Returns LSP diagnostics (errors, warnings) for a file. Use this to verify the correctness of your changes. Note: IDE automatically pushes new diagnostics after a write."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path to the file"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val results = ideService.getDiagnostics(filePath)
@@ -18,6 +21,11 @@ class FindDefinitionsTool : BaseMcpTool() {
     override fun getName(): String = "findDefinitions"
     override fun getDescription(): String = "Finds the definition of a symbol at the given cursor position. Use this for precise code navigation instead of searching for text."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number", "column" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path to the file",
+        "line" to "Line number (1-indexed)",
+        "column" to "Column number (1-indexed)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val line = requireInt(args, "line")
@@ -31,6 +39,11 @@ class FindReferencesTool : BaseMcpTool() {
     override fun getName(): String = "findReferences"
     override fun getDescription(): String = "Finds all usages of a symbol at the given cursor position. Use this to understand the impact of changing a symbol or function signature."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number", "column" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path to the file",
+        "line" to "Line number (1-indexed)",
+        "column" to "Column number (1-indexed)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = requireString(args, "filePath")
         val line = requireInt(args, "line")

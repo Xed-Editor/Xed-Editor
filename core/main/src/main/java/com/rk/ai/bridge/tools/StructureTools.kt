@@ -8,6 +8,13 @@ class GetProjectStructureTool : BaseMcpTool() {
     override fun getDescription(): String = "Returns a hierarchical project directory tree."
     override fun getRequiredParams(): Map<String, String> = mapOf("path" to "string")
     override fun getOptionalParams(): Map<String, String> = mapOf("maxDepth" to "number", "maxItems" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Directory path to explore"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "maxDepth" to "Maximum directory depth (default: 3, max: 10)",
+        "maxItems" to "Maximum items to return (default: 200, max: 1000)"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
         val maxDepth = (optionalPositiveInt(args, "maxDepth") ?: 3).coerceIn(1, 10)

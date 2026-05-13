@@ -84,6 +84,7 @@ class IdeBridgeServer(
             register(GetGitStatusTool()); register(GetGitDiffTool()); register(GitCommitTool()); register(GitCheckoutTool())
             register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool())
             register(ApplyBatchEditsTool())
+            register(EditFileTool())
             register(GetTerminalOutputTool())
             register(GetProjectStructureTool()); register(GetProjectSummaryTool())
             register(GetSymbolUnderCursorTool()); register(GetProjectConfigTool())

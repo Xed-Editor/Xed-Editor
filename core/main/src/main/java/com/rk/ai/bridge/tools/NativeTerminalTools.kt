@@ -11,6 +11,13 @@ class HeadTool : BaseMcpTool() {
         "path" to "string", "filePath" to "string", "file" to "string",
         "lines" to "number", "count" to "number"
     )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Absolute or relative path to the file",
+        "filePath" to "Alternative to path",
+        "file" to "Alternative to path",
+        "lines" to "Number of lines to read from the top (default: 10, max: 10000)",
+        "count" to "Alias for lines"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(ideService, filePath)
@@ -36,6 +43,13 @@ class TailTool : BaseMcpTool() {
         "path" to "string", "filePath" to "string", "file" to "string",
         "lines" to "number", "count" to "number"
     )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Absolute or relative path to the file",
+        "filePath" to "Alternative to path",
+        "file" to "Alternative to path",
+        "lines" to "Number of lines to read from the bottom (default: 10, max: 10000)",
+        "count" to "Alias for lines"
+    )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(ideService, filePath)
@@ -59,6 +73,11 @@ class WcTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE wc - DO NOT use runCommand('wc ...'). Counts lines/words/chars/bytes. No shell overhead. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Absolute or relative path to the file",
+        "filePath" to "Alternative to path",
+        "file" to "Alternative to path"
     )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
@@ -94,6 +113,11 @@ class StatTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE stat - DO NOT use runCommand('stat ...' or 'ls -la ...'). Gets file metadata (size, permissions, modified time) instantly. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Absolute or relative path to the file",
+        "filePath" to "Alternative to path",
+        "file" to "Alternative to path"
     )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
@@ -135,6 +159,11 @@ class CountLinesTool : BaseMcpTool() {
     override fun getDescription(): String = "NATIVE wc -l - DO NOT use runCommand('wc -l ...'). Fast buffered byte-level line counting. Handles files with/without trailing newline."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Absolute or relative path to the file",
+        "filePath" to "Alternative to path",
+        "file" to "Alternative to path"
     )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")

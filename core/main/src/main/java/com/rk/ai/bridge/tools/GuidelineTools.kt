@@ -31,19 +31,21 @@ Use `runCommand` ONLY for: installing packages, compiling/running code, git oper
 ## ⚡ Performance First
 1. **Orientation**: ALWAYS call `getProjectSummary` first. It is a compound tool that gives you Git status, open tabs, and project structure in one turn.
 2. **Batching**: Use `readFiles` to read multiple files and `applyBatchEdits` to write multiple files. Avoid sequential one-by-one operations.
-3. **Diagnostics**: Do not poll `getDiagnostics`. The IDE will send you a notification (`ide/diagnosticsUpdated`) automatically after a write if errors are found.
-4. **File reading**: Use `readFile` with `startLine`/`endLine` or `lines`/`count` params to read only what you need instead of whole files.
+3. **Surgical edits**: Use `editFile` to make targeted changes (find-and-replace) instead of rewriting the entire file with writeFile.
+4. **Diagnostics**: Do not poll `getDiagnostics`. The IDE will send you a notification (`ide/diagnosticsUpdated`) automatically after a write if errors are found.
+5. **File reading**: Use `readFile` with `startLine`/`endLine` or `lines`/`count` params to read only what you need instead of whole files.
 
 ## 🔍 Semantic Search
 - Prefer `searchSymbols` over `searchCode`.
 - Use `findDefinitions` and `findReferences` for precise code navigation.
 
 ## 🛠 Reliability
-- If a path is not found, check the error message for "Did you mean?" suggestions.
+- If a path is not found, check the error message for \"Did you mean?\" suggestions.
+- If `editFile` reports multiple matches, include more context from surrounding lines to make a unique match.
 - Use `getTerminalOutput` to see the current state of the integrated terminal instead of guessing.
 
 ## 🤝 User Interaction
-- All file writes open a "Review" tab for the user. Inform the user that they need to "Apply" or "Reject" the changes in the IDE.
+- All file writes open a \"Review\" tab for the user. Inform the user that they need to \"Apply\" or \"Reject\" the changes in the IDE.
 """
 }
 
