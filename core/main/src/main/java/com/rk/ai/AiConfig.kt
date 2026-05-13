@@ -39,8 +39,8 @@ object AiConfig {
 
     object Debug {
         val defaultDebugEnvValue = "true"
-        val defaultDebugLogFile = "/home/.gemini/xed-debug.log"
-        val defaultContextTraceDir = "/home/.gemini/xed-traces"
+        val defaultDebugLogFile = "/home/.xed/agent-debug.log"
+        val defaultContextTraceDir = "/home/.xed/agent-traces"
     }
 
     object Paths {

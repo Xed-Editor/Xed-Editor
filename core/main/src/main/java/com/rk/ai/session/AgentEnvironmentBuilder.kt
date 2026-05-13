@@ -96,6 +96,17 @@ object AgentEnvironmentBuilder {
         }.toTypedArray()
     }
 
+    fun buildDebugEnv(extraVars: Map<String, String> = emptyMap()): Map<String, String> {
+        val env = mutableMapOf(
+            "DEBUG" to (System.getenv("XED_AGENT_DEBUG") ?: AiConfig.Debug.defaultDebugEnvValue),
+            "DEBUG_MODE" to (System.getenv("XED_AGENT_DEBUG") ?: AiConfig.Debug.defaultDebugEnvValue),
+            "AGENT_DEBUG_LOG_FILE" to (System.getenv("XED_AGENT_DEBUG_LOG_FILE") ?: AiConfig.Debug.defaultDebugLogFile),
+            "AGENT_CONTEXT_TRACE_DIR" to (System.getenv("XED_AGENT_CONTEXT_TRACE_DIR") ?: AiConfig.Debug.defaultContextTraceDir),
+        )
+        env.putAll(extraVars)
+        return env
+    }
+
     fun bridgeEnvContent(bridge: IdeBridge.Info): String = buildString {
         appendLine("export XED_IDE_URL=http://${bridge.host}:${bridge.port}")
         appendLine("export XED_IDE_HOST=${bridge.host}")
