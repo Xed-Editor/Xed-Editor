@@ -76,7 +76,17 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
         }
     }
 
+    private data class StructureCache(val path: String, val depth: Int, val items: Int, val result: String, val timestamp: Long)
+    private var lastStructure: StructureCache? = null
+
     suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String {
+        val now = System.currentTimeMillis()
+        lastStructure?.let {
+            if (it.path == path && it.depth == maxDepth && it.items == maxItems && now - it.timestamp < 3000) {
+                return it.result
+            }
+        }
+
         val dir = resolvePath(path) ?: throw IllegalArgumentException("path outside workspace: $path")
         if (!dir.exists() || !dir.isDirectory) throw IllegalArgumentException("not a directory: $path")
         val ignored = AiConfig.ignoredDirectories
@@ -87,8 +97,9 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
             dir.walkTopDown()
                 .maxDepth(maxDepth)
                 .onEnter { it.name !in ignored && !it.isHidden }
+                .filter { it != dir }
+                .take(maxItems)
                 .forEach { child ->
-                    if (count >= maxItems || child == dir) return@forEach
                     val depth = child.toRelativeString(dir).split(File.separator).size
                     val indent = "  ".repeat(depth.coerceAtMost(maxDepth))
                     output.appendLine("$indent${if (child.isDirectory) "[D]" else "[F]"} ${child.name}")
@@ -96,7 +107,9 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
                 }
             if (count >= maxItems) output.appendLine("  ... (truncated at $maxItems items)")
         }
-        return output.toString()
+        val result = output.toString()
+        lastStructure = StructureCache(path, maxDepth, maxItems, result, now)
+        return result
     }
 
     suspend fun getProjectConfig(workspacePath: String): JsonObject {

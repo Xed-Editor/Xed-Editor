@@ -52,18 +52,18 @@ class FileService(private val tabRepository: TabRepository) {
         if (recursive) {
             directory.walkTopDown()
                 .onEnter { it.name !in ignored }
+                .filter { it != directory }
+                .take(maxFiles)
                 .forEach { child ->
-                    if (output.size >= maxFiles) return@forEach
-                    if (child == directory) return@forEach
                     val relative = child.relativeToOrSelf(root).path + if (child.isDirectory) "/" else ""
                     output.add(relative)
                 }
         } else {
             directory.listFiles()
+                ?.filter { it.name !in ignored }
                 ?.sortedWith(compareBy<File> { !it.isDirectory }.thenBy { it.name.lowercase() })
+                ?.take(maxFiles)
                 ?.forEach { child ->
-                    if (output.size >= maxFiles) return@forEach
-                    if (child.name in ignored) return@forEach
                     val relative = child.relativeToOrSelf(root).path + if (child.isDirectory) "/" else ""
                     output.add(relative)
                 }

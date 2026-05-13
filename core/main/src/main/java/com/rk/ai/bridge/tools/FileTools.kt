@@ -17,6 +17,32 @@ class ReadFileTool : BaseMcpTool() {
     }
 }
 
+class ReadFilesTool : BaseMcpTool() {
+    override fun getName(): String = "readFiles"
+    override fun getDescription(): String = "Reads multiple files at once. Paths should be comma-separated or a JSON array."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePaths" to "string")
+    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+        val input = requireString(args, "filePaths")
+        val paths = if (input.startsWith("[")) {
+            runCatching { com.google.gson.JsonParser.parseString(input).asJsonArray.map { it.asString } }.getOrDefault(listOf(input))
+        } else {
+            input.split(",").map { it.trim() }
+        }
+        val output = StringBuilder()
+        paths.forEach { path ->
+            runCatching {
+                val file = resolvePathOrThrow(ideService, path)
+                val content = ideService.getFileContent(file.absolutePath).orEmpty()
+                output.append("--- FILE: ").append(path).append(" ---\n")
+                output.append(content).append("\n\n")
+            }.onFailure {
+                output.append("--- FILE: ").append(path).append(" (ERROR: ").append(it.message).append(") ---\n\n")
+            }
+        }
+        return textResult(output.toString())
+    }
+}
+
 class WriteFileTool : BaseMcpTool() {
     override fun getName(): String = "writeFile"
     override fun getDescription(): String = "Opens a diff review for writing new content to a file."

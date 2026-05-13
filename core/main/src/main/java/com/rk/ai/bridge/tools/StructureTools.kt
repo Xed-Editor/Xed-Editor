@@ -16,3 +16,34 @@ class GetProjectStructureTool : BaseMcpTool() {
         return textResult(tree)
     }
 }
+
+class GetProjectSummaryTool : BaseMcpTool() {
+    override fun getName(): String = "getProjectSummary"
+    override fun getDescription(): String = "Returns a high-level summary of the project (README, build files, config)."
+    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+        val rootPath = ideService.getPrimaryWorkspacePath()
+        if (rootPath.isBlank()) return textResult("No workspace open.")
+        val root = java.io.File(rootPath)
+        val config = ideService.getProjectConfig(rootPath)
+        val sb = StringBuilder()
+        sb.append("Project Root: ").append(rootPath).append("\n")
+        sb.append("Language: ").append(config.get("language")?.asString ?: "unknown").append("\n")
+        sb.append("Build System: ").append(config.get("buildSystem")?.asString ?: "unknown").append("\n\n")
+
+        val importantFiles = listOf("README.md", "README", "build.gradle.kts", "build.gradle", "package.json", "pom.xml", "Cargo.toml", "requirements.txt")
+        importantFiles.forEach { name ->
+            val file = java.io.File(root, name)
+            if (file.exists() && file.isFile) {
+                val content = runCatching {
+                    val text = file.readText()
+                    if (text.length > 2000) text.take(2000) + "... (truncated)" else text
+                }.getOrDefault("")
+                if (content.isNotBlank()) {
+                    sb.append("--- ").append(name).append(" ---\n")
+                    sb.append(content).append("\n\n")
+                }
+            }
+        }
+        return textResult(sb.toString())
+    }
+}

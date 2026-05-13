@@ -39,7 +39,15 @@ class GitService {
         }.getOrNull()
     }
 
+    private data class StatusCache(val path: String, val result: JsonObject, val timestamp: Long)
+    private var lastStatus: StatusCache? = null
+
     suspend fun getGitStatus(workspacePath: String): JsonObject {
+        val now = System.currentTimeMillis()
+        lastStatus?.let {
+            if (it.path == workspacePath && now - it.timestamp < 3000) return it.result
+        }
+
         val result = JsonObject()
         if (workspacePath.isBlank()) return result.apply { addProperty("error", "workspacePath required") }
         withContext(Dispatchers.IO) {
@@ -59,6 +67,7 @@ class GitService {
                 result.addProperty("totalChanges", result.getAsJsonArray("changes").size())
             }.onFailure { result.addProperty("error", it.message ?: "git error") }
         }
+        lastStatus = StatusCache(workspacePath, result, now)
         return result
     }
 

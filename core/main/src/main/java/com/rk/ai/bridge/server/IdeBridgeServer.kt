@@ -66,17 +66,18 @@ class IdeBridgeServer(
 
     private fun registerTools(registry: McpToolRegistry) {
         registry.apply {
-            register(GetIdeInfoTool()); register(ReadFileTool()); register(WriteFileTool())
-            register(ListFilesTool()); register(OpenFileTool()); register(GetOpenFilesTool())
-            register(GetActiveFileTool()); register(GetSelectionTool()); register(ReplaceSelectionTool())
-            register(InsertAtCursorTool()); register(SaveOpenFilesTool()); register(RefreshOpenEditorsTool())
-            register(RefreshFileTool()); register(OpenDiffTool()); register(GetDiffResultTool())
-            register(RejectDiffTool()); register(RunCommandTool()); register(ShowMessageTool())
-            register(SearchCodeTool()); register(FindFilesTool()); register(GetDiagnosticsTool())
-            register(FindDefinitionsTool()); register(FindReferencesTool()); register(RenameSymbolTool())
-            register(FormatDocumentTool()); register(GetGitStatusTool()); register(CreateFileTool())
-            register(DeleteFileTool()); register(RenameFileTool()); register(GetTerminalOutputTool())
-            register(GetProjectStructureTool()); register(GetSymbolUnderCursorTool())
+            register(GetIdeInfoTool()); register(ReadFileTool()); register(ReadFilesTool())
+            register(WriteFileTool()); register(ListFilesTool()); register(OpenFileTool())
+            register(GetOpenFilesTool()); register(GetActiveFileTool()); register(GetSelectionTool())
+            register(ReplaceSelectionTool()); register(InsertAtCursorTool()); register(SaveOpenFilesTool())
+            register(RefreshOpenEditorsTool()); register(RefreshFileTool()); register(OpenDiffTool())
+            register(GetDiffResultTool()); register(RejectDiffTool()); register(RunCommandTool())
+            register(ShowMessageTool()); register(SearchCodeTool()); register(FindFilesTool())
+            register(GetDiagnosticsTool()); register(FindDefinitionsTool()); register(FindReferencesTool())
+            register(RenameSymbolTool()); register(FormatDocumentTool()); register(GetGitStatusTool())
+            register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool())
+            register(GetTerminalOutputTool()); register(GetProjectStructureTool())
+            register(GetProjectSummaryTool()); register(GetSymbolUnderCursorTool())
             register(GetProjectConfigTool()); register(GetGitDiffTool())
         }
     }
