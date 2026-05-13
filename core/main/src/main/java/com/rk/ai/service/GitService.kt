@@ -82,11 +82,13 @@ class GitService {
             runCatching {
                 val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
                 val repo = git.repository
-                val diff = git.diff().call()
                 val baos = java.io.ByteArrayOutputStream()
                 val formatter = org.eclipse.jgit.diff.DiffFormatter(baos)
                 formatter.setRepository(repo)
-                formatter.format(diff)
+                val stagedDiff = git.diff().setCached(true).call()
+                formatter.format(stagedDiff)
+                val unstagedDiff = git.diff().call()
+                formatter.format(unstagedDiff)
                 formatter.close()
                 baos.toString(Charsets.UTF_8.name()).ifEmpty { "no changes" }
             }.getOrElse { "error: ${it.message}" }

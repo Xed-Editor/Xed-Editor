@@ -52,29 +52,27 @@ class EditFileTool : BaseMcpTool() {
         if (index == -1) {
             if (partialMatch) {
                 val lines = content.split("\n")
-                val oldLines = oldString.split("\n")
                 val oldTrimmed = oldString.trim()
-                val lineMatches = mutableListOf<Int>()
+                val lineMatches = mutableListOf<Pair<Int, String>>()
                 lines.forEachIndexed { i, line ->
-                    if (line.contains(oldTrimmed)) lineMatches.add(i + 1)
+                    if (line.contains(oldTrimmed)) lineMatches.add(i + 1 to line)
                 }
                 if (lineMatches.isEmpty()) {
+                    val suggestions = lines.filter { it.length > 20 }
+                        .map { it.trim().take(120) }
+                        .take(5)
                     throw ToolError.InvalidParam("oldString",
                         "text not found in file. Did you mean one of these?\n" +
-                            buildList {
-                                addAll(lines.filter { it.length > 20 }
-                                    .map { it.trim().take(120) })
-                            }.take(5).joinToString("\n"))
+                            suggestions.joinToString("\n"))
                 }
                 if (lineMatches.size == 1) {
-                    val lineIdx = lineMatches[0] - 1
-                    val actualOld = lines[lineIdx].trim()
-                    val newContent = content.replaceFirst(actualOld, newString)
-                    if (dryRun) return textResult("[dry-run] Would edit ${file.name} at line ${lineMatches[0]}")
+                    val (lineNum, lineContent) = lineMatches[0]
+                    val newContent = content.replace(lineContent, newString)
+                    if (dryRun) return textResult("[dry-run] Would edit ${file.name} at line $lineNum")
                     return applyEdit(ideService, file, content, newContent, filePath)
                 }
                 throw ToolError.InvalidParam("oldString",
-                    "text not found exactly. Found ${lineMatches.size} partial line matches at lines: ${lineMatches.joinToString(", ")}. Use a more specific match.")
+                    "text not found exactly. Found ${lineMatches.size} partial line matches at lines: ${lineMatches.joinToString(", ") { it.first.toString() }}. Use a more specific match.")
             }
 
             val similar = findSimilar(content, oldString)

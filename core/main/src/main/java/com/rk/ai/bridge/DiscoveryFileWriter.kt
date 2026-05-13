@@ -13,30 +13,33 @@ import java.io.File
 object DiscoveryFileWriter {
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val writeLock = Any()
 
     data class BridgeInfo(val host: String, val port: Int, val token: String, val workspacePath: String)
 
     fun write(info: BridgeInfo) {
-        val pid = Process.myPid()
-        val url = "http://${info.host}:${info.port}"
-        val config = JsonObject().apply {
-            addProperty("url", url)
-            addProperty("host", info.host)
-            addProperty("port", info.port)
-            addProperty("token", info.token)
-            addProperty("authToken", info.token)
-            addProperty("workspacePath", info.workspacePath)
-            addProperty("pid", pid)
-            add("ideInfo", JsonObject().apply {
-                addProperty("name", "xed-ide")
-                addProperty("displayName", "Xed Editor")
-            })
-        }
-        val json = gson.toJson(config)
+        synchronized(writeLock) {
+            val pid = Process.myPid()
+            val url = "http://${info.host}:${info.port}"
+            val config = JsonObject().apply {
+                addProperty("url", url)
+                addProperty("host", info.host)
+                addProperty("port", info.port)
+                addProperty("token", info.token)
+                addProperty("authToken", info.token)
+                addProperty("workspacePath", info.workspacePath)
+                addProperty("pid", pid)
+                add("ideInfo", JsonObject().apply {
+                    addProperty("name", "xed-ide")
+                    addProperty("displayName", "Xed Editor")
+                })
+            }
+            val json = gson.toJson(config)
 
-        writeOpenCodeConfig(info)
-        writeGeminiConfig(info)
-        writeDiscoveryFiles(info, pid, url, config, json)
+            writeOpenCodeConfig(info)
+            writeGeminiConfig(info)
+            writeDiscoveryFiles(info, pid, url, config, json)
+        }
     }
 
     private fun writeOpenCodeConfig(info: BridgeInfo) {
@@ -60,9 +63,11 @@ object DiscoveryFileWriter {
             val geminiDir = sandboxHomeDir().let { File(it, ".gemini") }
             geminiDir.mkdirs()
             val settingsFile = File(geminiDir, AiConfig.Discovery.geminiSettingsFile)
+            if (!settingsFile.exists()) {
+                settingsFile.writeText(gson.toJson(JsonObject()))
+            }
             val existing = runCatching { JsonParser.parseString(settingsFile.readText()).asJsonObject }.getOrDefault(JsonObject())
             
-            // Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
             val mcpServers = existing.getAsJsonObject("mcpServers") ?: JsonObject().also { existing.add("mcpServers", it) }
             mcpServers.add("xed-ide", JsonObject().apply {
                 addProperty("url", "http://${info.host}:${info.port}/mcp")
@@ -70,14 +75,7 @@ object DiscoveryFileWriter {
                     addProperty("Authorization", "Bearer ${info.token}")
                 })
             })
-
-            // Cleanup any accidental 'xed-ide' entry in the 'mcp' object (used for global settings)
             existing.getAsJsonObject("mcp")?.remove("xed-ide")
-
-            existing.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
-                ?: existing.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
-            existing.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
-                ?: existing.add("ide", JsonObject().apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) })
             settingsFile.writeText(gson.toJson(existing))
         }
     }

@@ -99,11 +99,16 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
             val results = JsonArray()
             val ignored = AiConfig.ignoredDirectories
             withContext(Dispatchers.IO) {
-                val globRegex = globToRegex(query)
-                val pattern = Regex(globRegex, RegexOption.IGNORE_CASE)
+                val regex = globToRegex(query)
+                val pattern = Regex(regex, RegexOption.IGNORE_CASE)
                 root.walkTopDown()
                     .onEnter { it.name !in ignored }
-                    .filter { it.isFile && pattern.matches(it.name) }
+                    .filter { it.isFile }
+                    .take(limit * 2)
+                    .filter { file ->
+                        val relative = file.toRelativeString(root).let { if (it.startsWith("/")) it else "/$it" }
+                        pattern.matches(relative) || pattern.matches(file.name)
+                    }
                     .take(limit)
                     .forEach { file ->
                         results.add(JsonObject().apply {
@@ -165,7 +170,7 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
             }
             i++
         }
-        return sb.toString()
+        return "^$sb$"
     }
 
     private data class StructureCache(val path: String, val depth: Int, val items: Int, val result: String, val timestamp: Long)

@@ -14,6 +14,11 @@ fun textResult(text: String): JsonObject {
                     addProperty("type", "text")
                     addProperty("text", text)
                 })
+            } else {
+                add(JsonObject().apply {
+                    addProperty("type", "text")
+                    addProperty("text", "(empty)")
+                })
             }
         })
     }
