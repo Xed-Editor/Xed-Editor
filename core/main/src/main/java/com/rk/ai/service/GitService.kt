@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 class GitService {
@@ -46,6 +47,8 @@ class GitService {
 
     private fun creds() = UsernamePasswordCredentialsProvider(Settings.git_username, Settings.git_password)
 
+    private val remotePrefix: String get() = "${Constants.R_REMOTES}${Constants.DEFAULT_REMOTE_NAME}/"
+
     private data class StatusCache(val path: String, val result: JsonObject, val timestamp: Long)
     private var lastStatus: StatusCache? = null
 
@@ -61,7 +64,8 @@ class GitService {
                 val git = getRepo(workspacePath) ?: run { result.addProperty("error", "not a git repository"); return@withContext }
                 val repo = git.repository
                 val status = git.status().call()
-                result.addProperty("branch", repo.branch ?: "HEAD")
+                val branch = repo.branch ?: "HEAD"
+                result.addProperty("branch", branch)
                 result.add("changes", JsonArray().apply {
                     status.added.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "staged_added") }) }
                     status.changed.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "staged_modified") }) }
@@ -72,8 +76,10 @@ class GitService {
                     status.conflicting.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "conflicting") }) }
                 })
                 result.addProperty("totalChanges", result.getAsJsonArray("changes").size())
-                val ref = repo.findRef(Constants.REMOTES_ORIGIN + (repo.branch ?: ""))
-                if (ref != null) result.addProperty("aheadBehind", countAheadBehind(git, repo.branch ?: "HEAD"))
+                val remoteRef = repo.findRef("$remotePrefix$branch")
+                if (remoteRef != null) {
+                    result.addProperty("aheadBehind", countAheadBehind(git, branch))
+                }
             }.onFailure { result.addProperty("error", it.message ?: "git error") }
         }
         lastStatus = StatusCache(workspacePath, result, now)
@@ -83,8 +89,8 @@ class GitService {
     private fun countAheadBehind(git: Git, branch: String): String {
         return try {
             val repo = git.repository
-            val localRef = repo.findRef(Constants.R_HEADS + branch)
-            val remoteRef = repo.findRef(Constants.REMOTES_ORIGIN + branch)
+            val localRef = repo.findRef("${Constants.R_HEADS}$branch")
+            val remoteRef = repo.findRef("$remotePrefix$branch")
             if (localRef == null || remoteRef == null) return ""
             org.eclipse.jgit.revwalk.RevWalk(repo).use { walk ->
                 val local = walk.parseCommit(localRef.objectId)
@@ -110,10 +116,8 @@ class GitService {
                 val baos = java.io.ByteArrayOutputStream()
                 val formatter = org.eclipse.jgit.diff.DiffFormatter(baos)
                 formatter.setRepository(repo)
-                val stagedDiff = git.diff().setCached(true).call()
-                formatter.format(stagedDiff)
-                val unstagedDiff = git.diff().call()
-                formatter.format(unstagedDiff)
+                formatter.format(git.diff().setCached(true).call())
+                formatter.format(git.diff().call())
                 formatter.close()
                 baos.toString(Charsets.UTF_8.name()).ifEmpty { "no changes" }
             }.getOrElse { "error: ${it.message}" }
@@ -123,8 +127,7 @@ class GitService {
     suspend fun gitCommit(workspacePath: String, message: String, all: Boolean): String = withContext(Dispatchers.IO) {
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
-            val commit = git.commit()
-            commit.setMessage(message)
+            val commit = git.commit().setMessage(message)
             if (all) commit.setAll(true)
             val rev = commit.call()
             lastStatus = null
@@ -136,32 +139,33 @@ class GitService {
     suspend fun gitCheckout(workspacePath: String, target: String, createNew: Boolean = false): String = withContext(Dispatchers.IO) {
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
-            val checkout = git.checkout()
+            val co = git.checkout()
             if (createNew) {
-                checkout.setCreateBranch(true).setName(target).call()
+                co.setCreateBranch(true).setName(target).call()
                 "created and checked out new branch: $target"
             } else {
-                checkout.setName(target).call()
+                co.setName(target).call()
                 "checked out $target"
             }
+        }.getOrElse { "error: ${it.message}" }.also {
             lastStatus = null
             invalidateRepoCache(workspacePath)
-        }.getOrElse { "error: ${it.message}" }
+        }
     }
 
     suspend fun gitLog(workspacePath: String, maxCount: Int = 20): JsonArray = withContext(Dispatchers.IO) {
         val result = JsonArray()
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext result
-            val commits = git.log().setMaxCount(maxCount).call()
-            commits.forEach { rev ->
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US)
+            git.log().setMaxCount(maxCount).call().forEach { rev ->
                 val person = rev.authorIdent
                 result.add(JsonObject().apply {
                     addProperty("hash", rev.name.take(7))
                     addProperty("fullHash", rev.name)
                     addProperty("author", person.name ?: "unknown")
                     addProperty("email", person.emailAddress ?: "")
-                    addProperty("date", java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).format(java.util.Date(rev.commitTime * 1000L)))
+                    addProperty("date", sdf.format(java.util.Date(rev.commitTime * 1000L)))
                     addProperty("message", rev.shortMessage)
                 })
             }
@@ -170,19 +174,31 @@ class GitService {
     }
 
     suspend fun listGitBranches(workspacePath: String): JsonObject = withContext(Dispatchers.IO) {
-        val result = JsonObject()
-        runCatching {
-            val git = getRepo(workspacePath) ?: return@withContext result.apply { addProperty("error", "not a git repository") }
-            val repo = git.repository
-            result.addProperty("current", repo.branch ?: "HEAD")
-            val local = JsonArray()
-            val remote = JsonArray()
-            git.branchList().call().forEach { ref ->\n                local.add(JsonObject().apply {\n                    addProperty(\"name\", org.eclipse.jgit.lib.Repository.shortenRefName(ref.name))\n                    addProperty(\"fullName\", ref.name)\n                })\n            }\n            runCatching {\n                git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call().forEach { ref ->\n                    remote.add(JsonObject().apply {\n                        addProperty(\"name\", org.eclipse.jgit.lib.Repository.shortenRefName(ref.name))\n                        addProperty(\"fullName\", ref.name)\n                    })\n                }
-            }
-            result.add("local", local)
-            result.add("remote", remote)
-        }.onFailure { result.addProperty("error", it.message ?: "git error") }
-        result
+        JsonObject().apply {
+            runCatching {
+                val git = getRepo(workspacePath) ?: return@withContext this.apply { addProperty("error", "not a git repository") }
+                val repo = git.repository
+                addProperty("current", repo.branch ?: "HEAD")
+                val local = JsonArray()
+                val remote = JsonArray()
+                git.branchList().call().forEach { ref ->
+                    local.add(JsonObject().apply {
+                        addProperty("name", Repository.shortenRefName(ref.name))
+                        addProperty("fullName", ref.name)
+                    })
+                }
+                runCatching {
+                    git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call().forEach { ref ->
+                        remote.add(JsonObject().apply {
+                            addProperty("name", Repository.shortenRefName(ref.name))
+                            addProperty("fullName", ref.name)
+                        })
+                    }
+                }
+                add("local", local)
+                add("remote", remote)
+            }.onFailure { addProperty("error", it.message ?: "git error") }
+        }
     }
 
     suspend fun gitPull(workspacePath: String, rebase: Boolean = false): String = withContext(Dispatchers.IO) {
@@ -190,27 +206,24 @@ class GitService {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
             val pull = git.pull().setRemote(Constants.DEFAULT_REMOTE_NAME).setCredentialsProvider(creds())
             if (rebase) pull.setRebase(true)
-            val result = pull.call()
-            lastStatus = null
-            invalidateRepoCache(workspacePath)
-            if (result.isSuccessful) "pull successful"
-            else "pull failed: ${result.mergeResult?.mergeStatus ?: "unknown"}"
+            val pr = pull.call()
+            lastStatus = null; invalidateRepoCache(workspacePath)
+            if (pr.isSuccessful) "pull successful"
+            else "pull failed: ${pr.mergeResult?.mergeStatus ?: "unknown"}"
         }.getOrElse { "error: ${it.message}" }
     }
 
     suspend fun gitPush(workspacePath: String, force: Boolean = false): String = withContext(Dispatchers.IO) {
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
-            val push = git.push().setRemote(Constants.DEFAULT_REMOTE_NAME).setCredentialsProvider(creds())
-            if (force) push.setForce(true)
-            val results = push.call()
-            lastStatus = null
-            invalidateRepoCache(workspacePath)
-            results.firstOrNull()?.let { r ->
-                val updates = r.remoteUpdates.filter { it.status != org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK }
-                if (updates.isEmpty()) "push successful"
-                else "push issues: ${updates.joinToString("; ") { "${it.remoteName}: ${it.status}" }}"
-            } ?: "push completed"
+            val pushCmd = git.push().setRemote(Constants.DEFAULT_REMOTE_NAME).setCredentialsProvider(creds())
+            if (force) pushCmd.setForce(true)
+            val results = pushCmd.call()
+            lastStatus = null; invalidateRepoCache(workspacePath)
+            val issues = results.flatMap { it.remoteUpdates }
+                .filter { it.status != org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK }
+            if (issues.isEmpty()) "push successful"
+            else "push issues: ${issues.joinToString("; ") { "${it.remoteName}: ${it.status}" }}"
         }.getOrElse { "error: ${it.message}" }
     }
 
@@ -218,8 +231,7 @@ class GitService {
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
             git.fetch().setRemote(Constants.DEFAULT_REMOTE_NAME).setCredentialsProvider(creds()).call()
-            lastStatus = null
-            invalidateRepoCache(workspacePath)
+            lastStatus = null; invalidateRepoCache(workspacePath)
             "fetch completed"
         }.getOrElse { "error: ${it.message}" }
     }
@@ -237,12 +249,9 @@ class GitService {
     suspend fun gitStash(workspacePath: String, message: String? = null): String = withContext(Dispatchers.IO) {
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
-            val stash = git.stashCreate()
-            if (!message.isNullOrBlank()) stash.setReflogMessage(message)
-            val ref = stash.call()
-            lastStatus = null
-            invalidateRepoCache(workspacePath)
-            if (ref != null) "stashed as ${ref.name.take(7)}"
+            val ref = git.stashCreate().call()
+            lastStatus = null; invalidateRepoCache(workspacePath)
+            if (ref != null) "stashed (${ref.name.take(7)})${if (!message.isNullOrBlank()) ": $message" else ""}"
             else "nothing to stash (clean working tree)"
         }.getOrElse { "error: ${it.message}" }
     }
@@ -250,11 +259,9 @@ class GitService {
     suspend fun gitStashPop(workspacePath: String): String = withContext(Dispatchers.IO) {
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
-            val ref = git.stashDrop().call()
-            lastStatus = null
-            invalidateRepoCache(workspacePath)
-            if (ref != null) "stash pop applied: ${ref.name.take(7)}"
-            else "no stashes to pop"
+            git.stashDrop().call()
+            lastStatus = null; invalidateRepoCache(workspacePath)
+            "stash pop applied"
         }.getOrElse { "error: ${it.message}" }
-    } 
+    }
 }
