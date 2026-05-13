@@ -7,7 +7,7 @@ import java.io.File
 
 class ReadFileTool : BaseMcpTool() {
     override fun getName(): String = "readFile"
-    override fun getDescription(): String = "cat equivalent - Reads file content. Supports line range (startLine/endLine) and count. Use startLine/endLine for ranges, or lines/count for first N lines. Accepts: path, filePath, file, startLine, endLine, lines, count."
+    override fun getDescription(): String = "NATIVE file reader - DO NOT use runCommand('cat ...'). Much faster than terminal cat. Supports line range (startLine/endLine) and first-N-lines (lines/count). Accepts: path, filePath, file."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string",
@@ -29,7 +29,7 @@ class ReadFileTool : BaseMcpTool() {
 
 class CatTool : BaseMcpTool() {
     override fun getName(): String = "cat"
-    override fun getDescription(): String = "ALIAS for readFile - Reads file content. Accepts: path, filePath, file, startLine, endLine, lines, count."
+    override fun getDescription(): String = "NATIVE cat replacement - DO NOT use runCommand('cat ...'). Same as readFile but named 'cat' for agent convenience. Accepts: path, filePath, file."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string",
@@ -90,7 +90,7 @@ class WriteFileTool : BaseMcpTool() {
 
 class ListFilesTool : BaseMcpTool() {
     override fun getName(): String = "listFiles"
-    override fun getDescription(): String = "ls equivalent - Lists directory contents. Accepts: path, directoryPath."
+    override fun getDescription(): String = "NATIVE directory listing - DO NOT use runCommand('ls ...'). Same as 'ls' but runs natively without shell overhead. Accepts: path, directoryPath."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
@@ -105,7 +105,7 @@ class ListFilesTool : BaseMcpTool() {
 
 class LsTool : BaseMcpTool() {
     override fun getName(): String = "ls"
-    override fun getDescription(): String = "ALIAS for listFiles - Lists directory contents. Accepts: path, directoryPath."
+    override fun getDescription(): String = "NATIVE ls replacement - DO NOT use runCommand('ls ...'). Same as listFiles. Lists directory contents with no shell overhead. Accepts: path, directoryPath."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {

@@ -7,7 +7,7 @@ import java.io.RandomAccessFile
 
 class HeadTool : BaseMcpTool() {
     override fun getName(): String = "head"
-    override fun getDescription(): String = "Reads first N lines of a file. Native replacement for 'head -n'. Accepts: path, filePath, file, lines."
+    override fun getDescription(): String = "NATIVE head - DO NOT use runCommand('head -n ...'). Reads first N lines of a file. Much faster than terminal head. Accepts: path, filePath, file, lines."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string",
         "lines" to "number", "count" to "number"
@@ -23,7 +23,7 @@ class HeadTool : BaseMcpTool() {
 
 class TailTool : BaseMcpTool() {
     override fun getName(): String = "tail"
-    override fun getDescription(): String = "Reads last N lines of a file. Native replacement for 'tail -n'. Accepts: path, filePath, file, lines."
+    override fun getDescription(): String = "NATIVE tail - DO NOT use runCommand('tail -n ...'). Reads last N lines of a file. Much faster than terminal tail. Accepts: path, filePath, file, lines."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string",
         "lines" to "number", "count" to "number"
@@ -46,7 +46,7 @@ class TailTool : BaseMcpTool() {
 
 class WcTool : BaseMcpTool() {
     override fun getName(): String = "wc"
-    override fun getDescription(): String = "Counts lines, words, chars in a file. Native replacement for 'wc'. Accepts: path, filePath, file."
+    override fun getDescription(): String = "NATIVE wc - DO NOT use runCommand('wc ...'). Counts lines, words, chars in a file. No shell overhead. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
     )
@@ -81,7 +81,7 @@ class WcTool : BaseMcpTool() {
 
 class StatTool : BaseMcpTool() {
     override fun getName(): String = "stat"
-    override fun getDescription(): String = "Gets file metadata (size, permissions, modified time). Native replacement for 'stat'/'ls -la'. Accepts: path, filePath, file."
+    override fun getDescription(): String = "NATIVE stat - DO NOT use runCommand('stat ...' or 'ls -la ...'). Gets file metadata (size, permissions, modified time) instantly. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
     )
@@ -122,7 +122,7 @@ class StatTool : BaseMcpTool() {
 
 class CountLinesTool : BaseMcpTool() {
     override fun getName(): String = "countLines"
-    override fun getDescription(): String = "Fast line count for a file. Native replacement for 'wc -l'. Uses buffered reading for speed."
+    override fun getDescription(): String = "NATIVE line count - DO NOT use runCommand('wc -l ...'). Fast buffered byte-level line counting. Much faster than terminal wc -l. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
     )
