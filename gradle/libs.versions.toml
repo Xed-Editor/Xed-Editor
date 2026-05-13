@@ -162,40 +162,14 @@ androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstall
 material = { module = "com.google.android.material:material", version.ref = "material" }
 photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photoview" }
 quickjs-android = { module = "app.cash.quickjs:quickjs-android", version.ref = "quickjsAndroid" }
-utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
-kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.2" }
-gson = { module = "com.google.code.gson:gson", version = "2.13.2" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-ui = { group = "androidx.compose.ui", name = "ui" }
-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-material3 = { group = "androidx.compose.material3", name = "material3" }
-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
-compose-dnd = { module = "com.mohamedrejeb.dnd:compose-dnd", version.ref = "composeDnd" }
-sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
-bouncycastle-bc = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
-bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
-
-androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
-androidx-collection = { module = "androidx.collection:collection", version = "1.5.0" }
-androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.1" }
-androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.17.0" }
-androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.7.1" }
-androidx-test-junit = { module = "androidx.test.ext:junit", version = "1.3.0" }
-androidx-test-espresso = { module = "androidx.test.espresso:espresso-core", version = "3.7.0" }
-desugar = { module = "com.android.tools:desugar_jdk_libs", version = "2.1.5" }
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version = "2.9.3" }
 jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" }
 jcodings = { module = "org.jruby.jcodings:jcodings", version.ref = "jcodings" }
 joni = { module = "org.jruby.joni:joni", version.ref = "joni" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml" }
+sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
+bouncycastle-bc = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 androidsvg-aar = { module = "com.caverock:androidsvg-aar", version.ref = "androidsvgAar" }
 ec4j-core = { module = "org.ec4j.core:ec4j-core", version.ref = "ec4jCore" }
