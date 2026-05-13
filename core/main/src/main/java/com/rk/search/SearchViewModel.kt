@@ -313,7 +313,8 @@ class SearchViewModel : ViewModel() {
                             val line = content.getLine(lineIndex).toString()
                             val indices = if (isRegex) {
                                 runCatching {
-                                    Regex(query, if (ignoreCase) RegexOption.IGNORE_CASE else setOf()).findAll(line).map { it.range.first }.toList()
+                                    val pattern = if (ignoreCase) "(?i)$query" else query
+                                    Regex(pattern).findAll(line).map { it.range.first }.toList()
                                 }.getOrDefault(emptyList())
                             } else {
                                 findAllIndices(line, query, ignoreCase = ignoreCase)
@@ -461,7 +462,8 @@ class SearchViewModel : ViewModel() {
             if (!isFileSearchable(file)) continue
             val charset = Charset.forName(Settings.encoding)
             val regex = if (isRegex) {
-                runCatching { Regex(query, if (ignoreCase) RegexOption.IGNORE_CASE else setOf()) }.getOrNull()
+                val pattern = if (ignoreCase) "(?i)$query" else query
+                runCatching { Regex(pattern) }.getOrNull()
             } else null
 
             file.useInputStream { inputStream ->
