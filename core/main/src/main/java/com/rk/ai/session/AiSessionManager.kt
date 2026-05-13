@@ -12,7 +12,6 @@ import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.ai.agents.GeminiAgent
-import com.rk.ai.service.IdeServiceImpl
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.settings.Settings
@@ -79,7 +78,6 @@ object AiSessionManager {
             val bridgeInfo = IdeBridge.getBridgeInfo()!!
 
             withContext(Dispatchers.Main) {
-                IdeServiceImpl(viewModel)
                 try {
                     val newSession = createAgentSession(
                         activity = activity,
