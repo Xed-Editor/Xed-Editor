@@ -22,15 +22,15 @@ class SseManager(
 ) : IdeNotificationSender {
 
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
-    private val sseLock = Any()
-    val size: Int get() = synchronized(sseLock) { sseClients.size }
+    val size: Int get() = sseClients.size
     private val keepaliveIntervalMs = 15_000L
 
     fun createSseStream(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val sessionId = UUID.randomUUID().toString()
+        val host = session.headers["host"]?.substringBefore(":") ?: "127.0.0.1"
+        val port = session.headers["host"]?.substringAfter(":", "")?.takeIf { it.isNotBlank() } ?: "36765"
         val (response, writer) = createStream(sessionId)
-        val host = session.headers["host"] ?: "127.0.0.1"
-        writer.print("event: endpoint\ndata: http://$host/messages?sessionId=$sessionId\n\n")
+        writer.print("event: endpoint\ndata: http://$host:$port/messages?sessionId=$sessionId\n\n")
         writeInitialEvents(writer)
         startKeepalive(sessionId)
         return response
@@ -47,7 +47,8 @@ class SseManager(
     private fun createStream(sessionId: String): Pair<NanoHTTPD.Response, PrintWriter> {
         val output = PipedOutputStream()
         val writer = PrintWriter(output, true)
-        synchronized(sseLock) { sseClients[sessionId] = writer; onClientsChanged(sseClients.size) }
+        sseClients[sessionId] = writer
+        onClientsChanged(sseClients.size)
         val input = PipedInputStream(output)
         val response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/event-stream", input, -1L).apply {
             addHeader("mcp-session-id", sessionId)
@@ -65,43 +66,45 @@ class SseManager(
 
     private fun startKeepalive(sessionId: String) {
         scope.launch {
+            var consecutiveErrors = 0
             while (isActive) {
                 delay(keepaliveIntervalMs)
-                synchronized(sseLock) {
-                    val w = sseClients[sessionId] ?: return@synchronized
-                    w.print(": keepalive\n\n"); w.flush()
-                    if (w.checkError()) {
-                        sseClients.remove(sessionId); onClientsChanged(sseClients.size)
-                        return@launch
+                val w = sseClients[sessionId] ?: break
+                w.print(": keepalive\n\n"); w.flush()
+                if (w.checkError()) {
+                    consecutiveErrors++
+                    if (consecutiveErrors >= 3) {
+                        sseClients.remove(sessionId)
+                        onClientsChanged(sseClients.size)
+                        break
                     }
+                } else {
+                    consecutiveErrors = 0
                 }
             }
         }
     }
 
     fun pushToSession(sessionId: String, responseBody: String): Boolean {
-        val writer = synchronized(sseLock) { sseClients[sessionId] }
-        if (writer != null) {
-            synchronized(sseLock) {
-                writer.print("event: message\n"); writer.print("data: $responseBody\n\n"); writer.flush()
-            }
-            return true
+        val writer = sseClients[sessionId] ?: return false
+        synchronized(writer) {
+            writer.print("event: message\n"); writer.print("data: $responseBody\n\n"); writer.flush()
         }
-        return false
+        return true
     }
 
     override fun sendNotification(method: String, params: JsonObject) {
         val notification = mcpDispatcher.notificationJson(method, params)
         val deadClients = mutableListOf<String>()
-        synchronized(sseLock) {
-            sseClients.forEach { (id, writer) ->
-                runCatching {
+        sseClients.forEach { (id, writer) ->
+            runCatching {
+                synchronized(writer) {
                     writer.print("event: message\n"); writer.print("data: $notification\n\n"); writer.flush()
-                    if (writer.checkError()) deadClients.add(id)
-                }.onFailure { deadClients.add(id) }
-            }
-            deadClients.forEach { sseClients.remove(it) }
-            onClientsChanged(sseClients.size)
+                }
+                if (writer.checkError()) deadClients.add(id)
+            }.onFailure { deadClients.add(id) }
         }
+        deadClients.forEach { sseClients.remove(it) }
+        if (deadClients.isNotEmpty()) onClientsChanged(sseClients.size)
     }
 }

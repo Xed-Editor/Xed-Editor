@@ -12,7 +12,6 @@ import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.ai.agents.GeminiAgent
-import com.rk.ai.bridge.server.IdeBridgeServer
 import com.rk.ai.service.IdeService
 import com.rk.ai.service.IdeServiceImpl
 import com.rk.file.child
@@ -29,8 +28,6 @@ import kotlinx.coroutines.withContext
 object AiSessionManager {
     var session by mutableStateOf<TerminalSession?>(null)
     var cwd by mutableStateOf<String?>(null)
-    var bridgeServer: IdeBridgeServer? = null
-    var ideService: IdeService? = null
     var currentAgent by mutableStateOf<AiAgent>(GeminiAgent)
 
     fun resolveAgent(type: String? = null): AiAgent = AgentTypeRegistry.resolve(type)
@@ -75,32 +72,31 @@ object AiSessionManager {
             d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
         }
 
-        stopSession()
+        // Only stop bridge if we can't reuse the existing session
+        if (!canReuseFor(workingDir) || extraArgs.isNotEmpty()) {
+            stopSession()
+        }
 
-        return withContext(Dispatchers.IO) {
-            IdeBridge.ensureStarted(viewModel)
-            IdeBridge.setWorkspacePath(workingDir)
-            val bridgeInfo = IdeBridge.getBridgeInfo()!!
+        IdeBridge.ensureStarted(viewModel, workingDir)
+        val bridgeInfo = IdeBridge.getBridgeInfo()!!
 
-            withContext(Dispatchers.Main) {
-                ideService = IdeServiceImpl(viewModel)
-                try {
-                    val newSession = createAgentSession(
-                        activity = activity,
-                        agent = currentAgent,
-                        bridge = bridgeInfo,
-                        workingDir = workingDir,
-                        extraArgs = extraArgs,
-                    )
-                    session = newSession
-                    cwd = workingDir
-                    newSession
-                } catch (e: Exception) {
-                    d("Failed to create session: ${e.message}")
-                    session = null
-                    cwd = null
-                    throw e
-                }
+        return withContext(Dispatchers.Default) {
+            try {
+                val newSession = createAgentSession(
+                    activity = activity,
+                    agent = currentAgent,
+                    bridge = bridgeInfo,
+                    workingDir = workingDir,
+                    extraArgs = extraArgs,
+                )
+                session = newSession
+                cwd = workingDir
+                newSession
+            } catch (e: Exception) {
+                d("Failed to create session: ${e.message}")
+                session = null
+                cwd = null
+                throw e
             }
         }
     }
@@ -115,18 +111,17 @@ object AiSessionManager {
         session = null
         cwd = null
         IdeBridge.stop()
-        ideService = null
     }
 
     suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {
-        val result = com.rk.ai.AgentCli.runAgent(
+        val result = AgentCli.runAgent(
             prompt = prompt,
             agent = currentAgent,
             workingDir = workingDir,
             ideBridge = IdeBridge.getBridgeInfo(),
             timeoutSeconds = timeoutSeconds,
         )
-        return com.rk.ai.AgentCli.stripCodeFences(result.output)
+        return AgentCli.stripCodeFences(result.output)
     }
 
     private fun createAgentSession(

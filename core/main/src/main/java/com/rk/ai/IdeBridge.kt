@@ -40,9 +40,10 @@ object IdeBridge {
 
         runCatching {
             val t = newToken()
+            val ideService = IdeServiceImpl(viewModel)
             synchronized(stateLock) {
                 token = t
-                val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
+                val s = IdeBridgeServer(0, t, ideService)
                 s.start()
                 server = s
                 port = s.port
@@ -70,7 +71,6 @@ object IdeBridge {
         return getBridgeInfo()
     }
 
-    /** Check if the bridge is reachable via HTTP health check */
     fun healthCheck(): Boolean {
         val s = synchronized(stateLock) { server } ?: return false
         return runCatching {

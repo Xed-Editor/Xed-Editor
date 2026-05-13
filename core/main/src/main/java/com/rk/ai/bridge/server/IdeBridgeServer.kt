@@ -109,11 +109,15 @@ class IdeBridgeServer(
             "/refresh" -> { ideService.refreshEditors(); json(Response.Status.OK, "{\"ok\":true}") }
             "/sse" -> sseManager.createSseStream(session)
             "/mcp" -> {
-                toolExecutionPermits.acquireUninterruptibly()
-                try {
-                    handleMcp(session, rawPostBody)
-                } finally {
-                    toolExecutionPermits.release()
+                if (session.method == Method.GET) {
+                    sseManager.createMcpStream(resolveMcpSessionId("initialize", null) ?: "default")
+                } else {
+                    toolExecutionPermits.acquireUninterruptibly()
+                    try {
+                        handleMcp(session, rawPostBody)
+                    } finally {
+                        toolExecutionPermits.release()
+                    }
                 }
             }
             "/messages" -> {
@@ -130,9 +134,6 @@ class IdeBridgeServer(
     }
 
     private fun handleMcp(session: IHTTPSession, rawPostBody: String?): Response {
-        if (session.method == Method.GET) return sseManager.createMcpStream(
-            resolveMcpSessionId("initialize", null) ?: "default"
-        )
         if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
         val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
         val id = request.get("id") ?: JsonNull.INSTANCE
@@ -176,11 +177,15 @@ class IdeBridgeServer(
         val newFile = ideService.resolvePath(newPath) ?: File(newPath)
         val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
         val targetFile = oldFile ?: newFile
-        val oldContent = oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
-            ?: runBlocking(Dispatchers.IO) { ideService.getFileContent(targetFile.absolutePath) }.orEmpty()
-        val newContent = runCatching { newFile.readText() }.getOrElse {
-            return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, it.message ?: "cannot read newPath"))
+        val oldContent = runBlocking(Dispatchers.IO) {
+            oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
+                ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
         }
+        val newContent = runBlocking(Dispatchers.IO) {
+            runCatching { newFile.readText() }.getOrElse {
+                return@runBlocking null
+            }
+        } ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "cannot read newPath"))
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
             runBlocking(Dispatchers.IO) { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
         }
@@ -193,14 +198,22 @@ class IdeBridgeServer(
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
     })
 
-    private fun ideContextJson(): String = gson.toJson(JsonObject().apply {
-        add("workspaceState", JsonObject().apply {
-            addProperty("isTrusted", true)
-            add("openFiles", com.google.gson.JsonArray().apply {
-                runBlocking(Dispatchers.IO) { ideService.getOpenFiles() }.forEach { add(it) }
+    private var contextCache: Pair<Long, String>? = null
+
+    private fun ideContextJson(): String {
+        val now = System.currentTimeMillis()
+        contextCache?.let { (ts, json) ->
+            if (now - ts < 1000) return json
+        }
+        return gson.toJson(JsonObject().apply {
+            add("workspaceState", JsonObject().apply {
+                addProperty("isTrusted", true)
+                add("openFiles", com.google.gson.JsonArray().apply {
+                    runBlocking(Dispatchers.IO) { ideService.getOpenFiles() }.forEach { add(it) }
+                })
             })
-        })
-    })
+        }).also { contextCache = now to it }
+    }
 
     private fun debugJson(): String = gson.toJson(JsonObject().apply {
         addProperty("port", listeningPort); addProperty("clients", connectedClients)
