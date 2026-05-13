@@ -10,8 +10,9 @@ class SearchCodeTool : BaseMcpTool() {
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
-        val limit = optionalInt(args, "limit") ?: 50
-        val results = ideService.searchCode(query, limit)
+        val limit = optionalPositiveInt(args, "limit") ?: 50
+        val path = getPathParam(args)
+        val results = ideService.searchCode(query, limit, path = path, isRegex = false)
         return jsonResult(JsonObject().apply { add("results", results) })
     }
 }
@@ -23,8 +24,9 @@ class GrepTool : BaseMcpTool() {
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
-        val limit = optionalInt(args, "limit") ?: 50
-        val results = ideService.searchCode(query, limit)
+        val limit = optionalPositiveInt(args, "limit") ?: 50
+        val path = getPathParam(args)
+        val results = ideService.searchCode(query, limit, path = path, isRegex = true)
         return jsonResult(JsonObject().apply { add("results", results) })
     }
 }
@@ -33,11 +35,12 @@ class SearchSymbolsTool : BaseMcpTool() {
     override fun getName(): String = "searchSymbols"
     override fun getDescription(): String = "NATIVE symbol search - DO NOT use runCommand('grep class ...'). Searches code declarations (classes, functions, variables). Faster and more precise than grep. Accepts: query, pattern, symbol."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
-    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "symbol" to "string", "limit" to "number")
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "symbol" to "string", "limit" to "number", "path" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/symbol")
-        val limit = optionalInt(args, "limit") ?: 50
-        val results = ideService.searchCode(query, limit)
+        val limit = optionalPositiveInt(args, "limit") ?: 50
+        val path = getPathParam(args)
+        val results = ideService.searchSymbols(query, limit, path = path)
         return jsonResult(JsonObject().apply { add("symbols", results) })
     }
 }
@@ -50,7 +53,7 @@ class FindFilesTool : BaseMcpTool() {
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
-        val limit = optionalInt(args, "limit") ?: 100
+        val limit = optionalPositiveInt(args, "limit") ?: 100
         val results = ideService.findFiles(query, limit)
         return textResult(results.toString())
     }
@@ -63,7 +66,7 @@ class GlobTool : BaseMcpTool() {
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
-        val limit = optionalInt(args, "limit") ?: 100
+        val limit = optionalPositiveInt(args, "limit") ?: 100
         val results = ideService.findFiles(query, limit)
         return textResult(results.toString())
     }

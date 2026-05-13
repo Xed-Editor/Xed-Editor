@@ -24,10 +24,11 @@ class TerminalService {
         val session = AiSessionManager.session
         val agentName = AiSessionManager.currentAgent.displayName
         if (session == null || !session.isRunning) return "No active $agentName terminal session"
+        val emulator = session.emulator ?: return "Terminal emulator not available"
         return withContext(Dispatchers.IO) {
-            val emulator = session.emulator ?: return@withContext "Terminal emulator not available"
-            val screen = emulator.screen
-            val full = screen.getTranscriptTextWithoutJoinedLines()
+            val full = synchronized(emulator) {
+                emulator.screen.getTranscriptTextWithoutJoinedLines()
+            }
             if (lines != null && lines > 0) {
                 full.split("\n").takeLast(lines.coerceAtLeast(1)).joinToString("\n")
             } else full

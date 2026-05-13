@@ -10,8 +10,8 @@ class GetProjectStructureTool : BaseMcpTool() {
     override fun getOptionalParams(): Map<String, String> = mapOf("maxDepth" to "number", "maxItems" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
-        val maxDepth = (optionalInt(args, "maxDepth") ?: 3).coerceIn(1, 10)
-        val maxItems = (optionalInt(args, "maxItems") ?: 200).coerceIn(1, 1000)
+        val maxDepth = (optionalPositiveInt(args, "maxDepth") ?: 3).coerceIn(1, 10)
+        val maxItems = (optionalPositiveInt(args, "maxItems") ?: 200).coerceIn(1, 1000)
         val tree = ideService.getProjectStructure(path, maxDepth, maxItems)
         return textResult(tree)
     }

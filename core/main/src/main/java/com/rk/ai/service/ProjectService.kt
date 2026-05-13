@@ -33,15 +33,23 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
 
     fun getPrimaryWorkspacePath(): String = IdeBridge.primaryWorkspacePath()
 
-    suspend fun searchCode(query: String, limit: Int): JsonArray {
+    suspend fun searchCode(query: String, limit: Int, path: String? = null, isRegex: Boolean = false): JsonArray {
         val app = application ?: return JsonArray()
         val vm = searchViewModel()
         val mv = viewModel ?: return JsonArray()
+        
+        val root = if (path != null) {
+            resolvePath(path) ?: File(IdeBridge.primaryWorkspacePath())
+        } else {
+            File(IdeBridge.primaryWorkspacePath())
+        }
+
         val results = withContext(Dispatchers.IO) {
             vm.searchCode(
                 context = app, mainViewModel = mv,
-                projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper(),
-                query = query, useIndex = Settings.always_index_projects
+                projectRoot = root.toFileWrapper(),
+                query = query, useIndex = Settings.always_index_projects && path == null && !isRegex,
+                isRegex = isRegex
             ).toList()
         }
         return JsonArray().apply {
@@ -52,6 +60,28 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
                     addProperty("column", item.column + 1)
                     addProperty("snippet", item.snippet.text.toString())
                 })
+            }
+        }
+    }
+
+    suspend fun searchSymbols(query: String, limit: Int, path: String? = null): JsonArray {
+        // Simple heuristic for symbols: look for declarations
+        val declarationPattern = Regex("\\b(class|interface|object|fun|def|function|var|val|let|const|enum|struct|type)\\s+$query\\b", RegexOption.IGNORE_CASE)
+        val allResults = searchCode(query, limit * 5, path = path, isRegex = false) // Get more results to filter
+        return JsonArray().apply {
+            var count = 0
+            allResults.forEach { element ->
+                if (count >= limit) return@forEach
+                val obj = element.asJsonObject
+                val snippet = obj.get("snippet").asString
+                if (declarationPattern.containsMatchIn(snippet)) {
+                    add(obj)
+                    count++
+                }
+            }
+            // If no declaration matches, return some general results as fallback
+            if (count == 0) {
+                allResults.take(limit).forEach { add(it) }
             }
         }
     }

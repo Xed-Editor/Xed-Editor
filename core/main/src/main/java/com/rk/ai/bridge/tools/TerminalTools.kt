@@ -8,7 +8,7 @@ class GetTerminalOutputTool : BaseMcpTool() {
     override fun getDescription(): String = "Gets recent terminal transcript output."
     override fun getOptionalParams(): Map<String, String> = mapOf("lines" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val lines = optionalInt(args, "lines")
+        val lines = optionalPositiveInt(args, "lines")
         val output = ideService.getTerminalOutput(lines)
         return textResult(output)
     }

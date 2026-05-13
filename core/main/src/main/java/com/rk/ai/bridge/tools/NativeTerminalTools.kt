@@ -3,42 +3,52 @@ package com.rk.ai.bridge.tools
 import com.google.gson.JsonObject
 import com.rk.ai.service.IdeService
 import java.io.File
-import java.io.RandomAccessFile
 
 class HeadTool : BaseMcpTool() {
     override fun getName(): String = "head"
-    override fun getDescription(): String = "NATIVE head - DO NOT use runCommand('head -n ...'). Reads first N lines of a file. Much faster than terminal head. Accepts: path, filePath, file, lines."
+    override fun getDescription(): String = "NATIVE head - DO NOT use runCommand('head -n ...'). Reads first N lines of a file directly with no shell overhead. Accepts: path, filePath, file, lines, count."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string",
         "lines" to "number", "count" to "number"
     )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
-        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceAtMost(10000)
         val file = resolvePathOrThrow(ideService, filePath)
-        val content = file.useLines { it.take(n).joinToString("\n") }
+        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceAtMost(10000)
+        val content = file.bufferedReader().use { reader ->
+            val lines = mutableListOf<String>()
+            var remaining = n
+            while (remaining > 0) {
+                val line = reader.readLine() ?: break
+                lines.add(line)
+                remaining--
+            }
+            lines.joinToString("\n")
+        }
         return textResult(content)
     }
 }
 
 class TailTool : BaseMcpTool() {
     override fun getName(): String = "tail"
-    override fun getDescription(): String = "NATIVE tail - DO NOT use runCommand('tail -n ...'). Reads last N lines of a file. Much faster than terminal tail. Accepts: path, filePath, file, lines."
+    override fun getDescription(): String = "NATIVE tail - DO NOT use runCommand('tail -n ...'). Reads last N lines of a file directly with no shell overhead. Accepts: path, filePath, file, lines, count."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string",
         "lines" to "number", "count" to "number"
     )
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
-        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceAtMost(10000)
         val file = resolvePathOrThrow(ideService, filePath)
-        val content = file.useLines { lines ->
-            val deque = ArrayDeque<String>(n)
-            lines.forEach { line ->
-                if (deque.size == n) deque.removeFirst()
-                deque.addLast(line)
+        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceAtMost(10000)
+        val content = file.bufferedReader().use { reader ->
+            val ring = ArrayDeque<String>(n)
+            var line = reader.readLine()
+            while (line != null) {
+                if (ring.size == n) ring.removeFirst()
+                ring.addLast(line)
+                line = reader.readLine()
             }
-            deque.joinToString("\n")
+            ring.joinToString("\n")
         }
         return textResult(content)
     }
@@ -46,7 +56,7 @@ class TailTool : BaseMcpTool() {
 
 class WcTool : BaseMcpTool() {
     override fun getName(): String = "wc"
-    override fun getDescription(): String = "NATIVE wc - DO NOT use runCommand('wc ...'). Counts lines, words, chars in a file. No shell overhead. Accepts: path, filePath, file."
+    override fun getDescription(): String = "NATIVE wc - DO NOT use runCommand('wc ...'). Counts lines/words/chars/bytes. No shell overhead. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
     )
@@ -60,12 +70,12 @@ class WcTool : BaseMcpTool() {
         var chars = 0L
 
         if (file.isFile) {
-            file.useLines { lineSeq ->
-                lineSeq.forEach { line ->
-                    lines++
-                    words += line.split(Regex("\\s+")).count { it.isNotBlank() }
-                    chars += line.length + 1
-                }
+            val text = file.readText()
+            if (text.isNotEmpty()) {
+                lines = text.count { it == '\n' }.toLong()
+                if (text.last() != '\n') lines++
+                words = text.split(Regex("\\s+")).count { it.isNotBlank() }.toLong()
+                chars = text.length.toLong()
             }
         }
 
@@ -122,7 +132,7 @@ class StatTool : BaseMcpTool() {
 
 class CountLinesTool : BaseMcpTool() {
     override fun getName(): String = "countLines"
-    override fun getDescription(): String = "NATIVE line count - DO NOT use runCommand('wc -l ...'). Fast buffered byte-level line counting. Much faster than terminal wc -l. Accepts: path, filePath, file."
+    override fun getDescription(): String = "NATIVE wc -l - DO NOT use runCommand('wc -l ...'). Fast buffered byte-level line counting. Handles files with/without trailing newline."
     override fun getOptionalParams(): Map<String, String> = mapOf(
         "path" to "string", "filePath" to "string", "file" to "string"
     )
@@ -131,6 +141,7 @@ class CountLinesTool : BaseMcpTool() {
         val file = resolvePathOrThrow(ideService, filePath)
 
         var lines = 0L
+        var lastByte = -1
         val buf = ByteArray(8192)
         file.inputStream().use { input ->
             var read = input.read(buf)
@@ -138,9 +149,11 @@ class CountLinesTool : BaseMcpTool() {
                 for (i in 0 until read) {
                     if (buf[i] == 10.toByte()) lines++
                 }
+                if (read > 0) lastByte = buf[read - 1].toInt()
                 read = input.read(buf)
             }
         }
+        if (lastByte != -1 && lastByte != 10) lines++
 
         return jsonResult(JsonObject().apply {
             addProperty("lines", lines)

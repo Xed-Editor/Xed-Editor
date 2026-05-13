@@ -20,9 +20,14 @@ class ReadFileTool : BaseMcpTool() {
         val startLine = optionalInt(args, "startLine")
         val endLine = optionalInt(args, "endLine")
         val count = optionalInt(args, "lines") ?: optionalInt(args, "count")
-        val s = if (startLine == null && count != null) 1 else startLine
-        val e = if (startLine == null && count != null) count else endLine
-        val content = ideService.getFileContent(file.absolutePath, s, e).orEmpty()
+
+        val content = if (startLine != null || endLine != null || count != null) {
+            val s = if (startLine != null) startLine else 1
+            val e = if (endLine != null) endLine else if (count != null) s + count - 1 else null
+            readLineRange(file, s, e)
+        } else {
+            ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+        }
         return textResult(content)
     }
 }
@@ -42,9 +47,14 @@ class CatTool : BaseMcpTool() {
         val startLine = optionalInt(args, "startLine")
         val endLine = optionalInt(args, "endLine")
         val count = optionalInt(args, "lines") ?: optionalInt(args, "count")
-        val s = if (startLine == null && count != null) 1 else startLine
-        val e = if (startLine == null && count != null) count else endLine
-        val content = ideService.getFileContent(file.absolutePath, s, e).orEmpty()
+
+        val content = if (startLine != null || endLine != null || count != null) {
+            val s = if (startLine != null) startLine else 1
+            val e = if (endLine != null) endLine else if (count != null) s + count - 1 else null
+            readLineRange(file, s, e)
+        } else {
+            ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+        }
         return textResult(content)
     }
 }
@@ -97,7 +107,7 @@ class ListFilesTool : BaseMcpTool() {
         val dirPath = getPathParam(args) ?: throw ToolError.MissingParam("path/directoryPath")
         val dir = resolvePathOrThrow(ideService, dirPath)
         val recursive = optionalBoolean(args, "recursive")
-        val maxFiles = (optionalInt(args, "maxFiles") ?: 500).coerceIn(1, 5000)
+        val maxFiles = (optionalPositiveInt(args, "maxFiles") ?: 500).coerceIn(1, 5000)
         val files = ideService.listFiles(dir, recursive, maxFiles)
         return textResult(files.joinToString("\n"))
     }
@@ -112,7 +122,7 @@ class LsTool : BaseMcpTool() {
         val dirPath = getPathParam(args) ?: throw ToolError.MissingParam("path/directoryPath")
         val dir = resolvePathOrThrow(ideService, dirPath)
         val recursive = optionalBoolean(args, "recursive")
-        val maxFiles = (optionalInt(args, "maxFiles") ?: 500).coerceIn(1, 5000)
+        val maxFiles = (optionalPositiveInt(args, "maxFiles") ?: 500).coerceIn(1, 5000)
         val files = ideService.listFiles(dir, recursive, maxFiles)
         return textResult(files.joinToString("\n"))
     }
