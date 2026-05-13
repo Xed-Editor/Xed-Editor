@@ -90,7 +90,7 @@ class IdeServiceImpl(
     override fun getPrimaryWorkspacePath(): String = projectService.getPrimaryWorkspacePath()
     override suspend fun searchCode(query: String, limit: Int, path: String?, isRegex: Boolean): JsonArray = projectService.searchCode(query, limit, path, isRegex)
     override suspend fun searchSymbols(query: String, limit: Int, path: String?): JsonArray = projectService.searchSymbols(query, limit, path)
-    override suspend fun findFiles(query: String, limit: Int = 100): JsonArray = projectService.findFiles(query, limit)
+    override suspend fun findFiles(query: String, limit: Int): JsonArray = projectService.findFiles(query, limit)
     override suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String = projectService.getProjectStructure(path, maxDepth, maxItems)
     override suspend fun getProjectConfig(workspacePath: String): JsonObject = projectService.getProjectConfig(workspacePath)
     override suspend fun getSymbolUnderCursor(): JsonObject = projectService.getSymbolUnderCursor()
