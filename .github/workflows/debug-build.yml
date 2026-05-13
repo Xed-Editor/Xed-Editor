@@ -29,16 +29,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Fix submodule URL and init
+      - name: Clone soraX dependency
         run: |
           rm -rf soraX
-          git config --global url."https://github.com/algospider/soraX.git".insteadOf "https://github.com/RohitKushvaha01/soraX.git"
-          git submodule sync --recursive
-          git submodule update --init --recursive --depth=1 || {
-            echo "Submodule update failed, cloning directly..."
-            rm -rf soraX
-            git clone https://github.com/algospider/soraX.git soraX
-          }
+          echo "Cloning soraX editor engine..."
+          git clone --depth=1 https://github.com/algospider/soraX.git soraX
+          ls -la soraX/
+          echo "soraX cloned successfully with $(ls soraX/ | wc -l) entries"
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5

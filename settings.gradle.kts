@@ -40,26 +40,28 @@ val soraX = file("soraX")
 
 fun initSoraX(): Boolean {
     if (soraX.exists() && soraX.listFiles()?.isNotEmpty() == true) return true
+    if (soraX.exists()) soraX.deleteRecursively()
+
     val gitDir = file(".git")
     if (!gitDir.exists()) return false
+
     try {
+        logger.lifecycle("Cloning soraX editor engine...")
         val pb = ProcessBuilder(
-            "git", "submodule", "update", "--init", "--recursive", "--depth=1"
+            "git", "clone", "--depth=1",
+            "https://github.com/algospider/soraX.git", "soraX"
         )
         pb.directory(rootProject.projectDir)
+        pb.redirectErrorStream(true)
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
         val proc = pb.start()
-        if (proc.waitFor(2, java.util.concurrent.TimeUnit.MINUTES) && proc.exitValue() == 0) return true
-    } catch (_: Exception) {}
-    if (soraX.exists()) soraX.deleteRecursively()
-    try {
-        val pb = ProcessBuilder(
-            "git", "clone", "https://github.com/algospider/soraX.git", "soraX"
-        )
-        pb.directory(rootProject.projectDir)
-        val proc = pb.start()
-        return proc.waitFor(2, java.util.concurrent.TimeUnit.MINUTES) && proc.exitValue() == 0
-    } catch (_: Exception) {}
-    return false
+        val ok = proc.waitFor(5, java.util.concurrent.TimeUnit.MINUTES) && proc.exitValue() == 0
+        if (ok) logger.lifecycle("soraX cloned successfully")
+        return ok
+    } catch (e: Exception) {
+        logger.warn("Failed to clone soraX: ${e.message}")
+        return false
+    }
 }
 
 if (!initSoraX()) {
