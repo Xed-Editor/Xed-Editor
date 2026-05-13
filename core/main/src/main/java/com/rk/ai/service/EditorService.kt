@@ -152,6 +152,35 @@ class EditorService(
         return "saved ${dirtyTabs.size} dirty open file(s)"
     }
 
+    fun applyBatchEdits(edits: Map<String, String>, title: String) {
+        scope.viewModelScope.launch(Dispatchers.IO) {
+            edits.forEach { (path, newContent) ->
+                val file = File(path)
+                val oldContent = getFileContentInternal(path)
+                withContext(Dispatchers.Main) {
+                    showPatch(path, oldContent, newContent, title) {
+                        writeFile(file, newContent)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun getFileContentInternal(path: String): String {
+        val file = File(path)
+        return findTabByPath(path)?.let { tab ->
+            withContext(Dispatchers.Main) { tab.editorState.editor.get()?.text?.toString().orEmpty() }
+        } ?: withContext(Dispatchers.IO) { if (file.exists()) file.readText() else "" }
+    }
+
+    private suspend fun writeFile(file: File, content: String) {
+        withContext(Dispatchers.IO) {
+            file.parentFile?.mkdirs()
+            file.writeText(content, Charsets.UTF_8)
+        }
+        withContext(Dispatchers.Main) { findTabByPath(file.absolutePath)?.refresh() }
+    }
+
     fun showPatch(
         filePath: String, oldContent: String, newContent: String, title: String, onApply: suspend () -> Unit
     ) {

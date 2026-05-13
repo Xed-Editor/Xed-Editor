@@ -5,6 +5,7 @@ import java.io.File
 
 interface EditorOps {
     fun showPatch(filePath: String, oldContent: String, newContent: String, title: String = "Review AI change", onApply: suspend () -> Unit)
+    fun applyBatchEdits(edits: Map<String, String>, title: String = "Review Batch AI Changes")
     fun rejectPatch(filePath: String)
     fun openFile(file: File)
     suspend fun getOpenFiles(): List<JsonObject>

@@ -50,7 +50,23 @@ abstract class BaseMcpTool : McpTool {
     }
 
     protected fun resolvePathOrThrow(ideService: IdeService, path: String): File {
-        return ideService.resolvePath(path) ?: throw ToolError.PathOutsideWorkspace(path)
+        return ideService.resolvePath(path) ?: run {
+            val workspace = ideService.getPrimaryWorkspacePath()
+            if (workspace.isNotBlank()) {
+                val root = File(workspace)
+                val name = path.substringAfterLast("/")
+                val suggestions = root.walkTopDown()
+                    .maxDepth(3)
+                    .filter { it.name.contains(name, ignoreCase = true) }
+                    .take(3)
+                    .map { it.absolutePath }
+                    .toList()
+                if (suggestions.isNotEmpty()) {
+                    throw ToolError.PathOutsideWorkspace("$path not found. Did you mean:\n${suggestions.joinToString("\n")}")
+                }
+            }
+            throw ToolError.PathOutsideWorkspace(path)
+        }
     }
 
     // ── Auto-validation from schema (cached keys) ──

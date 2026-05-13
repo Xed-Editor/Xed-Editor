@@ -28,7 +28,25 @@ class GetProjectSummaryTool : BaseMcpTool() {
         val sb = StringBuilder()
         sb.append("Project Root: ").append(rootPath).append("\n")
         sb.append("Language: ").append(config.get("language")?.asString ?: "unknown").append("\n")
-        sb.append("Build System: ").append(config.get("buildSystem")?.asString ?: "unknown").append("\n\n")
+        sb.append("Build System: ").append(config.get("buildSystem")?.asString ?: "unknown").append("\n")
+
+        val status = ideService.getGitStatus(rootPath)
+        if (status.has("branch")) {
+            sb.append("Git Branch: ").append(status.get("branch").asString).append("\n")
+            sb.append("Total Changes: ").append(status.get("totalChanges").asInt).append("\n")
+        }
+        
+        val openFiles = ideService.getOpenFiles()
+        if (openFiles.isNotEmpty()) {
+            sb.append("\nOpen Tabs:\n")
+            openFiles.take(10).forEach { file ->
+                sb.append(" - ").append(file.get("path").asString)
+                if (file.get("isActive").asBoolean) sb.append(" [ACTIVE]")
+                sb.append("\n")
+            }
+        }
+
+        sb.append("\n")
 
         val importantFiles = listOf("README.md", "README", "build.gradle.kts", "build.gradle", "package.json", "pom.xml", "Cargo.toml", "requirements.txt")
         importantFiles.forEach { name ->

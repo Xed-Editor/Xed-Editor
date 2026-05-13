@@ -40,7 +40,19 @@ class IdeServiceImpl(
     override fun resolvePath(path: String): File? = fileService.resolvePath(path)
     override fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> = fileService.listFiles(directory, recursive, maxFiles)
     override suspend fun getFileContent(filePath: String): String? = fileService.getFileContent(filePath)
-    override suspend fun writeFile(file: File, content: String) = fileService.writeFile(file, content)
+    override suspend fun writeFile(file: File, content: String) {
+        fileService.writeFile(file, content)
+        viewModel.viewModelScope.launch {
+            kotlinx.coroutines.delay(500) // Wait for LSP to process
+            val diags = lspService.getDiagnostics(file.absolutePath)
+            if (diags.size() > 0) {
+                notificationSender?.sendNotification("ide/diagnosticsUpdated", JsonObject().apply {
+                    addProperty("filePath", file.absolutePath)
+                    add("diagnostics", diags)
+                })
+            }
+        }
+    }
     override fun refreshEditors(filePath: String?, force: Boolean) = fileService.refreshEditors(filePath, force)
     override suspend fun createFile(filePath: String, content: String?): String = fileService.createFile(filePath, content)
     override suspend fun deleteFile(filePath: String): String = fileService.deleteFile(filePath)
@@ -55,6 +67,8 @@ class IdeServiceImpl(
     override suspend fun saveAllFiles(): String = editorService.saveAllFiles()
     override fun showPatch(filePath: String, oldContent: String, newContent: String, title: String, onApply: suspend () -> Unit) =
         editorService.showPatch(filePath, oldContent, newContent, title, onApply)
+    override fun applyBatchEdits(edits: Map<String, String>, title: String) =
+        editorService.applyBatchEdits(edits, title)
     override fun rejectPatch(filePath: String) = editorService.rejectPatch(filePath)
     override fun showMessage(message: String) = editorService.showMessage(message)
     override fun ensureIdeEnabled() = editorService.ensureIdeEnabled()

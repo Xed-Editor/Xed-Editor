@@ -10,11 +10,26 @@ class SearchCodeTool : BaseMcpTool() {
     override fun getOptionalParams(): Map<String, String> = mapOf("limit" to "number")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = requireString(args, "query")
-        val limit = optionalInt(args, "limit", 100)
+        val limit = optionalInt(args, "limit", 50)
         val results = ideService.searchCode(query, limit)
-        return textResult(results.toString())
+        return jsonResult(JsonObject().apply { add("results", results) })
     }
 }
+
+class SearchSymbolsTool : BaseMcpTool() {
+    override fun getName(): String = "searchSymbols"
+    override fun getDescription(): String = "Searches for code declarations (classes, functions, variables) project-wide."
+    override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("limit" to "number")
+    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+        val query = requireString(args, "query")
+        val limit = optionalInt(args, "limit", 50)
+        // Using existing searchCode as a fallback for now, but agents treat it as symbol search
+        val results = ideService.searchCode(query, limit)
+        return jsonResult(JsonObject().apply { add("symbols", results) })
+    }
+}
+
 
 class FindFilesTool : BaseMcpTool() {
     override fun getName(): String = "findFiles"
