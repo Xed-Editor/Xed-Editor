@@ -41,18 +41,24 @@ val soraX = file("soraX")
 fun initSoraX(): Boolean {
     if (soraX.exists() && soraX.listFiles()?.isNotEmpty() == true) return true
     val gitDir = file(".git")
-    if (gitDir.exists()) {
-        try {
-            val pb = ProcessBuilder(
-                "git", "submodule", "update", "--init", "--recursive", "--depth=1"
-            )
-            pb.directory(rootProject.projectDir)
-            pb.environment()["GIT_REDIRECT_STDERR"] = "2>&1"
-            val proc = pb.start()
-            val exit = proc.waitFor(2, java.util.concurrent.TimeUnit.MINUTES)
-            if (exit && proc.exitValue() == 0) return true
-        } catch (_: Exception) {}
-    }
+    if (!gitDir.exists()) return false
+    try {
+        val pb = ProcessBuilder(
+            "git", "submodule", "update", "--init", "--recursive", "--depth=1"
+        )
+        pb.directory(rootProject.projectDir)
+        val proc = pb.start()
+        if (proc.waitFor(2, java.util.concurrent.TimeUnit.MINUTES) && proc.exitValue() == 0) return true
+    } catch (_: Exception) {}
+    if (soraX.exists()) soraX.deleteRecursively()
+    try {
+        val pb = ProcessBuilder(
+            "git", "clone", "https://github.com/algospider/soraX.git", "soraX"
+        )
+        pb.directory(rootProject.projectDir)
+        val proc = pb.start()
+        return proc.waitFor(2, java.util.concurrent.TimeUnit.MINUTES) && proc.exitValue() == 0
+    } catch (_: Exception) {}
     return false
 }
 
