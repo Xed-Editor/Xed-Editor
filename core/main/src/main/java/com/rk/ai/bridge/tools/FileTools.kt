@@ -119,7 +119,7 @@ class WriteFileTool : BaseMcpTool() {
         val filePath = requireString(args, "filePath")
         val content = requireString(args, "content")
         val file = resolvePathOrThrow(ideService, filePath)
-        val msg = showPatchAndApply(ideService, file, content, "Review Gemini file update", refreshAfterApply = false)
+        val msg = showPatchAndApply(ideService, file, content, "Review AI file update", refreshAfterApply = false)
         return textResult(msg)
     }
 }

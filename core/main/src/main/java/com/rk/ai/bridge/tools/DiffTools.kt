@@ -15,7 +15,7 @@ class OpenDiffTool : BaseMcpTool() {
         val filePath = requireString(args, "filePath")
         val newContent = requireString(args, "newContent")
         val file = resolvePathOrThrow(ideService, filePath)
-        val msg = showPatchAndApply(ideService, file, newContent, "Review Gemini file change", refreshAfterApply = true)
+        val msg = showPatchAndApply(ideService, file, newContent, "Review AI file change", refreshAfterApply = true)
         return textResult(msg)
     }
 }

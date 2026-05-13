@@ -76,7 +76,7 @@ class EditorService(
             val oldText = editor.text.substring(start, end)
             current.editorState.pendingAiPatch?.reject?.invoke()
             current.editorState.pendingAiPatch = EditorPatch(
-                title = if (hasSelection) "Review Gemini selection replacement" else "Review Gemini file replacement",
+                title = if (hasSelection) "Review AI selection replacement" else "Review AI file replacement",
                 filePath = current.file.getAbsolutePath(),
                 oldText = oldText,
                 newText = newContent,
@@ -259,8 +259,8 @@ class EditorService(
         scope.viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val home = com.rk.file.sandboxHomeDir()
-                val geminiDir = File(home, ".gemini").also { it.mkdirs() }
-                val settingsFile = File(geminiDir, "settings.json")
+                val aiDir = File(home, ".gemini").also { it.mkdirs() }
+                val settingsFile = File(aiDir, "settings.json")
                 val settings = if (settingsFile.exists()) {
                     runCatching { com.google.gson.JsonParser.parseString(settingsFile.readText()).asJsonObject }.getOrDefault(JsonObject())
                 } else JsonObject()

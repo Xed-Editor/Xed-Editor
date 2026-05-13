@@ -181,7 +181,7 @@ class IdeBridgeServer(
         val newContent = runCatching { newFile.readText() }.getOrElse {
             return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, it.message ?: "cannot read newPath"))
         }
-        ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review Gemini editor change") {
+        ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
             runBlocking(Dispatchers.IO) { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
         }
         return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
