@@ -79,7 +79,7 @@ class IdeBridgeServer(
             register(FindFilesTool()); register(GlobTool())
             register(HeadTool()); register(TailTool()); register(WcTool())
             register(CountLinesTool()); register(StatTool())
-            register(GetDiagnosticsTool()); register(FindDefinitionsTool())
+            register(GetDiagnosticsTool()); register(FindDefinitionsTool()); register(FindReferencesTool())
             register(RenameSymbolTool()); register(FormatDocumentTool())
             register(GetGitStatusTool()); register(GetGitDiffTool()); register(GitCommitTool()); register(GitCheckoutTool())
             register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool())
@@ -115,7 +115,14 @@ class IdeBridgeServer(
                     toolExecutionPermits.release()
                 }
             }
-            "/messages" -> handleMessages(session, rawPostBody)
+            "/messages" -> {
+                toolExecutionPermits.acquireUninterruptibly()
+                try {
+                    handleMessages(session, rawPostBody)
+                } finally {
+                    toolExecutionPermits.release()
+                }
+            }
             "/external-editor" -> handleExternalEditor(session, rawPostBody)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
         }

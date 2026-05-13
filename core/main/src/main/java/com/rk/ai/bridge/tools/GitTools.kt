@@ -33,7 +33,7 @@ class GitCommitTool : BaseMcpTool() {
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
         val message = requireString(args, "message")
-        val all = optionalBoolean(args, "all", true)
+        val all = optionalBoolean(args, "all")
         val result = ideService.gitCommit(path, message, all)
         return textResult(result)
     }

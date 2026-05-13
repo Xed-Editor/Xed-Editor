@@ -65,9 +65,9 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
     }
 
     suspend fun searchSymbols(query: String, limit: Int, path: String? = null): JsonArray {
-        // Simple heuristic for symbols: look for declarations
-        val declarationPattern = Regex("\\b(class|interface|object|fun|def|function|var|val|let|const|enum|struct|type)\\s+$query\\b", RegexOption.IGNORE_CASE)
-        val allResults = searchCode(query, limit * 5, path = path, isRegex = false) // Get more results to filter
+        val escapedQuery = Regex.escape(query)
+        val declarationPattern = Regex("\\b(class|interface|object|fun|def|function|var|val|let|const|enum|struct|type)\\s+$escapedQuery\\b", RegexOption.IGNORE_CASE)
+        val allResults = searchCode(query, limit * 5, path = path, isRegex = false)
         return JsonArray().apply {
             var count = 0
             allResults.forEach { element ->
@@ -79,20 +79,48 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
                     count++
                 }
             }
-            // If no declaration matches, return some general results as fallback
             if (count == 0) {
                 allResults.take(limit).forEach { add(it) }
             }
         }
     }
 
-    suspend fun findFiles(query: String, limit: Int): JsonArray {
+    suspend fun findFiles(query: String, limit: Int, path: String? = null): JsonArray {
+        val root = if (path != null) {
+            resolvePath(path) ?: File(IdeBridge.primaryWorkspacePath())
+        } else {
+            File(IdeBridge.primaryWorkspacePath())
+        }
+        if (!root.exists() || !root.isDirectory) return JsonArray()
+
+        val isGlob = query.any { it == '*' || it == '?' || it == '[' }
+
+        if (isGlob) {
+            val results = JsonArray()
+            val ignored = AiConfig.ignoredDirectories
+            withContext(Dispatchers.IO) {
+                val globRegex = globToRegex(query)
+                val pattern = Regex(globRegex, RegexOption.IGNORE_CASE)
+                root.walkTopDown()
+                    .onEnter { it.name !in ignored }
+                    .filter { it.isFile && pattern.matches(it.name) }
+                    .take(limit)
+                    .forEach { file ->
+                        results.add(JsonObject().apply {
+                            addProperty("path", file.absolutePath)
+                            addProperty("name", file.name)
+                        })
+                    }
+            }
+            return results
+        }
+
         val app = application ?: return JsonArray()
         val vm = searchViewModel()
         val results = withContext(Dispatchers.IO) {
             vm.searchFileName(
                 context = app,
-                projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper(),
+                projectRoot = root.toFileWrapper(),
                 query = query, useIndex = Settings.always_index_projects
             ).toList()
         }
@@ -104,6 +132,40 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
                 })
             }
         }
+    }
+
+    private fun globToRegex(glob: String): String {
+        val sb = StringBuilder()
+        var i = 0
+        while (i < glob.length) {
+            val c = glob[i]
+            when (c) {
+                '*' -> {
+                    if (i + 1 < glob.length && glob[i + 1] == '*') {
+                        sb.append(".*")
+                        i++
+                        if (i + 1 < glob.length && glob[i + 1] == '/') i++
+                    } else {
+                        sb.append("[^/]*")
+                    }
+                }
+                '?' -> sb.append("[^/]")
+                '.' -> sb.append("\\.")
+                '/' -> sb.append("/")
+                '[' -> {
+                    val close = glob.indexOf(']', i)
+                    if (close == -1) {
+                        sb.append(Regex.escape(c.toString()))
+                    } else {
+                        sb.append(glob.substring(i, close + 1))
+                        i = close
+                    }
+                }
+                else -> sb.append(Regex.escape(c.toString()))
+            }
+            i++
+        }
+        return sb.toString()
     }
 
     private data class StructureCache(val path: String, val depth: Int, val items: Int, val result: String, val timestamp: Long)

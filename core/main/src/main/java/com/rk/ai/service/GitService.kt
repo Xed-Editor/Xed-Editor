@@ -39,6 +39,10 @@ class GitService {
         }.getOrNull()
     }
 
+    private fun invalidateRepoCache(workspacePath: String) {
+        repoCache.remove(workspacePath)?.git?.let { runCatching { it.close() } }
+    }
+
     private data class StatusCache(val path: String, val result: JsonObject, val timestamp: Long)
     private var lastStatus: StatusCache? = null
 
@@ -57,10 +61,11 @@ class GitService {
                 val status = git.status().call()
                 result.addProperty("branch", repo.branch ?: "HEAD")
                 result.add("changes", JsonArray().apply {
-                    status.added.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "added") }) }
-                    status.changed.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "staged") }) }
-                    status.modified.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "modified") }) }
-                    status.removed.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "removed") }) }
+                    status.added.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "staged_added") }) }
+                    status.changed.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "staged_modified") }) }
+                    status.modified.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "working_tree_modified") }) }
+                    status.removed.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "staged_removed") }) }
+                    status.missing.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "working_tree_deleted") }) }
                     status.untracked.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "untracked") }) }
                     status.conflicting.forEach { add(JsonObject().apply { addProperty("file", it); addProperty("type", "conflicting") }) }
                 })
@@ -95,7 +100,8 @@ class GitService {
             commit.setMessage(message)
             if (all) commit.setAll(true)
             val rev = commit.call()
-            lastStatus = null // Invalidate cache
+            lastStatus = null
+            invalidateRepoCache(workspacePath)
             "committed ${rev.name.take(7)}: $message"
         }.getOrElse { "error: ${it.message}" }
     }
@@ -104,7 +110,8 @@ class GitService {
         runCatching {
             val git = getRepo(workspacePath) ?: return@withContext "not a git repository"
             git.checkout().setName(target).call()
-            lastStatus = null // Invalidate cache
+            lastStatus = null
+            invalidateRepoCache(workspacePath)
             "checked out $target"
         }.getOrElse { "error: ${it.message}" }
     }

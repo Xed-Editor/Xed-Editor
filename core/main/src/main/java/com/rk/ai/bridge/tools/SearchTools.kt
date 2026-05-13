@@ -1,7 +1,9 @@
 package com.rk.ai.bridge.tools
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.ai.service.IdeService
+import java.io.File
 
 class SearchCodeTool : BaseMcpTool() {
     override fun getName(): String = "searchCode"
@@ -48,26 +50,28 @@ class SearchSymbolsTool : BaseMcpTool() {
 
 class FindFilesTool : BaseMcpTool() {
     override fun getName(): String = "findFiles"
-    override fun getDescription(): String = "NATIVE file finder - DO NOT use runCommand('find ...'). Finds files by glob patterns like '*.kt' or '**/*.java'. Much faster than terminal find. Accepts: query, pattern."
+    override fun getDescription(): String = "NATIVE file finder - DO NOT use runCommand('find ...'). Finds files by glob patterns like '*.kt' or '**/*.java'. Much faster than terminal find. Accepts: query, pattern, limit, path."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
-    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number")
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
         val limit = optionalPositiveInt(args, "limit") ?: 100
-        val results = ideService.findFiles(query, limit)
+        val path = getPathParam(args)
+        val results = ideService.findFiles(query, limit, path)
         return textResult(results.toString())
     }
 }
 
 class GlobTool : BaseMcpTool() {
     override fun getName(): String = "glob"
-    override fun getDescription(): String = "NATIVE glob finder - DO NOT use runCommand('find ...'). Alias for findFiles. Finds files by glob patterns. Accepts: query, pattern."
+    override fun getDescription(): String = "NATIVE glob finder - DO NOT use runCommand('find ...'). Alias for findFiles. Finds files by glob patterns. Accepts: query, pattern, limit, path."
     override fun getRequiredParams(): Map<String, String> = emptyMap()
-    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number")
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
     override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
         val limit = optionalPositiveInt(args, "limit") ?: 100
-        val results = ideService.findFiles(query, limit)
+        val path = getPathParam(args)
+        val results = ideService.findFiles(query, limit, path)
         return textResult(results.toString())
     }
 }
