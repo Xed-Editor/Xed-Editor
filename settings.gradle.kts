@@ -46,9 +46,9 @@ fun initSoraX(): Boolean {
     if (!gitDir.exists()) return false
 
     try {
-        logger.lifecycle("Cloning soraX editor engine...")
+        logger.lifecycle("Cloning soraX editor engine (with submodules)...")
         val pb = ProcessBuilder(
-            "git", "clone", "--depth=1",
+            "git", "clone", "--depth=1", "--recurse-submodules",
             "https://github.com/algospider/soraX.git", "soraX"
         )
         pb.directory(rootProject.projectDir)

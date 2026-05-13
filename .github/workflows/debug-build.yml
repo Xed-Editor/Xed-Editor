@@ -32,9 +32,9 @@ jobs:
       - name: Clone soraX dependency
         run: |
           rm -rf soraX
-          echo "Cloning soraX editor engine..."
-          git clone --depth=1 https://github.com/algospider/soraX.git soraX
-          ls -la soraX/
+          echo "Cloning soraX editor engine (with submodules)..."
+          git clone --depth=1 --recurse-submodules https://github.com/algospider/soraX.git soraX
+          ls -la soraX/oniguruma-native/src/main/cpp/oniguruma/
           echo "soraX cloned successfully with $(ls soraX/ | wc -l) entries"
 
       - name: Set up JDK 21
