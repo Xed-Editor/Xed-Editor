@@ -220,18 +220,18 @@ class SFTPFileObject(
     suspend fun prefetchAttributes() {
         if (attrsFetched == true) return // Don't fetch again if we already tried
 
-        attrs = withContext(Dispatchers.IO) {
+        attrs = withSftpChannel { sftp ->
             try {
                 Log.d("SftpFileObject", "Prefetching attributes for: '$remotePath'")
                 if (remotePath.isNotEmpty()) {
-                    sftpClient?.lstat(remotePath)
+                    sftp.lstat(remotePath)
                 } else {
                     // Handle case where remotePath might be empty for root, JSch might expect "."
                     // Or if your logic now ensures root is "/", this branch may not be needed.
                     // Let's assume remotePath is now always a valid path like "/" or "file.txt"
                     // If remotePath can be empty, use "."
                     // That's all, Buy a better Chair & touch Grass 🙃
-                    sftpClient?.lstat(if (remotePath.isEmpty() && isRoot) "." else remotePath)
+                    sftp.lstat(if (remotePath.isEmpty() && isRoot) "." else remotePath)
                 }
             } catch (e: Exception) {
                 Log.e("SftpFileObject", "lstat failed for $remotePath: ${e.message}", e)
@@ -347,15 +347,12 @@ class SFTPFileObject(
                         val entryName = entry.name
                         if (entryName == "." || entryName == "..") continue
 
+                        val absRemotePath = normalizeAbs(remotePath)
                         val childPath =
-                            if (remotePath.endsWith("/")) remotePath + entryName else "$remotePath/$entryName"
+                            if (absRemotePath.endsWith("/")) "$absRemotePath$entryName"
+                            else "$absRemotePath/$entryName"
                         val childAbsolutePath =
-                            "sftp://$username@$hostname:$port${
-                                if (childPath.startsWith(
-                                        "/"
-                                    )
-                                ) childPath else "/$childPath"
-                            }"
+                            "sftp://$username@$hostname:$port$childPath"
 
                         files.add(
                             SFTPFileObject(
@@ -391,13 +388,10 @@ class SFTPFileObject(
 
     override suspend fun getInputStream(): InputStream {
         if (!isFile()) throw FileNotFoundException("Not a file or does not exist: $remotePath")
-        try {
-            return sftpClient?.open(remotePath)?.RemoteFileInputStream()
-                ?: throw IOException("SFTP get failed: null channel")
-        } catch (e: IOException) {
-            Log.e("SftpFileObject", "get (InputStream) failed for $remotePath: ${e.message}", e)
-            throw IOException("SFTP get failed: ${e.message}", e)
-        }
+
+        return withSftpChannel { sftp ->
+            sftp.open(remotePath)?.RemoteFileInputStream()
+        } ?: throw IOException("SFTP get failed: null channel")
     }
 
     override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
@@ -408,13 +402,10 @@ class SFTPFileObject(
         val mode = if (append) EnumSet.of(net.schmizz.sshj.sftp.OpenMode.APPEND) else EnumSet.of(
             net.schmizz.sshj.sftp.OpenMode.WRITE
         )
-        try {
-            return sftpClient?.open(remotePath, mode)?.RemoteFileOutputStream()
-                ?: throw IOException("SFTP put failed: null channel")
-        } catch (e: IOException) {
-            Log.e("SftpFileObject", "put (OutputStream) failed for $remotePath: ${e.message}", e)
-            throw IOException("SFTP put failed: ${e.message}", e)
-        }
+
+        return withSftpChannel { sftp ->
+            sftp.open(remotePath, mode)?.RemoteFileOutputStream()
+        } ?: throw IOException("SFTP put failed: null channel")
     }
 
     override suspend fun length(): Long = attrs?.size ?: 0L
@@ -446,13 +437,11 @@ class SFTPFileObject(
 
     override suspend fun createNewFile(): Boolean {
         if (exists()) return false
-        return try {
-            sftpClient?.open(remotePath, EnumSet.of(net.schmizz.sshj.sftp.OpenMode.CREAT))?.close()
+
+        return withSftpChannel { sftp ->
+            sftp.open(normalizeAbs(remotePath), EnumSet.of(net.schmizz.sshj.sftp.OpenMode.CREAT))?.close()
             true
-        } catch (e: Exception) {
-            Log.e("SFTPFileObject", "createNewFile failed for $remotePath: ${e.printStackTrace()}", e)
-            false
-        }
+        } ?: false
     }
 
     override suspend fun getCanonicalPath(): String =
@@ -461,41 +450,32 @@ class SFTPFileObject(
 
     override suspend fun mkdir(): Boolean {
         if (exists()) return false
-        return try {
-            sftpClient?.mkdir(remotePath)
+        return withSftpChannel { sftp ->
+            sftp.mkdir(normalizeAbs(remotePath))
             true
-        } catch (e: IOException) {
-            Log.e("SFTPFileObject", "mkdir failed for $remotePath: ${e.message}", e)
-            false
-        }
+        } ?: false
     }
 
     override suspend fun mkdirs(): Boolean {
         if (exists()) return isDirectory()
-        return try {
-            sftpClient?.mkdirs(remotePath)
+        return withSftpChannel { sftp ->
+            sftp.mkdir(normalizeAbs(remotePath))
             true
-        } catch (e: IOException) {
-            Log.e("SFTPFileObject", "mkdirs failed for $remotePath: ${e.message}", e)
-            false
-        }
+        } ?: false
     }
 
     suspend fun createFile(): Boolean = createNewFile() // Alias
 
     override suspend fun delete(): Boolean {
         if (!exists()) return false
-        return try {
+        return withSftpChannel { sftp ->
             if (isDirectory()) {
-                sftpClient?.rmdir(remotePath)
+                sftp.rmdir(remotePath)
             } else {
-                sftpClient?.rm(remotePath)
+                sftp.rm(remotePath)
             }
             true
-        } catch (e: IOException) {
-            Log.e("SFTPFileObject", "delete failed for $remotePath: ${e.message}", e)
-            false
-        }
+        } ?: false
     }
 
     override suspend fun toUri(): Uri {
@@ -521,17 +501,11 @@ class SFTPFileObject(
         if (!exists()) return false
         val parentPath = remotePath.substringBeforeLast('/', "")
         val newFullPath = if (parentPath.isEmpty()) string else "$parentPath/$string"
-        return try {
-            sftpClient?.rename(remotePath, newFullPath)
+
+        return withSftpChannel { sftp ->
+            sftp.rename(normalizeAbs(remotePath), newFullPath)
             true
-        } catch (e: IOException) {
-            Log.e(
-                "SFTPFileObject",
-                "renameTo failed for $remotePath to $newFullPath: ${e.message}",
-                e
-            )
-            false
-        }
+        } ?: false
     }
 
 
@@ -542,10 +516,14 @@ class SFTPFileObject(
 
     override suspend fun createChild(createFile: Boolean, name: String): FileObject? {
         if (!isDirectory()) return null
+
+        val absRemotePath = normalizeAbs(remotePath)
         val childRemotePath =
-            if (remotePath.endsWith("/")) remotePath + name else "$remotePath/$name"
+            if (absRemotePath.endsWith("/")) "$absRemotePath$name"
+            else "$absRemotePath/$name"
+
         val childAbsolutePath =
-            "sftp://$username@$hostname:$port/$childRemotePath"
+            "sftp://$username@$hostname:$port$childRemotePath"
         val childFile = SFTPFileObject(
             hostname,
             port,
@@ -613,9 +591,13 @@ class SFTPFileObject(
     }
 
     override suspend fun getChildForName(name: String): FileObject {
-        val childPath = if (remotePath.endsWith("/")) remotePath + name else "$remotePath/$name"
+        val absRemotePath = normalizeAbs(remotePath)
+        val childPath =
+            if (absRemotePath.endsWith("/")) "$absRemotePath$name"
+            else "$absRemotePath/$name"
+
         val childAbsolutePath =
-            "sftp://$username@$hostname:$port/$childPath"
+            "sftp://$username@$hostname:$port$childPath"
         return SFTPFileObject(
             hostname,
             port,
