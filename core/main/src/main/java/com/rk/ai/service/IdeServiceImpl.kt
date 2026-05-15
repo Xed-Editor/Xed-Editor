@@ -121,10 +121,4 @@ class IdeServiceImpl(
     override fun setSetting(key: String, value: String) = settingsService.setSetting(key, value)
     override fun getAllSettings(): JsonObject = settingsService.getAllSettings()
 
-    override suspend fun toggleBookmark(filePath: String, line: Int): String {
-        return "bookmarks not supported by this editor"
-    }
-    override suspend fun listBookmarks(): JsonArray {
-        return JsonArray()
-    }
 }

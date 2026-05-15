@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.session.AiSessionManager
+import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
@@ -214,7 +215,7 @@ private fun Header(
             )
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = onClear, modifier = Modifier.size(28.dp)) {
-                XedIcon(drawables.close, contentDescription = "Clear", modifier = Modifier.size(16.dp))
+                XedIcon(Icon.DrawableRes(drawables.close), contentDescription = "Clear", modifier = Modifier.size(16.dp))
             }
         }
         if (isLoading) {
@@ -370,7 +371,7 @@ private fun CodeBlock(code: String, language: String?, colorScheme: ColorScheme)
                     modifier = Modifier.height(24.dp),
                     contentPadding = PaddingValues(horizontal = 6.dp),
                 ) {
-                    XedIcon(drawables.copy, contentDescription = "Copy", modifier = Modifier.size(14.dp))
+                    XedIcon(Icon.DrawableRes(drawables.copy), contentDescription = "Copy", modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(2.dp))
                     Text("Copy", style = MaterialTheme.typography.labelSmall)
                 }
