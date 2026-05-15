@@ -12,7 +12,7 @@ class SettingsService {
             "ai_api_key" -> if (Settings.ai_api_key.isNotBlank()) "(set)" else null
             "ai_profiles_json" -> Settings.ai_profiles_json.takeIf { it.isNotBlank() }
             "ai_auto_apply" -> Settings.ai_auto_apply.toString()
-            "ai_completion_enabled" -> Settings.ai_completion_enabled.toString()
+            "ai_inline_completion" -> Settings.ai_inline_completion.toString()
             "ai_completion_model" -> Settings.ai_completion_model.takeIf { it.isNotBlank() }
             "ai_completion_url" -> Settings.ai_completion_url.takeIf { it.isNotBlank() }
             "terminal_scrollback_buffer" -> Settings.terminal_scrollback_buffer.toString()
@@ -20,7 +20,7 @@ class SettingsService {
             "seccomp" -> Settings.seccomp.toString()
             "git_username" -> Settings.git_username.takeIf { it.isNotBlank() }
             "always_index_projects" -> Settings.always_index_projects.toString()
-            "language" -> Settings.language
+            "language" -> Settings.current_lang
             else -> null
         }
     }
@@ -43,14 +43,14 @@ class SettingsService {
             addProperty("ai_model", Settings.ai_model)
             addProperty("ai_api_key", if (Settings.ai_api_key.isNotBlank()) "(set)" else "")
             addProperty("ai_auto_apply", Settings.ai_auto_apply)
-            addProperty("ai_completion_enabled", Settings.ai_completion_enabled)
+            addProperty("ai_inline_completion", Settings.ai_inline_completion)
             addProperty("ai_completion_model", Settings.ai_completion_model)
             addProperty("ai_completion_url", Settings.ai_completion_url)
             addProperty("terminal_scrollback_buffer", Settings.terminal_scrollback_buffer)
             addProperty("sandbox", Settings.sandbox)
             addProperty("seccomp", Settings.seccomp)
             addProperty("always_index_projects", Settings.always_index_projects)
-            addProperty("language", Settings.language)
+            addProperty("language", Settings.current_lang)
         }
     }
 }

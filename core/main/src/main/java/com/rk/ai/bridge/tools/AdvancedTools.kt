@@ -282,33 +282,6 @@ class GetGitBlameTool : BaseMcpTool() {
     }
 }
 
-// ── Bookmark Management ──
-
-class ToggleBookmarkTool : BaseMcpTool() {
-    override fun getName(): String = "toggleBookmark"
-    override fun getDescription(): String = "Toggles a bookmark on a line in a file."
-    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number")
-    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
-        "filePath" to "Absolute path to the file",
-        "line" to "Line number (1-indexed)"
-    )
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val filePath = requireString(args, "filePath")
-        val line = requireInt(args, "line")
-        val result = ideService.toggleBookmark(filePath, line)
-        return textResult(result)
-    }
-}
-
-class ListBookmarksTool : BaseMcpTool() {
-    override fun getName(): String = "listBookmarks"
-    override fun getDescription(): String = "Lists all bookmarks across open files."
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val bookmarks = ideService.listBookmarks()
-        return textResult(bookmarks.toString())
-    }
-}
-
 // ── Helpers ──
 
 private suspend fun closeTab(ideService: IdeService, filePath: String): String {

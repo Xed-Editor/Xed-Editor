@@ -5,7 +5,7 @@ import com.google.gson.JsonObject
 import java.io.File
 
 interface IdeService : FileOps, EditorOps, LspOps, ProjectOps, GitOps, TerminalOps,
-    TerminalManagementOps, ClipboardOps, SettingsOps, BookmarkOps
+    TerminalManagementOps, ClipboardOps, SettingsOps
 
 data class CommandResult(
     val output: String,

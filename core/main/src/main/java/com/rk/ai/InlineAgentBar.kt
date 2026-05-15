@@ -9,7 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,21 +17,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.session.AiSessionManager
+import com.rk.icons.XedIcon
+import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,7 +77,8 @@ fun InlineAgentBar(
         val conversationContext = conversation.buildContextPrompt(prompt)
         val fullPrompt = buildString {
             if (fileContext.isNotBlank()) appendLine(fileContext).appendLine()
-            appendLine(conversationContext)
+            if (conversationContext.isNotBlank()) appendLine(conversationContext)
+            else appendLine("User: $prompt")
         }
 
         conversation = conversation.addUserMessage(prompt)
@@ -95,7 +93,9 @@ fun InlineAgentBar(
                     onOutput = { chunk ->
                         scope.launch {
                             conversation = conversation.appendStreaming(chunk + "\n")
-                            listState.animateScrollToItem(conversation.messages.size)
+                            if (conversation.messages.isNotEmpty()) {
+                                listState.animateScrollToItem(conversation.messages.size)
+                            }
                         }
                     },
                 )
@@ -132,6 +132,7 @@ fun InlineAgentBar(
                     isLoading = conversation.isLoading,
                     onClear = { conversation = conversation.clear() },
                     onDismiss = onDismiss,
+                    colorScheme = colorScheme,
                 )
 
                 if (conversation.messages.isEmpty() && !conversation.isLoading && conversation.streamingText.isBlank()) {
@@ -146,17 +147,13 @@ fun InlineAgentBar(
                     items(conversation.messages, key = { "${it.content.hashCode()}-${it.timestamp}" }) { msg ->
                         when (msg) {
                             is ChatMessage.User -> UserBubble(msg.content, colorScheme)
-                            is ChatMessage.Assistant -> AssistantBubble(msg.content, colorScheme, onCopy = {
-                                setClipboard(msg.content)
-                            })
+                            is ChatMessage.Assistant -> AssistantBubble(msg.content, colorScheme)
                         }
                     }
 
                     if (conversation.streamingText.isNotBlank()) {
                         item(key = "streaming") {
-                            StreamingBubble(conversation.streamingText, colorScheme, onCopy = {
-                                setClipboard(conversation.streamingText)
-                            })
+                            StreamingBubble(conversation.streamingText, colorScheme)
                         }
                     }
                 }
@@ -198,6 +195,7 @@ private fun Header(
     isLoading: Boolean,
     onClear: () -> Unit,
     onDismiss: () -> Unit,
+    colorScheme: ColorScheme,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -212,11 +210,11 @@ private fun Header(
             Text(
                 text = "$messageCount turns",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = onClear, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Outlined.DeleteSweep, contentDescription = "Clear", modifier = Modifier.size(18.dp))
+                XedIcon(drawables.close, contentDescription = "Clear", modifier = Modifier.size(16.dp))
             }
         }
         if (isLoading) {
@@ -279,7 +277,7 @@ private fun UserBubble(text: String, colorScheme: ColorScheme) {
 }
 
 @Composable
-private fun AssistantBubble(text: String, colorScheme: ColorScheme, onCopy: () -> Unit) {
+private fun AssistantBubble(text: String, colorScheme: ColorScheme) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(end = 48.dp),
         horizontalAlignment = Alignment.Start,
@@ -310,7 +308,7 @@ private fun AssistantBubble(text: String, colorScheme: ColorScheme, onCopy: () -
                             }
                         }
                         is CodeBlockPart.Code -> {
-                            CodeBlock(part.code, part.language, colorScheme, onCopy = { setClipboard(part.code) })
+                            CodeBlock(part.code, part.language, colorScheme)
                         }
                     }
                 }
@@ -320,7 +318,7 @@ private fun AssistantBubble(text: String, colorScheme: ColorScheme, onCopy: () -
 }
 
 @Composable
-private fun StreamingBubble(text: String, colorScheme: ColorScheme, onCopy: () -> Unit) {
+private fun StreamingBubble(text: String, colorScheme: ColorScheme) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(end = 48.dp),
         horizontalAlignment = Alignment.Start,
@@ -350,7 +348,7 @@ private fun StreamingBubble(text: String, colorScheme: ColorScheme, onCopy: () -
 }
 
 @Composable
-private fun CodeBlock(code: String, language: String?, colorScheme: ColorScheme, onCopy: () -> Unit) {
+private fun CodeBlock(code: String, language: String?, colorScheme: ColorScheme) {
     Surface(
         shape = RoundedCornerShape(8.dp),
         color = colorScheme.surfaceVariant.copy(alpha = 0.7f),
@@ -367,8 +365,14 @@ private fun CodeBlock(code: String, language: String?, colorScheme: ColorScheme,
                     color = colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
                 )
-                IconButton(onClick = onCopy, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Outlined.ContentCopy, contentDescription = "Copy", modifier = Modifier.size(14.dp))
+                TextButton(
+                    onClick = { setClipboard(code) },
+                    modifier = Modifier.height(24.dp),
+                    contentPadding = PaddingValues(horizontal = 6.dp),
+                ) {
+                    XedIcon(drawables.copy, contentDescription = "Copy", modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(2.dp))
+                    Text("Copy", style = MaterialTheme.typography.labelSmall)
                 }
             }
             HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f))

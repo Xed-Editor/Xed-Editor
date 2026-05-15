@@ -122,34 +122,9 @@ class IdeServiceImpl(
     override fun getAllSettings(): JsonObject = settingsService.getAllSettings()
 
     override suspend fun toggleBookmark(filePath: String, line: Int): String {
-        val tab = viewModel.tabs.filterIsInstance<com.rk.tabs.editor.EditorTab>().find {
-            java.io.File(it.file.getAbsolutePath()).absolutePath == java.io.File(filePath).absolutePath
-        }
-        if (tab == null) return "file not open in editor: $filePath"
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-            val editor = tab.editorState.editor.get()
-            if (editor != null) {
-                val idx = editor.cursor.leftLine
-                editor.text.markBookmark(idx)
-            }
-        }
-        return "toggled bookmark at $filePath:$line"
+        return "bookmarks not supported by this editor"
     }
     override suspend fun listBookmarks(): JsonArray {
-        val result = JsonArray()
-        viewModel.tabs.filterIsInstance<com.rk.tabs.editor.EditorTab>().forEach { tab ->
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                val editor = tab.editorState.editor.get()
-                if (editor != null) {
-                    editor.text.bookmarks.forEach { line ->
-                        result.add(JsonObject().apply {
-                            addProperty("filePath", tab.file.getAbsolutePath())
-                            addProperty("line", line + 1)
-                        })
-                    }
-                }
-            }
-        }
-        return result
+        return JsonArray()
     }
 }

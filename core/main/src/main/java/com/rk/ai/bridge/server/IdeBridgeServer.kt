@@ -103,7 +103,6 @@ class IdeBridgeServer(
             register(GetProblemsTool())
             register(GetFileTreeTool())
             register(GetGitBlameTool())
-            register(ToggleBookmarkTool()); register(ListBookmarksTool())
             register(FormatSelectionTool())
         }
     }
