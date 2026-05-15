@@ -35,6 +35,9 @@ class IdeServiceImpl(
     private val lspService = LspService(tabRepo, scope)
     private val gitService = GitService()
     private val terminalService = TerminalService()
+    private val terminalManagementService = TerminalManagementService()
+    private val clipboardService = ClipboardService()
+    private val settingsService = SettingsService()
     private val projectService = ProjectService(tabRepo, viewModel)
 
     override fun resolvePath(path: String): File? = fileService.resolvePath(path)
@@ -72,12 +75,14 @@ class IdeServiceImpl(
     override fun rejectPatch(filePath: String) = editorService.rejectPatch(filePath)
     override fun showMessage(message: String) = editorService.showMessage(message)
     override fun ensureIdeEnabled() = editorService.ensureIdeEnabled()
+    override fun closeTab(filePath: String): String = editorService.closeTab(filePath)
 
     override suspend fun getDiagnostics(filePath: String): JsonArray = lspService.getDiagnostics(filePath)
     override suspend fun findDefinitions(filePath: String, line: Int, column: Int): JsonArray = lspService.findDefinitions(filePath, line, column)
     override suspend fun findReferences(filePath: String, line: Int, column: Int): JsonArray = lspService.findReferences(filePath, line, column)
     override fun renameSymbol(filePath: String, line: Int, column: Int, newName: String) = lspService.renameSymbol(filePath, line, column, newName)
     override suspend fun formatDocument(filePath: String) = lspService.formatDocument(filePath)
+    override suspend fun formatSelection(filePath: String): String = lspService.formatSelection(filePath)
 
     override suspend fun getGitStatus(workspacePath: String): JsonObject = gitService.getGitStatus(workspacePath)
     override suspend fun getGitDiff(workspacePath: String): String = gitService.getGitDiff(workspacePath)
@@ -102,4 +107,49 @@ class IdeServiceImpl(
     override suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String = projectService.getProjectStructure(path, maxDepth, maxItems)
     override suspend fun getProjectConfig(workspacePath: String): JsonObject = projectService.getProjectConfig(workspacePath)
     override suspend fun getSymbolUnderCursor(): JsonObject = projectService.getSymbolUnderCursor()
+
+    override suspend fun listSessions(): JsonArray = terminalManagementService.listSessions()
+    override suspend fun createSession(name: String, workingDir: String): String = terminalManagementService.createSession(name, workingDir)
+    override suspend fun killSession(sessionId: String): String = terminalManagementService.killSession(sessionId)
+    override suspend fun writeToSession(sessionId: String, text: String): String = terminalManagementService.writeToSession(sessionId, text)
+    override suspend fun getSessionOutput(sessionId: String, lines: Int?): String = terminalManagementService.getSessionOutput(sessionId, lines)
+
+    override suspend fun getClipboard(): String = clipboardService.getClipboard()
+    override fun setClipboard(text: String) = clipboardService.setClipboard(text)
+
+    override fun getSetting(key: String): String? = settingsService.getSetting(key)
+    override fun setSetting(key: String, value: String) = settingsService.setSetting(key, value)
+    override fun getAllSettings(): JsonObject = settingsService.getAllSettings()
+
+    override suspend fun toggleBookmark(filePath: String, line: Int): String {
+        val tab = viewModel.tabs.filterIsInstance<com.rk.tabs.editor.EditorTab>().find {
+            java.io.File(it.file.getAbsolutePath()).absolutePath == java.io.File(filePath).absolutePath
+        }
+        if (tab == null) return "file not open in editor: $filePath"
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+            val editor = tab.editorState.editor.get()
+            if (editor != null) {
+                val idx = editor.cursor.leftLine
+                editor.text.markBookmark(idx)
+            }
+        }
+        return "toggled bookmark at $filePath:$line"
+    }
+    override suspend fun listBookmarks(): JsonArray {
+        val result = JsonArray()
+        viewModel.tabs.filterIsInstance<com.rk.tabs.editor.EditorTab>().forEach { tab ->
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                val editor = tab.editorState.editor.get()
+                if (editor != null) {
+                    editor.text.bookmarks.forEach { line ->
+                        result.add(JsonObject().apply {
+                            addProperty("filePath", tab.file.getAbsolutePath())
+                            addProperty("line", line + 1)
+                        })
+                    }
+                }
+            }
+        }
+        return result
+    }
 }

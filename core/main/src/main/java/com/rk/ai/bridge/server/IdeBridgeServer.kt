@@ -93,6 +93,18 @@ class IdeBridgeServer(
             register(GetFileInfoTool())
             register(GetCodeFrameTool()); register(ReadProjectFilesTool())
             register(SearchAndReplaceTool())
+
+            register(ListSessionsTool()); register(CreateTerminalTool()); register(KillTerminalTool())
+            register(WriteToTerminalTool()); register(GetTerminalSessionOutputTool())
+            register(GetClipboardTool()); register(SetClipboardTool())
+            register(GetSettingTool()); register(SetSettingTool()); register(GetAllSettingsTool())
+            register(CloseTabTool()); register(CloseOtherTabsTool())
+            register(NavigateToTool())
+            register(GetProblemsTool())
+            register(GetFileTreeTool())
+            register(GetGitBlameTool())
+            register(ToggleBookmarkTool()); register(ListBookmarksTool())
+            register(FormatSelectionTool())
         }
     }
 

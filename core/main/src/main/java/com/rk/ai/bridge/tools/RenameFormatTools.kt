@@ -23,6 +23,20 @@ class RenameSymbolTool : BaseMcpTool() {
     }
 }
 
+class FormatSelectionTool : BaseMcpTool() {
+    override fun getName(): String = "formatSelection"
+    override fun getDescription(): String = "Formats the selected text using the LSP formatter."
+    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "filePath" to "Absolute path to the file containing the selection"
+    )
+    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+        val filePath = requireString(args, "filePath")
+        val result = ideService.formatSelection(filePath)
+        return textResult(result)
+    }
+}
+
 class FormatDocumentTool : BaseMcpTool() {
     override fun getName(): String = "formatDocument"
     override fun getDescription(): String = "Formats a document using the LSP formatter."

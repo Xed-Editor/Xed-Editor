@@ -445,24 +445,67 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         },
                         title = { Text(patch.title) },
                         text = {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(patch.filePath, style = MaterialTheme.typography.bodySmall)
-                                if (patch.oldText.isNotBlank()) {
-                                    Text("Current", style = MaterialTheme.typography.labelMedium)
-                                    Text(
-                                        text = patch.oldText,
-                                        modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp).verticalScroll(rememberScrollState()),
-                                        fontFamily = FontFamily.Monospace,
-                                        style = MaterialTheme.typography.bodySmall,
-                                    )
-                                }
-                                Text("Proposed", style = MaterialTheme.typography.labelMedium)
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text(
-                                    text = patch.newText,
-                                    modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp).verticalScroll(rememberScrollState()),
-                                    fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.bodySmall,
+                                    patch.filePath.split("/").lastOrNull() ?: patch.filePath,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
+                                HorizontalDivider()
+                                val oldLines = patch.oldText.lines()
+                                val newLines = patch.newText.lines()
+                                val maxLineNum = maxOf(oldLines.size, newLines.size)
+                                val diffLines = buildList {
+                                    val maxLen = maxOf(oldLines.size, newLines.size)
+                                    var oldIdx = 0; var newIdx = 0
+                                    while (oldIdx < oldLines.size || newIdx < newLines.size) {
+                                        val oldLine = oldLines.getOrNull(oldIdx)
+                                        val newLine = newLines.getOrNull(newIdx)
+                                        when {
+                                            oldIdx < oldLines.size && newIdx < newLines.size && oldLine == newLine -> {
+                                                add(Triple(" ", oldLine ?: "", MaterialTheme.colorScheme.onSurface))
+                                                oldIdx++; newIdx++
+                                            }
+                                            oldIdx < oldLines.size && (newIdx >= newLines.size || oldLine != newLine) -> {
+                                                add(Triple("-", oldLine ?: "", MaterialTheme.colorScheme.error))
+                                                oldIdx++
+                                            }
+                                            else -> {
+                                                add(Triple("+", newLine ?: "", MaterialTheme.colorScheme.primary))
+                                                newIdx++
+                                            }
+                                        }
+                                    }
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp),
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .verticalScroll(rememberScrollState())
+                                            .horizontalScroll(rememberScrollState())
+                                            .padding(8.dp),
+                                    ) {
+                                        diffLines.forEach { (prefix, line, color) ->
+                                            Row {
+                                                Text(
+                                                    text = prefix,
+                                                    fontFamily = FontFamily.Monospace,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = color,
+                                                )
+                                                Text(
+                                                    text = line,
+                                                    fontFamily = FontFamily.Monospace,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = color,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         },
                         confirmButton = {

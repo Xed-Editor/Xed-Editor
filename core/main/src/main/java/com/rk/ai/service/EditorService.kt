@@ -255,6 +255,17 @@ class EditorService(
         else scope.viewModelScope.launch(Dispatchers.Main) { toast(message) }
     }
 
+    fun closeTab(filePath: String): String {
+        val file = java.io.File(filePath)
+        val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
+        val tab = tabRepo.tabs.filterIsInstance<com.rk.tabs.editor.EditorTab>().find {
+            runCatching { java.io.File(it.file.getAbsolutePath()).canonicalPath }.getOrDefault(java.io.File(it.file.getAbsolutePath()).absolutePath) == canonical
+        }
+        if (tab == null) return "tab not found for $filePath"
+        tabRepo.tabManager.removeTab(tab)
+        return "closed tab for $filePath"
+    }
+
     fun ensureIdeEnabled() {
         scope.viewModelScope.launch(Dispatchers.IO) {
             runCatching {
