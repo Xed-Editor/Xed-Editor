@@ -57,6 +57,11 @@ class HttpServer(
 
     private suspend fun serveFileWithEruda(file: FileObject): Response {
         return try {
+            val mime = URLConnection.guessContentTypeFromName(file.getName()) ?: "application/octet-stream"
+            if (mime != MIME_HTML) {
+                return serveFileWithoutEruda(file)
+            }
+
             val darkTheme = isDarkTheme(context)
             val erudaTheme = if (amoled.value && darkTheme) "AMOLED" else if (darkTheme) "Dark" else "Light"
             val erudaScript =
@@ -70,17 +75,13 @@ class HttpServer(
 
             val html = file.getInputStream().bufferedReader().use { it.readText() }
             val injected =
-                if (html.contains("</body>", ignoreCase = true)) {
-                    html.replace("</body>", "$erudaScript</body>", ignoreCase = true)
+                if (html.contains("<head>", ignoreCase = true)) {
+                    html.replace("<head>", "<head>$erudaScript", ignoreCase = true)
                 } else {
-                    html + erudaScript
+                    erudaScript + html
                 }
 
-            newFixedLengthResponse(
-                Status.OK,
-                URLConnection.guessContentTypeFromName(file.getName()) ?: "text/html",
-                injected,
-            )
+            newFixedLengthResponse(Status.OK, mime, injected)
         } catch (_: SecurityException) {
             forbiddenError(file)
         } catch (e: Exception) {
