@@ -265,8 +265,8 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(strings.gemini_auto_apply),
-                description = stringResource(strings.gemini_auto_apply_desc),
+label = "Auto apply changes",
+                        description = "Automatically apply AI changes without review",
                 default = Settings.ai_auto_apply,
                 sideEffect = { Settings.ai_auto_apply = it },
             )

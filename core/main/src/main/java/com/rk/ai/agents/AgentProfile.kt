@@ -6,7 +6,7 @@ import com.rk.settings.Settings
 
 data class AgentProfile(
     val name: String,
-    val agentType: String = "gemini",
+    val agentType: String = "",
     val model: String = "",
     val extraArgs: String = "",
 ) {
@@ -54,8 +54,8 @@ object AgentProfileManager {
     }
 
     private fun defaultProfiles(): List<AgentProfile> = listOf(
-        AgentProfile(name = "Fast", agentType = "gemini", model = "gemini-2.5-flash"),
-        AgentProfile(name = "Pro", agentType = "gemini", model = "gemini-2.5-pro"),
+        AgentProfile(name = "Gemini Fast", agentType = "gemini", model = "gemini-2.5-flash"),
+        AgentProfile(name = "Gemini Pro", agentType = "gemini", model = "gemini-2.5-pro"),
         AgentProfile(name = "OpenCode", agentType = "opencode", model = ""),
     )
 }

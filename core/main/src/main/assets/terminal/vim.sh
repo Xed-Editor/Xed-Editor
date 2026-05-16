@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ -z "${GEMINI_CLI_IDE_SERVER_PORT:-}" ] || [ -z "${GEMINI_CLI_IDE_AUTH_TOKEN:-}" ]; then
-  echo "Xed external editor bridge is not available." >&2
-  exit 1
+IDE_PORT="${IDE_SERVER_PORT:-${XED_IDE_PORT:-}}"
+IDE_TOKEN="${IDE_AUTH_TOKEN:-${XED_IDE_AUTH_TOKEN:-}}"
+
+if [ -z "$IDE_PORT" ] || [ -z "$IDE_TOKEN" ]; then
+  __ide_port="${GEMINI_CLI_IDE_SERVER_PORT:-}"
+  __ide_token="${GEMINI_CLI_IDE_AUTH_TOKEN:-}"
+  if [ -n "$__ide_port" ] && [ -n "$__ide_token" ]; then
+    IDE_PORT="$__ide_port"
+    IDE_TOKEN="$__ide_token"
+  else
+    echo "Xed external editor bridge is not available." >&2
+    exit 1
+  fi
 fi
 
 node - "$@" <<'NODE'
@@ -33,14 +43,17 @@ if (!newPath) {
   process.exit(1);
 }
 
+const port = process.env.IDE_SERVER_PORT || process.env.XED_IDE_PORT || process.env.GEMINI_CLI_IDE_SERVER_PORT;
+const token = process.env.IDE_AUTH_TOKEN || process.env.XED_IDE_AUTH_TOKEN || process.env.GEMINI_CLI_IDE_AUTH_TOKEN;
+
 const payload = JSON.stringify({ oldPath, newPath, args });
 const request = http.request({
   host: '127.0.0.1',
-  port: Number(process.env.GEMINI_CLI_IDE_SERVER_PORT),
+  port: Number(port),
   path: '/external-editor',
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${process.env.GEMINI_CLI_IDE_AUTH_TOKEN}`,
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'Content-Length': Buffer.byteLength(payload),
   },

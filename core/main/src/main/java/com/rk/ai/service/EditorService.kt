@@ -268,22 +268,47 @@ class EditorService(
 
     fun ensureIdeEnabled() {
         scope.viewModelScope.launch(Dispatchers.IO) {
-            runCatching {
-                val home = com.rk.file.sandboxHomeDir()
-                val aiDir = File(home, ".gemini").also { it.mkdirs() }
-                val settingsFile = File(aiDir, "settings.json")
-                val settings = if (settingsFile.exists()) {
-                    runCatching { com.google.gson.JsonParser.parseString(settingsFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-                } else JsonObject()
-                settings.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
-                    ?: settings.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
-                settings.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
-                    ?: settings.add("ide", JsonObject().apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) })
-                settings.getAsJsonObject("privacy")?.apply { addProperty("usageStatisticsEnabled", false) }
-                    ?: settings.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
-                settings.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
-                    ?: settings.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
-                settingsFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(settings))
+            com.rk.ai.agents.AgentTypeRegistry.available().forEach { agent ->
+                runCatching {
+                    val home = com.rk.file.sandboxHomeDir()
+                    val configDir = File(home, com.rk.ai.AiConfig.Discovery.agentConfigDir(agent.name))
+                    configDir.mkdirs()
+                    val configFile = File(configDir, com.rk.ai.AiConfig.Discovery.agentConfigFile(agent.name))
+                    val mcpKey = com.rk.ai.AiConfig.Discovery.agentMcpKey(agent.name)
+                    val existing = if (configFile.exists()) {
+                        runCatching { com.google.gson.JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
+                    } else JsonObject()
+
+                    if (agent.name == "gemini") {
+                        existing.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
+                            ?: existing.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
+                        existing.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
+                            ?: existing.add("ide", JsonObject().apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) })
+                        existing.getAsJsonObject("privacy")?.apply { addProperty("usageStatisticsEnabled", false) }
+                            ?: existing.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
+                        existing.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
+                            ?: existing.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
+                    }
+
+                    val mcp = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
+                    if (!mcp.has("xed-ide")) {
+                        val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
+                        if (bridgeInfo != null) {
+                            mcp.add("xed-ide", JsonObject().apply {
+                                if (agent.name == "gemini") {
+                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                } else {
+                                    addProperty("type", "remote")
+                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                    addProperty("enabled", true)
+                                    addProperty("timeout", 120000)
+                                }
+                                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${bridgeInfo.token}") })
+                            })
+                        }
+                    }
+                    configFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(existing))
+                }
             }
         }
     }

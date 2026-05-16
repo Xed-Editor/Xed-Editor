@@ -71,7 +71,7 @@ object Settings {
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
     var ai_auto_apply by CachedPreference("ai_auto_apply", false)
-    var ai_agent by CachedPreference("ai_agent", "gemini")
+    var ai_agent by CachedPreference("ai_agent", "")
     var ai_model by CachedPreference("ai_model", "")
     var ai_profiles_json by CachedPreference("ai_profiles_json", "")
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)

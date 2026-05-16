@@ -6,16 +6,19 @@ object AgentTypeRegistry {
     private val agents = mutableMapOf<String, AiAgent>()
 
     init {
-        agents["gemini"] = GeminiAgent
-        agents["opencode"] = OpenCodeAgent
+        register(GeminiAgent)
+        register(OpenCodeAgent)
     }
 
     fun register(agent: AiAgent) {
         agents[agent.name] = agent
     }
 
-    fun resolve(type: String? = null): AiAgent =
-        agents[type ?: Settings.ai_agent] ?: GeminiAgent
+    fun resolve(type: String? = null): AiAgent {
+        val requested = type ?: Settings.ai_agent.takeIf { it.isNotBlank() }
+        return agents[requested] ?: agents.values.firstOrNull()
+            ?: GeminiAgent
+    }
 
     fun available(): List<AiAgent> = agents.values.toList()
 

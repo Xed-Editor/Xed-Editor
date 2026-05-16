@@ -11,7 +11,6 @@ import com.rk.ai.AgentCli
 import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
-import com.rk.ai.agents.GeminiAgent
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.settings.Settings
@@ -26,7 +25,7 @@ import kotlinx.coroutines.withContext
 object AiSessionManager {
     var session by mutableStateOf<TerminalSession?>(null)
     var cwd by mutableStateOf<String?>(null)
-    var currentAgent by mutableStateOf<AiAgent>(GeminiAgent)
+    var currentAgent by mutableStateOf<AiAgent>(AgentTypeRegistry.resolve())
 
     fun resolveAgent(type: String? = null): AiAgent = AgentTypeRegistry.resolve(type)
 

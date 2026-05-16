@@ -11,9 +11,9 @@ import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 
 class AiAssistantCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
-    override val id: String = "editor.gemini_assistant"
+    override val id: String = "editor.ai_assistant"
 
-    override fun getLabel(): String = strings.gemini_assistant.getString()
+    override fun getLabel(): String = "AI Assistant"
 
     override fun action(editorActionContext: EditorActionContext) {
         commandContext.mainViewModel.showAiSheet = true

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Android/Termux-compatible URL opener used by Gemini CLI OAuth.
-# Gemini CLI tries to spawn xdg-open on Linux. In Xed's proot Ubuntu there is
+# Android/Termux-compatible URL opener used by AI CLI tools.
+# AI CLI tools try to spawn xdg-open on Linux. In Xed's proot Ubuntu there is
 # usually no desktop xdg-open, so bridge URL opening to Android instead.
 set -u
 

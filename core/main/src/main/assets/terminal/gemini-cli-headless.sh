@@ -19,7 +19,7 @@ export NO_UPDATE_NOTIFIER=1
 export PATH="$LOCAL/bin:$PATH"
 export EDITOR=vim
 export VISUAL=vim
-configure_gemini_auth_browser
+configure_ai_auth_browser
 
 log() { printf '%s\n' "$*" >&2; }
 

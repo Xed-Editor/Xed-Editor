@@ -15,25 +15,32 @@ object AiConfig {
     )
 
     object Discovery {
-        val openCodeConfigFile = "opencode.json"
-        val openCodeMcpFile = "mcp.json"
-        val geminiSettingsFile = "settings.json"
         val xedIdeDir = ".xed"
-        val openCodeDir = ".opencode"
         val xedBridgeEnvFile = "xed-bridge.env"
         val ideEnvFile = "ide.env"
         val xedBridgeEnvHomeFile = ".xed-bridge.env"
         val launcherScriptFile = "launcher.sh"
 
-        val discoveryDirs = listOf(
-            "gemini/ide",
-            "terminal/gemini-sheet/gemini/ide",
-            "terminal/opencode-sheet/gemini/ide",
-            "terminal/opencode-sheet/opencode/ide",
-            "ide-bridge",
-        )
+        val discoveryDirs by lazy {
+            com.rk.ai.agents.AgentTypeRegistry.available().flatMap { agent ->
+                listOf(
+                    "terminal/${agent.name}-sheet/${agent.name}/ide",
+                    "${agent.name}/ide",
+                )
+            } + "ide-bridge"
+        }
 
         val tmpDiscoveryDir = "/tmp/xed-ide"
+
+        fun agentConfigDir(agentName: String) = ".config/$agentName"
+        fun agentConfigFile(agentName: String) = when (agentName) {
+            "gemini" -> "settings.json"
+            else -> "opencode.json"
+        }
+        fun agentMcpKey(agentName: String) = when (agentName) {
+            "gemini" -> "mcpServers"
+            else -> "mcp"
+        }
     }
 
     object Debug {
@@ -49,11 +56,6 @@ object AiConfig {
         const val binSh = "/system/bin/sh"
         const val binBash = "/bin/bash"
         const val sandboxBinary = "sandbox"
-    }
-
-    object Agents {
-        const val geminiName = "gemini"
-        const val opencodeName = "opencode"
     }
 
     object ProjectDetection {

@@ -1,9 +1,7 @@
 package com.rk.ai
 
 import com.google.gson.Gson
-import com.rk.ai.agents.AiAgent
-import com.rk.ai.agents.GeminiAgent
-import com.rk.ai.agents.OpenCodeAgent
+import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.ai.session.AiSessionManager
 import com.rk.settings.Settings
 import java.io.File
@@ -30,12 +28,9 @@ object ProjectConfigLoader {
 
     fun applyConfig(config: ProjectAiConfig) {
         config.agent?.let { agentType ->
-            val agent = when (agentType.lowercase()) {
-                "gemini" -> GeminiAgent
-                "opencode" -> OpenCodeAgent
-                else -> return@let
+            AgentTypeRegistry.get(agentType.lowercase())?.let {
+                AiSessionManager.switchAgent(it.name)
             }
-            AiSessionManager.switchAgent(agent.name)
         }
         config.model?.let { model ->
             if (model.isNotBlank()) Settings.ai_model = model

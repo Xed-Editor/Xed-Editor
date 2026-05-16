@@ -19,7 +19,7 @@ export GEMINI_TELEMETRY_TARGET=local
 export PATH="$LOCAL/bin:$PATH"
 export EDITOR=vim
 export VISUAL=vim
-configure_gemini_auth_browser
+configure_ai_auth_browser
 
 ensure_node() {
   if ! command_exists node || ! command_exists npm; then
