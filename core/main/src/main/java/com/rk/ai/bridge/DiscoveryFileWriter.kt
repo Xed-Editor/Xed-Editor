@@ -121,14 +121,16 @@ object DiscoveryFileWriter {
                     })
                 }
                 if (dir.name == AiConfig.Discovery.openCodeDir) {
-                    val existingMcp = runCatching { JsonParser.parseString(File(dir, AiConfig.Discovery.openCodeMcpFile).readText()).asJsonObject }.getOrDefault(JsonObject())
+                    val mcpFile = File(dir, AiConfig.Discovery.openCodeMcpFile)
+                    val existingMcp = runCatching { JsonParser.parseString(mcpFile.readText()).asJsonObject }.getOrDefault(JsonObject())
                     existingMcp.remove("mcpServers")
                     val mcp = existingMcp.getAsJsonObject("mcp") ?: JsonObject().also { existingMcp.add("mcp", it) }
                     mcp.add("xed-ide", JsonObject().apply {
                         addProperty("type", "remote"); addProperty("url", "$url/mcp"); addProperty("enabled", true)
+                        addProperty("timeout", 120000)
                         add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
                     })
-                    File(dir, "mcp.json").writeText(gson.toJson(existingMcp))
+                    mcpFile.writeText(gson.toJson(existingMcp))
                 }
             }
         }

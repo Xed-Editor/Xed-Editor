@@ -4,9 +4,9 @@ set -e
 source "$LOCAL/bin/utils"
 
 # Support both generic and Gemini-specific IDE bridge env vars
-IDE_PORT="${IDE_SERVER_PORT:-${GEMINI_CLI_IDE_SERVER_PORT:-}}"
-IDE_TOKEN="${IDE_AUTH_TOKEN:-${GEMINI_CLI_IDE_AUTH_TOKEN:-}}"
-IDE_WS="${IDE_WORKSPACE_PATH:-${GEMINI_CLI_IDE_WORKSPACE_PATH:-}}"
+IDE_PORT="${IDE_SERVER_PORT:-${GEMINI_CLI_IDE_SERVER_PORT:-${XED_IDE_PORT:-}}}"
+IDE_TOKEN="${IDE_AUTH_TOKEN:-${GEMINI_CLI_IDE_AUTH_TOKEN:-${XED_IDE_AUTH_TOKEN:-}}}"
+IDE_WS="${IDE_WORKSPACE_PATH:-${GEMINI_CLI_IDE_WORKSPACE_PATH:-${XED_IDE_WORKSPACE_PATH:-}}}"
 
 workspace_dir="${IDE_WS%%:*}"
 target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
@@ -26,6 +26,8 @@ info "Workspace: $WKDIR"
 
 # Wire with Xed Editor IDE bridge via MCP (merge with existing config)
 if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
+  # Source utils if available (may already be sourced)
+  source "$LOCAL/bin/utils" >/dev/null 2>&1 || true
   OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
   mkdir -p "$OPENCODE_CONFIG_DIR"
   CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"

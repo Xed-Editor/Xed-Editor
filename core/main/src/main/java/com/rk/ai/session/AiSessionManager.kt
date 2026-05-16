@@ -108,7 +108,6 @@ object AiSessionManager {
         }
         session = null
         cwd = null
-        IdeBridge.stop()
     }
 
     suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {

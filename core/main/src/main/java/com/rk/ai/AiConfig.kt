@@ -28,7 +28,6 @@ object AiConfig {
         val discoveryDirs = listOf(
             "gemini/ide",
             "terminal/gemini-sheet/gemini/ide",
-            "terminal/gemini-sheet/gemini/ide",
             "terminal/opencode-sheet/gemini/ide",
             "terminal/opencode-sheet/opencode/ide",
             "ide-bridge",
