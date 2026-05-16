@@ -52,7 +52,6 @@ object DiscoveryFileWriter {
             val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
 
             val existing = runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-            existing.remove("mcpServers")
 
             if (!configFile.exists()) {
                 configFile.writeText(gson.toJson(existing))
@@ -67,30 +66,20 @@ object DiscoveryFileWriter {
                     ?: existing.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
                 existing.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
                     ?: existing.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
-
-                val mcpServers = existing.getAsJsonObject(mcpKey)
-                    ?: JsonObject().also { existing.add(mcpKey, it) }
-                mcpServers.add("xed-ide", JsonObject().apply {
-                    addProperty("url", "http://${info.host}:${info.port}/mcp")
-                    add("headers", JsonObject().apply {
-                        addProperty("Authorization", "Bearer ${info.token}")
-                    })
-                })
-                existing.getAsJsonObject("mcp")?.remove("xed-ide")
-            } else {
-                existing.remove("mcpServers")
-                val mcp = existing.getAsJsonObject(mcpKey)
-                    ?: JsonObject().also { existing.add(mcpKey, it) }
-                mcp.add("xed-ide", JsonObject().apply {
-                    addProperty("type", "remote")
-                    addProperty("url", "http://${info.host}:${info.port}/mcp")
-                    addProperty("enabled", true)
-                    addProperty("timeout", 120000)
-                    add("headers", JsonObject().apply {
-                        addProperty("Authorization", "Bearer ${info.token}")
-                    })
-                })
             }
+
+            val mcpServers = existing.getAsJsonObject(mcpKey)
+                ?: JsonObject().also { existing.add(mcpKey, it) }
+            mcpServers.add("xed-ide", JsonObject().apply {
+                addProperty("type", "remote")
+                addProperty("url", "http://${info.host}:${info.port}/mcp")
+                addProperty("enabled", true)
+                addProperty("timeout", 120000)
+                add("headers", JsonObject().apply {
+                    addProperty("Authorization", "Bearer ${info.token}")
+                })
+            })
+            existing.getAsJsonObject("mcp")?.remove("xed-ide")
 
             configFile.writeText(gson.toJson(existing))
         }
@@ -143,7 +132,6 @@ object DiscoveryFileWriter {
                         val configFileName = AiConfig.Discovery.agentConfigFile(agent)
                         val mcpFile = File(dir, configFileName)
                         val existingMcp = runCatching { JsonParser.parseString(mcpFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-                        existingMcp.remove("mcpServers")
                         val mcp = existingMcp.getAsJsonObject(mcpKey)
                             ?: JsonObject().also { existingMcp.add(mcpKey, it) }
                         mcp.add("xed-ide", JsonObject().apply {

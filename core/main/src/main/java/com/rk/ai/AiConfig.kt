@@ -32,15 +32,15 @@ object AiConfig {
 
         val tmpDiscoveryDir = "/tmp/xed-ide"
 
-        fun agentConfigDir(agentName: String) = ".config/$agentName"
+        fun agentConfigDir(agentName: String) = when (agentName) {
+            "gemini" -> ".gemini"
+            else -> ".config/$agentName"
+        }
         fun agentConfigFile(agentName: String) = when (agentName) {
             "gemini" -> "settings.json"
             else -> "opencode.json"
         }
-        fun agentMcpKey(agentName: String) = when (agentName) {
-            "gemini" -> "mcpServers"
-            else -> "mcp"
-        }
+        fun agentMcpKey(agentName: String) = "mcpServers"
     }
 
     object Debug {

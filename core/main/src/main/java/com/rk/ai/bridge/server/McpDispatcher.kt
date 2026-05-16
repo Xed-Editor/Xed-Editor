@@ -83,7 +83,7 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
     fun resultJson(id: JsonElement?, result: JsonObject): String =
         JsonObject().apply {
             addProperty("jsonrpc", "2.0")
-            add("id", id ?: JsonNull.INSTANCE)
+            if (id != null && id !== JsonNull.INSTANCE) add("id", id)
             add("result", result)
         }.let { gson.toJson(it) }
 

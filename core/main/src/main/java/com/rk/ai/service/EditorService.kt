@@ -295,14 +295,10 @@ class EditorService(
                         val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
                         if (bridgeInfo != null) {
                             mcp.add("xed-ide", JsonObject().apply {
-                                if (agent.name == "gemini") {
-                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
-                                } else {
-                                    addProperty("type", "remote")
-                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
-                                    addProperty("enabled", true)
-                                    addProperty("timeout", 120000)
-                                }
+                                addProperty("type", "remote")
+                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                addProperty("enabled", true)
+                                addProperty("timeout", 120000)
                                 add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${bridgeInfo.token}") })
                             })
                         }
