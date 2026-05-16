@@ -84,6 +84,11 @@ object AgentEnvironmentBuilder {
             "MCP_PORT=${bridge.port}",
             "MCP_AUTH_TOKEN=${bridge.token}",
         ).apply {
+            if (Settings.ai_api_key.isNotBlank()) {
+                add("GEMINI_API_KEY=${Settings.ai_api_key}")
+                add("OPENCODE_API_KEY=${Settings.ai_api_key}")
+                add("AI_API_KEY=${Settings.ai_api_key}")
+            }
             addAll(config.agent.buildEnv(emptyMap()).map { "${it.key}=${it.value}" })
             addAll(config.extraEnv.map { "${it.key}=${it.value}" })
             if (!isFDroid && localLibDir().child("libproot-loader.so").exists()) {
@@ -125,7 +130,7 @@ object AgentEnvironmentBuilder {
         runCatching { sandboxHomeDir().let { if (it.exists()) File(it, AiConfig.Discovery.xedBridgeEnvHomeFile).writeText(envContent) } }
     }
 
-    fun buildMinimalBridgeEnv(bridge: IdeBridge.Info, workingDir: String): Array<String> = arrayOf(
+    fun buildMinimalBridgeEnv(bridge: IdeBridge.Info, workingDir: String): Array<String> = mutableListOf(
         "WKDIR=$workingDir",
         "IDE_SERVER_PORT=${bridge.port}",
         "IDE_AUTH_TOKEN=${bridge.token}",
@@ -143,5 +148,11 @@ object AgentEnvironmentBuilder {
         "VSCODE_PID=${Process.myPid()}",
         "EDITOR=vim",
         "VISUAL=vim",
-    )
+    ).apply {
+        if (Settings.ai_api_key.isNotBlank()) {
+            add("GEMINI_API_KEY=${Settings.ai_api_key}")
+            add("OPENCODE_API_KEY=${Settings.ai_api_key}")
+            add("AI_API_KEY=${Settings.ai_api_key}")
+        }
+    }.toTypedArray()
 }

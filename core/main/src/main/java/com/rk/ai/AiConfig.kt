@@ -40,7 +40,10 @@ object AiConfig {
             "gemini" -> "settings.json"
             else -> "opencode.json"
         }
-        fun agentMcpKey(agentName: String) = "mcpServers"
+        fun agentMcpKey(agentName: String) = when (agentName) {
+            "gemini" -> "mcpServers"
+            else -> "mcp"
+        }
     }
 
     object Debug {

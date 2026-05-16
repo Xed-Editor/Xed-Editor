@@ -66,20 +66,38 @@ object DiscoveryFileWriter {
                     ?: existing.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
                 existing.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
                     ?: existing.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
+                
+                if (Settings.ai_api_key.isNotBlank()) {
+                    existing.addProperty("apiKey", Settings.ai_api_key)
+                }
+            } else if (agentName == "opencode") {
+                if (Settings.ai_api_key.isNotBlank()) {
+                    existing.addProperty("apiKey", Settings.ai_api_key)
+                }
             }
 
-            val mcpServers = existing.getAsJsonObject(mcpKey)
+            val target = existing.getAsJsonObject(mcpKey)
                 ?: JsonObject().also { existing.add(mcpKey, it) }
-            mcpServers.add("xed-ide", JsonObject().apply {
-                addProperty("type", "remote")
-                addProperty("url", "http://${info.host}:${info.port}/mcp")
-                addProperty("enabled", true)
-                addProperty("timeout", 120000)
-                add("headers", JsonObject().apply {
-                    addProperty("Authorization", "Bearer ${info.token}")
+            if (agentName == "gemini") {
+                target.add("xed-ide", JsonObject().apply {
+                    addProperty("url", "http://${info.host}:${info.port}/mcp")
+                    add("headers", JsonObject().apply {
+                        addProperty("Authorization", "Bearer ${info.token}")
+                    })
                 })
-            })
-            existing.getAsJsonObject("mcp")?.remove("xed-ide")
+                existing.getAsJsonObject("mcp")?.remove("xed-ide")
+            } else {
+                target.add("xed-ide", JsonObject().apply {
+                    addProperty("type", "remote")
+                    addProperty("url", "http://${info.host}:${info.port}/mcp")
+                    addProperty("enabled", true)
+                    addProperty("timeout", 120000)
+                    add("headers", JsonObject().apply {
+                        addProperty("Authorization", "Bearer ${info.token}")
+                    })
+                })
+                existing.getAsJsonObject("mcpServers")?.remove("xed-ide")
+            }
 
             configFile.writeText(gson.toJson(existing))
         }
@@ -132,13 +150,28 @@ object DiscoveryFileWriter {
                         val configFileName = AiConfig.Discovery.agentConfigFile(agent)
                         val mcpFile = File(dir, configFileName)
                         val existingMcp = runCatching { JsonParser.parseString(mcpFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-                        val mcp = existingMcp.getAsJsonObject(mcpKey)
+                        val target = existingMcp.getAsJsonObject(mcpKey)
                             ?: JsonObject().also { existingMcp.add(mcpKey, it) }
-                        mcp.add("xed-ide", JsonObject().apply {
-                            addProperty("type", "remote"); addProperty("url", "$url/mcp"); addProperty("enabled", true)
-                            addProperty("timeout", 120000)
-                            add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
-                        })
+                        if (agent == "gemini") {
+                            target.add("xed-ide", JsonObject().apply {
+                                addProperty("url", "$url/mcp")
+                                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
+                            })
+                            existingMcp.getAsJsonObject("mcp")?.remove("xed-ide")
+                            if (Settings.ai_api_key.isNotBlank()) {
+                                existingMcp.addProperty("apiKey", Settings.ai_api_key)
+                            }
+                        } else {
+                            target.add("xed-ide", JsonObject().apply {
+                                addProperty("type", "remote"); addProperty("url", "$url/mcp"); addProperty("enabled", true)
+                                addProperty("timeout", 120000)
+                                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
+                            })
+                            existingMcp.getAsJsonObject("mcpServers")?.remove("xed-ide")
+                            if (agent == "opencode" && Settings.ai_api_key.isNotBlank()) {
+                                existingMcp.addProperty("apiKey", Settings.ai_api_key)
+                            }
+                        }
                         mcpFile.writeText(gson.toJson(existingMcp))
                     }
                 }

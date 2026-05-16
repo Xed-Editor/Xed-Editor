@@ -290,17 +290,24 @@ class EditorService(
                             ?: existing.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
                     }
 
-                    val mcp = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
-                    if (!mcp.has("xed-ide")) {
+                    val target = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
+                    if (!target.has("xed-ide")) {
                         val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
                         if (bridgeInfo != null) {
-                            mcp.add("xed-ide", JsonObject().apply {
-                                addProperty("type", "remote")
-                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
-                                addProperty("enabled", true)
-                                addProperty("timeout", 120000)
-                                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${bridgeInfo.token}") })
-                            })
+                            if (agent.name == "gemini") {
+                                target.add("xed-ide", JsonObject().apply {
+                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                    add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${bridgeInfo.token}") })
+                                })
+                            } else {
+                                target.add("xed-ide", JsonObject().apply {
+                                    addProperty("type", "remote")
+                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                    addProperty("enabled", true)
+                                    addProperty("timeout", 120000)
+                                    add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${bridgeInfo.token}") })
+                                })
+                            }
                         }
                     }
                     configFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(existing))
