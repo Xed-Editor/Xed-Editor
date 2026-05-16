@@ -272,7 +272,7 @@ class Editor : CodeEditor {
             }
     }
 
-    suspend fun setLanguage(textmateScope: String) {
+    suspend fun configureLanguage(textmateScope: String) {
         val language = LanguageManager.createLanguage(textmateScope)
         language.useTab(Settings.actual_tabs)
         language.tabSize = Settings.tab_size

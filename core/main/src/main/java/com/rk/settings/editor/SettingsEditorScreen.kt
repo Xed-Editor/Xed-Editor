@@ -284,7 +284,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 max = 16,
             ) {
                 Settings.tab_size = it
-                scope.launch { refreshEditorSettings() }
 
                 MainActivity.instance?.apply {
                     viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
@@ -292,6 +291,8 @@ fun SettingsEditorScreen(navController: NavController) {
                         textMateLanguage?.tabSize = it
                     }
                 }
+
+                scope.launch { refreshEditorSettings() }
             }
 
             EditorSettingsToggle(
@@ -307,6 +308,8 @@ fun SettingsEditorScreen(navController: NavController) {
                             textMateLanguage?.useTab(it)
                         }
                     }
+
+                    scope.launch { refreshEditorSettings() }
                 },
             )
         }

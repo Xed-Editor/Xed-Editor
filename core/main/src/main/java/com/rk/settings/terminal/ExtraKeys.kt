@@ -146,7 +146,7 @@ fun TerminalExtraKeys() {
                             colorScheme = colorScheme,
                         )
 
-                        scope.launch { setLanguage(BuiltinFileType.JSON.textmateScope!!) }
+                        scope.launch { configureLanguage(BuiltinFileType.JSON.textmateScope!!) }
                     }
                 },
             )

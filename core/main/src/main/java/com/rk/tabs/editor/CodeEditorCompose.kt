@@ -112,8 +112,6 @@ fun EditorTab.CodeEditor(
                             }
                         }
                     }
-
-                    scope.launch { editorState.editorConfigLoaded?.await()?.let { applySettings(it) } }
                 }
             },
         )
@@ -251,7 +249,10 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
     val editor = editorState.editor.get() ?: return
 
     scope.launch(Dispatchers.IO) {
-        editorState.textmateScope?.let { editor.setLanguage(it) }
+        editorState.textmateScope?.let { editor.configureLanguage(it) }
+
+        val editorConfigProps = editorState.editorConfigLoaded?.await()
+        editorConfigProps?.let { withContext(Dispatchers.Main) { editor.applySettings(it) } }
 
         val builtin = getBuiltinServers(editor.context)
         val extension = getExtensionServers(editor.context)
@@ -264,8 +265,10 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
             editorState.textmateScope
                 ?.let { LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false) }
                 ?.apply {
-                    useTab(Settings.actual_tabs)
-                    tabSize = Settings.tab_size
+                    editor.getTextMateLanguage()?.let {
+                        useTab(it.useTab())
+                        tabSize = it.tabSize
+                    }
                 }
 
         val projectFile =
