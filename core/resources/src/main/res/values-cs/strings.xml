@@ -575,7 +575,7 @@
     <string name="logs_too_long_desc">Protokolový soubor, který jste chtěli nahlásit je příliš dlouhý. Prosím manuálně vložte zkopírovaný protokolový soubor do hlášení o chyb.</string>
     <string name="status_restarting">Restartování…</string>
     <string name="status_stopping">Zastavování.…</string>
-    <string name="supported_extensions">Doplňky: %s</string>
+    <string name="supported_extensions">Koncovky: %s</string>
     <string name="features">Funkce</string>
     <string name="code_completion">Dokončování kódu</string>
     <string name="code_completion_desc">Zapnout návrhy automatického dokončování</string>
@@ -628,4 +628,14 @@
     <string name="debug">Ladění</string>
     <string name="theme_flipper">Přepnout mezi témata</string>
     <string name="theme_flipper_desc">Pořád měnit režim téma každých 7 sekund</string>
+    <string name="auto_closing_bracket">Automatické uzavírání závorek</string>
+    <string name="auto_closing_bracket_desc">Automaticky vložit shodnou uzávírecí závorku</string>
+    <string name="confirm_exit_dialog">Potvrzení o ukončení</string>
+    <string name="confirm_exit_dialog_desc">Zobrazit dialog o potvrzení o ukončení před zavření aplikace</string>
+    <string name="symbols">Symboly</string>
+    <string name="see_termux_extra_keys">Terminál využívá Termuxův formát na extra klávesy</string>
+    <string name="go_to_references">Jít k referenci</string>
+    <string name="go_to_references_desc">Vyberte jednu z(e) %s referencí pro přesun k její umístění.</string>
+    <string name="no_references_found">Žádné reference nenalezeny.</string>
+    <string name="find_references_error">Nelze najít reference.</string>
 </resources>

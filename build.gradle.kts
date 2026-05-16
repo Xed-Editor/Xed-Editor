@@ -18,3 +18,9 @@ subprojects {
         }
     }
 }
+
+buildscript{
+    dependencies {
+        classpath(libs.r8)
+    }
+}

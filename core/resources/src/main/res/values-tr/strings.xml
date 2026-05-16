@@ -646,4 +646,8 @@
     <string name="git_status">Git durumu</string>
     <string name="invalid_color">Yanlış renk</string>
     <string name="color_picker">Bir renk seçin</string>
+    <string name="auto_closing_bracket">Otomatik kapanan parantez</string>
+    <string name="auto_closing_bracket_desc">Eşleşen kapanış parantezini otomatik olarak ekle</string>
+    <string name="confirm_exit_dialog">Çıkış onaylama diyaloğu</string>
+    <string name="confirm_exit_dialog_desc">Uygulamayı kapatmadan önce bir onay iletişim kutusu göster</string>
 </resources>

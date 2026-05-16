@@ -654,4 +654,8 @@
     <string name="scrollback_buffer">Rozmiar bufora przewijania</string>
     <string name="scrollback_buffer_desc">Liczba linijek przechowywana w pamięci terminalu jako historia</string>
     <string name="ext_not_found_desc">Strona jest niedostępna. Może się tak zdarzyć, gdy rozszerzenie lokalne zostanie odinstalowane, lub rozszerzenie ze sklepu zostanie usunięte z rejestru przez właściciela.</string>
+    <string name="auto_closing_bracket">Automatyczne zamykanie nawiasów</string>
+    <string name="auto_closing_bracket_desc">Automatycznie wstawiaj pasujacy nawias zamykajacy</string>
+    <string name="confirm_exit_dialog">Potwierdzenie wyjścia</string>
+    <string name="confirm_exit_dialog_desc">Pokaż dialog potwierdzający wyjście z aplikacji</string>
 </resources>

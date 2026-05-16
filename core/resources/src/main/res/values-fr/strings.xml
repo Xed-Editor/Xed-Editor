@@ -650,4 +650,8 @@
     <string name="git_status">Statut Git</string>
     <string name="invalid_color">Couleur invalide</string>
     <string name="color_picker">Choisissez une couleur</string>
+    <string name="auto_closing_bracket">Fermeture automatique des parenthèses</string>
+    <string name="auto_closing_bracket_desc">Insère automatiquement la parenthèse fermante correspondante</string>
+    <string name="confirm_exit_dialog">Confirmer la fenêtre de fermeture</string>
+    <string name="confirm_exit_dialog_desc">Affiche un message de confirmation avant de fermer le logiciel</string>
 </resources>

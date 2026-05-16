@@ -646,4 +646,8 @@
     <string name="git_status">Git-Status</string>
     <string name="invalid_color">Ungültige Farbe</string>
     <string name="color_picker">Wähle eine Farbe</string>
+    <string name="confirm_exit_dialog_desc">Einen Bestätigungsdialog anzeigen, bevor die App geschlossen wird</string>
+    <string name="auto_closing_bracket">Klammern automatisch schließen</string>
+    <string name="auto_closing_bracket_desc">Passende schließende Klammer automatisch einfügen</string>
+    <string name="confirm_exit_dialog">Beenden bestätigen</string>
 </resources>

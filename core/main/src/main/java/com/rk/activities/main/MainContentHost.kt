@@ -7,11 +7,12 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -139,10 +140,15 @@ fun MainActivity.MainContentHost(
                     contentWindowInsets =
                         if (Settings.fullscreen) WindowInsets() else ScaffoldDefaults.contentWindowInsets,
                     snackbarHost = {
-                        SnackbarHost(
-                            hostState = snackbarHostState,
-                            modifier = Modifier.padding(bottom = snackbarBottomPadding),
-                        )
+                        SnackbarHost(hostState = snackbarHostState) { data ->
+                            Snackbar(
+                                snackbarData = data,
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                actionColor = MaterialTheme.colorScheme.primary,
+                                dismissActionContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     },
                     modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
                     topBar = {
