@@ -54,18 +54,18 @@ fun InlineAgentBar(
         val editor = state.editorState.editor.get()
         val selectedText = editor?.getSelectedText().orEmpty()
         val fileName = state.file.getName()
-        val language = state.language?.displayName ?: ""
+        val extension = fileName.substringAfterLast('.', "")
         return buildString {
             appendLine("## Current File Context")
             appendLine("- File: `$fileName`")
             appendLine("- Path: `$filePath`")
-            if (language.isNotBlank()) appendLine("- Language: $language")
+            if (extension.isNotBlank()) appendLine("- Type: .$extension")
             val lineCount = editor?.lineCount ?: 0
             if (lineCount > 0) appendLine("- Lines: $lineCount")
             if (selectedText.isNotBlank()) {
                 appendLine()
                 appendLine("### Selected Code")
-                appendLine("```${language.lowercase()}")
+                appendLine("```${extension.lowercase()}")
                 appendLine(selectedText.take(2000))
                 appendLine("```")
             }
@@ -159,6 +159,7 @@ fun InlineAgentBar(
                         when (msg) {
                             is ChatMessage.User -> UserBubble(msg.content, colorScheme)
                             is ChatMessage.Assistant -> AssistantBubble(msg.content, colorScheme)
+                            is ChatMessage.System -> AssistantBubble(msg.content, colorScheme)
                         }
                     }
 

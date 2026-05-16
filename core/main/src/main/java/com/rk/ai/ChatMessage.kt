@@ -11,18 +11,18 @@ sealed class ChatMessage {
 
     data class User(
         override val content: String,
-        override val timestamp: Long = System.currentTimeMillis(),
+        override val timestamp: Long = java.lang.System.currentTimeMillis(),
     ) : ChatMessage()
 
     data class Assistant(
         override val content: String,
-        override val timestamp: Long = System.currentTimeMillis(),
+        override val timestamp: Long = java.lang.System.currentTimeMillis(),
         val isStreaming: Boolean = false,
     ) : ChatMessage()
 
     data class System(
         override val content: String,
-        override val timestamp: Long = System.currentTimeMillis(),
+        override val timestamp: Long = java.lang.System.currentTimeMillis(),
     ) : ChatMessage()
 }
 
