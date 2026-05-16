@@ -39,6 +39,7 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import kotlinx.coroutines.launch
 
 @Composable
@@ -263,13 +264,19 @@ fun SettingsEditorScreen(navController: NavController) {
                         MainActivity.instance?.apply {
                             viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
                                 val scope = tab.editorState.textmateScope ?: return@forEach
-                                val language = tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage
+                                val editorLanguage = tab.editorState.editor.get()?.editorLanguage
+
+                                val textMateLanguage =
+                                    editorLanguage as? TextMateLanguage
+                                        ?: if (editorLanguage is LspLanguage) {
+                                            editorLanguage.wrapperLanguage as? TextMateLanguage
+                                        } else null
 
                                 if (newValue) {
                                     val keywords = KeywordManager.getKeywords(scope)
-                                    keywords?.let { language?.setCompleterKeywords(it.toTypedArray()) }
+                                    keywords?.let { textMateLanguage?.setCompleterKeywords(it.toTypedArray()) }
                                 } else {
-                                    language?.setCompleterKeywords(null)
+                                    textMateLanguage?.setCompleterKeywords(null)
                                 }
                             }
                         }
@@ -289,8 +296,13 @@ fun SettingsEditorScreen(navController: NavController) {
 
                 MainActivity.instance?.apply {
                     viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
-                        val language = tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage
-                        language?.tabSize = it
+                        val editorLanguage = tab.editorState.editor.get()?.editorLanguage
+
+                        if (editorLanguage is TextMateLanguage) {
+                            editorLanguage.tabSize = it
+                        } else if (editorLanguage is LspLanguage) {
+                            (editorLanguage.wrapperLanguage as? TextMateLanguage)?.tabSize = it
+                        }
                     }
                 }
             }
@@ -304,8 +316,13 @@ fun SettingsEditorScreen(navController: NavController) {
 
                     MainActivity.instance?.apply {
                         viewModel.tabs.filterIsInstance<EditorTab>().forEach { tab ->
-                            val language = tab.editorState.editor.get()?.editorLanguage as? TextMateLanguage
-                            language?.useTab(it)
+                            val editorLanguage = tab.editorState.editor.get()?.editorLanguage
+
+                            if (editorLanguage is TextMateLanguage) {
+                                editorLanguage.useTab(it)
+                            } else if (editorLanguage is LspLanguage) {
+                                (editorLanguage.wrapperLanguage as? TextMateLanguage)?.useTab(it)
+                            }
                         }
                     }
                 },

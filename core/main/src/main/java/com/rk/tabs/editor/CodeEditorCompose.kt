@@ -250,42 +250,43 @@ fun Editor.registerXedEvents(
 fun EditorTab.applyHighlightingAndConnectLSP() {
     val editor = editorState.editor.get() ?: return
 
-    with(editor) {
-        scope.launch(Dispatchers.IO) {
-            editorState.textmateScope?.let { setLanguage(it) }
+    scope.launch(Dispatchers.IO) {
+        editorState.textmateScope?.let { editor.setLanguage(it) }
 
-            val builtin = getBuiltinServers(context)
-            val extension = getExtensionServers(context)
-            val external = getExternalServers()
-            val servers = builtin + extension + external
-            if (servers.isEmpty()) return@launch
+        val builtin = getBuiltinServers(editor.context)
+        val extension = getExtensionServers(editor.context)
+        val external = getExternalServers()
+        val servers = builtin + extension + external
+        if (servers.isEmpty()) return@launch
 
-            val wrapperLanguage =
-                editorState.textmateScope?.let {
-                    LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false)
+        // Create another language, as created identifiers cannot be modified retroactively
+        val wrapperLanguage =
+            editorState.textmateScope
+                ?.let { LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false) }
+                ?.apply {
+                    useTab(Settings.actual_tabs)
+                    tabSize = Settings.tab_size
                 }
-            val projectFile =
-                projectRoot
-                    ?: run {
-                        logWarn(
-                            "File ${file.getName()} has no suitable project root. Skipping language server connection."
-                        )
-                        return@launch
-                    }
 
-            lspConnector =
-                LspConnector(
-                    projectFile = projectFile,
-                    fileObject = file,
-                    codeEditor = this@with,
-                    editorTab = this@applyHighlightingAndConnectLSP,
-                    servers = servers,
-                )
+        val projectFile =
+            projectRoot
+                ?: run {
+                    logWarn("File ${file.getName()} has no suitable project root. Skipping language server connection.")
+                    return@launch
+                }
 
-            info("Trying to connect language servers...")
-            lspConnector?.connect(wrapperLanguage)
-            info("isConnected : ${lspConnector?.isConnected() ?: false}")
-        }
+        lspConnector =
+            LspConnector(
+                projectFile = projectFile,
+                fileObject = file,
+                codeEditor = editor,
+                editorTab = this@applyHighlightingAndConnectLSP,
+                servers = servers,
+            )
+
+        info("Trying to connect language servers...")
+        lspConnector?.connect(wrapperLanguage)
+        info("isConnected : ${lspConnector?.isConnected() ?: false}")
     }
 }
 
