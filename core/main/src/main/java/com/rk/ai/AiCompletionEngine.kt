@@ -24,6 +24,11 @@ object AiCompletionEngine {
     private val gson = Gson()
     private const val TAG = "AiCompletion"
     private const val MAX_RETRIES = 2
+    private val requestCache = LinkedHashMap<String, CompletionResult>(16, 0.75f, true)
+    private const val CACHE_MAX_SIZE = 32
+    private var lastRequestKey: String = ""
+    private var lastRequestTime: Long = 0
+    private const val DEBOUNCE_MS = 300L
 
     data class CompletionResult(
         val text: String,
@@ -51,7 +56,7 @@ object AiCompletionEngine {
         val model = when {
             Settings.ai_completion_model.isNotBlank() -> Settings.ai_completion_model
             provider == "gemini" -> "gemini-2.5-flash"
-            provider == "opencoed" -> "deepseek/deepseek-v4-flash"
+            provider == "opencode" -> "deepseek/deepseek-v4-flash"
             else -> "gpt-4o"
         }
 
@@ -82,9 +87,23 @@ object AiCompletionEngine {
     ): CompletionResult? = withContext(Dispatchers.IO) {
         val config = resolveConfig() ?: return@withContext null
 
+        val cacheKey = "$filePath:$cursorLine:$cursorColumn:${content.length}"
+        val now = System.currentTimeMillis()
+        if (cacheKey == lastRequestKey && now - lastRequestTime < DEBOUNCE_MS) return@withContext null
+        lastRequestKey = cacheKey
+        lastRequestTime = now
+
+        requestCache[cacheKey]?.let {
+            if (now - lastRequestTime < 5000) return@withContext it
+        }
+
         val lines = content.split("\n")
-        val prefixLines = lines.takeLast(50).dropLast(maxOf(0, lines.size - cursorLine - 1))
-        val prefix = prefixLines.joinToString("\n")
+        val cursorIdx = cursorLine.coerceIn(1, lines.size)
+        val windowStart = maxOf(0, cursorIdx - 1 - 30)
+        val windowLines = lines.subList(windowStart, cursorIdx - 1)
+        val afterLines = lines.subList(cursorIdx - 1, minOf(lines.size, cursorIdx + 2))
+        val prefix = windowLines.joinToString("\n")
+        val suffix = afterLines.joinToString("\n")
 
         val systemPrompt = "You are a code completion engine. Given the code context before the cursor, output ONLY the most likely next code. No explanation, no markdown, no backticks. Complete the current line or add the next logical line. Match existing code style and indentation. Keep under 80 characters. If unsure, output nothing."
         val userPrompt = buildString {
@@ -94,6 +113,11 @@ object AiCompletionEngine {
             appendLine("Code before cursor:")
             appendLine(prefix)
             appendLine("CURSOR_HERE")
+            if (suffix.isNotBlank()) {
+                appendLine()
+                appendLine("Code after cursor (for context):")
+                appendLine(suffix)
+            }
         }
 
         val isGemini = config.provider == "gemini"
@@ -160,7 +184,12 @@ object AiCompletionEngine {
 
                 if (text.isBlank()) return@withContext null
 
-                return@withContext CompletionResult(text = text, line = cursorLine, column = cursorColumn)
+                val result = CompletionResult(text = text, line = cursorLine, column = cursorColumn)
+                requestCache[cacheKey] = result
+                if (requestCache.size > CACHE_MAX_SIZE) {
+                    requestCache.keys.firstOrNull()?.let { requestCache.remove(it) }
+                }
+                return@withContext result
             } catch (e: Exception) {
                 if (attempt < MAX_RETRIES) continue
                 if (BuildConfig.DEBUG) Log.e(TAG, "Completion failed after $MAX_RETRIES retries", e)

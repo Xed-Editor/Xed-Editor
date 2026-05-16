@@ -8,6 +8,7 @@ import java.io.PipedOutputStream
 import java.io.PrintWriter
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.LinkedBlockingQueue
 import fi.iki.elonen.NanoHTTPD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -24,6 +25,42 @@ class SseManager(
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
     val size: Int get() = sseClients.size
     private val keepaliveIntervalMs = 15_000L
+    private val notificationQueue = LinkedBlockingQueue<Pair<String, String>>()
+    private val batchIntervalMs = 50L
+
+    init {
+        startNotificationBatcher()
+    }
+
+    private fun startNotificationBatcher() {
+        scope.launch {
+            while (isActive) {
+                val batch = mutableListOf<Pair<String, String>>()
+                notificationQueue.drainTo(batch)
+                if (batch.isEmpty()) {
+                    delay(batchIntervalMs)
+                    continue
+                }
+                val deadClients = mutableListOf<String>()
+                sseClients.forEach { (id, writer) ->
+                    runCatching {
+                        synchronized(writer) {
+                            batch.forEach { (eventType, data) ->
+                                writer.print("event: $eventType\n")
+                                writer.print("data: $data\n\n")
+                            }
+                            writer.flush()
+                        }
+                        if (writer.checkError()) deadClients.add(id)
+                    }.onFailure { deadClients.add(id) }
+                }
+                if (deadClients.isNotEmpty()) {
+                    deadClients.forEach { sseClients.remove(it) }
+                    onClientsChanged(sseClients.size)
+                }
+            }
+        }
+    }
 
     fun createSseStream(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val sessionId = UUID.randomUUID().toString()
@@ -97,16 +134,7 @@ class SseManager(
 
     override fun sendNotification(method: String, params: JsonObject) {
         val notification = mcpDispatcher.notificationJson(method, params)
-        val deadClients = mutableListOf<String>()
-        sseClients.forEach { (id, writer) ->
-            runCatching {
-                synchronized(writer) {
-                    writer.print("event: message\n"); writer.print("data: $notification\n\n"); writer.flush()
-                }
-                if (writer.checkError()) deadClients.add(id)
-            }.onFailure { deadClients.add(id) }
-        }
-        deadClients.forEach { sseClients.remove(it) }
-        if (deadClients.isNotEmpty()) onClientsChanged(sseClients.size)
+        if (sseClients.isEmpty()) return
+        notificationQueue.offer("message" to notification)
     }
 }

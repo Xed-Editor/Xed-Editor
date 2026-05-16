@@ -54,12 +54,18 @@ fun InlineAgentBar(
         val editor = state.editorState.editor.get()
         val selectedText = editor?.getSelectedText().orEmpty()
         val fileName = state.file.getName()
+        val language = state.language?.displayName ?: ""
         return buildString {
-            appendLine("Current file: $fileName")
-            appendLine("File path: $filePath")
+            appendLine("## Current File Context")
+            appendLine("- File: `$fileName`")
+            appendLine("- Path: `$filePath`")
+            if (language.isNotBlank()) appendLine("- Language: $language")
+            val lineCount = editor?.lineCount ?: 0
+            if (lineCount > 0) appendLine("- Lines: $lineCount")
             if (selectedText.isNotBlank()) {
-                appendLine("Selected code:")
-                appendLine("```")
+                appendLine()
+                appendLine("### Selected Code")
+                appendLine("```${language.lowercase()}")
                 appendLine(selectedText.take(2000))
                 appendLine("```")
             }
@@ -73,13 +79,17 @@ fun InlineAgentBar(
                 ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
         } else null
         val currentAgent = AiSessionManager.currentAgent
+        val firstMessage = conversation.messages.isEmpty()
 
-        val fileContext = buildFileContext()
-        val conversationContext = conversation.buildContextPrompt(prompt)
-        val fullPrompt = buildString {
-            if (fileContext.isNotBlank()) appendLine(fileContext).appendLine()
-            if (conversationContext.isNotBlank()) appendLine(conversationContext)
-            else appendLine("User: $prompt")
+        val fullPrompt = if (firstMessage) {
+            buildString {
+                val fileContext = buildFileContext()
+                if (fileContext.isNotBlank()) appendLine(fileContext).appendLine()
+                appendLine("## Request")
+                appendLine(prompt)
+            }
+        } else {
+            conversation.withSystemPrompt(currentAgent.displayName).buildContextPrompt(prompt)
         }
 
         conversation = conversation.addUserMessage(prompt)
@@ -485,4 +495,16 @@ private fun setClipboard(text: String) {
     val cm = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager ?: return
     cm.setPrimaryClip(android.content.ClipData.newPlainText("xed-agent", text))
     com.rk.utils.toast("Copied to clipboard")
+}
+
+private fun ConversationState.withSystemPrompt(agentName: String): ConversationState {
+    if (systemPrompt.isNotBlank()) return this
+    val prompt = buildString {
+        appendLine("You are an AI coding assistant integrated into Xed-Editor ($agentName).")
+        appendLine("You help users write, debug, refactor, and understand code.")
+        appendLine("When suggesting code changes, explain what you changed and why.")
+        appendLine("Use markdown formatting in your responses.")
+        appendLine("When providing code, always specify the language in code fences.")
+    }
+    return copy(systemPrompt = prompt)
 }

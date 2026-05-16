@@ -3,6 +3,11 @@ package com.rk.ai
 sealed class ChatMessage {
     abstract val content: String
     abstract val timestamp: Long
+    open val role: String get() = when (this) {
+        is User -> "user"
+        is Assistant -> "assistant"
+        is System -> "system"
+    }
 
     data class User(
         override val content: String,
@@ -14,6 +19,11 @@ sealed class ChatMessage {
         override val timestamp: Long = System.currentTimeMillis(),
         val isStreaming: Boolean = false,
     ) : ChatMessage()
+
+    data class System(
+        override val content: String,
+        override val timestamp: Long = System.currentTimeMillis(),
+    ) : ChatMessage()
 }
 
 data class ConversationState(
@@ -21,6 +31,7 @@ data class ConversationState(
     val isLoading: Boolean = false,
     val streamingText: String = "",
     val error: String? = null,
+    val systemPrompt: String = "",
 ) {
     val isStreaming: Boolean get() = streamingText.isNotBlank()
 
@@ -52,10 +63,15 @@ data class ConversationState(
 
     fun buildContextPrompt(newPrompt: String): String {
         val sb = StringBuilder()
+        if (systemPrompt.isNotBlank()) {
+            sb.appendLine("System: $systemPrompt")
+            sb.appendLine()
+        }
         messages.takeLast(10).forEach { msg ->
             when (msg) {
                 is ChatMessage.User -> sb.appendLine("User: ${msg.content}")
                 is ChatMessage.Assistant -> sb.appendLine("Assistant: ${msg.content}")
+                is ChatMessage.System -> sb.appendLine("System: ${msg.content}")
             }
             sb.appendLine()
         }

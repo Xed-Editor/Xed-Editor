@@ -50,9 +50,11 @@ class IdeBridgeServer(
     companion object {
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
         private const val MAX_CONCURRENT_TOOL_CALLS = 8
+        private const val MAX_CONCURRENT_MESSAGES = 16
     }
 
-    private val toolExecutionPermits = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
+    private val toolCallPermits = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
+    private val messagePermits = Semaphore(MAX_CONCURRENT_MESSAGES)
 
     init {
         registerTools(toolRegistry)
@@ -128,20 +130,20 @@ class IdeBridgeServer(
                 if (session.method == Method.GET) {
                     sseManager.createMcpStream(resolveMcpSessionId("initialize", null) ?: "default")
                 } else {
-                    toolExecutionPermits.acquireUninterruptibly()
+                    toolCallPermits.acquireUninterruptibly()
                     try {
                         handleMcp(session, rawPostBody)
                     } finally {
-                        toolExecutionPermits.release()
+                        toolCallPermits.release()
                     }
                 }
             }
             "/messages" -> {
-                toolExecutionPermits.acquireUninterruptibly()
+                messagePermits.acquireUninterruptibly()
                 try {
                     handleMessages(session, rawPostBody)
                 } finally {
-                    toolExecutionPermits.release()
+                    messagePermits.release()
                 }
             }
             "/external-editor" -> handleExternalEditor(session, rawPostBody)

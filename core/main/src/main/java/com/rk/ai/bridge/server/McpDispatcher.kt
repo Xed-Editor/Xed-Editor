@@ -20,7 +20,8 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
         "tools/list" -> toolsListResult(id)
         "tools/call" -> toolsCallResult(id, request)
         "notifications/initialized" -> resultJson(id, JsonObject())
-        "ping" -> resultJson(id, JsonObject())
+        "notifications/cancelled" -> resultJson(id, JsonObject())
+        "ping" -> resultJson(id, JsonObject().apply { addProperty("pong", true) })
         else -> errorJson(id, -32601, "method not found: $method")
     }
 
@@ -32,7 +33,12 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
             ?.takeIf { it.isNotBlank() }
             ?: "2025-03-26"
         addProperty("protocolVersion", negotiatedProtocol)
-        add("capabilities", JsonObject().apply { add("tools", JsonObject()) })
+        add("capabilities", JsonObject().apply {
+            add("tools", JsonObject())
+            add("experimental", JsonObject().apply {
+                addProperty("streaming", true)
+            })
+        })
         add("serverInfo", JsonObject().apply {
             addProperty("name", "xed-ide-bridge")
             addProperty("version", "1.0.0")
@@ -48,17 +54,29 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
         val name = params.get("name")?.asString.orEmpty()
         val args = params.getAsJsonObject("arguments") ?: JsonObject()
         val timeoutMs = toolRegistry().getTimeoutMs(name)
+
+        if (name.isBlank()) return errorJson(id, -32602, "tool name required")
+        if (!toolRegistry().listNames().contains(name)) {
+            val available = toolRegistry().listNames().sorted().joinToString(", ")
+            return errorJson(id, -32601, "unknown tool: '$name'. Available: $available")
+        }
+
         return try {
             val result = runBlocking(Dispatchers.IO) {
                 withTimeout(timeoutMs) { toolRegistry().execute(name, args) }
-            } ?: return errorJson(id, -32601, "unknown tool: $name")
+            }
             resultJson(id, result)
         } catch (e: ToolError) {
             errorJson(id, e.code, e.message)
         } catch (e: TimeoutCancellationException) {
             errorJson(id, -32000, "tool '$name' timed out after ${timeoutMs}ms")
         } catch (e: Exception) {
-            errorJson(id, -32603, "${e::class.java.simpleName}: ${e.message ?: "internal error"}")
+            val cause = e.cause
+            when {
+                cause is ToolError -> errorJson(id, cause.code, cause.message)
+                cause is TimeoutCancellationException -> errorJson(id, -32000, "tool '$name' timed out after ${timeoutMs}ms")
+                else -> errorJson(id, -32603, "${e::class.java.simpleName}: ${e.message ?: "internal error"}")
+            }
         }
     }
 

@@ -35,6 +35,18 @@ fun jsonResult(data: JsonElement): JsonObject {
     }
 }
 
+fun errorResult(errorMessage: String): JsonObject {
+    return JsonObject().apply {
+        add("content", JsonArray().apply {
+            add(JsonObject().apply {
+                addProperty("type", "text")
+                addProperty("text", "Error: $errorMessage")
+            })
+        })
+        addProperty("isError", true)
+    }
+}
+
 fun emptyResult(): JsonObject {
     return JsonObject().apply {
         add("content", JsonArray())

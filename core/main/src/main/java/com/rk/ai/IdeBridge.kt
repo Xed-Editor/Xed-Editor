@@ -36,16 +36,22 @@ object IdeBridge {
 
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
         workspacePath?.let { setWorkspacePath(it) }
-        synchronized(stateLock) { if (server != null) return getBridgeInfo() }
+        synchronized(stateLock) {
+            if (server != null) {
+                healthCheck().let { if (!it) server = null else return getBridgeInfo() }
+            }
+        }
 
         runCatching {
             val t = newToken()
             val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
             s.start()
+            val actualPort = s.listeningPort
+            if (actualPort <= 0) throw RuntimeException("Failed to bind to any port")
             synchronized(stateLock) {
                 server = s
                 token = t
-                port = s.port
+                port = actualPort
                 s.ideService = IdeServiceImpl(viewModel, s)
             }
             synchronized(workspacePathsLock) {

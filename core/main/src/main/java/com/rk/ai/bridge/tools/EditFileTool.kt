@@ -168,17 +168,43 @@ class EditFileTool : BaseMcpTool() {
 
     private fun findSimilar(content: String, query: String, maxSuggestions: Int = 3): String {
         val lines = content.split("\n")
-        val words = query.split(Regex("\\s+")).filter { it.length > 3 }
-        if (words.isEmpty()) return ""
+        val queryLines = query.split("\n")
+        if (lines.isEmpty() || queryLines.isEmpty()) return ""
+        val queryWords = query.split(Regex("\\s+")).filter { it.length > 3 }.toSet()
+        val queryTrigrams = extractTrigrams(query)
+        if (queryWords.isEmpty() && queryTrigrams.isEmpty()) return ""
 
-        val scored = lines.mapIndexed { i, line ->
-            val matchCount = words.count { word -> line.contains(word, ignoreCase = true) }
-            Pair(i + 1, matchCount)
-        }.filter { it.second > 0 }.sortedByDescending { it.second }
+        data class ScoredLine(val lineNum: Int, val score: Int, val text: String)
 
-        return scored.take(maxSuggestions).joinToString("\n") { (line, _) ->
-            val excerpt = lines.getOrNull(line - 1)?.take(120) ?: ""
-            "  line $line: $excerpt"
+        val scored = mutableListOf<ScoredLine>()
+        val windowSize = queryLines.size.coerceIn(1, lines.size)
+
+        for (i in 0..lines.size - windowSize) {
+            val window = lines.subList(i, i + windowSize)
+            val windowText = window.joinToString("\n")
+            var score = 0
+
+            for (word in queryWords) {
+                if (windowText.contains(word, ignoreCase = true)) score += 10
+            }
+
+            val windowTrigrams = extractTrigrams(windowText)
+            val common = queryTrigrams.intersect(windowTrigrams)
+            score += common.size * 2
+
+            if (score > 0) {
+                scored.add(ScoredLine(lineNum = i + 1, score = score, text = window.first().take(120)))
+            }
         }
+
+        return scored.sortedByDescending { it.score }
+            .take(maxSuggestions)
+            .joinToString("\n") { "  line ${it.lineNum}: ${it.text}" }
+    }
+
+    private fun extractTrigrams(text: String): Set<String> {
+        val cleaned = text.replace(Regex("\\s+"), " ")
+        if (cleaned.length < 3) return emptySet()
+        return cleaned.windowed(3, 1).toSet()
     }
 }
