@@ -112,8 +112,6 @@ fun EditorTab.CodeEditor(
                             }
                         }
                     }
-
-                    scope.launch { editorState.editorConfigLoaded?.await()?.let { applySettings() } }
                 }
             },
         )
@@ -250,42 +248,48 @@ fun Editor.registerXedEvents(
 fun EditorTab.applyHighlightingAndConnectLSP() {
     val editor = editorState.editor.get() ?: return
 
-    with(editor) {
-        scope.launch(Dispatchers.IO) {
-            editorState.textmateScope?.let { setLanguage(it) }
+    scope.launch(Dispatchers.IO) {
+        editorState.textmateScope?.let { editor.configureLanguage(it) }
 
-            val builtin = getBuiltinServers(context)
-            val extension = getExtensionServers(context)
-            val external = getExternalServers()
-            val servers = builtin + extension + external
-            if (servers.isEmpty()) return@launch
+        val editorConfigProps = editorState.editorConfigLoaded?.await()
+        editorConfigProps?.let { withContext(Dispatchers.Main) { editor.applySettings(it) } }
 
-            val wrapperLanguage =
-                editorState.textmateScope?.let {
-                    LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false)
-                }
-            val projectFile =
-                projectRoot
-                    ?: run {
-                        logWarn(
-                            "File ${file.getName()} has no suitable project root. Skipping language server connection."
-                        )
-                        return@launch
+        val builtin = getBuiltinServers(editor.context)
+        val extension = getExtensionServers(editor.context)
+        val external = getExternalServers()
+        val servers = builtin + extension + external
+        if (servers.isEmpty()) return@launch
+
+        // Create another language, as created identifiers cannot be modified retroactively
+        val wrapperLanguage =
+            editorState.textmateScope
+                ?.let { LanguageManager.createLanguage(textmateScope = it, createIdentifiers = false) }
+                ?.apply {
+                    editor.getTextMateLanguage()?.let {
+                        useTab(it.useTab())
+                        tabSize = it.tabSize
                     }
+                }
 
-            lspConnector =
-                LspConnector(
-                    projectFile = projectFile,
-                    fileObject = file,
-                    codeEditor = this@with,
-                    editorTab = this@applyHighlightingAndConnectLSP,
-                    servers = servers,
-                )
+        val projectFile =
+            projectRoot
+                ?: run {
+                    logWarn("File ${file.getName()} has no suitable project root. Skipping language server connection.")
+                    return@launch
+                }
 
-            info("Trying to connect language servers...")
-            lspConnector?.connect(wrapperLanguage)
-            info("isConnected : ${lspConnector?.isConnected() ?: false}")
-        }
+        lspConnector =
+            LspConnector(
+                projectFile = projectFile,
+                fileObject = file,
+                codeEditor = editor,
+                editorTab = this@applyHighlightingAndConnectLSP,
+                servers = servers,
+            )
+
+        info("Trying to connect language servers...")
+        lspConnector?.connect(wrapperLanguage)
+        info("isConnected : ${lspConnector?.isConnected() ?: false}")
     }
 }
 

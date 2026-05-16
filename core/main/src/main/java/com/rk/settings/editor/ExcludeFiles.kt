@@ -174,7 +174,7 @@ fun ExcludeFiles(isDrawer: Boolean) {
                             colorScheme = colorScheme,
                         )
 
-                        scope.launch { setLanguage(BuiltinFileType.IGNORE.textmateScope!!) }
+                        scope.launch { configureLanguage(BuiltinFileType.IGNORE.textmateScope!!) }
                     }
                 },
             )

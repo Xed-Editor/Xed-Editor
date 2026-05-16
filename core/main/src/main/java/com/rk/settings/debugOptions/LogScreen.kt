@@ -182,7 +182,7 @@ fun LogScreen(
                                 colorScheme = colorScheme,
                             )
 
-                            scope.launch { setLanguage(BuiltinFileType.LOG.textmateScope!!) }
+                            scope.launch { configureLanguage(BuiltinFileType.LOG.textmateScope!!) }
                         }
                     },
                     update = { editor ->

@@ -14,6 +14,7 @@ import com.rk.settings.editor.DEFAULT_EDITOR_FONT_PATH
 import com.rk.settings.editor.LineEnding
 import com.rk.utils.errorDialog
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import io.github.rosemoe.sora.lsp.editor.LspLanguage
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -205,13 +206,14 @@ class Editor : CodeEditor {
 
         indentStyle?.let {
             val useTabs = it == PropertyType.IndentStyleValue.tab
-            (editorLanguage as? TextMateLanguage)?.useTab(useTabs)
+            getTextMateLanguage()?.useTab(useTabs)
         }
 
         val actualTabSize = indentSize ?: tabSize
         actualTabSize?.let {
             props.deleteMultiSpaces = it
             tabWidth = it
+            getTextMateLanguage()?.tabSize = it
         }
 
         val endOfLine: PropertyType.EndOfLineValue? = resourceProperties.getValue(PropertyType.end_of_line, null, false)
@@ -227,6 +229,21 @@ class Editor : CodeEditor {
         insertFinalNewline = resourceProperties.getValue(PropertyType.insert_final_newline, insertFinalNewline, false)
         trimTrailingWhitespace =
             resourceProperties.getValue(PropertyType.trim_trailing_whitespace, trimTrailingWhitespace, false)
+    }
+
+    /** Gets the current [TextMateLanguage], unwrapping it from [LspLanguage] if necessary. */
+    fun getTextMateLanguage(): TextMateLanguage? {
+        val language = editorLanguage
+
+        if (language is TextMateLanguage) {
+            return language
+        }
+
+        if (language is LspLanguage) {
+            return language.wrapperLanguage as? TextMateLanguage
+        }
+
+        return null
     }
 
     fun applyFont() {
@@ -255,9 +272,10 @@ class Editor : CodeEditor {
             }
     }
 
-    suspend fun setLanguage(textmateScope: String) {
+    suspend fun configureLanguage(textmateScope: String) {
         val language = LanguageManager.createLanguage(textmateScope)
         language.useTab(Settings.actual_tabs)
+        language.tabSize = Settings.tab_size
 
         if (Settings.textmate_suggestions) {
             val keywords = KeywordManager.getKeywords(textmateScope)
