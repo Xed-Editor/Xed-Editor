@@ -142,7 +142,7 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
     )
     registerTextAction(
         TextActionItem(
-            "AI Assistant",
+            strings.gemini_assistant,
             drawables.auto_fix,
             shouldShow = { isTextSelected },
             onClick = {
