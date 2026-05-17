@@ -125,12 +125,20 @@ object AgentCli {
         val command = arrayOf("/bin/bash", localBinDir().child(binaryName).absolutePath, *args.toTypedArray())
         
         return if (onOutput == null) {
-            ShellUtils.runUbuntu(workingDir, extraEnv, *command, timeoutSeconds = timeoutSeconds)
+            ShellUtils.runUbuntu(
+                workingDir = workingDir,
+                extraEnv = extraEnv,
+                command = command,
+                timeoutSeconds = timeoutSeconds
+            )
         } else {
             ShellUtils.runUbuntuStreaming(
-                workingDir, extraEnv, *command,
+                workingDir = workingDir,
+                extraEnv = extraEnv,
+                command = command,
                 timeoutSeconds = timeoutSeconds,
-                onStdout = onOutput, onStderr = onOutput,
+                onStdout = onOutput,
+                onStderr = onOutput,
             )
         }
     }

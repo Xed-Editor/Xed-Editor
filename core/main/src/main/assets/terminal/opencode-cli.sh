@@ -42,7 +42,11 @@ ms['xed-ide'] = {
     'type': 'remote',
     'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
     'enabled': True,
-    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
+    'headers': {
+        'Authorization': 'Bearer ${IDE_TOKEN}',
+        'authorization': 'Bearer ${IDE_TOKEN}',
+        'x-ide-token': '${IDE_TOKEN}'
+    }
 }
 with open('$CONFIG_FILE', 'w') as f:
     json.dump(cfg, f, indent=2)
@@ -60,7 +64,9 @@ with open('$CONFIG_FILE', 'w') as f:
       "url": "http://127.0.0.1:${IDE_PORT}/mcp",
       "enabled": true,
       "headers": {
-        "Authorization": "Bearer ${IDE_TOKEN}"
+        "Authorization": "Bearer ${IDE_TOKEN}",
+        "authorization": "Bearer ${IDE_TOKEN}",
+        "x-ide-token": "${IDE_TOKEN}"
       }
     }
   }

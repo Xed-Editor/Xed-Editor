@@ -54,7 +54,11 @@ s.setdefault('telemetry', {})['enabled'] = False
 ms = s.setdefault('mcpServers', {})
 ms['xed-ide'] = {
     'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
-    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
+    'headers': {
+        'Authorization': 'Bearer ${IDE_TOKEN}',
+        'authorization': 'Bearer ${IDE_TOKEN}',
+        'x-ide-token': '${IDE_TOKEN}'
+    }
 }
 
 # Cleanup any accidental 'xed-ide' entry in the 'mcp' object (used for global settings)
@@ -84,7 +88,11 @@ s.telemetry = { ...(s.telemetry || {}), enabled: false };
 s.mcpServers = s.mcpServers || {};
 s.mcpServers['xed-ide'] = {
   url: 'http://127.0.0.1:' + idePort + '/mcp',
-  headers: { Authorization: 'Bearer ' + ideToken }
+  headers: { 
+    Authorization: 'Bearer ' + ideToken,
+    authorization: 'Bearer ' + ideToken,
+    'x-ide-token': ideToken
+  }
 };
 
 // Cleanup any accidental 'xed-ide' entry in the 'mcp' object
