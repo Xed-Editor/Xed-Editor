@@ -1,6 +1,5 @@
 package com.rk.commands.editor
 
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.icons.Icon
@@ -8,7 +7,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class LowerCaseCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class LowerCaseCommand : EditorCommand() {
     override val id: String = "editor.lowercase"
 
     override fun getLabel(): String = strings.transform_lowercase.getString()

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
 import com.rk.DefaultScope
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.file.FileWrapper
@@ -15,7 +14,7 @@ import com.rk.resources.strings
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
-class ShareCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class ShareCommand : EditorCommand() {
     override val id: String = "editor.share"
 
     override fun getLabel(): String = strings.share.getString()

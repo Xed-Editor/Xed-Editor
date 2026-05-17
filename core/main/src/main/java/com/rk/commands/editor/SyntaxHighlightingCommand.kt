@@ -1,7 +1,6 @@
 package com.rk.commands.editor
 
 import com.rk.commands.Command
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.file.FileTypeManager
@@ -10,7 +9,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class SyntaxHighlightingCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class SyntaxHighlightingCommand : EditorCommand() {
     override val id: String = "editor.syntax_highlighting"
 
     override fun getLabel(): String = strings.highlighting.getString()
@@ -23,7 +22,7 @@ class SyntaxHighlightingCommand(commandContext: CommandContext) : EditorCommand(
         FileTypeManager.allTypes()
             .filter { it.textmateScope != null }
             .map { fileType ->
-                object : EditorCommand(commandContext) {
+                object : EditorCommand() {
                     override val id: String = "editor.syntax_highlighting.${fileType.name.lowercase()}"
 
                     override fun getLabel(): String = fileType.title

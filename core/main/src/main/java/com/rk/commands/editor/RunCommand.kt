@@ -2,7 +2,6 @@ package com.rk.commands.editor
 
 import android.view.KeyEvent
 import com.rk.DefaultScope
-import com.rk.commands.CommandContext
 import com.rk.commands.CommandProvider
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
@@ -18,7 +17,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
 @OptIn(DelicateCoroutinesApi::class)
-class RunCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class RunCommand : EditorCommand() {
     override val id: String = "editor.run"
 
     override fun getLabel(): String = strings.run.getString()

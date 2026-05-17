@@ -652,4 +652,6 @@
     <string name="auto_closing_bracket_desc">Automatically insert matching closing bracket</string>
     <string name="confirm_exit_dialog">Confirm exit dialog</string>
     <string name="confirm_exit_dialog_desc">Show a confirmation dialog before closing the app</string>
+    <string name="sort_lines_ascending">Sort lines ascending</string>
+    <string name="sort_lines_descending">Sort lines descending</string>
 </resources>

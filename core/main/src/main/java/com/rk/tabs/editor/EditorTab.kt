@@ -486,7 +486,13 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         onApply = {
                             val textRange = editorState.colorPickerRange ?: return@ColorPicker
                             val editor = editorState.editor.get() ?: return@ColorPicker
-                            editor.text.replace(textRange.startIndex, textRange.endIndex, it)
+                            editor.text.replace(
+                                textRange.start.line,
+                                textRange.start.column,
+                                textRange.end.line,
+                                textRange.end.column,
+                                it,
+                            )
                         },
                     ) {
                         editorState.showColorPicker = null

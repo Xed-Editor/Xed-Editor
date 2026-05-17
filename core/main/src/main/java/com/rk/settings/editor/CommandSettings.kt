@@ -42,14 +42,14 @@ fun CommandSelectionDialog(
     CommandPalette(progress = 1f, commands = dialogCommands, lastUsedCommand = null) { onDismiss() }
 }
 
-fun buildAddActions(
+private fun buildAddActions(
     command: Command,
     commandIds: SnapshotStateList<String>,
     existingCommands: List<Command>,
     saveOrder: (SnapshotStateList<String>) -> Unit,
 ): List<Command> = buildList {
     add(
-        object : Command(command.commandContext) {
+        object : Command() {
             override val id: String = command.id
 
             override fun getLabel(): String = strings.add_parent_command.getString()

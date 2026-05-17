@@ -146,29 +146,30 @@ fun Editor.registerXedEvents(
     onTextChange: () -> Unit,
 ) {
     subscribeAlways(InlayHintClickEvent::class.java) { event ->
-        val hint = event.inlayHint
-        if (hint is ColorInlayHint) {
-            val colorRange = hint.colorRange
-            val indexedColorRange =
-                colorRange?.let {
-                    val startIndex = event.editor.text.getCharIndex(colorRange.start.line, colorRange.start.column)
-                    val endIndex = event.editor.text.getCharIndex(colorRange.end.line, colorRange.end.column)
-                    TextRange(
-                        CharPosition(colorRange.start.line, colorRange.start.column, startIndex),
-                        CharPosition(colorRange.end.line, colorRange.end.column, endIndex),
-                    )
+        val hint = event.inlayHint as? ColorInlayHint ?: return@subscribeAlways
+        val range =
+            hint.colorRange
+                ?: run {
+                    toast(strings.invalid_color)
+                    return@subscribeAlways
                 }
 
-            if (indexedColorRange != null) {
-                val colorText = event.editor.text.substring(indexedColorRange.startIndex, indexedColorRange.endIndex)
-                val colorValue = hint.color.resolve(colorScheme).let { Color(it) }
-                val parsedColor = colorText.parseUnknownColor() ?: (colorValue to ColorFormat.HEX)
+        val editor = event.editor
+        val text = editor.text
 
-                editorTab.editorState.showColorPicker = parsedColor
-                editorTab.editorState.colorPickerRange = indexedColorRange
-            } else {
-                toast(strings.invalid_color)
-            }
+        val start = CharPosition(range.start.line, range.start.column)
+        val end = CharPosition(range.end.line, range.end.column)
+
+        val indexedRange = TextRange(start, end)
+
+        val colorText = text.subContent(start.line, start.column, end.line, end.column).toString()
+
+        val colorValue = hint.color.resolve(colorScheme).let(::Color)
+        val parsed = colorText.parseUnknownColor() ?: (colorValue to ColorFormat.HEX)
+
+        editorTab.editorState.apply {
+            showColorPicker = parsed
+            colorPickerRange = indexedRange
         }
     }
 

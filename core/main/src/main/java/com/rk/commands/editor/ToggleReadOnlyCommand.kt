@@ -1,7 +1,6 @@
 package com.rk.commands.editor
 
 import android.view.KeyEvent
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.EditorNonActionContext
@@ -12,7 +11,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
 
-class ToggleReadOnlyCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class ToggleReadOnlyCommand : EditorCommand() {
     override val id: String = "editor.editable"
 
     override fun getLabel(): String {
