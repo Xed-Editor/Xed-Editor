@@ -82,7 +82,7 @@ class WebSearchTool : BaseMcpTool() {
                     val url = topic.get("URL")?.asString ?: return@forEach
 
                     val title = text.substringBefore(" - ").take(200)
-                    val snippet = text.substringAfter(" - ", text).take(500)
+                    val snippet = text.substringAfter(" - ").ifEmpty { text }.take(500)
 
                     results.add(JsonObject().apply {
                         addProperty("title", title)
@@ -143,7 +143,7 @@ class WebFetchTool : BaseMcpTool() {
                     .build()
 
                 val response = client.newCall(request).execute()
-                val contentType = response.header("Content-Type", "").lowercase()
+                val contentType = response.header("Content-Type")?.lowercase() ?: ""
                 var body = response.body?.string() ?: ""
 
                 val result = when {

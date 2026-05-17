@@ -8,6 +8,7 @@ import com.rk.ai.AiConfig
 import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.file.sandboxHomeDir
+import com.rk.settings.Settings
 import com.rk.utils.getTempDir
 import java.io.File
 

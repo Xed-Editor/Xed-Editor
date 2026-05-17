@@ -120,7 +120,7 @@ object IdeBridge {
 
     fun checkMcpConnection(): Pair<Boolean, String> {
         val info = getBridgeInfo() ?: return false to "Bridge not running"
-        return runCatching {
+        return try {
             val url = URL("http://${info.host}:${info.port}/mcp-info")
             val conn = url.openConnection() as HttpURLConnection
             conn.setRequestProperty("Authorization", "Bearer ${info.token}")
@@ -131,15 +131,17 @@ object IdeBridge {
             conn.disconnect()
             if (response == 200) {
                 val hasTools = body.contains("\"tools\"")
-                if (hasTools) true to "MCP connected: ${body.substringAfter("\"tools\":").substringBefore(",").trim()}" to "tools"
-                else true to "MCP connected"
+                if (hasTools) {
+                    val toolsCount = body.substringAfter("\"tools\":").substringBefore(",").trim()
+                    Pair(true, "MCP connected: $toolsCount tools")
+                } else {
+                    Pair(true, "MCP connected")
+                }
             } else {
-                false to "MCP responded with code $response"
+                Pair(false, "MCP responded with code $response")
             }
-        }.let { result ->
-            result.getOrElse { e ->
-                false to "Connection failed: ${e.message}"
-            }
+        } catch (e: Exception) {
+            Pair(false, "Connection failed: ${e.message}")
         }
     }
 
