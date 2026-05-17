@@ -25,6 +25,7 @@ object IdeBridge {
     private val workspacePaths = mutableListOf<String>()
     private val workspacePathsLock = Any()
     private val stateLock = Any()
+    private var lastError: String? = null
 
     fun isRunning(): Boolean = synchronized(stateLock) { server != null }
 
@@ -34,15 +35,28 @@ object IdeBridge {
         Info(s.port, t, host)
     }
 
+    fun getLastError(): String? = synchronized(stateLock) { lastError }
+
+    fun clearLastError() { synchronized(stateLock) { lastError = null } }
+
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
         workspacePath?.let { setWorkspacePath(it) }
         synchronized(stateLock) {
             if (server != null) {
-                healthCheck().let { if (!it) server = null else return getBridgeInfo() }
+                val health = healthCheck()
+                if (!health) {
+                    Log.w("IdeBridge", "Bridge unhealthy, restarting...")
+                    server = null
+                    token = null
+                    port = 0
+                } else {
+                    return getBridgeInfo()
+                }
             }
         }
 
-        runCatching {
+        lastError = null
+        return runCatching {
             val t = newToken()
             val s = IdeBridgeServer(0, t, IdeServiceImpl(viewModel))
             s.start()
@@ -63,27 +77,70 @@ object IdeBridge {
                 Log.d("IdeBridge", "Server started on $host:$port token=${t.take(8)}...")
                 Log.d("IdeBridge", "Health: http://$host:$port/health")
             }
-        }.onFailure {
-            Log.e("IdeBridge", "Failed to start server", it)
+            getBridgeInfo()
+        }.onFailure { e ->
+            Log.e("IdeBridge", "Failed to start server", e)
+            lastError = e.message
             synchronized(stateLock) {
                 server = null
                 token = null
                 port = 0
             }
-        }
-        
-        return getBridgeInfo()
+        }.getOrNull()
     }
 
-    fun healthCheck(): Boolean {
+    fun restart(viewModel: MainViewModel): Info? {
+        stop()
+        return ensureStarted(viewModel)
+    }
+
+    fun healthCheck(): Boolean = healthCheckInternal(2)
+
+    private fun healthCheckInternal(retries: Int): Boolean {
         val s = synchronized(stateLock) { server } ?: return false
+        repeat(retries) { attempt ->
+            val result = runCatching {
+                val url = URL("http://$host:${s.port}/health")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.connectTimeout = 3000
+                conn.readTimeout = 3000
+                val response = conn.responseCode == 200
+                conn.disconnect()
+                response
+            }.getOrDefault(false)
+            if (result) return true
+            if (attempt < retries - 1) {
+                kotlinx.coroutines.runBlocking {
+                    kotlinx.coroutines.delay(500L * (attempt + 1))
+                }
+            }
+        }
+        return false
+    }
+
+    fun checkMcpConnection(): Pair<Boolean, String> {
+        val info = getBridgeInfo() ?: return false to "Bridge not running"
         return runCatching {
-            val url = URL("http://$host:${s.port}/health")
+            val url = URL("http://${info.host}:${info.port}/mcp-info")
             val conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 2000
-            conn.readTimeout = 2000
-            conn.responseCode == 200
-        }.getOrDefault(false)
+            conn.setRequestProperty("Authorization", "Bearer ${info.token}")
+            conn.connectTimeout = 5000
+            conn.readTimeout = 5000
+            val response = conn.responseCode
+            val body = conn.inputStream?.bufferedReader()?.readText() ?: ""
+            conn.disconnect()
+            if (response == 200) {
+                val hasTools = body.contains("\"tools\"")
+                if (hasTools) true to "MCP connected: ${body.substringAfter("\"tools\":").substringBefore(",").trim()}" to "tools"
+                else true to "MCP connected"
+            } else {
+                false to "MCP responded with code $response"
+            }
+        }.let { result ->
+            result.getOrElse { e ->
+                false to "Connection failed: ${e.message}"
+            }
+        }
     }
 
     fun setWorkspacePath(path: String) {

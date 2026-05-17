@@ -176,19 +176,22 @@ fun AiAgentSheet(
             "/export" -> exportSession(viewModel, cwd.value)
             "/bridge" -> {
                 val alive = IdeBridge.isRunning()
-                val health = if (alive) IdeBridge.healthCheck() else false
                 val info = IdeBridge.getBridgeInfo()
                 val workspacePath = IdeBridge.primaryWorkspacePath()
+                val (mcpOk, mcpStatus) = if (alive) IdeBridge.checkMcpConnection() else false to "bridge not running"
                 appendLog(
                     buildString {
                         appendLine("Bridge status:")
-                        appendLine("  running=$alive health=$health")
+                        appendLine("  running=$alive")
+                        appendLine("  mcp=$mcpOk")
                         if (info != null) {
                             appendLine("  url=http://${info.host}:${info.port}")
                             appendLine("  token=${info.token.take(8)}...")
                         }
                         appendLine("  clients=${IdeBridge.connectedClients()}")
+                        appendLine("  tools=${IdeBridge.availableTools()}")
                         appendLine("  workspace=$workspacePath")
+                        if (!mcpOk) appendLine("  mcpStatus=$mcpStatus")
                         appendLine()
                         appendLine("Inside agent terminal, run:")
                         if (workspacePath.isNotBlank()) {
@@ -312,6 +315,26 @@ fun AiAgentSheet(
             }, enabled = isRunning) {
                 Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error.copy(alpha = 0.7f))
             }
+
+            val connectionStatus = AiSessionManager.connectionStatus
+            val canReconnect = connectionStatus == AiSessionManager.ConnectionStatus.Error ||
+                    connectionStatus == AiSessionManager.ConnectionStatus.Disconnected
+            IconButton(
+                onClick = {
+                    scope.launch(Dispatchers.IO) {
+                        try {
+                            appendLog("Attempting reconnection...")
+                            val success = AiSessionManager.reconnect(activity!!, viewModel)
+                            appendLog(if (success) "Reconnected successfully" else "Reconnection failed: ${AiSessionManager.lastError}")
+                        } catch (e: Exception) {
+                            appendLog("Reconnection error: ${e.message}")
+                        }
+                    }
+                },
+                enabled = canReconnect && activity != null
+            ) {
+                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.refresh), contentDescription = "Reconnect")
+            }
         },
         bottomBar = {
             QuickActions(
@@ -340,11 +363,39 @@ private fun StatusBar(
     onClearTranscript: () -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val dotColor = if (isRunning) Color(0xFF4CAF50) else Color(0xFFEF5350)
+    val session = com.rk.ai.session.AiSessionManager.session
+    val connectionStatus = com.rk.ai.session.AiSessionManager.connectionStatus
+    val lastError = com.rk.ai.session.AiSessionManager.lastError
+    val dotColor = when {
+        !isRunning -> Color(0xFFEF5350)
+        connectionStatus == com.rk.ai.session.AiSessionManager.ConnectionStatus.Error -> Color(0xFFFFC107)
+        connectionStatus == com.rk.ai.session.AiSessionManager.ConnectionStatus.Reconnecting -> Color(0xFFFFC107)
+        else -> Color(0xFF4CAF50)
+    }
     val bridgeClients = IdeBridge.connectedClients()
     val bridgeOnline = IdeBridge.isRunning()
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        if (lastError != null) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                color = Color(0xFFFFEBEE),
+                shape = RoundedCornerShape(4.dp),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Error: $lastError",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFFC62828),
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -357,7 +408,13 @@ private fun StatusBar(
             )
             Spacer(Modifier.width(6.dp))
             Text(
-                text = if (isRunning) "Running" else "Stopped",
+                text = when {
+                    !isRunning -> "Stopped"
+                    connectionStatus == com.rk.ai.session.AiSessionManager.ConnectionStatus.Connecting -> "Connecting..."
+                    connectionStatus == com.rk.ai.session.AiSessionManager.ConnectionStatus.Reconnecting -> "Reconnecting..."
+                    connectionStatus == com.rk.ai.session.AiSessionManager.ConnectionStatus.Error -> "Error"
+                    else -> "Running"
+                },
                 color = dotColor,
                 style = MaterialTheme.typography.labelSmall,
             )

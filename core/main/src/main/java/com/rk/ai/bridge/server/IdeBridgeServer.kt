@@ -83,6 +83,7 @@ class IdeBridgeServer(
             register(CountLinesTool()); register(StatTool())
             register(GetDiagnosticsTool()); register(FindDefinitionsTool()); register(FindReferencesTool())
             register(RenameSymbolTool()); register(FormatDocumentTool())
+            register(WebSearchTool()); register(WebFetchTool()); register(WebScrapeTool())
             register(GetGitStatusTool()); register(GetGitDiffTool()); register(GitCommitTool()); register(GitCheckoutTool())
             register(GitLogTool()); register(ListGitBranchesTool()); register(GitPullTool()); register(GitPushTool())
             register(GitFetchTool()); register(GitCreateBranchTool()); register(GitStashTool()); register(GitStashPopTool())

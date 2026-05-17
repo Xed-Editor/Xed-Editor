@@ -26,6 +26,12 @@ object AiSessionManager {
     var session by mutableStateOf<TerminalSession?>(null)
     var cwd by mutableStateOf<String?>(null)
     var currentAgent by mutableStateOf<AiAgent>(AgentTypeRegistry.resolve())
+    var lastError by mutableStateOf<String?>(null)
+    var connectionStatus by mutableStateOf<ConnectionStatus>(ConnectionStatus.Disconnected)
+
+    enum class ConnectionStatus {
+        Disconnected, Connecting, Connected, Reconnecting, Error
+    }
 
     fun resolveAgent(type: String? = null): AiAgent = AgentTypeRegistry.resolve(type)
 
@@ -37,6 +43,8 @@ object AiSessionManager {
             stopSession()
             currentAgent = newAgent
             Settings.ai_agent = type
+            lastError = null
+            connectionStatus = ConnectionStatus.Disconnected
         }
     }
 
@@ -58,9 +66,12 @@ object AiSessionManager {
         workingDir: String,
         extraArgs: List<String> = emptyList(),
         agentType: String? = null,
+        maxRetries: Int = 2,
     ): TerminalSession {
         currentAgent = resolveAgent(agentType)
         d("startSession agent=${currentAgent.name} workingDir=$workingDir")
+        lastError = null
+        connectionStatus = ConnectionStatus.Connecting
 
         val projectConfig = com.rk.ai.ProjectConfigLoader.loadForWorkspace(workingDir)
         if (projectConfig != null) {
@@ -71,31 +82,74 @@ object AiSessionManager {
 
         stopSession()
 
-        return withContext(Dispatchers.IO) {
-            IdeBridge.ensureStarted(viewModel)
-            IdeBridge.setWorkspacePath(workingDir)
-            val bridgeInfo = IdeBridge.getBridgeInfo()!!
+        var lastException: Exception? = null
+        repeat(maxRetries + 1) { attempt ->
+            try {
+                return withContext(Dispatchers.IO) {
+                    val bridgeInfo = IdeBridge.ensureStarted(viewModel, workingDir)
+                    if (bridgeInfo == null) {
+                        lastError = IdeBridge.getLastError() ?: "Failed to start bridge"
+                        connectionStatus = ConnectionStatus.Error
+                        throw Exception(lastError)
+                    }
 
-            withContext(Dispatchers.Main) {
-                try {
-                    val newSession = createAgentSession(
-                        activity = activity,
-                        agent = currentAgent,
-                        bridge = bridgeInfo,
-                        workingDir = workingDir,
-                        extraArgs = extraArgs,
-                    )
-                    session = newSession
-                    cwd = workingDir
-                    newSession
-                } catch (e: Exception) {
-                    d("Failed to create session: ${e.message}")
-                    session = null
-                    cwd = null
-                    throw e
+                    IdeBridge.setWorkspacePath(workingDir)
+
+                    val (mcpOk, mcpStatus) = IdeBridge.checkMcpConnection()
+                    d("MCP connection check: $mcpOk - $mcpStatus")
+
+                    withContext(Dispatchers.Main) {
+                        val newSession = createAgentSession(
+                            activity = activity,
+                            agent = currentAgent,
+                            bridge = bridgeInfo,
+                            workingDir = workingDir,
+                            extraArgs = extraArgs,
+                        )
+                        session = newSession
+                        cwd = workingDir
+                        connectionStatus = ConnectionStatus.Connected
+                        lastError = null
+                        d("Session started successfully")
+                        newSession
+                    }
+                }
+            } catch (e: Exception) {
+                lastException = e
+                d("Attempt ${attempt + 1} failed: ${e.message}")
+                if (attempt < maxRetries) {
+                    connectionStatus = ConnectionStatus.Reconnecting
+                    withContext(Dispatchers.IO) {
+                        kotlinx.coroutines.delay(1000L * (attempt + 1))
+                    }
+                    IdeBridge.stop()
+                } else {
+                    lastError = e.message
+                    connectionStatus = ConnectionStatus.Error
                 }
             }
         }
+        throw lastException ?: Exception("Failed to start session after $maxRetries retries")
+    }
+
+    fun validateSession(): Boolean {
+        val s = session ?: return false
+        if (!s.isRunning) {
+            connectionStatus = ConnectionStatus.Disconnected
+            return false
+        }
+        if (!IdeBridge.isRunning()) {
+            connectionStatus = ConnectionStatus.Error
+            lastError = "IDE bridge not running"
+            return false
+        }
+        val (ok, status) = IdeBridge.checkMcpConnection()
+        if (!ok) {
+            connectionStatus = ConnectionStatus.Error
+            lastError = status
+            return false
+        }
+        return true
     }
 
     fun stopSession() {
@@ -107,14 +161,37 @@ object AiSessionManager {
         }
         session = null
         cwd = null
+        connectionStatus = ConnectionStatus.Disconnected
+        lastError = null
+    }
+
+    suspend fun reconnect(activity: Activity, viewModel: MainViewModel): Boolean {
+        val workingDir = cwd ?: run {
+            lastError = "No working directory for reconnection"
+            return false
+        }
+        connectionStatus = ConnectionStatus.Reconnecting
+        return try {
+            startSession(activity, viewModel, workingDir)
+            true
+        } catch (e: Exception) {
+            lastError = "Reconnection failed: ${e.message}"
+            connectionStatus = ConnectionStatus.Error
+            false
+        }
     }
 
     suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {
+        val bridgeInfo = IdeBridge.getBridgeInfo()
+        if (bridgeInfo == null) {
+            lastError = "Bridge not available"
+            throw Exception("IDE bridge not running")
+        }
         val result = AgentCli.runAgent(
             prompt = prompt,
             agent = currentAgent,
             workingDir = workingDir,
-            ideBridge = IdeBridge.getBridgeInfo(),
+            ideBridge = bridgeInfo,
             timeoutSeconds = timeoutSeconds,
         )
         return AgentCli.stripCodeFences(result.output)

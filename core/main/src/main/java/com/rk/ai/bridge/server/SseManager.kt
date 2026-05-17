@@ -42,7 +42,9 @@ class SseManager(
                     continue
                 }
                 val deadClients = mutableListOf<String>()
-                sseClients.forEach { (id, writer) ->
+                sseClients.entries.toList().forEach { entry ->
+                    val id = entry.key
+                    val writer = entry.value
                     runCatching {
                         synchronized(writer) {
                             batch.forEach { (eventType, data) ->

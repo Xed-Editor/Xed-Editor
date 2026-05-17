@@ -73,7 +73,7 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
             allResults.forEach { element ->
                 if (count >= limit) return@forEach
                 val obj = element.asJsonObject
-                val snippet = obj.get("snippet").asString
+                val snippet = obj.get("snippet")?.asString ?: ""
                 if (declarationPattern.containsMatchIn(snippet)) {
                     add(obj)
                     count++
