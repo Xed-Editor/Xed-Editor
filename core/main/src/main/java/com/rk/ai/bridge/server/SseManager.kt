@@ -66,22 +66,33 @@ class SseManager(
 
     fun createSseStream(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val sessionId = UUID.randomUUID().toString()
-        val hostHeader = session.headers["host"] ?: "127.0.0.1:36765"
-        val host = hostHeader.substringBeforeLast(":").ifEmpty { "127.0.0.1" }
-        val port = hostHeader.substringAfterLast(":").let { if (it == hostHeader) "36765" else it }
         val (response, writer) = createStream(sessionId)
-        writer.print("event: endpoint\ndata: http://$host:$port/messages?sessionId=$sessionId\n\n")
+        sendEndpointEvent(session, sessionId, writer)
         writeInitialEvents(writer)
         startKeepalive(sessionId)
         return response
     }
 
-    fun createMcpStream(requestedSessionId: String): NanoHTTPD.Response {
+    fun createMcpStream(session: NanoHTTPD.IHTTPSession, requestedSessionId: String): NanoHTTPD.Response {
         val sessionId = requestedSessionId.takeIf { it.isNotBlank() } ?: "default"
         val (response, writer) = createStream(sessionId)
+        sendEndpointEvent(session, sessionId, writer)
         writeInitialEvents(writer)
         startKeepalive(sessionId)
         return response
+    }
+
+    private fun sendEndpointEvent(session: NanoHTTPD.IHTTPSession, sessionId: String, writer: PrintWriter) {
+        val hostHeader = session.headers["host"] ?: "127.0.0.1"
+        val host = hostHeader.substringBefore(":").ifEmpty { "127.0.0.1" }
+        val port = hostHeader.substringAfter(":", "").ifEmpty {
+            // Fallback to a common port if not found in header, but really we should have it
+            "36765"
+        }
+        val url = if (port.isBlank()) "http://$host/messages?sessionId=$sessionId"
+                  else "http://$host:$port/messages?sessionId=$sessionId"
+        writer.print("event: endpoint\ndata: $url\n\n")
+        writer.flush()
     }
 
     private fun createStream(sessionId: String): Pair<NanoHTTPD.Response, PrintWriter> {

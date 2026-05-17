@@ -129,7 +129,7 @@ class IdeBridgeServer(
             "/sse" -> sseManager.createSseStream(session)
             "/mcp" -> {
                 if (session.method == Method.GET) {
-                    sseManager.createMcpStream(resolveMcpSessionId("initialize", null) ?: "default")
+                    sseManager.createMcpStream(session, resolveMcpSessionId("initialize", null) ?: "default")
                 } else {
                     toolCallPermits.acquireUninterruptibly()
                     try {
@@ -244,7 +244,8 @@ class IdeBridgeServer(
         val queryToken = session.parameters["token"]?.firstOrNull()
         val auth = session.headers["authorization"]?.trim().orEmpty()
         val headerToken = auth.split(' ', limit = 2).takeIf { it.size == 2 && it[0].equals("Bearer", ignoreCase = true) }?.get(1)
-        return queryToken == token || headerToken == token
+        val xToken = session.headers["x-ide-token"]?.trim()
+        return queryToken == token || headerToken == token || xToken == token
     }
 
     private fun hasValidHost(session: IHTTPSession): Boolean {

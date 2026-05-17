@@ -294,10 +294,15 @@ class EditorService(
                     if (!target.has("xed-ide")) {
                         val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
                         if (bridgeInfo != null) {
+                            val headers = JsonObject().apply {
+                                addProperty("Authorization", "Bearer ${bridgeInfo.token}")
+                                addProperty("authorization", "Bearer ${bridgeInfo.token}")
+                                addProperty("x-ide-token", bridgeInfo.token)
+                            }
                             if (agent.name == "gemini") {
                                 target.add("xed-ide", JsonObject().apply {
                                     addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
-                                    add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${bridgeInfo.token}") })
+                                    add("headers", headers)
                                 })
                             } else {
                                 target.add("xed-ide", JsonObject().apply {
@@ -305,7 +310,7 @@ class EditorService(
                                     addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
                                     addProperty("enabled", true)
                                     addProperty("timeout", 120000)
-                                    add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${bridgeInfo.token}") })
+                                    add("headers", headers)
                                 })
                             }
                         }

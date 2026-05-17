@@ -93,13 +93,14 @@ object ShellUtils {
 
     suspend fun runUbuntuStreaming(
         workingDir: String? = null,
+        extraEnv: Map<String, String> = emptyMap(),
         vararg command: String,
         timeoutSeconds: Long? = null,
         onStdout: (String) -> Unit = {},
         onStderr: (String) -> Unit = {},
     ): Result =
         withContext(Dispatchers.IO) {
-            val process = ubuntuProcess(workingDir = workingDir, command = command.toList())
+            val process = ubuntuProcess(workingDir = workingDir, extraEnv = extraEnv, command = command.toList())
             val output = StringBuilder(1024)
             val error = StringBuilder(512)
 
@@ -158,6 +159,10 @@ object ShellUtils {
             while (reader.read(buf).also { read = it } != -1) {
                 sb.append(buf, 0, read)
             }
+        }
+    }
+}
+          }
         }
     }
 }

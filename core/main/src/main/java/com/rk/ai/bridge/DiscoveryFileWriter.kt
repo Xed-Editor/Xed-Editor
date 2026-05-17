@@ -79,12 +79,17 @@ object DiscoveryFileWriter {
 
             val target = existing.getAsJsonObject(mcpKey)
                 ?: JsonObject().also { existing.add(mcpKey, it) }
+            
+            val headers = JsonObject().apply {
+                addProperty("Authorization", "Bearer ${info.token}")
+                addProperty("authorization", "Bearer ${info.token}")
+                addProperty("x-ide-token", info.token)
+            }
+
             if (agentName == "gemini") {
                 target.add("xed-ide", JsonObject().apply {
                     addProperty("url", "http://${info.host}:${info.port}/mcp")
-                    add("headers", JsonObject().apply {
-                        addProperty("Authorization", "Bearer ${info.token}")
-                    })
+                    add("headers", headers)
                 })
                 existing.getAsJsonObject("mcp")?.remove("xed-ide")
             } else {
@@ -93,9 +98,7 @@ object DiscoveryFileWriter {
                     addProperty("url", "http://${info.host}:${info.port}/mcp")
                     addProperty("enabled", true)
                     addProperty("timeout", 120000)
-                    add("headers", JsonObject().apply {
-                        addProperty("Authorization", "Bearer ${info.token}")
-                    })
+                    add("headers", headers)
                 })
                 existing.getAsJsonObject("mcpServers")?.remove("xed-ide")
             }
@@ -153,10 +156,17 @@ object DiscoveryFileWriter {
                         val existingMcp = runCatching { JsonParser.parseString(mcpFile.readText()).asJsonObject }.getOrDefault(JsonObject())
                         val target = existingMcp.getAsJsonObject(mcpKey)
                             ?: JsonObject().also { existingMcp.add(mcpKey, it) }
+                        
+                        val headers = JsonObject().apply {
+                            addProperty("Authorization", "Bearer ${info.token}")
+                            addProperty("authorization", "Bearer ${info.token}")
+                            addProperty("x-ide-token", info.token)
+                        }
+
                         if (agent == "gemini") {
                             target.add("xed-ide", JsonObject().apply {
                                 addProperty("url", "$url/mcp")
-                                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
+                                add("headers", headers)
                             })
                             existingMcp.getAsJsonObject("mcp")?.remove("xed-ide")
                             if (Settings.ai_api_key.isNotBlank()) {
@@ -166,7 +176,7 @@ object DiscoveryFileWriter {
                             target.add("xed-ide", JsonObject().apply {
                                 addProperty("type", "remote"); addProperty("url", "$url/mcp"); addProperty("enabled", true)
                                 addProperty("timeout", 120000)
-                                add("headers", JsonObject().apply { addProperty("Authorization", "Bearer ${info.token}") })
+                                add("headers", headers)
                             })
                             existingMcp.getAsJsonObject("mcpServers")?.remove("xed-ide")
                             if (agent == "opencode" && Settings.ai_api_key.isNotBlank()) {

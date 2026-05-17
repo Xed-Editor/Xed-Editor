@@ -124,12 +124,12 @@ object IdeBridge {
             val url = URL("http://${info.host}:${info.port}/mcp-info")
             val conn = url.openConnection() as HttpURLConnection
             conn.setRequestProperty("Authorization", "Bearer ${info.token}")
+            conn.setRequestProperty("x-ide-token", info.token)
             conn.connectTimeout = 5000
             conn.readTimeout = 5000
             val response = conn.responseCode
-            val body = conn.inputStream?.bufferedReader()?.readText() ?: ""
-            conn.disconnect()
             if (response == 200) {
+                val body = conn.inputStream.bufferedReader().use { it.readText() }
                 val hasTools = body.contains("\"tools\"")
                 if (hasTools) {
                     val toolsCount = body.substringAfter("\"tools\":").substringBefore(",").trim()
@@ -138,7 +138,8 @@ object IdeBridge {
                     Pair(true, "MCP connected")
                 }
             } else {
-                Pair(false, "MCP responded with code $response")
+                val errorBody = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: ""
+                Pair(false, "MCP responded with code $response: $errorBody")
             }
         } catch (e: Exception) {
             Pair(false, "Connection failed: ${e.message}")

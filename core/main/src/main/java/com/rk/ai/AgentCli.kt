@@ -110,23 +110,25 @@ object AgentCli {
         onOutput: ((String) -> Unit)?,
     ): ShellUtils.Result {
         setupTerminalFiles()
-        val command = buildList {
-            if (ideBridge != null) {
-                val tmpDir = File(getTempDir(), "terminal/${binaryName.replace("-headless", "")}-sheet")
-                addAll(AgentEnvironmentBuilder.buildMinimalBridgeEnv(ideBridge, workingDir ?: "").toList())
-                addAll(AgentEnvironmentBuilder.buildDebugEnv().map { "${it.key}=${it.value}" })
-                add("TMPDIR=${tmpDir.absolutePath}")
-                add("TMP_DIR=${tmpDir.absolutePath}")
-            }
-            add("/bin/bash")
-            add(localBinDir().child(binaryName).absolutePath)
-            addAll(args)
-        }.toTypedArray()
+        val extraEnv = mutableMapOf<String, String>()
+        if (ideBridge != null) {
+            val tmpDir = File(getTempDir(), "terminal/${binaryName.replace("-headless", "")}-sheet")
+            extraEnv.putAll(AgentEnvironmentBuilder.buildMinimalBridgeEnv(ideBridge, workingDir ?: "").map { 
+                val parts = it.split("=", limit = 2)
+                parts[0] to parts.getOrElse(1) { "" }
+            }.toMap())
+            extraEnv.putAll(AgentEnvironmentBuilder.buildDebugEnv())
+            extraEnv["TMPDIR"] = tmpDir.absolutePath
+            extraEnv["TMP_DIR"] = tmpDir.absolutePath
+        }
+        
+        val command = arrayOf("/bin/bash", localBinDir().child(binaryName).absolutePath, *args.toTypedArray())
+        
         return if (onOutput == null) {
-            ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
+            ShellUtils.runUbuntu(workingDir, extraEnv, *command, timeoutSeconds = timeoutSeconds)
         } else {
             ShellUtils.runUbuntuStreaming(
-                workingDir, *command,
+                workingDir, extraEnv, *command,
                 timeoutSeconds = timeoutSeconds,
                 onStdout = onOutput, onStderr = onOutput,
             )
