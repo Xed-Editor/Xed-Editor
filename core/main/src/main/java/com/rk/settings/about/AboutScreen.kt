@@ -54,18 +54,18 @@ fun AboutScreen() {
             AsyncImage(
                 model = appIcon,
                 contentDescription = null,
-                modifier = Modifier.size(64.dp).padding(bottom = 8.dp),
+                modifier = Modifier.size(96.dp).padding(bottom = 8.dp),
             )
 
             Text(
                 text = stringResource(strings.app_name),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
             )
 
             Text(
                 text = versionName.toString().uppercase(),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
         }
@@ -125,7 +125,7 @@ fun AboutScreen() {
                     try {
                         client.newCall(request).execute().use { response ->
                             if (response.isSuccessful) {
-                                val jsonBody = response.body?.string() ?: throw RuntimeException("Empty response body")
+                                val jsonBody = response.body.string()
                                 val json = JSONObject(jsonBody)
                                 val count = json.getInt("stargazers_count")
 
