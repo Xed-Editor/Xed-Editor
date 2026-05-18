@@ -1,6 +1,7 @@
 package com.rk.runner
 
 import android.content.Context
+import com.rk.extension.XedExtensionPoint
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.icons.Icon
@@ -77,12 +78,14 @@ object RunnerManager {
         }
     }
 
+    @XedExtensionPoint
     fun registerRunner(runnerBuilder: RunnerBuilder) {
         if (!_runnerBuilders.contains(runnerBuilder)) {
             _runnerBuilders.add(runnerBuilder)
         }
     }
 
+    @XedExtensionPoint
     fun unregisterRunner(runnerBuilder: RunnerBuilder) {
         _runnerBuilders.remove(runnerBuilder)
     }

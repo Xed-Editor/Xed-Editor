@@ -2,6 +2,7 @@ package com.rk.editor.intelligent
 
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.editor.Editor
+import com.rk.extension.XedExtensionPoint
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
 
@@ -15,12 +16,14 @@ object IntelligentFeatureRegistry {
     val allFeatures: List<IntelligentFeature>
         get() = builtInFeatures + mutableFeatures
 
+    @XedExtensionPoint
     fun registerFeature(feature: IntelligentFeature) {
         if (!mutableFeatures.contains(feature)) {
             mutableFeatures.add(feature)
         }
     }
 
+    @XedExtensionPoint
     fun unregisterFeature(feature: IntelligentFeature) {
         mutableFeatures.remove(feature)
     }

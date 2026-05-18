@@ -2,6 +2,7 @@ package com.rk.lsp
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
+import com.rk.extension.XedExtensionPoint
 import com.rk.lsp.servers.Bash
 import com.rk.lsp.servers.CSS
 import com.rk.lsp.servers.Emmet
@@ -57,12 +58,14 @@ object LspRegistry {
             ?: _extensionServers.find { it.id == id }
     }
 
+    @XedExtensionPoint
     fun registerServer(server: LspServer) {
         if (!_extensionServers.contains(server)) {
             _extensionServers.add(server)
         }
     }
 
+    @XedExtensionPoint
     fun unregisterServer(server: LspServer) {
         _extensionServers.remove(server)
     }
