@@ -59,4 +59,6 @@
     <string name="clone_repo_desc">Kloonaa etävarasto</string>
     <string name="repo_url">Arkiston URL</string>
     <string name="branch">Haara</string>
+    <string name="show_line_number">Näytä rivinumerot</string>
+    <string name="text_size">Tekstin koko</string>
 </resources>
