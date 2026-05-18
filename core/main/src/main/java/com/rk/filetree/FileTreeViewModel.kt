@@ -424,17 +424,20 @@ class FileTreeViewModel : ViewModel() {
 
     private suspend fun sortAndFilterFiles(fileObjects: List<FileObject>): List<FileTreeNode> {
         val fileSizes = calculateFileSizes(fileObjects)
+        val lastModifiedDates = if (sortMode == SortMode.SORT_BY_DATE) {
+            fileObjects.associateWith { it.lastModified() }
+        } else {
+            emptyMap()
+        }
 
         return fileObjects
             .sortedWith(
                 compareBy<FileObject> { !it.isDirectory() }
                     .thenComparator { f1, f2 ->
                         when (sortMode) {
-                            SortMode.SORT_BY_NAME ->
-                                f1.getName().lowercase().compareTo(f2.getName().lowercase()) // A -> Z
-                            SortMode.SORT_BY_SIZE ->
-                                (fileSizes[f2] ?: 0L).compareTo(fileSizes[f1] ?: 0L) // Biggest first
-                            SortMode.SORT_BY_DATE -> (f2.lastModified()).compareTo(f1.lastModified()) // Newest first
+                            SortMode.SORT_BY_NAME -> f1.getName().lowercase().compareTo(f2.getName().lowercase())
+                            SortMode.SORT_BY_SIZE -> (fileSizes[f2] ?: 0L).compareTo(fileSizes[f1] ?: 0L)
+                            SortMode.SORT_BY_DATE -> (lastModifiedDates[f2] ?: 0L).compareTo(lastModifiedDates[f1] ?: 0L)
                         }
                     }
             )

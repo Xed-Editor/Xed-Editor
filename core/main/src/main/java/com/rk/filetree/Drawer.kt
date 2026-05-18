@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.storage.StorageManager
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,16 +20,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -40,6 +48,7 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -59,6 +68,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -72,6 +83,7 @@ import com.rk.components.DoubleInputDialog
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
+import com.rk.file.external.SFTPFileObject
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
 import com.rk.git.GitTab
@@ -89,6 +101,10 @@ import com.rk.utils.readObject
 import com.rk.utils.toast
 import com.rk.utils.writeObject
 import java.io.File
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -96,6 +112,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.SFTPClient
+import java.io.FileInputStream
+import java.io.IOException
+
 
 object DrawerPersistence {
     private val saveMutex = Mutex()
@@ -136,6 +157,16 @@ object DrawerPersistence {
                             }
                         }
 
+                    withContext(Dispatchers.IO) {
+                        loadedTabs.forEach { tab ->
+                            (tab as? FileTreeTab)?.root?.let { root ->
+                                if (root is SFTPFileObject) {
+                                    root.connect()
+                                }
+                            }
+                        }
+                    }
+
                     // Update the existing state list on Main thread
                     withContext(Dispatchers.Main) {
                         drawerTabs.clear()
@@ -144,7 +175,15 @@ object DrawerPersistence {
 
                     val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
                     if (currentTabFile.exists() && currentTabFile.canRead()) {
-                        selectTab(currentTabFile.readObject() as DrawerTab)
+                        val currentTab = currentTabFile.readObject() as DrawerTab
+
+                        if (currentTab is FileTreeTab && currentTab.root is SFTPFileObject) {
+                            withContext(Dispatchers.IO) {
+                                currentTab.root.connect()
+                            }
+                        }
+
+                        selectTab(currentTab)
                     }
 
                     val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
@@ -162,6 +201,170 @@ object DrawerPersistence {
     }
 }
 
+suspend fun connectToSftpAndCreateFileObject(
+    hostname: String,
+    port: Int,
+    username: String,
+    password: String,
+    initialPath: String?
+): SFTPFileObject? {
+    return withContext(Dispatchers.IO) {
+        var sshClient: SSHClient? = null
+        var sftpClient: SFTPClient? = null
+
+        try {
+            sshClient = SFTPFileObject.createSessionInternal(hostname, port, username, password)
+            if (sshClient == null || !sshClient.isConnected) {
+                toast("Failed to create or connect SFTP channel to $hostname")
+                Log.e("SFTP_CONNECT", "Failed to create or connect session to $hostname")
+                return@withContext null
+            }
+
+            sftpClient = SFTPFileObject.createSftpClientInternal(sshClient)
+            if (sftpClient == null) {
+                toast("Failed to create or connect SFTP channel to $hostname")
+                Log.e("SFTP_CONNECT", "Failed to create or connect SFTP channel to $hostname")
+                sshClient.disconnect() // Clean up session
+                return@withContext null
+            }
+
+            val actualInitialPath = run {
+                val path = if (initialPath.isNullOrBlank()) "/" else initialPath
+                try {
+                    sftpClient.canonicalize(path)
+                } catch (e: IOException) {
+                    Log.w("SFTP_CONNECT", "Initial path '$path' not found or not accessible, defaulting to PWD. Error: ${e.message}")
+                    sftpClient.sftpEngine.canonicalize(".") // Default to current working directory on error
+                }
+            }
+
+
+            val rootAbsolutePath = "sftp://$username@$hostname:$port${if (actualInitialPath.startsWith("/")) actualInitialPath else "/$actualInitialPath"}"
+
+            Log.i("SFTP_CONNECT", "Successfully connected to $hostname. Initial path: $actualInitialPath")
+
+            toast("Successfully connected to $hostname. Initial path: $actualInitialPath")
+
+            SFTPFileObject(hostname, port, username, password,
+                sshClient, sftpClient, rootAbsolutePath, isRoot = true)
+
+        } catch (e: Exception) { // Catch JSchException, SftpException, etc.
+            Log.e("SFTP_CONNECT", "SFTP connection to $hostname failed: ${e.message}", e)
+            toast("SFTP connection to $hostname failed: ${e.message}")
+            sftpClient?.close()
+            sshClient?.disconnect()
+            null
+        }
+
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SftpCredentialsDialog(
+    onDismiss: () -> Unit,
+    onSubmit: (hostname: String, port: Int, username: String, password: String, initialPath: String?) -> Unit
+) {
+    var hostname by rememberSaveable { mutableStateOf("") }
+    var portText by rememberSaveable { mutableStateOf("22") } // Keep as text for TextField
+    var username by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var initialPath by rememberSaveable { mutableStateOf("") }
+
+        BasicAlertDialog(onDismissRequest = onDismiss) {
+
+
+       Surface(modifier = Modifier.widthIn(min = 280.dp, max = 560.dp)) {
+           Column(
+               modifier = Modifier.padding(16.dp),
+               verticalArrangement = Arrangement.spacedBy(8.dp),
+               horizontalAlignment = Alignment.CenterHorizontally
+           ) {
+               Icon(
+                   painter = painterResource(drawables.folder),
+                   contentDescription = null,
+                   Modifier.size(24.dp)
+               )
+               Spacer(modifier = Modifier.width(16.dp))
+
+//            TODO: add Strings
+               Text(
+                   text = "Add SFTP Connection", // Title for the dialog
+                   style = MaterialTheme.typography.titleLarge,
+                   modifier = Modifier.padding(bottom = 8.dp)
+               )
+
+               OutlinedTextField(
+                   value = hostname,
+                   onValueChange = { hostname = it },
+                   label = { Text("Hostname or IP Address") },
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
+
+               OutlinedTextField(
+                   value = portText,
+                   onValueChange = { portText = it },
+                   label = { Text("Port") },
+                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
+
+               OutlinedTextField(
+                   value = username,
+                   onValueChange = { username = it },
+                   label = { Text("Username") },
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
+
+               OutlinedTextField(
+                   value = password,
+                   onValueChange = { password = it },
+                   label = { Text("Password") },
+                   visualTransformation = PasswordVisualTransformation(),
+                   keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true
+               )
+
+               OutlinedTextField(
+                   value = initialPath,
+                   onValueChange = { initialPath = it },
+                   label = { Text("Initial Remote Path (Optional)") },
+                   modifier = Modifier.fillMaxWidth(),
+                   singleLine = true,
+                   placeholder = { Text("/") }
+               )
+
+               Row(
+                   modifier = Modifier.fillMaxWidth(),
+                   horizontalArrangement = Arrangement.End,
+                   verticalAlignment = Alignment.CenterVertically
+               ) {
+                   TextButton(onClick = onDismiss) {
+                       Text("Cancel")
+                   }
+                   Spacer(modifier = Modifier.width(8.dp))
+                   Button(
+                       onClick = {
+                           val port =
+                               portText.toIntOrNull() ?: 22 // Default to 22 if input is invalid
+                           val finalInitialPath = initialPath.ifBlank { null } // Use null if blank
+                           onSubmit(hostname, port, username, password, finalInitialPath)
+                           // onDismiss() will be called by the caller after onSubmit to close AddProjectDialog
+                       }
+                   ) {
+                       Text("Connect")
+                   }
+               }
+           }
+       }
+    }
+}
+
+
 fun createServices() {
     serviceTabs.clear()
     serviceTabs.add(GitTab(gitViewModel.get()!!))
@@ -173,7 +376,7 @@ var currentDrawerTab by mutableStateOf<DrawerTab?>(null)
 var currentServiceTab by mutableStateOf<DrawerTab?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
-fun addProject(fileObject: FileObject, save: Boolean = false) {
+suspend fun addProject(fileObject: FileObject, save: Boolean = false) {
     val alreadyExistingProject = drawerTabs.find { it is FileTreeTab && it.root == fileObject }
     if (alreadyExistingProject != null) {
         selectTab(alreadyExistingProject)
@@ -369,7 +572,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                                 repoURLError = null
                                                 repoBranchError = null
                                                 if (success) {
-                                                    addProject(fileObject)
+                                                    scope.launch { addProject(fileObject) }
                                                 }
                                             },
                                         )
@@ -581,6 +784,9 @@ private fun AddProjectDialog(
     val activity = context as? MainActivity
     val lifecycleScope = remember { activity?.lifecycleScope ?: DefaultScope }
 
+    // State Variables.
+    var showSftpCredentialsDialog by rememberSaveable { mutableStateOf(false) }
+
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
             AddDialogItem(
@@ -592,6 +798,50 @@ private fun AddProjectDialog(
                     onDismiss()
                 },
             )
+
+//          todo: Icon for SFTP/Remote Folders.
+            AddDialogItem(
+                icon = drawables.folder,
+                title = stringResource(strings.add_sftp),
+                description = stringResource(strings.add_sftp_desc),
+                onClick = {
+                    // TODO: OnClick Handling.
+                    showSftpCredentialsDialog = true;
+//                    onDismiss()
+                }
+            )
+
+            if(showSftpCredentialsDialog){
+                SftpCredentialsDialog(
+                    onDismiss = {
+                        showSftpCredentialsDialog = false
+                    },
+                    onSubmit = { hostname, port, username, password, initialPath ->
+
+                        showSftpCredentialsDialog = false
+
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            val sftpFileObject = connectToSftpAndCreateFileObject(
+                                hostname, port, username, password, initialPath
+                            )
+
+                            if (sftpFileObject != null && sftpFileObject is SFTPFileObject) {
+                                sftpFileObject.prefetchAttributes()
+//                                prefetching for the time being - just a workaround, hope it works
+                                sftpFileObject.fetchChildren();
+
+                                onAddProject(sftpFileObject) // This is the onAddProject from AddProjectDialog's parameters
+                                onDismiss() // This is the onDismiss from AddProjectDialog's parameters, to close it.
+                            } else {
+                                // Handle connection failure, show error to user
+                                // You might want to re-show the SftpCredentialsDialog or just show an error toast/dialog
+                                // For now, just log. Consider showing a Toast or another XedDialog for the error.
+                                Log.e("SFTP_CONNECT", "Failed to connect or create SFTP FileObject.")
+                                // Optionally, re-show the AddProjectDialog or provide other feedback
+                            }
+                        }
+                    })
+            }
 
             // Open Path option
             val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
@@ -609,7 +859,12 @@ private fun AddProjectDialog(
                     title = stringResource(strings.internal_storage),
                     description = stringResource(strings.open_internal_storage),
                     onClick = {
-                        addProject(FileWrapper(storage))
+                        lifecycleScope.launch {
+                            runCatching {
+                                addProject(FileWrapper(storage))
+                            }.onFailure { it.printStackTrace(); }
+//                            Do nothing on success, As user sees the result :upside_down:
+                        }
                         onDismiss()
                     },
                 )
@@ -633,7 +888,7 @@ private fun AddProjectDialog(
                         title = name,
                         description = stringResource(description),
                     ) {
-                        addProject(FileWrapper(root))
+                        lifecycleScope.launch { addProject(FileWrapper(root)) }
                         onDismiss()
                     }
                 }

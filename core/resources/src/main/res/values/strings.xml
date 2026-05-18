@@ -5,6 +5,7 @@
     <string name="restart_required">Restart required</string>
     <string name="save">Save</string>
     <string name="open_directory">Open a directory</string>
+    <string name="add_sftp">Add SFTP (Remote)</string>
     <string name="new_file">New file</string>
     <string name="wait">Please wait…</string>
     <string name="report_issue">Report issue</string>
@@ -65,6 +66,7 @@
     <string name="cloning">Cloning repository…</string>
     <string name="error">Error</string>
     <string name="open_dir_desc">Open a directory via system file picker</string>
+    <string name="add_sftp_desc">Add SFTP (Remote) server</string>
     <string name="internal_storage">Internal storage</string>
     <string name="open_internal_storage">Open internal storage</string>
     <string name="open_removable_storage">Open removable storage</string>
@@ -231,7 +233,7 @@
     <string name="sdcard_filetype">Running code is not recommended in this location. Consider moving your file to the terminal\'s home directory.</string>
     <string name="rename_file">Rename file</string>
     <string name="new_name">New name</string>
-    <string name="wrapper_type">Wrapper type</string>
+    <string name="wrapper_type">Wrapper</string>
     <string name="type">Type</string>
     <string name="name">Name</string>
     <string name="view_github_profile">View GitHub profile</string>

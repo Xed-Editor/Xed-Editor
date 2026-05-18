@@ -277,7 +277,9 @@ object OpenAsProjectAction : FileAction() {
     override val title = strings.open_as_project.getString()
 
     override fun action(context: FileActionContext) {
-        addProject(context.file, true)
+        context.viewModel.viewModelScope.launch {
+            addProject(context.file, true)
+        }
     }
 
     override fun isEnabled(file: FileObject): Boolean {

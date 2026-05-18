@@ -126,6 +126,9 @@ dependencies {
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))
+    implementation(libs.sshj)
+    implementation(libs.bouncycastle.bc)
+    implementation(libs.bouncycastle.bcpkix)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

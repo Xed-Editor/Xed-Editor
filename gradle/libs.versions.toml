@@ -43,6 +43,8 @@ baselineprofile = "1.4.1"
 profileinstaller = "1.4.1"
 runner = "1.7.0"
 composeDnd = "0.4.0"
+sshj = "0.40.0"
+bouncycastle = "1.82"
 androidsvgAar = "1.4"
 ec4jCore = "1.2.0"
 kotlinxSerializationJson = "1.10.0"
@@ -165,6 +167,9 @@ lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" 
 jcodings = { module = "org.jruby.jcodings:jcodings", version.ref = "jcodings" }
 joni = { module = "org.jruby.joni:joni", version.ref = "joni" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version.ref = "snakeyaml" }
+sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
+bouncycastle-bc = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
 moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 androidsvg-aar = { module = "com.caverock:androidsvg-aar", version.ref = "androidsvgAar" }
 ec4j-core = { module = "org.ec4j.core:ec4j-core", version.ref = "ec4jCore" }

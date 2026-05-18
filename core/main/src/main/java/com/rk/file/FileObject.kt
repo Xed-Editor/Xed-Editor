@@ -70,7 +70,7 @@ interface FileObject : Serializable {
 
     fun canExecute(): Boolean
 
-    fun lastModified(): Long
+    suspend fun lastModified(): Long
 
     suspend fun getChildForName(name: String): FileObject
 
