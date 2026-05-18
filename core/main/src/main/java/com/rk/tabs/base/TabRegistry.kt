@@ -1,11 +1,13 @@
 package com.rk.tabs.base
 
 import com.rk.activities.main.MainViewModel
+import com.rk.extension.XedExtensionPoint
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
 import com.rk.tabs.image.ImageTab
 
+@XedExtensionPoint
 fun interface TabFactory {
     fun createTab(file: FileObject, projectRoot: FileObject?, viewModel: MainViewModel): Tab
 }
@@ -13,10 +15,12 @@ fun interface TabFactory {
 object TabRegistry {
     private val registeredTabs = mutableMapOf<String, TabFactory>()
 
+    @XedExtensionPoint
     fun registerTab(tabFactory: TabFactory, fileExtensions: List<String>) {
         fileExtensions.forEach { registeredTabs[it] = tabFactory }
     }
 
+    @XedExtensionPoint
     fun unregisterTab(tabFactory: TabFactory) {
         registeredTabs.values.remove(tabFactory)
     }

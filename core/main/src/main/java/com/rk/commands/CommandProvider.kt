@@ -36,6 +36,7 @@ import com.rk.commands.lsp.FormatSelectionCommand
 import com.rk.commands.lsp.GoToDefinitionCommand
 import com.rk.commands.lsp.GoToReferencesCommand
 import com.rk.commands.lsp.RenameSymbolCommand
+import com.rk.extension.XedExtensionPoint
 
 object CommandProvider {
     private val _commandList = mutableListOf<Command>()
@@ -125,12 +126,14 @@ object CommandProvider {
         _commandList.add(command)
     }
 
+    @XedExtensionPoint
     fun registerCommand(command: Command) {
         if (!_commandList.contains(command)) {
             _commandList.add(command)
         }
     }
 
+    @XedExtensionPoint
     fun unregisterCommand(command: Command) {
         _commandList.remove(command)
     }

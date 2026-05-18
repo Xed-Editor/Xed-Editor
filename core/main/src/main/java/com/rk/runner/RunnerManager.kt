@@ -1,6 +1,7 @@
 package com.rk.runner
 
 import android.content.Context
+import com.rk.extension.XedExtensionPoint
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.icons.Icon
@@ -36,14 +37,17 @@ abstract class RunnerBuilder(
     }
 }
 
-object Runner {
-    val runnerBuilders = mutableListOf<RunnerBuilder>()
+object RunnerManager {
+    private val _runnerBuilders = mutableListOf<RunnerBuilder>()
+
+    val runnerBuilders: List<RunnerBuilder>
+        get() = _runnerBuilders.toList()
 
     init {
         val htmlExtensions = BuiltinFileType.HTML.extensions.joinToString("|")
         val markdownExtensions = BuiltinFileType.MARKDOWN.extensions.joinToString("|")
 
-        runnerBuilders.apply {
+        _runnerBuilders.apply {
             add(
                 object :
                     RunnerBuilder(
@@ -72,6 +76,18 @@ object Runner {
                     ) {}
             )
         }
+    }
+
+    @XedExtensionPoint
+    fun registerRunner(runnerBuilder: RunnerBuilder) {
+        if (!_runnerBuilders.contains(runnerBuilder)) {
+            _runnerBuilders.add(runnerBuilder)
+        }
+    }
+
+    @XedExtensionPoint
+    fun unregisterRunner(runnerBuilder: RunnerBuilder) {
+        _runnerBuilders.remove(runnerBuilder)
     }
 
     fun isRunnable(fileObject: FileObject): Boolean {

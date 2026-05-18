@@ -1,5 +1,6 @@
 package com.rk.file
 
+import com.rk.extension.XedExtensionPoint
 import com.rk.icons.Icon
 import com.rk.icons.pack.currentIconPack
 import com.rk.resources.drawables
@@ -123,8 +124,17 @@ object FileTypeManager {
     private val dynamicRegistry = mutableListOf<FileType>()
 
     /** Register a new file type dynamically. */
+    @XedExtensionPoint
     fun register(fileType: FileType) {
-        dynamicRegistry.add(fileType)
+        if (!dynamicRegistry.contains(fileType)) {
+            dynamicRegistry.add(fileType)
+        }
+    }
+
+    /** Unregister a file type. */
+    @XedExtensionPoint
+    fun unregister(fileType: FileType) {
+        dynamicRegistry.remove(fileType)
     }
 
     /** Get all dynamically registered file types + built-in file types together */
