@@ -109,7 +109,6 @@ class SseManager(
 
     private fun writeInitialEvents(channel: SendChannel<String>) {
         channel.trySend("event: message\ndata: ${mcpDispatcher.notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-        channel.trySend("event: message\ndata: ${mcpDispatcher.notificationJson("initialized", JsonObject())}\n\n")
     }
 
     private fun createStream(sessionId: String): Pair<NanoHTTPD.Response, SendChannel<String>> {

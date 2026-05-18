@@ -113,9 +113,8 @@ object DiscoveryFileWriter {
         dir.listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".json") }
             ?.filter { file ->
                 val parts = file.name.removePrefix(prefix).removeSuffix(".json").split("-")
-                val filePid = parts.firstOrNull()?.toIntOrNull()
                 val filePort = parts.getOrNull(1)?.toIntOrNull()
-                filePid == pid && filePort != null && filePort != port
+                filePort != null && filePort != port
             }
             ?.forEach { it.delete() }
         File(dir, "$prefix$pid-${port}.json").writeText(json)
@@ -206,11 +205,10 @@ object DiscoveryFileWriter {
     }
 
     fun clearForProcess() {
-        val pid = Process.myPid()
         val tmpDir = getTempDir()
         val dirs = AiConfig.Discovery.discoveryDirs.map { File(tmpDir, it) } + File(AiConfig.Discovery.tmpDiscoveryDir)
         dirs.forEach { dir ->
-            dir.listFiles { file -> file.name.contains("-$pid-") && file.name.endsWith(".json") }
+            dir.listFiles { file -> file.name.endsWith(".json") && file.name.contains("-server-") }
                 ?.forEach { it.delete() }
         }
     }

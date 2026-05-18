@@ -50,7 +50,13 @@ object IdeBridge {
                     token = null
                     port = 0
                 } else {
-                    return getBridgeInfo()
+                    val info = getBridgeInfo() ?: return@synchronized null
+                    synchronized(workspacePathsLock) {
+                        if (workspacePaths.isNotEmpty()) {
+                            writeDiscoveryFile(host, info.port, info.token, workspacePathForResolution())
+                        }
+                    }
+                    return info
                 }
             }
         }
@@ -150,11 +156,11 @@ object IdeBridge {
         synchronized(workspacePathsLock) {
             if (!workspacePaths.contains(path)) {
                 workspacePaths.add(path)
-                val s = synchronized(stateLock) { server }
-                val t = synchronized(stateLock) { token }
-                if (s != null && t != null) {
-                    writeDiscoveryFile(host, s.port, t, workspacePathForResolution())
-                }
+            }
+            val s = synchronized(stateLock) { server }
+            val t = synchronized(stateLock) { token }
+            if (s != null && t != null) {
+                writeDiscoveryFile(host, s.port, t, workspacePathForResolution())
             }
         }
     }
