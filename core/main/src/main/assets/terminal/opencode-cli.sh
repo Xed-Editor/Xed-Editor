@@ -25,37 +25,32 @@ info "Starting OpenCode CLI..."
 info "Workspace: $WKDIR"
 
 # Wire with Xed Editor IDE bridge via MCP (merge with existing config)
+# Note: Bridge config is primarily written by DiscoveryFileWriter (Java/Kotlin side).
+# This script only ensures it's present as a fallback, preserving all existing fields.
 if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
-  # Source utils if available (may already be sourced)
-  source "$LOCAL/bin/utils" >/dev/null 2>&1 || true
   OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
   mkdir -p "$OPENCODE_CONFIG_DIR"
   CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
-  if [ -f "$CONFIG_FILE" ]; then
-    if command_exists python3; then
-      python3 -c "
-import json
-with open('$CONFIG_FILE') as f:
-    cfg = json.load(f)
+  if command_exists python3; then
+    python3 -c "
+import json, os
+port = os.environ.get('IDE_PORT', '${IDE_PORT}')
+token = os.environ.get('IDE_AUTH_TOKEN', '${IDE_TOKEN}')
+cfg = json.load(open('$CONFIG_FILE')) if os.path.exists('$CONFIG_FILE') else {}
 ms = cfg.setdefault('mcp', {})
 ms['xed-ide'] = {
     'type': 'remote',
-    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
+    'url': f'http://127.0.0.1:{port}/mcp',
     'enabled': True,
     'headers': {
-        'Authorization': 'Bearer ${IDE_TOKEN}',
-        'authorization': 'Bearer ${IDE_TOKEN}',
-        'x-ide-token': '${IDE_TOKEN}'
+        'Authorization': f'Bearer {token}',
+        'authorization': f'Bearer {token}',
+        'x-ide-token': token
     }
 }
-with open('$CONFIG_FILE', 'w') as f:
-    json.dump(cfg, f, indent=2)
-" 2>/dev/null || fallback_merge=true
-    else
-      fallback_merge=true
-    fi
-  fi
-  if [ "${fallback_merge:-false}" = true ] || [ ! -f "$CONFIG_FILE" ]; then
+json.dump(cfg, open('$CONFIG_FILE', 'w'), indent=2)
+" 2>/dev/null || warn "Failed to write MCP config (python3 merge error)"
+  elif [ ! -f "$CONFIG_FILE" ]; then
     cat > "$CONFIG_FILE" << OC_CONFIG
 {
   "mcp": {
@@ -79,22 +74,30 @@ OC_CONFIG
     warn "Bridge health check failed, MCP may be unavailable"
 fi
 
-ensure_node() {
-  if ! command_exists node || ! command_exists npm; then
-    warn "Node.js/npm is required. Installing..."
-    install_nodejs
-  fi
-}
+# Ensure Node.js is available
+if ! command_exists node || ! command_exists npm; then
+  warn "Node.js/npm is required for OpenCode CLI."
+  info "Run: apt update && apt install -y nodejs"
+  info "Then: npm install -g opencode-ai@latest"
+  exit 1
+fi
 
-ensure_opencode() {
+# Ensure OpenCode CLI is available
+if ! command_exists opencode; then
+  info "OpenCode CLI not found. Trying npm global check..."
+  if npm list -g opencode-ai 2>/dev/null | grep -q opencode-ai; then
+    warn "opencode is in npm global list but not in PATH."
+    info "Run: npm config set prefix \$LOCAL && npm install -g opencode-ai"
+    exit 1
+  fi
+  info "Installing OpenCode CLI..."
+  npm install -g opencode-ai@latest
   if ! command_exists opencode; then
-    info "Installing OpenCode CLI..."
-    npm install -g opencode-ai@latest
-    info "OpenCode CLI installed successfully."
+    warn "Installation completed but 'opencode' not in PATH."
+    info "Using npx as fallback..."
+    exec npx --yes opencode-ai "$@"
   fi
-}
-
-ensure_node
-ensure_opencode
+  info "OpenCode CLI installed successfully."
+fi
 
 exec opencode "$@"

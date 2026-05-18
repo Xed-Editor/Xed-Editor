@@ -20,6 +20,7 @@ class SseManager(
     private val ideContextJson: () -> String,
     private val onClientsChanged: (Int) -> Unit,
     private val scope: CoroutineScope,
+    private val portProvider: () -> Int = { 0 },
 ) : IdeNotificationSender {
 
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
@@ -86,8 +87,7 @@ class SseManager(
         val hostHeader = session.headers["host"] ?: "127.0.0.1"
         val host = hostHeader.substringBefore(":").ifEmpty { "127.0.0.1" }
         val port = hostHeader.substringAfter(":", "").ifEmpty {
-            // Fallback to a common port if not found in header, but really we should have it
-            "36765"
+            portProvider().takeIf { it > 0 }?.toString() ?: "36765"
         }
         val url = if (port.isBlank()) "http://$host/messages?sessionId=$sessionId"
                   else "http://$host:$port/messages?sessionId=$sessionId"

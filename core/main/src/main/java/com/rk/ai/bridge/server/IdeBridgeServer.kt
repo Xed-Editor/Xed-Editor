@@ -35,7 +35,7 @@ class IdeBridgeServer(
     private var toolRegistry = McpToolRegistry(initialIdeService)
     private val mcpDispatcher = McpDispatcher { toolRegistry }
     private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
-    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope)
+    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope, { listeningPort })
 
     @Volatile var connectedClients: Int = 0; private set
     val toolsCount: Int get() = toolRegistry.listSchemas().size()
