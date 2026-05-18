@@ -73,22 +73,9 @@ object AgentEnvironmentBuilder {
             "BOOTCLASSPATH=${System.getenv("BOOTCLASSPATH").orEmpty()}",
             "DEX2OATBOOTCLASSPATH=${System.getenv("DEX2OATBOOTCLASSPATH").orEmpty()}",
             "EXTERNAL_STORAGE=${System.getenv("EXTERNAL_STORAGE").orEmpty()}",
-            "XED_IDE_URL=http://${bridge.host}:${bridge.port}",
-            "XED_IDE_HOST=${bridge.host}",
-            "XED_IDE_PORT=${bridge.port}",
-            "XED_IDE_AUTH_TOKEN=${bridge.token}",
             "IDE_SERVER_PORT=${bridge.port}",
             "IDE_AUTH_TOKEN=${bridge.token}",
             "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
-            "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
-            "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
-            "GEMINI_CLI_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
-            "OPENCODE_IDE_SERVER_PORT=${bridge.port}",
-            "OPENCODE_IDE_AUTH_TOKEN=${bridge.token}",
-            "OPENCODE_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
-            "MCP_HOST=${bridge.host}",
-            "MCP_PORT=${bridge.port}",
-            "MCP_AUTH_TOKEN=${bridge.token}",
         ).apply {
             if (Settings.ai_api_key.isNotBlank()) {
                 add("GEMINI_API_KEY=${Settings.ai_api_key}")
@@ -119,18 +106,8 @@ object AgentEnvironmentBuilder {
     }
 
     fun bridgeEnvContent(bridge: IdeBridge.Info): String = buildString {
-        appendLine("export XED_IDE_URL=http://${bridge.host}:${bridge.port}")
-        appendLine("export XED_IDE_HOST=${bridge.host}")
-        appendLine("export XED_IDE_PORT=${bridge.port}")
-        appendLine("export XED_IDE_AUTH_TOKEN=${bridge.token}")
         appendLine("export IDE_SERVER_PORT=${bridge.port}")
         appendLine("export IDE_AUTH_TOKEN=${bridge.token}")
-        appendLine("export GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}")
-        appendLine("export GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}")
-        appendLine("export OPENCODE_IDE_SERVER_PORT=${bridge.port}")
-        appendLine("export OPENCODE_IDE_AUTH_TOKEN=${bridge.token}")
-        appendLine("export MCP_PORT=${bridge.port}")
-        appendLine("export MCP_AUTH_TOKEN=${bridge.token}")
     }
 
     fun writeBridgeEnvFile(tmpDir: File, xedDir: File?, bridge: IdeBridge.Info) {
@@ -145,20 +122,6 @@ object AgentEnvironmentBuilder {
         "IDE_SERVER_PORT=${bridge.port}",
         "IDE_AUTH_TOKEN=${bridge.token}",
         "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
-        "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
-        "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
-        "GEMINI_CLI_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
-        "OPENCODE_IDE_SERVER_PORT=${bridge.port}",
-        "OPENCODE_IDE_AUTH_TOKEN=${bridge.token}",
-        "OPENCODE_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
-        "XED_IDE_URL=http://${bridge.host}:${bridge.port}",
-        "XED_IDE_HOST=${bridge.host}",
-        "XED_IDE_PORT=${bridge.port}",
-        "XED_IDE_AUTH_TOKEN=${bridge.token}",
-        "XED_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
-        "MCP_HOST=${bridge.host}",
-        "MCP_PORT=${bridge.port}",
-        "MCP_AUTH_TOKEN=${bridge.token}",
         "TERM_PROGRAM=vscode",
         "TERM_PROGRAM_VERSION=1.0.0",
         "VSCODE_PID=${Process.myPid()}",

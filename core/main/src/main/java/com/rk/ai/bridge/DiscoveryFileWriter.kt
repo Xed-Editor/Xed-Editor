@@ -109,6 +109,71 @@ object DiscoveryFileWriter {
         }
     }
 
+    private fun writeServerConfigJson(dir: File, prefix: String, pid: Int, port: Int, json: String) {
+        dir.listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".json") }
+            ?.filter { file ->
+                val parts = file.name.removePrefix(prefix).removeSuffix(".json").split("-")
+                val filePid = parts.firstOrNull()?.toIntOrNull()
+                val filePort = parts.getOrNull(1)?.toIntOrNull()
+                filePid == pid && filePort != null && filePort != port
+            }
+            ?.forEach { it.delete() }
+        File(dir, "$prefix$pid-${port}.json").writeText(json)
+    }
+
+    private fun writeIdeEnv(dir: File, info: BridgeInfo) {
+        File(dir, "ide.env").writeText(buildString {
+            appendLine("export IDE_SERVER_PORT=${info.port}")
+            appendLine("export IDE_AUTH_TOKEN=${info.token}")
+        })
+        File(dir, "ide.json").writeText(gson.toJson(JsonObject().apply {
+            addProperty("url", "http://${info.host}:${info.port}")
+            addProperty("port", info.port)
+            addProperty("token", info.token)
+            addProperty("authToken", info.token)
+            addProperty("workspacePath", info.workspacePath)
+        }))
+    }
+
+    private fun mergeAgentMcpConfig(dir: File, agentName: String, info: BridgeInfo) {
+        val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
+        val configFileName = AiConfig.Discovery.agentConfigFile(agentName)
+        val mcpFile = File(dir, configFileName)
+        val existingMcp = runCatching { JsonParser.parseString(mcpFile.readText()).asJsonObject }.getOrDefault(JsonObject())
+        val target = existingMcp.getAsJsonObject(mcpKey)
+            ?: JsonObject().also { existingMcp.add(mcpKey, it) }
+
+        val headers = JsonObject().apply {
+            addProperty("Authorization", "Bearer ${info.token}")
+            addProperty("authorization", "Bearer ${info.token}")
+            addProperty("x-ide-token", info.token)
+        }
+
+        if (agentName == "gemini") {
+            target.add("xed-ide", JsonObject().apply {
+                addProperty("url", "http://${info.host}:${info.port}/mcp")
+                add("headers", headers)
+            })
+            existingMcp.getAsJsonObject("mcp")?.remove("xed-ide")
+            if (Settings.ai_api_key.isNotBlank()) {
+                existingMcp.addProperty("apiKey", Settings.ai_api_key)
+            }
+        } else {
+            target.add("xed-ide", JsonObject().apply {
+                addProperty("type", "remote")
+                addProperty("url", "http://${info.host}:${info.port}/mcp")
+                addProperty("enabled", true)
+                addProperty("timeout", 120000)
+                add("headers", headers)
+            })
+            existingMcp.getAsJsonObject("mcpServers")?.remove("xed-ide")
+            if (agentName == "opencode" && Settings.ai_api_key.isNotBlank()) {
+                existingMcp.addProperty("apiKey", Settings.ai_api_key)
+            }
+        }
+        mcpFile.writeText(gson.toJson(existingMcp))
+    }
+
     private fun writeDiscoveryFiles(info: BridgeInfo, pid: Int, url: String, config: JsonObject, json: String) {
         val tmpDir = getTempDir()
         val agentNames = AgentTypeRegistry.available().map { it.name }
@@ -121,9 +186,7 @@ object DiscoveryFileWriter {
             info.workspacePath.split(File.pathSeparator).forEach { wp ->
                 if (wp.isNotBlank()) {
                     add(File(wp, AiConfig.Discovery.xedIdeDir))
-                    agentNames.forEach { agent ->
-                        add(File(wp, ".$agent"))
-                    }
+                    agentNames.forEach { agent -> add(File(wp, ".$agent")) }
                 }
             }
         }
@@ -131,62 +194,12 @@ object DiscoveryFileWriter {
             runCatching {
                 dir.mkdirs()
                 val prefix = if (dir.name == "ide-bridge") "ide-server-" else "xed-ide-server-"
-                dir.listFiles { file -> file.name.startsWith(prefix) && file.name.endsWith(".json") }
-                    ?.filter { file ->
-                        val parts = file.name.removePrefix(prefix).removeSuffix(".json").split("-")
-                        val filePid = parts.firstOrNull()?.toIntOrNull()
-                        val filePort = parts.getOrNull(1)?.toIntOrNull()
-                        filePid == pid && filePort != null && filePort != info.port
-                    }
-                    ?.forEach { it.delete() }
-                val fileName = if (dir.name == "ide-bridge") "ide-server-$pid-${info.port}.json" else "xed-ide-server-$pid-${info.port}.json"
-                File(dir, fileName).writeText(json)
+                writeServerConfigJson(dir, prefix, pid, info.port, json)
                 if (dir.name == AiConfig.Discovery.xedIdeDir) {
-                    File(dir, "ide.json").writeText(json)
-                    File(dir, "ide.env").writeText(buildString {
-                        appendLine("export XED_IDE_URL=$url"); appendLine("export XED_IDE_HOST=${info.host}")
-                        appendLine("export XED_IDE_PORT=${info.port}"); appendLine("export XED_IDE_AUTH_TOKEN=${info.token}")
-                        appendLine("export IDE_SERVER_PORT=${info.port}"); appendLine("export IDE_AUTH_TOKEN=${info.token}")
-                        appendLine("export MCP_PORT=${info.port}"); appendLine("export MCP_AUTH_TOKEN=${info.token}")
-                    })
+                    writeIdeEnv(dir, info)
                 }
                 agentNames.forEach { agent ->
-                    if (dir.name == ".$agent") {
-                        val mcpKey = AiConfig.Discovery.agentMcpKey(agent)
-                        val configFileName = AiConfig.Discovery.agentConfigFile(agent)
-                        val mcpFile = File(dir, configFileName)
-                        val existingMcp = runCatching { JsonParser.parseString(mcpFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-                        val target = existingMcp.getAsJsonObject(mcpKey)
-                            ?: JsonObject().also { existingMcp.add(mcpKey, it) }
-                        
-                        val headers = JsonObject().apply {
-                            addProperty("Authorization", "Bearer ${info.token}")
-                            addProperty("authorization", "Bearer ${info.token}")
-                            addProperty("x-ide-token", info.token)
-                        }
-
-                        if (agent == "gemini") {
-                            target.add("xed-ide", JsonObject().apply {
-                                addProperty("url", "$url/mcp")
-                                add("headers", headers)
-                            })
-                            existingMcp.getAsJsonObject("mcp")?.remove("xed-ide")
-                            if (Settings.ai_api_key.isNotBlank()) {
-                                existingMcp.addProperty("apiKey", Settings.ai_api_key)
-                            }
-                        } else {
-                            target.add("xed-ide", JsonObject().apply {
-                                addProperty("type", "remote"); addProperty("url", "$url/mcp"); addProperty("enabled", true)
-                                addProperty("timeout", 120000)
-                                add("headers", headers)
-                            })
-                            existingMcp.getAsJsonObject("mcpServers")?.remove("xed-ide")
-                            if (agent == "opencode" && Settings.ai_api_key.isNotBlank()) {
-                                existingMcp.addProperty("apiKey", Settings.ai_api_key)
-                            }
-                        }
-                        mcpFile.writeText(gson.toJson(existingMcp))
-                    }
+                    if (dir.name == ".$agent") mergeAgentMcpConfig(dir, agent, info)
                 }
             }
         }

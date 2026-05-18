@@ -11,6 +11,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.LinkedBlockingQueue
 import fi.iki.elonen.NanoHTTPD
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -23,12 +26,16 @@ class SseManager(
     private val portProvider: () -> Int = { 0 },
 ) : IdeNotificationSender {
 
-    private val sseClients = ConcurrentHashMap<String, PrintWriter>()
+    private val sseClients = ConcurrentHashMap<String, SendChannel<String>>()
     val size: Int get() = sseClients.size
     private val keepaliveIntervalMs = 15_000L
     private val notificationQueue = LinkedBlockingQueue<Pair<String, String>>(1000)
     private val batchIntervalMs = 50L
     private var lastDeadClientCheck = 0L
+
+    private companion object {
+        private const val PIPE_BUFFER_SIZE = 65536
+    }
 
     init {
         startNotificationBatcher()
@@ -42,19 +49,12 @@ class SseManager(
                 notificationQueue.drainTo(batch)
 
                 if (batch.isNotEmpty()) {
-                    sseClients.entries.toList().forEach { entry ->
-                        val id = entry.key
-                        val writer = entry.value
-                        runCatching {
-                            synchronized(writer) {
-                                batch.forEach { (eventType, data) ->
-                                    writer.print("event: $eventType\n")
-                                    writer.print("data: $data\n\n")
-                                }
-                                writer.flush()
-                            }
-                            if (writer.checkError()) deadClients.add(id)
-                        }.onFailure { deadClients.add(id) }
+                    sseClients.entries.toList().forEach { (id, channel) ->
+                        var failed = false
+                        batch.forEach { (eventType, data) ->
+                            if (!channel.trySend("event: $eventType\ndata: $data\n\n").isSuccess) failed = true
+                        }
+                        if (failed) deadClients.add(id)
                     }
                 }
 
@@ -65,10 +65,8 @@ class SseManager(
                 }
                 if (deadClients.isNotEmpty() || now - lastDeadClientCheck >= 5000) {
                     lastDeadClientCheck = now
-                    sseClients.entries.toList().forEach { entry ->
-                        val id = entry.key
-                        val writer = entry.value
-                        if (writer.checkError()) deadClients.add(id)
+                    sseClients.entries.toList().forEach { (id, channel) ->
+                        if (!channel.trySend(": keepalive\n\n").isSuccess) deadClients.add(id)
                     }
                     if (deadClients.isNotEmpty()) {
                         deadClients.toSet().forEach { sseClients.remove(it) }
@@ -82,23 +80,23 @@ class SseManager(
 
     fun createSseStream(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val sessionId = UUID.randomUUID().toString()
-        val (response, writer) = createStream(sessionId)
-        sendEndpointEvent(session, sessionId, writer)
-        writeInitialEvents(writer)
+        val (response, channel) = createStream(sessionId)
+        sendEndpointEvent(session, sessionId, channel)
+        writeInitialEvents(channel)
         startKeepalive(sessionId)
         return response
     }
 
     fun createMcpStream(session: NanoHTTPD.IHTTPSession, requestedSessionId: String): NanoHTTPD.Response {
         val sessionId = requestedSessionId.takeIf { it.isNotBlank() } ?: "default"
-        val (response, writer) = createStream(sessionId)
-        sendEndpointEvent(session, sessionId, writer)
-        writeInitialEvents(writer)
+        val (response, channel) = createStream(sessionId)
+        sendEndpointEvent(session, sessionId, channel)
+        writeInitialEvents(channel)
         startKeepalive(sessionId)
         return response
     }
 
-    private fun sendEndpointEvent(session: NanoHTTPD.IHTTPSession, sessionId: String, writer: PrintWriter) {
+    private fun sendEndpointEvent(session: NanoHTTPD.IHTTPSession, sessionId: String, channel: SendChannel<String>) {
         val hostHeader = session.headers["host"] ?: "127.0.0.1"
         val host = hostHeader.substringBefore(":").ifEmpty { "127.0.0.1" }
         val port = hostHeader.substringAfter(":", "").ifEmpty {
@@ -106,33 +104,46 @@ class SseManager(
         }
         val url = if (port.isBlank()) "http://$host/messages?sessionId=$sessionId"
                   else "http://$host:$port/messages?sessionId=$sessionId"
-        writer.print("event: endpoint\ndata: $url\n\n")
-        writer.flush()
+        channel.trySend("event: endpoint\ndata: $url\n\n")
     }
 
-    private companion object {
-        private const val PIPE_BUFFER_SIZE = 65536
+    private fun writeInitialEvents(channel: SendChannel<String>) {
+        channel.trySend("event: message\ndata: ${mcpDispatcher.notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+        channel.trySend("event: message\ndata: ${mcpDispatcher.notificationJson("initialized", JsonObject())}\n\n")
     }
 
-    private fun createStream(sessionId: String): Pair<NanoHTTPD.Response, PrintWriter> {
+    private fun createStream(sessionId: String): Pair<NanoHTTPD.Response, SendChannel<String>> {
         val output = PipedOutputStream()
-        val writer = PrintWriter(output, true)
-        sseClients[sessionId] = writer
-        onClientsChanged(sseClients.size)
         val input = PipedInputStream(output, PIPE_BUFFER_SIZE)
+        val channel = Channel<String>(Channel.BUFFERED)
+
+        sseClients[sessionId] = channel
+        onClientsChanged(sseClients.size)
+
+        scope.launch(Dispatchers.IO) {
+            val writer = PrintWriter(output, true)
+            try {
+                for (event in channel) {
+                    writer.print(event)
+                    writer.flush()
+                    if (writer.checkError()) break
+                }
+            } catch (_: Exception) {
+            } finally {
+                runCatching { output.close() }
+                runCatching { input.close() }
+                sseClients.remove(sessionId)
+                onClientsChanged(sseClients.size)
+            }
+        }
+
         val response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/event-stream", input, -1L).apply {
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")
             addHeader("Connection", "keep-alive")
         }
-        return response to writer
-    }
-
-    private fun writeInitialEvents(writer: PrintWriter) {
-        writer.print("event: message\ndata: ${mcpDispatcher.notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-        writer.print("event: message\ndata: ${mcpDispatcher.notificationJson("initialized", JsonObject())}\n\n")
-        writer.flush()
+        return response to channel
     }
 
     private fun startKeepalive(sessionId: String) {
@@ -140,9 +151,9 @@ class SseManager(
             var consecutiveErrors = 0
             while (isActive) {
                 delay(keepaliveIntervalMs)
-                val w = sseClients[sessionId] ?: break
-                w.print(": keepalive\n\n"); w.flush()
-                if (w.checkError()) {
+                val channel = sseClients[sessionId] ?: break
+                val result = channel.trySend(": keepalive\n\n")
+                if (!result.isSuccess) {
                     consecutiveErrors++
                     if (consecutiveErrors >= 3) {
                         sseClients.remove(sessionId)
@@ -157,11 +168,9 @@ class SseManager(
     }
 
     fun pushToSession(sessionId: String, responseBody: String): Boolean {
-        val writer = sseClients[sessionId] ?: return false
-        synchronized(writer) {
-            writer.print("event: message\n"); writer.print("data: $responseBody\n\n"); writer.flush()
-        }
-        return true
+        val channel = sseClients[sessionId] ?: return false
+        val result = channel.trySend("event: message\ndata: $responseBody\n\n")
+        return result.isSuccess
     }
 
     override fun sendNotification(method: String, params: JsonObject) {

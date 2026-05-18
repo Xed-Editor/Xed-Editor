@@ -3,10 +3,10 @@ set -e
 
 source "$LOCAL/bin/utils" >/dev/null 2>&1 || true
 
-# Support both generic and OpenCode-specific IDE bridge env vars
-IDE_PORT="${OPENCODE_IDE_SERVER_PORT:-${IDE_SERVER_PORT:-${XED_IDE_PORT:-}}}"
-IDE_TOKEN="${OPENCODE_IDE_AUTH_TOKEN:-${IDE_AUTH_TOKEN:-${XED_IDE_AUTH_TOKEN:-}}}"
-IDE_WS="${OPENCODE_IDE_WORKSPACE_PATH:-${IDE_WORKSPACE_PATH:-${XED_IDE_WORKSPACE_PATH:-}}}"
+# IDE bridge env vars (set by Xed Editor)
+IDE_PORT="${IDE_SERVER_PORT:-}"
+IDE_TOKEN="${IDE_AUTH_TOKEN:-}"
+IDE_WS="${IDE_WORKSPACE_PATH:-}"
 
 workspace_dir="${IDE_WS%%:*}"
 target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
