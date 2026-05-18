@@ -66,7 +66,7 @@ fun LocalExtension.load(application: Application) = run {
                 as? ExtensionAPI
                 ?: return@run Result.failure(
                     RuntimeException(
-                        "Failed to instantiate main class '${mainClassInstance.name}' for extension '${manifest.name}'. The class could not be cast to ExtensionAPI. Ensure it implements the ExtensionAPI interface and has a public no-argument constructor."
+                        "Failed to instantiate main class '${mainClassInstance.name}' for extension '${manifest.name}'. Ensure the class implements the ExtensionAPI interface and declares a public constructor accepting ExtensionContext."
                     )
                 )
 
