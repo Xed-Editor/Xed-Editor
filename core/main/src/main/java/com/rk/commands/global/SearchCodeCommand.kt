@@ -5,7 +5,6 @@ import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
 import com.rk.components.codeSearchDialog
-import com.rk.filetree.currentDrawerTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -21,7 +20,7 @@ class SearchCodeCommand : GlobalCommand() {
     }
 
     override fun isEnabled(): Boolean {
-        return currentDrawerTab != null
+        return commandContext.drawerViewModel.currentDrawerTab != null
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.search)

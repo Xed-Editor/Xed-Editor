@@ -6,7 +6,6 @@ import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
 import com.rk.components.fileSearchDialog
 import com.rk.filetree.FileTreeTab
-import com.rk.filetree.currentDrawerTab
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -22,7 +21,7 @@ class SearchFileFolderCommand : GlobalCommand() {
     }
 
     override fun isEnabled(): Boolean {
-        return currentDrawerTab is FileTreeTab
+        return commandContext.drawerViewModel.currentDrawerTab is FileTreeTab
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.search)

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
+import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
 import com.rk.file.FileWrapper
@@ -31,6 +32,7 @@ data class FileActionContext(
     val file: FileObject,
     val root: FileObject?,
     val viewModel: FileTreeViewModel,
+    val drawerViewModel: DrawerViewModel,
     val context: Context,
 )
 
@@ -38,6 +40,7 @@ data class MultiFileActionContext(
     val files: List<FileObject>,
     val root: FileObject?,
     val viewModel: FileTreeViewModel,
+    val drawerViewModel: DrawerViewModel,
     val context: Context,
 )
 
@@ -277,11 +280,12 @@ object OpenAsProjectAction : FileAction() {
     override val title = strings.open_as_project.getString()
 
     override fun action(context: FileActionContext) {
-        addProject(context.file, true)
+        context.drawerViewModel.addFileTreeTab(context.file, true)
     }
 
     override fun isEnabled(file: FileObject): Boolean {
-        return drawerTabs.none { it is FileTreeTab && it.root == file }
+        val drawerViewModel = MainActivity.instance?.drawerViewModel ?: return false
+        return drawerViewModel.drawerTabs.none { it is FileTreeTab && it.root == file }
     }
 
     override val type = FileActionType(file = false, folder = true, rootFolder = true)

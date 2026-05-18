@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import com.rk.components.GlobalToolbarActions
 import com.rk.components.isPermanentDrawer
+import com.rk.drawer.DrawerViewModel
 import com.rk.resources.strings
 import com.rk.terminal.isV
 import com.rk.utils.toast
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
 fun XedTopBar(
     drawerState: DrawerState,
     viewModel: MainViewModel,
+    drawerViewModel: DrawerViewModel,
     fullScreen: Boolean,
     onDrag: (Float) -> Unit = {},
     onDragEnd: () -> Unit = {},
@@ -59,7 +61,7 @@ fun XedTopBar(
                 }
             },
             actions = {
-                GlobalToolbarActions(viewModel)
+                GlobalToolbarActions(viewModel, drawerViewModel)
 
                 if (viewModel.tabs.isNotEmpty()) {
                     val tab =

@@ -16,10 +16,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.commands.KeybindingsManager
+import com.rk.drawer.DrawerPersistence
+import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
-import com.rk.filetree.DrawerPersistence
 import com.rk.lsp.LspRegistry
 import com.rk.resources.getFilledString
 import com.rk.resources.strings
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
+    val drawerViewModel: DrawerViewModel by viewModels()
     val fileManager = FileManager(this)
 
     // suspend (isForeground) -> Unit
@@ -58,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         isPaused = true
         GlobalScope.launch(Dispatchers.IO) {
             SessionManager.saveSession(viewModel.tabs, viewModel.currentTabIndex)
-            DrawerPersistence.saveState()
+            DrawerPersistence.saveState(drawerViewModel)
             foregroundListener.values.forEach { it.invoke(false) }
 
             LspRegistry.updateConfiguration(this@MainActivity)

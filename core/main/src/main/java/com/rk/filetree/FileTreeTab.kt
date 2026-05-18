@@ -45,6 +45,7 @@ import com.rk.activities.main.searchViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog
+import com.rk.drawer.DrawerTab
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
@@ -78,6 +79,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
         val mainViewModel = MainActivity.instance?.viewModel
+        val drawerViewModel = MainActivity.instance?.drawerViewModel
 
         LaunchedEffect(root) {
             if (InbuiltFeatures.git.state.value) {
@@ -100,6 +102,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
             rootNode = root.toFileTreeNode(),
             viewModel = fileTreeViewModel.get()!!,
+            drawerViewModel = drawerViewModel!!,
             onFileClick = { node ->
                 scope.launch(Dispatchers.IO) {
                     mainViewModel?.editorManager?.openFile(node.file, projectRoot = root, switchToTab = true)
@@ -266,7 +269,8 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
     override fun isSupported(): Boolean {
         if (runBlocking { !root.exists() } || !root.isDirectory()) {
-            removeProject(this@FileTreeTab, true)
+            val drawerViewModel = MainActivity.instance?.drawerViewModel ?: return false
+            drawerViewModel.removeDrawerTab(this@FileTreeTab, true)
             return false
         }
         return true

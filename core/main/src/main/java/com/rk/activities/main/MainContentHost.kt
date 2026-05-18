@@ -30,11 +30,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.components.ResponsiveDrawer
-import com.rk.filetree.DrawerContent
-import com.rk.filetree.DrawerPersistence
+import com.rk.drawer.DrawerContent
+import com.rk.drawer.DrawerPersistence
 import com.rk.filetree.FileTreeViewModel
-import com.rk.filetree.createServices
-import com.rk.filetree.isLoading
 import com.rk.git.GitViewModel
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -46,8 +44,8 @@ import com.rk.utils.dialog
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
 
-var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
 var gitViewModel = WeakReference<GitViewModel?>(null)
+var fileTreeViewModel = WeakReference<FileTreeViewModel?>(null)
 var searchViewModel = WeakReference<SearchViewModel?>(null)
 
 var snackbarHostStateRef: WeakReference<SnackbarHostState?> = WeakReference(null)
@@ -60,8 +58,8 @@ fun MainActivity.MainContentHost(
     fileTreeViewModel: FileTreeViewModel = viewModel(),
     searchViewModel: SearchViewModel = viewModel(),
 ) {
-    com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
     com.rk.activities.main.gitViewModel = WeakReference(gitViewModel)
+    com.rk.activities.main.fileTreeViewModel = WeakReference(fileTreeViewModel)
     com.rk.activities.main.searchViewModel = WeakReference(searchViewModel)
 
     XedTheme {
@@ -155,6 +153,7 @@ fun MainActivity.MainContentHost(
                         XedTopBar(
                             drawerState = drawerState,
                             viewModel = viewModel,
+                            drawerViewModel = drawerViewModel,
                             fullScreen = Settings.fullscreen,
                             onDrag = { dragAmount ->
                                 accumulator += dragAmount
@@ -182,19 +181,20 @@ fun MainActivity.MainContentHost(
                 ) { innerPadding ->
                     MainContent(
                         innerPadding = innerPadding,
-                        drawerState = drawerState,
                         mainViewModel = viewModel,
+                        drawerViewModel = drawerViewModel,
                         fileTreeViewModel = fileTreeViewModel,
+                        drawerState = drawerState,
                     )
                 }
             }
 
             val sheetContent: @Composable ColumnScope.() -> Unit = {
                 LaunchedEffect(Unit) {
-                    isLoading = true
-                    DrawerPersistence.restoreState()
-                    createServices()
-                    isLoading = false
+                    drawerViewModel.isLoading = true
+                    drawerViewModel.setupBuiltinServices(gitViewModel)
+                    DrawerPersistence.restoreState(drawerViewModel)
+                    drawerViewModel.isLoading = false
                 }
                 DrawerContent(Settings.fullscreen)
             }

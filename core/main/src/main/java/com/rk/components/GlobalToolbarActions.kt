@@ -27,13 +27,13 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandProvider
+import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
-import com.rk.filetree.currentDrawerTab
 import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcon
 import com.rk.icons.XedIcons
@@ -54,7 +54,7 @@ var codeSearchDialog by mutableStateOf(false)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GlobalToolbarActions(viewModel: MainViewModel) {
+fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
@@ -79,10 +79,10 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         }
     }
 
-    if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
+    if (fileSearchDialog && drawerViewModel.currentDrawerTab is FileTreeTab) {
         FileSearchDialog(
             searchViewModel = searchViewModel.get()!!,
-            projectFile = (currentDrawerTab as FileTreeTab).root,
+            projectFile = (drawerViewModel.currentDrawerTab as FileTreeTab).root,
             onFinish = { fileSearchDialog = false },
             onSelect = { projectFile, fileObject ->
                 scope.launch {
@@ -103,11 +103,11 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         )
     }
 
-    if (codeSearchDialog && currentDrawerTab is FileTreeTab) {
+    if (codeSearchDialog && drawerViewModel.currentDrawerTab is FileTreeTab) {
         CodeSearchDialog(
             mainViewModel = viewModel,
             searchViewModel = searchViewModel.get()!!,
-            projectFile = (currentDrawerTab as FileTreeTab).root,
+            projectFile = (drawerViewModel.currentDrawerTab as FileTreeTab).root,
             onFinish = { codeSearchDialog = false },
         )
     }
