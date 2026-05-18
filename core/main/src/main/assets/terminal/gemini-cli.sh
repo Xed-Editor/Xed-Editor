@@ -48,7 +48,9 @@ configure_xed_ide_integration() {
   # Merge MCP config into Gemini settings using python3 (preferred) or node
   if command_exists python3; then
     python3 -c "
-import json
+import json, os
+port = os.environ.get('IDE_SERVER_PORT', '${IDE_PORT}')
+token = os.environ.get('IDE_AUTH_TOKEN', '${IDE_TOKEN}')
 try:
     with open('$SETTINGS_FILE') as f:
         s = json.load(f)
@@ -63,11 +65,11 @@ s.setdefault('telemetry', {})['enabled'] = False
 # Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
 ms = s.setdefault('mcpServers', {})
 ms['xed-ide'] = {
-    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
+    'url': f'http://127.0.0.1:{port}/mcp',
     'headers': {
-        'Authorization': 'Bearer ${IDE_TOKEN}',
-        'authorization': 'Bearer ${IDE_TOKEN}',
-        'x-ide-token': '${IDE_TOKEN}'
+        'Authorization': f'Bearer {token}',
+        'authorization': f'Bearer {token}',
+        'x-ide-token': token
     }
 }
 
@@ -80,14 +82,14 @@ with open('$SETTINGS_FILE', 'w') as f:
   fi
   if [ "${fallback_to_node:-false}" = true ]; then
     warn "Falling back to Node.js for Gemini settings merge"
-    export IDE_PORT IDE_TOKEN
+    export IDE_SERVER_PORT IDE_AUTH_TOKEN
     node <<'NODE'
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const settingsFile = path.join(os.homedir(), '.gemini', 'settings.json');
-const idePort = process.env.IDE_PORT || '0';
-const ideToken = process.env.IDE_TOKEN || '';
+const idePort = process.env.IDE_SERVER_PORT || '0';
+const ideToken = process.env.IDE_AUTH_TOKEN || '';
 let s = {};
 try { s = JSON.parse(fs.readFileSync(settingsFile, 'utf8')); } catch (_) {}
 s.general = { ...(s.general || {}), preferredEditor: 'vim' };

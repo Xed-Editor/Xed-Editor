@@ -113,6 +113,19 @@ object AiSessionManager {
 
                     val (mcpOk, mcpStatus) = IdeBridge.checkMcpConnection()
                     d("MCP connection check: $mcpOk - $mcpStatus")
+                    if (!mcpOk) {
+                        lastError = "Bridge MCP check failed: $mcpStatus"
+                        connectionStatus = ConnectionStatus.Error
+                        throw Exception(lastError)
+                    }
+
+                    val (toolsOk, toolsStatus) = IdeBridge.verifyMcpToolsAvailable()
+                    d("MCP tools check: $toolsOk - $toolsStatus")
+                    if (!toolsOk) {
+                        lastError = "Bridge MCP tools unavailable: $toolsStatus"
+                        connectionStatus = ConnectionStatus.Error
+                        throw Exception(lastError)
+                    }
 
                     withContext(Dispatchers.Main) {
                         val newSession = createAgentSession(

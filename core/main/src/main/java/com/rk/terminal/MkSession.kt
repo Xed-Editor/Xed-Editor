@@ -97,6 +97,12 @@ object MkSession {
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
+            com.rk.ai.IdeBridge.getBridgeInfo()?.let { info ->
+                env.add("IDE_SERVER_PORT=${info.port}")
+                env.add("IDE_AUTH_TOKEN=${info.token}")
+                env.add("IDE_WORKSPACE_PATH=${info.workspacePath}")
+            }
+
             pendingCommand?.env?.let { env.addAll(it) }
 
             setupTerminalFiles()

@@ -21,22 +21,36 @@ export VISUAL=vim
 info() { log "[INFO] $*"; }
 warn() { log "[WARN] $*"; }
 
+configure_ai_auth_browser
+
+ensure_node() {
+  if ! command_exists node || ! command_exists npm; then
+    warn "Node.js/npm is required. Installing Node.js LTS..."
+    install_nodejs
+  fi
+}
+
 info "Starting OpenCode CLI..."
 info "Workspace: $WKDIR"
 
 # Wire with Xed Editor IDE bridge via MCP (merge with existing config)
-# Note: Bridge config is primarily written by DiscoveryFileWriter (Java/Kotlin side).
-# This script only ensures it's present as a fallback, preserving all existing fields.
-if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
+configure_xed_ide_integration() {
+  [ -n "$IDE_PORT" ] || return 0
+  [ -n "$IDE_TOKEN" ] || return 0
+  
   OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
   mkdir -p "$OPENCODE_CONFIG_DIR"
   CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
+  
   if command_exists python3; then
     python3 -c "
 import json, os
-port = os.environ.get('IDE_PORT', '${IDE_PORT}')
+port = os.environ.get('IDE_SERVER_PORT', '${IDE_PORT}')
 token = os.environ.get('IDE_AUTH_TOKEN', '${IDE_TOKEN}')
-cfg = json.load(open('$CONFIG_FILE')) if os.path.exists('$CONFIG_FILE') else {}
+try:
+    with open('$CONFIG_FILE') as f: cfg = json.load(f)
+except:
+    cfg = {}
 ms = cfg.setdefault('mcp', {})
 ms['xed-ide'] = {
     'type': 'remote',
@@ -48,39 +62,46 @@ ms['xed-ide'] = {
         'x-ide-token': token
     }
 }
-json.dump(cfg, open('$CONFIG_FILE', 'w'), indent=2)
-" 2>/dev/null || warn "Failed to write MCP config (python3 merge error)"
-  elif [ ! -f "$CONFIG_FILE" ]; then
-    cat > "$CONFIG_FILE" << OC_CONFIG
-{
-  "mcp": {
-    "xed-ide": {
-      "type": "remote",
-      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer ${IDE_TOKEN}",
-        "authorization": "Bearer ${IDE_TOKEN}",
-        "x-ide-token": "${IDE_TOKEN}"
-      }
-    }
-  }
-}
-OC_CONFIG
+with open('$CONFIG_FILE', 'w') as f: json.dump(cfg, f, indent=2)
+" 2>/dev/null || fallback_to_node=true
   fi
+  
+  if [ "${fallback_to_node:-false}" = true ] || ! command_exists python3; then
+    export IDE_SERVER_PORT IDE_AUTH_TOKEN
+    node <<'NODE'
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const configDir = path.join(os.homedir(), '.config', 'opencode');
+if (!fs.existsSync(configDir)) fs.mkdirSync(configDir, { recursive: true });
+const configFile = path.join(configDir, 'opencode.json');
+const idePort = process.env.IDE_SERVER_PORT || '0';
+const ideToken = process.env.IDE_AUTH_TOKEN || '';
+let cfg = {};
+try { cfg = JSON.parse(fs.readFileSync(configFile, 'utf8')); } catch (_) {}
+cfg.mcp = cfg.mcp || {};
+cfg.mcp['xed-ide'] = {
+  type: 'remote',
+  url: 'http://127.0.0.1:' + idePort + '/mcp',
+  enabled: true,
+  headers: {
+    Authorization: 'Bearer ' + ideToken,
+    authorization: 'Bearer ' + ideToken,
+    'x-ide-token': ideToken
+  }
+};
+fs.writeFileSync(configFile, JSON.stringify(cfg, null, 2));
+NODE
+  fi
+  
   info "IDE bridge MCP configured for OpenCode on port $IDE_PORT (HTTP transport)"
   curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
     info "Bridge health check passed" || \
     warn "Bridge health check failed, MCP may be unavailable"
-fi
+}
 
-# Ensure Node.js is available
-if ! command_exists node || ! command_exists npm; then
-  warn "Node.js/npm is required for OpenCode CLI."
-  info "Run: apt update && apt install -y nodejs"
-  info "Then: npm install -g opencode-ai@latest"
-  exit 1
-fi
+ensure_node
+configure_xed_ide_integration
 
 # Ensure OpenCode CLI is available
 if ! command_exists opencode; then

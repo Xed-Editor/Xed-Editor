@@ -35,11 +35,10 @@ class IdeBridgeServer(
     private var toolRegistry = McpToolRegistry(initialIdeService)
     private val mcpDispatcher = McpDispatcher { toolRegistry }
     private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
-    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope, { listeningPort })
+    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope, token, { listeningPort })
 
     @Volatile var connectedClients: Int = 0; private set
     val toolsCount: Int get() = toolRegistry.listSchemas().size()
-    @Volatile private var activeMcpSessionId: String? = null
 
     var ideService: IdeService = initialIdeService
         set(value) {
@@ -178,13 +177,14 @@ class IdeBridgeServer(
     }
 
     private fun resolveMcpSessionId(method: String, requestedSessionId: String?): String? {
-        if (!requestedSessionId.isNullOrBlank()) { activeMcpSessionId = requestedSessionId; return requestedSessionId }
-        if (method == "initialize") {
-            val newId = UUID.randomUUID().toString()
-            activeMcpSessionId = newId; return newId
+        if (!requestedSessionId.isNullOrBlank()) {
+            httpSessionTracker.touchSession(requestedSessionId)
+            return requestedSessionId
         }
-        activeMcpSessionId?.let { httpSessionTracker.touchSession(it) }
-        return activeMcpSessionId
+        if (method == "initialize") {
+            return UUID.randomUUID().toString()
+        }
+        return null
     }
 
     private fun handleExternalEditor(session: IHTTPSession, rawPostBody: String?): Response {
@@ -237,7 +237,6 @@ class IdeBridgeServer(
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
         addProperty("httpClients", httpSessionTracker.httpSessionCount)
         addProperty("tools", toolRegistry.listSchemas().size()); addProperty("tokenPrefix", token.take(8))
-        add("activeSessionId", if (activeMcpSessionId != null) JsonObject().apply { addProperty("id", activeMcpSessionId) } else JsonNull.INSTANCE)
     })
 
     private fun isAuthorized(session: IHTTPSession): Boolean {

@@ -23,6 +23,7 @@ class SseManager(
     private val ideContextJson: () -> String,
     private val onClientsChanged: (Int) -> Unit,
     private val scope: CoroutineScope,
+    private val token: String,
     private val portProvider: () -> Int = { 0 },
 ) : IdeNotificationSender {
 
@@ -102,8 +103,8 @@ class SseManager(
         val port = hostHeader.substringAfter(":", "").ifEmpty {
             portProvider().takeIf { it > 0 }?.toString() ?: "36765"
         }
-        val url = if (port.isBlank()) "http://$host/messages?sessionId=$sessionId"
-                  else "http://$host:$port/messages?sessionId=$sessionId"
+        val url = if (port.isBlank()) "http://$host/messages?sessionId=$sessionId&token=$token"
+                  else "http://$host:$port/messages?sessionId=$sessionId&token=$token"
         channel.trySend("event: endpoint\ndata: $url\n\n")
     }
 

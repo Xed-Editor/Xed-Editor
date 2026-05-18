@@ -31,7 +31,7 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
             ?.takeIf { it.isJsonPrimitive }
             ?.asString
             ?.takeIf { it.isNotBlank() }
-            ?: "2025-03-26"
+            ?: "2024-11-05"
         addProperty("protocolVersion", negotiatedProtocol)
         add("capabilities", JsonObject().apply {
             add("tools", JsonObject())

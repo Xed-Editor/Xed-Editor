@@ -45,6 +45,12 @@ object DiscoveryFileWriter {
         }
     }
 
+    fun forceWriteAgentConfigs(info: BridgeInfo) {
+        AgentTypeRegistry.available().forEach { agent ->
+            writeAgentConfig(agent.name, info)
+        }
+    }
+
     private fun writeAgentConfig(agentName: String, info: BridgeInfo) {
         runCatching {
             val sandboxHome = sandboxHomeDir()

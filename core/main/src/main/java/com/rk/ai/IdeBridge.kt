@@ -152,6 +152,39 @@ object IdeBridge {
         }
     }
 
+    fun verifyMcpToolsAvailable(): Pair<Boolean, String> {
+        val info = getBridgeInfo() ?: return false to "Bridge not running"
+        return try {
+            val jsonRequest = """{"jsonrpc":"2.0","id":1,"method":"tools/list"}""".toByteArray()
+            val url = URL("http://${info.host}:${info.port}/mcp")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.doOutput = true
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.setRequestProperty("Authorization", "Bearer ${info.token}")
+            conn.setRequestProperty("x-ide-token", info.token)
+            conn.connectTimeout = 5000
+            conn.readTimeout = 5000
+            conn.outputStream.write(jsonRequest)
+            conn.outputStream.flush()
+            val responseCode = conn.responseCode
+            if (responseCode == 200) {
+                val body = conn.inputStream.bufferedReader().use { it.readText() }
+                if (body.contains("\"result\"") && body.contains("\"tools\"")) {
+                    val toolsCount = body.split("\"name\":").size - 1
+                    Pair(true, "$toolsCount MCP tools available")
+                } else {
+                    Pair(false, "MCP response missing tools: ${body.take(200)}")
+                }
+            } else {
+                val errorBody = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: ""
+                Pair(false, "MCP tools/list returned $responseCode: $errorBody")
+            }
+        } catch (e: Exception) {
+            Pair(false, "MCP tools/list failed: ${e.message}")
+        }
+    }
+
     fun setWorkspacePath(path: String) {
         synchronized(workspacePathsLock) {
             if (!workspacePaths.contains(path)) {
@@ -188,7 +221,18 @@ object IdeBridge {
     }
 
     private fun writeDiscoveryFile(host: String, port: Int, token: String, workspacePath: String) {
-        DiscoveryFileWriter.write(DiscoveryFileWriter.BridgeInfo(host, port, token, workspacePath))
+        val info = DiscoveryFileWriter.BridgeInfo(host, port, token, workspacePath)
+        DiscoveryFileWriter.write(info)
+        DiscoveryFileWriter.forceWriteAgentConfigs(info)
+    }
+
+    fun forceWriteAgentConfigs() {
+        val s = synchronized(stateLock) { server } ?: return
+        val t = synchronized(stateLock) { token } ?: return
+        val wp = synchronized(workspacePathsLock) { workspacePathForResolution() }
+        DiscoveryFileWriter.forceWriteAgentConfigs(
+            DiscoveryFileWriter.BridgeInfo(host, s.port, t, wp)
+        )
     }
 
     private fun clearDiscoveryFilesForProcess() {
