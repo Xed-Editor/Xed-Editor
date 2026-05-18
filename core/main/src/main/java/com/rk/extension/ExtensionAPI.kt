@@ -1,9 +1,14 @@
 package com.rk.extension
 
 import android.app.Application
+import androidx.compose.runtime.Composable
 
-abstract class ExtensionAPI : Application.ActivityLifecycleCallbacks {
-    abstract fun onExtensionLoaded(extension: Extension)
+abstract class ExtensionAPI(private val context: ExtensionContext) : Application.ActivityLifecycleCallbacks {
+    abstract fun onExtensionLoaded()
 
-    abstract fun onUninstalled(extension: Extension)
+    abstract fun onUninstalled()
+
+    open val hasSettings = false
+
+    @Composable open fun SettingsUI() {}
 }

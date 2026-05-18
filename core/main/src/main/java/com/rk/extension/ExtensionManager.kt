@@ -31,6 +31,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
     val json = Json { ignoreUnknownKeys = true }
 
+    val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
+
     init {
         launch(Dispatchers.IO) {
             runCatching {
@@ -157,7 +159,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 val extension =
                     localExtensions[extensionId] ?: return@withContext Result.failure(Exception("Extension not found"))
 
-                loadedExtensions[extension]?.onUninstalled(extension)
+                loadedExtensions[extension]?.onUninstalled()
 
                 val extensionDir = File(extension.installPath)
                 if (!extensionDir.exists()) {

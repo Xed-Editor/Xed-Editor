@@ -42,10 +42,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.App.Companion.extensionManager
+import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
 import com.rk.icons.Icon
@@ -60,16 +62,31 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ExtensionDetail(extension: Extension?) {
+fun ExtensionDetail(extension: Extension?, navController: NavController) {
     val scope = rememberCoroutineScope()
 
     var isRefreshing by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
+    val api = extensionManager.loadedExtensions[extension]
+
     RefreshablePreferenceLayout(
         label = extension?.name ?: stringResource(strings.ext_not_found),
         backArrowVisible = true,
         isExpandedScreen = true,
+        actions = {
+            if (api == null || !api.hasSettings) {
+                IconButton(
+                    enabled = api != null,
+                    onClick = { navController.navigate("${SettingsRoutes.ExtensionSettings.route}/{extensionId}") },
+                ) {
+                    Icon(
+                        painter = painterResource(drawables.settings),
+                        contentDescription = stringResource(strings.settings),
+                    )
+                }
+            }
+        },
         isRefreshing = isRefreshing,
         onRefresh = {
             isRefreshing = true

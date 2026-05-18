@@ -36,14 +36,17 @@ abstract class RunnerBuilder(
     }
 }
 
-object Runner {
-    val runnerBuilders = mutableListOf<RunnerBuilder>()
+object RunnerManager {
+    private val _runnerBuilders = mutableListOf<RunnerBuilder>()
+
+    val runnerBuilders: List<RunnerBuilder>
+        get() = _runnerBuilders.toList()
 
     init {
         val htmlExtensions = BuiltinFileType.HTML.extensions.joinToString("|")
         val markdownExtensions = BuiltinFileType.MARKDOWN.extensions.joinToString("|")
 
-        runnerBuilders.apply {
+        _runnerBuilders.apply {
             add(
                 object :
                     RunnerBuilder(
@@ -72,6 +75,16 @@ object Runner {
                     ) {}
             )
         }
+    }
+
+    fun registerRunner(runnerBuilder: RunnerBuilder) {
+        if (!_runnerBuilders.contains(runnerBuilder)) {
+            _runnerBuilders.add(runnerBuilder)
+        }
+    }
+
+    fun unregisterRunner(runnerBuilder: RunnerBuilder) {
+        _runnerBuilders.remove(runnerBuilder)
     }
 
     fun isRunnable(fileObject: FileObject): Boolean {

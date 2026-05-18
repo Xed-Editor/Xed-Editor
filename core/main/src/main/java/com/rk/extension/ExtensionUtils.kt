@@ -2,6 +2,7 @@ package com.rk.extension
 
 import android.app.Application
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.App
 import com.rk.file.FileObject
 import com.rk.file.copyToTempDir
 import com.rk.utils.application
@@ -59,8 +60,10 @@ fun LocalExtension.load(application: Application) = run {
         }
 
     if (ExtensionAPI::class.java.isAssignableFrom(mainClassInstance)) {
+        val extContext = ExtensionContext(extension = this, hostContext = application)
         val instance =
-            mainClassInstance.getDeclaredConstructor().newInstance() as? ExtensionAPI
+            mainClassInstance.getDeclaredConstructor(ExtensionContext::class.java).newInstance(extContext)
+                as? ExtensionAPI
                 ?: return@run Result.failure(
                     RuntimeException(
                         "Failed to instantiate main class '${mainClassInstance.name}' for extension '${manifest.name}'. The class could not be cast to ExtensionAPI. Ensure it implements the ExtensionAPI interface and has a public no-argument constructor."
@@ -68,7 +71,7 @@ fun LocalExtension.load(application: Application) = run {
                 )
 
         try {
-            instance.onExtensionLoaded(this)
+            instance.onExtensionLoaded()
         } catch (err: ClassNotFoundException) {
             return@run Result.failure(
                 RuntimeException(
@@ -92,7 +95,7 @@ fun LocalExtension.load(application: Application) = run {
             )
         }
 
-        loadedExtensions[this] = instance
+        App.extensionManager.loadedExtensions[this] = instance
         Result.success(instance)
     } else {
         Result.failure(

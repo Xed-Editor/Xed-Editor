@@ -35,6 +35,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object ExtensionDetail : SettingsRoutes("extension_detail")
 
+    data object ExtensionSettings : SettingsRoutes("extension_settings")
+
     data object DeveloperOptions : SettingsRoutes("developer_options")
 
     data object AppLogs : SettingsRoutes("app_logs")

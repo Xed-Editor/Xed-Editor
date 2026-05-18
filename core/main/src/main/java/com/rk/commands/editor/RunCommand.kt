@@ -11,7 +11,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.Runner
+import com.rk.runner.RunnerManager
 import com.rk.settings.Settings
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -28,7 +28,7 @@ class RunCommand : EditorCommand() {
         CommandProvider.SaveCommand.action(editorActionContext)
         DefaultScope.launch {
             Settings.runs += 1
-            Runner.run(
+            RunnerManager.run(
                 context = activity,
                 fileObject = editorTab.file,
                 onMultipleRunners = {
@@ -40,7 +40,7 @@ class RunCommand : EditorCommand() {
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean {
-        return Runner.isRunnable(editorNonActionContext.editorTab.file)
+        return RunnerManager.isRunnable(editorNonActionContext.editorTab.file)
     }
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.run)

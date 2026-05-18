@@ -1,8 +1,6 @@
 package com.rk.activities.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,6 +25,7 @@ import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.extension.ExtensionDetail
 import com.rk.settings.extension.ExtensionScreen
+import com.rk.settings.extension.ExtensionSettings
 import com.rk.settings.git.GitSettings
 import com.rk.settings.keybinds.KeybindingsScreen
 import com.rk.settings.language.LanguageScreen
@@ -107,7 +106,15 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         ) {
             val extensionId = it.arguments?.getString("extensionId")
             val extension = extensionId?.let { App.extensionManager.getExtension(it) }
-            ExtensionDetail(extension)
+            ExtensionDetail(extension, navController)
+        }
+        composable(
+            "${SettingsRoutes.ExtensionSettings.route}/{extensionId}",
+            arguments = listOf(navArgument("extensionId", builder = { type = NavType.StringType })),
+        ) {
+            val extensionId = it.arguments?.getString("extensionId")
+            val extension = extensionId?.let { App.extensionManager.getExtension(it) }
+            ExtensionSettings(extension)
         }
         composable(SettingsRoutes.Git.route) { GitSettings() }
     }
