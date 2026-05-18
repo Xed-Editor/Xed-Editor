@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.searchViewModel
+import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
 import com.rk.icons.XedIcon
 import com.rk.resources.getString
@@ -67,6 +68,7 @@ fun FileTree(
     onFileClick: FileTreeNode.(FileTreeNode) -> Unit,
     onSearchClick: () -> Unit = {},
     viewModel: FileTreeViewModel,
+    drawerViewModel: DrawerViewModel,
 ) {
     // Auto-expand root node on first composition
     LaunchedEffect(rootNode.file) {
@@ -107,7 +109,7 @@ fun FileTree(
                 modifier = Modifier.weight(1f),
             ) {
                 if (viewModel.isAnyFileSelected(rootNode.file)) {
-                    SelectionActions(viewModel, rootNode)
+                    SelectionActions(viewModel, drawerViewModel, rootNode)
                 } else {
                     FileTreeActions(viewModel, onSearchClick)
                 }
@@ -143,7 +145,7 @@ fun FileTree(
 }
 
 @Composable
-private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNode) {
+private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: DrawerViewModel, rootNode: FileTreeNode) {
     val selectedFiles = viewModel.getSelectedFiles(rootNode.file)
     val actions = remember(selectedFiles, rootNode.file) { getActions(selectedFiles, rootNode.file) }
     var expanded by remember { mutableStateOf(false) }
@@ -174,7 +176,8 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                         IconButton(
                             enabled = action.isEnabled(file),
                             onClick = {
-                                val context = FileActionContext(file, rootNode.file, viewModel, context)
+                                val context =
+                                    FileActionContext(file, rootNode.file, viewModel, drawerViewModel, context)
                                 action.action(context)
 
                                 viewModel.unselectAllFiles(rootNode.file)
@@ -187,7 +190,14 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                         IconButton(
                             enabled = action.isEnabled(selectedFiles),
                             onClick = {
-                                val context = MultiFileActionContext(selectedFiles, rootNode.file, viewModel, context)
+                                val context =
+                                    MultiFileActionContext(
+                                        selectedFiles,
+                                        rootNode.file,
+                                        viewModel,
+                                        drawerViewModel,
+                                        context,
+                                    )
                                 action.action(context)
 
                                 viewModel.unselectAllFiles(rootNode.file)
@@ -215,7 +225,14 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                                         leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                         enabled = action.isEnabled(file),
                                         onClick = {
-                                            val context = FileActionContext(file, rootNode.file, viewModel, context)
+                                            val context =
+                                                FileActionContext(
+                                                    file,
+                                                    rootNode.file,
+                                                    viewModel,
+                                                    drawerViewModel,
+                                                    context,
+                                                )
                                             action.action(context)
 
                                             viewModel.unselectAllFiles(rootNode.file)
@@ -230,7 +247,13 @@ private fun SelectionActions(viewModel: FileTreeViewModel, rootNode: FileTreeNod
                                         enabled = action.isEnabled(selectedFiles),
                                         onClick = {
                                             val context =
-                                                MultiFileActionContext(selectedFiles, rootNode.file, viewModel, context)
+                                                MultiFileActionContext(
+                                                    selectedFiles,
+                                                    rootNode.file,
+                                                    viewModel,
+                                                    drawerViewModel,
+                                                    context,
+                                                )
                                             action.action(context)
 
                                             viewModel.unselectAllFiles(rootNode.file)

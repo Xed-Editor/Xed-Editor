@@ -13,6 +13,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.drawerStateRef
 import com.rk.components.PropertiesDialog
 import com.rk.components.SingleInputDialog
+import com.rk.drawer.DrawerViewModel
 import com.rk.file.FileObject
 import com.rk.file.FileOperations
 import com.rk.resources.fillPlaceholders
@@ -27,7 +28,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, context: Context) {
+fun FileActionDialogs(
+    drawerViewModel: DrawerViewModel,
+    viewModel: FileTreeViewModel,
+    scope: CoroutineScope,
+    context: Context,
+) {
     if (viewModel.showRenameDialog) {
         val file = viewModel.renameFile ?: return
         SingleInputDialog(
@@ -91,7 +97,7 @@ fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, conte
                                     }
 
                                     if (file == root) {
-                                        removeProject(file, true)
+                                        drawerViewModel.removeFileTreeTab(file, true)
                                     }
 
                                     MainActivity.instance?.viewModel?.also { viewModel ->
@@ -192,7 +198,7 @@ fun FileActionDialogs(viewModel: FileTreeViewModel, scope: CoroutineScope, conte
         ProjectCloseConfirmationDialog(
             projectName = root.getAppropriateName(),
             onConfirm = {
-                removeProject(root)
+                drawerViewModel.removeFileTreeTab(root)
                 viewModel.closeCloseProjectConfirmation()
             },
             onDismiss = { viewModel.closeCloseProjectConfirmation() },

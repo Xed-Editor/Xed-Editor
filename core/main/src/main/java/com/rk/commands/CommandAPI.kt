@@ -3,14 +3,21 @@ package com.rk.commands
 import android.app.Activity
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
+import com.rk.drawer.DrawerViewModel
 import com.rk.editor.Editor
 import com.rk.icons.Icon
 import com.rk.lsp.LspConnector
 import com.rk.tabs.editor.EditorTab
 
-data class CommandContext(private val provider: () -> MainViewModel) {
+data class CommandContext(
+    private val mainViewModelProvider: () -> MainViewModel,
+    private val drawerViewModelProvider: () -> DrawerViewModel,
+) {
     val mainViewModel: MainViewModel
-        get() = provider()
+        get() = mainViewModelProvider()
+
+    val drawerViewModel: DrawerViewModel
+        get() = drawerViewModelProvider()
 }
 
 data class ActionContext(val currentActivity: Activity)
@@ -29,7 +36,11 @@ data class LspActionContext(
 data class LspNonActionContext(val editorTab: EditorTab, val lspConnector: LspConnector)
 
 abstract class Command {
-    protected val commandContext = CommandContext { MainActivity.instance!!.viewModel }
+    protected val commandContext =
+        CommandContext(
+            mainViewModelProvider = { MainActivity.instance!!.viewModel },
+            drawerViewModelProvider = { MainActivity.instance!!.drawerViewModel },
+        )
     abstract val id: String
     open val prefix: String? = null
 

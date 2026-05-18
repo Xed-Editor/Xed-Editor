@@ -1,13 +1,7 @@
-package com.rk.filetree
+package com.rk.drawer
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.os.storage.StorageManager
-import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
@@ -30,12 +24,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
@@ -48,7 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,199 +52,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
-import com.rk.DefaultScope
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.gitViewModel
-import com.rk.components.AddDialogItem
 import com.rk.components.DoubleInputDialog
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-import com.rk.file.child
-import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
-import com.rk.git.GitTab
+import com.rk.filetree.ProjectCloseConfirmationDialog
 import com.rk.git.ProgressCoordinator
-import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
-import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.application
 import com.rk.utils.dialog
-import com.rk.utils.readObject
-import com.rk.utils.toast
-import com.rk.utils.writeObject
-import java.io.File
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
+import java.io.File
 
-object DrawerPersistence {
-    private val saveMutex = Mutex()
-
-    private const val DRAWER_TABS = "drawerTabs"
-    private const val CURRENT_DRAWER_TAB = "currentDrawerTab"
-    private const val EXPANDED_FILE_TREE_NODES = "expandedFileTree"
-
-    suspend fun saveState() {
-        saveMutex.withLock {
-            val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
-            val serializableList = ArrayList(drawerTabs)
-            file.writeObject(serializableList)
-
-            val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
-            if (currentDrawerTab != null) {
-                currentTabFile.writeObject(currentDrawerTab!!)
-            } else {
-                currentTabFile.delete()
-            }
-
-            val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
-            fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
-        }
-    }
-
-    suspend fun restoreState() {
-        saveMutex.withLock {
-            runCatching {
-                    val loadedTabs =
-                        withContext(Dispatchers.IO) {
-                            val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
-
-                            if (file.exists() && file.canRead()) {
-                                file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
-                            } else {
-                                emptyList()
-                            }
-                        }
-
-                    // Update the existing state list on Main thread
-                    withContext(Dispatchers.Main) {
-                        drawerTabs.clear()
-                        drawerTabs.addAll(loadedTabs)
-                    }
-
-                    val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
-                    if (currentTabFile.exists() && currentTabFile.canRead()) {
-                        selectTab(currentTabFile.readObject() as DrawerTab)
-                    }
-
-                    val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
-                    if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
-                        fileTreeViewModel
-                            .get()
-                            ?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
-                    }
-                }
-                .onFailure {
-                    it.printStackTrace()
-                    toast(strings.project_restore_failed)
-                }
-        }
-    }
-}
-
-fun createServices() {
-    serviceTabs.clear()
-    serviceTabs.add(GitTab(gitViewModel.get()!!))
-}
-
-var drawerTabs = mutableStateListOf<DrawerTab>()
-var serviceTabs = mutableStateListOf<DrawerTab>()
-var currentDrawerTab by mutableStateOf<DrawerTab?>(null)
-var currentServiceTab by mutableStateOf<DrawerTab?>(null)
-
-@OptIn(DelicateCoroutinesApi::class)
-fun addProject(fileObject: FileObject, save: Boolean = false) {
-    val alreadyExistingProject = drawerTabs.find { it is FileTreeTab && it.root == fileObject }
-    if (alreadyExistingProject != null) {
-        selectTab(alreadyExistingProject)
-        return
-    }
-    val tab = FileTreeTab(fileObject)
-    tab.onAdded()
-    drawerTabs.add(tab)
-    selectTab(tab)
-    if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun addProject(tab: DrawerTab, save: Boolean = false) {
-    tab.onAdded()
-    drawerTabs.add(tab)
-    selectTab(tab)
-    if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun removeProject(fileObject: FileObject, save: Boolean = false) {
-    val index = drawerTabs.indexOfFirst { it is FileTreeTab && it.root == fileObject }
-    if (index == -1) return
-
-    if (currentDrawerTab == drawerTabs[index]) {
-        val tabBefore = drawerTabs.getOrNull(index - 1)
-        val tabAfter = drawerTabs.getOrNull(index + 1)
-        selectTab(tabBefore ?: tabAfter)
-    }
-
-    drawerTabs[index].onRemoved()
-    drawerTabs.removeAt(index)
-
-    if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun removeProject(tab: DrawerTab, save: Boolean = false) {
-    val index = drawerTabs.indexOf(tab)
-    if (index == -1) return
-
-    if (currentDrawerTab == drawerTabs[index]) {
-        val tabBefore = drawerTabs.getOrNull(index - 1)
-        val tabAfter = drawerTabs.getOrNull(index + 1)
-        selectTab(tabBefore ?: tabAfter)
-    }
-
-    drawerTabs[index].onRemoved()
-    drawerTabs.removeAt(index)
-
-    if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
-    }
-}
-
-fun validateValue(value: String): String? {
+private fun validateValue(value: String): String? {
     return when {
         value.isBlank() -> strings.value_empty_err.getString()
         else -> null
     }
 }
 
-fun selectTab(tab: DrawerTab?) {
-    currentDrawerTab = tab
-    currentServiceTab = null
-}
-
-var isLoading by mutableStateOf(true)
-
 @Composable
 fun DrawerContent(fullscreen: Boolean) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val mainActivity = LocalActivity.current as MainActivity
+    val viewModel = mainActivity.drawerViewModel
 
     val openFolder =
         rememberLauncherForActivityResult(
@@ -269,13 +95,13 @@ fun DrawerContent(fullscreen: Boolean) {
                         }
                         .onFailure { it.printStackTrace() }
 
-                    scope.launch { addProject(it.toFileObject(expectedIsFile = false)) }
+                    scope.launch { viewModel.addFileTreeTab(it.toFileObject(expectedIsFile = false)) }
                 }
             },
         )
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        if (isLoading) {
+        if (viewModel.isLoading) {
             CircularProgressIndicator()
         } else {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
@@ -369,7 +195,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                                 repoURLError = null
                                                 repoBranchError = null
                                                 if (success) {
-                                                    addProject(fileObject)
+                                                    viewModel.addFileTreeTab(fileObject)
                                                 }
                                             },
                                         )
@@ -387,22 +213,22 @@ fun DrawerContent(fullscreen: Boolean) {
                 ) {
                     Column(modifier = Modifier.fillMaxHeight()) {
                         LazyColumn(modifier = Modifier.weight(1f, fill = true), state = lazyListState) {
-                            items(drawerTabs) { tab ->
+                            items(items = viewModel.drawerTabs) { tab ->
                                 if (!tab.isSupported()) return@items
                                 NavigationRailItem(
-                                    selected = currentDrawerTab == tab,
+                                    selected = viewModel.currentDrawerTab == tab,
                                     icon = { XedIcon(tab.getIcon()) },
                                     onClick = {
-                                        if (currentDrawerTab == tab && currentServiceTab == null) {
+                                        if (viewModel.currentDrawerTab == tab && viewModel.currentServiceTab == null) {
                                             closeProjectDialog = true
                                         } else {
-                                            selectTab(tab)
+                                            viewModel.selectDrawerTab(tab)
                                         }
                                     },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                     colors =
                                         NavigationRailItemDefaults.colors().let {
-                                            if (currentServiceTab == null) it
+                                            if (viewModel.currentServiceTab == null) it
                                             else
                                                 it.copy(
                                                     selectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -428,16 +254,16 @@ fun DrawerContent(fullscreen: Boolean) {
                         if (showHorizontalDivider) HorizontalDivider()
 
                         Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
-                            serviceTabs.forEach { tab ->
+                            viewModel.serviceTabs.forEach { tab ->
                                 if (!tab.isSupported()) return@forEach
                                 NavigationRailItem(
-                                    selected = currentServiceTab == tab,
+                                    selected = viewModel.currentServiceTab == tab,
                                     icon = { XedIcon(icon = tab.getIcon()) },
                                     onClick = {
-                                        if (currentServiceTab == tab) {
-                                            currentServiceTab = null
+                                        if (viewModel.currentServiceTab == tab) {
+                                            viewModel.unselectServiceTab()
                                         } else {
-                                            currentServiceTab = tab
+                                            viewModel.selectServiceTab(tab)
                                         }
                                     },
                                     label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -451,8 +277,8 @@ fun DrawerContent(fullscreen: Boolean) {
                 VerticalDivider()
 
                 Surface {
-                    Crossfade(targetState = currentDrawerTab, label = "file tree") { tab ->
-                        if (currentServiceTab == null) {
+                    Crossfade(targetState = viewModel.currentDrawerTab, label = "file tree") { tab ->
+                        if (viewModel.currentServiceTab == null) {
                             if (tab != null) {
                                 tab.Content(modifier = Modifier.fillMaxSize())
                             } else {
@@ -476,16 +302,16 @@ fun DrawerContent(fullscreen: Boolean) {
                         }
                     }
 
-                    Crossfade(targetState = currentServiceTab) { tab ->
+                    Crossfade(targetState = viewModel.currentServiceTab) { tab ->
                         tab?.Content(modifier = Modifier.fillMaxSize())
                     }
                 }
 
                 if (showAddDialog) {
-                    AddProjectDialog(
+                    AddProjectSheet(
                         onDismiss = { showAddDialog = false },
                         openFolder = openFolder,
-                        onAddProject = { fileObject -> scope.launch { addProject(fileObject, true) } },
+                        onAddProject = { fileObject -> scope.launch { viewModel.addFileTreeTab(fileObject, true) } },
                         showPrivateFileWarning = { callback ->
                             dialog(
                                 title = strings.attention.getString(),
@@ -553,141 +379,18 @@ fun DrawerContent(fullscreen: Boolean) {
                     )
                 }
 
+                val currentDrawerTab = viewModel.currentDrawerTab
                 if (closeProjectDialog && currentDrawerTab != null) {
                     ProjectCloseConfirmationDialog(
-                        projectName = currentDrawerTab!!.getName(),
+                        projectName = currentDrawerTab.getName(),
                         onConfirm = {
                             closeProjectDialog = false
-                            removeProject(currentDrawerTab!!)
+                            viewModel.removeDrawerTab(currentDrawerTab)
                         },
                         onDismiss = { closeProjectDialog = false },
                     )
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AddProjectDialog(
-    onDismiss: () -> Unit,
-    onAddProject: (FileObject) -> Unit,
-    openFolder: ManagedActivityResultLauncher<Uri?, Uri?>,
-    showPrivateFileWarning: (onOK: () -> Unit) -> Unit,
-    showGitCloneDialog: () -> Unit,
-) {
-    val context = LocalContext.current
-    val activity = context as? MainActivity
-    val lifecycleScope = remember { activity?.lifecycleScope ?: DefaultScope }
-
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
-            AddDialogItem(
-                icon = Icon.DrawableRes(drawables.file_symlink),
-                title = stringResource(strings.open_directory),
-                description = stringResource(strings.open_dir_desc),
-                onClick = {
-                    openFolder.launch(null)
-                    onDismiss()
-                },
-            )
-
-            // Open Path option
-            val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-            val isManager = is11Plus && Environment.isExternalStorageManager()
-            val legacyPermission =
-                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) !=
-                    PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                        PackageManager.PERMISSION_GRANTED
-
-            val storage = Environment.getExternalStorageDirectory()
-            if ((isManager || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()) {
-                AddDialogItem(
-                    icon = Icon.DrawableRes(drawables.android),
-                    title = stringResource(strings.internal_storage),
-                    description = stringResource(strings.open_internal_storage),
-                    onClick = {
-                        addProject(FileWrapper(storage))
-                        onDismiss()
-                    },
-                )
-            }
-
-            if (isManager) {
-                val storageManager = context.getSystemService(StorageManager::class.java)
-                val volumes = storageManager.storageVolumes
-
-                volumes.forEach { volume ->
-                    val root = volume.directory ?: return@forEach
-                    if (root == storage) return@forEach
-                    if (!root.canRead() || !root.canWrite() || root.listFiles() == null) return@forEach
-
-                    val name = volume.getDescription(context)
-                    val removable = volume.isRemovable
-                    val description = if (removable) strings.open_removable_storage else strings.open_internal_storage
-
-                    AddDialogItem(
-                        icon = Icon.DrawableRes(drawables.sd_card),
-                        title = name,
-                        description = stringResource(description),
-                    ) {
-                        addProject(FileWrapper(root))
-                        onDismiss()
-                    }
-                }
-            }
-
-            if (InbuiltFeatures.debugMode.state.value) {
-                AddDialogItem(
-                    icon = Icon.DrawableRes(drawables.build),
-                    title = stringResource(strings.private_files),
-                    description = stringResource(strings.private_files_desc),
-                    onClick = {
-                        if (!Settings.has_shown_private_data_dir_warning) {
-                            showPrivateFileWarning {
-                                Settings.has_shown_private_data_dir_warning = true
-                                lifecycleScope.launch { onAddProject(FileWrapper(activity!!.filesDir.parentFile!!)) }
-                            }
-                        } else {
-                            lifecycleScope.launch { onAddProject(FileWrapper(activity!!.filesDir.parentFile!!)) }
-                        }
-                        onDismiss()
-                    },
-                )
-            }
-
-            // Clone repository option
-            if (InbuiltFeatures.git.state.value) {
-                AddDialogItem(
-                    icon = Icon.DrawableRes(drawables.git),
-                    title = stringResource(strings.clone_repo),
-                    description = stringResource(strings.clone_repo_desc),
-                    onClick = {
-                        showGitCloneDialog()
-                        onDismiss()
-                    },
-                )
-            }
-
-            // Terminal Home option
-            AddDialogItem(
-                icon = Icon.DrawableRes(drawables.terminal),
-                title = stringResource(strings.terminal_home),
-                description = stringResource(strings.terminal_home_desc),
-                onClick = {
-                    if (!Settings.has_shown_terminal_dir_warning) {
-                        showPrivateFileWarning {
-                            Settings.has_shown_terminal_dir_warning = true
-                            lifecycleScope.launch { onAddProject(FileWrapper(sandboxHomeDir())) }
-                        }
-                    } else {
-                        lifecycleScope.launch { onAddProject(FileWrapper(sandboxHomeDir())) }
-                    }
-                    onDismiss()
-                },
-            )
         }
     }
 }

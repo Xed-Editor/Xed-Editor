@@ -48,6 +48,7 @@ import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf
+import com.rk.drawer.DrawerViewModel
 import com.rk.editor.preloadSelectionColor
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
@@ -74,6 +75,7 @@ import kotlinx.coroutines.launch
 fun MainContent(
     innerPadding: PaddingValues,
     mainViewModel: MainViewModel,
+    drawerViewModel: DrawerViewModel,
     fileTreeViewModel: FileTreeViewModel,
     drawerState: DrawerState,
 ) {
@@ -82,7 +84,7 @@ fun MainContent(
 
     preloadSelectionColor()
 
-    FileActionDialogs(fileTreeViewModel, scope, context)
+    FileActionDialogs(drawerViewModel, fileTreeViewModel, scope, context)
 
     if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
         val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)
@@ -297,6 +299,8 @@ private fun TabItemContent(
     val context = LocalContext.current
     val density = LocalDensity.current
 
+    val drawerViewModel = (context as MainActivity).drawerViewModel
+
     val isSelected = mainViewModel.currentTabIndex == index
     val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
 
@@ -382,7 +386,8 @@ private fun TabItemContent(
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                 enabled = action.isEnabled(it),
                                 onClick = {
-                                    val context = FileActionContext(it, root, fileTreeViewModel, context)
+                                    val context =
+                                        FileActionContext(it, root, fileTreeViewModel, drawerViewModel, context)
                                     action.action(context)
                                     showFileActionMenu = false
                                 },
@@ -395,7 +400,8 @@ private fun TabItemContent(
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                 enabled = action.isEnabled(files),
                                 onClick = {
-                                    val context = MultiFileActionContext(files, root, fileTreeViewModel, context)
+                                    val context =
+                                        MultiFileActionContext(files, root, fileTreeViewModel, drawerViewModel, context)
                                     action.action(context)
                                     showFileActionMenu = false
                                 },
