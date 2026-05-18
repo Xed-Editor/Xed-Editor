@@ -1,7 +1,6 @@
 package com.rk.commands.editor
 
 import android.view.KeyEvent
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.EditorNonActionContext
@@ -14,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class SaveCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class SaveCommand : EditorCommand() {
     override val id: String = "editor.save"
 
     override fun getLabel(): String = strings.save.getString()

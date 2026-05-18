@@ -2,7 +2,6 @@ package com.rk.commands.global
 
 import android.view.KeyEvent
 import com.rk.commands.ActionContext
-import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
 import com.rk.components.addDialog
@@ -11,7 +10,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class NewFileCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
+class NewFileCommand : GlobalCommand() {
     override val id: String = "global.new_file"
 
     override fun getLabel(): String = strings.new_file.getString()

@@ -1,7 +1,6 @@
 package com.rk.commands.lsp
 
 import com.rk.DefaultScope
-import com.rk.commands.CommandContext
 import com.rk.commands.LspActionContext
 import com.rk.commands.LspCommand
 import com.rk.commands.LspNonActionContext
@@ -11,7 +10,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class FormatSelectionCommand(commandContext: CommandContext) : LspCommand(commandContext) {
+class FormatSelectionCommand : LspCommand() {
     override val id: String = "lsp.format_selection"
 
     override fun getLabel(): String = strings.format_selection.getString()

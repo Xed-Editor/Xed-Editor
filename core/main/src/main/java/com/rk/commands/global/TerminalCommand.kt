@@ -4,7 +4,6 @@ import android.content.Intent
 import android.view.KeyEvent
 import com.rk.activities.terminal.Terminal
 import com.rk.commands.ActionContext
-import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
 import com.rk.icons.Icon
@@ -14,7 +13,7 @@ import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.showTerminalNotice
 
-class TerminalCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
+class TerminalCommand : GlobalCommand() {
     override val id: String = "global.terminal"
 
     override fun getLabel(): String = strings.terminal.getString()

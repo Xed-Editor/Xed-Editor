@@ -1,7 +1,6 @@
 package com.rk.commands.editor
 
 import android.view.KeyEvent
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.KeyCombination
@@ -10,7 +9,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class JumpToLineCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class JumpToLineCommand : EditorCommand() {
     override val id: String = "editor.jump_to_line"
 
     override fun getLabel(): String = strings.jump_to_line.getString()

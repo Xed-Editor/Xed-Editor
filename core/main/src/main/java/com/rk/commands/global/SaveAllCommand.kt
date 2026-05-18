@@ -2,7 +2,6 @@ package com.rk.commands.global
 
 import android.view.KeyEvent
 import com.rk.commands.ActionContext
-import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
 import com.rk.icons.Icon
@@ -14,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class SaveAllCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
+class SaveAllCommand : GlobalCommand() {
     override val id: String = "global.save_all"
 
     override fun getLabel(): String = strings.save_all.getString()

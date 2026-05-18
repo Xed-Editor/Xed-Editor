@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.rk.commands.Command
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.ToggleableCommand
@@ -38,7 +37,7 @@ object EmulateKeyCommandSection {
     const val KEY_SECTION = 1
 }
 
-class EmulateKeyCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class EmulateKeyCommand : EditorCommand() {
     val modifierState = ModifierState()
 
     override val id: String = "editor.emulate_key"
@@ -83,7 +82,7 @@ class EmulateKeyCommand(commandContext: CommandContext) : EditorCommand(commandC
             val keyDisplayName = KeyUtils.getKeyDisplayName(metaEvent.metaKeyCode)
             val keyIcon = KeyUtils.getKeyIcon(metaEvent.keyCode)
 
-            object : EditorCommand(commandContext), ToggleableCommand {
+            object : EditorCommand(), ToggleableCommand {
                 override val id: String = "editor.emulate_key.${keyDisplayName.lowercase()}"
 
                 override val preferText: Boolean = metaEvent.keyCode != KeyEvent.KEYCODE_SHIFT_LEFT
@@ -117,7 +116,7 @@ class EmulateKeyCommand(commandContext: CommandContext) : EditorCommand(commandC
                 // To avoid confusion, do not show KEYCODE variants of modifier keys
                 if (KeyUtils.isModifierKey(keyCode)) return@mapNotNull null
 
-                object : EditorCommand(commandContext) {
+                object : EditorCommand() {
                     override val id: String = "editor.emulate_key.${keyName.lowercase()}"
 
                     override fun getLabel(): String = keyDisplayName

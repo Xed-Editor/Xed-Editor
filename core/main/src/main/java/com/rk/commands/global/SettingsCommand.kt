@@ -4,7 +4,6 @@ import android.content.Intent
 import android.view.KeyEvent
 import com.rk.activities.settings.SettingsActivity
 import com.rk.commands.ActionContext
-import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
 import com.rk.icons.Icon
@@ -12,7 +11,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class SettingsCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
+class SettingsCommand : GlobalCommand() {
     override val id: String = "global.settings"
 
     override fun getLabel(): String = strings.settings.getString()

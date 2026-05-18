@@ -120,9 +120,8 @@ dependencies {
     // Modules
     implementation(project(":core:resources"))
     implementation(project(":core:components"))
-    implementation(project(":core:extension"))
-    implementation(project(":core:terminal-view"))
-    implementation(project(":core:terminal-emulator"))
+    implementation(project(":terminal-view"))
+    implementation(project(":terminal-emulator"))
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))

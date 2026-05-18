@@ -1,7 +1,6 @@
 package com.rk.commands.editor
 
 import android.view.KeyEvent
-import com.rk.commands.CommandContext
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.KeyCombination
@@ -10,7 +9,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-class CopyCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+class CopyCommand : EditorCommand() {
     override val id: String = "editor.copy"
 
     override fun getLabel(): String = strings.copy.getString()

@@ -1,6 +1,7 @@
 package com.rk.commands
 
 import android.app.Activity
+import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.editor.Editor
 import com.rk.icons.Icon
@@ -27,7 +28,8 @@ data class LspActionContext(
 
 data class LspNonActionContext(val editorTab: EditorTab, val lspConnector: LspConnector)
 
-abstract class Command(val commandContext: CommandContext) {
+abstract class Command {
+    protected val commandContext = CommandContext { MainActivity.instance!!.viewModel }
     abstract val id: String
     open val prefix: String? = null
 
@@ -73,7 +75,7 @@ abstract class Command(val commandContext: CommandContext) {
         sectionId: Int = this.sectionId,
         defaultKeybinds: KeyCombination? = this.defaultKeybinds,
     ): Command {
-        return object : Command(commandContext) {
+        return object : Command() {
             override val id: String = id
 
             override val prefix: String? = prefix
@@ -115,9 +117,9 @@ interface ToggleableCommand {
     fun isOn(): Boolean
 }
 
-abstract class GlobalCommand(commandContext: CommandContext) : Command(commandContext)
+abstract class GlobalCommand : Command()
 
-abstract class EditorCommand(commandContext: CommandContext) : Command(commandContext) {
+abstract class EditorCommand : Command() {
     final override fun action(actionContext: ActionContext) {
         val currentTab = commandContext.mainViewModel.currentTab
         val editor = (currentTab as? EditorTab)?.editorState?.editor?.get() ?: return
@@ -143,7 +145,7 @@ abstract class EditorCommand(commandContext: CommandContext) : Command(commandCo
     open fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean = true
 }
 
-abstract class LspCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+abstract class LspCommand : EditorCommand() {
     final override fun action(editorActionContext: EditorActionContext) {
         val currentTab = editorActionContext.editorTab
         val editor = editorActionContext.editor
