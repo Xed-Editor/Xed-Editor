@@ -12,7 +12,7 @@ import java.net.URL
 import java.security.SecureRandom
 
 object IdeBridge {
-    data class Info(val port: Int, val token: String, val host: String = "127.0.0.1")
+    data class Info(val port: Int, val token: String, val workspacePath: String, val host: String = "127.0.0.1")
 
     private var server: IdeBridgeServer? = null
 
@@ -32,7 +32,7 @@ object IdeBridge {
     fun getBridgeInfo(): Info? = synchronized(stateLock) {
         val s = server ?: return@synchronized null
         val t = token ?: return@synchronized null
-        Info(s.port, t, host)
+        Info(s.port, t, workspacePathForResolution(), host)
     }
 
     fun getLastError(): String? = synchronized(stateLock) { lastError }
