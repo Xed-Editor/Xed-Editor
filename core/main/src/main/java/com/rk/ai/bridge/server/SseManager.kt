@@ -26,8 +26,9 @@ class SseManager(
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
     val size: Int get() = sseClients.size
     private val keepaliveIntervalMs = 15_000L
-    private val notificationQueue = LinkedBlockingQueue<Pair<String, String>>()
+    private val notificationQueue = LinkedBlockingQueue<Pair<String, String>>(1000)
     private val batchIntervalMs = 50L
+    private var lastDeadClientCheck = 0L
 
     init {
         startNotificationBatcher()
@@ -36,31 +37,45 @@ class SseManager(
     private fun startNotificationBatcher() {
         scope.launch {
             while (isActive) {
+                val deadClients = mutableListOf<String>()
                 val batch = mutableListOf<Pair<String, String>>()
                 notificationQueue.drainTo(batch)
-                if (batch.isEmpty()) {
+
+                if (batch.isNotEmpty()) {
+                    sseClients.entries.toList().forEach { entry ->
+                        val id = entry.key
+                        val writer = entry.value
+                        runCatching {
+                            synchronized(writer) {
+                                batch.forEach { (eventType, data) ->
+                                    writer.print("event: $eventType\n")
+                                    writer.print("data: $data\n\n")
+                                }
+                                writer.flush()
+                            }
+                            if (writer.checkError()) deadClients.add(id)
+                        }.onFailure { deadClients.add(id) }
+                    }
+                }
+
+                val now = System.currentTimeMillis()
+                if (deadClients.isEmpty() && batch.isNotEmpty() && now - lastDeadClientCheck < 5000) {
                     delay(batchIntervalMs)
                     continue
                 }
-                val deadClients = mutableListOf<String>()
-                sseClients.entries.toList().forEach { entry ->
-                    val id = entry.key
-                    val writer = entry.value
-                    runCatching {
-                        synchronized(writer) {
-                            batch.forEach { (eventType, data) ->
-                                writer.print("event: $eventType\n")
-                                writer.print("data: $data\n\n")
-                            }
-                            writer.flush()
-                        }
+                if (deadClients.isNotEmpty() || now - lastDeadClientCheck >= 5000) {
+                    lastDeadClientCheck = now
+                    sseClients.entries.toList().forEach { entry ->
+                        val id = entry.key
+                        val writer = entry.value
                         if (writer.checkError()) deadClients.add(id)
-                    }.onFailure { deadClients.add(id) }
+                    }
+                    if (deadClients.isNotEmpty()) {
+                        deadClients.toSet().forEach { sseClients.remove(it) }
+                        onClientsChanged(sseClients.size)
+                    }
                 }
-                if (deadClients.isNotEmpty()) {
-                    deadClients.forEach { sseClients.remove(it) }
-                    onClientsChanged(sseClients.size)
-                }
+                if (batch.isEmpty()) delay(batchIntervalMs)
             }
         }
     }
@@ -95,12 +110,16 @@ class SseManager(
         writer.flush()
     }
 
+    private companion object {
+        private const val PIPE_BUFFER_SIZE = 65536
+    }
+
     private fun createStream(sessionId: String): Pair<NanoHTTPD.Response, PrintWriter> {
         val output = PipedOutputStream()
         val writer = PrintWriter(output, true)
         sseClients[sessionId] = writer
         onClientsChanged(sseClients.size)
-        val input = PipedInputStream(output)
+        val input = PipedInputStream(output, PIPE_BUFFER_SIZE)
         val response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/event-stream", input, -1L).apply {
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")

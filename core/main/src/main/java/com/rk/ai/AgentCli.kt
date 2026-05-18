@@ -128,14 +128,14 @@ object AgentCli {
             ShellUtils.runUbuntu(
                 workingDir = workingDir,
                 extraEnv = extraEnv,
-                command = command,
+                command = *command,
                 timeoutSeconds = timeoutSeconds
             )
         } else {
             ShellUtils.runUbuntuStreaming(
                 workingDir = workingDir,
                 extraEnv = extraEnv,
-                command = command,
+                command = *command,
                 timeoutSeconds = timeoutSeconds,
                 onStdout = onOutput,
                 onStderr = onOutput,

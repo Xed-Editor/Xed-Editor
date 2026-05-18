@@ -47,15 +47,17 @@ object DiscoveryFileWriter {
 
     private fun writeAgentConfig(agentName: String, info: BridgeInfo) {
         runCatching {
-            val configDir = sandboxHomeDir().let { File(it, AiConfig.Discovery.agentConfigDir(agentName)) }
+            val sandboxHome = sandboxHomeDir()
+            if (!sandboxHome.exists()) sandboxHome.mkdirs()
+            val configDir = File(sandboxHome, AiConfig.Discovery.agentConfigDir(agentName))
             configDir.mkdirs()
             val configFile = File(configDir, AiConfig.Discovery.agentConfigFile(agentName))
             val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
 
-            val existing = runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-
-            if (!configFile.exists()) {
-                configFile.writeText(gson.toJson(existing))
+            val existing = if (configFile.exists()) {
+                runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
+            } else {
+                JsonObject()
             }
 
             if (agentName == "gemini") {

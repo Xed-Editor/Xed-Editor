@@ -60,6 +60,22 @@ object AiSessionManager {
         return requestedCwd.startsWith("$existingCwd/")
     }
 
+    fun updateCwd(newCwd: String) {
+        val s = session ?: return
+        if (!s.isRunning) return
+        val oldCwd = cwd
+        cwd = newCwd
+        IdeBridge.setWorkspacePath(newCwd)
+        if (newCwd != oldCwd) {
+            try {
+                s.write("cd \"$newCwd\"\r")
+                d("Session cwd updated: $oldCwd -> $newCwd")
+            } catch (e: Exception) {
+                d("Failed to cd session: ${e.message}")
+            }
+        }
+    }
+
     suspend fun startSession(
         activity: Activity,
         viewModel: MainViewModel,

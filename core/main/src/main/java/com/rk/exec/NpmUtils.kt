@@ -6,7 +6,7 @@ object NpmUtils {
     suspend fun getInstalledVersion(packageName: String): String? {
         val result =
             ShellUtils.runUbuntu(
-                command = arrayOf("npm", "list", "-g", "--prefix", "/usr", packageName, "--depth=0", "--json"),
+                command = *arrayOf("npm", "list", "-g", "--prefix", "/usr", packageName, "--depth=0", "--json"),
                 timeoutSeconds = 5L,
             )
         if (result.timedOut || result.exitCode != 0) return null
@@ -20,7 +20,7 @@ object NpmUtils {
 
     suspend fun getLatestVersion(packageName: String): String? {
         val result =
-            ShellUtils.runUbuntu(command = arrayOf("npm", "view", packageName, "version"), timeoutSeconds = 20L)
+            ShellUtils.runUbuntu(command = *arrayOf("npm", "view", packageName, "version"), timeoutSeconds = 20L)
         if (result.timedOut || result.exitCode != 0) return null
         return result.output
     }

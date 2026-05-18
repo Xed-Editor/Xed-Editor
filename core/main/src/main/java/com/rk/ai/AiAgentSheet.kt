@@ -114,8 +114,8 @@ fun AiAgentSheet(
             return
         }
         if (!forceRestart && extraArgs.isEmpty() && AiSessionManager.canReuseFor(workingDir)) {
-            IdeBridge.setWorkspacePath(workingDir)
-            appendLog("Reusing agent session: ${AiSessionManager.cwd}")
+            AiSessionManager.updateCwd(workingDir)
+            appendLog("Reusing agent session: $workingDir")
             return
         }
         AiSessionManager.stopSession()
