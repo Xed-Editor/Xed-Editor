@@ -654,4 +654,6 @@
     <string name="auto_closing_bracket_desc">Insère automatiquement la parenthèse fermante correspondante</string>
     <string name="confirm_exit_dialog">Confirmer la fenêtre de fermeture</string>
     <string name="confirm_exit_dialog_desc">Affiche un message de confirmation avant de fermer le logiciel</string>
+    <string name="sort_lines_ascending">Trier les lignes (ascendant)</string>
+    <string name="sort_lines_descending">Trier les lignes (descendant)</string>
 </resources>
