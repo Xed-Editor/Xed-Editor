@@ -658,4 +658,6 @@
     <string name="auto_closing_bracket_desc">Automatycznie wstawiaj pasujacy nawias zamykajacy</string>
     <string name="confirm_exit_dialog">Potwierdzenie wyjścia</string>
     <string name="confirm_exit_dialog_desc">Pokaż dialog potwierdzający wyjście z aplikacji</string>
+    <string name="sort_lines_ascending">Sortuj linijki rosnąco</string>
+    <string name="sort_lines_descending">Sortuj linijki malejąco</string>
 </resources>
