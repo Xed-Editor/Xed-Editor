@@ -291,28 +291,34 @@ class EditorService(
                     }
 
                     val target = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
-                    if (!target.has("xed-ide")) {
-                        val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
-                        if (bridgeInfo != null) {
-                            val headers = JsonObject().apply {
-                                addProperty("Authorization", "Bearer ${bridgeInfo.token}")
-                                addProperty("authorization", "Bearer ${bridgeInfo.token}")
-                                addProperty("x-ide-token", bridgeInfo.token)
-                            }
-                            if (agent.name == "gemini") {
-                                target.add("xed-ide", JsonObject().apply {
-                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
-                                    add("headers", headers)
-                                })
-                            } else {
-                                target.add("xed-ide", JsonObject().apply {
-                                    addProperty("type", "remote")
-                                    addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
-                                    addProperty("enabled", true)
-                                    addProperty("timeout", 120000)
-                                    add("headers", headers)
-                                })
-                            }
+                    val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
+                    if (bridgeInfo != null) {
+                        val headers = JsonObject().apply {
+                            addProperty("Authorization", "Bearer ${bridgeInfo.token}")
+                            addProperty("authorization", "Bearer ${bridgeInfo.token}")
+                            addProperty("x-ide-token", bridgeInfo.token)
+                        }
+                        if (agent.name == "gemini") {
+                            target.add("xed-ide", JsonObject().apply {
+                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                add("headers", headers)
+                            })
+                        } else {
+                            target.add("xed-ide", JsonObject().apply {
+                                addProperty("type", "remote")
+                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                addProperty("enabled", true)
+                                addProperty("timeout", 120000)
+                                add("headers", headers)
+                            })
+                            val legacy = existing.getAsJsonObject("mcpServers")
+                                ?: JsonObject().also { existing.add("mcpServers", it) }
+                            legacy.add("xed-ide", JsonObject().apply {
+                                addProperty("type", "sse")
+                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/sse")
+                                addProperty("enabled", true)
+                                add("headers", headers)
+                            })
                         }
                     }
                     configFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(existing))

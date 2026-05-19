@@ -34,12 +34,12 @@ object AiConfig {
 
         fun agentConfigDir(agentName: String) = when (agentName) {
             "gemini" -> ".gemini"
-            "opencode" -> ".opencode"
+            "opencode" -> ".config/opencode"
             else -> ".config/$agentName"
         }
         fun agentConfigFile(agentName: String) = when (agentName) {
             "gemini" -> "settings.json"
-            "opencode" -> "mcp.json"
+            "opencode" -> "opencode.json"
             else -> "opencode.json"
         }
         fun agentMcpKey(agentName: String) = when (agentName) {

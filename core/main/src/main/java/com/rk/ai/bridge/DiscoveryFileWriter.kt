@@ -108,7 +108,14 @@ object DiscoveryFileWriter {
                     addProperty("timeout", 120000)
                     add("headers", headers)
                 })
-                existing.getAsJsonObject("mcpServers")?.remove("xed-ide")
+                val legacy = existing.getAsJsonObject("mcpServers")
+                    ?: JsonObject().also { existing.add("mcpServers", it) }
+                legacy.add("xed-ide", JsonObject().apply {
+                    addProperty("type", "sse")
+                    addProperty("url", "http://${info.host}:${info.port}/sse")
+                    addProperty("enabled", true)
+                    add("headers", headers)
+                })
             }
 
             configFile.writeText(gson.toJson(existing))
@@ -171,7 +178,14 @@ object DiscoveryFileWriter {
                 addProperty("timeout", 120000)
                 add("headers", headers)
             })
-            existingMcp.getAsJsonObject("mcpServers")?.remove("xed-ide")
+            val legacy = existingMcp.getAsJsonObject("mcpServers")
+                ?: JsonObject().also { existingMcp.add("mcpServers", it) }
+            legacy.add("xed-ide", JsonObject().apply {
+                addProperty("type", "sse")
+                addProperty("url", "http://${info.host}:${info.port}/sse")
+                addProperty("enabled", true)
+                add("headers", headers)
+            })
             if (agentName == "opencode" && Settings.ai_api_key.isNotBlank()) {
                 existingMcp.addProperty("apiKey", Settings.ai_api_key)
             }

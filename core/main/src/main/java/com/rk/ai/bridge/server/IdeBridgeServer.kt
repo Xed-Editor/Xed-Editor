@@ -257,9 +257,22 @@ class IdeBridgeServer(
     private fun errorJson(id: JsonElement?, code: Int, message: String): String = mcpDispatcher.errorJson(id, code, message)
 
     private fun readRequestBodyUtf8(session: IHTTPSession): Result<String> = runCatching {
-        val body = mutableMapOf<String, String>()
-        session.parseBody(body)
-        body["postData"].orEmpty()
+        val headers = session.headers
+        val contentLength = headers["content-length"]?.toIntOrNull() ?: -1
+        if (contentLength > 0) {
+            val bytes = ByteArray(contentLength)
+            var totalRead = 0
+            while (totalRead < contentLength) {
+                val read = session.inputStream.read(bytes, totalRead, contentLength - totalRead)
+                if (read == -1) break
+                totalRead += read
+            }
+            String(bytes, 0, totalRead, Charsets.UTF_8)
+        } else {
+            val body = mutableMapOf<String, String>()
+            session.parseBody(body)
+            body["postData"] ?: ""
+        }
     }
 
     private fun json(status: Response.Status, body: String): Response =

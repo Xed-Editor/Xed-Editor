@@ -25,8 +25,17 @@ configure_ai_auth_browser
 
 ensure_node() {
   if ! command_exists node || ! command_exists npm; then
-    warn "Node.js/npm is required. Installing Node.js LTS..."
-    install_nodejs
+    warn "Node.js/npm is required."
+    if command_exists apt; then
+        info "Attempting to install Node.js..."
+        install_nodejs || true
+    fi
+  fi
+  
+  if ! command_exists node; then
+    error "Node.js is not installed and could not be auto-installed."
+    error "Please run: apt update && apt install nodejs"
+    exit 1
   fi
 }
 
@@ -38,9 +47,9 @@ configure_xed_ide_integration() {
   [ -n "$IDE_PORT" ] || return 0
   [ -n "$IDE_TOKEN" ] || return 0
   
-  OPENCODE_CONFIG_DIR="$HOME/.opencode"
+  OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
   mkdir -p "$OPENCODE_CONFIG_DIR"
-  CONFIG_FILE="$OPENCODE_CONFIG_DIR/mcp.json"
+  CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
   
   if command_exists python3; then
     python3 -c "
@@ -55,6 +64,18 @@ ms = cfg.setdefault('mcp', {})
 ms['xed-ide'] = {
     'type': 'remote',
     'url': f'http://127.0.0.1:{port}/mcp',
+    'enabled': True,
+    'timeout': 120000,
+    'headers': {
+        'Authorization': f'Bearer {token}',
+        'authorization': f'Bearer {token}',
+        'x-ide-token': token
+    }
+}
+legacy = cfg.setdefault('mcpServers', {})
+legacy['xed-ide'] = {
+    'type': 'sse',
+    'url': f'http://127.0.0.1:{port}/sse',
     'enabled': True,
     'headers': {
         'Authorization': f'Bearer {token}',
@@ -84,6 +105,18 @@ cfg.mcp['xed-ide'] = {
   type: 'remote',
   url: 'http://127.0.0.1:' + idePort + '/mcp',
   enabled: true,
+  timeout: 120000,
+  headers: {
+    Authorization: 'Bearer ' + ideToken,
+    authorization: 'Bearer ' + ideToken,
+    'x-ide-token': ideToken
+  }
+};
+cfg.mcpServers = cfg.mcpServers || {};
+cfg.mcpServers['xed-ide'] = {
+  type: 'sse',
+  url: 'http://127.0.0.1:' + idePort + '/sse',
+  enabled: true,
   headers: {
     Authorization: 'Bearer ' + ideToken,
     authorization: 'Bearer ' + ideToken,
@@ -105,20 +138,19 @@ configure_xed_ide_integration
 
 # Ensure OpenCode CLI is available
 if ! command_exists opencode; then
-  info "OpenCode CLI not found. Trying npm global check..."
+  info "OpenCode CLI not found. Checking npm global list..."
   if npm list -g opencode-ai 2>/dev/null | grep -q opencode-ai; then
-    warn "opencode is in npm global list but not in PATH."
-    info "Run: npm config set prefix \$LOCAL && npm install -g opencode-ai"
-    exit 1
+    warn "opencode-ai is in npm global list but 'opencode' command is not in PATH."
+    warn "This usually means npm global bin directory is not in your PATH."
+  else
+    info "Installing OpenCode CLI..."
+    npm install -g opencode-ai@latest || true
   fi
-  info "Installing OpenCode CLI..."
-  npm install -g opencode-ai@latest
+  
   if ! command_exists opencode; then
-    warn "Installation completed but 'opencode' not in PATH."
-    info "Using npx as fallback..."
+    info "Trying npx fallback..."
     exec npx --yes opencode-ai "$@"
   fi
-  info "OpenCode CLI installed successfully."
 fi
 
 exec opencode "$@"

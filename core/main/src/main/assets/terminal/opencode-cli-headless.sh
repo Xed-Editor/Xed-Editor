@@ -32,15 +32,15 @@ configure_xed_ide_integration() {
   [ -n "$IDE_PORT" ] || return 0
   [ -n "$IDE_TOKEN" ] || return 0
   
-  OPENCODE_CONFIG_DIR="$HOME/.opencode"
+  OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
   mkdir -p "$OPENCODE_CONFIG_DIR"
-  CONFIG_FILE="$OPENCODE_CONFIG_DIR/mcp.json"
+  CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
   
   if command_exists python3; then
     python3 -c "
 import json, os
-port = os.environ.get('IDE_PORT', '${IDE_PORT}')
-token = os.environ.get('IDE_TOKEN', '${IDE_TOKEN}')
+port = os.environ.get('IDE_SERVER_PORT', '${IDE_PORT}')
+token = os.environ.get('IDE_AUTH_TOKEN', '${IDE_TOKEN}')
 try:
     with open('$CONFIG_FILE') as f: cfg = json.load(f)
 except:
@@ -49,6 +49,18 @@ ms = cfg.setdefault('mcp', {})
 ms['xed-ide'] = {
     'type': 'remote',
     'url': f'http://127.0.0.1:{port}/mcp',
+    'enabled': True,
+    'timeout': 120000,
+    'headers': {
+        'Authorization': f'Bearer {token}',
+        'authorization': f'Bearer {token}',
+        'x-ide-token': token
+    }
+}
+legacy = cfg.setdefault('mcpServers', {})
+legacy['xed-ide'] = {
+    'type': 'sse',
+    'url': f'http://127.0.0.1:{port}/sse',
     'enabled': True,
     'headers': {
         'Authorization': f'Bearer {token}',
@@ -61,7 +73,7 @@ with open('$CONFIG_FILE', 'w') as f: json.dump(cfg, f, indent=2)
   fi
   
   if [ "${fallback_to_node:-false}" = true ] || ! command_exists python3; then
-    export IDE_PORT IDE_TOKEN
+    export IDE_SERVER_PORT IDE_AUTH_TOKEN
     node <<'NODE'
 const fs = require('fs');
 const os = require('os');
@@ -69,14 +81,26 @@ const path = require('path');
 const configDir = path.join(os.homedir(), '.config', 'opencode');
 if (!fs.existsSync(configDir)) fs.mkdirSync(configDir, { recursive: true });
 const configFile = path.join(configDir, 'opencode.json');
-const idePort = process.env.IDE_PORT || '0';
-const ideToken = process.env.IDE_TOKEN || '';
+const idePort = process.env.IDE_SERVER_PORT || '0';
+const ideToken = process.env.IDE_AUTH_TOKEN || '';
 let cfg = {};
 try { cfg = JSON.parse(fs.readFileSync(configFile, 'utf8')); } catch (_) {}
 cfg.mcp = cfg.mcp || {};
 cfg.mcp['xed-ide'] = {
   type: 'remote',
   url: 'http://127.0.0.1:' + idePort + '/mcp',
+  enabled: true,
+  timeout: 120000,
+  headers: {
+    Authorization: 'Bearer ' + ideToken,
+    authorization: 'Bearer ' + ideToken,
+    'x-ide-token': ideToken
+  }
+};
+cfg.mcpServers = cfg.mcpServers || {};
+cfg.mcpServers['xed-ide'] = {
+  type: 'sse',
+  url: 'http://127.0.0.1:' + idePort + '/sse',
   enabled: true,
   headers: {
     Authorization: 'Bearer ' + ideToken,
