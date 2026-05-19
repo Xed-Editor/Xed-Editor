@@ -646,4 +646,5 @@
     <string name="confirm_exit_dialog">Dialog konfirmasi keluar</string>
     <string name="confirm_exit_dialog_desc">Tampilkan dialog konfirmasi sebelum menutup aplikasi</string>
     <string name="sort_lines_ascending">Urutkan baris secara menaik</string>
+    <string name="sort_lines_descending">Urutkan baris secara menurun</string>
 </resources>
