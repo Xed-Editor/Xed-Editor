@@ -73,6 +73,8 @@ object Settings {
     var ai_auto_apply by CachedPreference("ai_auto_apply", false)
     var ai_agent by CachedPreference("ai_agent", "")
     var ai_model by CachedPreference("ai_model", "")
+    var ai_model_gemini by CachedPreference("ai_model_gemini", "")
+    var ai_model_opencode by CachedPreference("ai_model_opencode", "")
     var ai_profiles_json by CachedPreference("ai_profiles_json", "")
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)
     var ai_api_key by CachedPreference("ai_api_key", "")

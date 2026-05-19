@@ -106,9 +106,10 @@ fun SettingsEditorScreen(navController: NavController) {
             var showAgentMenu by remember { mutableStateOf(false) }
             val agents = com.rk.ai.session.AiSessionManager.availableAgents()
             val currentAgent = com.rk.ai.session.AiSessionManager.resolveAgent(Settings.ai_agent)
+            val currentConfiguredModel = com.rk.ai.configuredModelForAgent(currentAgent)
 
             var showModelDialog by remember { mutableStateOf(false) }
-            var modelInputValue by remember { mutableStateOf(Settings.ai_model) }
+            var modelInputValue by remember(currentAgent.name) { mutableStateOf(currentConfiguredModel) }
             var showProfileMenu by remember { mutableStateOf(false) }
 
             val profiles = remember { com.rk.ai.agents.AgentProfileManager.loadProfiles() }
@@ -136,7 +137,9 @@ fun SettingsEditorScreen(navController: NavController) {
                         )
                     }
                     Spacer(Modifier.width(8.dp))
-                    val activeProfile = profiles.find { it.agentType == Settings.ai_agent && it.model == Settings.ai_model }
+                    val activeProfile = profiles.find {
+                        it.agentType == Settings.ai_agent && it.model == currentConfiguredModel
+                    }
                     Text(
                         text = activeProfile?.name ?: "Custom",
                         style = MaterialTheme.typography.bodyMedium,
@@ -150,9 +153,12 @@ fun SettingsEditorScreen(navController: NavController) {
                                     text = { Text(p.displayLabel()) },
                                     onClick = {
                                         com.rk.ai.agents.AgentProfileManager.applyProfile(p)
+                                        modelInputValue = com.rk.ai.configuredModelForAgent(
+                                            com.rk.ai.session.AiSessionManager.currentAgent
+                                        )
                                         showProfileMenu = false
                                     },
-                                    leadingIcon = if (p.agentType == Settings.ai_agent && p.model == Settings.ai_model) {
+                                    leadingIcon = if (p.agentType == Settings.ai_agent && p.model == currentConfiguredModel) {
                                         { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                                     } else null,
                                 )
@@ -186,7 +192,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = Settings.ai_model.ifEmpty { "default" },
+                        text = com.rk.ai.resolvedConfiguredModelForAgent(currentAgent).orEmpty().ifEmpty { "default" },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -232,8 +238,10 @@ fun SettingsEditorScreen(navController: NavController) {
                                 DropdownMenuItem(
                                     text = { Text(agent.displayName) },
                                     onClick = {
-                                        Settings.ai_agent = agent.name
                                         com.rk.ai.session.AiSessionManager.switchAgent(agent.name)
+                                        modelInputValue = com.rk.ai.configuredModelForAgent(
+                                            com.rk.ai.session.AiSessionManager.currentAgent
+                                        )
                                         showAgentMenu = false
                                     },
                                     leadingIcon = if (agent.name == Settings.ai_agent) {
@@ -252,8 +260,14 @@ fun SettingsEditorScreen(navController: NavController) {
                     inputLabel = stringResource(strings.ai_model),
                     inputValue = modelInputValue,
                     onInputValueChange = { modelInputValue = it },
-                    onConfirm = { Settings.ai_model = modelInputValue; showModelDialog = false },
-                    onFinish = { modelInputValue = Settings.ai_model; showModelDialog = false },
+                    onConfirm = {
+                        com.rk.ai.setConfiguredModelForAgent(currentAgent, modelInputValue, syncActiveModel = true)
+                        showModelDialog = false
+                    },
+                    onFinish = {
+                        modelInputValue = com.rk.ai.configuredModelForAgent(currentAgent)
+                        showModelDialog = false
+                    },
                 )
             }
 

@@ -2,6 +2,7 @@ package com.rk.ai.agents
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.rk.ai.setConfiguredModelForAgent
 import com.rk.settings.Settings
 
 data class AgentProfile(
@@ -48,9 +49,9 @@ object AgentProfileManager {
     }
 
     fun applyProfile(profile: AgentProfile) {
-        Settings.ai_agent = profile.agentType
-        Settings.ai_model = profile.model
-        com.rk.ai.session.AiSessionManager.switchAgent(profile.agentType)
+        val agent = com.rk.ai.session.AiSessionManager.resolveAgent(profile.agentType)
+        com.rk.ai.session.AiSessionManager.switchAgent(agent.name)
+        setConfiguredModelForAgent(agent, profile.model, syncActiveModel = true)
     }
 
     private fun defaultProfiles(): List<AgentProfile> = listOf(

@@ -33,7 +33,8 @@ object ProjectConfigLoader {
             }
         }
         config.model?.let { model ->
-            if (model.isNotBlank()) Settings.ai_model = model
+            val activeAgent = AiSessionManager.resolveAgent()
+            setConfiguredModelForAgent(activeAgent, model, syncActiveModel = true)
         }
     }
 

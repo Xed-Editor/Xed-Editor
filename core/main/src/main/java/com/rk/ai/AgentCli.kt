@@ -1,6 +1,5 @@
 package com.rk.ai
 
-import com.rk.ai.AiConfig
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.session.AgentEnvironmentBuilder
 import com.rk.exec.ShellUtils
@@ -17,11 +16,16 @@ object AgentCli {
         agent: AiAgent = com.rk.ai.session.AiSessionManager.currentAgent,
         workingDir: String? = null,
         ideBridge: IdeBridge.Info? = null,
+        model: String? = null,
         timeoutSeconds: Long = 180,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result {
         return runCli(
-            args = agent.buildArgs(listOf("--approval-mode=default", "-p", prompt), workingDir ?: ""),
+            args = agent.buildArgs(
+                listOf("--approval-mode=default", "-p", prompt),
+                workingDir ?: "",
+                model ?: resolvedConfiguredModelForAgent(agent)
+            ),
             binaryName = agent.cliBinaryName,
             workingDir = workingDir,
             ideBridge = ideBridge,
@@ -35,11 +39,16 @@ object AgentCli {
         agent: AiAgent = com.rk.ai.session.AiSessionManager.currentAgent,
         workingDir: String? = null,
         ideBridge: IdeBridge.Info? = null,
+        model: String? = null,
         timeoutSeconds: Long = 600,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result {
         return runCli(
-            args = agent.buildArgs(listOf("--approval-mode=auto_edit", "-p", prompt), workingDir ?: ""),
+            args = agent.buildArgs(
+                listOf("--approval-mode=auto_edit", "-p", prompt),
+                workingDir ?: "",
+                model ?: resolvedConfiguredModelForAgent(agent)
+            ),
             binaryName = agent.cliBinaryName,
             workingDir = workingDir,
             ideBridge = ideBridge,
@@ -53,20 +62,38 @@ object AgentCli {
         agentName: String,
         workingDir: String? = null,
         ideBridge: IdeBridge.Info? = null,
+        model: String? = null,
         timeoutSeconds: Long = 180,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result =
-        runInteractive(prompt, com.rk.ai.session.AiSessionManager.resolveAgent(agentName), workingDir, ideBridge, timeoutSeconds, onOutput)
+        runInteractive(
+            prompt,
+            com.rk.ai.session.AiSessionManager.resolveAgent(agentName),
+            workingDir,
+            ideBridge,
+            model,
+            timeoutSeconds,
+            onOutput
+        )
 
     suspend fun runAgent(
         prompt: String,
         agentName: String,
         workingDir: String? = null,
         ideBridge: IdeBridge.Info? = null,
+        model: String? = null,
         timeoutSeconds: Long = 600,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result =
-        runAgent(prompt, com.rk.ai.session.AiSessionManager.resolveAgent(agentName), workingDir, ideBridge, timeoutSeconds, onOutput)
+        runAgent(
+            prompt,
+            com.rk.ai.session.AiSessionManager.resolveAgent(agentName),
+            workingDir,
+            ideBridge,
+            model,
+            timeoutSeconds,
+            onOutput
+        )
 
     fun cleanOutput(text: String): String {
         val ansiRegex = Regex("\\u001B\\[[;\\d]*[A-Za-z]")

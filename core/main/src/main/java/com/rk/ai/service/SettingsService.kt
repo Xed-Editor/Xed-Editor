@@ -1,6 +1,8 @@
 package com.rk.ai.service
 
 import com.google.gson.JsonObject
+import com.rk.ai.resolvedConfiguredModelForAgent
+import com.rk.ai.session.AiSessionManager
 import com.rk.settings.Settings
 
 class SettingsService {
@@ -8,7 +10,9 @@ class SettingsService {
     fun getSetting(key: String): String? {
         return when (key) {
             "ai_agent" -> Settings.ai_agent
-            "ai_model" -> Settings.ai_model
+            "ai_model" -> resolvedConfiguredModelForAgent(AiSessionManager.resolveAgent(Settings.ai_agent))
+            "ai_model_gemini" -> Settings.ai_model_gemini.takeIf { it.isNotBlank() }
+            "ai_model_opencode" -> Settings.ai_model_opencode.takeIf { it.isNotBlank() }
             "ai_api_key" -> if (Settings.ai_api_key.isNotBlank()) "(set)" else null
             "ai_profiles_json" -> Settings.ai_profiles_json.takeIf { it.isNotBlank() }
             "ai_auto_apply" -> Settings.ai_auto_apply.toString()
@@ -40,7 +44,9 @@ class SettingsService {
     fun getAllSettings(): JsonObject {
         return JsonObject().apply {
             addProperty("ai_agent", Settings.ai_agent)
-            addProperty("ai_model", Settings.ai_model)
+            addProperty("ai_model", resolvedConfiguredModelForAgent(AiSessionManager.resolveAgent(Settings.ai_agent)).orEmpty())
+            addProperty("ai_model_gemini", Settings.ai_model_gemini)
+            addProperty("ai_model_opencode", Settings.ai_model_opencode)
             addProperty("ai_api_key", if (Settings.ai_api_key.isNotBlank()) "(set)" else "")
             addProperty("ai_auto_apply", Settings.ai_auto_apply)
             addProperty("ai_inline_completion", Settings.ai_inline_completion)

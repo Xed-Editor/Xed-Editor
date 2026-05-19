@@ -202,6 +202,44 @@ fun AiAgentSheet(
                     }
                 )
             }
+            "/doctor" -> {
+                val bridgeRunning = IdeBridge.isRunning()
+                val (mcpOk, mcpStatus) = if (bridgeRunning) IdeBridge.checkMcpConnection() else false to "bridge not running"
+                val (toolsOk, toolsStatus) = if (bridgeRunning) IdeBridge.verifyMcpToolsAvailable() else false to "bridge not running"
+                val agent = AiSessionManager.currentAgent
+                val configuredModel = configuredModelForAgent(agent)
+                val resolvedModel = resolvedConfiguredModelForAgent(agent).orEmpty()
+                val home = sandboxHomeDir()
+                val geminiCfg = File(home, ".gemini/settings.json")
+                val opencodeCfg = File(home, ".config/opencode/opencode.json")
+                val opencodeHasLegacyKeys = runCatching {
+                    if (!opencodeCfg.exists()) false else {
+                        val txt = opencodeCfg.readText()
+                        txt.contains("\"mcpServers\"") || txt.contains("\"apiKey\"")
+                    }
+                }.getOrDefault(false)
+                appendLog(
+                    buildString {
+                        appendLine("AI Doctor")
+                        appendLine("  agent=${agent.name}")
+                        appendLine("  configuredModel=${if (configuredModel.isBlank()) "<default>" else configuredModel}")
+                        appendLine("  effectiveModel=${if (resolvedModel.isBlank()) "<default>" else resolvedModel}")
+                        appendLine("  geminiModelSlot=${Settings.ai_model_gemini.ifBlank { "<default>" }}")
+                        appendLine("  opencodeModelSlot=${Settings.ai_model_opencode.ifBlank { "<default>" }}")
+                        appendLine("  bridgeRunning=$bridgeRunning")
+                        appendLine("  bridgeMcp=$mcpOk")
+                        appendLine("  bridgeTools=$toolsOk")
+                        if (!mcpOk) appendLine("  bridgeMcpStatus=$mcpStatus")
+                        if (!toolsOk) appendLine("  bridgeToolsStatus=$toolsStatus")
+                        appendLine("  geminiConfig=${geminiCfg.absolutePath} exists=${geminiCfg.exists()}")
+                        appendLine("  opencodeConfig=${opencodeCfg.absolutePath} exists=${opencodeCfg.exists()} legacyKeys=$opencodeHasLegacyKeys")
+                        appendLine()
+                        appendLine("Quick checks inside terminal:")
+                        appendLine("  opencode mcp list")
+                        appendLine("  gemini mcp list")
+                    }
+                )
+            }
             else -> sendToAgent(input)
         }
     }
@@ -244,7 +282,7 @@ fun AiAgentSheet(
                 isRunning = isRunning,
                 cwd = cwd.value,
                 agent = currentAgent,
-                model = Settings.ai_model.ifEmpty { currentAgent.defaultModel },
+                model = resolvedConfiguredModelForAgent(currentAgent).orEmpty().ifEmpty { currentAgent.defaultModel },
                 availableAgents = AiSessionManager.availableAgents(),
                 showAgentMenu = showAgentMenu,
                 onToggleAgentMenu = { showAgentMenu = !showAgentMenu },

@@ -9,6 +9,8 @@ import com.rk.activities.main.MainViewModel
 import com.rk.ai.AiConfig
 import com.rk.ai.AgentCli
 import com.rk.ai.IdeBridge
+import com.rk.ai.resolvedConfiguredModelForAgent
+import com.rk.ai.setConfiguredModelForAgent
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.file.child
@@ -39,13 +41,22 @@ object AiSessionManager {
 
     fun switchAgent(type: String) {
         val newAgent = resolveAgent(type)
-        if (newAgent != currentAgent) {
-            stopSession()
-            currentAgent = newAgent
-            Settings.ai_agent = type
-            lastError = null
-            connectionStatus = ConnectionStatus.Disconnected
+        val previousAgent = currentAgent
+        if (newAgent == previousAgent) {
+            Settings.ai_agent = newAgent.name
+            Settings.ai_model = resolvedConfiguredModelForAgent(newAgent).orEmpty()
+            runCatching { IdeBridge.forceWriteAgentConfigs() }
+            return
         }
+
+        setConfiguredModelForAgent(previousAgent, Settings.ai_model, syncActiveModel = false)
+        stopSession()
+        currentAgent = newAgent
+        Settings.ai_agent = newAgent.name
+        Settings.ai_model = resolvedConfiguredModelForAgent(newAgent).orEmpty()
+        runCatching { IdeBridge.forceWriteAgentConfigs() }
+        lastError = null
+        connectionStatus = ConnectionStatus.Disconnected
     }
 
     private fun d(msg: String) {
@@ -85,6 +96,8 @@ object AiSessionManager {
         maxRetries: Int = 2,
     ): TerminalSession {
         currentAgent = resolveAgent(agentType)
+        Settings.ai_agent = currentAgent.name
+        Settings.ai_model = resolvedConfiguredModelForAgent(currentAgent).orEmpty()
         d("startSession agent=${currentAgent.name} workingDir=$workingDir")
         lastError = null
         connectionStatus = ConnectionStatus.Connecting
@@ -93,6 +106,7 @@ object AiSessionManager {
         if (projectConfig != null) {
             com.rk.ai.ProjectConfigLoader.applyConfig(projectConfig)
             currentAgent = resolveAgent()
+            Settings.ai_model = resolvedConfiguredModelForAgent(currentAgent).orEmpty()
             d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
         }
 
@@ -221,6 +235,7 @@ object AiSessionManager {
             agent = currentAgent,
             workingDir = workingDir,
             ideBridge = bridgeInfo,
+            model = resolvedConfiguredModelForAgent(currentAgent),
             timeoutSeconds = timeoutSeconds,
         )
         return AgentCli.stripCodeFences(result.output)
@@ -289,7 +304,7 @@ object AiSessionManager {
             add(sandbox)
             add("/bin/bash")
             add(wrapperScript.absolutePath)
-            addAll(agent.buildArgs(extraArgs, workingDir, Settings.ai_model.takeIf { it.isNotBlank() }))
+            addAll(agent.buildArgs(extraArgs, workingDir, resolvedConfiguredModelForAgent(agent)))
         }
         return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
     }
