@@ -72,17 +72,9 @@ ms['xed-ide'] = {
         'x-ide-token': token
     }
 }
-legacy = cfg.setdefault('mcpServers', {})
-legacy['xed-ide'] = {
-    'type': 'sse',
-    'url': f'http://127.0.0.1:{port}/sse',
-    'enabled': True,
-    'headers': {
-        'Authorization': f'Bearer {token}',
-        'authorization': f'Bearer {token}',
-        'x-ide-token': token
-    }
-}
+# OpenCode config schema is strict; remove legacy/invalid keys from old builds.
+cfg.pop('mcpServers', None)
+cfg.pop('apiKey', None)
 with open('$CONFIG_FILE', 'w') as f: json.dump(cfg, f, indent=2)
 " 2>/dev/null || fallback_to_node=true
   fi
@@ -112,17 +104,8 @@ cfg.mcp['xed-ide'] = {
     'x-ide-token': ideToken
   }
 };
-cfg.mcpServers = cfg.mcpServers || {};
-cfg.mcpServers['xed-ide'] = {
-  type: 'sse',
-  url: 'http://127.0.0.1:' + idePort + '/sse',
-  enabled: true,
-  headers: {
-    Authorization: 'Bearer ' + ideToken,
-    authorization: 'Bearer ' + ideToken,
-    'x-ide-token': ideToken
-  }
-};
+delete cfg.mcpServers;
+delete cfg.apiKey;
 fs.writeFileSync(configFile, JSON.stringify(cfg, null, 2));
 NODE
   fi

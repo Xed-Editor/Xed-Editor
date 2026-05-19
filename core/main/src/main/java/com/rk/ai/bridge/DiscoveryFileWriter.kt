@@ -80,9 +80,9 @@ object DiscoveryFileWriter {
                     existing.addProperty("apiKey", Settings.ai_api_key)
                 }
             } else if (agentName == "opencode") {
-                if (Settings.ai_api_key.isNotBlank()) {
-                    existing.addProperty("apiKey", Settings.ai_api_key)
-                }
+                // OpenCode schema does not accept these legacy keys at top level.
+                existing.remove("apiKey")
+                existing.remove("mcpServers")
             }
 
             val target = existing.getAsJsonObject(mcpKey)
@@ -108,14 +108,7 @@ object DiscoveryFileWriter {
                     addProperty("timeout", 120000)
                     add("headers", headers)
                 })
-                val legacy = existing.getAsJsonObject("mcpServers")
-                    ?: JsonObject().also { existing.add("mcpServers", it) }
-                legacy.add("xed-ide", JsonObject().apply {
-                    addProperty("type", "sse")
-                    addProperty("url", "http://${info.host}:${info.port}/sse")
-                    addProperty("enabled", true)
-                    add("headers", headers)
-                })
+                existing.remove("mcpServers")
             }
 
             configFile.writeText(gson.toJson(existing))
@@ -178,16 +171,10 @@ object DiscoveryFileWriter {
                 addProperty("timeout", 120000)
                 add("headers", headers)
             })
-            val legacy = existingMcp.getAsJsonObject("mcpServers")
-                ?: JsonObject().also { existingMcp.add("mcpServers", it) }
-            legacy.add("xed-ide", JsonObject().apply {
-                addProperty("type", "sse")
-                addProperty("url", "http://${info.host}:${info.port}/sse")
-                addProperty("enabled", true)
-                add("headers", headers)
-            })
-            if (agentName == "opencode" && Settings.ai_api_key.isNotBlank()) {
-                existingMcp.addProperty("apiKey", Settings.ai_api_key)
+            // OpenCode schema does not accept these legacy keys at top level.
+            if (agentName == "opencode") {
+                existingMcp.remove("mcpServers")
+                existingMcp.remove("apiKey")
             }
         }
         mcpFile.writeText(gson.toJson(existingMcp))

@@ -311,14 +311,8 @@ class EditorService(
                                 addProperty("timeout", 120000)
                                 add("headers", headers)
                             })
-                            val legacy = existing.getAsJsonObject("mcpServers")
-                                ?: JsonObject().also { existing.add("mcpServers", it) }
-                            legacy.add("xed-ide", JsonObject().apply {
-                                addProperty("type", "sse")
-                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/sse")
-                                addProperty("enabled", true)
-                                add("headers", headers)
-                            })
+                            existing.remove("mcpServers")
+                            existing.remove("apiKey")
                         }
                     }
                     configFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(existing))
