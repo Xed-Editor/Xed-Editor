@@ -8,7 +8,5 @@ abstract class ExtensionAPI(protected val context: ExtensionContext) : Applicati
 
     abstract fun onUninstalled()
 
-    open val hasSettings = false
-
-    @Composable open fun SettingsUI() {}
+    @Composable open fun SettingsContent() {}
 }

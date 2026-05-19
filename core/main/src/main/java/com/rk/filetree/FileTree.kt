@@ -147,7 +147,7 @@ fun FileTree(
 @Composable
 private fun SelectionActions(viewModel: FileTreeViewModel, drawerViewModel: DrawerViewModel, rootNode: FileTreeNode) {
     val selectedFiles = viewModel.getSelectedFiles(rootNode.file)
-    val actions = remember(selectedFiles, rootNode.file) { getActions(selectedFiles, rootNode.file) }
+    val actions = remember(selectedFiles, rootNode.file) { FileActionProvider.getActions(selectedFiles, rootNode.file) }
     var expanded by remember { mutableStateOf(false) }
 
     val context = LocalContext.current

@@ -68,16 +68,14 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
     var isRefreshing by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
-    val api = extensionManager.loadedExtensions[extension]
-
     RefreshablePreferenceLayout(
         label = extension?.name ?: stringResource(strings.ext_not_found),
         backArrowVisible = true,
         isExpandedScreen = true,
         actions = {
-            if (api == null || !api.hasSettings) {
+            if (extension?.hasSettings == true) {
                 IconButton(
-                    enabled = api != null,
+                    enabled = extensionManager.isInstalled(extension.id),
                     onClick = { navController.navigate("${SettingsRoutes.ExtensionSettings.route}/{extensionId}") },
                 ) {
                     Icon(

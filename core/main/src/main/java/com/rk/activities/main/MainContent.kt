@@ -53,11 +53,11 @@ import com.rk.editor.preloadSelectionColor
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
 import com.rk.filetree.FileActionDialogs
+import com.rk.filetree.FileActionProvider
 import com.rk.filetree.FileIcon
 import com.rk.filetree.FileTreeViewModel
 import com.rk.filetree.MultiFileAction
 import com.rk.filetree.MultiFileActionContext
-import com.rk.filetree.getActions
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -376,7 +376,7 @@ private fun TabItemContent(
         tabState.file?.let {
             DropdownMenu(expanded = showFileActionMenu, onDismissRequest = { showFileActionMenu = false }) {
                 val root = (tabState as? EditorTab)?.projectRoot
-                val actions = remember(it) { getActions(it, root) }
+                val actions = remember(it) { FileActionProvider.getActions(it, root) }
 
                 actions.forEach { action ->
                     when (action) {
