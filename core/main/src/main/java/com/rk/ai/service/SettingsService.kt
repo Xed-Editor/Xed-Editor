@@ -2,6 +2,7 @@ package com.rk.ai.service
 
 import com.google.gson.JsonObject
 import com.rk.ai.resolvedConfiguredModelForAgent
+import com.rk.ai.setConfiguredModelForAgent
 import com.rk.ai.session.AiSessionManager
 import com.rk.settings.Settings
 
@@ -30,6 +31,37 @@ class SettingsService {
     }
 
     fun setSetting(key: String, value: String) {
+        when (key) {
+            "ai_agent" -> {
+                AiSessionManager.switchAgent(AiSessionManager.resolveAgent(value).name)
+                return
+            }
+            "ai_model" -> {
+                setConfiguredModelForAgent(
+                    agent = AiSessionManager.resolveAgent(Settings.ai_agent),
+                    model = value,
+                    syncActiveModel = true,
+                )
+                return
+            }
+            "ai_model_gemini" -> {
+                setConfiguredModelForAgent(
+                    agent = AiSessionManager.resolveAgent("gemini"),
+                    model = value,
+                    syncActiveModel = (Settings.ai_agent == "gemini"),
+                )
+                return
+            }
+            "ai_model_opencode" -> {
+                setConfiguredModelForAgent(
+                    agent = AiSessionManager.resolveAgent("opencode"),
+                    model = value,
+                    syncActiveModel = (Settings.ai_agent == "opencode"),
+                )
+                return
+            }
+        }
+
         val prefs = com.rk.settings.Preference.getAll()
         val existing = prefs[key]
         when (existing) {

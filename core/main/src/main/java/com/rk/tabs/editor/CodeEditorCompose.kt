@@ -147,9 +147,15 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
             shouldShow = { isTextSelected },
             onClick = {
                 val selectedText = getSelectedText().orEmpty()
+                val fileName = editorTab.file.getName()
                 viewModel.agentPrompt =
                     """
-                    Explain this selected code, find possible bugs, and suggest improvements.
+                    You are helping inside an IDE.
+                    Analyze and improve the selected code from `$fileName`.
+                    1) Find bugs or risky behavior.
+                    2) Provide an improved version of the selected block.
+                    3) Explain why each change helps.
+                    Keep the response concise and actionable.
 
                     ```
                     $selectedText

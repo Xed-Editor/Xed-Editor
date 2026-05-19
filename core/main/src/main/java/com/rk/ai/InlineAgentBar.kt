@@ -55,6 +55,10 @@ fun InlineAgentBar(
         val selectedText = editor?.getSelectedText().orEmpty()
         val fileName = state.file.getName()
         val extension = fileName.substringAfterLast('.', "")
+        val cursorLine = (editor?.cursor?.leftLine ?: 0).coerceAtLeast(0)
+        val cursorColumn = (editor?.cursor?.leftColumn ?: 0).coerceAtLeast(0)
+        val fullText = editor?.text?.toString().orEmpty()
+        val focusedSnippet = focusedContextSnippet(fullText, cursorLine, cursorColumn)
         return buildString {
             appendLine("## Current File Context")
             appendLine("- File: `$fileName`")
@@ -62,6 +66,16 @@ fun InlineAgentBar(
             if (extension.isNotBlank()) appendLine("- Type: .$extension")
             val lineCount = editor?.lineCount ?: 0
             if (lineCount > 0) appendLine("- Lines: $lineCount")
+            appendLine("- Cursor: ${cursorLine + 1}:${cursorColumn + 1}")
+
+            if (focusedSnippet.isNotBlank()) {
+                appendLine()
+                appendLine("### Nearby Code")
+                appendLine("```$extension")
+                appendLine(focusedSnippet)
+                appendLine("```")
+            }
+
             if (selectedText.isNotBlank()) {
                 appendLine()
                 appendLine("### Selected Code")
@@ -73,11 +87,14 @@ fun InlineAgentBar(
     }
 
     suspend fun sendMessage(prompt: String) {
+        if (conversation.isLoading) return
+
         val state = viewModel.currentTab
         val wd = if (state is com.rk.tabs.editor.EditorTab) {
             state.projectRoot?.getAbsolutePath()
                 ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
         } else null
+        val effectiveWd = wd ?: "/home"
         val currentAgent = AiSessionManager.currentAgent
         val firstMessage = conversation.messages.isEmpty()
 
@@ -94,16 +111,25 @@ fun InlineAgentBar(
 
         conversation = conversation.addUserMessage(prompt)
 
-        try {
+        val bridgeInfo = withContext(Dispatchers.IO) {
+            IdeBridge.ensureStarted(viewModel, effectiveWd) ?: IdeBridge.getBridgeInfo()
+        }
+        if (bridgeInfo == null) {
+            conversation = conversation.setError("IDE bridge is not running. Start the AI sheet once and retry.")
+            return
+        }
+
+        val result = try {
             withContext(Dispatchers.IO) {
                 AgentCli.runAgent(
                     prompt = fullPrompt,
                     agent = currentAgent,
-                    workingDir = wd,
-                    ideBridge = IdeBridge.getBridgeInfo(),
+                    workingDir = effectiveWd,
+                    ideBridge = bridgeInfo,
                     onOutput = { chunk ->
+                        val cleaned = cleanStreamingLine(chunk) ?: return@runAgent
                         scope.launch {
-                            conversation = conversation.appendStreaming(chunk + "\n")
+                            conversation = conversation.appendStreaming(cleaned + "\n")
                             if (conversation.messages.isNotEmpty()) {
                                 listState.animateScrollToItem(conversation.messages.size)
                             }
@@ -116,7 +142,28 @@ fun InlineAgentBar(
             return
         }
 
-        conversation = conversation.finishStreaming()
+        try {
+            conversation = conversation.finishStreaming()
+            if (result.timedOut) {
+                conversation = conversation.setError("Request timed out. Try a shorter prompt or reconnect the agent.")
+                return
+            }
+            if (result.exitCode != 0) {
+                val detail = AgentCli.cleanOutput(
+                    listOf(result.error, result.output)
+                        .filter { it.isNotBlank() }
+                        .joinToString("\n")
+                ).lineSequence().firstOrNull()?.take(240).orEmpty()
+                val message = if (detail.isBlank()) {
+                    "Agent exited with code ${result.exitCode}."
+                } else {
+                    "Agent exited with code ${result.exitCode}: $detail"
+                }
+                conversation = conversation.addSystemMessage(message)
+            }
+        } catch (e: Exception) {
+            conversation = conversation.setError(e.message ?: "Unknown error")
+        }
     }
 
     LaunchedEffect(conversation.messages.size) {
@@ -489,6 +536,38 @@ private fun splitCodeBlocks(text: String): List<CodeBlockPart> {
     val after = text.substring(lastEnd).trim()
     if (after.isNotBlank()) parts.add(CodeBlockPart.Text(after))
     return parts
+}
+
+private fun focusedContextSnippet(content: String, cursorLine: Int, cursorColumn: Int): String {
+    if (content.isBlank()) return ""
+    val lines = content.replace("\r\n", "\n").split('\n')
+    if (lines.isEmpty()) return ""
+    val lineIdx = cursorLine.coerceIn(0, lines.lastIndex)
+    val colIdx = cursorColumn.coerceIn(0, lines[lineIdx].length)
+    val from = maxOf(0, lineIdx - 12)
+    val to = minOf(lines.lastIndex, lineIdx + 8)
+    val rendered = mutableListOf<String>()
+    for (idx in from..to) {
+        val line = lines[idx]
+        if (idx == lineIdx) {
+            val prefix = line.take(colIdx)
+            val suffix = line.drop(colIdx)
+            rendered += "$prefix<cursor>$suffix"
+        } else {
+            rendered += line
+        }
+    }
+    return rendered.joinToString("\n").take(6000)
+}
+
+private fun cleanStreamingLine(line: String): String? {
+    val cleaned = line.trimEnd()
+    if (cleaned.isBlank()) return null
+    if (cleaned.startsWith("INFO ") || cleaned.startsWith("DEBUG ") || cleaned.startsWith("TRACE ")) return null
+    if (cleaned.contains("No API key found. Headless mode")) return null
+    if (cleaned.contains("No OPENCODE_API_KEY")) return null
+    if (cleaned.contains("No GEMINI_API_KEY/GOOGLE_API_KEY")) return null
+    return cleaned
 }
 
 private fun setClipboard(text: String) {

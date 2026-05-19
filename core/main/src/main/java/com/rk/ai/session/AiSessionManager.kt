@@ -10,6 +10,7 @@ import com.rk.ai.AiConfig
 import com.rk.ai.AgentCli
 import com.rk.ai.IdeBridge
 import com.rk.ai.resolvedConfiguredModelForAgent
+import com.rk.ai.resolvedStoredModelForAgent
 import com.rk.ai.setConfiguredModelForAgent
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
@@ -49,11 +50,12 @@ object AiSessionManager {
             return
         }
 
-        setConfiguredModelForAgent(previousAgent, Settings.ai_model, syncActiveModel = false)
+        setConfiguredModelForAgent(previousAgent, resolvedConfiguredModelForAgent(previousAgent), syncActiveModel = false)
         stopSession()
         currentAgent = newAgent
+        val incomingModel = resolvedStoredModelForAgent(newAgent).orEmpty()
         Settings.ai_agent = newAgent.name
-        Settings.ai_model = resolvedConfiguredModelForAgent(newAgent).orEmpty()
+        Settings.ai_model = incomingModel
         runCatching { IdeBridge.forceWriteAgentConfigs() }
         lastError = null
         connectionStatus = ConnectionStatus.Disconnected
@@ -95,9 +97,15 @@ object AiSessionManager {
         agentType: String? = null,
         maxRetries: Int = 2,
     ): TerminalSession {
+        val previousAgentName = Settings.ai_agent
         currentAgent = resolveAgent(agentType)
         Settings.ai_agent = currentAgent.name
-        Settings.ai_model = resolvedConfiguredModelForAgent(currentAgent).orEmpty()
+        val initialModel = if (currentAgent.name == previousAgentName) {
+            resolvedConfiguredModelForAgent(currentAgent).orEmpty()
+        } else {
+            resolvedStoredModelForAgent(currentAgent).orEmpty()
+        }
+        Settings.ai_model = initialModel
         d("startSession agent=${currentAgent.name} workingDir=$workingDir")
         lastError = null
         connectionStatus = ConnectionStatus.Connecting

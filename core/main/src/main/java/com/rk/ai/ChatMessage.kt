@@ -59,6 +59,11 @@ data class ConversationState(
         error = error,
     )
 
+    fun addSystemMessage(text: String): ConversationState = copy(
+        messages = messages + ChatMessage.System(text),
+        error = null,
+    )
+
     fun clear(): ConversationState = ConversationState()
 
     fun buildContextPrompt(newPrompt: String): String {

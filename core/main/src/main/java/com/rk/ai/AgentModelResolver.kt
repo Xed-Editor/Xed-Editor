@@ -74,6 +74,15 @@ fun resolvedConfiguredModelForAgent(agent: AiAgent): String? {
     return resolved.ifBlank { null }
 }
 
+fun resolvedStoredModelForAgent(agent: AiAgent): String? {
+    val stored = readModelSlot(agent.name)
+    val resolved = resolveModelForAgent(agent, stored).orEmpty()
+    if (resolved != stored) {
+        writeModelSlot(agent.name, resolved)
+    }
+    return resolved.ifBlank { null }
+}
+
 fun setConfiguredModelForAgent(
     agent: AiAgent,
     model: String?,

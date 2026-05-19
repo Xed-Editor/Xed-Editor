@@ -110,6 +110,12 @@ fun SettingsEditorScreen(navController: NavController) {
 
             var showModelDialog by remember { mutableStateOf(false) }
             var modelInputValue by remember(currentAgent.name) { mutableStateOf(currentConfiguredModel) }
+            var showApiKeyDialog by remember { mutableStateOf(false) }
+            var apiKeyInputValue by remember { mutableStateOf(Settings.ai_api_key) }
+            var showCompletionModelDialog by remember { mutableStateOf(false) }
+            var completionModelInputValue by remember { mutableStateOf(Settings.ai_completion_model) }
+            var showCompletionUrlDialog by remember { mutableStateOf(false) }
+            var completionUrlInputValue by remember { mutableStateOf(Settings.ai_completion_url) }
             var showProfileMenu by remember { mutableStateOf(false) }
 
             val profiles = remember { com.rk.ai.agents.AgentProfileManager.loadProfiles() }
@@ -271,6 +277,172 @@ fun SettingsEditorScreen(navController: NavController) {
                 )
             }
 
+            Surface(
+                onClick = { showApiKeyDialog = true },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "AI API Key",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "Used by inline completion if environment keys are missing",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = if (Settings.ai_api_key.isBlank()) "not set" else "set",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Icon(
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            EditorSettingsToggle(
+                label = "AI inline completion",
+                description = "Show next-token suggestions while typing",
+                default = Settings.ai_inline_completion,
+                sideEffect = { Settings.ai_inline_completion = it },
+            )
+
+            Surface(
+                onClick = { showCompletionModelDialog = true },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Completion model",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "Optional override for inline completion model",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = Settings.ai_completion_model.ifBlank { "auto" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Icon(
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            Surface(
+                onClick = { showCompletionUrlDialog = true },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Completion endpoint",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "Optional URL override for inline completion API",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = Settings.ai_completion_url.ifBlank { "default" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Icon(
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            if (showApiKeyDialog) {
+                SingleInputDialog(
+                    title = "AI API Key",
+                    inputLabel = "API key",
+                    inputValue = apiKeyInputValue,
+                    onInputValueChange = { apiKeyInputValue = it },
+                    onConfirm = {
+                        Settings.ai_api_key = apiKeyInputValue.trim()
+                        showApiKeyDialog = false
+                    },
+                    onFinish = {
+                        apiKeyInputValue = Settings.ai_api_key
+                        showApiKeyDialog = false
+                    },
+                )
+            }
+
+            if (showCompletionModelDialog) {
+                SingleInputDialog(
+                    title = "Completion model",
+                    inputLabel = "Model",
+                    inputValue = completionModelInputValue,
+                    onInputValueChange = { completionModelInputValue = it },
+                    onConfirm = {
+                        Settings.ai_completion_model = completionModelInputValue.trim()
+                        showCompletionModelDialog = false
+                    },
+                    onFinish = {
+                        completionModelInputValue = Settings.ai_completion_model
+                        showCompletionModelDialog = false
+                    },
+                )
+            }
+
+            if (showCompletionUrlDialog) {
+                SingleInputDialog(
+                    title = "Completion endpoint",
+                    inputLabel = "https://...",
+                    inputValue = completionUrlInputValue,
+                    onInputValueChange = { completionUrlInputValue = it },
+                    onConfirm = {
+                        Settings.ai_completion_url = completionUrlInputValue.trim()
+                        showCompletionUrlDialog = false
+                    },
+                    onFinish = {
+                        completionUrlInputValue = Settings.ai_completion_url
+                        showCompletionUrlDialog = false
+                    },
+                )
+            }
+
             EditorSettingsToggle(
                 label = stringResource(strings.ai_project_config),
                 description = stringResource(strings.ai_project_config_desc),
@@ -279,8 +451,8 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-label = "Auto apply changes",
-                        description = "Automatically apply AI changes without review",
+                label = "Auto apply changes",
+                description = "Automatically apply AI changes without review",
                 default = Settings.ai_auto_apply,
                 sideEffect = { Settings.ai_auto_apply = it },
             )

@@ -13,6 +13,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 
 object AiCompletionEngine {
@@ -24,8 +25,12 @@ object AiCompletionEngine {
     private val gson = Gson()
     private const val TAG = "AiCompletion"
     private const val MAX_RETRIES = 2
-    private val requestCache = LinkedHashMap<String, CompletionResult>(16, 0.75f, true)
+    private data class CacheEntry(val result: CompletionResult, val createdAtMs: Long)
+
+    private val requestCache = LinkedHashMap<String, CacheEntry>(16, 0.75f, true)
     private const val CACHE_MAX_SIZE = 32
+    private const val CACHE_TTL_MS = 5000L
+    private val cacheLock = Any()
     private var lastRequestKey: String = ""
     private var lastRequestTime: Long = 0
     private const val DEBOUNCE_MS = 300L
@@ -48,27 +53,28 @@ object AiCompletionEngine {
         val customKey = Settings.ai_api_key.ifBlank { null }
 
         val provider = when (agentName) {
-            "opencode" -> "openai"
             "gemini" -> "gemini"
             else -> "openai"
         }
 
         val model = when {
-            Settings.ai_completion_model.isNotBlank() -> Settings.ai_completion_model
+            Settings.ai_completion_model.isNotBlank() -> Settings.ai_completion_model.trim()
             provider == "gemini" -> "gemini-2.5-flash"
-            provider == "opencode" -> "deepseek/deepseek-v4-flash"
-            else -> "gpt-4o"
+            else -> "gpt-4o-mini"
         }
 
         val key = when {
             customKey != null -> customKey
             provider == "gemini" -> System.getenv("GEMINI_API_KEY") ?: System.getenv("GOOGLE_API_KEY") ?: return null
-            provider == "opencode" -> System.getenv("OPENCODE_API_KEY") ?: return null
-            else -> return null
+            else ->
+                System.getenv("OPENAI_API_KEY")
+                    ?: System.getenv("OPENCODE_API_KEY")
+                    ?: System.getenv("OPENROUTER_API_KEY")
+                    ?: return null
         }
 
         return ApiConfig(
-            baseUrl = Settings.ai_completion_url.ifBlank {
+            baseUrl = Settings.ai_completion_url.trim().ifBlank {
                 if (provider == "gemini") "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
                 else "https://api.openai.com/v1/chat/completions"
             },
@@ -87,36 +93,63 @@ object AiCompletionEngine {
     ): CompletionResult? = withContext(Dispatchers.IO) {
         val config = resolveConfig() ?: return@withContext null
 
-        val cacheKey = "$filePath:$cursorLine:$cursorColumn:${content.length}"
+        val normalized = content.replace("\r\n", "\n")
+        val lines = normalized.split('\n')
+        if (lines.isEmpty()) return@withContext null
+
+        val cursorLineIndex = cursorLine.coerceIn(0, lines.lastIndex)
+        val currentLine = lines[cursorLineIndex]
+        val cursorColumnIndex = cursorColumn.coerceIn(0, currentLine.length)
+
+        val beforeStart = maxOf(0, cursorLineIndex - 30)
+        val afterEndExclusive = minOf(lines.size, cursorLineIndex + 4)
+        val beforeLines = lines.subList(beforeStart, cursorLineIndex)
+        val afterLines = lines.subList(cursorLineIndex + 1, afterEndExclusive)
+        val linePrefix = currentLine.take(cursorColumnIndex)
+        val lineSuffix = currentLine.drop(cursorColumnIndex)
+
+        val contextBefore = (beforeLines + linePrefix).joinToString("\n").takeLast(4000)
+        val contextAfter = (listOf(lineSuffix) + afterLines).joinToString("\n").take(2000)
+
+        val cacheKey = fastHash(
+            listOf(
+                filePath,
+                language,
+                cursorLineIndex.toString(),
+                cursorColumnIndex.toString(),
+                config.provider,
+                config.model,
+                config.baseUrl,
+                contextBefore,
+                contextAfter,
+            ).joinToString("|")
+        )
         val now = System.currentTimeMillis()
-        if (cacheKey == lastRequestKey && now - lastRequestTime < DEBOUNCE_MS) return@withContext null
-        lastRequestKey = cacheKey
-        lastRequestTime = now
-
-        requestCache[cacheKey]?.let {
-            if (now - lastRequestTime < 5000) return@withContext it
+        synchronized(cacheLock) {
+            if (cacheKey == lastRequestKey && now - lastRequestTime < DEBOUNCE_MS) return@withContext null
+            lastRequestKey = cacheKey
+            lastRequestTime = now
         }
-
-        val lines = content.split("\n")
-        val cursorIdx = cursorLine.coerceIn(1, lines.size)
-        val windowStart = maxOf(0, cursorIdx - 1 - 30)
-        val windowLines = lines.subList(windowStart, cursorIdx - 1)
-        val afterLines = lines.subList(cursorIdx - 1, minOf(lines.size, cursorIdx + 2))
-        val prefix = windowLines.joinToString("\n")
-        val suffix = afterLines.joinToString("\n")
+        synchronized(cacheLock) {
+            requestCache[cacheKey]?.let { entry ->
+                if (now - entry.createdAtMs <= CACHE_TTL_MS) return@withContext entry.result
+                requestCache.remove(cacheKey)
+            }
+        }
 
         val systemPrompt = "You are a code completion engine. Given the code context before the cursor, output ONLY the most likely next code. No explanation, no markdown, no backticks. Complete the current line or add the next logical line. Match existing code style and indentation. Keep under 80 characters. If unsure, output nothing."
         val userPrompt = buildString {
             appendLine("Language: $language")
             appendLine("File: $filePath")
+            appendLine("Cursor: ${cursorLineIndex + 1}:${cursorColumnIndex + 1}")
             appendLine()
             appendLine("Code before cursor:")
-            appendLine(prefix)
+            appendLine(contextBefore)
             appendLine("CURSOR_HERE")
-            if (suffix.isNotBlank()) {
+            if (contextAfter.isNotBlank()) {
                 appendLine()
                 appendLine("Code after cursor (for context):")
-                appendLine(suffix)
+                appendLine(contextAfter)
             }
         }
 
@@ -184,10 +217,16 @@ object AiCompletionEngine {
 
                 if (text.isBlank()) return@withContext null
 
-                val result = CompletionResult(text = text, line = cursorLine, column = cursorColumn)
-                requestCache[cacheKey] = result
-                if (requestCache.size > CACHE_MAX_SIZE) {
-                    requestCache.keys.firstOrNull()?.let { requestCache.remove(it) }
+                val result = CompletionResult(
+                    text = text,
+                    line = cursorLineIndex,
+                    column = cursorColumnIndex
+                )
+                synchronized(cacheLock) {
+                    requestCache[cacheKey] = CacheEntry(result = result, createdAtMs = now)
+                    if (requestCache.size > CACHE_MAX_SIZE) {
+                        requestCache.keys.firstOrNull()?.let { requestCache.remove(it) }
+                    }
                 }
                 return@withContext result
             } catch (e: Exception) {
@@ -214,11 +253,19 @@ object AiCompletionEngine {
     private fun parseOpenAiResponse(body: String): String? {
         return try {
             val json = gson.fromJson(body, JsonObject::class.java)
-            json.getAsJsonArray("choices")
+            val first = json.getAsJsonArray("choices")
                 ?.get(0)?.asJsonObject
-                ?.getAsJsonObject("message")
+                ?: return null
+            first.getAsJsonObject("message")
                 ?.get("content")?.asString
                 ?.trim()
+                ?: first.get("text")?.asString?.trim()
         } catch (_: Exception) { null }
+    }
+
+    private fun fastHash(input: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val bytes = digest.digest(input.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
     }
 }
