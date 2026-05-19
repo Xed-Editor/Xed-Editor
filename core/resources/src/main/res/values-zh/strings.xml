@@ -646,4 +646,6 @@
     <string name="auto_closing_bracket_desc">自动插入匹配的括号</string>
     <string name="confirm_exit_dialog">确认退出对话框</string>
     <string name="confirm_exit_dialog_desc">在关闭 App 前显示确认对话框</string>
+    <string name="sort_lines_ascending">按升序排列行</string>
+    <string name="sort_lines_descending">按降序排列行</string>
 </resources>
