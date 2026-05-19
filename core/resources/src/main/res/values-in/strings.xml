@@ -645,4 +645,5 @@
     <string name="auto_closing_bracket_desc">Secara otomatis menyisipkan kurung penutup yang sesuai</string>
     <string name="confirm_exit_dialog">Dialog konfirmasi keluar</string>
     <string name="confirm_exit_dialog_desc">Tampilkan dialog konfirmasi sebelum menutup aplikasi</string>
+    <string name="sort_lines_ascending">Urutkan baris secara menaik</string>
 </resources>
