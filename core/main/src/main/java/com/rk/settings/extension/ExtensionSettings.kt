@@ -19,7 +19,7 @@ fun ExtensionSettings(extension: Extension?) {
         if (extension == null || api == null) {
             Text(stringResource(strings.ext_not_found_desc), modifier = Modifier.padding(horizontal = 16.dp))
         } else {
-            api.SettingsUI()
+            api.SettingsContent()
         }
     }
 }

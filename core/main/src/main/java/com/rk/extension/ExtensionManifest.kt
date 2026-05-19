@@ -18,6 +18,7 @@ data class ExtensionManifest(
     val repository: String,
     val license: String? = null,
     val tags: List<String> = emptyList(),
+    val hasSettings: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

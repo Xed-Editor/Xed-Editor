@@ -16,6 +16,7 @@ sealed interface Extension {
     val tags: List<String>
     val repository: String
     val license: String?
+    val hasSettings: Boolean
 
     val iconUrl: String
 
@@ -64,6 +65,9 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
 
     override val license
         get() = manifest.license
+
+    override val hasSettings: Boolean
+        get() = manifest.hasSettings
 
     override suspend fun getRating() = null
 
@@ -129,6 +133,9 @@ data class LocalExtension(
     override val license
         get() = manifest.license
 
+    override val hasSettings: Boolean
+        get() = manifest.hasSettings
+
     override val iconUrl
         get() = "$installPath/icon.png"
 
@@ -188,6 +195,9 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
 
     override val license
         get() = installed.license
+
+    override val hasSettings: Boolean
+        get() = installed.hasSettings
 
     override val iconUrl
         get() = installed.iconUrl
