@@ -638,4 +638,6 @@
     <string name="go_to_references_desc">Vyberte jednu z(e) %s referencí pro přesun k její umístění.</string>
     <string name="no_references_found">Žádné reference nenalezeny.</string>
     <string name="find_references_error">Nelze najít reference.</string>
+    <string name="sort_lines_ascending">Seřadit řádky vzestupně</string>
+    <string name="sort_lines_descending">Seřadit řádky sestupně</string>
 </resources>
