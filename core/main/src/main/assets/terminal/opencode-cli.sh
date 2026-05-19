@@ -38,9 +38,9 @@ configure_xed_ide_integration() {
   [ -n "$IDE_PORT" ] || return 0
   [ -n "$IDE_TOKEN" ] || return 0
   
-  OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
+  OPENCODE_CONFIG_DIR="$HOME/.opencode"
   mkdir -p "$OPENCODE_CONFIG_DIR"
-  CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
+  CONFIG_FILE="$OPENCODE_CONFIG_DIR/mcp.json"
   
   if command_exists python3; then
     python3 -c "
