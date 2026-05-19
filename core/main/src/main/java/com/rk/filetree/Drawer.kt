@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -83,6 +82,7 @@ import com.rk.components.DoubleInputDialog
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
+import com.rk.file.external.SFTPConnection
 import com.rk.file.external.SFTPFileObject
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
@@ -101,10 +101,6 @@ import com.rk.utils.readObject
 import com.rk.utils.toast
 import com.rk.utils.writeObject
 import java.io.File
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serializable
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -112,10 +108,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import net.schmizz.sshj.SSHClient
-import net.schmizz.sshj.sftp.SFTPClient
-import java.io.FileInputStream
-import java.io.IOException
 
 
 object DrawerPersistence {
@@ -209,50 +201,39 @@ suspend fun connectToSftpAndCreateFileObject(
     initialPath: String?
 ): SFTPFileObject? {
     return withContext(Dispatchers.IO) {
-        var sshClient: SSHClient? = null
-        var sftpClient: SFTPClient? = null
-
         try {
-            sshClient = SFTPFileObject.createSessionInternal(hostname, port, username, password)
-            if (sshClient == null || !sshClient.isConnected) {
-                toast("Failed to create or connect SFTP channel to $hostname")
-                Log.e("SFTP_CONNECT", "Failed to create or connect session to $hostname")
-                return@withContext null
-            }
+            val connection = SFTPConnection(hostname, port, username, password)
+            connection.connect()
 
-            sftpClient = SFTPFileObject.createSftpClientInternal(sshClient)
-            if (sftpClient == null) {
-                toast("Failed to create or connect SFTP channel to $hostname")
-                Log.e("SFTP_CONNECT", "Failed to create or connect SFTP channel to $hostname")
-                sshClient.disconnect() // Clean up session
-                return@withContext null
-            }
-
-            val actualInitialPath = run {
+            val actualInitialPath = try {
                 val path = if (initialPath.isNullOrBlank()) "/" else initialPath
+                connection.withSftpClient { sftp ->
+                    sftp.canonicalize(path)
+                }
+            } catch (e: Exception) {
+                Log.w(
+                    "SFTP_CONNECT",
+                    "Initial path '$initialPath' not found or not accessible, defaulting to PWD. Error: ${e.message}"
+                )
                 try {
-                    sftpClient.canonicalize(path)
-                } catch (e: IOException) {
-                    Log.w("SFTP_CONNECT", "Initial path '$path' not found or not accessible, defaulting to PWD. Error: ${e.message}")
-                    sftpClient.sftpEngine.canonicalize(".") // Default to current working directory on error
+                    connection.withSftpClient { it.sftpEngine.canonicalize(".") }
+                } catch (e: Exception) {
+                    "/"
                 }
             }
 
-
-            val rootAbsolutePath = "sftp://$username@$hostname:$port${if (actualInitialPath.startsWith("/")) actualInitialPath else "/$actualInitialPath"}"
+            val rootAbsolutePath = "sftp://$username@$hostname:$port${
+                if (actualInitialPath.startsWith("/")) actualInitialPath else "/$actualInitialPath"
+            }"
 
             Log.i("SFTP_CONNECT", "Successfully connected to $hostname. Initial path: $actualInitialPath")
-
             toast("Successfully connected to $hostname. Initial path: $actualInitialPath")
 
-            SFTPFileObject(hostname, port, username, password,
-                sshClient, sftpClient, rootAbsolutePath, isRoot = true)
+            SFTPFileObject(connection, rootAbsolutePath, isRoot = true)
 
-        } catch (e: Exception) { // Catch JSchException, SftpException, etc.
+        } catch (e: Exception) {
             Log.e("SFTP_CONNECT", "SFTP connection to $hostname failed: ${e.message}", e)
             toast("SFTP connection to $hostname failed: ${e.message}")
-            sftpClient?.close()
-            sshClient?.disconnect()
             null
         }
 
