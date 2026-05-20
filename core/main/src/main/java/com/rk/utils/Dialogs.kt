@@ -1,6 +1,7 @@
 package com.rk.utils
 
 import android.app.Activity
+import android.content.Context
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -31,7 +32,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 
-fun errorDialog(msg: String, activity: Activity? = MainActivity.instance, title: String = strings.error.getString()) {
+fun errorDialog(msg: String, context: Context? = MainActivity.instance, title: String = strings.error.getString()) {
     Log.e("ERROR_DIALOG", msg)
 
     runOnUiThread {
@@ -44,7 +45,7 @@ fun errorDialog(msg: String, activity: Activity? = MainActivity.instance, title:
             return@runOnUiThread
         }
 
-        dialog(context = activity, title = title, msg = msg, onOk = {})
+        dialog(context = context, title = title, msg = msg, onOk = {})
     }
 }
 
@@ -53,7 +54,7 @@ fun errorDialog(@StringRes msgRes: Int) {
 }
 
 // todo handle multple function call for same throwable
-fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instance) {
+fun errorDialog(throwable: Throwable, context: Context? = MainActivity.instance) {
     runOnUiThread {
         if (throwable.message.toString().contains("Job was cancelled")) {
             Log.w("ERROR_DIALOG", throwable.message.toString())
@@ -67,7 +68,7 @@ fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instanc
             }
         }
 
-        errorDialog(msg = message.toString(), activity = activity)
+        errorDialog(msg = message.toString(), context = context)
     }
 }
 
@@ -91,7 +92,7 @@ var isDialogShowing = false
     private set
 
 fun dialog(
-    context: Activity? = MainActivity.instance,
+    context: Context? = MainActivity.instance,
     title: String? = null,
     msg: String,
     @StringRes cancelString: Int = strings.cancel,
@@ -142,7 +143,7 @@ fun dialog(
                 }
             )
 
-            if (context.isFinishing || context.isDestroyed) {
+            if (context is Activity && (context.isFinishing || context.isDestroyed)) {
                 toast(msg)
                 return@runOnUiThread
             }
