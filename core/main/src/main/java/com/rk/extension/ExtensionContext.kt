@@ -5,7 +5,7 @@ import android.content.res.AssetManager
 import android.content.res.Resources
 import com.rk.settings.Preference
 
-class ExtensionContext(val extension: LocalExtension, private val hostContext: Context) {
+class ExtensionContext(val extension: LocalExtension, val hostContext: Context) {
     val settings = SharedPrefExtensionSettings(extension.id)
 
     val assets: AssetManager by lazy {
@@ -34,7 +34,7 @@ interface ExtensionSettings {
     fun putInt(key: String, value: Int)
 }
 
-class SharedPrefExtensionSettings(val id: String) : ExtensionSettings {
+class SharedPrefExtensionSettings(private val id: String) : ExtensionSettings {
     override fun getString(key: String, default: String) = Preference.getString("$id.$key", default)
 
     override fun getBoolean(key: String, default: Boolean) = Preference.getBoolean("$id.$key", default)
