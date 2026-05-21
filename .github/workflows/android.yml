@@ -17,19 +17,19 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "21"
           distribution: "temurin"
           cache: gradle
 
       - name: Cache Gradle Build Files
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -85,7 +85,7 @@ jobs:
           bash plugin-sdk/build-auto.sh
 
       - name: Update Release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v7
         with:
           artifacts: "plugin-sdk/output/sdk.jar"
           tag: "sdk-latest"
