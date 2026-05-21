@@ -252,4 +252,5 @@
     <string name="file_ext_example">파일 확장자 (예시: *.py)</string>
     <string name="discord">디스코드 커뮤니티</string>
     <string name="use_tabs">탭 문자 삽입</string>
+    <string name="more">더</string>
 </resources>
