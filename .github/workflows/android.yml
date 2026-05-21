@@ -61,7 +61,7 @@ jobs:
         continue-on-error: false
 
       - name: Archive APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Xed-Editor-Release
           path: app/xed-editor-${{ env.COMMIT_HASH }}.apk
@@ -85,7 +85,7 @@ jobs:
           bash plugin-sdk/build-auto.sh
 
       - name: Update Release
-        uses: ncipollo/release-action@v7
+        uses: ncipollo/release-action@v1
         with:
           artifacts: "plugin-sdk/output/sdk.jar"
           tag: "sdk-latest"
