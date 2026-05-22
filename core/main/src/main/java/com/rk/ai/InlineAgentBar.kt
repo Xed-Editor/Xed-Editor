@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
@@ -54,7 +55,10 @@ fun InlineAgentBar(
     LaunchedEffect(conversationChannel) {
         for (update in conversationChannel) {
             conversation = update(conversation)
-            if (conversation.messages.isNotEmpty()) {
+            val isNearBottom = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+                it.index >= conversation.messages.size - 2
+            } ?: true
+            if (isNearBottom && conversation.messages.isNotEmpty()) {
                 listState.animateScrollToItem(conversation.messages.size)
             }
         }
@@ -174,12 +178,6 @@ fun InlineAgentBar(
         }
     }
 
-    LaunchedEffect(conversation.messages.size) {
-        if (conversation.messages.isNotEmpty()) {
-            listState.animateScrollToItem(conversation.messages.size - 1)
-        }
-    }
-
     AnimatedVisibility(
         visible = visible,
         enter = slideInVertically(initialOffsetY = { it }),
@@ -210,7 +208,7 @@ fun InlineAgentBar(
                     modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    items(conversation.messages, key = { "${it.content.hashCode()}-${it.timestamp}" }) { msg ->
+                    items(conversation.messages, key = { "msg-${it.timestamp}" }) { msg ->
                         when (msg) {
                             is ChatMessage.User -> UserBubble(msg.content, colorScheme)
                             is ChatMessage.Assistant -> AssistantBubble(msg.content, colorScheme)
@@ -407,9 +405,36 @@ private fun StreamingBubble(text: String, colorScheme: ColorScheme) {
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurface,
                 )
-                Spacer(Modifier.height(4.dp))
-                TypingIndicator(colorScheme)
+                Spacer(Modifier.height(6.dp))
+                PulsingDotIndicator(colorScheme)
             }
+        }
+    }
+}
+
+@Composable
+private fun PulsingDotIndicator(colorScheme: ColorScheme) {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        repeat(3) { index ->
+            val alpha by infiniteTransition.animateFloat(
+                initialValue = 0.3f,
+                targetValue = 1.0f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 600, delayMillis = index * 200),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+                label = "dot-$index",
+            )
+            Box(
+                modifier = Modifier
+                    .size(5.dp)
+                    .padding(end = if (index < 2) 3.dp else 0.dp)
+                    .background(
+                        color = colorScheme.primary.copy(alpha = alpha),
+                        shape = CircleShape
+                    )
+            )
         }
     }
 }
@@ -456,26 +481,6 @@ private fun CodeBlock(code: String, language: String?, colorScheme: ColorScheme)
             }
         }
     }
-}
-
-@Composable
-private fun TypingIndicator(colorScheme: ColorScheme) {
-    val infiniteTransition = rememberInfiniteTransition(label = "typing")
-    val dots = infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "dots",
-    ).value.toInt()
-
-    Text(
-        text = ".".repeat(dots.coerceAtLeast(1)).padEnd(3, ' '),
-        style = MaterialTheme.typography.bodySmall,
-        color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-    )
 }
 
 @Composable

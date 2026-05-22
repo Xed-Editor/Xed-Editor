@@ -14,11 +14,11 @@
   },
   "mcpServers": {
     "xed-ide": {
-      "url": "http://127.0.0.1:43355/mcp?token\u003d09990d60cfe4f2d39970f49832bab825236a6d611e979fc5",
+      "url": "http://127.0.0.1:46653/mcp?token\u003d0f9140df31abe77e4c367aa716183d54409ef6f3d88b2c6e",
       "headers": {
-        "Authorization": "Bearer 09990d60cfe4f2d39970f49832bab825236a6d611e979fc5",
-        "authorization": "Bearer 09990d60cfe4f2d39970f49832bab825236a6d611e979fc5",
-        "x-ide-token": "09990d60cfe4f2d39970f49832bab825236a6d611e979fc5"
+        "Authorization": "Bearer 0f9140df31abe77e4c367aa716183d54409ef6f3d88b2c6e",
+        "authorization": "Bearer 0f9140df31abe77e4c367aa716183d54409ef6f3d88b2c6e",
+        "x-ide-token": "0f9140df31abe77e4c367aa716183d54409ef6f3d88b2c6e"
       }
     }
   }

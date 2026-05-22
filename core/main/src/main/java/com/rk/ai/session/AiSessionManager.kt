@@ -273,14 +273,16 @@ object AiSessionManager {
                 tmpSubdir = "${agent.name}-sheet",
             )
         )
-        return TerminalSession(
-            shell,
-            workingDir,
-            args,
-            env,
-            Settings.terminal_scrollback_buffer,
-            com.rk.terminal.TerminalBackEnd(),
-        ).also { it.mSessionName = "${agent.name}-sheet" }
+        return withContext(Dispatchers.Main) {
+            TerminalSession(
+                shell,
+                workingDir,
+                args,
+                env,
+                Settings.terminal_scrollback_buffer,
+                com.rk.terminal.TerminalBackEnd(),
+            ).also { it.mSessionName = "${agent.name}-sheet" }
+        }
     }
 
     private fun agentSheetProcessArgs(

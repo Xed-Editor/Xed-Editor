@@ -38,16 +38,18 @@ class TerminalManagementService {
         result
     }
 
-    suspend fun createSession(name: String, workingDir: String): String = withContext(Dispatchers.IO) {
+    suspend fun createSession(name: String, workingDir: String): String {
         val shell = "/system/bin/sh"
         val env = arrayOf("TERM=xterm-256color", "HOME=$workingDir")
-        val session = TerminalSession(shell, workingDir, emptyArray(), env,
-            com.rk.settings.Settings.terminal_scrollback_buffer,
-            com.rk.terminal.TerminalBackEnd()
-        ).also { it.mSessionName = name }
+        val session = withContext(Dispatchers.Main) {
+            TerminalSession(shell, workingDir, emptyArray(), env,
+                com.rk.settings.Settings.terminal_scrollback_buffer,
+                com.rk.terminal.TerminalBackEnd()
+            ).also { it.mSessionName = name }
+        }
         val id = "ext-${System.currentTimeMillis()}"
         synchronized(externalSessions) { externalSessions[id] = SessionEntry(session, workingDir) }
-        "created terminal session '$name' with id=$id in $workingDir"
+        return "created terminal session '$name' with id=$id in $workingDir"
     }
 
     suspend fun killSession(sessionId: String): String = withContext(Dispatchers.IO) {

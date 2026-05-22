@@ -19,6 +19,7 @@ import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 object MkSession {
@@ -144,14 +145,17 @@ object MkSession {
 
             pendingCommand = null
 
-            return TerminalSession(
-                actualShell,
-                localDir().absolutePath,
-                actualArgs,
-                env.toTypedArray(),
-                Settings.terminal_scrollback_buffer,
-                sessionClient,
-            ) to workingDir
+            val session = runBlocking(Dispatchers.Main) {
+                TerminalSession(
+                    actualShell,
+                    localDir().absolutePath,
+                    actualArgs,
+                    env.toTypedArray(),
+                    Settings.terminal_scrollback_buffer,
+                    sessionClient,
+                )
+            }
+            return session to workingDir
         }
     }
 }

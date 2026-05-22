@@ -361,11 +361,12 @@ fun AiAgentSheet(
                 onClick = {
                     scope.launch(Dispatchers.IO) {
                         try {
-                            appendLog("Attempting reconnection...")
                             val success = AiSessionManager.reconnect(activity!!, viewModel)
-                            appendLog(if (success) "Reconnected successfully" else "Reconnection failed: ${AiSessionManager.lastError}")
+                            withContext(Dispatchers.Main) {
+                                appendLog(if (success) "Reconnected successfully" else "Reconnection failed: ${AiSessionManager.lastError}")
+                            }
                         } catch (e: Exception) {
-                            appendLog("Reconnection error: ${e.message}")
+                            withContext(Dispatchers.Main) { appendLog("Reconnection error: ${e.message}") }
                         }
                     }
                 },
