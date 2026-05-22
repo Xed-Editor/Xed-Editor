@@ -238,9 +238,7 @@ class IdeBridgeServer(
             }
         }
         val newContent = runBlocking(Dispatchers.IO) {
-            withTimeout(10_000L) {
-                runCatching { newFile.readText() }.getOrElse { return@runBlocking null }
-            }
+            runCatching { withTimeout(10_000L) { newFile.readText() } }.getOrNull()
         } ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "cannot read newPath"))
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
             serverScope.launch {
