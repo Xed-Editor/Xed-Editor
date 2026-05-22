@@ -27,6 +27,78 @@ class EditorService(
     ) {
     fun attachNotificationSender(sender: IdeNotificationSender) { notificationSender = sender }
 
+    fun openFile(file: File) {
+        fileOpener.openFileInEditor(file)
+    }
+
+    suspend fun getOpenFiles(): List<JsonObject> {
+        val current = withContext(Dispatchers.Main) { tabRepo.currentTab as? EditorTab }
+        return tabRepo.tabs.filterIsInstance<EditorTab>().map { it.toIdeFileJsonObject(it == current) }
+    }
+
+    suspend fun getActiveFile(): JsonObject? {
+        val current = withContext(Dispatchers.Main) { tabRepo.currentTab as? EditorTab } ?: return null
+        val json = current.toIdeFileJsonObject(active = true)
+        val content = withContext(Dispatchers.Main) {
+            current.editorState.editor.get()?.text?.toString().orEmpty()
+        }
+        json.addProperty("content", if (content.length > 512_000) content.take(512_000) + "\n\n... (truncated at 500KB)" else content)
+        return json
+    }
+
+    suspend fun getSelection(): String {
+        val current = withContext(Dispatchers.Main) { tabRepo.currentTab as? EditorTab } ?: return ""
+        return withContext(Dispatchers.Main) {
+            current.editorState.editor.get()?.getSelectedText().orEmpty()
+        }
+    }
+
+    fun replaceSelection(newContent: String) {
+        val current = tabRepo.currentTab as? EditorTab ?: return
+        if (Settings.ai_auto_apply) {
+            scope.viewModelScope.launch(Dispatchers.Main) {
+                val editor = current.editorState.editor.get() ?: return@launch
+                val hasSelection = editor.isTextSelected
+                val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
+                val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
+                editor.text.replace(start, end, newContent)
+                current.editorState.isDirty = true
+                notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                    addProperty("filePath", current.file.getAbsolutePath())
+                })
+            }
+            return
+        }
+        scope.viewModelScope.launch(Dispatchers.Main) {
+            val editor = current.editorState.editor.get() ?: return@launch
+            val hasSelection = editor.isTextSelected
+            val start = if (hasSelection) minOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else 0
+            val end = if (hasSelection) maxOf(editor.cursorRange.startIndex, editor.cursorRange.endIndex) else editor.text.toString().length
+            val oldText = editor.text.substring(start, end)
+            current.editorState.pendingAiPatch?.reject?.invoke()
+            current.editorState.pendingAiPatch = EditorPatch(
+                title = if (hasSelection) "Review AI selection replacement" else "Review AI file replacement",
+                filePath = current.file.getAbsolutePath(),
+                oldText = oldText,
+                newText = newContent,
+                apply = {
+                    scope.viewModelScope.launch(Dispatchers.Main) {
+                        editor.text.replace(start, end, newContent)
+                        current.editorState.isDirty = true
+                        notificationSender?.sendNotification("ide/diffAccepted", JsonObject().apply {
+                            addProperty("filePath", current.file.getAbsolutePath())
+                        })
+                    }
+                },
+                reject = {
+                    notificationSender?.sendNotification("ide/diffRejected", JsonObject().apply {
+                        addProperty("filePath", current.file.getAbsolutePath())
+                    })
+                }
+            )
+        }
+    }
+
     fun insertAtCursor(newContent: String) {
         val current = tabRepo.currentTab as? EditorTab ?: return
         if (Settings.ai_auto_apply) {
