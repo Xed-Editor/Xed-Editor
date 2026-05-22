@@ -19,7 +19,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 class IdeBridgeServer(
     requestedPort: Int,
@@ -230,14 +232,20 @@ class IdeBridgeServer(
         val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
         val targetFile = oldFile ?: newFile
         val oldContent = runBlocking(Dispatchers.IO) {
-            oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
-                ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
+            withTimeout(10_000L) {
+                oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
+                    ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
+            }
         }
         val newContent = runBlocking(Dispatchers.IO) {
-            runCatching { newFile.readText() }.getOrElse { return@runBlocking null }
+            withTimeout(10_000L) {
+                runCatching { newFile.readText() }.getOrElse { return@runBlocking null }
+            }
         } ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "cannot read newPath"))
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
-            runBlocking(Dispatchers.IO) { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
+            serverScope.launch {
+                runCatching { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
+            }
         }
         return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
     }

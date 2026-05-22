@@ -32,8 +32,11 @@ import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private typealias StateUpdate = (ConversationState) -> ConversationState
 
 @Composable
 fun InlineAgentBar(
@@ -45,7 +48,17 @@ fun InlineAgentBar(
     val scope = rememberCoroutineScope()
     var input by remember { mutableStateOf("") }
     var conversation by remember { mutableStateOf(ConversationState()) }
+    val conversationChannel = remember { Channel<StateUpdate>(Channel.UNLIMITED) }
     val listState = rememberLazyListState()
+
+    LaunchedEffect(conversationChannel) {
+        for (update in conversationChannel) {
+            conversation = update(conversation)
+            if (conversation.messages.isNotEmpty()) {
+                listState.animateScrollToItem(conversation.messages.size)
+            }
+        }
+    }
     val colorScheme = MaterialTheme.colorScheme
 
     fun buildFileContext(): String {
@@ -128,24 +141,19 @@ fun InlineAgentBar(
                     ideBridge = bridgeInfo,
                     onOutput = { chunk ->
                         val cleaned = cleanStreamingLine(chunk) ?: return@runAgent
-                        scope.launch {
-                            conversation = conversation.appendStreaming(cleaned + "\n")
-                            if (conversation.messages.isNotEmpty()) {
-                                listState.animateScrollToItem(conversation.messages.size)
-                            }
-                        }
+                        conversationChannel.trySend { it.appendStreaming(cleaned + "\n") }
                     },
                 )
             }
         } catch (e: Exception) {
-            conversation = conversation.setError(e.message ?: "Unknown error")
+            conversationChannel.trySend { it.setError(e.message ?: "Unknown error") }
             return
         }
 
         try {
-            conversation = conversation.finishStreaming()
+            conversationChannel.trySend { it.finishStreaming() }
             if (result.timedOut) {
-                conversation = conversation.setError("Request timed out. Try a shorter prompt or reconnect the agent.")
+                conversationChannel.trySend { it.setError("Request timed out. Try a shorter prompt or reconnect the agent.") }
                 return
             }
             if (result.exitCode != 0) {
@@ -159,10 +167,10 @@ fun InlineAgentBar(
                 } else {
                     "Agent exited with code ${result.exitCode}: $detail"
                 }
-                conversation = conversation.addSystemMessage(message)
+                conversationChannel.trySend { it.addSystemMessage(message) }
             }
         } catch (e: Exception) {
-            conversation = conversation.setError(e.message ?: "Unknown error")
+            conversationChannel.trySend { it.setError(e.message ?: "Unknown error") }
         }
     }
 

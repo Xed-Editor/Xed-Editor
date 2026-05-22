@@ -199,7 +199,7 @@ class EditorService(
             if (tab == null) {
                 fileOpener.openFileInEditor(File(filePath))
                 tab = runCatching {
-                    withTimeout(2000) {
+                    withTimeout(5000) {
                         snapshotFlow { tabRepo.tabs }
                             .map { ts -> ts.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } }
                             .filterNotNull()
@@ -209,7 +209,7 @@ class EditorService(
             }
             if (tab == null) {
                 notificationSender?.sendNotification("ide/error", JsonObject().apply {
-                    addProperty("message", "Failed to open file for patching: $filePath")
+                    addProperty("message", "Failed to open file for patching (timeout): $filePath")
                 })
                 return@launch
             }

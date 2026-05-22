@@ -19,18 +19,18 @@ import kotlinx.coroutines.withContext
 class FileService(private val tabRepository: TabRepository) {
 
     private val pathCache = LinkedHashMap<String, PathCacheEntry>(32, 0.75f, true)
-    private val pathCacheMaxSize = 128
     private val contentCache = LinkedHashMap<String, ContentCacheEntry>(16, 0.75f, true)
-    private val contentCacheMaxSize = 64
-    private val contentCacheMaxFileSize = 1_048_576L
+    private val cacheLock = Any()
 
     private class PathCacheEntry(val file: File, val timestamp: Long)
     private class ContentCacheEntry(val content: String, val fileModified: Long, val timestamp: Long)
 
     fun resolvePath(path: String): File? {
         val normalized = path.trim()
-        pathCache[normalized]?.let {
-            if (it.file.exists() && System.currentTimeMillis() - it.timestamp < 5000) return it.file
+        synchronized(cacheLock) {
+            pathCache[normalized]?.let {
+                if (it.file.exists() && System.currentTimeMillis() - it.timestamp < 5000) return it.file
+            }
         }
         val resolved = if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
             resolveRelativePathFromOpenEditor(normalized, tabRepository) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
@@ -38,10 +38,9 @@ class FileService(private val tabRepository: TabRepository) {
             resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         }
         if (resolved != null) {
-            pathCache[normalized] = PathCacheEntry(resolved, System.currentTimeMillis())
-            if (pathCache.size > pathCacheMaxSize) {
-                val oldest = pathCache.keys.firstOrNull()
-                if (oldest != null) pathCache.remove(oldest)
+            synchronized(cacheLock) {
+                pathCache[normalized] = PathCacheEntry(resolved, System.currentTimeMillis())
+                trimToMaxSize(pathCache, 128)
             }
         }
         return resolved
@@ -84,11 +83,13 @@ class FileService(private val tabRepository: TabRepository) {
         val canonical = File(filePath).absolutePath
         val now = System.currentTimeMillis()
         if (startLine == null && endLine == null) {
-            val cached = contentCache[canonical]
-            val diskFile = File(canonical)
-            if (cached != null && diskFile.exists()) {
-                val diskModified = diskFile.lastModified()
-                if (cached.fileModified == diskModified && now - cached.timestamp < 5000) return cached.content
+            synchronized(cacheLock) {
+                val cached = contentCache[canonical]
+                val diskFile = File(canonical)
+                if (cached != null && diskFile.exists()) {
+                    val diskModified = diskFile.lastModified()
+                    if (cached.fileModified == diskModified && now - cached.timestamp < 5000) return cached.content
+                }
             }
         }
         return withContext(Dispatchers.IO) {
@@ -109,10 +110,10 @@ class FileService(private val tabRepository: TabRepository) {
                 file.readText()
             }
             
-            if (startLine == null && endLine == null && length <= contentCacheMaxFileSize) {
-                contentCache[canonical] = ContentCacheEntry(content, lastModified, now)
-                if (contentCache.size > contentCacheMaxSize) {
-                    contentCache.keys.firstOrNull()?.let { contentCache.remove(it) }
+            if (startLine == null && endLine == null && length <= 1_048_576L) {
+                synchronized(cacheLock) {
+                    contentCache[canonical] = ContentCacheEntry(content, lastModified, now)
+                    trimToMaxSize(contentCache, 64)
                 }
             }
             content
@@ -120,7 +121,7 @@ class FileService(private val tabRepository: TabRepository) {
     }
 
     suspend fun writeFile(file: File, content: String) {
-        contentCache.remove(file.absolutePath)
+        synchronized(cacheLock) { contentCache.remove(file.absolutePath) }
         val tab = findTabByPath(file.absolutePath)
         withContext(Dispatchers.IO) {
             tab?.saveMutex?.withLock {
@@ -190,7 +191,14 @@ class FileService(private val tabRepository: TabRepository) {
         return "renamed ${source.absolutePath} -> ${dest.absolutePath}"
     }
 
-    fun clearCache() { pathCache.clear(); contentCache.clear() }
+    private fun trimToMaxSize(map: LinkedHashMap<*, *>, maxSize: Int) {
+        while (map.size > maxSize) {
+            val oldest = map.keys.firstOrNull() ?: break
+            map.remove(oldest)
+        }
+    }
+
+    fun clearCache() { synchronized(cacheLock) { pathCache.clear(); contentCache.clear() } }
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path).absoluteFile

@@ -1,9 +1,10 @@
 package com.rk.ai.agents
 
 import com.rk.settings.Settings
+import java.util.concurrent.ConcurrentHashMap
 
 object AgentTypeRegistry {
-    private val agents = mutableMapOf<String, AiAgent>()
+    private val agents = ConcurrentHashMap<String, AiAgent>()
 
     init {
         register(GeminiAgent)
