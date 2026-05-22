@@ -11,8 +11,15 @@ import kotlinx.coroutines.launch
 
 class IdeServiceImpl(
     private val viewModel: MainViewModel,
-    private val notificationSender: IdeNotificationSender? = null
+    notificationSender: IdeNotificationSender? = null
 ) : IdeService {
+
+    @Volatile private var notificationSender: IdeNotificationSender? = notificationSender
+
+    fun attachNotificationSender(sender: IdeNotificationSender) {
+        notificationSender = sender
+        editorService.attachNotificationSender(sender)
+    }
 
     private val tabRepo = object : TabRepository {
         override val tabs get() = viewModel.tabs
@@ -31,7 +38,9 @@ class IdeServiceImpl(
     }
 
     private val fileService = FileService(tabRepo)
-    private val editorService = EditorService(tabRepo, scope, fileOpener, notificationSender)
+    private val editorService = EditorService(tabRepo, scope, fileOpener).also {
+        notificationSender?.let { ns -> it.attachNotificationSender(ns) }
+    }
     private val lspService = LspService(tabRepo, scope)
     private val gitService = GitService()
     private val terminalService = TerminalService()

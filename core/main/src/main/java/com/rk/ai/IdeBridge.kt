@@ -7,17 +7,17 @@ import com.rk.ai.bridge.server.IdeBridgeServer
 import com.rk.ai.service.IdeServiceImpl
 import com.rk.xededitor.BuildConfig
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
 import java.security.SecureRandom
+import java.util.concurrent.TimeUnit
+import okhttp3.OkHttpClient
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 object IdeBridge {
     data class Info(val port: Int, val token: String, val workspacePath: String, val host: String = "127.0.0.1")
 
     private var server: IdeBridgeServer? = null
-
-    fun connectedClients(): Int = synchronized(stateLock) { server?.connectedClients ?: 0 }
-    fun availableTools(): Int = synchronized(stateLock) { server?.toolsCount ?: 0 }
     private var token: String? = null
     private var port: Int = 0
     private var host: String = "127.0.0.1"
@@ -27,7 +27,17 @@ object IdeBridge {
     private val stateLock = Any()
     private var lastError: String? = null
 
+    private val httpClient = OkHttpClient.Builder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(5, TimeUnit.SECONDS)
+        .writeTimeout(5, TimeUnit.SECONDS)
+        .build()
+
+    fun connectedClients(): Int = synchronized(stateLock) { server?.connectedClients ?: 0 }
+    fun availableTools(): Int = synchronized(stateLock) { server?.toolsCount ?: 0 }
     fun isRunning(): Boolean = synchronized(stateLock) { server != null }
+    fun getLastError(): String? = lastError
+    fun clearLastError() { lastError = null }
 
     fun getBridgeInfo(): Info? = synchronized(stateLock) {
         val s = server ?: return@synchronized null
@@ -35,30 +45,37 @@ object IdeBridge {
         Info(s.port, t, workspacePathForResolution(), host)
     }
 
-    fun getLastError(): String? = synchronized(stateLock) { lastError }
-
-    fun clearLastError() { synchronized(stateLock) { lastError = null } }
-
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
         workspacePath?.let { setWorkspacePath(it) }
-        synchronized(stateLock) {
-            if (server != null) {
-                val health = healthCheck()
+
+        val existingServer = synchronized(stateLock) {
+            val s = server
+            if (s != null) {
+                val health = healthCheckInternal()
                 if (!health) {
                     Log.w("IdeBridge", "Bridge unhealthy, restarting...")
-                    server = null
-                    token = null
-                    port = 0
+                    stopInternalLocked()
+                    null
                 } else {
-                    val info = getBridgeInfo() ?: return@synchronized null
+                    val t = token
+                    val wp = workspacePathForResolution()
                     synchronized(workspacePathsLock) {
                         if (workspacePaths.isNotEmpty()) {
-                            writeDiscoveryFile(host, info.port, info.token, workspacePathForResolution())
+                            writeDiscoveryFile(host, s.port, t ?: return@synchronized null, wp)
                         }
                     }
-                    return info
+                    s
+                }
+            } else null
+        }
+        if (existingServer != null) {
+            val info = getBridgeInfo() ?: return null
+            synchronized(workspacePathsLock) {
+                if (workspacePaths.isNotEmpty()) {
+                    writeDiscoveryFile(host, info.port, info.token, info.workspacePath)
                 }
             }
+            return info
         }
 
         lastError = null
@@ -68,17 +85,22 @@ object IdeBridge {
             s.start()
             val actualPort = s.listeningPort
             if (actualPort <= 0) throw RuntimeException("Failed to bind to any port")
+
             synchronized(stateLock) {
                 server = s
                 token = t
                 port = actualPort
-                s.ideService = IdeServiceImpl(viewModel, s)
+                if (s.ideService is IdeServiceImpl) {
+                    (s.ideService as IdeServiceImpl).attachNotificationSender(s)
+                }
             }
+
             synchronized(workspacePathsLock) {
                 if (workspacePaths.isNotEmpty()) {
                     writeDiscoveryFile(host, port, t, workspacePathForResolution())
                 }
             }
+
             if (BuildConfig.DEBUG) {
                 Log.d("IdeBridge", "Server started on $host:$port token=${t.take(8)}...")
                 Log.d("IdeBridge", "Health: http://$host:$port/health")
@@ -87,11 +109,7 @@ object IdeBridge {
         }.onFailure { e ->
             Log.e("IdeBridge", "Failed to start server", e)
             lastError = e.message
-            synchronized(stateLock) {
-                server = null
-                token = null
-                port = 0
-            }
+            synchronized(stateLock) { server = null; token = null; port = 0 }
         }.getOrNull()
     }
 
@@ -100,52 +118,44 @@ object IdeBridge {
         return ensureStarted(viewModel)
     }
 
-    fun healthCheck(): Boolean = healthCheckInternal(2)
+    fun healthCheck(): Boolean = healthCheckInternal()
 
-    private fun healthCheckInternal(retries: Int): Boolean {
+    private fun healthCheckInternal(): Boolean {
         val s = synchronized(stateLock) { server } ?: return false
-        repeat(retries) { attempt ->
-            val result = runCatching {
-                val url = URL("http://$host:${s.port}/health")
-                val conn = url.openConnection() as HttpURLConnection
-                conn.connectTimeout = 3000
-                conn.readTimeout = 3000
-                val response = conn.responseCode == 200
-                conn.disconnect()
-                response
-            }.getOrDefault(false)
-            if (result) return true
-            if (attempt < retries - 1) {
-                kotlinx.coroutines.runBlocking {
-                    kotlinx.coroutines.delay(500L * (attempt + 1))
-                }
-            }
+        return try {
+            val request = Request.Builder()
+                .url("http://$host:${s.port}/health")
+                .get()
+                .build()
+            httpClient.newCall(request).execute().use { it.isSuccessful }
+        } catch (_: Exception) {
+            false
         }
-        return false
     }
 
     fun checkMcpConnection(): Pair<Boolean, String> {
         val info = getBridgeInfo() ?: return false to "Bridge not running"
         return try {
-            val url = URL("http://${info.host}:${info.port}/mcp-info")
-            val conn = url.openConnection() as HttpURLConnection
-            conn.setRequestProperty("Authorization", "Bearer ${info.token}")
-            conn.setRequestProperty("x-ide-token", info.token)
-            conn.connectTimeout = 5000
-            conn.readTimeout = 5000
-            val response = conn.responseCode
-            if (response == 200) {
-                val body = conn.inputStream.bufferedReader().use { it.readText() }
-                val hasTools = body.contains("\"tools\"")
-                if (hasTools) {
-                    val toolsCount = body.substringAfter("\"tools\":").substringBefore(",").trim()
-                    Pair(true, "MCP connected: $toolsCount tools")
+            val request = Request.Builder()
+                .url("http://${info.host}:${info.port}/mcp-info")
+                .addHeader("Authorization", "Bearer ${info.token}")
+                .addHeader("x-ide-token", info.token)
+                .get()
+                .build()
+            httpClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val body = response.body?.string() ?: ""
+                    val hasTools = body.contains("\"tools\"")
+                    if (hasTools) {
+                        val toolsCount = body.substringAfter("\"tools\":").substringBefore(",").trim()
+                        Pair(true, "MCP connected: $toolsCount tools")
+                    } else {
+                        Pair(true, "MCP connected")
+                    }
                 } else {
-                    Pair(true, "MCP connected")
+                    val errorBody = response.body?.string() ?: ""
+                    Pair(false, "MCP responded with code ${response.code}: $errorBody")
                 }
-            } else {
-                val errorBody = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: ""
-                Pair(false, "MCP responded with code $response: $errorBody")
             }
         } catch (e: Exception) {
             Pair(false, "Connection failed: ${e.message}")
@@ -155,30 +165,28 @@ object IdeBridge {
     fun verifyMcpToolsAvailable(): Pair<Boolean, String> {
         val info = getBridgeInfo() ?: return false to "Bridge not running"
         return try {
-            val jsonRequest = """{"jsonrpc":"2.0","id":1,"method":"tools/list"}""".toByteArray()
-            val url = URL("http://${info.host}:${info.port}/mcp")
-            val conn = url.openConnection() as HttpURLConnection
-            conn.doOutput = true
-            conn.requestMethod = "POST"
-            conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("Authorization", "Bearer ${info.token}")
-            conn.setRequestProperty("x-ide-token", info.token)
-            conn.connectTimeout = 5000
-            conn.readTimeout = 5000
-            conn.outputStream.write(jsonRequest)
-            conn.outputStream.flush()
-            val responseCode = conn.responseCode
-            if (responseCode == 200) {
-                val body = conn.inputStream.bufferedReader().use { it.readText() }
-                if (body.contains("\"result\"") && body.contains("\"tools\"")) {
-                    val toolsCount = body.split("\"name\":").size - 1
-                    Pair(true, "$toolsCount MCP tools available")
+            val jsonRequest = """{"jsonrpc":"2.0","id":1,"method":"tools/list"}"""
+            val request = Request.Builder()
+                .url("http://${info.host}:${info.port}/mcp")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer ${info.token}")
+                .addHeader("x-ide-token", info.token)
+                .post(jsonRequest.toRequestBody("application/json".toMediaType()))
+                .build()
+
+            httpClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val body = response.body?.string() ?: ""
+                    if (body.contains("\"result\"") && body.contains("\"tools\"")) {
+                        val toolsCount = body.split("\"name\":").size - 1
+                        Pair(true, "$toolsCount MCP tools available")
+                    } else {
+                        Pair(false, "MCP response missing tools: ${body.take(200)}")
+                    }
                 } else {
-                    Pair(false, "MCP response missing tools: ${body.take(200)}")
+                    val errorBody = response.body?.string() ?: ""
+                    Pair(false, "MCP tools/list returned ${response.code}: $errorBody")
                 }
-            } else {
-                val errorBody = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: ""
-                Pair(false, "MCP tools/list returned $responseCode: $errorBody")
             }
         } catch (e: Exception) {
             Pair(false, "MCP tools/list failed: ${e.message}")
@@ -186,33 +194,48 @@ object IdeBridge {
     }
 
     fun setWorkspacePath(path: String) {
-        synchronized(workspacePathsLock) {
-            if (!workspacePaths.contains(path)) {
-                workspacePaths.add(path)
-            }
-            val s = synchronized(stateLock) { server }
-            val t = synchronized(stateLock) { token }
-            if (s != null && t != null) {
-                writeDiscoveryFile(host, s.port, t, workspacePathForResolution())
+        synchronized(stateLock) {
+            synchronized(workspacePathsLock) {
+                if (!workspacePaths.contains(path)) {
+                    workspacePaths.add(path)
+                }
+                val s = server
+                val t = token
+                if (s != null && t != null) {
+                    writeDiscoveryFile(host, s.port, t, workspacePathForResolution())
+                }
             }
         }
     }
 
     fun stop() {
-        synchronized(stateLock) {
-            Log.d("IdeBridge", "Stopping server")
-            server?.stop()
-            server = null
-            token = null
-            port = 0
-        }
+        synchronized(stateLock) { stopInternalLocked() }
         synchronized(workspacePathsLock) { workspacePaths.clear() }
         clearDiscoveryFilesForProcess()
     }
 
+    private fun stopInternalLocked() {
+        Log.d("IdeBridge", "Stopping server")
+        server?.stop()
+        server = null
+        token = null
+        port = 0
+    }
+
     fun primaryWorkspacePath(): String = synchronized(workspacePathsLock) { workspacePaths.lastOrNull().orEmpty() }
-    
+
     fun workspacePathForResolution(): String = synchronized(workspacePathsLock) { workspacePaths.joinToString(File.pathSeparator) }
+
+    fun forceWriteAgentConfigs() {
+        synchronized(stateLock) {
+            val s = server ?: return
+            val t = token ?: return
+            val wp = synchronized(workspacePathsLock) { workspacePathForResolution() }
+            DiscoveryFileWriter.forceWriteAgentConfigs(
+                DiscoveryFileWriter.BridgeInfo(host, s.port, t, wp)
+            )
+        }
+    }
 
     private fun newToken(): String {
         val bytes = ByteArray(24)
@@ -224,15 +247,6 @@ object IdeBridge {
         val info = DiscoveryFileWriter.BridgeInfo(host, port, token, workspacePath)
         DiscoveryFileWriter.write(info)
         DiscoveryFileWriter.forceWriteAgentConfigs(info)
-    }
-
-    fun forceWriteAgentConfigs() {
-        val s = synchronized(stateLock) { server } ?: return
-        val t = synchronized(stateLock) { token } ?: return
-        val wp = synchronized(workspacePathsLock) { workspacePathForResolution() }
-        DiscoveryFileWriter.forceWriteAgentConfigs(
-            DiscoveryFileWriter.BridgeInfo(host, s.port, t, wp)
-        )
     }
 
     private fun clearDiscoveryFilesForProcess() {

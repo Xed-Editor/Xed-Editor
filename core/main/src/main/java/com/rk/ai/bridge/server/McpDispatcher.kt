@@ -13,7 +13,7 @@ import kotlinx.coroutines.withTimeout
 
 class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
 
-    private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val gson = GsonBuilder().disableHtmlEscaping().create()
 
     fun dispatch(id: JsonElement, method: String, request: JsonObject): String = when (method) {
         "initialize" -> initializeResult(id, request)
@@ -62,7 +62,7 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
         }
 
         return try {
-            val result = runBlocking(Dispatchers.IO) {
+            val result = runBlocking(Dispatchers.Default) {
                 withTimeout(timeoutMs) { toolRegistry().execute(name, args) }
             } ?: return errorJson(id, -32601, "unknown tool: '$name'")
             resultJson(id, result)

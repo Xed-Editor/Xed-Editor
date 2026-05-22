@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.rk.ai.AiConfig
-import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
@@ -36,17 +35,15 @@ object DiscoveryFileWriter {
                     addProperty("displayName", "Xed Editor")
                 })
             }
-            val json = gson.toJson(config)
-
-            AgentTypeRegistry.available().forEach { agent ->
+            for (agent in AgentTypeRegistry.available()) {
                 writeAgentConfig(agent.name, info)
             }
-            writeDiscoveryFiles(info, pid, url, config, json)
+            writeDiscoveryFiles(info, pid, url, config)
         }
     }
 
     fun forceWriteAgentConfigs(info: BridgeInfo) {
-        AgentTypeRegistry.available().forEach { agent ->
+        for (agent in AgentTypeRegistry.available()) {
             writeAgentConfig(agent.name, info)
         }
     }
@@ -58,61 +55,72 @@ object DiscoveryFileWriter {
             val configDir = File(sandboxHome, AiConfig.Discovery.agentConfigDir(agentName))
             configDir.mkdirs()
             val configFile = File(configDir, AiConfig.Discovery.agentConfigFile(agentName))
-            val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
+            buildAndWriteAgentConfig(agentName, info, configFile)
+        }
+    }
 
-            val existing = if (configFile.exists()) {
-                runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-            } else {
-                JsonObject()
+    private fun mergeAgentMcpConfig(agentName: String, info: BridgeInfo, targetDir: File) {
+        runCatching {
+            val configFile = File(targetDir, AiConfig.Discovery.agentConfigFile(agentName))
+            buildAndWriteAgentConfig(agentName, info, configFile)
+        }
+    }
+
+    private fun buildAndWriteAgentConfig(agentName: String, info: BridgeInfo, configFile: File) {
+        val existing = if (configFile.exists()) {
+            runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
+        } else JsonObject()
+
+        applyAgentDefaults(agentName, existing)
+        val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
+        val target = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
+        val mcpEntry = buildMcpServerConfig(agentName, info)
+        target.add("xed-ide", mcpEntry)
+
+        if (agentName == "opencode") {
+            existing.remove("mcpServers")
+            existing.remove("apiKey")
+        }
+
+        configFile.writeText(gson.toJson(existing))
+    }
+
+    private fun applyAgentDefaults(agentName: String, config: JsonObject) {
+        if (agentName == "gemini") {
+            config.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
+                ?: config.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
+            config.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
+                ?: config.add("ide", JsonObject().apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) })
+            config.getAsJsonObject("privacy")?.apply { addProperty("usageStatisticsEnabled", false) }
+                ?: config.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
+            config.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
+                ?: config.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
+            if (Settings.ai_api_key.isNotBlank()) {
+                config.addProperty("apiKey", Settings.ai_api_key)
             }
+        }
+    }
 
-            if (agentName == "gemini") {
-                existing.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
-                    ?: existing.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
-                existing.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
-                    ?: existing.add("ide", JsonObject().apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) })
-                existing.getAsJsonObject("privacy")?.apply { addProperty("usageStatisticsEnabled", false) }
-                    ?: existing.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
-                existing.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
-                    ?: existing.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
-                
-                if (Settings.ai_api_key.isNotBlank()) {
-                    existing.addProperty("apiKey", Settings.ai_api_key)
-                }
-            } else if (agentName == "opencode") {
-                // OpenCode schema does not accept these legacy keys at top level.
-                existing.remove("apiKey")
-                existing.remove("mcpServers")
+    private fun buildMcpServerConfig(agentName: String, info: BridgeInfo): JsonObject {
+        val headers = JsonObject().apply {
+            addProperty("Authorization", "Bearer ${info.token}")
+            addProperty("authorization", "Bearer ${info.token}")
+            addProperty("x-ide-token", info.token)
+        }
+        val mcpUrl = "http://${info.host}:${info.port}/mcp?token=${info.token}"
+        return if (agentName == "gemini") {
+            JsonObject().apply {
+                addProperty("url", mcpUrl)
+                add("headers", headers)
             }
-
-            val target = existing.getAsJsonObject(mcpKey)
-                ?: JsonObject().also { existing.add(mcpKey, it) }
-            
-            val headers = JsonObject().apply {
-                addProperty("Authorization", "Bearer ${info.token}")
-                addProperty("authorization", "Bearer ${info.token}")
-                addProperty("x-ide-token", info.token)
+        } else {
+            JsonObject().apply {
+                addProperty("type", "remote")
+                addProperty("url", mcpUrl)
+                addProperty("enabled", true)
+                addProperty("timeout", 120000)
+                add("headers", headers)
             }
-
-            val mcpUrl = "http://${info.host}:${info.port}/mcp?token=${info.token}"
-            if (agentName == "gemini") {
-                target.add("xed-ide", JsonObject().apply {
-                    addProperty("url", mcpUrl)
-                    add("headers", headers)
-                })
-                existing.getAsJsonObject("mcp")?.remove("xed-ide")
-            } else {
-                target.add("xed-ide", JsonObject().apply {
-                    addProperty("type", "remote")
-                    addProperty("url", mcpUrl)
-                    addProperty("enabled", true)
-                    addProperty("timeout", 120000)
-                    add("headers", headers)
-                })
-                existing.remove("mcpServers")
-            }
-
-            configFile.writeText(gson.toJson(existing))
         }
     }
 
@@ -141,50 +149,10 @@ object DiscoveryFileWriter {
         }))
     }
 
-    private fun mergeAgentMcpConfig(dir: File, agentName: String, info: BridgeInfo) {
-        val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
-        val configFileName = AiConfig.Discovery.agentConfigFile(agentName)
-        val mcpFile = File(dir, configFileName)
-        val existingMcp = runCatching { JsonParser.parseString(mcpFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-        val target = existingMcp.getAsJsonObject(mcpKey)
-            ?: JsonObject().also { existingMcp.add(mcpKey, it) }
-
-        val headers = JsonObject().apply {
-            addProperty("Authorization", "Bearer ${info.token}")
-            addProperty("authorization", "Bearer ${info.token}")
-            addProperty("x-ide-token", info.token)
-        }
-
-        val mcpUrl = "http://${info.host}:${info.port}/mcp?token=${info.token}"
-        if (agentName == "gemini") {
-            target.add("xed-ide", JsonObject().apply {
-                addProperty("url", mcpUrl)
-                add("headers", headers)
-            })
-            existingMcp.getAsJsonObject("mcp")?.remove("xed-ide")
-            if (Settings.ai_api_key.isNotBlank()) {
-                existingMcp.addProperty("apiKey", Settings.ai_api_key)
-            }
-        } else {
-            target.add("xed-ide", JsonObject().apply {
-                addProperty("type", "remote")
-                addProperty("url", mcpUrl)
-                addProperty("enabled", true)
-                addProperty("timeout", 120000)
-                add("headers", headers)
-            })
-            // OpenCode schema does not accept these legacy keys at top level.
-            if (agentName == "opencode") {
-                existingMcp.remove("mcpServers")
-                existingMcp.remove("apiKey")
-            }
-        }
-        mcpFile.writeText(gson.toJson(existingMcp))
-    }
-
-    private fun writeDiscoveryFiles(info: BridgeInfo, pid: Int, url: String, config: JsonObject, json: String) {
+    private fun writeDiscoveryFiles(info: BridgeInfo, pid: Int, url: String, config: JsonObject) {
         val tmpDir = getTempDir()
         val agentNames = AgentTypeRegistry.available().map { it.name }
+        val json = gson.toJson(config)
         val dirs = mutableListOf<File>().apply {
             AiConfig.Discovery.discoveryDirs.forEach { add(File(tmpDir, it)) }
             add(File(AiConfig.Discovery.tmpDiscoveryDir))
@@ -207,7 +175,7 @@ object DiscoveryFileWriter {
                     writeIdeEnv(dir, info)
                 }
                 agentNames.forEach { agent ->
-                    if (dir.name == ".$agent") mergeAgentMcpConfig(dir, agent, info)
+                    if (dir.name == ".$agent") mergeAgentMcpConfig(agent, info, dir)
                 }
             }
         }

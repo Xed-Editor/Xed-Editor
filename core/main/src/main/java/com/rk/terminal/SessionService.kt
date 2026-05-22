@@ -20,18 +20,14 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentHashMap
 
 class SessionService : Service() {
-    private val sessions = hashMapOf<SessionId, TerminalSession>()
-    private val sessionWorkDirs = mutableMapOf<SessionId, SessionPwd>()
+    private val sessions = ConcurrentHashMap<SessionId, TerminalSession>()
+    private val sessionWorkDirs = ConcurrentHashMap<SessionId, SessionPwd>()
     val sessionList = mutableStateListOf<String>()
     var currentSession = mutableStateOf("main")
-    private var deamonRunning = false
 
     class SessionBinder(svc: SessionService) : Binder() {
         private val weakService = WeakReference(svc)
@@ -71,12 +67,8 @@ class SessionService : Service() {
             s.sessions.remove(id)
             s.sessionList.remove(id)
             s.sessionWorkDirs.remove(id)
-
             if (s.sessions.isEmpty()) {
                 s.stopSelf()
-                if (s.deamonRunning) {
-                    s.deamonRunning = false
-                }
             } else {
                 s.updateNotification()
             }
@@ -91,9 +83,7 @@ class SessionService : Service() {
     }
 
     override fun onDestroy() {
-        sessions.forEach { s -> s.value.finishIfRunning() }
-
-        deamonRunning = false
+        sessions.forEach { (_, s) -> s.finishIfRunning() }
         if (wakeLock?.isHeld == true) {
             wakeLock?.release()
         }
@@ -107,17 +97,11 @@ class SessionService : Service() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
         val notification = createNotification()
         startForeground(1, notification)
-
-        if (deamonRunning.not()) {
-            GlobalScope.launch(Dispatchers.IO) { deamonRunning = true }
-        }
-
         if (wakeLock == null) {
             wakeLock =
                 (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
@@ -130,20 +114,17 @@ class SessionService : Service() {
     var wakeLock: PowerManager.WakeLock? = null
 
     fun actionExit() {
-        sessions.forEach { s -> s.value.finishIfRunning() }
-        if (deamonRunning) {
-            deamonRunning = false
-        }
+        sessions.forEach { (_, s) -> s.finishIfRunning() }
+        sessions.clear()
+        sessionWorkDirs.clear()
+        sessionList.clear()
         stopSelf()
     }
 
     @SuppressLint("WakelockTimeout", "Wakelock")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            "ACTION_EXIT" -> {
-                actionExit()
-            }
-
+            "ACTION_EXIT" -> actionExit()
             "ACTION_WAKE_LOCK" -> {
                 if (wakeLock?.isHeld == true) {
                     wakeLock?.release()
@@ -160,26 +141,19 @@ class SessionService : Service() {
         val intent = Intent(this, Terminal::class.java)
         val pendingIntent =
             PendingIntent.getActivity(
-                this,
-                0,
-                intent,
+                this, 0, intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         val exitIntent = Intent(this, SessionService::class.java).apply { action = "ACTION_EXIT" }
         val wakeLockIntent = Intent(this, SessionService::class.java).apply { action = "ACTION_WAKE_LOCK" }
-
         val exitPendingIntent =
             PendingIntent.getService(
-                this,
-                1,
-                exitIntent,
+                this, 1, exitIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         val wakelockPendingIntent =
             PendingIntent.getService(
-                this,
-                2,
-                wakeLockIntent,
+                this, 2, wakeLockIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
 
@@ -192,14 +166,10 @@ class SessionService : Service() {
             .addAction(
                 NotificationCompat.Action.Builder(
                         null,
-                        if (wakeLock?.isHeld == true) {
-                            strings.release_wakelock.getString()
-                        } else {
-                            strings.acquire_wakelock.getString()
-                        },
+                        if (wakeLock?.isHeld == true) strings.release_wakelock.getString()
+                        else strings.acquire_wakelock.getString(),
                         wakelockPendingIntent,
-                    )
-                    .build()
+                    ).build()
             )
             .setOngoing(true)
             .build()
@@ -217,26 +187,19 @@ class SessionService : Service() {
 
     private fun updateNotification() {
         runCatching {
-                val notification = createNotification()
-                notificationManager.notify(1, notification)
-            }
-            .onFailure { it.printStackTrace() }
+            notificationManager.notify(1, createNotification())
+        }.onFailure { it.printStackTrace() }
     }
 
     private fun getNotificationContentText(wakelock: Boolean): String {
         val count = sessions.size
         return "$count sessions running ${
-            if (wakelock) {
-                "(wake lock held)"
-            } else {
-                ""
-            }
+            if (wakelock) "(wake lock held)" else ""
         }"
     }
 }
 
 typealias SessionId = String
-
 typealias SessionPwd = String
 
 data class SessionInfo(val id: SessionId, val pwd: SessionPwd, val session: TerminalSession)

@@ -37,7 +37,8 @@ class IdeBridgeServer(
     private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
     private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope, token, { listeningPort })
 
-    @Volatile var connectedClients: Int = 0; private set
+    @Volatile var connectedClients: Int = 0
+        private set
     val toolsCount: Int get() = toolRegistry.listSchemas().size()
 
     var ideService: IdeService = initialIdeService
@@ -49,11 +50,9 @@ class IdeBridgeServer(
     companion object {
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
         private const val MAX_CONCURRENT_TOOL_CALLS = 8
-        private const val MAX_CONCURRENT_MESSAGES = 16
     }
 
     private val toolCallPermits = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
-    private val messagePermits = Semaphore(MAX_CONCURRENT_MESSAGES)
 
     init {
         registerTools(toolRegistry)
@@ -111,14 +110,28 @@ class IdeBridgeServer(
 
     override fun serve(session: IHTTPSession): Response {
         d("serve ${session.method} ${session.uri}")
+
+        if (session.method == Method.OPTIONS) {
+            return corsPreflightResponse()
+        }
+
         val rawPostBody = if (session.method == Method.POST) {
             readRequestBodyUtf8(session).getOrElse {
                 return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
             }
         } else null
-        if (!hasValidHost(session)) return json(Response.Status.FORBIDDEN, errorJson(null, -32003, "invalid host"))
-        if (session.uri != "/health" && session.uri != "/debug" && !(session.uri == "/mcp" && session.method == Method.GET) && !isAuthorized(session))
+
+        if (!hasValidHost(session)) {
+            return json(Response.Status.FORBIDDEN, errorJson(null, -32003, "invalid host"))
+        }
+
+        val publicEndpoints = setOf("/health", "/debug")
+        val mcpSseEndpoint = session.uri == "/mcp" && session.method == Method.GET
+        val sseEndpoint = session.uri == "/sse"
+        if (session.uri !in publicEndpoints && !mcpSseEndpoint && !sseEndpoint && !isAuthorized(session)) {
             return json(Response.Status.UNAUTHORIZED, errorJson(null, -32001, "unauthorized"))
+        }
+
         return when (session.uri) {
             "/health" -> json(Response.Status.OK, "{\"ok\":true}")
             "/context" -> json(Response.Status.OK, ideContextJson())
@@ -130,49 +143,69 @@ class IdeBridgeServer(
                 if (session.method == Method.GET) {
                     sseManager.createMcpStream(session, resolveMcpSessionId("initialize", null) ?: "default")
                 } else {
-                    toolCallPermits.acquireUninterruptibly()
-                    try {
-                        handleMcp(session, rawPostBody)
-                    } finally {
-                        toolCallPermits.release()
-                    }
+                    handleMcpRequest(session, rawPostBody)
                 }
             }
-            "/messages" -> {
-                messagePermits.acquireUninterruptibly()
-                try {
-                    handleMessages(session, rawPostBody)
-                } finally {
-                    messagePermits.release()
-                }
-            }
+            "/messages" -> handleMessagesRequest(session, rawPostBody)
             "/external-editor" -> handleExternalEditor(session, rawPostBody)
             else -> json(Response.Status.NOT_FOUND, errorJson(null, -32601, "not_found"))
         }
     }
 
-    private fun handleMcp(session: IHTTPSession, rawPostBody: String?): Response {
-        if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+    private fun handleMcpRequest(session: IHTTPSession, rawPostBody: String?): Response {
+        if (session.method != Method.POST) {
+            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        }
         val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
-        val id = request.get("id") ?: JsonNull.INSTANCE
         val method = request.get("method")?.asString.orEmpty()
+        val id = request.get("id") ?: JsonNull.INSTANCE
+
         val responseSessionId = resolveMcpSessionId(method, session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() })
-        return json(Response.Status.OK, mcpDispatcher.dispatch(id, method, request)).apply {
+
+        val responseBody = if (method == "tools/call") {
+            toolCallPermits.acquireUninterruptibly()
+            try {
+                mcpDispatcher.dispatch(id, method, request)
+            } finally {
+                toolCallPermits.release()
+            }
+        } else {
+            mcpDispatcher.dispatch(id, method, request)
+        }
+
+        return json(Response.Status.OK, responseBody).apply {
             responseSessionId?.let { addHeader(MCP_SESSION_ID_HEADER, it) }
         }
     }
 
-    private fun handleMessages(session: IHTTPSession, rawPostBody: String?): Response {
-        if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+    private fun handleMessagesRequest(session: IHTTPSession, rawPostBody: String?): Response {
+        if (session.method != Method.POST) {
+            return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        }
         val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
         val method = request.get("method")?.asString.orEmpty()
-        val requestedSessionId = session.parameters["sessionId"]?.firstOrNull() ?: session.headers[MCP_SESSION_ID_HEADER]
-        val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
         val id = request.get("id") ?: JsonNull.INSTANCE
-        val responseBody = mcpDispatcher.dispatch(id, method, request)
-        if (sseManager.pushToSession(sessionId, responseBody)) {
+
+        val requestedSessionId = session.parameters["sessionId"]?.firstOrNull()
+            ?: session.headers[MCP_SESSION_ID_HEADER]
+        val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
+
+        val responseBody = if (method == "tools/call") {
+            toolCallPermits.acquireUninterruptibly()
+            try {
+                mcpDispatcher.dispatch(id, method, request)
+            } finally {
+                toolCallPermits.release()
+            }
+        } else {
+            mcpDispatcher.dispatch(id, method, request)
+        }
+
+        val pushed = sseManager.pushToSession(sessionId, responseBody)
+        if (pushed) {
             return json(Response.Status.OK, mcpDispatcher.resultJson(id, JsonObject().apply { addProperty("_ack", true) }))
         }
+
         return json(Response.Status.OK, responseBody).apply { addHeader(MCP_SESSION_ID_HEADER, sessionId) }
     }
 
@@ -208,6 +241,15 @@ class IdeBridgeServer(
         }
         return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
     }
+
+    private fun corsPreflightResponse(): Response =
+        NanoHTTPD.newFixedLengthResponse(Response.Status.OK, "application/json", "{}").apply {
+            addHeader("Access-Control-Allow-Origin", "*")
+            addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-ide-token, mcp-session-id")
+            addHeader("Access-Control-Max-Age", "86400")
+            addHeader("Cache-Control", "no-store")
+        }
 
     private fun bridgeInfoJson(): String = gson.toJson(JsonObject().apply {
         addProperty("name", "xed-ide-bridge"); addProperty("version", "1.0.0"); addProperty("protocol", "mcp")
