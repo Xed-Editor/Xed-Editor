@@ -75,7 +75,7 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
 
         return try {
             val result = withContext(Dispatchers.Default) {
-                async { withTimeout(timeoutMs) { toolRegistry().execute(name, args) } }.await()
+                withTimeout(timeoutMs) { toolRegistry().execute(name, args) }
             } ?: return errorJson(id, -32601, "unknown tool: '$name'")
             resultJson(id, result)
         } catch (e: ToolError) {
