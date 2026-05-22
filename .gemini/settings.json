@@ -1,11 +1,11 @@
 {
   "mcpServers": {
     "xed-ide": {
-      "url": "http://127.0.0.1:36279/mcp",
+      "url": "http://127.0.0.1:46555/mcp?token\u003d715e917c0dc5759222599e672b87d1eb6e6986a866ce1626",
       "headers": {
-        "Authorization": "Bearer 91ff867e602dc1f0dbdd790d8ad586b934ab5f5c5fa86b34",
-        "authorization": "Bearer 91ff867e602dc1f0dbdd790d8ad586b934ab5f5c5fa86b34",
-        "x-ide-token": "91ff867e602dc1f0dbdd790d8ad586b934ab5f5c5fa86b34"
+        "Authorization": "Bearer 715e917c0dc5759222599e672b87d1eb6e6986a866ce1626",
+        "authorization": "Bearer 715e917c0dc5759222599e672b87d1eb6e6986a866ce1626",
+        "x-ide-token": "715e917c0dc5759222599e672b87d1eb6e6986a866ce1626"
       }
     }
   }
