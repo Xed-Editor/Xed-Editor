@@ -117,7 +117,7 @@ class IdeBridgeServer(
             }
         } else null
         if (!hasValidHost(session)) return json(Response.Status.FORBIDDEN, errorJson(null, -32003, "invalid host"))
-        if (session.uri != "/health" && session.uri != "/debug" && !isAuthorized(session))
+        if (session.uri != "/health" && session.uri != "/debug" && !(session.uri == "/mcp" && session.method == Method.GET) && !isAuthorized(session))
             return json(Response.Status.UNAUTHORIZED, errorJson(null, -32001, "unauthorized"))
         return when (session.uri) {
             "/health" -> json(Response.Status.OK, "{\"ok\":true}")

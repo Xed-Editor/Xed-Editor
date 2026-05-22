@@ -288,11 +288,15 @@ class EditorService(
                             ?: existing.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
                         existing.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
                             ?: existing.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
+                        if (com.rk.settings.Settings.ai_api_key.isNotBlank()) {
+                            existing.addProperty("apiKey", com.rk.settings.Settings.ai_api_key)
+                        }
                     }
 
                     val target = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
                     val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
                     if (bridgeInfo != null) {
+                        val mcpUrl = "http://127.0.0.1:${bridgeInfo.port}/mcp?token=${bridgeInfo.token}"
                         val headers = JsonObject().apply {
                             addProperty("Authorization", "Bearer ${bridgeInfo.token}")
                             addProperty("authorization", "Bearer ${bridgeInfo.token}")
@@ -300,13 +304,13 @@ class EditorService(
                         }
                         if (agent.name == "gemini") {
                             target.add("xed-ide", JsonObject().apply {
-                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                addProperty("url", mcpUrl)
                                 add("headers", headers)
                             })
                         } else {
                             target.add("xed-ide", JsonObject().apply {
                                 addProperty("type", "remote")
-                                addProperty("url", "http://127.0.0.1:${bridgeInfo.port}/mcp")
+                                addProperty("url", mcpUrl)
                                 addProperty("enabled", true)
                                 addProperty("timeout", 120000)
                                 add("headers", headers)

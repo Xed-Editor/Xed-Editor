@@ -63,7 +63,7 @@ except:
 ms = cfg.setdefault('mcp', {})
 ms['xed-ide'] = {
     'type': 'remote',
-    'url': f'http://127.0.0.1:{port}/mcp',
+    'url': f'http://127.0.0.1:{port}/mcp?token={token}',
     'enabled': True,
     'timeout': 120000,
     'headers': {
@@ -95,7 +95,7 @@ try { cfg = JSON.parse(fs.readFileSync(configFile, 'utf8')); } catch (_) {}
 cfg.mcp = cfg.mcp || {};
 cfg.mcp['xed-ide'] = {
   type: 'remote',
-  url: 'http://127.0.0.1:' + idePort + '/mcp',
+  url: 'http://127.0.0.1:' + idePort + '/mcp?token=' + ideToken,
   enabled: true,
   timeout: 120000,
   headers: {

@@ -94,16 +94,17 @@ object DiscoveryFileWriter {
                 addProperty("x-ide-token", info.token)
             }
 
+            val mcpUrl = "http://${info.host}:${info.port}/mcp?token=${info.token}"
             if (agentName == "gemini") {
                 target.add("xed-ide", JsonObject().apply {
-                    addProperty("url", "http://${info.host}:${info.port}/mcp")
+                    addProperty("url", mcpUrl)
                     add("headers", headers)
                 })
                 existing.getAsJsonObject("mcp")?.remove("xed-ide")
             } else {
                 target.add("xed-ide", JsonObject().apply {
                     addProperty("type", "remote")
-                    addProperty("url", "http://${info.host}:${info.port}/mcp")
+                    addProperty("url", mcpUrl)
                     addProperty("enabled", true)
                     addProperty("timeout", 120000)
                     add("headers", headers)
@@ -154,9 +155,10 @@ object DiscoveryFileWriter {
             addProperty("x-ide-token", info.token)
         }
 
+        val mcpUrl = "http://${info.host}:${info.port}/mcp?token=${info.token}"
         if (agentName == "gemini") {
             target.add("xed-ide", JsonObject().apply {
-                addProperty("url", "http://${info.host}:${info.port}/mcp")
+                addProperty("url", mcpUrl)
                 add("headers", headers)
             })
             existingMcp.getAsJsonObject("mcp")?.remove("xed-ide")
@@ -166,7 +168,7 @@ object DiscoveryFileWriter {
         } else {
             target.add("xed-ide", JsonObject().apply {
                 addProperty("type", "remote")
-                addProperty("url", "http://${info.host}:${info.port}/mcp")
+                addProperty("url", mcpUrl)
                 addProperty("enabled", true)
                 addProperty("timeout", 120000)
                 add("headers", headers)

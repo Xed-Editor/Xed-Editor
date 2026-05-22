@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:36279",
+  "host": "127.0.0.1",
+  "port": 36279,
+  "token": "91ff867e602dc1f0dbdd790d8ad586b934ab5f5c5fa86b34",
+  "authToken": "91ff867e602dc1f0dbdd790d8ad586b934ab5f5c5fa86b34",
+  "workspacePath": "/home:/storage/emulated/0/algospider/Xed-Editor",
+  "pid": 28305,
+  "ideInfo": {
+    "name": "xed-ide",
+    "displayName": "Xed Editor"
+  }
+}

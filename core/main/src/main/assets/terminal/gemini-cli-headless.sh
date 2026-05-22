@@ -55,7 +55,7 @@ s.setdefault('telemetry', {})['enabled'] = False
 # Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
 ms = s.setdefault('mcpServers', {})
 ms['xed-ide'] = {
-    'url': f'http://127.0.0.1:{port}/mcp',
+    'url': f'http://127.0.0.1:{port}/mcp?token={token}',
     'headers': {
         'Authorization': f'Bearer {token}',
         'authorization': f'Bearer {token}',
@@ -89,7 +89,7 @@ s.telemetry = { ...(s.telemetry || {}), enabled: false };
 // Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
 s.mcpServers = s.mcpServers || {};
 s.mcpServers['xed-ide'] = {
-  url: 'http://127.0.0.1:' + idePort + '/mcp',
+  url: 'http://127.0.0.1:' + idePort + '/mcp?token=' + ideToken,
   headers: { 
     Authorization: 'Bearer ' + ideToken,
     authorization: 'Bearer ' + ideToken,
