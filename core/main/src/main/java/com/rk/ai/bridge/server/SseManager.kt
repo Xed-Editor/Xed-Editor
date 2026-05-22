@@ -18,6 +18,13 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "SseManager"
 
+data class SseEvent(
+    val type: String,
+    val data: String,
+) {
+    fun format(): String = "event: $type\ndata: $data\n\n"
+}
+
 class SseManager(
     private val mcpDispatcher: McpDispatcher,
     private val ideContextJson: () -> String,
@@ -31,7 +38,7 @@ class SseManager(
     val size: Int get() = sseClients.size
 
     private val keepaliveIntervalMs = 15_000L
-    private val notificationQueue = LinkedBlockingQueue<Pair<String, String>>(1000)
+    private val notificationQueue = LinkedBlockingQueue<SseEvent>(1000)
     private val batchIntervalMs = 50L
     private val clientTimeoutMs = 60_000L
 
@@ -42,13 +49,15 @@ class SseManager(
 
     private fun startNotificationBatcher() {
         scope.launch {
+            val batch = mutableListOf<SseEvent>()
             while (isActive) {
-                val batch = mutableListOf<Pair<String, String>>()
+                batch.clear()
                 notificationQueue.drainTo(batch)
                 if (batch.isNotEmpty()) {
-                    sseClients.entries.toList().forEach { (id, client) ->
-                        batch.forEach { (eventType, data) ->
-                            client.enqueue("event: $eventType\ndata: $data\n\n")
+                    val clients = sseClients.entries.toList()
+                    for ((_, client) in clients) {
+                        for (event in batch) {
+                            if (!client.enqueue(event.format())) break
                         }
                     }
                 }
@@ -63,26 +72,22 @@ class SseManager(
                 delay(15_000L)
                 val now = System.currentTimeMillis()
                 val dead = mutableListOf<String>()
-                sseClients.entries.forEach { (id, client) ->
-                    if (now - client.createdAt > clientTimeoutMs && !client.hasData()) {
+                for ((id, client) in sseClients) {
+                    if (client.isClosed()) {
+                        dead.add(id)
+                    } else if (now - client.createdAt > clientTimeoutMs && !client.hasData()) {
                         if (!client.enqueue(": keepalive\n\n")) {
                             dead.add(id)
                         }
-                    }
-                    if (client.isClosed()) {
-                        dead.add(id)
+                    } else {
+                        client.enqueue(": keepalive\n\n")
                     }
                 }
                 if (dead.isNotEmpty()) {
-                    dead.toSet().forEach { id ->
+                    dead.distinct().forEach { id ->
                         sseClients.remove(id)?.close()
                     }
                     onClientsChanged(sseClients.size)
-                }
-                if (sseClients.isNotEmpty()) {
-                    sseClients.entries.forEach { (_, client) ->
-                        client.enqueue(": keepalive\n\n")
-                    }
                 }
             }
         }
@@ -90,8 +95,7 @@ class SseManager(
 
     fun createSseStream(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val sessionId = UUID.randomUUID().toString()
-        val response = createStream(session, sessionId)
-        return response
+        return createStream(session, sessionId)
     }
 
     fun createMcpStream(session: NanoHTTPD.IHTTPSession, requestedSessionId: String): NanoHTTPD.Response {
@@ -107,11 +111,12 @@ class SseManager(
         }
         val url = if (port.isBlank()) "http://$host/messages?sessionId=${client.sessionId}&token=$token"
                   else "http://$host:$port/messages?sessionId=${client.sessionId}&token=$token"
-        client.enqueue("event: endpoint\ndata: $url\n\n")
+        client.enqueue(SseEvent("endpoint", url).format())
     }
 
     private fun writeInitialEvents(client: SseClient) {
-        client.enqueue("event: message\ndata: ${mcpDispatcher.notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
+        val notification = mcpDispatcher.notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)
+        client.enqueue(SseEvent("message", notification).format())
     }
 
     private fun createStream(session: NanoHTTPD.IHTTPSession, sessionId: String): NanoHTTPD.Response {
@@ -148,13 +153,13 @@ class SseManager(
 
     fun pushToSession(sessionId: String, responseBody: String): Boolean {
         val client = sseClients[sessionId] ?: return false
-        return client.enqueue("event: message\ndata: $responseBody\n\n")
+        return client.enqueue(SseEvent("message", responseBody).format())
     }
 
     override fun sendNotification(method: String, params: JsonObject) {
-        val notification = mcpDispatcher.notificationJson(method, params)
         if (sseClients.isEmpty()) return
-        notificationQueue.offer("message" to notification)
+        val event = SseEvent("message", mcpDispatcher.notificationJson(method, params))
+        notificationQueue.offer(event)
     }
 
     private class SseClient(
@@ -168,7 +173,7 @@ class SseManager(
         fun enqueue(message: String): Boolean {
             if (closed) return false
             val data = message.toByteArray(Charsets.UTF_8)
-            return queue.offer(data, 1, TimeUnit.SECONDS)
+            return queue.offer(data)
         }
 
         fun hasData(): Boolean = queue.isNotEmpty()
@@ -210,11 +215,7 @@ class SseManager(
                     }
                     currentBuffer = null
                     currentOffset = 0
-                    try {
-                        currentBuffer = queue.poll(30, TimeUnit.SECONDS)
-                    } catch (_: InterruptedException) {
-                        return null
-                    }
+                    currentBuffer = queue.poll(30, TimeUnit.SECONDS)
                     if (currentBuffer == null) {
                         closed = true
                         return null

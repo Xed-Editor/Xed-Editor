@@ -66,23 +66,35 @@ object DiscoveryFileWriter {
         }
     }
 
-    private fun buildAndWriteAgentConfig(agentName: String, info: BridgeInfo, configFile: File) {
+    private fun buildAndWriteAgentConfig(agentName: String, info: BridgeInfo?, configFile: File) {
         val existing = if (configFile.exists()) {
             runCatching { JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
         } else JsonObject()
 
         applyAgentDefaults(agentName, existing)
-        val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
-        val target = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
-        val mcpEntry = buildMcpServerConfig(agentName, info)
-        target.add("xed-ide", mcpEntry)
+        if (info != null) {
+            val mcpKey = AiConfig.Discovery.agentMcpKey(agentName)
+            val target = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
+            val mcpEntry = buildMcpServerConfig(agentName, info)
+            target.add("xed-ide", mcpEntry)
 
-        if (agentName == "opencode") {
-            existing.remove("mcpServers")
-            existing.remove("apiKey")
+            if (agentName == "opencode") {
+                existing.remove("mcpServers")
+                existing.remove("apiKey")
+            }
         }
 
         configFile.writeText(gson.toJson(existing))
+    }
+
+    fun ensureAgentConfig(agentName: String, info: BridgeInfo? = null) {
+        runCatching {
+            val home = sandboxHomeDir()
+            val configDir = File(home, AiConfig.Discovery.agentConfigDir(agentName))
+            configDir.mkdirs()
+            val configFile = File(configDir, AiConfig.Discovery.agentConfigFile(agentName))
+            buildAndWriteAgentConfig(agentName, info, configFile)
+        }
     }
 
     private fun applyAgentDefaults(agentName: String, config: JsonObject) {

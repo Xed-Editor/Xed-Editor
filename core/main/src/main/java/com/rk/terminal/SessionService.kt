@@ -28,6 +28,7 @@ class SessionService : Service() {
     private val sessionWorkDirs = ConcurrentHashMap<SessionId, SessionPwd>()
     val sessionList = mutableStateListOf<String>()
     var currentSession = mutableStateOf("main")
+    @Volatile var wakeLockHeld = false
 
     class SessionBinder(svc: SessionService) : Binder() {
         private val weakService = WeakReference(svc)
@@ -84,9 +85,7 @@ class SessionService : Service() {
 
     override fun onDestroy() {
         sessions.forEach { (_, s) -> s.finishIfRunning() }
-        if (wakeLock?.isHeld == true) {
-            wakeLock?.release()
-        }
+        releaseWakeLock()
         super.onDestroy()
     }
 
@@ -102,22 +101,37 @@ class SessionService : Service() {
         createNotificationChannel()
         val notification = createNotification()
         startForeground(1, notification)
+        acquireWakeLock()
+    }
+
+    private var wakeLock: PowerManager.WakeLock? = null
+
+    private fun acquireWakeLock() {
         if (wakeLock == null) {
-            wakeLock =
-                (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
-                    PowerManager.PARTIAL_WAKE_LOCK,
-                    "${strings.app_name.getString()}::${this::class.java.simpleName}",
-                )
+            wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "${strings.app_name.getString()}::${this::class.java.simpleName}",
+            )
+        }
+        if (!wakeLock!!.isHeld) {
+            wakeLock!!.acquire()
+            wakeLockHeld = true
         }
     }
 
-    var wakeLock: PowerManager.WakeLock? = null
+    private fun releaseWakeLock() {
+        if (wakeLock?.isHeld == true) {
+            wakeLock?.release()
+            wakeLockHeld = false
+        }
+    }
 
     fun actionExit() {
         sessions.forEach { (_, s) -> s.finishIfRunning() }
         sessions.clear()
         sessionWorkDirs.clear()
         sessionList.clear()
+        releaseWakeLock()
         stopSelf()
     }
 
@@ -127,9 +141,9 @@ class SessionService : Service() {
             "ACTION_EXIT" -> actionExit()
             "ACTION_WAKE_LOCK" -> {
                 if (wakeLock?.isHeld == true) {
-                    wakeLock?.release()
+                    releaseWakeLock()
                 } else {
-                    wakeLock?.acquire()
+                    acquireWakeLock()
                 }
                 updateNotification()
             }

@@ -269,64 +269,16 @@ class EditorService(
 
     fun ensureIdeEnabled() {
         scope.viewModelScope.launch(Dispatchers.IO) {
-            com.rk.ai.agents.AgentTypeRegistry.available().forEach { agent ->
-                runCatching {
-                    val home = com.rk.file.sandboxHomeDir()
-                    val configDir = File(home, com.rk.ai.AiConfig.Discovery.agentConfigDir(agent.name))
-                    configDir.mkdirs()
-                    val configFile = File(configDir, com.rk.ai.AiConfig.Discovery.agentConfigFile(agent.name))
-                    val mcpKey = com.rk.ai.AiConfig.Discovery.agentMcpKey(agent.name)
-                    val existing = if (configFile.exists()) {
-                        runCatching { com.google.gson.JsonParser.parseString(configFile.readText()).asJsonObject }.getOrDefault(JsonObject())
-                    } else JsonObject()
-
-                    if (agent.name == "gemini") {
-                        existing.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
-                            ?: existing.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
-                        existing.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
-                            ?: existing.add("ide", JsonObject().apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) })
-                        existing.getAsJsonObject("privacy")?.apply { addProperty("usageStatisticsEnabled", false) }
-                            ?: existing.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
-                        existing.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
-                            ?: existing.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
-                        if (com.rk.settings.Settings.ai_api_key.isNotBlank()) {
-                            existing.addProperty("apiKey", com.rk.settings.Settings.ai_api_key)
-                        }
-                    }
-
-                    val target = existing.getAsJsonObject(mcpKey) ?: JsonObject().also { existing.add(mcpKey, it) }
-                    val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
-                    if (bridgeInfo != null) {
-                        val mcpUrl = "http://127.0.0.1:${bridgeInfo.port}/mcp?token=${bridgeInfo.token}"
-                        val headers = JsonObject().apply {
-                            addProperty("Authorization", "Bearer ${bridgeInfo.token}")
-                            addProperty("authorization", "Bearer ${bridgeInfo.token}")
-                            addProperty("x-ide-token", bridgeInfo.token)
-                        }
-                        if (agent.name == "gemini") {
-                            target.add("xed-ide", JsonObject().apply {
-                                addProperty("url", mcpUrl)
-                                add("headers", headers)
-                            })
-                        } else {
-                            target.add("xed-ide", JsonObject().apply {
-                                addProperty("type", "remote")
-                                addProperty("url", mcpUrl)
-                                addProperty("enabled", true)
-                                addProperty("timeout", 120000)
-                                add("headers", headers)
-                            })
-                            existing.remove("mcpServers")
-                            existing.remove("apiKey")
-                        }
-                    }
-                    configFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(existing))
-                }
+            val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
+            for (agent in com.rk.ai.agents.AgentTypeRegistry.available()) {
+                com.rk.ai.bridge.DiscoveryFileWriter.ensureAgentConfig(agent.name, bridgeInfo?.let {
+                    com.rk.ai.bridge.DiscoveryFileWriter.BridgeInfo("127.0.0.1", it.port, it.token, it.workspacePath)
+                })
             }
         }
     }
 
-    private val editorTabCache = mutableMapOf<String, EditorTab>()
+    private val editorTabCache = java.util.concurrent.ConcurrentHashMap<String, EditorTab>()
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)
@@ -342,7 +294,8 @@ class EditorService(
         if (tab != null) {
             editorTabCache[canonical] = tab
             if (editorTabCache.size > 64) {
-                editorTabCache.keys.firstOrNull()?.let { editorTabCache.remove(it) }
+                val oldest = editorTabCache.keys.firstOrNull()
+                if (oldest != null) editorTabCache.remove(oldest)
             }
         }
         return tab

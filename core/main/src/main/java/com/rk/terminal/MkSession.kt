@@ -19,7 +19,6 @@ import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
-import kotlinx.coroutines.runBlocking
 
 object MkSession {
 
@@ -43,7 +42,7 @@ object MkSession {
                     "PATH" to "${System.getenv("PATH")}:${localBinDir().absolutePath}",
                 )
 
-            val workingDir = runBlocking { getPwd() }
+            val workingDir = getPwd()
 
             val tmpDir = File(getTempDir(), "terminal/$sessionId")
 
@@ -156,7 +155,7 @@ object MkSession {
     }
 }
 
-suspend fun Terminal.getPwd(): String {
+fun Terminal.getPwd(): String {
     val pendingWorkingDir = pendingCommand?.workingDir
     if (pendingWorkingDir != null) {
         return pendingWorkingDir

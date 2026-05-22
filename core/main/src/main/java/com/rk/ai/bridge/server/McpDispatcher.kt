@@ -1,28 +1,40 @@
 package com.rk.ai.bridge.server
 
+import android.util.Log
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.tools.ToolError
+import java.util.UUID
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
 
     private val gson = GsonBuilder().disableHtmlEscaping().create()
 
-    fun dispatch(id: JsonElement, method: String, request: JsonObject): String = when (method) {
-        "initialize" -> initializeResult(id, request)
-        "tools/list" -> toolsListResult(id)
-        "tools/call" -> toolsCallResult(id, request)
-        "notifications/initialized" -> resultJson(id, JsonObject())
-        "notifications/cancelled" -> resultJson(id, JsonObject())
-        "ping" -> resultJson(id, JsonObject().apply { addProperty("pong", true) })
-        else -> errorJson(id, -32601, "method not found: $method")
+    suspend fun dispatch(id: JsonElement, method: String, request: JsonObject): String {
+        val traceId = UUID.randomUUID().toString().take(8)
+        val startNanos = System.nanoTime()
+        val result = when (method) {
+            "initialize" -> initializeResult(id, request)
+            "tools/list" -> toolsListResult(id)
+            "tools/call" -> toolsCallResult(id, request, traceId)
+            "notifications/initialized" -> resultJson(id, JsonObject())
+            "notifications/cancelled" -> resultJson(id, JsonObject())
+            "ping" -> resultJson(id, JsonObject().apply { addProperty("pong", true) })
+            else -> errorJson(id, -32601, "method not found: $method")
+        }
+        val elapsedMs = (System.nanoTime() - startNanos) / 1_000_000
+        if (elapsedMs > 100) {
+            Log.d("MCP", "[$traceId] $method completed in ${elapsedMs}ms")
+        }
+        return result
     }
 
     private fun initializeResult(id: JsonElement, request: JsonObject): String = resultJson(id, JsonObject().apply {
@@ -49,7 +61,7 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
     private fun toolsListResult(id: JsonElement): String =
         resultJson(id, JsonObject().apply { add("tools", toolRegistry().listSchemas()) })
 
-    private fun toolsCallResult(id: JsonElement, request: JsonObject): String {
+    private suspend fun toolsCallResult(id: JsonElement, request: JsonObject, traceId: String): String {
         val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
         val name = params.get("name")?.asString.orEmpty()
         val args = params.getAsJsonObject("arguments") ?: JsonObject()
@@ -62,14 +74,16 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
         }
 
         return try {
-            val result = runBlocking(Dispatchers.Default) {
-                withTimeout(timeoutMs) { toolRegistry().execute(name, args) }
+            val result = withContext(Dispatchers.Default) {
+                async { withTimeout(timeoutMs) { toolRegistry().execute(name, args) } }.await()
             } ?: return errorJson(id, -32601, "unknown tool: '$name'")
             resultJson(id, result)
         } catch (e: ToolError) {
             errorJson(id, e.code, e.message)
         } catch (e: TimeoutCancellationException) {
             errorJson(id, -32000, "tool '$name' timed out after ${timeoutMs}ms")
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             val cause = e.cause
             when {

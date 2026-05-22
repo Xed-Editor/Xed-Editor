@@ -21,6 +21,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 class IdeBridgeServer(
@@ -32,12 +33,12 @@ class IdeBridgeServer(
     override fun sendNotification(method: String, params: JsonObject) = sseManager.sendNotification(method, params)
 
     val port: Int get() = listeningPort
-    private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val gson = GsonBuilder().create()
     private val serverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var toolRegistry = McpToolRegistry(initialIdeService)
     private val mcpDispatcher = McpDispatcher { toolRegistry }
     private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
-    private val sseManager = SseManager(mcpDispatcher, { ideContextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope, token, { listeningPort })
+    private val sseManager = SseManager(mcpDispatcher, { contextJson() }, { httpSessionTracker.updateSseCount(it) }, serverScope, token, { listeningPort })
 
     @Volatile var connectedClients: Int = 0
         private set
@@ -136,7 +137,7 @@ class IdeBridgeServer(
 
         return when (session.uri) {
             "/health" -> json(Response.Status.OK, "{\"ok\":true}")
-            "/context" -> json(Response.Status.OK, ideContextJson())
+            "/context" -> json(Response.Status.OK, contextJson())
             "/mcp-info" -> json(Response.Status.OK, bridgeInfoJson())
             "/debug" -> json(Response.Status.OK, debugJson())
             "/refresh" -> { ideService.refreshEditors(); json(Response.Status.OK, "{\"ok\":true}") }
@@ -167,12 +168,12 @@ class IdeBridgeServer(
         val responseBody = if (method == "tools/call") {
             toolCallPermits.acquireUninterruptibly()
             try {
-                mcpDispatcher.dispatch(id, method, request)
+                runBlocking { mcpDispatcher.dispatch(id, method, request) }
             } finally {
                 toolCallPermits.release()
             }
         } else {
-            mcpDispatcher.dispatch(id, method, request)
+            runBlocking { mcpDispatcher.dispatch(id, method, request) }
         }
 
         return json(Response.Status.OK, responseBody).apply {
@@ -195,12 +196,12 @@ class IdeBridgeServer(
         val responseBody = if (method == "tools/call") {
             toolCallPermits.acquireUninterruptibly()
             try {
-                mcpDispatcher.dispatch(id, method, request)
+                runBlocking { mcpDispatcher.dispatch(id, method, request) }
             } finally {
                 toolCallPermits.release()
             }
         } else {
-            mcpDispatcher.dispatch(id, method, request)
+            runBlocking { mcpDispatcher.dispatch(id, method, request) }
         }
 
         val pushed = sseManager.pushToSession(sessionId, responseBody)
@@ -231,14 +232,18 @@ class IdeBridgeServer(
         val newFile = ideService.resolvePath(newPath) ?: File(newPath)
         val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
         val targetFile = oldFile ?: newFile
-        val oldContent = runBlocking(Dispatchers.IO) {
-            withTimeout(10_000L) {
-                oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
-                    ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
+        val oldContent = runBlocking {
+            withContext(Dispatchers.IO) {
+                withTimeout(10_000L) {
+                    oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
+                        ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
+                }
             }
         }
-        val newContent = runBlocking(Dispatchers.IO) {
-            runCatching { withTimeout(10_000L) { newFile.readText() } }.getOrNull()
+        val newContent = runBlocking {
+            withContext(Dispatchers.IO) {
+                runCatching { withTimeout(10_000L) { newFile.readText() } }.getOrNull()
+            }
         } ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "cannot read newPath"))
         ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
             serverScope.launch {
@@ -263,21 +268,24 @@ class IdeBridgeServer(
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
     })
 
-    private var contextCache: Pair<Long, String>? = null
+    @Volatile private var contextCacheJson: String? = null
+    @Volatile private var contextCacheTime: Long = 0L
 
-    private fun ideContextJson(): String {
+    private fun contextJson(): String {
         val now = System.currentTimeMillis()
-        contextCache?.let { (ts, json) ->
-            if (now - ts < 1000) return json
-        }
-        return gson.toJson(JsonObject().apply {
+        val cached = contextCacheJson
+        if (cached != null && now - contextCacheTime < 1000) return cached
+        val json = gson.toJson(JsonObject().apply {
             add("workspaceState", JsonObject().apply {
                 addProperty("isTrusted", true)
                 add("openFiles", com.google.gson.JsonArray().apply {
-                    runBlocking(Dispatchers.IO) { ideService.getOpenFiles() }.forEach { add(it) }
+                    runBlocking { ideService.getOpenFiles() }.forEach { add(it) }
                 })
             })
-        }).also { contextCache = now to it }
+        })
+        contextCacheJson = json
+        contextCacheTime = now
+        return json
     }
 
     private fun debugJson(): String = gson.toJson(JsonObject().apply {

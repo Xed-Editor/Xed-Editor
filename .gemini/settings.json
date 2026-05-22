@@ -1,0 +1,25 @@
+{
+  "general": {
+    "preferredEditor": "vim"
+  },
+  "ide": {
+    "enabled": true,
+    "hasSeenNudge": true
+  },
+  "privacy": {
+    "usageStatisticsEnabled": false
+  },
+  "telemetry": {
+    "enabled": false
+  },
+  "mcpServers": {
+    "xed-ide": {
+      "url": "http://127.0.0.1:43355/mcp?token\u003d09990d60cfe4f2d39970f49832bab825236a6d611e979fc5",
+      "headers": {
+        "Authorization": "Bearer 09990d60cfe4f2d39970f49832bab825236a6d611e979fc5",
+        "authorization": "Bearer 09990d60cfe4f2d39970f49832bab825236a6d611e979fc5",
+        "x-ide-token": "09990d60cfe4f2d39970f49832bab825236a6d611e979fc5"
+      }
+    }
+  }
+}

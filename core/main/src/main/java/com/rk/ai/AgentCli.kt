@@ -19,20 +19,16 @@ object AgentCli {
         model: String? = null,
         timeoutSeconds: Long = 180,
         onOutput: ((String) -> Unit)? = null,
-    ): ShellUtils.Result {
-        return runCli(
-            args = agent.buildArgs(
-                listOf("--approval-mode=default", "-p", prompt),
-                workingDir ?: "",
-                model ?: resolvedConfiguredModelForAgent(agent)
-            ),
-            binaryName = agent.cliBinaryName,
-            workingDir = workingDir,
-            ideBridge = ideBridge,
-            timeoutSeconds = timeoutSeconds,
-            onOutput = onOutput,
-        )
-    }
+    ): ShellUtils.Result = runAgentImpl(
+        prompt = prompt,
+        agent = agent,
+        approvalMode = "default",
+        workingDir = workingDir,
+        ideBridge = ideBridge,
+        model = model,
+        timeoutSeconds = timeoutSeconds,
+        onOutput = onOutput,
+    )
 
     suspend fun runAgent(
         prompt: String,
@@ -42,20 +38,16 @@ object AgentCli {
         model: String? = null,
         timeoutSeconds: Long = 600,
         onOutput: ((String) -> Unit)? = null,
-    ): ShellUtils.Result {
-        return runCli(
-            args = agent.buildArgs(
-                listOf("--approval-mode=auto_edit", "-p", prompt),
-                workingDir ?: "",
-                model ?: resolvedConfiguredModelForAgent(agent)
-            ),
-            binaryName = agent.cliBinaryName,
-            workingDir = workingDir,
-            ideBridge = ideBridge,
-            timeoutSeconds = timeoutSeconds,
-            onOutput = onOutput,
-        )
-    }
+    ): ShellUtils.Result = runAgentImpl(
+        prompt = prompt,
+        agent = agent,
+        approvalMode = "auto_edit",
+        workingDir = workingDir,
+        ideBridge = ideBridge,
+        model = model,
+        timeoutSeconds = timeoutSeconds,
+        onOutput = onOutput,
+    )
 
     suspend fun runInteractive(
         prompt: String,
@@ -66,15 +58,7 @@ object AgentCli {
         timeoutSeconds: Long = 180,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result =
-        runInteractive(
-            prompt,
-            com.rk.ai.session.AiSessionManager.resolveAgent(agentName),
-            workingDir,
-            ideBridge,
-            model,
-            timeoutSeconds,
-            onOutput
-        )
+        runInteractive(prompt, com.rk.ai.session.AiSessionManager.resolveAgent(agentName), workingDir, ideBridge, model, timeoutSeconds, onOutput)
 
     suspend fun runAgent(
         prompt: String,
@@ -85,15 +69,31 @@ object AgentCli {
         timeoutSeconds: Long = 600,
         onOutput: ((String) -> Unit)? = null,
     ): ShellUtils.Result =
-        runAgent(
-            prompt,
-            com.rk.ai.session.AiSessionManager.resolveAgent(agentName),
-            workingDir,
-            ideBridge,
-            model,
-            timeoutSeconds,
-            onOutput
+        runAgent(prompt, com.rk.ai.session.AiSessionManager.resolveAgent(agentName), workingDir, ideBridge, model, timeoutSeconds, onOutput)
+
+    private suspend fun runAgentImpl(
+        prompt: String,
+        agent: AiAgent,
+        approvalMode: String,
+        workingDir: String?,
+        ideBridge: IdeBridge.Info?,
+        model: String?,
+        timeoutSeconds: Long,
+        onOutput: ((String) -> Unit)?,
+    ): ShellUtils.Result {
+        return runCli(
+            args = agent.buildArgs(
+                listOf("--approval-mode=$approvalMode", "-p", prompt),
+                workingDir ?: "",
+                model ?: resolvedConfiguredModelForAgent(agent)
+            ),
+            binaryName = agent.cliBinaryName,
+            workingDir = workingDir,
+            ideBridge = ideBridge,
+            timeoutSeconds = timeoutSeconds,
+            onOutput = onOutput,
         )
+    }
 
     fun cleanOutput(text: String): String {
         val ansiRegex = Regex("\\u001B\\[[;\\d]*[A-Za-z]")
@@ -140,7 +140,7 @@ object AgentCli {
         val extraEnv = mutableMapOf<String, String>()
         if (ideBridge != null) {
             val tmpDir = File(getTempDir(), "terminal/${binaryName.replace("-headless", "")}-sheet")
-            extraEnv.putAll(AgentEnvironmentBuilder.buildMinimalBridgeEnv(ideBridge, workingDir ?: "").map { 
+            extraEnv.putAll(AgentEnvironmentBuilder.buildMinimalBridgeEnv(ideBridge, workingDir ?: "").map {
                 val parts = it.split("=", limit = 2)
                 parts[0] to parts.getOrElse(1) { "" }
             }.toMap())
@@ -148,9 +148,9 @@ object AgentCli {
             extraEnv["TMPDIR"] = tmpDir.absolutePath
             extraEnv["TMP_DIR"] = tmpDir.absolutePath
         }
-        
+
         val command = arrayOf("/bin/bash", localBinDir().child(binaryName).absolutePath, *args.toTypedArray())
-        
+
         return if (onOutput == null) {
             ShellUtils.runUbuntu(
                 workingDir = workingDir,

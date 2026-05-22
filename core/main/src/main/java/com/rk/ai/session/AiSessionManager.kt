@@ -66,7 +66,8 @@ object AiSessionManager {
     }
 
     fun canReuseFor(requestedCwd: String): Boolean {
-        if (session == null || !session!!.isRunning) return false
+        val s = session ?: return false
+        if (!s.isRunning) return false
         val existingCwd = cwd ?: return false
         if (requestedCwd == existingCwd) return true
         if (existingCwd in AiConfig.commonReuseRoots) return true
@@ -149,21 +150,21 @@ object AiSessionManager {
                         throw Exception(lastError)
                     }
 
+                    val newSession = createAgentSession(
+                        activity = activity,
+                        agent = currentAgent,
+                        bridge = bridgeInfo,
+                        workingDir = workingDir,
+                        extraArgs = extraArgs,
+                    )
                     withContext(Dispatchers.Main) {
-                        val newSession = createAgentSession(
-                            activity = activity,
-                            agent = currentAgent,
-                            bridge = bridgeInfo,
-                            workingDir = workingDir,
-                            extraArgs = extraArgs,
-                        )
                         session = newSession
                         cwd = workingDir
                         connectionStatus = ConnectionStatus.Connected
                         lastError = null
-                        d("Session started successfully")
-                        newSession
                     }
+                    d("Session started successfully")
+                    newSession
                 }
             } catch (e: Exception) {
                 lastException = e

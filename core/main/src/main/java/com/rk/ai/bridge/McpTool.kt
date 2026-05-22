@@ -3,6 +3,7 @@ package com.rk.ai.bridge
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.ai.service.IdeService
+import kotlinx.coroutines.CancellationException
 
 interface McpTool {
     fun getName(): String
@@ -50,7 +51,8 @@ class McpToolRegistry(private val ideService: IdeService) {
     }
 
     suspend fun execute(name: String, args: JsonObject): JsonObject? {
-        return tools[name]?.execute(args, ideService)
+        val tool = tools[name] ?: return null
+        return tool.execute(args, ideService)
     }
 
     fun listNames(): Set<String> = tools.keys

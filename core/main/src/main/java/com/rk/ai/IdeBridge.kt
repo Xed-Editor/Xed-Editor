@@ -133,8 +133,17 @@ object IdeBridge {
         }
     }
 
+    private val healthCheckCache = mutableMapOf<String, Pair<Long, Pair<Boolean, String>>>()
+    private val healthCheckCacheTtl = 2_000L
+
     fun checkMcpConnection(): Pair<Boolean, String> {
         val info = getBridgeInfo() ?: return false to "Bridge not running"
+        val cacheKey = "${info.host}:${info.port}"
+        synchronized(stateLock) {
+            healthCheckCache[cacheKey]?.let { (ts, result) ->
+                if (System.currentTimeMillis() - ts < healthCheckCacheTtl) return result
+            }
+        }
         return try {
             val request = Request.Builder()
                 .url("http://${info.host}:${info.port}/mcp-info")
@@ -143,7 +152,7 @@ object IdeBridge {
                 .get()
                 .build()
             httpClient.newCall(request).execute().use { response ->
-                if (response.isSuccessful) {
+                val result = if (response.isSuccessful) {
                     val body = response.body?.string() ?: ""
                     val hasTools = body.contains("\"tools\"")
                     if (hasTools) {
@@ -156,6 +165,8 @@ object IdeBridge {
                     val errorBody = response.body?.string() ?: ""
                     Pair(false, "MCP responded with code ${response.code}: $errorBody")
                 }
+                synchronized(stateLock) { healthCheckCache[cacheKey] = System.currentTimeMillis() to result }
+                result
             }
         } catch (e: Exception) {
             Pair(false, "Connection failed: ${e.message}")
@@ -164,6 +175,13 @@ object IdeBridge {
 
     fun verifyMcpToolsAvailable(): Pair<Boolean, String> {
         val info = getBridgeInfo() ?: return false to "Bridge not running"
+        val recentMcpCheck = synchronized(stateLock) {
+            healthCheckCache["${info.host}:${info.port}"]
+        }
+        if (recentMcpCheck != null && System.currentTimeMillis() - recentMcpCheck.first < healthCheckCacheTtl) {
+            val (ok, msg) = recentMcpCheck.second
+            if (ok && msg.contains("tools")) return ok to msg
+        }
         return try {
             val jsonRequest = """{"jsonrpc":"2.0","id":1,"method":"tools/list"}"""
             val request = Request.Builder()
@@ -211,7 +229,9 @@ object IdeBridge {
     fun stop() {
         synchronized(stateLock) { stopInternalLocked() }
         synchronized(workspacePathsLock) { workspacePaths.clear() }
+        synchronized(stateLock) { healthCheckCache.clear() }
         clearDiscoveryFilesForProcess()
+        runCatching { httpClient.dispatcher.executorService.shutdown() }
     }
 
     private fun stopInternalLocked() {

@@ -571,11 +571,7 @@ private fun focusedContextSnippet(content: String, cursorLine: Int, cursorColumn
 private fun cleanStreamingLine(line: String): String? {
     val cleaned = line.trimEnd()
     if (cleaned.isBlank()) return null
-    if (cleaned.startsWith("INFO ") || cleaned.startsWith("DEBUG ") || cleaned.startsWith("TRACE ")) return null
-    if (cleaned.contains("No API key found. Headless mode")) return null
-    if (cleaned.contains("No OPENCODE_API_KEY")) return null
-    if (cleaned.contains("No GEMINI_API_KEY/GOOGLE_API_KEY")) return null
-    return cleaned
+    return AgentCli.cleanOutput(cleaned).takeIf { it.isNotBlank() }
 }
 
 private fun setClipboard(text: String) {
