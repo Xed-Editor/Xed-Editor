@@ -22,7 +22,13 @@ import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 object AiSessionManager {
@@ -32,8 +38,16 @@ object AiSessionManager {
     var lastError by mutableStateOf<String?>(null)
     var connectionStatus by mutableStateOf<ConnectionStatus>(ConnectionStatus.Disconnected)
 
+    private val stateMutex = Mutex()
+    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     enum class ConnectionStatus {
         Disconnected, Connecting, Connected, Reconnecting, Error
+    }
+
+    fun shutdown() {
+        sessionScope.cancel()
+        stopSession()
     }
 
     fun resolveAgent(type: String? = null): AiAgent = AgentTypeRegistry.resolve(type)
@@ -97,7 +111,7 @@ object AiSessionManager {
         extraArgs: List<String> = emptyList(),
         agentType: String? = null,
         maxRetries: Int = 2,
-    ): TerminalSession {
+    ): TerminalSession = stateMutex.withLock {
         val previousAgentName = Settings.ai_agent
         currentAgent = resolveAgent(agentType)
         Settings.ai_agent = currentAgent.name
@@ -119,53 +133,59 @@ object AiSessionManager {
             d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
         }
 
-        stopSession()
+        val existingSession = session
+        if (existingSession != null) {
+            d("Stopping existing session before starting new one")
+            withContext(Dispatchers.Main) {
+                runCatching { existingSession.finishIfRunning() }
+            }
+            session = null
+            cwd = null
+        }
 
         var lastException: Exception? = null
         repeat(maxRetries + 1) { attempt ->
             try {
-                return withContext(Dispatchers.IO) {
-                    val bridgeInfo = IdeBridge.ensureStarted(viewModel, workingDir)
-                    if (bridgeInfo == null) {
-                        lastError = IdeBridge.getLastError() ?: "Failed to start bridge"
-                        connectionStatus = ConnectionStatus.Error
-                        throw Exception(lastError)
-                    }
-
-                    IdeBridge.setWorkspacePath(workingDir)
-
-                    val (mcpOk, mcpStatus) = IdeBridge.checkMcpConnection()
-                    d("MCP connection check: $mcpOk - $mcpStatus")
-                    if (!mcpOk) {
-                        lastError = "Bridge MCP check failed: $mcpStatus"
-                        connectionStatus = ConnectionStatus.Error
-                        throw Exception(lastError)
-                    }
-
-                    val (toolsOk, toolsStatus) = IdeBridge.verifyMcpToolsAvailable()
-                    d("MCP tools check: $toolsOk - $toolsStatus")
-                    if (!toolsOk) {
-                        lastError = "Bridge MCP tools unavailable: $toolsStatus"
-                        connectionStatus = ConnectionStatus.Error
-                        throw Exception(lastError)
-                    }
-
-                    val newSession = createAgentSession(
-                        activity = activity,
-                        agent = currentAgent,
-                        bridge = bridgeInfo,
-                        workingDir = workingDir,
-                        extraArgs = extraArgs,
-                    )
-                    withContext(Dispatchers.Main) {
-                        session = newSession
-                        cwd = workingDir
-                        connectionStatus = ConnectionStatus.Connected
-                        lastError = null
-                    }
-                    d("Session started successfully")
-                    newSession
+                val bridgeInfo = withContext(Dispatchers.IO) {
+                    IdeBridge.ensureStarted(viewModel, workingDir)
                 }
+                if (bridgeInfo == null) {
+                    lastError = IdeBridge.getLastError() ?: "Failed to start bridge"
+                    connectionStatus = ConnectionStatus.Error
+                    throw Exception(lastError)
+                }
+
+                IdeBridge.setWorkspacePath(workingDir)
+
+                val (mcpOk, mcpStatus) = IdeBridge.checkMcpConnection()
+                d("MCP connection check: $mcpOk - $mcpStatus")
+                if (!mcpOk) {
+                    lastError = "Bridge MCP check failed: $mcpStatus"
+                    connectionStatus = ConnectionStatus.Error
+                    throw Exception(lastError)
+                }
+
+                val (toolsOk, toolsStatus) = IdeBridge.verifyMcpToolsAvailable()
+                d("MCP tools check: $toolsOk - $toolsStatus")
+                if (!toolsOk) {
+                    lastError = "Bridge MCP tools unavailable: $toolsStatus"
+                    connectionStatus = ConnectionStatus.Error
+                    throw Exception(lastError)
+                }
+
+                val newSession = createAgentSession(
+                    activity = activity,
+                    agent = currentAgent,
+                    bridge = bridgeInfo,
+                    workingDir = workingDir,
+                    extraArgs = extraArgs,
+                )
+                session = newSession
+                cwd = workingDir
+                connectionStatus = ConnectionStatus.Connected
+                lastError = null
+                d("Session started successfully")
+                return@withLock newSession
             } catch (e: Exception) {
                 lastException = e
                 d("Attempt ${attempt + 1} failed: ${e.message}")
@@ -218,13 +238,14 @@ object AiSessionManager {
     }
 
     suspend fun reconnect(activity: Activity, viewModel: MainViewModel): Boolean {
-        val workingDir = cwd ?: run {
+        val dir = cwd
+        if (dir == null) {
             lastError = "No working directory for reconnection"
             return false
         }
         connectionStatus = ConnectionStatus.Reconnecting
         return try {
-            startSession(activity, viewModel, workingDir)
+            startSession(activity, viewModel, dir)
             true
         } catch (e: Exception) {
             lastError = "Reconnection failed: ${e.message}"
@@ -250,13 +271,13 @@ object AiSessionManager {
         return AgentCli.stripCodeFences(result.output)
     }
 
-    private fun createAgentSession(
+    private suspend fun createAgentSession(
         activity: Activity,
         agent: AiAgent,
         bridge: IdeBridge.Info,
         workingDir: String,
         extraArgs: List<String> = emptyList(),
-    ): TerminalSession {
+    ): TerminalSession = withContext(Dispatchers.IO) {
         setupTerminalFiles()
         val tmpDir = File(getTempDir(), "terminal/${agent.name}-sheet").apply { mkdirs() }
         val xedDir = if (workingDir.isNotBlank() && File(workingDir).exists()) {
@@ -273,16 +294,14 @@ object AiSessionManager {
                 tmpSubdir = "${agent.name}-sheet",
             )
         )
-        return withContext(Dispatchers.Main) {
-            TerminalSession(
-                shell,
-                workingDir,
-                args,
-                env,
-                Settings.terminal_scrollback_buffer,
-                com.rk.terminal.TerminalBackEnd(),
-            ).also { it.mSessionName = "${agent.name}-sheet" }
-        }
+        TerminalSession(
+            shell,
+            workingDir,
+            args,
+            env,
+            Settings.terminal_scrollback_buffer,
+            com.rk.terminal.TerminalBackEnd(),
+        ).also { it.mSessionName = "${agent.name}-sheet" }
     }
 
     private fun agentSheetProcessArgs(

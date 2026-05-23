@@ -62,14 +62,21 @@ class SettingsService {
             }
         }
 
-        val prefs = com.rk.settings.Preference.getAll()
-        val existing = prefs[key]
-        when (existing) {
-            is Boolean -> com.rk.settings.Preference.setBoolean(key, value.toBooleanStrictOrNull() ?: existing)
-            is Int -> com.rk.settings.Preference.setInt(key, value.toIntOrNull() ?: existing)
-            is Long -> com.rk.settings.Preference.setLong(key, value.toLongOrNull() ?: existing)
-            is Float -> com.rk.settings.Preference.setFloat(key, value.toFloatOrNull() ?: existing)
-            else -> com.rk.settings.Preference.setString(key, value)
+        when (key) {
+            "ai_api_key" -> Settings.ai_api_key = value
+            "git_username" -> Settings.git_username = value
+            "git_password" -> Settings.git_password = value
+            else -> {
+                val prefs = com.rk.settings.Preference.getAll()
+                val existing = prefs[key]
+                when (existing) {
+                    is Boolean -> com.rk.settings.Preference.setBoolean(key, value.toBooleanStrictOrNull() ?: existing)
+                    is Int -> com.rk.settings.Preference.setInt(key, value.toIntOrNull() ?: existing)
+                    is Long -> com.rk.settings.Preference.setLong(key, value.toLongOrNull() ?: existing)
+                    is Float -> com.rk.settings.Preference.setFloat(key, value.toFloatOrNull() ?: existing)
+                    else -> com.rk.settings.Preference.setString(key, value)
+                }
+            }
         }
     }
 

@@ -50,7 +50,7 @@ object AiCompletionEngine {
 
     private fun resolveConfig(): ApiConfig? {
         val agentName = AiSessionManager.currentAgent.name
-        val customKey = Settings.ai_api_key.ifBlank { null }
+        val customKey = com.rk.settings.SecureSettingsStore.get("ai_api_key").ifBlank { null }
 
         val provider = when (agentName) {
             "gemini" -> "gemini"

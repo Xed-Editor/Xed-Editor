@@ -14,7 +14,7 @@ import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD
 import java.io.File
 import java.util.UUID
-import java.util.concurrent.Semaphore
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -55,7 +55,8 @@ class IdeBridgeServer(
         private const val MAX_CONCURRENT_TOOL_CALLS = 8
     }
 
-    private val toolCallPermits = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
+    @Volatile
+    private var activeToolCalls = AtomicInteger(0)
 
     init {
         registerTools(toolRegistry)
@@ -162,18 +163,17 @@ class IdeBridgeServer(
         val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
         val method = request.get("method")?.asString.orEmpty()
         val id = request.get("id") ?: JsonNull.INSTANCE
-
         val responseSessionId = resolveMcpSessionId(method, session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() })
 
-        val responseBody = if (method == "tools/call") {
-            toolCallPermits.acquireUninterruptibly()
-            try {
-                runBlocking { mcpDispatcher.dispatch(id, method, request) }
-            } finally {
-                toolCallPermits.release()
-            }
-        } else {
+        if (activeToolCalls.get() >= MAX_CONCURRENT_TOOL_CALLS && method == "tools/call") {
+            return json(Response.Status.TOO_MANY_REQUESTS, errorJson(id, -32005, "too many concurrent tool calls"))
+        }
+
+        activeToolCalls.incrementAndGet()
+        val responseBody = try {
             runBlocking { mcpDispatcher.dispatch(id, method, request) }
+        } finally {
+            activeToolCalls.decrementAndGet()
         }
 
         return json(Response.Status.OK, responseBody).apply {
@@ -193,15 +193,15 @@ class IdeBridgeServer(
             ?: session.headers[MCP_SESSION_ID_HEADER]
         val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
 
-        val responseBody = if (method == "tools/call") {
-            toolCallPermits.acquireUninterruptibly()
-            try {
-                runBlocking { mcpDispatcher.dispatch(id, method, request) }
-            } finally {
-                toolCallPermits.release()
-            }
-        } else {
+        if (activeToolCalls.get() >= MAX_CONCURRENT_TOOL_CALLS && method == "tools/call") {
+            return json(Response.Status.TOO_MANY_REQUESTS, errorJson(id, -32005, "too many concurrent tool calls"))
+        }
+
+        activeToolCalls.incrementAndGet()
+        val responseBody = try {
             runBlocking { mcpDispatcher.dispatch(id, method, request) }
+        } finally {
+            activeToolCalls.decrementAndGet()
         }
 
         val pushed = sseManager.pushToSession(sessionId, responseBody)
@@ -232,13 +232,24 @@ class IdeBridgeServer(
         val newFile = ideService.resolvePath(newPath) ?: File(newPath)
         val oldFile = oldPath?.let { ideService.resolvePath(it) ?: File(it) }
         val targetFile = oldFile ?: newFile
-        val oldContent = runBlocking {
-            withContext(Dispatchers.IO) {
-                withTimeout(10_000L) {
-                    oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
-                        ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
-                }
+
+        val (oldContent, newContent) = runBlocking {
+            val old = withTimeout(10_000L) {
+                oldFile?.let { runCatching { it.readText() }.getOrDefault("") }
+                    ?: ideService.getFileContent(targetFile.absolutePath).orEmpty()
             }
+            val new = withTimeout(10_000L) { newFile.readText() }
+            old to new
+        }
+
+        ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
+            serverScope.launch {
+                runCatching { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
+            }
+        }
+        return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
+    }
+}
         }
         val newContent = runBlocking {
             withContext(Dispatchers.IO) {

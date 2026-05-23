@@ -77,10 +77,11 @@ object AgentEnvironmentBuilder {
             "IDE_AUTH_TOKEN=${bridge.token}",
             "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
         ).apply {
-            if (Settings.ai_api_key.isNotBlank()) {
-                add("GEMINI_API_KEY=${Settings.ai_api_key}")
-                add("OPENCODE_API_KEY=${Settings.ai_api_key}")
-                add("AI_API_KEY=${Settings.ai_api_key}")
+            val secureKey = com.rk.settings.SecureSettingsStore.get("ai_api_key")
+            if (secureKey.isNotBlank()) {
+                add("GEMINI_API_KEY=$secureKey")
+                add("OPENCODE_API_KEY=$secureKey")
+                add("AI_API_KEY=$secureKey")
             }
             addAll(config.agent.buildEnv(emptyMap()).map { "${it.key}=${it.value}" })
             addAll(config.extraEnv.map { "${it.key}=${it.value}" })
@@ -128,10 +129,11 @@ object AgentEnvironmentBuilder {
         "EDITOR=vim",
         "VISUAL=vim",
     ).apply {
-        if (Settings.ai_api_key.isNotBlank()) {
-            add("GEMINI_API_KEY=${Settings.ai_api_key}")
-            add("OPENCODE_API_KEY=${Settings.ai_api_key}")
-            add("AI_API_KEY=${Settings.ai_api_key}")
+        val secureKey = com.rk.settings.SecureSettingsStore.get("ai_api_key")
+        if (secureKey.isNotBlank()) {
+            add("GEMINI_API_KEY=$secureKey")
+            add("OPENCODE_API_KEY=$secureKey")
+            add("AI_API_KEY=$secureKey")
         }
     }.toTypedArray()
 }

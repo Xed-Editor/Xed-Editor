@@ -30,7 +30,7 @@ object ProviderManager {
     fun allProviders(): List<AiProvider> = providers.values.toList()
 
     fun resolveConfig(agentName: String): ProviderConfig? {
-        val customKey = Settings.ai_api_key.ifBlank { null }
+        val customKey = com.rk.settings.SecureSettingsStore.get("ai_api_key").ifBlank { null }
         val providerType = when (agentName) {
             "gemini" -> ProviderType.GEMINI
             else -> ProviderType.OPENAI

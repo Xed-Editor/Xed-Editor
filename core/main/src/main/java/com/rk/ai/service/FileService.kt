@@ -37,13 +37,22 @@ class FileService(private val tabRepository: TabRepository) {
         } else {
             resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         }
-        if (resolved != null) {
+        // Canonicalize to prevent path traversal
+        val safe = resolved?.let { file ->
+            val canonical = file.canonicalPath
+            val workspaceRoot = IdeBridge.workspacePathForResolution()
+            if (workspaceRoot.isNotBlank()) {
+                val rootCanonical = File(workspaceRoot).canonicalPath
+                if (canonical.startsWith(rootCanonical)) file else null
+            } else file
+        }
+        if (safe != null) {
             synchronized(cacheLock) {
-                pathCache[normalized] = PathCacheEntry(resolved, System.currentTimeMillis())
+                pathCache[normalized] = PathCacheEntry(safe, System.currentTimeMillis())
                 trimToMaxSize(pathCache, 128)
             }
         }
-        return resolved
+        return safe
     }
 
     fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> {

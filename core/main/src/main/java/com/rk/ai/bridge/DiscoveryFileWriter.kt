@@ -107,8 +107,9 @@ object DiscoveryFileWriter {
                 ?: config.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
             config.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
                 ?: config.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
-            if (Settings.ai_api_key.isNotBlank()) {
-                config.addProperty("apiKey", Settings.ai_api_key)
+            val secureKey = com.rk.settings.SecureSettingsStore.get("ai_api_key")
+            if (secureKey.isNotBlank()) {
+                config.addProperty("apiKey", secureKey)
             }
         }
     }

@@ -77,7 +77,9 @@ object Settings {
     var ai_model_opencode by CachedPreference("ai_model_opencode", "")
     var ai_profiles_json by CachedPreference("ai_profiles_json", "")
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)
-    var ai_api_key by CachedPreference("ai_api_key", "")
+    var ai_api_key: String
+        get() = SecureSettingsStore.get("ai_api_key", "")
+        set(value) = SecureSettingsStore.put("ai_api_key", value)
     var ai_inline_completion by CachedPreference("ai_inline_completion", true)
     var ai_completion_url by CachedPreference("ai_completion_url", "")
     var ai_completion_model by CachedPreference("ai_completion_model", "")
@@ -150,8 +152,12 @@ object Settings {
         CachedPreference("current_lang", application!!.resources.configuration.locales[0].language)
     var extra_keys_symbols by CachedPreference("extra_keys_symbols", DEFAULT_EXTRA_KEYS_SYMBOLS)
     var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
-    var git_username by CachedPreference("git_username", "")
-    var git_password by CachedPreference("git_password", "")
+    var git_username: String
+        get() = SecureSettingsStore.get("git_username", "")
+        set(value) = SecureSettingsStore.put("git_username", value)
+    var git_password: String
+        get() = SecureSettingsStore.get("git_password", "")
+        set(value) = SecureSettingsStore.put("git_password", value)
     var git_name by CachedPreference("git_name", "")
     var git_email by CachedPreference("git_email", "")
     var excluded_files_search by

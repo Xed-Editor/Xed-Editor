@@ -51,6 +51,7 @@ fun InlineAgentBar(
     var conversation by remember { mutableStateOf(ConversationState()) }
     val conversationChannel = remember { Channel<StateUpdate>(Channel.UNLIMITED) }
     val listState = rememberLazyListState()
+    var currentSendJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
 
     LaunchedEffect(conversationChannel) {
         for (update in conversationChannel) {
@@ -103,9 +104,14 @@ fun InlineAgentBar(
         }
     }
 
-    suspend fun sendMessage(prompt: String) {
-        if (conversation.isLoading) return
+    fun sendMessage(prompt: String) {
+        currentSendJob?.cancel()
+        currentSendJob = scope.launch {
+            doSendMessage(prompt)
+        }
+    }
 
+    private suspend fun doSendMessage(prompt: String) {
         val state = viewModel.currentTab
         val wd = if (state is com.rk.tabs.editor.EditorTab) {
             state.projectRoot?.getAbsolutePath()
@@ -246,7 +252,7 @@ fun InlineAgentBar(
                         if (input.isBlank()) return@InputRow
                         val prompt = input.trim()
                         input = ""
-                        scope.launch { sendMessage(prompt) }
+                        sendMessage(prompt)
                     },
                 )
             }
