@@ -40,15 +40,15 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 if (model != null) { add("-m"); add(model) }
             }.toTypedArray()
 
-        val env = buildMap {
-            put("XED_IDE_URL", "http://${bridge.host}:${bridge.port}")
-            put("XED_IDE_HOST", bridge.host)
-            put("XED_IDE_PORT", bridge.port.toString())
-            put("XED_IDE_AUTH_TOKEN", bridge.token)
-            put("IDE_SERVER_PORT", bridge.port.toString())
-            put("IDE_AUTH_TOKEN", bridge.token)
-            put("WORKSPACE_DIR", workspaceDir)
-        }
+        val env = arrayOf(
+            "XED_IDE_URL=http://${bridge.host}:${bridge.port}",
+            "XED_IDE_HOST=${bridge.host}",
+            "XED_IDE_PORT=${bridge.port}",
+            "XED_IDE_AUTH_TOKEN=${bridge.token}",
+            "IDE_SERVER_PORT=${bridge.port}",
+            "IDE_AUTH_TOKEN=${bridge.token}",
+            "WORKSPACE_DIR=$workspaceDir",
+        )
 
         launchTerminal(
             actionContext.currentActivity,
