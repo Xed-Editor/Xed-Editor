@@ -15,7 +15,7 @@ jobs:
 
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
 
     steps:
       - name: Checkout repository
@@ -29,40 +29,37 @@ jobs:
           node-version: 20
 
       - name: Collect changed strings.xml diffs
+        shell: bash
         run: |
           mkdir -p scan
 
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE="origin/${{ github.base_ref }}"
-            git fetch origin ${{ github.base_ref }}
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git fetch origin "${{ github.base_ref }}"
 
-            FILES=$(git diff --name-only $BASE...HEAD | grep "strings.xml$" || true)
+            FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml$' || true)
 
             for file in $FILES; do
               echo "Scanning $file"
-              git diff $BASE...HEAD -- "$file" > "scan/$(basename "$file").diff"
+              git diff origin/${{ github.base_ref }}...HEAD -- "$file" > "scan/$(basename "$file").diff"
             done
-
           else
-            BEFORE="${{ github.event.before }}"
-            AFTER="${{ github.sha }}"
-
-            FILES=$(git diff --name-only "$BEFORE" "$AFTER" | grep "strings.xml$" || true)
+            FILES=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep 'strings.xml$' || true)
 
             for file in $FILES; do
               echo "Scanning $file"
-              git diff "$BEFORE" "$AFTER" -- "$file" > "scan/$(basename "$file").diff"
+              git diff "${{ github.event.before }}" "${{ github.sha }}" -- "$file" > "scan/$(basename "$file").diff"
             done
           fi
 
       - name: Install Gemini SDK
         run: npm install @google/generative-ai
 
-      - name: Scan translations using Gemini
+      - name: Run Gemini scan
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        shell: bash
         run: |
-          cat > scan.js << 'EOF'
+          cat <<'EOF' > scan.js
           const fs = require("fs");
           const path = require("path");
           const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -70,65 +67,11 @@ jobs:
           const apiKey = process.env.GEMINI_API_KEY;
 
           if (!apiKey) {
-            console.error("GEMINI_API_KEY is missing");
+            console.error("Missing GEMINI_API_KEY");
             process.exit(1);
           }
 
           const genAI = new GoogleGenerativeAI(apiKey);
-
-          async function scanFile(model, filePath) {
-            const content = fs.readFileSync(filePath, "utf8");
-
-            if (!content.trim()) {
-              return { safe: true };
-            }
-
-            const prompt = `
-You are an automated moderation system.
-
-Analyze this Android strings.xml git diff.
-
-Check ONLY newly added or modified translations.
-
-Detect:
-- profanity
-- slurs
-- hate speech
-- offensive words
-- sexual content
-- abusive language
-- hidden insults
-- inappropriate slang
-
-Ignore:
-- harmless casual language
-- XML syntax
-- code
-- placeholders like %s or %d
-
-Respond ONLY in one of these formats:
-
-SAFE
-
-or
-
-UNSAFE: <short reason>
-
-Git diff:
-${content}
-`;
-
-            const result = await model.generateContent(prompt);
-            const text = result.response.text().trim();
-
-            console.log(`\n=== ${path.basename(filePath)} ===`);
-            console.log(text);
-
-            return {
-              safe: text.startsWith("SAFE"),
-              response: text
-            };
-          }
 
           async function main() {
             const model = genAI.getGenerativeModel({
@@ -138,39 +81,71 @@ ${content}
             const scanDir = "./scan";
 
             if (!fs.existsSync(scanDir)) {
-              console.log("No scan directory found.");
+              console.log("No scan directory found");
               return;
             }
 
             const files = fs.readdirSync(scanDir);
 
-            if (files.length === 0) {
-              console.log("No changed strings.xml files.");
-              return;
-            }
-
             let failed = false;
 
             for (const file of files) {
-              const result = await scanFile(
-                model,
-                path.join(scanDir, file)
-              );
+              const fullPath = path.join(scanDir, file);
+              const diff = fs.readFileSync(fullPath, "utf8");
 
-              if (!result.safe) {
+              if (!diff.trim()) continue;
+
+              const prompt = [
+                "You are a translation moderation system.",
+                "",
+                "Analyze this Android strings.xml git diff.",
+                "",
+                "Check ONLY newly added or modified translations.",
+                "",
+                "Detect:",
+                "- profanity",
+                "- slurs",
+                "- hate speech",
+                "- sexual content",
+                "- abusive language",
+                "- offensive slang",
+                "",
+                "Ignore:",
+                "- XML syntax",
+                "- placeholders like %s or %d",
+                "- harmless casual language",
+                "",
+                "Reply ONLY with:",
+                "SAFE",
+                "",
+                "or",
+                "",
+                "UNSAFE: <reason>",
+                "",
+                "Git diff:",
+                diff
+              ].join("\n");
+
+              const result = await model.generateContent(prompt);
+              const text = result.response.text().trim();
+
+              console.log("\\n=== " + file + " ===");
+              console.log(text);
+
+              if (!text.startsWith("SAFE")) {
                 failed = true;
               }
             }
 
             if (failed) {
-              console.error("\nTranslation moderation failed.");
+              console.error("\\nTranslation moderation failed.");
               process.exit(1);
             }
 
-            console.log("\nAll translations passed moderation.");
+            console.log("\\nAll translations are safe.");
           }
 
-          main().catch(err => {
+          main().catch((err) => {
             console.error(err);
             process.exit(1);
           });
