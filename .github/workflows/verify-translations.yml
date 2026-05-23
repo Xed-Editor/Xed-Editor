@@ -1,4 +1,4 @@
-Name: Translation Safety Check
+name: Translation Safety Check
 
 on:
   push:
