@@ -41,3 +41,18 @@ class InlineAskCommand(commandContext: CommandContext) : EditorCommand(commandCo
 
     override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)
 }
+
+class AiTerminalCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
+    override val id: String = "editor.ai_terminal"
+
+    override fun getLabel(): String = "AI Terminal"
+
+    override fun action(editorActionContext: EditorActionContext) {
+        commandContext.mainViewModel.showAiTerminalSheet = true
+    }
+
+    override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =
+        InbuiltFeatures.terminal.state.value
+
+    override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)
+}

@@ -8,7 +8,6 @@ import com.rk.ai.AgentCli
 import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
-import com.rk.ai.core.AiCoreEngine
 import com.rk.ai.resolvedConfiguredModelForAgent
 import com.rk.ai.resolvedStoredModelForAgent
 import com.rk.ai.setConfiguredModelForAgent
@@ -29,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -79,14 +77,13 @@ object AiSessionManager {
     }
 
     fun initialize() {
-        AiCoreEngine.initialize()
+        Log.d(TAG, "AiSessionManager initialized")
     }
 
     fun shutdown() {
         sessionLaunchJob?.cancel()
         stopSession()
         scope.cancel()
-        AiCoreEngine.shutdown()
     }
 
     fun resolveAgent(type: String? = null): AiAgent = AgentTypeRegistry.resolve(type)

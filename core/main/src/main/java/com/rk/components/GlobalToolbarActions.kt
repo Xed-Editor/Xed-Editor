@@ -89,6 +89,10 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
             IconButton(onClick = { viewModel.showAiSheet = true }) {
                 XedIcon(aiCliCommand.getIcon())
             }
+
+            IconButton(onClick = { viewModel.showAiTerminalSheet = true }) {
+                XedIcon(aiCliCommand.getIcon())
+            }
         }
 
         IconButton(onClick = { settingsCommand.action(ActionContext(context as Activity)) }) {

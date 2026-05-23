@@ -1,4 +1,4 @@
-package com.rk.ai.core
+package com.rk.ai.runtime
 
 import java.util.concurrent.ConcurrentHashMap
 

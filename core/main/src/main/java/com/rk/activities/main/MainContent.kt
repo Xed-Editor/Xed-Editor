@@ -50,8 +50,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import com.rk.ai.InlineAgentBar
+
 import com.rk.ai.AiAgentSheet
+import com.rk.ai.ui.AiTerminalSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf
@@ -238,12 +239,19 @@ fun MainContent(
             )
         }
 
-        InlineAgentBar(
-            viewModel = mainViewModel,
-            visible = mainViewModel.showInlineAgent && !mainViewModel.showAiSheet,
-            onDismiss = { mainViewModel.showInlineAgent = false },
-            modifier = Modifier.align(Alignment.BottomCenter),
-        )
+        AnimatedVisibility(
+            visible = mainViewModel.showAiTerminalSheet,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            AiTerminalSheet(
+                viewModel = mainViewModel,
+                onDismissRequest = { mainViewModel.showAiTerminalSheet = false },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
     }
 }
 

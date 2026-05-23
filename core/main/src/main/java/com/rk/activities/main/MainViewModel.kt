@@ -63,6 +63,7 @@ class MainViewModel : ViewModel() {
     }
 
     var showAiSheet by mutableStateOf(false)
+    var showAiTerminalSheet by mutableStateOf(false)
     var aiSheetCwd by mutableStateOf<String?>(null)
     var agentPrompt by mutableStateOf("")
     var agentTranscript by mutableStateOf("")

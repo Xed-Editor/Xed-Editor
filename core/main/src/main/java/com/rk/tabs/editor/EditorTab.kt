@@ -52,7 +52,7 @@ import com.rk.DefaultScope
 import com.rk.activities.main.EditorCursorState
 import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
-import com.rk.ai.AiCompletionEngine
+
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
@@ -581,7 +581,6 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
                     }
 
-                val ghostJob = remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
                 Box(modifier = Modifier.weight(1f)) {
                     CodeEditor(
                         modifier = Modifier.fillMaxSize(),
@@ -602,46 +601,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 showNotice(EDITORCONFIG_NOTICE_KEY) { id -> EditorConfigNotice(id) }
                             }
                         },
-                        onGhostTextTrigger = { editor ->
-                            ghostJob.value?.cancel()
-                            ghostJob.value = scope.launch(Dispatchers.Default) {
-                                delay(400)
-                                val content = withContext(Dispatchers.Main) { editor.text.toString() }
-                                val line = withContext(Dispatchers.Main) { editor.cursor.leftLine }
-                                val column = withContext(Dispatchers.Main) { editor.cursor.leftColumn }
-                                val lang = editorState.textmateScope ?: ""
-                                val path = file.getAbsolutePath()
-                                val result = AiCompletionEngine.getInlineCompletion(
-                                    filePath = path,
-                                    content = content,
-                                    cursorLine = line,
-                                    cursorColumn = column,
-                                    language = lang,
-                                )
-                                if (result != null) {
-                                    withContext(Dispatchers.Main) {
-                                        editorState.ghostText = result.text
-                                        editorState.ghostCursorLine = result.line
-                                        editorState.ghostCursorColumn = result.column
-                                    }
-                                }
-                            }
-                        },
                     )
-
-                    val ghostText = editorState.ghostText
-                    if (ghostText != null) {
-                        Text(
-                            text = ghostText,
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .offset(x = 4.dp, y = 4.dp)
-                                .alpha(0.4f),
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
                 }
 
                 val showColorPicker = editorState.showColorPicker
