@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - "**/strings.xml"
-
   pull_request:
     paths:
       - "**/strings.xml"
@@ -36,18 +35,18 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             git fetch origin "${{ github.base_ref }}"
 
-            FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml$' || true)
+            FILES=\( (git diff --name-only origin/ \){{ github.base_ref }}...HEAD | grep 'strings.xml$' || true)
 
             for file in $FILES; do
               echo "Scanning $file"
-              git diff origin/${{ github.base_ref }}...HEAD -- "$file" > "scan/$(basename "$file").diff"
+              git diff origin/${{ github.base_ref }}...HEAD -- "\( file" > "scan/ \)(basename "$file").diff"
             done
           else
-            FILES=$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" | grep 'strings.xml$' || true)
+            FILES=\( (git diff --name-only " \){{ github.event.before }}" "\( {{ github.sha }}" | grep 'strings.xml \)' || true)
 
             for file in $FILES; do
               echo "Scanning $file"
-              git diff "${{ github.event.before }}" "${{ github.sha }}" -- "$file" > "scan/$(basename "$file").diff"
+              git diff "\( {{ github.event.before }}" " \){{ github.sha }}" -- "\( file" > "scan/ \)(basename "$file").diff"
             done
           fi
 
@@ -129,7 +128,7 @@ jobs:
               const result = await model.generateContent(prompt);
               const text = result.response.text().trim();
 
-              console.log("\\n=== " + file + " ===");
+              console.log("\n=== " + file + " ===");
               console.log(text);
 
               if (!text.startsWith("SAFE")) {
@@ -138,11 +137,11 @@ jobs:
             }
 
             if (failed) {
-              console.error("\\nTranslation moderation failed.");
+              console.error("\nTranslation moderation failed.");
               process.exit(1);
             }
 
-            console.log("\\nAll translations are safe.");
+            console.log("\nAll translations are safe.");
           }
 
           main().catch((err) => {
