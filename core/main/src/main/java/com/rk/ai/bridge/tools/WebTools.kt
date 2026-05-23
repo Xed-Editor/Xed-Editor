@@ -31,7 +31,7 @@ class WebFetchTool : BaseMcpTool() {
 
         context.pushProgress(0.1f, "Connecting to ${validated.host}...")
 
-        return runCatching {
+        val fetchResult = runCatching {
             val connection = validated.openConnection() as HttpURLConnection
             connection.instanceFollowRedirects = true
             connection.connectTimeout = timeoutMs
@@ -53,26 +53,22 @@ class WebFetchTool : BaseMcpTool() {
 
             context.pushProgress(0.6f, "Reading response...")
 
-            val reader = BufferedReader(InputStreamReader(
-                connection.inputStream, Charsets.UTF_8
-            ))
+            val reader = BufferedReader(InputStreamReader(connection.inputStream, Charsets.UTF_8))
             val text = reader.use { it.readText() }
-
             connection.disconnect()
 
             context.pushProgress(0.8f, "Processing content...")
 
-            val result = buildString {
+            val resultText = buildString {
                 appendLine("URL: $urlString")
                 appendLine("Status: $responseCode")
                 appendLine("Content-Type: $contentType")
                 appendLine("Size: ${text.length} bytes")
                 appendLine()
 
-                val displayText = when {
+                val display = when {
                     contentType.contains("text/html", true) -> {
-                        val stripped = stripHtmlTags(text)
-                        if (format == "markdown") htmlToMarkdown(text) else stripped
+                        if (format == "markdown") htmlToMarkdown(text) else stripHtml(text)
                     }
                     contentType.contains("application/json", true) -> {
                         formatJson(text)
@@ -80,26 +76,35 @@ class WebFetchTool : BaseMcpTool() {
                     else -> text
                 }
 
-                append(displayText.take(maxLength))
-                if (displayText.length > maxLength) {
+                append(display.take(maxLength))
+                if (display.length > maxLength) {
                     append("\n\n... content truncated at ${maxLength / 1024}KB")
                 }
             }
 
             context.pushProgress(1f, "Done")
-            resultText(enforceOutputLimit(result))
-        }.getOrElse { e ->
+            resultText(enforceOutputLimit(resultText))
+        }
+        return fetchResult.getOrElse { e ->
             McpToolResult.error("Fetch failed: ${e.message ?: "unknown error"}", -32000)
         }
     }
 
-    private fun stripHtmlTags(html: String): String {
-        return html
-            .replace(Regex("<script[^>]*>[\\s\\S]*?</script>", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("<style[^>]*>[\\s\\S]*?</style>", RegexOption.IGNORE_CASE), "")
-            .replace(Regex("<[^>]+>"), "")
-            .replace(Regex("\\s+"), " ")
-            .trim()
+    companion object {
+        fun stripHtml(html: String): String {
+            return html
+                .replace(Regex("<script[^>]*>[\\s\\S]*?</script>", RegexOption.IGNORE_CASE), "")
+                .replace(Regex("<style[^>]*>[\\s\\S]*?</style>", RegexOption.IGNORE_CASE), "")
+                .replace(Regex("<[^>]+>"), "")
+                .replace(Regex("\\s+"), " ")
+                .trim()
+        }
+
+        fun stripTags(html: String): String {
+            return html.replace(Regex("<[^>]+>"), "")
+                .replace(Regex("\\s+"), " ")
+                .trim()
+        }
     }
 
     private fun htmlToMarkdown(html: String): String {
@@ -115,7 +120,7 @@ class WebFetchTool : BaseMcpTool() {
         text = text.replace(Regex("<br\\s*/?>", RegexOption.IGNORE_CASE), "\n")
         text = text.replace(Regex("<strong[^>]*>(.*?)</strong>", RegexOption.IGNORE_CASE)) { "**${it.groupValues[1]}**" }
         text = text.replace(Regex("<em[^>]*>(.*?)</em>", RegexOption.IGNORE_CASE)) { "*${it.groupValues[1]}*" }
-        return stripHtmlTags(text).trim()
+        return stripHtml(text).trim()
     }
 
     private fun formatJson(text: String): String {
@@ -140,8 +145,9 @@ class WebSearchTool : BaseMcpTool() {
 
         context.pushProgress(0.1f, "Searching for \"$query\"...")
 
-        return runCatching {
-            val searchUrl = URL("https://www.google.com/search?q=${java.net.URLEncoder.encode(query, "UTF-8")}&num=$numResults")
+        val searchResult = runCatching {
+            val encoded = java.net.URLEncoder.encode(query, "UTF-8")
+            val searchUrl = URL("https://www.google.com/search?q=$encoded&num=$numResults")
             val connection = searchUrl.openConnection() as HttpURLConnection
             connection.instanceFollowRedirects = true
             connection.connectTimeout = 15_000
@@ -157,65 +163,62 @@ class WebSearchTool : BaseMcpTool() {
 
             context.pushProgress(0.5f, "Extracting results...")
 
-            val results = extractGoogleResults(html, numResults)
-            context.pushProgress(0.9f, "Found ${results.size} results")
+            val found = extractResults(html, numResults)
+            context.pushProgress(0.9f, "Found ${found.size} results")
 
             val output = buildString {
                 appendLine("Search results for: $query")
-                appendLine("Found ${results.size} results")
+                appendLine("Found ${found.size} results")
                 appendLine()
-                results.forEachIndexed { i, result ->
-                    appendLine("${i + 1}. ${result.title}")
-                    appendLine("   URL: ${result.url}")
-                    if (result.snippet.isNotBlank()) {
-                        appendLine("   ${result.snippet}")
+                var i = 1
+                for (r in found) {
+                    appendLine("$i. ${r.title}")
+                    appendLine("   URL: ${r.url}")
+                    if (r.snippet.isNotBlank()) {
+                        appendLine("   ${r.snippet}")
                     }
                     appendLine()
+                    i++
                 }
             }
 
             context.pushProgress(1f, "Done")
             resultText(enforceOutputLimit(output))
-        }.getOrElse { e ->
+        }
+        return searchResult.getOrElse { e ->
             McpToolResult.error("Search failed: ${e.message ?: "unknown error"}", -32000)
         }
     }
 
     private data class SearchResult(val title: String, val url: String, val snippet: String)
 
-    private fun extractGoogleResults(html: String, maxResults: Int): List<SearchResult> {
+    private fun extractResults(html: String, max: Int): List<SearchResult> {
         val results = mutableListOf<SearchResult>()
 
-        // Try extracting from modern Google HTML
-        val anchorPattern = Regex("<a[^>]*href=\"/url\\?q=([^&\"]+)[^\"]*\"[^>]*>(.*?)</a>", RegexOption.IGNORE_CASE)
-        val anchorMatches = anchorPattern.findAll(html).toList()
+        val anchorPat = Regex("<a[^>]*href=\"/url\\?q=([^&\"]+)[^\"]*\"[^>]*>(.*?)</a>", RegexOption.IGNORE_CASE)
+        val snippetPat = Regex("<div[^>]*class=\"[^\"]*VwiC3b[^\"]*\"[^>]*>(.*?)</div>", RegexOption.IGNORE_CASE)
 
-        val snippetPattern = Regex("<div[^>]*class=\"[^\"]*VwiC3b[^\"]*\"[^>]*>(.*?)</div>", RegexOption.IGNORE_CASE)
-        val snippetMatches = snippetPattern.findAll(html).toList()
+        val anchorSeq = anchorPat.findAll(html)
+        val snippetSeq = snippetPat.findAll(html)
 
-        anchorMatches.forEachIndexed { index, match ->
-            if (index >= maxResults) return@forEachIndexed
-            val url = match.groupValues[1].let {
-                java.net.URLDecoder.decode(it, "UTF-8")
-                    .substringBefore("&sa=")
-                    .substringBefore("&ved=")
-            }
-            val title = stripHtmlTags(match.groupValues[2])
-            val snippet = snippetMatches.getOrNull(index)?.let {
-                stripHtmlTags(it.groupValues[1])
+        var idx = 0
+        for (anchor in anchorSeq) {
+            if (idx >= max) break
+            val rawUrl = anchor.groupValues[1]
+            val decodedUrl = java.net.URLDecoder.decode(rawUrl, "UTF-8")
+                .substringBefore("&sa=")
+                .substringBefore("&ved=")
+            val title = WebFetchTool.stripTags(anchor.groupValues[2])
+            val snippet = snippetSeq.toList().getOrNull(idx)?.let {
+                WebFetchTool.stripTags(it.groupValues[1])
             } ?: ""
-            if (url.isNotBlank() && title.isNotBlank()) {
-                results.add(SearchResult(title, url, snippet))
+            if (decodedUrl.isNotBlank() && title.isNotBlank()) {
+                results.add(SearchResult(title, decodedUrl, snippet))
             }
+            idx++
         }
 
         return results
-    }
-
-    private fun stripHtmlTags(html: String): String {
-        return html.replace(Regex("<[^>]+>"), "")
-            .replace(Regex("\\s+"), " ")
-            .trim()
     }
 }
 
@@ -237,7 +240,7 @@ class ScrapePageTool : BaseMcpTool() {
 
         context.pushProgress(0.2f, "Fetching page...")
 
-        return runCatching {
+        val scrapeResult = runCatching {
             val connection = validated.openConnection() as HttpURLConnection
             connection.instanceFollowRedirects = true
             connection.connectTimeout = 15_000
@@ -253,39 +256,50 @@ class ScrapePageTool : BaseMcpTool() {
 
             context.pushProgress(0.5f, "Extracting content...")
 
-            val title = Regex("<title[^>]*>(.*?)</title>", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.let { stripHtmlTags(it) } ?: ""
-            val description = Regex("<meta[^>]*name=\"description\"[^>]*content=\"([^\"]+)\"", RegexOption.IGNORE_CASE)
-                .find(html)?.groupValues?.get(1)?.let { stripHtmlTags(it) } ?: ""
+            val titleMatch = Regex("<title[^>]*>(.*?)</title>", RegexOption.IGNORE_CASE).find(html)
+            val pageTitle = titleMatch?.groupValues?.getOrNull(1)?.let { WebFetchTool.stripTags(it) } ?: ""
 
-            val codeBlocks = if (extractCode) {
-                Regex("<pre[^>]*>(.*?)</pre>", RegexOption.IGNORE_CASE + RegexOption.DOT_MATCHES_ALL)
-                    .findAll(html)
-                    .map { stripHtmlTags(it.groupValues[1]).trim() }
-                    .filter { it.length > 20 }
-                    .toList()
-            } else emptyList()
+            val descMatch = Regex(
+                "<meta[^>]*name=\"description\"[^>]*content=\"([^\"]+)\"", RegexOption.IGNORE_CASE
+            ).find(html)
+            val pageDesc = descMatch?.groupValues?.getOrNull(1)?.let { WebFetchTool.stripTags(it) } ?: ""
 
-            val textContent = stripHtmlTags(html)
+            val codeBlocks = mutableListOf<String>()
+            if (extractCode) {
+                val codePat = Regex("<pre[^>]*>(.*?)</pre>", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL))
+                for (m in codePat.findAll(html)) {
+                    val code = WebFetchTool.stripTags(m.groupValues[1]).trim()
+                    if (code.length > 20) {
+                        codeBlocks.add(code)
+                        if (codeBlocks.size >= 50) break
+                    }
+                }
+            }
+
+            val textContent = WebFetchTool.stripHtml(html)
                 .replace(Regex("\\n{3,}"), "\n\n")
                 .trim()
 
             context.pushProgress(0.8f, "Formatting output...")
 
             val output = buildString {
-                appendLine("Title: $title")
-                if (description.isNotBlank()) appendLine("Description: $description")
+                appendLine("Title: $pageTitle")
+                if (pageDesc.isNotBlank()) appendLine("Description: $pageDesc")
                 appendLine("URL: $urlString")
                 appendLine()
 
                 if (codeBlocks.isNotEmpty()) {
-                    appendLine("--- Code Blocks (${codeBlocks.size}) ---")
-                    codeBlocks.take(10).forEachIndexed { i, code ->
+                    val blockCount = codeBlocks.size
+                    appendLine("--- Code Blocks ($blockCount) ---")
+                    var i = 0
+                    for (code in codeBlocks) {
+                        if (i >= 10) break
                         appendLine("```")
                         appendLine(code.take(5000))
                         if (code.length > 5000) appendLine("... (truncated)")
                         appendLine("```")
                         appendLine()
+                        i++
                     }
                 }
 
@@ -298,14 +312,9 @@ class ScrapePageTool : BaseMcpTool() {
 
             context.pushProgress(1f, "Done")
             resultText(enforceOutputLimit(output))
-        }.getOrElse { e ->
+        }
+        return scrapeResult.getOrElse { e ->
             McpToolResult.error("Scrape failed: ${e.message ?: "unknown error"}", -32000)
         }
-    }
-
-    private fun stripHtmlTags(html: String): String {
-        return html.replace(Regex("<[^>]+>"), "")
-            .replace(Regex("\\s+"), " ")
-            .trim()
     }
 }

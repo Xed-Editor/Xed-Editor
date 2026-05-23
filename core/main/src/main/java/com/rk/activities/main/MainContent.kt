@@ -50,7 +50,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import com.rk.ai.session.AiSessionManager
+import com.rk.ai.ActiveSession
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf
@@ -226,7 +226,7 @@ fun MainContent(
         }
 
         if (mainViewModel.showAiSheet) {
-            val session = AiSessionManager.session
+            val session = ActiveSession.session
             com.rk.tabs.editor.AgentCliSheet(
                 onDismissRequest = { mainViewModel.showAiSheet = false },
                 cwd = mainViewModel.aiSheetCwd ?: "/storage/emulated/0",

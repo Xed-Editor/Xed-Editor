@@ -1,7 +1,6 @@
 package com.rk.commands.global
 
 import com.rk.ai.IdeBridge
-import com.rk.ai.session.AgentEnvironmentBuilder
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
@@ -41,6 +40,16 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 if (model != null) { add("-m"); add(model) }
             }.toTypedArray()
 
+        val env = buildMap {
+            put("XED_IDE_URL", "http://${bridge.host}:${bridge.port}")
+            put("XED_IDE_HOST", bridge.host)
+            put("XED_IDE_PORT", bridge.port.toString())
+            put("XED_IDE_AUTH_TOKEN", bridge.token)
+            put("IDE_SERVER_PORT", bridge.port.toString())
+            put("IDE_AUTH_TOKEN", bridge.token)
+            put("WORKSPACE_DIR", workspaceDir)
+        }
+
         launchTerminal(
             actionContext.currentActivity,
             TerminalCommand(
@@ -49,7 +58,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 id = "ai-cli",
                 terminatePreviousSession = false,
                 workingDir = workspaceDir,
-                env = AgentEnvironmentBuilder.buildMinimalBridgeEnv(bridge, workspaceDir),
+                env = env,
             ),
         )
     }

@@ -94,11 +94,18 @@ class SseManager(
         return false
     }
 
-    fun getStreamFlow(sessionId: String): SharedFlow<String> =
-        clientFlows.getOrPut(sessionId) { MutableSharedFlow(extraBufferCapacity = 64) }
+    fun getStreamFlow(sessionId: String): SharedFlow<String> {
+        var flow = clientFlows.get(sessionId)
+        if (flow == null) {
+            flow = MutableSharedFlow(extraBufferCapacity = 64)
+            val existing = clientFlows.putIfAbsent(sessionId, flow)
+            if (existing != null) flow = existing
+        }
+        return flow
+    }
 
     fun streamToSession(sessionId: String, chunk: String) {
-        clientFlows[sessionId]?.tryEmit(chunk)
+        clientFlows.get(sessionId)?.tryEmit(chunk)
         pushToSession(sessionId, chunk)
     }
 

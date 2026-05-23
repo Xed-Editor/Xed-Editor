@@ -1,7 +1,7 @@
 package com.rk.ai.service
 
+import com.rk.ai.ActiveSession
 import com.rk.ai.IdeBridge
-import com.rk.ai.session.AiSessionManager
 import com.rk.exec.ShellUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,7 +21,7 @@ class TerminalService {
     }
 
     suspend fun getTerminalOutput(lines: Int?): String {
-        val session = AiSessionManager.session
+        val session = ActiveSession.session
         if (session == null || !session.isRunning) return "No active AI CLI terminal session"
         return withContext(Dispatchers.IO) {
             val emulator = session.emulator ?: return@withContext "Terminal emulator not available"
