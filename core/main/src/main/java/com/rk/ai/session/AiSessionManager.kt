@@ -2,18 +2,16 @@ package com.rk.ai.session
 
 import android.app.Activity
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.AiConfig
 import com.rk.ai.AgentCli
 import com.rk.ai.IdeBridge
+import com.rk.ai.agents.AiAgent
+import com.rk.ai.agents.AgentTypeRegistry
+import com.rk.ai.core.AiCoreEngine
 import com.rk.ai.resolvedConfiguredModelForAgent
 import com.rk.ai.resolvedStoredModelForAgent
 import com.rk.ai.setConfiguredModelForAgent
-import com.rk.ai.agents.AiAgent
-import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.settings.Settings
@@ -24,30 +22,71 @@ import com.termux.terminal.TerminalSession
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
+
+data class AiSessionState(
+    val session: TerminalSession? = null,
+    val cwd: String? = null,
+    val currentAgent: AiAgent = AgentTypeRegistry.resolve(),
+    val lastError: String? = null,
+    val connectionStatus: AiSessionManager.ConnectionStatus = AiSessionManager.ConnectionStatus.Disconnected,
+    val isRunning: Boolean = false,
+)
 
 object AiSessionManager {
-    var session by mutableStateOf<TerminalSession?>(null)
-    var cwd by mutableStateOf<String?>(null)
-    var currentAgent by mutableStateOf<AiAgent>(AgentTypeRegistry.resolve())
-    var lastError by mutableStateOf<String?>(null)
-    var connectionStatus by mutableStateOf<ConnectionStatus>(ConnectionStatus.Disconnected)
+    private const val TAG = "AiSessionManager"
 
-    private val stateMutex = Mutex()
-    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val mutex = Mutex()
+
+    private val _state = MutableStateFlow(AiSessionState())
+    val state: StateFlow<AiSessionState> = _state.asStateFlow()
+
+    var session: TerminalSession?
+        get() = _state.value.session
+        private set(value) { _state.update { it.copy(session = value, isRunning = value?.isRunning == true) } }
+
+    var cwd: String?
+        get() = _state.value.cwd
+        private set(value) { _state.update { it.copy(cwd = value) } }
+
+    var currentAgent: AiAgent
+        get() = _state.value.currentAgent
+        private set(value) { _state.update { it.copy(currentAgent = value) } }
+
+    var lastError: String?
+        get() = _state.value.lastError
+        private set(value) { _state.update { it.copy(lastError = value) } }
+
+    var connectionStatus: ConnectionStatus
+        get() = _state.value.connectionStatus
+        private set(value) { _state.update { it.copy(connectionStatus = value) } }
+
+    private var sessionLaunchJob: Job? = null
 
     enum class ConnectionStatus {
         Disconnected, Connecting, Connected, Reconnecting, Error
     }
 
+    fun initialize() {
+        AiCoreEngine.initialize()
+    }
+
     fun shutdown() {
-        sessionScope.cancel()
+        sessionLaunchJob?.cancel()
         stopSession()
+        scope.cancel()
+        AiCoreEngine.shutdown()
     }
 
     fun resolveAgent(type: String? = null): AiAgent = AgentTypeRegistry.resolve(type)
@@ -63,7 +102,6 @@ object AiSessionManager {
             runCatching { IdeBridge.forceWriteAgentConfigs() }
             return
         }
-
         setConfiguredModelForAgent(previousAgent, resolvedConfiguredModelForAgent(previousAgent), syncActiveModel = false)
         stopSession()
         currentAgent = newAgent
@@ -75,161 +113,95 @@ object AiSessionManager {
         connectionStatus = ConnectionStatus.Disconnected
     }
 
-    private fun d(msg: String) {
-        if (BuildConfig.DEBUG) Log.d("AiSessionManager", msg)
-    }
-
     fun canReuseFor(requestedCwd: String): Boolean {
         val s = session ?: return false
         if (!s.isRunning) return false
         val existingCwd = cwd ?: return false
         if (requestedCwd == existingCwd) return true
         if (existingCwd in AiConfig.commonReuseRoots) return true
-        return requestedCwd.startsWith("$existingCwd/")
+        return requestedCwd.startsWith(existingCwd) || existingCwd.startsWith(requestedCwd)
     }
 
     fun updateCwd(newCwd: String) {
-        val s = session ?: return
-        if (!s.isRunning) return
-        val oldCwd = cwd
         cwd = newCwd
-        IdeBridge.setWorkspacePath(newCwd)
-        if (newCwd != oldCwd) {
-            try {
-                s.write("cd \"$newCwd\"\r")
-                d("Session cwd updated: $oldCwd -> $newCwd")
-            } catch (e: Exception) {
-                d("Failed to cd session: ${e.message}")
-            }
-        }
     }
 
-    suspend fun startSession(
+    fun startSession(
         activity: Activity,
         viewModel: MainViewModel,
-        workingDir: String,
+        workingDir: String? = null,
         extraArgs: List<String> = emptyList(),
-        agentType: String? = null,
-        maxRetries: Int = 2,
-    ): TerminalSession = stateMutex.withLock {
-        val previousAgentName = Settings.ai_agent
-        currentAgent = resolveAgent(agentType)
-        Settings.ai_agent = currentAgent.name
-        val initialModel = if (currentAgent.name == previousAgentName) {
-            resolvedConfiguredModelForAgent(currentAgent).orEmpty()
-        } else {
-            resolvedStoredModelForAgent(currentAgent).orEmpty()
-        }
-        Settings.ai_model = initialModel
-        d("startSession agent=${currentAgent.name} workingDir=$workingDir")
-        lastError = null
-        connectionStatus = ConnectionStatus.Connecting
+    ) {
+        sessionLaunchJob?.cancel()
+        sessionLaunchJob = scope.launch {
+            mutex.withLock {
+                connectionStatus = ConnectionStatus.Connecting
+                val dir = workingDir ?: cwd ?: return@launch
+                try {
+                    setupTerminalFiles()
+                    val bridgeInfo = IdeBridge.ensureStarted(viewModel, dir)
+                    val agentEnvBuilder = AgentEnvironmentBuilder
 
-        val projectConfig = com.rk.ai.ProjectConfigLoader.loadForWorkspace(workingDir)
-        if (projectConfig != null) {
-            com.rk.ai.ProjectConfigLoader.applyConfig(projectConfig)
-            currentAgent = resolveAgent()
-            Settings.ai_model = resolvedConfiguredModelForAgent(currentAgent).orEmpty()
-            d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
-        }
+                    val tmpSubdir = "terminal/${currentAgent.name}-sheet"
+                    val tmpDir = File(getTempDir(), tmpSubdir).apply { mkdirs() }
+                    var args = currentAgent.buildArgs(
+                        extraArgs = listOf("--approval-mode=default") + extraArgs,
+                        workingDir = dir,
+                        model = resolvedConfiguredModelForAgent(currentAgent).orEmpty()
+                            .ifEmpty { currentAgent.defaultModel }
+                    )
 
-        val existingSession = session
-        if (existingSession != null) {
-            d("Stopping existing session before starting new one")
-            withContext(Dispatchers.Main) {
-                runCatching { existingSession.finishIfRunning() }
-            }
-            session = null
-            cwd = null
-        }
-
-        var lastException: Exception? = null
-        repeat(maxRetries + 1) { attempt ->
-            try {
-                val bridgeInfo = withContext(Dispatchers.IO) {
-                    IdeBridge.ensureStarted(viewModel, workingDir)
-                }
-                if (bridgeInfo == null) {
-                    lastError = IdeBridge.getLastError() ?: "Failed to start bridge"
-                    connectionStatus = ConnectionStatus.Error
-                    throw Exception(lastError)
-                }
-
-                IdeBridge.setWorkspacePath(workingDir)
-
-                val (mcpOk, mcpStatus) = IdeBridge.checkMcpConnection()
-                d("MCP connection check: $mcpOk - $mcpStatus")
-                if (!mcpOk) {
-                    lastError = "Bridge MCP check failed: $mcpStatus"
-                    connectionStatus = ConnectionStatus.Error
-                    throw Exception(lastError)
-                }
-
-                val (toolsOk, toolsStatus) = IdeBridge.verifyMcpToolsAvailable()
-                d("MCP tools check: $toolsOk - $toolsStatus")
-                if (!toolsOk) {
-                    lastError = "Bridge MCP tools unavailable: $toolsStatus"
-                    connectionStatus = ConnectionStatus.Error
-                    throw Exception(lastError)
-                }
-
-                val newSession = createAgentSession(
-                    activity = activity,
-                    agent = currentAgent,
-                    bridge = bridgeInfo,
-                    workingDir = workingDir,
-                    extraArgs = extraArgs,
-                )
-                session = newSession
-                cwd = workingDir
-                connectionStatus = ConnectionStatus.Connected
-                lastError = null
-                d("Session started successfully")
-                return@withLock newSession
-            } catch (e: Exception) {
-                lastException = e
-                d("Attempt ${attempt + 1} failed: ${e.message}")
-                if (attempt < maxRetries) {
-                    connectionStatus = ConnectionStatus.Reconnecting
-                    withContext(Dispatchers.IO) {
-                        kotlinx.coroutines.delay(1000L * (attempt + 1))
+                    if (extraArgs.contains("--prompt-interactive")) {
+                        val promptIndex = extraArgs.indexOf("--prompt-interactive") + 1
+                        if (promptIndex < extraArgs.size && promptIndex > 0) {
+                            val interactivePrompt = extraArgs[promptIndex]
+                            args = currentAgent.buildArgs(
+                                extraArgs = listOf("-p", interactivePrompt),
+                                workingDir = dir,
+                                model = resolvedConfiguredModelForAgent(currentAgent).orEmpty()
+                                    .ifEmpty { currentAgent.defaultModel }
+                            )
+                        }
                     }
-                    IdeBridge.stop()
-                } else {
+
+                    val command = arrayOf("/bin/bash", localBinDir().child(currentAgent.cliBinaryName).absolutePath, *args.toTypedArray())
+                    val config = AgentEnvironmentConfig(
+                        activity = activity,
+                        workingDir = dir,
+                        bridge = bridgeInfo ?: return@launch,
+                        agent = currentAgent,
+                        tmpSubdir = tmpSubdir,
+                    )
+                    val env = agentEnvBuilder.buildEnv(config)
+                    val shell = "/system/bin/sh"
+                    val ts = TerminalSession(shell, dir, command, env, Settings.terminal_scrollback_buffer,
+                        com.rk.terminal.TerminalBackEnd()
+                    ).also {
+                        it.mSessionName = "${currentAgent.name}-agent"
+                    }
+
+                    session = ts
+                    cwd = dir
+                    connectionStatus = ConnectionStatus.Connected
+                    lastError = null
+
+                    if (bridgeInfo != null) {
+                        agentEnvBuilder.writeBridgeEnvFile(tmpDir, File(dir, AiConfig.Discovery.xedIdeDir), bridgeInfo)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to start session", e)
                     lastError = e.message
                     connectionStatus = ConnectionStatus.Error
+                    session = null
                 }
             }
         }
-        throw lastException ?: Exception("Failed to start session after $maxRetries retries")
-    }
-
-    fun validateSession(): Boolean {
-        val s = session ?: return false
-        if (!s.isRunning) {
-            connectionStatus = ConnectionStatus.Disconnected
-            return false
-        }
-        if (!IdeBridge.isRunning()) {
-            connectionStatus = ConnectionStatus.Error
-            lastError = "IDE bridge not running"
-            return false
-        }
-        val (ok, status) = IdeBridge.checkMcpConnection()
-        if (!ok) {
-            connectionStatus = ConnectionStatus.Error
-            lastError = status
-            return false
-        }
-        return true
     }
 
     fun stopSession() {
-        d("stopSession")
-        try {
-            session?.finishIfRunning()
-        } catch (e: Exception) {
-            d("Error stopping session: ${e.message}")
+        sessionLaunchJob?.cancel()
+        session?.let { ts ->
+            try { ts.finishIfRunning() } catch (_: Exception) {}
         }
         session = null
         cwd = null
@@ -238,104 +210,14 @@ object AiSessionManager {
     }
 
     suspend fun reconnect(activity: Activity, viewModel: MainViewModel): Boolean {
-        val dir = cwd
-        if (dir == null) {
-            lastError = "No working directory for reconnection"
-            return false
-        }
-        connectionStatus = ConnectionStatus.Reconnecting
-        return try {
-            startSession(activity, viewModel, dir)
-            true
-        } catch (e: Exception) {
-            lastError = "Reconnection failed: ${e.message}"
-            connectionStatus = ConnectionStatus.Error
-            false
-        }
+        stopSession()
+        startSession(activity, viewModel)
+        kotlinx.coroutines.delay(2000)
+        val s = session
+        return s != null && s.isRunning
     }
 
-    suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {
-        val bridgeInfo = IdeBridge.getBridgeInfo()
-        if (bridgeInfo == null) {
-            lastError = "Bridge not available"
-            throw Exception("IDE bridge not running")
-        }
-        val result = AgentCli.runAgent(
-            prompt = prompt,
-            agent = currentAgent,
-            workingDir = workingDir,
-            ideBridge = bridgeInfo,
-            model = resolvedConfiguredModelForAgent(currentAgent),
-            timeoutSeconds = timeoutSeconds,
-        )
-        return AgentCli.stripCodeFences(result.output)
-    }
-
-    private suspend fun createAgentSession(
-        activity: Activity,
-        agent: AiAgent,
-        bridge: IdeBridge.Info,
-        workingDir: String,
-        extraArgs: List<String> = emptyList(),
-    ): TerminalSession = withContext(Dispatchers.IO) {
-        setupTerminalFiles()
-        val tmpDir = File(getTempDir(), "terminal/${agent.name}-sheet").apply { mkdirs() }
-        val xedDir = if (workingDir.isNotBlank() && File(workingDir).exists()) {
-            File(workingDir, ".xed").also { it.mkdirs() }
-        } else null
-        AgentEnvironmentBuilder.writeBridgeEnvFile(tmpDir, xedDir, bridge)
-        val (shell, args) = agentSheetProcessArgs(agent, extraArgs, xedDir, workingDir)
-        val env = AgentEnvironmentBuilder.buildEnv(
-            AgentEnvironmentConfig(
-                activity = activity,
-                workingDir = workingDir,
-                bridge = bridge,
-                agent = agent,
-                tmpSubdir = "${agent.name}-sheet",
-            )
-        )
-        TerminalSession(
-            shell,
-            workingDir,
-            args,
-            env,
-            Settings.terminal_scrollback_buffer,
-            com.rk.terminal.TerminalBackEnd(),
-        ).also { it.mSessionName = "${agent.name}-sheet" }
-    }
-
-    private fun agentSheetProcessArgs(
-        agent: AiAgent,
-        extraArgs: List<String>,
-        xedDir: File?,
-        workingDir: String,
-    ): Pair<String, Array<String>> {
-        val sandbox = localBinDir().child("sandbox").absolutePath
-        val launcher = localBinDir().child(agent.shellScriptName).absolutePath
-
-        val wrapperDir = xedDir ?: File(getTempDir(), "terminal/${agent.name}-sheet").also { it.mkdirs() }
-        val envFile = File(wrapperDir, AiConfig.Discovery.ideEnvFile)
-        val wrapperScript = File(wrapperDir, AiConfig.Discovery.launcherScriptFile)
-        if (!wrapperScript.exists()) {
-            wrapperScript.writeText(
-                buildString {
-                    appendLine("#!/bin/bash")
-                    appendLine("# Auto-generated launcher wrapper - sources IDE bridge env")
-                    if (envFile.exists()) {
-                        appendLine("source ${envFile.absolutePath}")
-                    }
-                    appendLine("exec $launcher \"\$@\"")
-                }
-            )
-            wrapperScript.setExecutable(true)
-        }
-
-        val command = buildList {
-            add(sandbox)
-            add("/bin/bash")
-            add(wrapperScript.absolutePath)
-            addAll(agent.buildArgs(extraArgs, workingDir, resolvedConfiguredModelForAgent(agent)))
-        }
-        return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
+    fun write(text: String) {
+        session?.write(text)
     }
 }

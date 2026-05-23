@@ -1,6 +1,8 @@
 package com.rk.ai.core
 
 import android.util.Log
+import com.rk.ai.core.provider.GeminiCoreProvider
+import com.rk.ai.core.provider.OpenAiCoreProvider
 import com.rk.settings.SecureSettingsStore
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -10,6 +12,10 @@ class ProviderManager {
     private val mutex = Mutex()
     private var defaultProviderId: String = ""
 
+    init {
+        Log.d("ProviderManager", "Initialized")
+    }
+
     suspend fun register(provider: AiProvider) {
         mutex.withLock {
             providers[provider.id] = provider
@@ -18,6 +24,18 @@ class ProviderManager {
             }
             Log.d("ProviderManager", "Registered provider: ${provider.id}")
         }
+    }
+
+    suspend fun registerDefaults() {
+        val geminiKey = resolveApiKey("gemini")
+        if (geminiKey.isNotBlank()) {
+            register(GeminiCoreProvider(apiKey = geminiKey))
+        }
+        val openaiKey = resolveApiKey("openai")
+        if (openaiKey.isNotBlank()) {
+            register(OpenAiCoreProvider(apiKey = openaiKey))
+        }
+        Log.d("ProviderManager", "Registered ${providers.size} default providers")
     }
 
     suspend fun unregister(providerId: String) {
@@ -76,13 +94,20 @@ class ProviderManager {
         return results
     }
 
-    suspend fun resolveApiKey(providerId: String): String {
-        val keyPrefKey = "ai_api_key_$providerId"
-        return SecureSettingsStore.get(keyPrefKey)
-            .ifBlank { SecureSettingsStore.get("ai_api_key") }
-    }
+    companion object {
+        fun resolveApiKey(providerId: String): String {
+            val keyPrefKey = when (providerId) {
+                "gemini" -> "ai_api_key_gemini"
+                "openai" -> "ai_api_key_openai"
+                else -> "ai_api_key_$providerId"
+            }
+            return SecureSettingsStore.get(keyPrefKey)
+                .ifBlank { SecureSettingsStore.get("ai_api_key") }
+        }
 
-    init {
-        Log.d("ProviderManager", "Initialized")
+        val DEFAULT_MODELS = mapOf(
+            "gemini" to "gemini-2.5-flash",
+            "openai" to "gpt-4o-mini",
+        )
     }
 }

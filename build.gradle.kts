@@ -17,6 +17,13 @@ subprojects {
             maxWidth.set(120)
         }
     }
+    configurations.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "com.google.code.gson" && requested.name == "gson") {
+                useVersion("2.13.2")
+            }
+        }
+    }
 }
 
 buildscript{
