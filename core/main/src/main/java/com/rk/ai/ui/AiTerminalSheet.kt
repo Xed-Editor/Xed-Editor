@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.IdeBridge
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.context.ContextBuilder
 import com.rk.ai.runtime.AgentRuntime
@@ -37,6 +38,8 @@ import com.rk.ai.runtime.SessionPhase
 import com.rk.ai.runtime.StreamEvent
 import com.rk.ai.session.AiSessionManager
 import com.rk.tabs.editor.EditorTab
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiTerminalSheet(
@@ -55,6 +58,12 @@ fun AiTerminalSheet(
     val phase = sessionState?.phase ?: SessionPhase.IDLE
     val accumulatedText = sessionState?.accumulatedText ?: ""
     val error = sessionState?.error
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            IdeBridge.ensureStarted(viewModel)
+        }
+    }
 
     LaunchedEffect(events.size) {
         if (events.isNotEmpty()) {
@@ -99,6 +108,7 @@ fun AiTerminalSheet(
                 },
                 onDismiss = onDismissRequest,
                 onNewSession = {
+                    IdeBridge.ensureStarted(viewModel)
                     runtime.destroyAll()
                     val config = AgentSessionConfig(
                         agent = currentAgent,
@@ -125,6 +135,7 @@ fun AiTerminalSheet(
                             lineCount = fileCtx.lineCount,
                         )
                         val fullPrompt = ContextBuilder.buildFullPrompt(prompt, ctx)
+                        IdeBridge.ensureStarted(viewModel)
                         sessionHandle?.execute(fullPrompt)
                     },
                 )
@@ -172,6 +183,8 @@ fun AiTerminalSheet(
                         lineCount = fileContext.lineCount,
                     )
                     val fullPrompt = ContextBuilder.buildFullPrompt(prompt, ctx)
+
+                    IdeBridge.ensureStarted(viewModel)
 
                     if (sessionHandle == null || !sessionHandle.isActive) {
                         val config = AgentSessionConfig(
@@ -354,6 +367,8 @@ private fun EventList(
     listState: androidx.compose.foundation.lazy.LazyListState,
     modifier: Modifier = Modifier,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),

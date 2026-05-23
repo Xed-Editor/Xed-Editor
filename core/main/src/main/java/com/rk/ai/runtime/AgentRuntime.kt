@@ -12,11 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.receiveAsFlow
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -82,8 +82,8 @@ class AgentRuntime(
         ))
         val state: StateFlow<AgentSessionState> = _state.asStateFlow()
 
-        private val eventChannel = Channel<StreamEvent>(Channel.BUFFERED)
-        val events: Flow<StreamEvent> = eventChannel.receiveAsFlow()
+        private val _events = MutableSharedFlow<StreamEvent>(extraBufferCapacity = 64)
+        val events: SharedFlow<StreamEvent> = _events.asSharedFlow()
 
         private var executionJob: Job? = null
         private val _cancelled = AtomicBoolean(false)
@@ -172,7 +172,7 @@ class AgentRuntime(
         }
 
         private fun emitEvent(event: StreamEvent) {
-            eventChannel.trySend(event)
+            _events.tryEmit(event)
             _state.update { it.addEvent(event) }
             when (event) {
                 is StreamEvent.Token -> {
