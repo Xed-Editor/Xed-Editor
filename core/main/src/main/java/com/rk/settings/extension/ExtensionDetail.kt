@@ -220,9 +220,9 @@ fun ExtensionStats(modifier: Modifier = Modifier, title: String, value: String, 
 }
 
 enum class ExtensionRoutes(val icon: Icon, val label: String, val route: String) {
-    OVERVIEW(Icon.DrawableRes(drawables.file), strings.overview.getString(), "overview"),
-    REVIEWS(Icon.DrawableRes(drawables.comment), strings.reviews.getString(), "reviews"),
-    CHANGELOG(Icon.DrawableRes(drawables.update), strings.changelog.getString(), "changelog"),
+    OVERVIEW(Icon.ResourceIcon(drawables.file), strings.overview.getString(), "overview"),
+    REVIEWS(Icon.ResourceIcon(drawables.comment), strings.reviews.getString(), "reviews"),
+    CHANGELOG(Icon.ResourceIcon(drawables.update), strings.changelog.getString(), "changelog"),
 }
 
 @Composable

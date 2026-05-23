@@ -18,7 +18,7 @@ class SelectAllCommand : EditorCommand() {
         editorActionContext.editor.selectAll()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.select_all)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.select_all)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_A, ctrl = true)
 }

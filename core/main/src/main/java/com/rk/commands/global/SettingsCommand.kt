@@ -21,7 +21,7 @@ class SettingsCommand : GlobalCommand() {
         activity.startActivity(Intent(activity, SettingsActivity::class.java))
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.settings)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.settings)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_COMMA, ctrl = true)
 }

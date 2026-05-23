@@ -26,7 +26,7 @@ class MarkdownRunner : RunnerImpl() {
     }
 
     override fun getIcon(context: Context): Icon {
-        return Icon.DrawableRes(BuiltinFileType.MARKDOWN.icon!!)
+        return BuiltinFileType.MARKDOWN.icon!!
     }
 
     override suspend fun isRunning(): Boolean {

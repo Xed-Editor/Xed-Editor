@@ -28,5 +28,5 @@ class GoToReferencesCommand : LspCommand() {
         return lspNonActionContext.lspConnector.isGoToReferencesSupported()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.manage_search)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.manage_search)
 }

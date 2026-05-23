@@ -361,7 +361,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
                             editorState.runnersToShow.forEach { runner ->
                                 AddDialogItem(
-                                    icon = runner.getIcon(context) ?: Icon.DrawableRes(drawableRes = drawables.run),
+                                    icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
                                     title = runner.getName(),
                                 ) {
                                     DefaultScope.launch {

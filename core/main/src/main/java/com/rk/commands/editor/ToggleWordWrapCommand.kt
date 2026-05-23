@@ -19,7 +19,7 @@ class ToggleWordWrapCommand : EditorCommand() {
         editor.setWordwrap(!editor.isWordwrap, true, true)
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.edit_note)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.edit_note)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_Z, alt = true)
 }

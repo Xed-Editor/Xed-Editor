@@ -28,5 +28,5 @@ class GoToDefinitionCommand : LspCommand() {
         return lspNonActionContext.lspConnector.isGoToDefinitionSupported()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.jump_to_element)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.jump_to_element)
 }

@@ -22,7 +22,7 @@ class ReplaceCommand : EditorCommand() {
         }
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.find_replace)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.find_replace)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_H, ctrl = true)
 }

@@ -23,5 +23,5 @@ class FormatDocumentCommand : LspCommand() {
         return lspNonActionContext.lspConnector.isFormattingSupported()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.auto_fix)
 }

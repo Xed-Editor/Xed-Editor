@@ -22,7 +22,7 @@ class SearchCommand : EditorCommand() {
         }
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.search)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.search)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_F, ctrl = true)
 }

@@ -26,7 +26,7 @@ class UndoCommand : EditorCommand() {
         return editorState.editable && editorState.canUndo
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.undo)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.undo)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_Z, ctrl = true)
 }

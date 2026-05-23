@@ -88,7 +88,7 @@ data class ShellBasedRunner(private val name: String, val regex: String) : Runne
     }
 
     override fun getIcon(context: Context): Icon {
-        return Icon.DrawableRes(drawables.bash)
+        return Icon.ResourceIcon(drawables.bash)
     }
 
     override suspend fun isRunning(): Boolean {

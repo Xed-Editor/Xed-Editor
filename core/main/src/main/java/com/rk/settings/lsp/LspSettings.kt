@@ -51,6 +51,8 @@ import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.lsp.LspPersistence
 import com.rk.lsp.LspRegistry
 import com.rk.lsp.LspServer
@@ -108,7 +110,7 @@ fun LspSettings(navController: NavController) {
         PreferenceGroup(heading = stringResource(strings.external)) {
             LspRegistry.externalServers.forEachIndexed { index, server ->
                 key(server.id) {
-                    val icon = server.icon ?: drawables.unknown_document
+                    val icon = server.icon ?: Icon.ResourceIcon(drawables.unknown_document)
                     SettingsToggle(
                         label = server.languageName,
                         default = true,
@@ -205,7 +207,7 @@ private fun LspServerItem(
     navController: NavController,
     refreshKey: Int,
 ) {
-    val icon = server.icon ?: drawables.unknown_document
+    val icon = server.icon ?: Icon.ResourceIcon(drawables.unknown_document)
     SettingsToggle(
         label = server.languageName,
         default = Preference.getBoolean("lsp_${server.id}", true),
@@ -274,9 +276,9 @@ fun rememberLspInstallStatus(context: Context, server: LspServer, refreshKey: In
 }
 
 @Composable
-private fun LspServerIcon(server: LspServer, i: Int) {
+private fun LspServerIcon(server: LspServer, icon: Icon) {
     BadgedBox(badge = { server.getDominantStatusColor()?.let { color -> Badge(containerColor = color) } }) {
-        Icon(modifier = Modifier.padding(start = 16.dp), painter = painterResource(i), contentDescription = null)
+        XedIcon(icon = icon, contentDescription = null, modifier = Modifier.padding(start = 16.dp))
     }
 }
 

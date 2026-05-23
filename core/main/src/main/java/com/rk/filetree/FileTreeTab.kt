@@ -252,7 +252,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
                 drawables.outline_folder
             }
 
-        return Icon.DrawableRes(iconId)
+        return Icon.ResourceIcon(iconId)
     }
 
     override fun equals(other: Any?): Boolean {

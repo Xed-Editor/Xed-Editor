@@ -106,7 +106,7 @@ object RefreshAction : MultiFileAction() {
 }
 
 object TerminalAction : FileAction() {
-    override val icon = Icon.DrawableRes(drawables.terminal)
+    override val icon = Icon.ResourceIcon(drawables.terminal)
     override val title = strings.open_in_terminal.getString()
 
     override fun action(context: FileActionContext) {
@@ -173,7 +173,7 @@ object DeleteAction : MultiFileAction() {
 }
 
 object CopyAction : MultiFileAction() {
-    override val icon = Icon.DrawableRes(drawables.copy)
+    override val icon = Icon.ResourceIcon(drawables.copy)
     override val title = strings.copy.getString()
 
     override fun action(context: MultiFileActionContext) {
@@ -186,7 +186,7 @@ object CopyAction : MultiFileAction() {
 }
 
 object CutAction : MultiFileAction() {
-    override val icon = Icon.DrawableRes(drawables.cut)
+    override val icon = Icon.ResourceIcon(drawables.cut)
     override val title = strings.cut.getString()
 
     override fun action(context: MultiFileActionContext) {
@@ -198,7 +198,7 @@ object CutAction : MultiFileAction() {
 }
 
 object PasteAction : FileAction() {
-    override val icon = Icon.DrawableRes(drawables.paste)
+    override val icon = Icon.ResourceIcon(drawables.paste)
     override val title = strings.paste.getString()
 
     override fun action(context: FileActionContext) {
@@ -243,7 +243,7 @@ object PasteAction : FileAction() {
 }
 
 object OpenWithAction : FileAction() {
-    override val icon = Icon.DrawableRes(drawables.open_in_new)
+    override val icon = Icon.ResourceIcon(drawables.open_in_new)
     override val title = strings.open_with.getString()
 
     override fun action(context: FileActionContext) {
@@ -254,7 +254,7 @@ object OpenWithAction : FileAction() {
 }
 
 object SaveAsAction : FileAction() {
-    override val icon = Icon.DrawableRes(drawables.file_symlink)
+    override val icon = Icon.ResourceIcon(drawables.file_symlink)
     override val title = strings.save_as.getString()
 
     override fun action(context: FileActionContext) {
@@ -265,7 +265,7 @@ object SaveAsAction : FileAction() {
 }
 
 object AddFileAction : FileAction() {
-    override val icon = Icon.DrawableRes(drawables.arrow_downward)
+    override val icon = Icon.ResourceIcon(drawables.arrow_downward)
     override val title = strings.add_file.getString()
 
     override fun action(context: FileActionContext) {
@@ -276,7 +276,7 @@ object AddFileAction : FileAction() {
 }
 
 object OpenAsProjectAction : FileAction() {
-    override val icon = Icon.DrawableRes(drawables.folder_code)
+    override val icon = Icon.ResourceIcon(drawables.folder_code)
     override val title = strings.open_as_project.getString()
 
     override fun action(context: FileActionContext) {

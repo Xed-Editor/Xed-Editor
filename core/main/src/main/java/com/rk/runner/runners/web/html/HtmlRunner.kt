@@ -53,7 +53,7 @@ class HtmlRunner : RunnerImpl() {
     }
 
     override fun getIcon(context: Context): Icon {
-        return Icon.DrawableRes(BuiltinFileType.HTML.icon!!)
+        return BuiltinFileType.HTML.icon!!
     }
 
     override suspend fun isRunning(): Boolean = httpServer?.isAlive == true

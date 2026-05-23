@@ -36,9 +36,9 @@ class ToggleReadOnlyCommand : EditorCommand() {
     override fun getIcon(): Icon {
         val editorTab = commandContext.mainViewModel.currentTab as? EditorTab
         return if (editorTab?.editorState?.editable == true) {
-            Icon.DrawableRes(drawables.lock)
+            Icon.ResourceIcon(drawables.lock)
         } else {
-            Icon.DrawableRes(drawables.edit)
+            Icon.ResourceIcon(drawables.edit)
         }
     }
 

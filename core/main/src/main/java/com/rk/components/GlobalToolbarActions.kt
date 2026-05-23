@@ -115,7 +115,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     if (addDialog) {
         ModalBottomSheet(onDismissRequest = { addDialog = false }) {
             Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
-                AddDialogItem(icon = drawables.file, title = stringResource(strings.temp_file)) {
+                AddDialogItem(resId = drawables.file, title = stringResource(strings.temp_file)) {
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     intent.setType("application/octet-stream")
@@ -162,7 +162,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
                     }
                 }
 
-                AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.open_file)) {
+                AddDialogItem(resId = drawables.file_symlink, title = stringResource(strings.open_file)) {
                     addDialog = false
                     MainActivity.instance?.apply {
                         fileManager.requestOpenFile(mimeType = "*/*") {

@@ -68,7 +68,7 @@ class UniversalRunner : RunnerImpl() {
     }
 
     override fun getIcon(context: Context): Icon {
-        return Icon.DrawableRes(drawables.run)
+        return Icon.ResourceIcon(drawables.run)
     }
 
     override suspend fun isRunning(): Boolean {

@@ -31,7 +31,7 @@ class RefreshCommand : EditorCommand() {
         }
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.refresh)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.refresh)
 
     override val defaultKeybinds: KeyCombination =
         KeyCombination(keyCode = KeyEvent.KEYCODE_R, ctrl = true, shift = true)

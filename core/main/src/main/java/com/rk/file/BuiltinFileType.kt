@@ -82,8 +82,8 @@ interface FileType {
         get() = null
 
     val textmateScope: String?
-    val icon: Int?
-    val iconOverride: Map<String, Int>?
+    val icon: Icon?
+    val iconOverride: Map<String, Icon>?
         get() = null
 
     val name: String
@@ -105,11 +105,9 @@ interface FileType {
      *
      * @return An [Icon] representing the file type icon.
      */
-    fun getIcon(): Icon {
+    fun getResolvedIcon(): Icon {
         val iconPackFile = currentIconPack.value?.getIconFileForFileType(this)
-        return iconPackFile?.let { Icon.SvgIcon(it) }
-            ?: icon?.let { Icon.DrawableRes(it) }
-            ?: Icon.DrawableRes(drawables.file)
+        return iconPackFile?.let { Icon.SvgIcon(it) } ?: icon ?: Icon.ResourceIcon(drawables.file)
     }
 }
 
@@ -168,8 +166,8 @@ enum class BuiltinFileType(
     override val extensions: List<String>,
     override val names: List<String>? = null,
     override val textmateScope: String?,
-    override val icon: Int?,
-    override val iconOverride: Map<String, Int>? = null,
+    override val icon: Icon?,
+    override val iconOverride: Map<String, Icon>? = null,
     override val title: String,
     override val markdownNames: List<String> = emptyList(),
 ) : FileType {
@@ -177,46 +175,71 @@ enum class BuiltinFileType(
     JAVASCRIPT(
         extensions = listOf("js", "mjs", "cjs", "jscsrc", "jshintrc", "mut"),
         textmateScope = "source.js",
-        icon = js,
+        icon = Icon.ResourceIcon(js),
         title = "JavaScript",
         markdownNames = listOf("javascript"),
     ),
     TYPESCRIPT(
         extensions = listOf("ts", "mts", "cts"),
         textmateScope = "source.ts",
-        icon = ts,
+        icon = Icon.ResourceIcon(ts),
         title = "TypeScript",
         markdownNames = listOf("typescript"),
     ),
-    JSX(extensions = listOf("jsx"), textmateScope = "source.js.jsx", icon = react, title = "JavaScript JSX"),
-    TSX(extensions = listOf("tsx"), textmateScope = "source.tsx", icon = react, title = "TypeScript JSX"),
+    JSX(
+        extensions = listOf("jsx"),
+        textmateScope = "source.js.jsx",
+        icon = Icon.ResourceIcon(react),
+        title = "JavaScript JSX",
+    ),
+    TSX(
+        extensions = listOf("tsx"),
+        textmateScope = "source.tsx",
+        icon = Icon.ResourceIcon(react),
+        title = "TypeScript JSX",
+    ),
     HTML(
         extensions = listOf("html", "htm", "xhtml", "xht"),
         textmateScope = "text.html.basic",
-        icon = html,
+        icon = Icon.ResourceIcon(html),
         title = "HTML",
     ),
-    HTMX(extensions = listOf("htmx"), textmateScope = "text.html.htmx", icon = html, title = "HTMX"),
-    CSS(extensions = listOf("css"), textmateScope = "source.css", icon = css, title = "CSS"),
-    SCSS(extensions = listOf("scss", "sass"), textmateScope = "source.css.scss", icon = sass, title = "SCSS"),
-    LESS(extensions = listOf("less"), textmateScope = "source.css.less", icon = less, title = "Less"),
-    JSON(extensions = listOf("json", "jsonl", "jsonc"), textmateScope = "source.json", icon = json, title = "JSON"),
+    HTMX(extensions = listOf("htmx"), textmateScope = "text.html.htmx", icon = Icon.ResourceIcon(html), title = "HTMX"),
+    CSS(extensions = listOf("css"), textmateScope = "source.css", icon = Icon.ResourceIcon(css), title = "CSS"),
+    SCSS(
+        extensions = listOf("scss", "sass"),
+        textmateScope = "source.css.scss",
+        icon = Icon.ResourceIcon(sass),
+        title = "SCSS",
+    ),
+    LESS(
+        extensions = listOf("less"),
+        textmateScope = "source.css.less",
+        icon = Icon.ResourceIcon(less),
+        title = "Less",
+    ),
+    JSON(
+        extensions = listOf("json", "jsonl", "jsonc"),
+        textmateScope = "source.json",
+        icon = Icon.ResourceIcon(json),
+        title = "JSON",
+    ),
     MARKDOWN(
         extensions = listOf("md", "markdown", "mdown", "mkd", "mkdn", "mdoc", "mdtext", "mdtxt", "mdwn"),
         textmateScope = "text.html.markdown",
-        icon = markdown,
+        icon = Icon.ResourceIcon(markdown),
         title = "Markdown",
     ),
     XML(
         extensions = listOf("xml", "xaml", "dtd", "plist", "ascx", "csproj", "wxi", "wxl", "wxs", "svg"),
         textmateScope = "text.xml",
-        icon = xml,
+        icon = Icon.ResourceIcon(xml),
         title = "XML",
     ),
     YAML(
         extensions = listOf("yaml", "yml", "eyaml", "eyml", "cff"),
         textmateScope = "source.yaml",
-        icon = yaml,
+        icon = Icon.ResourceIcon(yaml),
         title = "YAML",
     ),
 
@@ -224,46 +247,51 @@ enum class BuiltinFileType(
     PYTHON(
         extensions = listOf("py", "pyi"),
         textmateScope = "source.python",
-        icon = python,
+        icon = Icon.ResourceIcon(python),
         title = "Python",
         markdownNames = listOf("python"),
     ),
-    JAVA(extensions = listOf("java", "jav", "bsh"), textmateScope = "source.java", icon = java, title = "Java"),
+    JAVA(
+        extensions = listOf("java", "jav", "bsh"),
+        textmateScope = "source.java",
+        icon = Icon.ResourceIcon(java),
+        title = "Java",
+    ),
     GROOVY(
         extensions = listOf("gsh", "groovy", "gradle", "gvy", "gy"),
         textmateScope = "source.groovy",
-        icon = groovy,
-        iconOverride = mapOf("gradle" to gradle),
+        icon = Icon.ResourceIcon(groovy),
+        iconOverride = mapOf("gradle" to Icon.ResourceIcon(gradle)),
         title = "Groovy",
     ),
-    C(extensions = listOf("c"), textmateScope = "source.c", icon = c, title = "C"),
+    C(extensions = listOf("c"), textmateScope = "source.c", icon = Icon.ResourceIcon(c), title = "C"),
     CPP(
         extensions = listOf("cpp", "cxx", "cc", "c++", "h", "hpp", "hh", "hxx", "h++"),
         textmateScope = "source.cpp",
-        icon = cpp,
+        icon = Icon.ResourceIcon(cpp),
         title = "C++",
     ),
     CSHARP(
         extensions = listOf("cs", "csx"),
         textmateScope = "source.cs",
-        icon = csharp,
+        icon = Icon.ResourceIcon(csharp),
         title = "C#",
         markdownNames = listOf("csharp"),
     ),
     RUBY(
         extensions = listOf("rb", "erb", "gemspec"),
         textmateScope = "source.ruby",
-        icon = ruby,
+        icon = Icon.ResourceIcon(ruby),
         title = "Ruby",
         markdownNames = listOf("ruby"),
     ),
-    LUA(extensions = listOf("lua", "luau"), textmateScope = "source.lua", icon = lua, title = "Lua"),
-    GO(extensions = listOf("go"), textmateScope = "source.go", icon = go, title = "Go"),
-    PHP(extensions = listOf("php"), textmateScope = "source.php", icon = php, title = "PHP"),
+    LUA(extensions = listOf("lua", "luau"), textmateScope = "source.lua", icon = Icon.ResourceIcon(lua), title = "Lua"),
+    GO(extensions = listOf("go"), textmateScope = "source.go", icon = Icon.ResourceIcon(go), title = "Go"),
+    PHP(extensions = listOf("php"), textmateScope = "source.php", icon = Icon.ResourceIcon(php), title = "PHP"),
     RUST(
         extensions = listOf("rs"),
         textmateScope = "source.rust",
-        icon = rust,
+        icon = Icon.ResourceIcon(rust),
         title = "Rust",
         markdownNames = listOf("rust"),
     ),
@@ -274,19 +302,29 @@ enum class BuiltinFileType(
         title = "Pascal",
         markdownNames = listOf("pascal"),
     ),
-    ZIG(extensions = listOf("zig"), textmateScope = "source.zig", icon = zig, title = "Zig"),
-    NIM(extensions = listOf("nim"), textmateScope = "source.nim", icon = nim, title = "Nim"),
-    SWIFT(extensions = listOf("swift"), textmateScope = "source.swift", icon = swift, title = "Swift"),
-    DART(extensions = listOf("dart"), textmateScope = "source.dart", icon = dart, title = "Dart"),
+    ZIG(extensions = listOf("zig"), textmateScope = "source.zig", icon = Icon.ResourceIcon(zig), title = "Zig"),
+    NIM(extensions = listOf("nim"), textmateScope = "source.nim", icon = Icon.ResourceIcon(nim), title = "Nim"),
+    SWIFT(
+        extensions = listOf("swift"),
+        textmateScope = "source.swift",
+        icon = Icon.ResourceIcon(swift),
+        title = "Swift",
+    ),
+    DART(extensions = listOf("dart"), textmateScope = "source.dart", icon = Icon.ResourceIcon(dart), title = "Dart"),
     ROCQ(extensions = listOf("v", "coq"), textmateScope = "source.coq", icon = null, title = "Rocq (Coq)"),
     KOTLIN(
         extensions = listOf("kt", "kts"),
         textmateScope = "source.kotlin",
-        icon = kotlin,
+        icon = Icon.ResourceIcon(kotlin),
         title = "Kotlin",
         markdownNames = listOf("kotlin"),
     ),
-    LISP(extensions = listOf("lisp", "clisp"), textmateScope = "source.lisp", icon = lisp, title = "Lisp"),
+    LISP(
+        extensions = listOf("lisp", "clisp"),
+        textmateScope = "source.lisp",
+        icon = Icon.ResourceIcon(lisp),
+        title = "Lisp",
+    ),
     SHELL(
         extensions =
             listOf(
@@ -309,15 +347,20 @@ enum class BuiltinFileType(
                 "ksh",
             ),
         textmateScope = "source.shell",
-        icon = shell,
+        icon = Icon.ResourceIcon(shell),
         title = "Shell script",
         markdownNames = listOf("shell", "console"),
     ),
-    WINDOWS_SHELL(extensions = listOf("cmd", "bat"), textmateScope = "source.batchfile", icon = shell, title = "Batch"),
+    WINDOWS_SHELL(
+        extensions = listOf("cmd", "bat"),
+        textmateScope = "source.batchfile",
+        icon = Icon.ResourceIcon(shell),
+        title = "Batch",
+    ),
     POWERSHELL(
         extensions = listOf("ps1", "psm1", "psd1"),
         textmateScope = "source.powershell",
-        icon = powershell,
+        icon = Icon.ResourceIcon(powershell),
         title = "PowerShell",
         markdownNames = listOf("powershell", "ps"),
     ),
@@ -327,58 +370,89 @@ enum class BuiltinFileType(
         extensions = emptyList(),
         names = listOf("cmakelists.txt"),
         textmateScope = "source.cmake",
-        icon = cmake,
+        icon = Icon.ResourceIcon(cmake),
         title = "CMake",
     ),
-    R(extensions = listOf("r"), textmateScope = "source.r", icon = r, title = "R", markdownNames = listOf("r")),
+    R(
+        extensions = listOf("r"),
+        textmateScope = "source.r",
+        icon = Icon.ResourceIcon(r),
+        title = "R",
+        markdownNames = listOf("r"),
+    ),
 
     // Data Files
-    SQL(extensions = listOf("sql", "dsql", "sqllite"), textmateScope = "source.sql", icon = sql, title = "SQL"),
-    TOML(extensions = listOf("toml"), textmateScope = "source.toml", icon = toml, title = "TOML"),
-    INI(extensions = listOf("ini"), textmateScope = "source.ini", icon = prop, title = "INI"),
+    SQL(
+        extensions = listOf("sql", "dsql", "sqllite"),
+        textmateScope = "source.sql",
+        icon = Icon.ResourceIcon(sql),
+        title = "SQL",
+    ),
+    TOML(extensions = listOf("toml"), textmateScope = "source.toml", icon = Icon.ResourceIcon(toml), title = "TOML"),
+    INI(extensions = listOf("ini"), textmateScope = "source.ini", icon = Icon.ResourceIcon(prop), title = "INI"),
     PROPERTIES(
         extensions =
             listOf("properties", "cfg", "conf", "config", "editorconfig", "gitconfig", "gitmodules", "gitattributes"),
         textmateScope = "source.properties",
-        icon = prop,
-        iconOverride = mapOf("gitmodules" to git, "gitattributes" to git, "gitconfig" to git),
+        icon = Icon.ResourceIcon(prop),
+        iconOverride =
+            mapOf(
+                "gitmodules" to Icon.ResourceIcon(git),
+                "gitattributes" to Icon.ResourceIcon(git),
+                "gitconfig" to Icon.ResourceIcon(git),
+            ),
         title = "Properties",
     ),
     IGNORE(
         extensions = listOf("gitignore", "gitignore_global", "gitkeep", "git-blame-ignore-revs"),
         textmateScope = "source.ignore",
-        icon = git,
+        icon = Icon.ResourceIcon(git),
         title = "Ignore",
     ),
-    DIFF(extensions = listOf("diff", "patch", "rej"), textmateScope = "source.diff", icon = diff, title = "Diff"),
+    DIFF(
+        extensions = listOf("diff", "patch", "rej"),
+        textmateScope = "source.diff",
+        icon = Icon.ResourceIcon(diff),
+        title = "Diff",
+    ),
 
     // Documents
     TEXT(
         extensions = listOf("txt"),
         textmateScope = null,
-        icon = text,
+        icon = Icon.ResourceIcon(text),
         title = "Plain text",
         markdownNames = listOf("plaintext", "text"),
     ),
     LOG(extensions = listOf("log"), textmateScope = "text.log", icon = null, title = "Log"),
-    LATEX(extensions = listOf("latex", "tex", "ltx"), textmateScope = "text.tex.latex", icon = latex, title = "LaTeX"),
+    LATEX(
+        extensions = listOf("latex", "tex", "ltx"),
+        textmateScope = "text.tex.latex",
+        icon = Icon.ResourceIcon(latex),
+        title = "LaTeX",
+    ),
     IMAGE(
         extensions = listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "heic", "heif", "avif"),
         textmateScope = null,
-        icon = image,
+        icon = Icon.ResourceIcon(image),
         title = "Image",
     ),
     AUDIO(
         extensions = listOf("mp3", "wav", "flac", "ogg", "aac", "m4a", "wma", "opus"),
         textmateScope = null,
-        icon = audio,
+        icon = Icon.ResourceIcon(audio),
         title = "Audio",
     ),
-    VIDEO(extensions = listOf("mp4", "avi", "mov", "mkv", "webm"), textmateScope = null, icon = video, title = "Video"),
+    VIDEO(
+        extensions = listOf("mp4", "avi", "mov", "mkv", "webm"),
+        textmateScope = null,
+        icon = Icon.ResourceIcon(video),
+        title = "Video",
+    ),
     ARCHIVE(
         extensions = listOf("zip", "rar", "7z", "tar", "gz", "bz2", "xy"),
         textmateScope = null,
-        icon = archive,
+        icon = Icon.ResourceIcon(archive),
         title = "Archive",
     ),
     EXECUTABLE(
@@ -387,6 +461,6 @@ enum class BuiltinFileType(
         icon = null,
         title = "Executable",
     ),
-    APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = apk, title = "APK"),
+    APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = Icon.ResourceIcon(apk), title = "APK"),
     UNKNOWN(extensions = emptyList(), textmateScope = null, icon = null, title = strings.unknown.getString()),
 }

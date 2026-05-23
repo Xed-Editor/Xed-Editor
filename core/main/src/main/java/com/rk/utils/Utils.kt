@@ -8,6 +8,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.PictureDrawable
 import android.os.Build
 import android.telephony.TelephonyManager
 import android.text.Spanned
@@ -37,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.net.toUri
 import com.blankj.utilcode.util.ThreadUtils
+import com.caverock.androidsvg.SVG
 import com.rk.activities.main.gitViewModel
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
@@ -55,6 +58,7 @@ import com.rk.theme.gitDeleted
 import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
+import java.io.InputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.text.NumberFormat
@@ -475,4 +479,16 @@ fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
         hours < 24 -> plurals.time_hours_ago.getQuantityString(hours, hours)
         else -> plurals.time_days_ago.getQuantityString(days, days)
     }
+}
+
+fun loadSvg(inputStream: InputStream): Drawable? {
+    val svg =
+        try {
+            SVG.getFromInputStream(inputStream)
+        } catch (_: Exception) {
+            return null
+        }
+
+    val picture = svg.renderToPicture()
+    return PictureDrawable(picture)
 }
