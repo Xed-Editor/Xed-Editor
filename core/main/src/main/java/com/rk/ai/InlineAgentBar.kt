@@ -111,7 +111,7 @@ fun InlineAgentBar(
         }
     }
 
-    private suspend fun doSendMessage(prompt: String) {
+    suspend fun doSendMessage(prompt: String) {
         val state = viewModel.currentTab
         val wd = if (state is com.rk.tabs.editor.EditorTab) {
             state.projectRoot?.getAbsolutePath()

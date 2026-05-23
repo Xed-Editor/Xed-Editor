@@ -25,7 +25,7 @@ sealed class AiError(
             "Authentication failed. Please check your API key for $providerId.",
             cause = null)
 
-    class RateLimit(providerId: String, retryAfterMs: Long = 0) :
+    class RateLimit(providerId: String, val retryAfterMs: Long = 0) :
         AiError("RATE_LIMIT", "Rate limited by $providerId",
             "Too many requests. ${if (retryAfterMs > 0) "Retry in ${retryAfterMs / 1000}s." else "Please slow down and try again."}",
             cause = null)

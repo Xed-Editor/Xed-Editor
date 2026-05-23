@@ -249,20 +249,6 @@ class IdeBridgeServer(
         }
         return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
     }
-}
-        }
-        val newContent = runBlocking {
-            withContext(Dispatchers.IO) {
-                runCatching { withTimeout(10_000L) { newFile.readText() } }.getOrNull()
-            }
-        } ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32602, "cannot read newPath"))
-        ideService.showPatch(targetFile.absolutePath, oldContent, newContent, "Review AI editor change") {
-            serverScope.launch {
-                runCatching { ideService.writeFile(targetFile, newContent); ideService.refreshEditors(targetFile.absolutePath, force = false) }
-            }
-        }
-        return json(Response.Status.OK, JsonObject().apply { addProperty("message", "Review opened in Xed Editor for ${targetFile.absolutePath}") }.let { gson.toJson(it) })
-    }
 
     private fun corsPreflightResponse(): Response =
         NanoHTTPD.newFixedLengthResponse(Response.Status.OK, "application/json", "{}").apply {

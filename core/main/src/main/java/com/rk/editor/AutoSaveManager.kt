@@ -105,6 +105,6 @@ object AutoSaveManager {
     }
 
     fun shutdown() {
-        scope.launch { flushAll() }.invokeOnCompletion { scope.cancel() }
+        scope.launch { flushAll(); scope.cancel() }
     }
 }
