@@ -13,9 +13,9 @@ import com.rk.ai.core.ModelInfo
 import com.rk.ai.core.ProviderHealth
 import com.rk.ai.core.TokenUsage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -58,8 +58,8 @@ class GeminiCoreProvider(
         parseGenerateResponse(response, request.model)
     }
 
-    override suspend fun stream(request: AiRequest): Flow<AiChunk> = flow {
-        val collector = this
+    override suspend fun stream(request: AiRequest): Flow<AiChunk> = callbackFlow {
+        val producer = this
         val requestId = "gemini-${System.currentTimeMillis()}-${request.hashCode()}"
         val cancelled = AtomicBoolean(false)
         cancelledTokens[requestId] = cancelled
@@ -73,12 +73,9 @@ class GeminiCoreProvider(
                 .post(jsonBody.toRequestBody("application/json".toMediaType()))
                 .build()
 
-            val collectedContent = StringBuilder()
-            val done = AtomicBoolean(false)
-
             EventSources.createFactory(client).newEventSource(httpRequest, object : EventSourceListener() {
                 override fun onEvent(eventSource: EventSource, id: String?, type: String?, data: String) {
-                    if (cancelled.get() || done.get()) return
+                    if (cancelled.get()) return
                     try {
                         val json = JsonParser.parseString(data).asJsonObject
                         val candidates = json.getAsJsonArray("candidates")
@@ -88,35 +85,35 @@ class GeminiCoreProvider(
                         parts.forEach { part ->
                             val text = part.asJsonObject.get("text")?.asString
                             if (text != null && text.isNotBlank()) {
-                                collectedContent.append(text)
-                                collector.tryEmit(AiChunk(content = text))
+                                producer.trySend(AiChunk(content = text))
                             }
                         }
                         val finishReason = candidates[0].asJsonObject.get("finishReason")?.asString
-                        if (finishReason != null && finishReason != "FINISH_REASON_UNSPECIFIED") done.set(true)
+                        if (finishReason != null && finishReason != "FINISH_REASON_UNSPECIFIED") {
+                            producer.trySend(AiChunk(content = "", done = true, finishReason = "stop"))
+                            close()
+                        }
                     } catch (_: Exception) {}
                 }
 
                 override fun onFailure(eventSource: EventSource, t: Throwable?, response: okhttp3.Response?) {
-                    if (!cancelled.get()) collector.tryEmit(AiChunk(content = "", done = true, finishReason = "error"))
-                    done.set(true)
+                    if (!cancelled.get()) {
+                        producer.trySend(AiChunk(content = "", done = true, finishReason = "error"))
+                    }
+                    close()
                 }
 
-                override fun onClosed(eventSource: EventSource) { done.set(true) }
+                override fun onClosed(eventSource: EventSource) { close() }
             })
 
-            while (!done.get() && !cancelled.get()) {
-                kotlinx.coroutines.delay(100)
-            }
-
-            if (!cancelled.get()) {
-                emit(AiChunk(content = "", done = true, finishReason = "stop"))
+            awaitClose {
+                cancelled.set(true)
+                cancelledTokens.remove(requestId)
             }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            if (!cancelled.get()) emit(AiChunk(content = "", done = true, finishReason = "error"))
-        } finally {
-            cancelledTokens.remove(requestId)
+            producer.trySend(AiChunk(content = "", done = true, finishReason = "error"))
+            close()
         }
     }.flowOn(Dispatchers.IO)
 

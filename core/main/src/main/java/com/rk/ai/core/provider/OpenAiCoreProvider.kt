@@ -14,9 +14,9 @@ import com.rk.ai.core.ModelInfo
 import com.rk.ai.core.ProviderHealth
 import com.rk.ai.core.TokenUsage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -54,8 +54,8 @@ class OpenAiCoreProvider(
         parseResponse(response, request.model)
     }.mapError()
 
-    override suspend fun stream(request: AiRequest): Flow<AiChunk> = flow {
-        val collector = this
+    override suspend fun stream(request: AiRequest): Flow<AiChunk> = callbackFlow {
+        val producer = this
         val requestId = "openai-${System.currentTimeMillis()}-${request.hashCode()}"
         val cancelled = AtomicBoolean(false)
         cancelledTokens[requestId] = cancelled
@@ -65,8 +65,6 @@ class OpenAiCoreProvider(
             val httpRequest = buildRequest(jsonBody)
 
             var responseId = ""
-            val collectedContent = StringBuilder()
-            val done = AtomicBoolean(false)
 
             val sseRequest = Request.Builder()
                 .url(httpRequest.url)
@@ -76,8 +74,8 @@ class OpenAiCoreProvider(
 
             EventSources.createFactory(client).newEventSource(sseRequest, object : EventSourceListener() {
                 override fun onEvent(eventSource: EventSource, id: String?, type: String?, data: String) {
-                    if (cancelled.get() || done.get()) return
-                    if (data == "[DONE]") { done.set(true); return }
+                    if (cancelled.get()) return
+                    if (data == "[DONE]") { close(); return }
                     try {
                         val json = JsonParser.parseString(data).asJsonObject
                         val choices = json.getAsJsonArray("choices")
@@ -86,34 +84,34 @@ class OpenAiCoreProvider(
                         if (responseId.isBlank()) responseId = json.get("id")?.asString ?: ""
                         val content = delta.get("content")?.asString
                         if (content != null && content.isNotBlank()) {
-                            collectedContent.append(content)
-                            collector.tryEmit(AiChunk(content = content))
+                            producer.trySend(AiChunk(content = content))
                         }
                         val finishReason = choices[0].asJsonObject.get("finish_reason")?.asString
-                        if (finishReason != null && finishReason != "null") done.set(true)
+                        if (finishReason != null && finishReason != "null") {
+                            producer.trySend(AiChunk(content = "", done = true, finishReason = "stop"))
+                            close()
+                        }
                     } catch (_: Exception) {}
                 }
 
                 override fun onFailure(eventSource: EventSource, t: Throwable?, response: okhttp3.Response?) {
-                    if (!cancelled.get()) collector.tryEmit(AiChunk(content = "", done = true, finishReason = "error"))
-                    done.set(true)
+                    if (!cancelled.get()) {
+                        producer.trySend(AiChunk(content = "", done = true, finishReason = "error"))
+                    }
+                    close()
                 }
 
-                override fun onClosed(eventSource: EventSource) { done.set(true) }
+                override fun onClosed(eventSource: EventSource) { close() }
             })
 
-            while (!done.get() && !cancelled.get()) {
-                kotlinx.coroutines.delay(100)
-            }
-
-            if (!cancelled.get()) {
-                emit(AiChunk(content = "", done = true, finishReason = "stop"))
+            awaitClose {
+                cancelled.set(true)
+                cancelledTokens.remove(requestId)
             }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            if (!cancelled.get()) emit(AiChunk(content = "", done = true, finishReason = "error"))
-        } finally {
-            cancelledTokens.remove(requestId)
+            producer.trySend(AiChunk(content = "", done = true, finishReason = "error"))
+            close()
         }
     }.flowOn(Dispatchers.IO)
 

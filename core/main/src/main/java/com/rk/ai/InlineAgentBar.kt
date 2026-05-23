@@ -184,13 +184,6 @@ fun InlineAgentBar(
         }
     }
 
-    fun sendMessage(prompt: String) {
-        currentSendJob?.cancel()
-        currentSendJob = scope.launch {
-            doSendMessage(prompt)
-        }
-    }
-
     AnimatedVisibility(
         visible = visible,
         enter = slideInVertically(initialOffsetY = { it }),
