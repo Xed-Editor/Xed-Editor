@@ -1,0 +1,179 @@
+name: Translation Safety Check
+
+on:
+  push:
+    paths:
+      - "**/strings.xml"
+
+  pull_request:
+    paths:
+      - "**/strings.xml"
+
+jobs:
+  scan-translations:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Collect changed strings.xml diffs
+        run: |
+          mkdir -p scan
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="origin/${{ github.base_ref }}"
+            git fetch origin ${{ github.base_ref }}
+
+            FILES=$(git diff --name-only $BASE...HEAD | grep "strings.xml$" || true)
+
+            for file in $FILES; do
+              echo "Scanning $file"
+              git diff $BASE...HEAD -- "$file" > "scan/$(basename "$file").diff"
+            done
+
+          else
+            BEFORE="${{ github.event.before }}"
+            AFTER="${{ github.sha }}"
+
+            FILES=$(git diff --name-only "$BEFORE" "$AFTER" | grep "strings.xml$" || true)
+
+            for file in $FILES; do
+              echo "Scanning $file"
+              git diff "$BEFORE" "$AFTER" -- "$file" > "scan/$(basename "$file").diff"
+            done
+          fi
+
+      - name: Install Gemini SDK
+        run: npm install @google/generative-ai
+
+      - name: Scan translations using Gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat > scan.js << 'EOF'
+          const fs = require("fs");
+          const path = require("path");
+          const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+          const apiKey = process.env.GEMINI_API_KEY;
+
+          if (!apiKey) {
+            console.error("GEMINI_API_KEY is missing");
+            process.exit(1);
+          }
+
+          const genAI = new GoogleGenerativeAI(apiKey);
+
+          async function scanFile(model, filePath) {
+            const content = fs.readFileSync(filePath, "utf8");
+
+            if (!content.trim()) {
+              return { safe: true };
+            }
+
+            const prompt = `
+You are an automated moderation system.
+
+Analyze this Android strings.xml git diff.
+
+Check ONLY newly added or modified translations.
+
+Detect:
+- profanity
+- slurs
+- hate speech
+- offensive words
+- sexual content
+- abusive language
+- hidden insults
+- inappropriate slang
+
+Ignore:
+- harmless casual language
+- XML syntax
+- code
+- placeholders like %s or %d
+
+Respond ONLY in one of these formats:
+
+SAFE
+
+or
+
+UNSAFE: <short reason>
+
+Git diff:
+${content}
+`;
+
+            const result = await model.generateContent(prompt);
+            const text = result.response.text().trim();
+
+            console.log(`\n=== ${path.basename(filePath)} ===`);
+            console.log(text);
+
+            return {
+              safe: text.startsWith("SAFE"),
+              response: text
+            };
+          }
+
+          async function main() {
+            const model = genAI.getGenerativeModel({
+              model: "gemini-2.0-flash"
+            });
+
+            const scanDir = "./scan";
+
+            if (!fs.existsSync(scanDir)) {
+              console.log("No scan directory found.");
+              return;
+            }
+
+            const files = fs.readdirSync(scanDir);
+
+            if (files.length === 0) {
+              console.log("No changed strings.xml files.");
+              return;
+            }
+
+            let failed = false;
+
+            for (const file of files) {
+              const result = await scanFile(
+                model,
+                path.join(scanDir, file)
+              );
+
+              if (!result.safe) {
+                failed = true;
+              }
+            }
+
+            if (failed) {
+              console.error("\nTranslation moderation failed.");
+              process.exit(1);
+            }
+
+            console.log("\nAll translations passed moderation.");
+          }
+
+          main().catch(err => {
+            console.error(err);
+            process.exit(1);
+          });
+          EOF
+
+          node scan.js
