@@ -16,7 +16,7 @@ class AiAssistantCommand(commandContext: CommandContext) : EditorCommand(command
     override fun getLabel(): String = "AI Assistant"
 
     override fun action(editorActionContext: EditorActionContext) {
-        commandContext.mainViewModel.showAiSheet = true
+        commandContext.mainViewModel.showAiTerminalSheet = true
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =
@@ -32,7 +32,7 @@ class InlineAskCommand(commandContext: CommandContext) : EditorCommand(commandCo
 
     override fun action(editorActionContext: EditorActionContext) {
         val vm = commandContext.mainViewModel
-        vm.showAiSheet = false
+        vm.showAiTerminalSheet = false
         vm.showInlineAgent = !vm.showInlineAgent
     }
 

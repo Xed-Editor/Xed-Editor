@@ -51,7 +51,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 
-import com.rk.ai.AiAgentSheet
 import com.rk.ai.ui.AiTerminalSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
@@ -225,18 +224,6 @@ fun MainContent(
                     }
                 }
             }
-        }
-
-        AnimatedVisibility(
-            visible = mainViewModel.showAiSheet,
-            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            AiAgentSheet(
-                viewModel = mainViewModel,
-                onDismissRequest = { mainViewModel.showAiSheet = false }
-            )
         }
 
         AnimatedVisibility(

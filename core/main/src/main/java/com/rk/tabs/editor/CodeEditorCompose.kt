@@ -148,21 +148,7 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
             onClick = {
                 val selectedText = getSelectedText().orEmpty()
                 val fileName = editorTab.file.getName()
-                viewModel.agentPrompt =
-                    """
-                    You are helping inside an IDE.
-                    Analyze and improve the selected code from `$fileName`.
-                    1) Find bugs or risky behavior.
-                    2) Provide an improved version of the selected block.
-                    3) Explain why each change helps.
-                    Keep the response concise and actionable.
-
-                    ```
-                    $selectedText
-                    ```
-                    """
-                        .trimIndent()
-                viewModel.showAiSheet = true
+                viewModel.showAiTerminalSheet = true
             },
         )
     )

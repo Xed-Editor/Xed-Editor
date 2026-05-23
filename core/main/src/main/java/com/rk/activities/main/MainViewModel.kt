@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.ai.ChatMessage
 import com.rk.commands.Command
 import com.rk.settings.Settings
 import kotlinx.coroutines.CompletableDeferred
@@ -62,13 +61,8 @@ class MainViewModel : ViewModel() {
         commandPaletteInitialPlaceholder = null
     }
 
-    var showAiSheet by mutableStateOf(false)
     var showAiTerminalSheet by mutableStateOf(false)
-    var aiSheetCwd by mutableStateOf<String?>(null)
-    var agentPrompt by mutableStateOf("")
-    var agentTranscript by mutableStateOf("")
     var showInlineAgent by mutableStateOf(false)
-    var conversationHistory by mutableStateOf<List<ChatMessage>>(emptyList())
 
     private val sessionRestored = CompletableDeferred<Unit>()
 
