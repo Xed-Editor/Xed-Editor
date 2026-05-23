@@ -41,9 +41,9 @@
     <string name="ask_deletion_many">Are you sure you want to permanently delete %d files?</string>
     <string name="cant_handle">No app found to handle the file</string>
     <string name="terminal">Terminal</string>
-    <string name="ai_cli" translatable="false">AI CLI</string>
-    <string name="gemini_assistant" translatable="false">AI Assistant</string>
-    <string name="gemini_prompt">Ask AI</string>
+    <string name="gemini_cli" translatable="false">Gemini CLI</string>
+    <string name="gemini_assistant" translatable="false">Gemini Assistant</string>
+    <string name="gemini_prompt">Ask Gemini</string>
     <string name="ask">Ask</string>
     <string name="insert">Insert</string>
     <string name="add_file">Add external file</string>
@@ -78,8 +78,8 @@
     <string name="ai">AI</string>
     <string name="ai_desc">AI settings and assistant preferences</string>
     <string name="gemini_ai">Gemini AI</string>
-    <string name="ai_auto_apply">Auto apply</string>
-    <string name="ai_auto_apply_desc">Automatically apply changes without review</string>
+    <string name="gemini_auto_apply">Auto apply</string>
+    <string name="gemini_auto_apply_desc">Automatically apply changes without review</string>
     <string name="ai_agent">AI Agent</string>
     <string name="ai_agent_desc">Select the AI coding agent to use in the terminal sheet</string>
     <string name="ai_model">Model</string>

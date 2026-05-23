@@ -22,13 +22,11 @@ class TerminalService {
 
     suspend fun getTerminalOutput(lines: Int?): String {
         val session = AiSessionManager.session
-        val agentName = AiSessionManager.currentAgent.displayName
-        if (session == null || !session.isRunning) return "No active $agentName terminal session"
-        val emulator = session.emulator ?: return "Terminal emulator not available"
+        if (session == null || !session.isRunning) return "No active AI CLI terminal session"
         return withContext(Dispatchers.IO) {
-            val full = synchronized(emulator) {
-                emulator.screen.getTranscriptTextWithoutJoinedLines()
-            }
+            val emulator = session.emulator ?: return@withContext "Terminal emulator not available"
+            val screen = emulator.screen
+            val full = screen.getTranscriptTextWithoutJoinedLines()
             if (lines != null && lines > 0) {
                 full.split("\n").takeLast(lines.coerceAtLeast(1)).joinToString("\n")
             } else full

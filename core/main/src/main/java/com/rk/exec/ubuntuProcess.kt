@@ -78,7 +78,6 @@ suspend fun ubuntuProcess(
     excludeMounts: List<String> = listOf(),
     root: File = sandboxDir(),
     workingDir: String? = null,
-    extraEnv: Map<String, String> = emptyMap(),
     command: List<String>,
 ): Process =
     withContext(Dispatchers.IO) {
@@ -184,7 +183,6 @@ suspend fun ubuntuProcess(
             if (Settings.seccomp) {
                 env["SECCOMP"] = "1"
             }
-            env.putAll(extraEnv)
         }
 
         return@withContext processBuilder.start()
@@ -195,10 +193,9 @@ suspend fun ubuntuProcess(
     excludeMounts: List<String> = listOf(),
     root: File = sandboxDir(),
     workingDir: String? = null,
-    extraEnv: Map<String, String> = emptyMap(),
     vararg command: String,
 ): Process {
-    return ubuntuProcess(excludeMounts, root, workingDir, extraEnv, command.toMutableList())
+    return ubuntuProcess(excludeMounts, root, workingDir, command.toMutableList())
 }
 
 /** Extension to read all stdout as a single string */

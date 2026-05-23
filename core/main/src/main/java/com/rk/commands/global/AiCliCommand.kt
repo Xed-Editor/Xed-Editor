@@ -1,9 +1,7 @@
 package com.rk.commands.global
 
 import com.rk.ai.IdeBridge
-import com.rk.ai.resolvedConfiguredModelForAgent
 import com.rk.ai.session.AgentEnvironmentBuilder
-import com.rk.ai.session.AiSessionManager
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
@@ -13,6 +11,9 @@ import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.tabs.editor.EditorTab
 import java.io.File
@@ -20,10 +21,7 @@ import java.io.File
 class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
     override val id: String = "global.ai_cli"
 
-    override fun getLabel(): String {
-        val agent = AiSessionManager.currentAgent
-        return "${agent.displayName} CLI"
-    }
+    override fun getLabel(): String = "AI CLI"
 
     override fun action(actionContext: ActionContext) {
         val currentEditorTab = commandContext.mainViewModel.currentTab as? EditorTab
@@ -36,12 +34,11 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 }
             ?: "/storage/emulated/0"
         val bridge = IdeBridge.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
-        val agent = AiSessionManager.currentAgent
-        val launcher = localBinDir().child(agent.shellScriptName).absolutePath
-        val agentArgs = agent.buildArgs(emptyList(), workspaceDir, resolvedConfiguredModelForAgent(agent))
+        val launcher = localBinDir().child("opencode-cli").absolutePath
+        val model = Settings.ai_model.takeIf { it.isNotBlank() }
         val args = buildList {
                 add(launcher)
-                addAll(agentArgs)
+                if (model != null) { add("-m"); add(model) }
             }.toTypedArray()
 
         launchTerminal(
@@ -49,7 +46,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
             TerminalCommand(
                 exe = "/bin/bash",
                 args = args,
-                id = "${agent.name}-cli",
+                id = "ai-cli",
                 terminatePreviousSession = false,
                 workingDir = workspaceDir,
                 env = AgentEnvironmentBuilder.buildMinimalBridgeEnv(bridge, workspaceDir),

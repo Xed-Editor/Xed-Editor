@@ -38,44 +38,26 @@ include(
 
 val soraX = file("soraX")
 
-fun initSoraX(): Boolean {
-    if (soraX.exists() && soraX.listFiles()?.isNotEmpty() == true) return true
-    if (soraX.exists()) soraX.deleteRecursively()
+if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
+    throw GradleException(
+        """
+        The 'soraX' submodule is missing or empty.
 
-    val gitDir = file(".git")
-    if (!gitDir.exists()) return false
-
-    try {
-        logger.lifecycle("Cloning soraX editor engine (with submodules)...")
-        val pb = ProcessBuilder(
-            "git", "clone", "--depth=1", "--recurse-submodules",
-            "https://github.com/algospider/soraX.git", "soraX"
-        )
-        pb.directory(rootProject.projectDir)
-        pb.redirectErrorStream(true)
-        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
-        val proc = pb.start()
-        val ok = proc.waitFor(5, java.util.concurrent.TimeUnit.MINUTES) && proc.exitValue() == 0
-        if (ok) logger.lifecycle("soraX cloned successfully")
-        return ok
-    } catch (e: Exception) {
-        logger.warn("Failed to clone soraX: ${e.message}")
-        return false
-    }
+        Please run:
+            git submodule update --init --recursive
+        """
+            .trimIndent()
+    )
 }
 
-if (!initSoraX()) {
-    logger.warn("soraX submodule not available - editor will not compile without it. Run: git submodule update --init --recursive")
-}
+include(":editor", ":oniguruma-native", ":editor-lsp", ":language-textmate")
 
-if (soraX.exists() && soraX.listFiles()?.isNotEmpty() == true) {
-    include(":editor", ":oniguruma-native", ":editor-lsp", ":language-textmate")
-    project(":editor").projectDir = file("soraX/editor")
-    project(":oniguruma-native").projectDir = file("soraX/oniguruma-native")
-    project(":editor-lsp").projectDir = file("soraX/editor-lsp")
-    project(":language-textmate").projectDir = file("soraX/language-textmate")
-} else {
-    logger.warn("Proceeding without soraX modules. Build will fail if they are required dependencies.")
-}
+project(":editor").projectDir = file("soraX/editor")
+
+project(":oniguruma-native").projectDir = file("soraX/oniguruma-native")
+
+project(":editor-lsp").projectDir = file("soraX/editor-lsp")
+
+project(":language-textmate").projectDir = file("soraX/language-textmate")
 
 include(":baselineprofile", ":benchmark", ":benchmark2")

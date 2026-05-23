@@ -23,9 +23,8 @@ class EditorService(
     private val tabRepo: TabRepository,
     private val scope: ScopeProvider,
     private val fileOpener: FileOpener,
-    @Volatile private var notificationSender: IdeNotificationSender? = null,
-    ) {
-    fun attachNotificationSender(sender: IdeNotificationSender) { notificationSender = sender }
+    private val notificationSender: IdeNotificationSender?
+) {
 
     fun openFile(file: File) {
         fileOpener.openFileInEditor(file)
@@ -42,7 +41,7 @@ class EditorService(
         val content = withContext(Dispatchers.Main) {
             current.editorState.editor.get()?.text?.toString().orEmpty()
         }
-        json.addProperty("content", if (content.length > 512_000) content.take(512_000) + "\n\n... (truncated at 500KB)" else content)
+        json.addProperty("content", content)
         return json
     }
 
@@ -77,7 +76,7 @@ class EditorService(
             val oldText = editor.text.substring(start, end)
             current.editorState.pendingAiPatch?.reject?.invoke()
             current.editorState.pendingAiPatch = EditorPatch(
-                title = if (hasSelection) "Review AI selection replacement" else "Review AI file replacement",
+                title = if (hasSelection) "Review Gemini selection replacement" else "Review Gemini file replacement",
                 filePath = current.file.getAbsolutePath(),
                 oldText = oldText,
                 newText = newContent,
@@ -199,7 +198,7 @@ class EditorService(
             if (tab == null) {
                 fileOpener.openFileInEditor(File(filePath))
                 tab = runCatching {
-                    withTimeout(5000) {
+                    withTimeout(2000) {
                         snapshotFlow { tabRepo.tabs }
                             .map { ts -> ts.filterIsInstance<EditorTab>().find { it.file.getAbsolutePath() == filePath } }
                             .filterNotNull()
@@ -209,7 +208,7 @@ class EditorService(
             }
             if (tab == null) {
                 notificationSender?.sendNotification("ide/error", JsonObject().apply {
-                    addProperty("message", "Failed to open file for patching (timeout): $filePath")
+                    addProperty("message", "Failed to open file for patching: $filePath")
                 })
                 return@launch
             }
@@ -256,29 +255,29 @@ class EditorService(
         else scope.viewModelScope.launch(Dispatchers.Main) { toast(message) }
     }
 
-    fun closeTab(filePath: String): String {
-        val file = java.io.File(filePath)
-        val canonical = runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
-        val tab = tabRepo.tabs.filterIsInstance<com.rk.tabs.editor.EditorTab>().find {
-            runCatching { java.io.File(it.file.getAbsolutePath()).canonicalPath }.getOrDefault(java.io.File(it.file.getAbsolutePath()).absolutePath) == canonical
-        }
-        if (tab == null) return "tab not found for $filePath"
-        tabRepo.tabManager.removeTab(tab)
-        return "closed tab for $filePath"
-    }
-
     fun ensureIdeEnabled() {
         scope.viewModelScope.launch(Dispatchers.IO) {
-            val bridgeInfo = com.rk.ai.IdeBridge.getBridgeInfo()
-            for (agent in com.rk.ai.agents.AgentTypeRegistry.available()) {
-                com.rk.ai.bridge.DiscoveryFileWriter.ensureAgentConfig(agent.name, bridgeInfo?.let {
-                    com.rk.ai.bridge.DiscoveryFileWriter.BridgeInfo("127.0.0.1", it.port, it.token, it.workspacePath)
-                })
+            runCatching {
+                val home = com.rk.file.sandboxHomeDir()
+                val geminiDir = File(home, ".gemini").also { it.mkdirs() }
+                val settingsFile = File(geminiDir, "settings.json")
+                val settings = if (settingsFile.exists()) {
+                    runCatching { com.google.gson.JsonParser.parseString(settingsFile.readText()).asJsonObject }.getOrDefault(JsonObject())
+                } else JsonObject()
+                settings.getAsJsonObject("general")?.apply { addProperty("preferredEditor", "vim") }
+                    ?: settings.add("general", JsonObject().apply { addProperty("preferredEditor", "vim") })
+                settings.getAsJsonObject("ide")?.apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) }
+                    ?: settings.add("ide", JsonObject().apply { addProperty("enabled", true); addProperty("hasSeenNudge", true) })
+                settings.getAsJsonObject("privacy")?.apply { addProperty("usageStatisticsEnabled", false) }
+                    ?: settings.add("privacy", JsonObject().apply { addProperty("usageStatisticsEnabled", false) })
+                settings.getAsJsonObject("telemetry")?.apply { addProperty("enabled", false) }
+                    ?: settings.add("telemetry", JsonObject().apply { addProperty("enabled", false) })
+                settingsFile.writeText(com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(settings))
             }
         }
     }
 
-    private val editorTabCache = java.util.concurrent.ConcurrentHashMap<String, EditorTab>()
+    private val editorTabCache = mutableMapOf<String, EditorTab>()
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)
@@ -294,8 +293,7 @@ class EditorService(
         if (tab != null) {
             editorTabCache[canonical] = tab
             if (editorTabCache.size > 64) {
-                val oldest = editorTabCache.keys.firstOrNull()
-                if (oldest != null) editorTabCache.remove(oldest)
+                editorTabCache.keys.firstOrNull()?.let { editorTabCache.remove(it) }
             }
         }
         return tab

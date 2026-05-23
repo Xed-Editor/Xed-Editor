@@ -8,5 +8,4 @@ interface LspOps {
     suspend fun findReferences(filePath: String, line: Int, column: Int): JsonArray
     fun renameSymbol(filePath: String, line: Int, column: Int, newName: String)
     suspend fun formatDocument(filePath: String)
-    suspend fun formatSelection(filePath: String): String
 }

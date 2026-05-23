@@ -16,5 +16,4 @@ interface EditorOps {
     suspend fun saveAllFiles(): String
     fun ensureIdeEnabled()
     fun showMessage(message: String)
-    fun closeTab(filePath: String): String
 }

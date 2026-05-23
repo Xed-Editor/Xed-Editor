@@ -61,8 +61,10 @@ class MainViewModel : ViewModel() {
         commandPaletteInitialPlaceholder = null
     }
 
-    var showAiTerminalSheet by mutableStateOf(false)
-    var showInlineAgent by mutableStateOf(false)
+    var showAiSheet by mutableStateOf(false)
+    var aiSheetCwd by mutableStateOf<String?>(null)
+    var agentPrompt by mutableStateOf("")
+    var agentTranscript by mutableStateOf("")
 
     private val sessionRestored = CompletableDeferred<Unit>()
 

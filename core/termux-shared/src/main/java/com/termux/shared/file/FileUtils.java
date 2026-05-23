@@ -1489,19 +1489,12 @@ public class FileUtils {
             calendar.add(Calendar.DATE, -(days));
             // AgeFileFilter seems to apply to symlink destination timestamp instead of symlink file itself
             Iterator<File> filesToDelete =
-                org.apache.commons.io.FileUtils.iterateFilesAndDirs(file, new AgeFileFilter(calendar.getTime()), dirFilter);
+                org.apache.commons.io.FileUtils.iterateFiles(file, new AgeFileFilter(calendar.getTime()), dirFilter);
             while (filesToDelete.hasNext()) {
                 File subFile = filesToDelete.next();
-                if (subFile.equals(file)) continue; // Don't delete the root directory itself
-                
-                if (subFile.isDirectory()) {
-                    // Only delete if empty or contains only old files
-                    deleteDirectoryIfEmpty(label + " directory sub", subFile.getAbsolutePath(), true);
-                } else {
-                    error = deleteFile(label + " directory sub", subFile.getAbsolutePath(), true, true, allowedFileTypeFlags);
-                    if (error != null)
-                        return error;
-                }
+                error = deleteFile(label + " directory sub", subFile.getAbsolutePath(), true, true, allowedFileTypeFlags);
+                if (error != null)
+                    return error;
             }
         } catch (Exception e) {
             return FileUtilsErrno.ERRNO_DELETING_FILES_OLDER_THAN_X_DAYS_FAILED_WITH_EXCEPTION.getError(e, label + "directory", filePath, days, e.getMessage());

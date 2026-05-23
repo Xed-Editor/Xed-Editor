@@ -50,8 +50,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-
-import com.rk.ai.ui.AiTerminalSheet
+import com.rk.ai.session.AiSessionManager
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf
@@ -226,19 +225,15 @@ fun MainContent(
             }
         }
 
-        AnimatedVisibility(
-            visible = mainViewModel.showAiTerminalSheet,
-            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) {
-            AiTerminalSheet(
-                viewModel = mainViewModel,
-                onDismissRequest = { mainViewModel.showAiTerminalSheet = false },
-                modifier = Modifier.fillMaxSize(),
+        if (mainViewModel.showAiSheet) {
+            val session = AiSessionManager.session
+            com.rk.tabs.editor.AgentCliSheet(
+                onDismissRequest = { mainViewModel.showAiSheet = false },
+                cwd = mainViewModel.aiSheetCwd ?: "/storage/emulated/0",
+                session = session,
+                modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
-
     }
 }
 

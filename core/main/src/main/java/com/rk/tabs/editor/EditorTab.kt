@@ -2,11 +2,9 @@ package com.rk.tabs.editor
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,10 +21,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -52,7 +48,6 @@ import com.rk.DefaultScope
 import com.rk.activities.main.EditorCursorState
 import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
-
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
@@ -449,67 +444,24 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         },
                         title = { Text(patch.title) },
                         text = {
-                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(patch.filePath, style = MaterialTheme.typography.bodySmall)
+                                if (patch.oldText.isNotBlank()) {
+                                    Text("Current", style = MaterialTheme.typography.labelMedium)
+                                    Text(
+                                        text = patch.oldText,
+                                        modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp).verticalScroll(rememberScrollState()),
+                                        fontFamily = FontFamily.Monospace,
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                                Text("Proposed", style = MaterialTheme.typography.labelMedium)
                                 Text(
-                                    patch.filePath.split("/").lastOrNull() ?: patch.filePath,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    text = patch.newText,
+                                    modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp).verticalScroll(rememberScrollState()),
+                                    fontFamily = FontFamily.Monospace,
+                                    style = MaterialTheme.typography.bodySmall,
                                 )
-                                HorizontalDivider()
-                                val oldLines = patch.oldText.lines()
-                                val newLines = patch.newText.lines()
-                                val maxLineNum = maxOf(oldLines.size, newLines.size)
-                                val diffLines = buildList {
-                                    val maxLen = maxOf(oldLines.size, newLines.size)
-                                    var oldIdx = 0; var newIdx = 0
-                                    while (oldIdx < oldLines.size || newIdx < newLines.size) {
-                                        val oldLine = oldLines.getOrNull(oldIdx)
-                                        val newLine = newLines.getOrNull(newIdx)
-                                        when {
-                                            oldIdx < oldLines.size && newIdx < newLines.size && oldLine == newLine -> {
-                                                add(Triple(" ", oldLine ?: "", MaterialTheme.colorScheme.onSurface))
-                                                oldIdx++; newIdx++
-                                            }
-                                            oldIdx < oldLines.size && (newIdx >= newLines.size || oldLine != newLine) -> {
-                                                add(Triple("-", oldLine ?: "", MaterialTheme.colorScheme.error))
-                                                oldIdx++
-                                            }
-                                            else -> {
-                                                add(Triple("+", newLine ?: "", MaterialTheme.colorScheme.primary))
-                                                newIdx++
-                                            }
-                                        }
-                                    }
-                                }
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    modifier = Modifier.fillMaxWidth().heightIn(max = 300.dp),
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .verticalScroll(rememberScrollState())
-                                            .horizontalScroll(rememberScrollState())
-                                            .padding(8.dp),
-                                    ) {
-                                        diffLines.forEach { (prefix, line, color) ->
-                                            Row {
-                                                Text(
-                                                    text = prefix,
-                                                    fontFamily = FontFamily.Monospace,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = color,
-                                                )
-                                                Text(
-                                                    text = line,
-                                                    fontFamily = FontFamily.Monospace,
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = color,
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
                             }
                         },
                         confirmButton = {
@@ -581,6 +533,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         feature.supportedExtensions.contains(fileExtension) && feature.isEnabled()
                     }
 
+                val ghostJob = remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
                 Box(modifier = Modifier.weight(1f)) {
                     CodeEditor(
                         modifier = Modifier.fillMaxSize(),
@@ -601,7 +554,22 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 showNotice(EDITORCONFIG_NOTICE_KEY) { id -> EditorConfigNotice(id) }
                             }
                         },
+                        onGhostTextTrigger = { },
                     )
+
+                    val ghostText = editorState.ghostText
+                    if (ghostText != null) {
+                        Text(
+                            text = ghostText,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .offset(x = 4.dp, y = 4.dp)
+                                .alpha(0.4f),
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
 
                 val showColorPicker = editorState.showColorPicker

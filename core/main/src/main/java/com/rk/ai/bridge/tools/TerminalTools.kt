@@ -1,18 +1,16 @@
 package com.rk.ai.bridge.tools
 
 import com.google.gson.JsonObject
-import com.rk.ai.service.IdeService
+import com.rk.ai.bridge.McpToolContext
+import com.rk.ai.bridge.McpToolResult
 
 class GetTerminalOutputTool : BaseMcpTool() {
-    override fun getName(): String = "getTerminalOutput"
-    override fun getDescription(): String = "Gets recent terminal transcript output."
-    override fun getOptionalParams(): Map<String, String> = mapOf("lines" to "number")
-    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
-        "lines" to "Number of recent lines to retrieve (default: all available)"
-    )
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val lines = optionalPositiveInt(args, "lines")
-        val output = ideService.getTerminalOutput(lines)
-        return textResult(output)
+    override val name: String = "getTerminalOutput"
+    override val description: String = "Gets recent terminal transcript output."
+    override val optionalParams: Map<String, String> = mapOf("lines" to "number")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val lines = optionalInt(args, "lines", -1).takeIf { it > 0 }
+        val output = context.ideService.getTerminalOutput(lines)
+        return resultText(enforceOutputLimit(output))
     }
 }

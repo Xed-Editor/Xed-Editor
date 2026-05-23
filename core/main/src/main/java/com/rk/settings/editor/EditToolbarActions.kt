@@ -45,7 +45,7 @@ import com.rk.utils.handleLazyListScroll
 import kotlinx.coroutines.launch
 
 const val DEFAULT_ACTION_ITEMS =
-    "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|editor.ai_assistant|global.settings"
+    "editor.undo|editor.redo|editor.save|editor.run|global.new_file|editor.editable|editor.search|editor.refresh|global.terminal|editor.gemini_assistant|global.settings"
 
 @Composable
 fun EditToolbarActions(modifier: Modifier = Modifier) {

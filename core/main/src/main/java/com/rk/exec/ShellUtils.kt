@@ -53,14 +53,9 @@ object ShellUtils {
             )
         }
 
-    suspend fun runUbuntu(
-        workingDir: String? = null,
-        vararg command: String,
-        extraEnv: Map<String, String> = emptyMap(),
-        timeoutSeconds: Long? = null,
-    ): Result =
+    suspend fun runUbuntu(workingDir: String? = null, vararg command: String, timeoutSeconds: Long? = null): Result =
         withContext(Dispatchers.IO) {
-            val process = ubuntuProcess(workingDir = workingDir, extraEnv = extraEnv, command = command.toList())
+            val process = ubuntuProcess(workingDir = workingDir, command = command.toList())
 
             val stdout = StringBuilder(1024)
             val stderr = StringBuilder(512)
@@ -99,13 +94,12 @@ object ShellUtils {
     suspend fun runUbuntuStreaming(
         workingDir: String? = null,
         vararg command: String,
-        extraEnv: Map<String, String> = emptyMap(),
         timeoutSeconds: Long? = null,
         onStdout: (String) -> Unit = {},
         onStderr: (String) -> Unit = {},
     ): Result =
         withContext(Dispatchers.IO) {
-            val process = ubuntuProcess(workingDir = workingDir, extraEnv = extraEnv, command = command.toList())
+            val process = ubuntuProcess(workingDir = workingDir, command = command.toList())
             val output = StringBuilder(1024)
             val error = StringBuilder(512)
 

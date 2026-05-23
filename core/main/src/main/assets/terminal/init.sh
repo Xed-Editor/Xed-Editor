@@ -97,8 +97,6 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias pkg='apt'
-alias gemini='gemini-cli'
-alias opencode='opencode-cli'
 
 if [[ -f /initrc ]]; then
     # shellcheck disable=SC1090

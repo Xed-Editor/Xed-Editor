@@ -9,31 +9,26 @@ import kotlinx.coroutines.launch
 
 class HttpSessionTracker(private val onClientsChanged: (Int) -> Unit) {
 
-    private val httpClientSessions = ConcurrentHashMap<String, SessionEntry>()
+    private val httpClientSessions = ConcurrentHashMap<String, Long>()
     private var sseCount: Int = 0
 
-    data class SessionEntry(val createdAt: Long, var lastTouched: Long)
-
     val totalConnectedClients: Int get() = sseCount + httpClientSessions.size
-    val httpSessions: Map<String, Long> get() = httpClientSessions.mapValues { it.value.lastTouched }
+    val httpSessions: Map<String, Long> get() = httpClientSessions
     val httpSessionCount: Int get() = httpClientSessions.size
     val sseSessionCount: Int get() = sseCount
+    val sseSessionIds: Set<String> get() = emptySet()
 
-    fun updateSseCount(count: Int) {
-        sseCount = count
-        onClientsChanged(totalConnectedClients)
-    }
+    fun updateSseCount(count: Int) { sseCount = count; onClientsChanged(totalConnectedClients) }
 
     fun createSession(): String {
         val sessionId = UUID.randomUUID().toString()
-        val now = System.currentTimeMillis()
-        httpClientSessions[sessionId] = SessionEntry(now, now)
+        httpClientSessions[sessionId] = System.currentTimeMillis()
         onClientsChanged(totalConnectedClients)
         return sessionId
     }
 
     fun touchSession(sessionId: String) {
-        httpClientSessions[sessionId]?.lastTouched = System.currentTimeMillis()
+        httpClientSessions[sessionId] = System.currentTimeMillis()
     }
 
     fun removeSession(sessionId: String) {
@@ -41,16 +36,16 @@ class HttpSessionTracker(private val onClientsChanged: (Int) -> Unit) {
         onClientsChanged(totalConnectedClients)
     }
 
-    fun cleanupStale(maxAgeMs: Long = 300_000) {
-        val deadline = System.currentTimeMillis() - maxAgeMs
-        httpClientSessions.entries.removeIf { it.value.lastTouched < deadline }
+    fun cleanupStale() {
+        val deadline = System.currentTimeMillis() - 300_000
+        httpClientSessions.entries.removeIf { it.value < deadline }
         onClientsChanged(totalConnectedClients)
     }
 
-    fun startBackgroundCleanup(scope: CoroutineScope, intervalMs: Long = 60_000) {
+    fun startBackgroundCleanup(scope: CoroutineScope) {
         scope.launch {
             while (isActive) {
-                delay(intervalMs)
+                delay(60_000)
                 cleanupStale()
             }
         }

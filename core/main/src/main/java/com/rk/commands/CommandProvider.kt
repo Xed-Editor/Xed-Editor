@@ -6,7 +6,6 @@ import com.rk.commands.editor.CutCommand
 import com.rk.commands.editor.DuplicateLineCommand
 import com.rk.commands.editor.EmulateKeyCommand
 import com.rk.commands.editor.AiAssistantCommand
-import com.rk.commands.editor.AiTerminalCommand
 import com.rk.commands.editor.InlineAskCommand
 import com.rk.commands.editor.JumpToLineCommand
 import com.rk.commands.editor.LowerCaseCommand
@@ -76,7 +75,6 @@ object CommandProvider {
     lateinit var ShareCommand: ShareCommand
     lateinit var EmulateKeyCommand: EmulateKeyCommand
     lateinit var AiAssistantCommand: AiAssistantCommand
-    lateinit var AiTerminalCommand: AiTerminalCommand
     lateinit var InlineAskCommand: InlineAskCommand
     lateinit var GoToDefinitionCommand: GoToDefinitionCommand
     lateinit var GoToReferencesCommand: GoToReferencesCommand
@@ -119,7 +117,6 @@ object CommandProvider {
             registerBuiltin(ShareCommand(commandContext)) { ShareCommand = it }
             registerBuiltin(EmulateKeyCommand(commandContext)) { EmulateKeyCommand = it }
             registerBuiltin(AiAssistantCommand(commandContext)) { AiAssistantCommand = it }
-            registerBuiltin(AiTerminalCommand(commandContext)) { AiTerminalCommand = it }
             registerBuiltin(InlineAskCommand(commandContext)) { InlineAskCommand = it }
             registerBuiltin(GoToDefinitionCommand(commandContext)) { GoToDefinitionCommand = it }
             registerBuiltin(GoToReferencesCommand(commandContext)) { GoToReferencesCommand = it }

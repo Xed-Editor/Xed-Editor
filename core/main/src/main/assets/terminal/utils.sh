@@ -61,12 +61,12 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-configure_ai_auth_browser() {
-  # AI CLI tools (Gemini, OpenCode, etc.) try OAuth or browser-based auth on
-  # Linux. Xed runs the CLI inside a proot/Ubuntu environment on Android, where
-  # desktop xdg-open is usually missing. Prefer our Android bridge xdg-open shim
-  # when available; otherwise force manual browser mode so the auth URL is
-  # printed cleanly instead of failing with "spawn xdg-open ENOENT".
+configure_gemini_auth_browser() {
+  # Gemini CLI OAuth tries xdg-open on Linux. Xed runs the CLI inside a
+  # proot/Ubuntu environment on Android, where desktop xdg-open is usually
+  # missing. Prefer our Android bridge xdg-open shim when available; otherwise
+  # force Gemini into manual browser mode so it prints the auth URL cleanly
+  # instead of failing with "spawn xdg-open ENOENT".
   if [ -n "${LOCAL:-}" ] && [ -x "$LOCAL/bin/xdg-open" ]; then
     export BROWSER="$LOCAL/bin/xdg-open"
     return 0
@@ -74,6 +74,6 @@ configure_ai_auth_browser() {
 
   if ! command_exists xdg-open && ! command_exists open; then
     export NO_BROWSER=true
-    warn "No browser opener found. Auth will print a URL; open it in Android browser, then return here."
+    warn "No browser opener found. Gemini auth will print a URL; open it in Android browser, then return here."
   fi
 }

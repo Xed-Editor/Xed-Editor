@@ -4,8 +4,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import java.io.File
 
-interface IdeService : FileOps, EditorOps, LspOps, ProjectOps, GitOps, TerminalOps,
-    TerminalManagementOps, ClipboardOps, SettingsOps
+interface IdeService : FileOps, EditorOps, LspOps, ProjectOps, GitOps, TerminalOps
 
 data class CommandResult(
     val output: String,

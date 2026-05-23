@@ -3,10 +3,10 @@ set -e
 
 source "$LOCAL/bin/utils" >/dev/null 2>&1 || true
 
-# IDE bridge env vars (set by Xed Editor)
-IDE_PORT="${IDE_SERVER_PORT:-}"
-IDE_TOKEN="${IDE_AUTH_TOKEN:-}"
-IDE_WS="${IDE_WORKSPACE_PATH:-}"
+# Support both Gemini-specific and generic IDE bridge env vars
+IDE_PORT="${GEMINI_CLI_IDE_SERVER_PORT:-${IDE_SERVER_PORT:-}}"
+IDE_TOKEN="${GEMINI_CLI_IDE_AUTH_TOKEN:-${IDE_AUTH_TOKEN:-}}"
+IDE_WS="${GEMINI_CLI_IDE_WORKSPACE_PATH:-${IDE_WORKSPACE_PATH:-}}"
 
 workspace_dir="${IDE_WS%%:*}"
 target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
@@ -19,7 +19,7 @@ export NO_UPDATE_NOTIFIER=1
 export PATH="$LOCAL/bin:$PATH"
 export EDITOR=vim
 export VISUAL=vim
-configure_ai_auth_browser
+configure_gemini_auth_browser
 
 log() { printf '%s\n' "$*" >&2; }
 
@@ -38,9 +38,7 @@ if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
   SETTINGS_FILE="$HOME/.gemini/settings.json"
   if command_exists python3; then
     python3 -c "
-import json, os
-port = os.environ.get('IDE_SERVER_PORT', '${IDE_PORT}')
-token = os.environ.get('IDE_AUTH_TOKEN', '${IDE_TOKEN}')
+import json
 try:
     with open('$SETTINGS_FILE') as f:
         s = json.load(f)
@@ -55,12 +53,8 @@ s.setdefault('telemetry', {})['enabled'] = False
 # Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
 ms = s.setdefault('mcpServers', {})
 ms['xed-ide'] = {
-    'url': f'http://127.0.0.1:{port}/mcp?token={token}',
-    'headers': {
-        'Authorization': f'Bearer {token}',
-        'authorization': f'Bearer {token}',
-        'x-ide-token': token
-    }
+    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
+    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
 }
 
 # Cleanup any accidental 'xed-ide' entry in the 'mcp' object (used for global settings)
@@ -71,14 +65,14 @@ with open('$SETTINGS_FILE', 'w') as f:
 " 2>/dev/null || fallback_to_node=true
   fi
   if [ "${fallback_to_node:-false}" = true ] || ! command_exists python3; then
-    export IDE_SERVER_PORT IDE_AUTH_TOKEN
+    export IDE_PORT IDE_TOKEN
     node <<'NODE'
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const settingsFile = path.join(os.homedir(), '.gemini', 'settings.json');
-const idePort = process.env.IDE_SERVER_PORT || '0';
-const ideToken = process.env.IDE_AUTH_TOKEN || '';
+const idePort = process.env.IDE_PORT || '0';
+const ideToken = process.env.IDE_TOKEN || '';
 let s = {};
 try { s = JSON.parse(fs.readFileSync(settingsFile, 'utf8')); } catch (_) {}
 s.general = { ...(s.general || {}), preferredEditor: 'vim' };
@@ -89,12 +83,8 @@ s.telemetry = { ...(s.telemetry || {}), enabled: false };
 // Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
 s.mcpServers = s.mcpServers || {};
 s.mcpServers['xed-ide'] = {
-  url: 'http://127.0.0.1:' + idePort + '/mcp?token=' + ideToken,
-  headers: { 
-    Authorization: 'Bearer ' + ideToken,
-    authorization: 'Bearer ' + ideToken,
-    'x-ide-token': ideToken
-  }
+  url: 'http://127.0.0.1:' + idePort + '/mcp',
+  headers: { Authorization: 'Bearer ' + ideToken }
 };
 
 // Cleanup any accidental 'xed-ide' entry in the 'mcp' object

@@ -6,7 +6,7 @@ object PipxUtils {
     suspend fun getInstalledVersion(venvName: String): String? {
         val result =
             ShellUtils.runUbuntu(
-                command = *arrayOf("pipx", "runpip", venvName, "index", "versions", venvName, "--json"),
+                command = arrayOf("pipx", "runpip", venvName, "index", "versions", venvName, "--json"),
                 timeoutSeconds = 20L,
             )
         if (result.timedOut || result.exitCode != 0) return null
@@ -21,7 +21,7 @@ object PipxUtils {
     suspend fun getLatestVersion(venvName: String): String? {
         val result =
             ShellUtils.runUbuntu(
-                command = *arrayOf("pipx", "runpip", venvName, "index", "versions", venvName, "--json"),
+                command = arrayOf("pipx", "runpip", venvName, "index", "versions", venvName, "--json"),
                 timeoutSeconds = 20L,
             )
         if (result.timedOut || result.exitCode != 0) return null
@@ -36,7 +36,7 @@ object PipxUtils {
     suspend fun hasUpdate(venvName: String): Boolean {
         val result =
             ShellUtils.runUbuntu(
-                command = *arrayOf("pipx", "runpip", venvName, "index", "versions", venvName, "--json"),
+                command = arrayOf("pipx", "runpip", venvName, "index", "versions", venvName, "--json"),
                 timeoutSeconds = 20L,
             )
         if (result.timedOut || result.exitCode != 0) return false

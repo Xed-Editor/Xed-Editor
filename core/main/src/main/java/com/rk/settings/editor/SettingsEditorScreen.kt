@@ -5,11 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -26,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -103,76 +98,8 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
-            var showAgentMenu by remember { mutableStateOf(false) }
-            val agents = com.rk.ai.session.AiSessionManager.availableAgents()
-            val currentAgent = com.rk.ai.session.AiSessionManager.resolveAgent(Settings.ai_agent)
-            val currentConfiguredModel = com.rk.ai.configuredModelForAgent(currentAgent)
-
             var showModelDialog by remember { mutableStateOf(false) }
-            var modelInputValue by remember(currentAgent.name) { mutableStateOf(currentConfiguredModel) }
-            var showApiKeyDialog by remember { mutableStateOf(false) }
-            var apiKeyInputValue by remember { mutableStateOf(Settings.ai_api_key) }
-            var showCompletionModelDialog by remember { mutableStateOf(false) }
-            var completionModelInputValue by remember { mutableStateOf(Settings.ai_completion_model) }
-            var showCompletionUrlDialog by remember { mutableStateOf(false) }
-            var completionUrlInputValue by remember { mutableStateOf(Settings.ai_completion_url) }
-            var showProfileMenu by remember { mutableStateOf(false) }
-
-            val profiles = remember { com.rk.ai.agents.AgentProfileManager.loadProfiles() }
-
-            Surface(
-                onClick = { showProfileMenu = true },
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Profile",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = "Saved agent configurations",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    val activeProfile = profiles.find {
-                        it.agentType == Settings.ai_agent && it.model == currentConfiguredModel
-                    }
-                    Text(
-                        text = activeProfile?.name ?: "Custom",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Box {
-                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        DropdownMenu(expanded = showProfileMenu, onDismissRequest = { showProfileMenu = false }) {
-                            profiles.forEach { p ->
-                                DropdownMenuItem(
-                                    text = { Text(p.displayLabel()) },
-                                    onClick = {
-                                        com.rk.ai.agents.AgentProfileManager.applyProfile(p)
-                                        modelInputValue = com.rk.ai.configuredModelForAgent(
-                                            com.rk.ai.session.AiSessionManager.currentAgent
-                                        )
-                                        showProfileMenu = false
-                                    },
-                                    leadingIcon = if (p.agentType == Settings.ai_agent && p.model == currentConfiguredModel) {
-                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
-                                    } else null,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            var modelInputValue by remember { mutableStateOf(Settings.ai_model) }
 
             Surface(
                 onClick = { showModelDialog = true },
@@ -198,7 +125,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = com.rk.ai.resolvedConfiguredModelForAgent(currentAgent).orEmpty().ifEmpty { "default" },
+                        text = Settings.ai_model.ifEmpty { "default" },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -209,56 +136,6 @@ fun SettingsEditorScreen(navController: NavController) {
                     )
                 }
             }
-
-            SettingsToggle(
-                label = stringResource(strings.ai_agent),
-                description = stringResource(strings.ai_agent_desc),
-                state = remember { mutableStateOf(true) },
-                showSwitch = false,
-                default = true,
-                startWidget = {
-                    Box {
-                        Surface(
-                            onClick = { showAgentMenu = true },
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = currentAgent.displayName,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
-                                Icon(
-                                    Icons.Default.ArrowDropDown,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                )
-                            }
-                        }
-                        DropdownMenu(expanded = showAgentMenu, onDismissRequest = { showAgentMenu = false }) {
-                            agents.forEach { agent ->
-                                DropdownMenuItem(
-                                    text = { Text(agent.displayName) },
-                                    onClick = {
-                                        com.rk.ai.session.AiSessionManager.switchAgent(agent.name)
-                                        modelInputValue = com.rk.ai.configuredModelForAgent(
-                                            com.rk.ai.session.AiSessionManager.currentAgent
-                                        )
-                                        showAgentMenu = false
-                                    },
-                                    leadingIcon = if (agent.name == Settings.ai_agent) {
-                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
-                                    } else null,
-                                )
-                            }
-                        }
-                    }
-                },
-            )
 
             if (showModelDialog) {
                 SingleInputDialog(
@@ -266,196 +143,10 @@ fun SettingsEditorScreen(navController: NavController) {
                     inputLabel = stringResource(strings.ai_model),
                     inputValue = modelInputValue,
                     onInputValueChange = { modelInputValue = it },
-                    onConfirm = {
-                        com.rk.ai.setConfiguredModelForAgent(currentAgent, modelInputValue, syncActiveModel = true)
-                        showModelDialog = false
-                    },
-                    onFinish = {
-                        modelInputValue = com.rk.ai.configuredModelForAgent(currentAgent)
-                        showModelDialog = false
-                    },
+                    onConfirm = { Settings.ai_model = modelInputValue; showModelDialog = false },
+                    onFinish = { modelInputValue = Settings.ai_model; showModelDialog = false },
                 )
             }
-
-            Surface(
-                onClick = { showApiKeyDialog = true },
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "AI API Key",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = "Used by inline completion if environment keys are missing",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = if (Settings.ai_api_key.isBlank()) "not set" else "set",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Icon(
-                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            EditorSettingsToggle(
-                label = "AI inline completion",
-                description = "Show next-token suggestions while typing",
-                default = Settings.ai_inline_completion,
-                sideEffect = { Settings.ai_inline_completion = it },
-            )
-
-            Surface(
-                onClick = { showCompletionModelDialog = true },
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Completion model",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = "Optional override for inline completion model",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = Settings.ai_completion_model.ifBlank { "auto" },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Icon(
-                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            Surface(
-                onClick = { showCompletionUrlDialog = true },
-                shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Completion endpoint",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = "Optional URL override for inline completion API",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = Settings.ai_completion_url.ifBlank { "default" },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Icon(
-                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            if (showApiKeyDialog) {
-                SingleInputDialog(
-                    title = "AI API Key",
-                    inputLabel = "API key",
-                    inputValue = apiKeyInputValue,
-                    onInputValueChange = { apiKeyInputValue = it },
-                    onConfirm = {
-                        Settings.ai_api_key = apiKeyInputValue.trim()
-                        showApiKeyDialog = false
-                    },
-                    onFinish = {
-                        apiKeyInputValue = Settings.ai_api_key
-                        showApiKeyDialog = false
-                    },
-                )
-            }
-
-            if (showCompletionModelDialog) {
-                SingleInputDialog(
-                    title = "Completion model",
-                    inputLabel = "Model",
-                    inputValue = completionModelInputValue,
-                    onInputValueChange = { completionModelInputValue = it },
-                    onConfirm = {
-                        Settings.ai_completion_model = completionModelInputValue.trim()
-                        showCompletionModelDialog = false
-                    },
-                    onFinish = {
-                        completionModelInputValue = Settings.ai_completion_model
-                        showCompletionModelDialog = false
-                    },
-                )
-            }
-
-            if (showCompletionUrlDialog) {
-                SingleInputDialog(
-                    title = "Completion endpoint",
-                    inputLabel = "https://...",
-                    inputValue = completionUrlInputValue,
-                    onInputValueChange = { completionUrlInputValue = it },
-                    onConfirm = {
-                        Settings.ai_completion_url = completionUrlInputValue.trim()
-                        showCompletionUrlDialog = false
-                    },
-                    onFinish = {
-                        completionUrlInputValue = Settings.ai_completion_url
-                        showCompletionUrlDialog = false
-                    },
-                )
-            }
-
-            EditorSettingsToggle(
-                label = stringResource(strings.ai_project_config),
-                description = stringResource(strings.ai_project_config_desc),
-                default = Settings.ai_project_config_enabled,
-                sideEffect = { Settings.ai_project_config_enabled = it },
-            )
-
-            EditorSettingsToggle(
-                label = "Auto apply changes",
-                description = "Automatically apply AI changes without review",
-                default = Settings.ai_auto_apply,
-                sideEffect = { Settings.ai_auto_apply = it },
-            )
 
             EditorSettingsToggle(
                 label = stringResource(strings.auto_close_tags),

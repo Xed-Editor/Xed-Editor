@@ -41,23 +41,23 @@ public final class TerminalBuffer {
         return getSelectedText(0, -getActiveTranscriptRows(), mColumns, mScreenRows).trim();
     }
 
-    public synchronized String getTranscriptTextWithoutJoinedLines() {
+    public String getTranscriptTextWithoutJoinedLines() {
         return getSelectedText(0, -getActiveTranscriptRows(), mColumns, mScreenRows, false).trim();
     }
 
-    public synchronized String getTranscriptTextWithFullLinesJoined() {
+    public String getTranscriptTextWithFullLinesJoined() {
         return getSelectedText(0, -getActiveTranscriptRows(), mColumns, mScreenRows, true, true).trim();
     }
 
-    public synchronized String getSelectedText(int selX1, int selY1, int selX2, int selY2) {
+    public String getSelectedText(int selX1, int selY1, int selX2, int selY2) {
         return getSelectedText(selX1, selY1, selX2, selY2, true);
     }
 
-    public synchronized String getSelectedText(int selX1, int selY1, int selX2, int selY2, boolean joinBackLines) {
+    public String getSelectedText(int selX1, int selY1, int selX2, int selY2, boolean joinBackLines) {
         return getSelectedText(selX1, selY1, selX2, selY2, joinBackLines, false);
     }
 
-    public synchronized String getSelectedText(int selX1, int selY1, int selX2, int selY2, boolean joinBackLines, boolean joinFullLines) {
+    public String getSelectedText(int selX1, int selY1, int selX2, int selY2, boolean joinBackLines, boolean joinFullLines) {
         final StringBuilder builder = new StringBuilder();
         final int columns = mColumns;
 
@@ -144,11 +144,11 @@ public final class TerminalBuffer {
         return text.substring(x1 + 1, x2);
     }
 
-    public synchronized int getActiveTranscriptRows() {
+    public int getActiveTranscriptRows() {
         return mActiveTranscriptRows;
     }
 
-    public synchronized int getActiveRows() {
+    public int getActiveRows() {
         return mActiveTranscriptRows + mScreenRows;
     }
 
@@ -180,15 +180,15 @@ public final class TerminalBuffer {
         return (internalRow < 0) ? (mTotalRows + internalRow) : (internalRow % mTotalRows);
     }
 
-    public synchronized void setLineWrap(int row) {
+    public void setLineWrap(int row) {
         mLines[externalToInternalRow(row)].mLineWrap = true;
     }
 
-    public synchronized boolean getLineWrap(int row) {
+    public boolean getLineWrap(int row) {
         return mLines[externalToInternalRow(row)].mLineWrap;
     }
 
-    public synchronized void clearLineWrap(int row) {
+    public void clearLineWrap(int row) {
         mLines[externalToInternalRow(row)].mLineWrap = false;
     }
 
@@ -200,7 +200,7 @@ public final class TerminalBuffer {
      * @param newRows    The number of rows the screen should have.
      * @param cursor     An int[2] containing the (column, row) cursor location.
      */
-    public synchronized void resize(int newColumns, int newRows, int newTotalRows, int[] cursor, long currentStyle, boolean altScreen) {
+    public void resize(int newColumns, int newRows, int newTotalRows, int[] cursor, long currentStyle, boolean altScreen) {
         // newRows > mTotalRows should not normally happen since mTotalRows is TRANSCRIPT_ROWS (10000):
         if (newColumns == mColumns && newRows <= mTotalRows) {
             // Fast resize where just the rows changed.
@@ -290,16 +290,10 @@ public final class TerminalBuffer {
                     lastNonSpaceIndex = oldLine.getSpaceUsed();
                     if (cursorAtThisRow) justToCursor = true;
                 } else {
-                    int currentColumn = 0;
-                    for (int i = 0; i < oldLine.getSpaceUsed(); i++) {
-                        char c = oldLine.mText[i];
-                        int codePoint = (Character.isHighSurrogate(c)) ? Character.toCodePoint(c, oldLine.mText[++i]) : c;
-                        int displayWidth = WcWidth.width(codePoint);
-                        if (codePoint != ' ' || oldLine.getStyle(currentColumn) != currentStyle) {
+                    for (int i = 0; i < oldLine.getSpaceUsed(); i++)
+                        // NEWLY INTRODUCED BUG! Should not index oldLine.mStyle with char indices
+                        if (oldLine.mText[i] != ' '/* || oldLine.mStyle[i] != currentStyle */)
                             lastNonSpaceIndex = i + 1;
-                        }
-                        currentColumn += displayWidth;
-                    }
                 }
 
                 int currentOldCol = 0;
@@ -387,7 +381,7 @@ public final class TerminalBuffer {
      * @param bottomMargin One line after the last line that is scrolled.
      * @param style        the style for the newly exposed line.
      */
-    public synchronized void scrollDownOneLine(int topMargin, int bottomMargin, long style) {
+    public void scrollDownOneLine(int topMargin, int bottomMargin, long style) {
         if (topMargin > bottomMargin - 1 || topMargin < 0 || bottomMargin > mScreenRows)
             throw new IllegalArgumentException("topMargin=" + topMargin + ", bottomMargin=" + bottomMargin + ", mScreenRows=" + mScreenRows);
 
@@ -454,7 +448,7 @@ public final class TerminalBuffer {
         return (mLines[row] == null) ? (mLines[row] = new TerminalRow(mColumns, 0)) : mLines[row];
     }
 
-    public synchronized void setChar(int column, int row, int codePoint, long style) {
+    public void setChar(int column, int row, int codePoint, long style) {
         if (row  < 0 || row >= mScreenRows || column < 0 || column >= mColumns)
             throw new IllegalArgumentException("TerminalBuffer.setChar(): row=" + row + ", column=" + column + ", mScreenRows=" + mScreenRows + ", mColumns=" + mColumns);
         row = externalToInternalRow(row);
@@ -490,7 +484,7 @@ public final class TerminalBuffer {
         }
     }
 
-    public synchronized void clearTranscript() {
+    public void clearTranscript() {
         if (mScreenFirstRow < mActiveTranscriptRows) {
             Arrays.fill(mLines, mTotalRows + mScreenFirstRow - mActiveTranscriptRows, mTotalRows, null);
             Arrays.fill(mLines, 0, mScreenFirstRow, null);

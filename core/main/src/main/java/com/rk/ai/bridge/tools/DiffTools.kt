@@ -1,51 +1,42 @@
 package com.rk.ai.bridge.tools
 
 import com.google.gson.JsonObject
-import com.rk.ai.service.IdeService
+import com.rk.ai.bridge.McpToolContext
+import com.rk.ai.bridge.McpToolResult
 
 class OpenDiffTool : BaseMcpTool() {
-    override fun getName(): String = "openDiff"
-    override fun getDescription(): String = "Opens a side-by-side diff view for user review."
-    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "newContent" to "string")
-    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
-        "filePath" to "Absolute path to the file",
-        "newContent" to "Proposed new content to diff against"
-    )
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+    override val name: String = "openDiff"
+    override val description: String = "Opens a side-by-side diff view for user review."
+    override val requiredParams: Map<String, String> = mapOf("filePath" to "string", "newContent" to "string")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = requireString(args, "filePath")
         val newContent = requireString(args, "newContent")
-        val file = resolvePathOrThrow(ideService, filePath)
-        val msg = showPatchAndApply(ideService, file, newContent, "Review AI file change", refreshAfterApply = true)
-        return textResult(msg)
+        val file = safeResolvePath(context, filePath)
+        val msg = showPatchAndApply(context, file, newContent, "Review Gemini file change", refreshAfterApply = true)
+        return resultText(msg)
     }
 }
 
 class GetDiffResultTool : BaseMcpTool() {
-    override fun getName(): String = "getDiffResult"
-    override fun getDescription(): String = "Returns the current file content after a diff review."
-    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
-    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
-        "filePath" to "Absolute path to the file"
-    )
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+    override val name: String = "getDiffResult"
+    override val description: String = "Returns the current file content after a diff review."
+    override val requiredParams: Map<String, String> = mapOf("filePath" to "string")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = requireString(args, "filePath")
-        val file = resolvePathOrThrow(ideService, filePath)
-        val content = ideService.getFileContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
-        return textResult(content)
+        val file = safeResolvePath(context, filePath)
+        val content = context.ideService.getFileContent(file.absolutePath) ?: runCatching { file.readText() }.getOrDefault("")
+        return resultText(content)
     }
 }
 
 class RejectDiffTool : BaseMcpTool() {
-    override fun getName(): String = "rejectDiff"
-    override fun getDescription(): String = "Rejects a pending diff/patch for a file."
-    override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
-    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
-        "filePath" to "Absolute path to the file with the pending diff"
-    )
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
+    override val name: String = "rejectDiff"
+    override val description: String = "Rejects a pending diff/patch for a file."
+    override val requiredParams: Map<String, String> = mapOf("filePath" to "string")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = requireString(args, "filePath")
-        val file = resolvePathOrThrow(ideService, filePath)
-        ideService.rejectPatch(file.absolutePath)
-        return textResult("Rejected patch for ${file.absolutePath}")
+        val file = safeResolvePath(context, filePath)
+        context.ideService.rejectPatch(file.absolutePath)
+        return resultText("Rejected patch for ${file.absolutePath}")
     }
 }

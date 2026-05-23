@@ -129,19 +129,6 @@ class LspService(
         }
     }
 
-    suspend fun formatSelection(filePath: String): String {
-        val tab = findTabByPath(filePath) ?: return "file not open: $filePath"
-        val connector = tab.lspConnector ?: return "no LSP connector for $filePath"
-        val editor = withContext(Dispatchers.Main) { tab.editorState.editor.get() } ?: return "editor not ready"
-        if (!editor.isTextSelected) return "no text selected"
-        val eventManager = connector.getEventManager() ?: return "no event manager"
-        withContext(Dispatchers.Main) {
-            applyFormattingOptions(eventManager, tab)
-            eventManager.emitAsync(EventType.fullFormatting, editor.text)
-        }
-        return "format selection initiated for $filePath"
-    }
-
     fun clearCache() { tabCache.clear() }
 
     private fun findTabByPath(path: String): EditorTab? {

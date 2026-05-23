@@ -19,7 +19,6 @@ import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 object MkSession {
@@ -98,12 +97,6 @@ object MkSession {
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
-            com.rk.ai.IdeBridge.getBridgeInfo()?.let { info ->
-                env.add("IDE_SERVER_PORT=${info.port}")
-                env.add("IDE_AUTH_TOKEN=${info.token}")
-                env.add("IDE_WORKSPACE_PATH=${info.workspacePath}")
-            }
-
             pendingCommand?.env?.let { env.addAll(it) }
 
             setupTerminalFiles()
@@ -145,17 +138,14 @@ object MkSession {
 
             pendingCommand = null
 
-            val session = runBlocking(Dispatchers.Main) {
-                TerminalSession(
-                    actualShell,
-                    localDir().absolutePath,
-                    actualArgs,
-                    env.toTypedArray(),
-                    Settings.terminal_scrollback_buffer,
-                    sessionClient,
-                )
-            }
-            return session to workingDir
+            return TerminalSession(
+                actualShell,
+                localDir().absolutePath,
+                actualArgs,
+                env.toTypedArray(),
+                Settings.terminal_scrollback_buffer,
+                sessionClient,
+            ) to workingDir
         }
     }
 }

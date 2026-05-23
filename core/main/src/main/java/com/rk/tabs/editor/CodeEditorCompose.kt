@@ -147,8 +147,16 @@ fun Editor.registerXedActions(scope: CoroutineScope, viewModel: MainViewModel, e
             shouldShow = { isTextSelected },
             onClick = {
                 val selectedText = getSelectedText().orEmpty()
-                val fileName = editorTab.file.getName()
-                viewModel.showAiTerminalSheet = true
+                viewModel.agentPrompt =
+                    """
+                    Explain this selected code, find possible bugs, and suggest improvements.
+
+                    ```
+                    $selectedText
+                    ```
+                    """
+                        .trimIndent()
+                viewModel.showAiSheet = true
             },
         )
     )

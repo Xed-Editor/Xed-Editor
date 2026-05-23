@@ -491,7 +491,7 @@ public final class TerminalEmulator {
         }
     }
 
-    public synchronized void resize(int columns, int rows, int cellWidthPixels, int cellHeightPixels) {
+    public void resize(int columns, int rows, int cellWidthPixels, int cellHeightPixels) {
         this.mCellWidthPixels = cellWidthPixels;
         this.mCellHeightPixels = cellHeightPixels;
 
@@ -564,7 +564,7 @@ public final class TerminalEmulator {
     }
 
 
-    public synchronized boolean isCursorEnabled() {
+    public boolean isCursorEnabled() {
         return isDecsetInternalBitSet(DECSET_BIT_CURSOR_ENABLED);
     }
 
@@ -575,11 +575,11 @@ public final class TerminalEmulator {
             return !mCursorBlinkingEnabled || mCursorBlinkState;
     }
 
-    public synchronized void setCursorBlinkingEnabled(boolean cursorBlinkingEnabled) {
+    public void setCursorBlinkingEnabled(boolean cursorBlinkingEnabled) {
         this.mCursorBlinkingEnabled = cursorBlinkingEnabled;
     }
 
-    public synchronized void setCursorBlinkState(boolean cursorBlinkState) {
+    public void setCursorBlinkState(boolean cursorBlinkState) {
         this.mCursorBlinkState = cursorBlinkState;
     }
 
@@ -595,7 +595,7 @@ public final class TerminalEmulator {
     /**
      * If mouse events are being sent as escape codes to the terminal.
      */
-    public synchronized boolean isMouseTrackingActive() {
+    public boolean isMouseTrackingActive() {
         return isDecsetInternalBitSet(DECSET_BIT_MOUSE_TRACKING_PRESS_RELEASE) || isDecsetInternalBitSet(DECSET_BIT_MOUSE_TRACKING_BUTTON_EVENT);
     }
 
@@ -610,7 +610,7 @@ public final class TerminalEmulator {
      * @param buffer a byte array containing the bytes to be processed
      * @param length the number of bytes in the array to process
      */
-    public synchronized void append(byte[] buffer, int length) {
+    public void append(byte[] buffer, int length) {
         for (int i = 0; i < length; i++)
             processByte(buffer[i]);
     }
@@ -2686,7 +2686,7 @@ public final class TerminalEmulator {
     /**
      * Reset terminal state so user can interact with it regardless of present state.
      */
-    public synchronized void reset() {
+    public void reset() {
         setCursorStyle();
         mArgIndex = 0;
         mContinueSequence = false;
@@ -2725,7 +2725,7 @@ public final class TerminalEmulator {
     /**
      * Get the terminal session's title (null if not set).
      */
-    public synchronized String getTitle() {
+    public String getTitle() {
         return mTitle;
     }
 

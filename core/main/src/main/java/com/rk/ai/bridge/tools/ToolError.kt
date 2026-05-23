@@ -3,7 +3,6 @@ package com.rk.ai.bridge.tools
 sealed class ToolError(val code: Int, override val message: String) : Exception(message) {
     class MissingParam(name: String) : ToolError(-32602, "Missing required param: $name")
     class PathOutsideWorkspace(path: String) : ToolError(-32002, "Path outside workspace: $path")
-    class FileNotFound(path: String) : ToolError(-32002, "File not found: $path")
     class InvalidParam(name: String, detail: String = "") : ToolError(-32602, "Invalid param '$name'${
         if (detail.isNotBlank()) ": $detail" else ""
     }")

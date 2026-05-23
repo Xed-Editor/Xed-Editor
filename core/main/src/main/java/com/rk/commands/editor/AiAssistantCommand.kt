@@ -11,12 +11,12 @@ import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
 
 class AiAssistantCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
-    override val id: String = "editor.ai_assistant"
+    override val id: String = "editor.gemini_assistant"
 
-    override fun getLabel(): String = "AI Assistant"
+    override fun getLabel(): String = strings.gemini_assistant.getString()
 
     override fun action(editorActionContext: EditorActionContext) {
-        commandContext.mainViewModel.showAiTerminalSheet = true
+        commandContext.mainViewModel.showAiSheet = true
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =
@@ -32,23 +32,8 @@ class InlineAskCommand(commandContext: CommandContext) : EditorCommand(commandCo
 
     override fun action(editorActionContext: EditorActionContext) {
         val vm = commandContext.mainViewModel
-        vm.showAiTerminalSheet = false
+        vm.showAiSheet = false
         vm.showInlineAgent = !vm.showInlineAgent
-    }
-
-    override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =
-        InbuiltFeatures.terminal.state.value
-
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.auto_fix)
-}
-
-class AiTerminalCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
-    override val id: String = "editor.ai_terminal"
-
-    override fun getLabel(): String = "AI Terminal"
-
-    override fun action(editorActionContext: EditorActionContext) {
-        commandContext.mainViewModel.showAiTerminalSheet = true
     }
 
     override fun isSupported(editorNonActionContext: EditorNonActionContext): Boolean =

@@ -1,55 +1,45 @@
 package com.rk.ai.bridge.tools
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.rk.ai.service.IdeService
+import com.rk.ai.bridge.McpToolContext
+import com.rk.ai.bridge.McpToolResult
+import java.io.File
 
 class GetProjectStructureTool : BaseMcpTool() {
-    override fun getName(): String = "getProjectStructure"
-    override fun getDescription(): String = "Returns a hierarchical project directory tree."
-    override fun getRequiredParams(): Map<String, String> = mapOf("path" to "string")
-    override fun getOptionalParams(): Map<String, String> = mapOf("maxDepth" to "number", "maxItems" to "number")
-    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
-        "path" to "Directory path to explore"
-    )
-    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
-        "maxDepth" to "Maximum directory depth (default: 3, max: 10)",
-        "maxItems" to "Maximum items to return (default: 200, max: 1000)"
-    )
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val path = optionalString(args, "path").ifBlank { ideService.getPrimaryWorkspacePath() }
-        val maxDepth = (optionalPositiveInt(args, "maxDepth") ?: 3).coerceIn(1, 10)
-        val maxItems = (optionalPositiveInt(args, "maxItems") ?: 200).coerceIn(1, 1000)
-        val tree = ideService.getProjectStructure(path, maxDepth, maxItems)
-        return textResult(tree)
+    override val name: String = "getProjectStructure"
+    override val description: String = "Returns a hierarchical project directory tree."
+    override val requiredParams: Map<String, String> = mapOf("path" to "string")
+    override val optionalParams: Map<String, String> = mapOf("maxDepth" to "number", "maxItems" to "number")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val path = optionalString(args, "path").ifBlank { context.ideService.getPrimaryWorkspacePath() }
+        val maxDepth = optionalInt(args, "maxDepth", 3).coerceIn(1, 10)
+        val maxItems = optionalInt(args, "maxItems", 200).coerceIn(1, 1000)
+        val tree = context.ideService.getProjectStructure(path, maxDepth, maxItems)
+        return resultText(tree)
     }
 }
 
 class GetProjectSummaryTool : BaseMcpTool() {
-    override fun getName(): String = "getProjectSummary"
-    override fun getDescription(): String = "CRITICAL: Use this as your FIRST tool call to get a high-level overview of the project (README, build files, config, open tabs, and git status). It is much more efficient than getProjectStructure for initial orientation."
-    override suspend fun executeValidated(args: JsonObject, ideService: IdeService): JsonObject {
-        val rootPath = ideService.getPrimaryWorkspacePath()
-        if (rootPath.isBlank()) return textResult("No workspace open.")
-        val root = java.io.File(rootPath)
-        val config = ideService.getProjectConfig(rootPath)
+    override val name: String = "getProjectSummary"
+    override val description: String = "CRITICAL: Use this as your FIRST tool call to get a high-level overview of the project (README, build files, config, open tabs, and git status). It is much more efficient than getProjectStructure for initial orientation."
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val rootPath = context.ideService.getPrimaryWorkspacePath()
+        if (rootPath.isBlank()) return resultText("No workspace open.")
+        val root = File(rootPath)
+        val config = context.ideService.getProjectConfig(rootPath)
         val sb = StringBuilder()
-        sb.append("╔══════════════════════════════════════════════╗\n")
-        sb.append("║  USE NATIVE MCP TOOLS INSTEAD OF TERMINAL   ║\n")
-        sb.append("║  cat→readFile  grep→searchCode  find→glob  ║\n")
-        sb.append("║  ls→listFiles  wc→wc  head→head  tail→tail ║\n")
-        sb.append("║  stat→stat  wc -l→countLines               ║\n")
-        sb.append("╚══════════════════════════════════════════════╝\n\n")
         sb.append("Project Root: ").append(rootPath).append("\n")
         sb.append("Language: ").append(config.get("language")?.asString ?: "unknown").append("\n")
         sb.append("Build System: ").append(config.get("buildSystem")?.asString ?: "unknown").append("\n")
 
-        val status = ideService.getGitStatus(rootPath)
+        val status = context.ideService.getGitStatus(rootPath)
         if (status.has("branch")) {
             sb.append("Git Branch: ").append(status.get("branch").asString).append("\n")
             sb.append("Total Changes: ").append(status.get("totalChanges").asInt).append("\n")
         }
         
-        val openFiles = ideService.getOpenFiles()
+        val openFiles = context.ideService.getOpenFiles()
         if (openFiles.isNotEmpty()) {
             sb.append("\nOpen Tabs:\n")
             openFiles.take(10).forEach { file ->
@@ -63,7 +53,7 @@ class GetProjectSummaryTool : BaseMcpTool() {
 
         val importantFiles = listOf("README.md", "README", "build.gradle.kts", "build.gradle", "package.json", "pom.xml", "Cargo.toml", "requirements.txt")
         importantFiles.forEach { name ->
-            val file = java.io.File(root, name)
+            val file = File(root, name)
             if (file.exists() && file.isFile) {
                 val content = runCatching {
                     val text = file.readText()
@@ -75,6 +65,6 @@ class GetProjectSummaryTool : BaseMcpTool() {
                 }
             }
         }
-        return textResult(sb.toString())
+        return resultText(sb.toString())
     }
 }

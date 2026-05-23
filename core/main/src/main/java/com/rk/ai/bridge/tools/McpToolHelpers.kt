@@ -3,80 +3,28 @@ package com.rk.ai.bridge.tools
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
+import com.rk.ai.bridge.McpToolResult
 import com.rk.ai.service.IdeService
 import java.io.File
 
-fun textResult(text: String): JsonObject {
-    return JsonObject().apply {
-        add("content", JsonArray().apply {
-            if (text.isNotEmpty()) {
-                add(JsonObject().apply {
-                    addProperty("type", "text")
-                    addProperty("text", text)
-                })
-            } else {
-                add(JsonObject().apply {
-                    addProperty("type", "text")
-                    addProperty("text", "(empty)")
-                })
-            }
-        })
-    }
-}
+fun resultText(text: String): McpToolResult = McpToolResult.text(text)
 
-fun jsonResult(data: JsonElement): JsonObject {
-    return JsonObject().apply {
-        add("content", JsonArray().apply {
-            add(JsonObject().apply {
-                addProperty("type", "text")
-                addProperty("text", data.toString())
-            })
-        })
-    }
-}
+fun resultJson(data: JsonElement): McpToolResult = McpToolResult.json(
+    if (data is JsonObject) data else JsonObject().apply { add("data", data) }
+)
 
-fun errorResult(errorMessage: String): JsonObject {
-    return JsonObject().apply {
-        add("content", JsonArray().apply {
-            add(JsonObject().apply {
-                addProperty("type", "text")
-                addProperty("text", "Error: $errorMessage")
-            })
-        })
-        addProperty("isError", true)
-    }
-}
+fun resultEmpty(): McpToolResult = McpToolResult.text("")
 
-fun emptyResult(): JsonObject {
-    return JsonObject().apply {
-        add("content", JsonArray())
-    }
-}
-
-fun readLineRange(file: File, startInclusive: Int, endInclusive: Int?): String {
-    val sb = StringBuilder()
-    file.bufferedReader().use { reader ->
-        var lineNum = 1
-        var line = reader.readLine()
-        while (line != null && (endInclusive == null || lineNum <= endInclusive)) {
-            if (lineNum >= startInclusive) {
-                if (sb.isNotEmpty()) sb.append('\n')
-                sb.append(line)
-            }
-            lineNum++
-            line = reader.readLine()
-        }
-    }
-    return sb.toString()
-}
+fun enforceOutputLimit(text: String): String = Security.enforceOutputLimit(text)
 
 suspend fun showPatchAndApply(
-    ideService: IdeService,
+    context: com.rk.ai.bridge.McpToolContext,
     file: File,
     newContent: String,
     title: String = "Review file change",
     refreshAfterApply: Boolean = true,
 ): String {
+    val ideService = context.ideService
     val oldContent = ideService.getFileContent(file.absolutePath)
         ?: runCatching { file.readText() }.getOrDefault("")
     ideService.showPatch(file.absolutePath, oldContent, newContent, title) {
