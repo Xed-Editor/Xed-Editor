@@ -1,4 +1,4 @@
-name: Translation Safety Check
+Name: Translation Safety Check
 
 on:
   push:
@@ -37,4 +37,4 @@ jobs:
           GITHUB_BASE_REF: ${{ github.base_ref }}
           GITHUB_BEFORE_SHA: ${{ github.event.before }}
           GITHUB_CURRENT_SHA: ${{ github.sha }}
-        node .github/scripts/scan-translations.js
+        run: node .github/scripts/scan-translations.js
