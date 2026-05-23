@@ -9,6 +9,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.exec.TerminalCommand
 import com.rk.exec.launchTerminal
 import com.rk.file.FileObject
+import com.rk.icons.Icon
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
@@ -122,7 +123,7 @@ abstract class LspServer {
     abstract val languageName: String
     abstract val serverName: String
     abstract val supportedExtensions: List<String>
-    abstract val icon: Int?
+    abstract val icon: Icon?
 }
 
 @Composable

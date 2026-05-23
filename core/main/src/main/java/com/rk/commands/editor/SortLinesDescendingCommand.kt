@@ -34,5 +34,5 @@ class SortLinesDescendingCommand : EditorCommand() {
         editor.text.replace(startLine, 0, endLine, endLineColumn, descendingLine)
     }
 
-    override fun getIcon() = Icon.DrawableRes(drawables.sort_by_alphabet)
+    override fun getIcon() = Icon.ResourceIcon(drawables.sort_by_alphabet)
 }

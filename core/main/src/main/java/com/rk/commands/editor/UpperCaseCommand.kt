@@ -22,5 +22,5 @@ class UpperCaseCommand : EditorCommand() {
         }
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.letters)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.letters)
 }

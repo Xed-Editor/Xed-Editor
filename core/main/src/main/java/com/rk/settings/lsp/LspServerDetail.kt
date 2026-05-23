@@ -48,6 +48,7 @@ import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.icons.XedIcon
 import com.rk.lsp.DefinitionPrevention
 import com.rk.lsp.LspConnectionStatus
 import com.rk.lsp.LspServer
@@ -154,8 +155,8 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     server.icon?.let {
-                        Icon(
-                            painter = painterResource(it),
+                        XedIcon(
+                            icon = it,
                             contentDescription = null,
                             modifier = Modifier.size(42.dp).padding(end = 8.dp),
                         )

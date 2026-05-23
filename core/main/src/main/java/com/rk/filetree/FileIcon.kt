@@ -2,25 +2,22 @@ package com.rk.filetree
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.PictureDrawable
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.caverock.androidsvg.SVG
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
+import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.icons.pack.currentIconPack
 import com.rk.icons.rememberSvgImageLoader
 import com.rk.resources.drawables
-import com.rk.resources.getDrawable
-import java.io.InputStream
+import com.rk.utils.loadSvg
 
 private val plain_file = drawables.file
 private val folder = drawables.folder
@@ -53,14 +50,14 @@ fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = fa
     val icon =
         when {
             file.isFile() -> getBuiltInFileIcon(file)
-            file.isDirectory() -> folder
-            file.isSymlink() -> fileSymlink
-            else -> unknown
+            file.isDirectory() -> Icon.ResourceIcon(folder)
+            file.isSymlink() -> Icon.ResourceIcon(fileSymlink)
+            else -> Icon.ResourceIcon(unknown)
         }
 
     val tint =
         iconTint
-            ?: if (icon == folder || icon == archive) {
+            ?: if (icon is Icon.ResourceIcon && (icon.drawableRes == folder || icon.drawableRes == archive)) {
                 MaterialTheme.colorScheme.primary
             } else MaterialTheme.colorScheme.secondary
 
@@ -75,12 +72,7 @@ fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = fa
             modifier = Modifier.size(20.dp),
         )
     } else {
-        Icon(
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(20.dp),
-        )
+        XedIcon(icon = icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
     }
 }
 
@@ -104,11 +96,11 @@ fun FileNameIcon(fileName: String, isDirectory: Boolean, iconTint: Color? = null
     val iconPackFile = currentIconPack.value?.getIconFileForName(fileName, isDirectory, isExpanded)
     val imageLoader = rememberSvgImageLoader()
 
-    val icon = if (isDirectory) folder else getBuiltInFileIcon(fileName)
+    val icon = if (isDirectory) Icon.ResourceIcon(folder) else getBuiltInFileIcon(fileName)
 
     val tint =
         iconTint
-            ?: if (icon == folder || icon == archive) {
+            ?: if (icon is Icon.ResourceIcon && (icon.drawableRes == folder || icon.drawableRes == archive)) {
                 MaterialTheme.colorScheme.primary
             } else MaterialTheme.colorScheme.secondary
 
@@ -123,12 +115,7 @@ fun FileNameIcon(fileName: String, isDirectory: Boolean, iconTint: Color? = null
             modifier = Modifier.size(20.dp),
         )
     } else {
-        Icon(
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(20.dp),
-        )
+        XedIcon(icon = icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
     }
 }
 
@@ -144,47 +131,30 @@ fun FileNameIcon(fileName: String, isDirectory: Boolean, iconTint: Color? = null
  * @param isDirectory Whether the file is a directory.
  * @return A [Drawable] representing the file icon.
  */
-fun getDrawableFileIcon(
-    context: Context,
-    fileName: String,
-    isDirectory: Boolean,
-    isExpanded: Boolean = false,
-): Drawable? {
-    fun loadSvg(inputStream: InputStream): Drawable? {
-        val svg =
-            try {
-                SVG.getFromInputStream(inputStream)
-            } catch (_: Exception) {
-                return null
-            }
-
-        val picture = svg.renderToPicture()
-        return PictureDrawable(picture)
-    }
-
+fun getDrawableFileIcon(fileName: String, isDirectory: Boolean, isExpanded: Boolean = false): Drawable? {
     val iconPackFile = currentIconPack.value?.getIconFileForName(fileName, isDirectory, isExpanded)
-    val icon = if (isDirectory) folder else getBuiltInFileIcon(fileName)
+    val icon = if (isDirectory) Icon.ResourceIcon(folder) else getBuiltInFileIcon(fileName)
 
-    val builtinIcon = icon.getDrawable(context)
+    val builtinIcon = icon.toDrawable()
     val iconPackIcon = iconPackFile?.inputStream()?.let { loadSvg(it) }
 
     return iconPackIcon ?: builtinIcon
 }
 
-private fun getBuiltInFileIcon(fileName: String): Int =
+private fun getBuiltInFileIcon(fileName: String): Icon =
     when (fileName) {
         "contract.sol",
         "LICENSE",
-        "NOTICE" -> text
+        "NOTICE" -> Icon.ResourceIcon(text)
         "gradlew",
-        "gradlew.bat" -> gradle
-        "README.md" -> info
+        "gradlew.bat" -> Icon.ResourceIcon(gradle)
+        "README.md" -> Icon.ResourceIcon(info)
 
         else -> {
             val ext = fileName.substringAfterLast('.', "")
             val type = FileTypeManager.fromExtension(ext)
-            type.iconOverride?.get(ext) ?: type.icon ?: plain_file
+            type.iconOverride?.get(ext) ?: type.icon ?: Icon.ResourceIcon(plain_file)
         }
     }
 
-private fun getBuiltInFileIcon(file: FileObject): Int = getBuiltInFileIcon(file.getName())
+private fun getBuiltInFileIcon(file: FileObject): Icon = getBuiltInFileIcon(file.getName())

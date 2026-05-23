@@ -26,7 +26,7 @@ class SaveCommand : EditorCommand() {
         return editorNonActionContext.editorTab.file.canWrite()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.save)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.save)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_S, ctrl = true)
 }

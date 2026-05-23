@@ -18,7 +18,7 @@ class CommandPaletteCommand : GlobalCommand() {
         commandContext.mainViewModel.showCommandPalette()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.command_palette)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.command_palette)
 
     override val defaultKeybinds: KeyCombination =
         KeyCombination(keyCode = KeyEvent.KEYCODE_P, ctrl = true, shift = true)

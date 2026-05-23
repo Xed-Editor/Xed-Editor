@@ -63,7 +63,7 @@ private fun buildAddActions(
 
             override fun isEnabled(): Boolean = !commandIds.contains(command.id)
 
-            override fun getIcon(): Icon = Icon.DrawableRes(drawables.arrow_outward)
+            override fun getIcon(): Icon = Icon.ResourceIcon(drawables.arrow_outward)
         }
     )
     addAll(

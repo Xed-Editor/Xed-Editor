@@ -1,7 +1,6 @@
 package com.rk.lsp
 
 import android.graphics.drawable.Drawable
-import com.rk.activities.main.MainActivity
 import com.rk.filetree.getDrawableFileIcon
 import io.github.rosemoe.sora.lang.completion.SimpleCompletionIconDrawer
 
@@ -29,7 +28,6 @@ class FileIconProvider : io.github.rosemoe.sora.lang.completion.FileIconProvider
      * @return A [Drawable] if successful, or null if no icon can be loaded.
      */
     override fun load(src: String, isFolder: Boolean): Drawable? {
-        val context = MainActivity.instance ?: return null
-        return getDrawableFileIcon(context, src.substringAfterLast('/'), isFolder)
+        return getDrawableFileIcon(src.substringAfterLast('/'), isFolder)
     }
 }

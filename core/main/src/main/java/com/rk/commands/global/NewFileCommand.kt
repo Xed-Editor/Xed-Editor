@@ -19,7 +19,7 @@ class NewFileCommand : GlobalCommand() {
         addDialog = true
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.add)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.add)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_N, ctrl = true)
 }

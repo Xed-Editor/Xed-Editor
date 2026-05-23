@@ -16,7 +16,7 @@ class SyntaxHighlightingCommand : EditorCommand() {
 
     override fun action(editorActionContext: EditorActionContext) {}
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.edit_note)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.edit_note)
 
     override val childCommands: List<Command> by lazy {
         FileTypeManager.allTypes()
@@ -31,7 +31,7 @@ class SyntaxHighlightingCommand : EditorCommand() {
                         editorActionContext.editorTab.editorState.textmateScope = fileType.textmateScope!!
                     }
 
-                    override fun getIcon(): Icon = fileType.getIcon()
+                    override fun getIcon(): Icon = fileType.getResolvedIcon()
                 }
             }
     }

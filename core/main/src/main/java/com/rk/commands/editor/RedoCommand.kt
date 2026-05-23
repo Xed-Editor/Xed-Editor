@@ -26,7 +26,7 @@ class RedoCommand : EditorCommand() {
         return editorState.editable && editorState.canRedo
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.redo)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.redo)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_Y, ctrl = true)
 }

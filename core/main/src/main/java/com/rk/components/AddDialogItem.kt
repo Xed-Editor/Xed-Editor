@@ -1,5 +1,6 @@
 package com.rk.components
 
+import android.content.res.Resources
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.rk.components.compose.utils.addIf
@@ -29,7 +32,7 @@ import java.io.File
 
 @Composable
 fun AddDialogItem(
-    @DrawableRes icon: Int,
+    @DrawableRes resId: Int,
     title: String,
     description: String? = null,
     enabled: Boolean = true,
@@ -40,7 +43,33 @@ fun AddDialogItem(
         description = description,
         onClick = onClick,
         enabled = enabled,
-        icon = { Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(24.dp)) },
+        icon = { Icon(painter = painterResource(resId), contentDescription = null, modifier = Modifier.size(24.dp)) },
+    )
+}
+
+@Composable
+fun AddDialogItem(
+    @DrawableRes resId: Int,
+    resources: Resources,
+    title: String,
+    description: String? = null,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    AddDialogItem(
+        title = title,
+        description = description,
+        onClick = onClick,
+        enabled = enabled,
+        icon = {
+            val theme = LocalContext.current.theme
+
+            Icon(
+                imageVector = ImageVector.vectorResource(theme = theme, resId = resId, res = resources),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+        },
     )
 }
 
@@ -94,9 +123,20 @@ fun AddDialogItem(
     onClick: () -> Unit,
 ) {
     when (icon) {
-        is Icon.DrawableRes -> {
+        is Icon.ResourceIcon -> {
             AddDialogItem(
-                icon = icon.drawableRes,
+                resId = icon.drawableRes,
+                title = title,
+                description = description,
+                onClick = onClick,
+                enabled = enabled,
+            )
+        }
+
+        is Icon.ExternalResourceIcon -> {
+            AddDialogItem(
+                resId = icon.drawableRes,
+                resources = icon.resources,
                 title = title,
                 description = description,
                 onClick = onClick,

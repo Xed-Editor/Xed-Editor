@@ -43,7 +43,7 @@ class RunCommand : EditorCommand() {
         return RunnerManager.isRunnable(editorNonActionContext.editorTab.file)
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.run)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.run)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_F5)
 }

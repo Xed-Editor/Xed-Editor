@@ -49,7 +49,7 @@ fun AddProjectSheet(
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.Companion.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
             AddDialogItem(
-                icon = Icon.DrawableRes(drawables.file_symlink),
+                icon = Icon.ResourceIcon(drawables.file_symlink),
                 title = stringResource(strings.open_directory),
                 description = stringResource(strings.open_dir_desc),
                 onClick = {
@@ -70,7 +70,7 @@ fun AddProjectSheet(
             val storage = Environment.getExternalStorageDirectory()
             if ((isManager || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead()) {
                 AddDialogItem(
-                    icon = Icon.DrawableRes(drawables.android),
+                    icon = Icon.ResourceIcon(drawables.android),
                     title = stringResource(strings.internal_storage),
                     description = stringResource(strings.open_internal_storage),
                     onClick = {
@@ -94,7 +94,7 @@ fun AddProjectSheet(
                     val description = if (removable) strings.open_removable_storage else strings.open_internal_storage
 
                     AddDialogItem(
-                        icon = Icon.DrawableRes(drawables.sd_card),
+                        icon = Icon.ResourceIcon(drawables.sd_card),
                         title = name,
                         description = stringResource(description),
                     ) {
@@ -106,7 +106,7 @@ fun AddProjectSheet(
 
             if (InbuiltFeatures.debugMode.state.value) {
                 AddDialogItem(
-                    icon = Icon.DrawableRes(drawables.build),
+                    icon = Icon.ResourceIcon(drawables.build),
                     title = stringResource(strings.private_files),
                     description = stringResource(strings.private_files_desc),
                     onClick = {
@@ -126,7 +126,7 @@ fun AddProjectSheet(
             // Clone repository option
             if (InbuiltFeatures.git.state.value) {
                 AddDialogItem(
-                    icon = Icon.DrawableRes(drawables.git),
+                    icon = Icon.ResourceIcon(drawables.git),
                     title = stringResource(strings.clone_repo),
                     description = stringResource(strings.clone_repo_desc),
                     onClick = {
@@ -138,7 +138,7 @@ fun AddProjectSheet(
 
             // Terminal Home option
             AddDialogItem(
-                icon = Icon.DrawableRes(drawables.terminal),
+                icon = Icon.ResourceIcon(drawables.terminal),
                 title = stringResource(strings.terminal_home),
                 description = stringResource(strings.terminal_home_desc),
                 onClick = {

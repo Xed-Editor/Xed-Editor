@@ -23,7 +23,7 @@ class DuplicateLineCommand : EditorCommand() {
         return editorNonActionContext.editorTab.editorState.editable
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.duplicate_line)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.duplicate_line)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_D, ctrl = true)
 }

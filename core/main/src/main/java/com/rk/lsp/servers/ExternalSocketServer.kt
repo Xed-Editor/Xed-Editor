@@ -7,7 +7,7 @@ import com.rk.lsp.LspServer
 import kotlin.random.Random
 
 // DO not put this in lsp registry
-class ExternalSocketServer(
+data class ExternalSocketServer(
     val host: String,
     val port: Int,
     override val supportedExtensions: List<String>,
@@ -19,17 +19,13 @@ class ExternalSocketServer(
     override val icon = supportedExtensions.firstOrNull()?.let { FileTypeManager.fromExtension(it).icon }
     override val canBeUninstalled = false
 
-    override suspend fun isInstalled(context: Context): Boolean {
-        return true
-    }
+    override suspend fun isInstalled(context: Context) = true
 
     override fun install(context: Context) {}
 
     override fun uninstall(context: Context) {}
 
-    override suspend fun isUpdatable(context: Context): Boolean {
-        return false
-    }
+    override suspend fun isUpdatable(context: Context) = false
 
     override fun update(context: Context) {}
 
@@ -37,37 +33,5 @@ class ExternalSocketServer(
         return LspConnectionConfig.Socket(host = host, port = port)
     }
 
-    override fun toString(): String {
-        return serverName
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
-
-        other as ExternalSocketServer
-
-        if (port != other.port) return false
-        if (icon != other.icon) return false
-        if (host != other.host) return false
-        if (supportedExtensions != other.supportedExtensions) return false
-        if (languageName != other.languageName) return false
-        if (id != other.id) return false
-        if (serverName != other.serverName) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + port
-        result = 31 * result + (icon ?: 0)
-        result = 31 * result + host.hashCode()
-        result = 31 * result + supportedExtensions.hashCode()
-        result = 31 * result + languageName.hashCode()
-        result = 31 * result + id.hashCode()
-        result = 31 * result + serverName.hashCode()
-        return result
-    }
+    override fun toString() = serverName
 }

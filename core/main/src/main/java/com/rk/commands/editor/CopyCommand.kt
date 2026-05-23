@@ -18,7 +18,7 @@ class CopyCommand : EditorCommand() {
         editorActionContext.editor.copyText()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.copy)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.copy)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_C, ctrl = true)
 }

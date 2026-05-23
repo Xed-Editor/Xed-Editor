@@ -18,7 +18,7 @@ class JumpToLineCommand : EditorCommand() {
         editorActionContext.editorTab.editorState.showJumpToLineDialog = true
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.arrow_outward)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.arrow_outward)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_G, ctrl = true)
 }

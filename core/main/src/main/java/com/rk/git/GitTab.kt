@@ -654,7 +654,7 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
     }
 
     override fun getIcon(): Icon {
-        return Icon.DrawableRes(drawables.git)
+        return Icon.ResourceIcon(drawables.git)
     }
 
     override fun isSupported(): Boolean {

@@ -46,7 +46,7 @@ class EmulateKeyCommand : EditorCommand() {
 
     override fun action(editorActionContext: EditorActionContext) {}
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.keyboard)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.keyboard)
 
     override val childCommands: List<Command> by lazy {
         val keyEvents = KeyEvent::class.java.fields

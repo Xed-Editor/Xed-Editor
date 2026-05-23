@@ -18,7 +18,7 @@ class SelectWordCommand : EditorCommand() {
         editorActionContext.editor.selectCurrentWord()
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.select)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.select)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_W, ctrl = true)
 }

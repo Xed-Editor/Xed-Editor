@@ -23,7 +23,7 @@ class PasteCommand : EditorCommand() {
         return editorNonActionContext.editorTab.editorState.editable
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.paste)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.paste)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_V, ctrl = true)
 }

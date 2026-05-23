@@ -48,5 +48,5 @@ class ShareCommand : EditorCommand() {
         }
     }
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.send)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.send)
 }

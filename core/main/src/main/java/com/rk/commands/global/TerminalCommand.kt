@@ -46,7 +46,7 @@ class TerminalCommand : GlobalCommand() {
 
     override fun isSupported(): Boolean = InbuiltFeatures.terminal.state.value
 
-    override fun getIcon(): Icon = Icon.DrawableRes(drawables.terminal)
+    override fun getIcon(): Icon = Icon.ResourceIcon(drawables.terminal)
 
     override val defaultKeybinds: KeyCombination = KeyCombination(keyCode = KeyEvent.KEYCODE_J, ctrl = true)
 }
