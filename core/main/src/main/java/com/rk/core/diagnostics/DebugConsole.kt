@@ -2,7 +2,7 @@ package com.rk.core.diagnostics
 
 import android.util.Log
 import com.rk.ai.IdeBridge
-import com.rk.ai.provider.AiRequestTracker
+import com.rk.ai.core.AiRequestTracker
 import com.rk.ai.session.AiSessionManager
 import com.rk.core.performance.MemoryGuard
 import com.rk.xededitor.BuildConfig
