@@ -14,8 +14,8 @@ import com.rk.ai.core.ModelInfo
 import com.rk.ai.core.ProviderHealth
 import com.rk.ai.core.TokenUsage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import okhttp3.MediaType.Companion.toMediaType
@@ -55,6 +55,7 @@ class OpenAiCoreProvider(
     }.mapError()
 
     override suspend fun stream(request: AiRequest): Flow<AiChunk> = flow {
+        val collector = this
         val requestId = "openai-${System.currentTimeMillis()}-${request.hashCode()}"
         val cancelled = AtomicBoolean(false)
         cancelledTokens[requestId] = cancelled
@@ -86,7 +87,7 @@ class OpenAiCoreProvider(
                         val content = delta.get("content")?.asString
                         if (content != null && content.isNotBlank()) {
                             collectedContent.append(content)
-                            trySend(AiChunk(content = content))
+                            collector.tryEmit(AiChunk(content = content))
                         }
                         val finishReason = choices[0].asJsonObject.get("finish_reason")?.asString
                         if (finishReason != null && finishReason != "null") done.set(true)
@@ -94,14 +95,14 @@ class OpenAiCoreProvider(
                 }
 
                 override fun onFailure(eventSource: EventSource, t: Throwable?, response: okhttp3.Response?) {
-                    if (!cancelled.get()) trySend(AiChunk(content = "", done = true, finishReason = "error"))
+                    if (!cancelled.get()) collector.tryEmit(AiChunk(content = "", done = true, finishReason = "error"))
                     done.set(true)
                 }
 
                 override fun onClosed(eventSource: EventSource) { done.set(true) }
             })
 
-            while (!done.get() && !cancelled.get() && coroutineContext.isActive) {
+            while (!done.get() && !cancelled.get()) {
                 kotlinx.coroutines.delay(100)
             }
 

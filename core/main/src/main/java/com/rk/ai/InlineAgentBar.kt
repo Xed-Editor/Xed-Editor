@@ -104,13 +104,6 @@ fun InlineAgentBar(
         }
     }
 
-    fun sendMessage(prompt: String) {
-        currentSendJob?.cancel()
-        currentSendJob = scope.launch {
-            doSendMessage(prompt)
-        }
-    }
-
     suspend fun doSendMessage(prompt: String) {
         val state = viewModel.currentTab
         val wd = if (state is com.rk.tabs.editor.EditorTab) {
@@ -181,6 +174,20 @@ fun InlineAgentBar(
             }
         } catch (e: Exception) {
             conversationChannel.trySend { it.setError(e.message ?: "Unknown error") }
+        }
+    }
+
+    fun sendMessage(prompt: String) {
+        currentSendJob?.cancel()
+        currentSendJob = scope.launch {
+            doSendMessage(prompt)
+        }
+    }
+
+    fun sendMessage(prompt: String) {
+        currentSendJob?.cancel()
+        currentSendJob = scope.launch {
+            doSendMessage(prompt)
         }
     }
 
