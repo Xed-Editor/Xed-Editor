@@ -1,4 +1,4 @@
-name: Translation Safety Check
+Name: Translation Safety Check
 
 on:
   push:
@@ -35,18 +35,26 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             git fetch origin "${{ github.base_ref }}"
 
-            FILES=\( (git diff --name-only origin/ \){{ github.base_ref }}...HEAD | grep 'strings.xml$' || true)
+            # Fixed command substitution syntax and variable isolation
+            FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml$' || true)
 
             for file in $FILES; do
               echo "Scanning $file"
-              git diff origin/${{ github.base_ref }}...HEAD -- "\( file" > "scan/ \)(basename "$file").diff"
+              # Fixed variable references and basename substitution
+              git diff origin/${{ github.base_ref }}...HEAD -- "$file" > "scan/$(basename "$file").diff"
             done
           else
-            FILES=\( (git diff --name-only " \){{ github.event.before }}" "\( {{ github.sha }}" | grep 'strings.xml \)' || true)
+            # Handled cases where the before SHA might be empty/zeroes (e.g., new branches)
+            BEFORE_SHA="${{ github.event.before }}"
+            if [[ "$BEFORE_SHA" == "0000000000000000000000000000000000000000" || -z "$BEFORE_SHA" ]]; then
+              BEFORE_SHA="HEAD~1"
+            fi
+
+            FILES=$(git diff --name-only "$BEFORE_SHA" "${{ github.sha }}" | grep 'strings.xml$' || true)
 
             for file in $FILES; do
               echo "Scanning $file"
-              git diff "\( {{ github.event.before }}" " \){{ github.sha }}" -- "\( file" > "scan/ \)(basename "$file").diff"
+              git diff "$BEFORE_SHA" "${{ github.sha }}" -- "$file" > "scan/$(basename "$file").diff"
             done
           fi
 
