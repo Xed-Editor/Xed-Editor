@@ -119,7 +119,7 @@ fun AiTerminalSheet(
                             selectedText = fileCtx.selectedText,
                             cursorLine = fileCtx.cursorLine,
                             cursorColumn = fileCtx.cursorColumn,
-                            projectRoot = currentTab?.projectRoot?.absolutePath ?: "",
+                            projectRoot = currentTab?.projectRoot?.getAbsolutePath() ?: "",
                             language = fileCtx.language,
                             fileExtension = fileCtx.extension,
                             lineCount = fileCtx.lineCount,
@@ -133,6 +133,7 @@ fun AiTerminalSheet(
                     events = events,
                     phase = phase,
                     listState = listState,
+                    modifier = Modifier.weight(1f),
                 )
             }
 
@@ -165,7 +166,7 @@ fun AiTerminalSheet(
                         selectedText = fileContext.selectedText,
                         cursorLine = fileContext.cursorLine,
                         cursorColumn = fileContext.cursorColumn,
-                        projectRoot = currentTab?.projectRoot?.absolutePath ?: "",
+                        projectRoot = currentTab?.projectRoot?.getAbsolutePath() ?: "",
                         language = fileContext.language,
                         fileExtension = fileContext.extension,
                         lineCount = fileContext.lineCount,
@@ -351,12 +352,11 @@ private fun EventList(
     events: List<StreamEvent>,
     phase: SessionPhase,
     listState: androidx.compose.foundation.lazy.LazyListState,
+    modifier: Modifier = Modifier,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-
     LazyColumn(
         state = listState,
-        modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         items(events, key = { it.hashCode() }) { event ->
@@ -399,13 +399,6 @@ private fun EventList(
                         style = MaterialTheme.typography.labelSmall,
                         color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     )
-                    event.usage?.let { usage ->
-                        Text(
-                            text = "  Tokens: ${usage.totalTokens} (${usage.promptTokens}↑ ${usage.completionTokens}↓)",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                        )
-                    }
                 }
                 is StreamEvent.StreamStart -> {}
                 is StreamEvent.Status -> {
@@ -416,10 +409,7 @@ private fun EventList(
                         modifier = Modifier.padding(vertical = 2.dp),
                     )
                 }
-                is StreamEvent.CodeBlock -> {
-                    CodeBlockBanner(event.language, event.code)
-                }
-                is StreamEvent.MarkdownChunk -> {}
+
             }
         }
 
@@ -478,43 +468,6 @@ private fun ToolResultBanner(callId: String, output: String, error: String?) {
                     maxLines = 5,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun CodeBlockBanner(language: String?, code: String) {
-    val colorScheme = MaterialTheme.colorScheme
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = colorScheme.surfaceContainerHigh,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-    ) {
-        Column {
-            if (language != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = language,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                }
-                HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f))
-            }
-            Text(
-                text = code,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .horizontalScroll(rememberScrollState()),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 12.sp,
-                ),
-                color = colorScheme.onSurface,
-            )
         }
     }
 }

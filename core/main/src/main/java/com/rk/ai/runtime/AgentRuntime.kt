@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consumeAsFlow
+import kotlinx.coroutines.channels.receiveAsFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -83,7 +83,7 @@ class AgentRuntime(
         val state: StateFlow<AgentSessionState> = _state.asStateFlow()
 
         private val eventChannel = Channel<StreamEvent>(Channel.BUFFERED)
-        val events: Flow<StreamEvent> = eventChannel.consumeAsFlow()
+        val events: Flow<StreamEvent> = eventChannel.receiveAsFlow()
 
         private var executionJob: Job? = null
         private val _cancelled = AtomicBoolean(false)
