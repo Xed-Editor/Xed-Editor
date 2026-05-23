@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun McpDashboard(
     manager: McpManager,
@@ -140,7 +141,7 @@ fun McpDashboard(
 }
 
 @Composable
-private fun ServerStatCard(title: String, value: String, color: Color) {
+private fun RowScope.ServerStatCard(title: String, value: String, color: Color) {
     Card(
         modifier = Modifier.weight(1f),
         colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)),

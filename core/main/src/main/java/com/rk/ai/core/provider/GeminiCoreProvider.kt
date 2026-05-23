@@ -13,10 +13,10 @@ import com.rk.ai.core.ModelInfo
 import com.rk.ai.core.ProviderHealth
 import com.rk.ai.core.TokenUsage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.isActive
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -104,7 +104,7 @@ class GeminiCoreProvider(
                 override fun onClosed(eventSource: EventSource) { done.set(true) }
             })
 
-            while (!done.get() && !cancelled.get() && isActive) {
+            while (!done.get() && !cancelled.get() && coroutineContext.isActive) {
                 kotlinx.coroutines.delay(100)
             }
 

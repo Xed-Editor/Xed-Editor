@@ -7,10 +7,10 @@ import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -63,7 +63,7 @@ class OpenAiProvider(
                 .build()
 
             val collectedContent = StringBuilder()
-            val collectedToolCalls = mutableMapOf<String, ToolCall.Builder>()
+            val collectedToolCalls = mutableMapOf<String, MutableToolCallData>()
             var responseId = ""
 
             withContext(Dispatchers.IO) {
@@ -105,9 +105,7 @@ class OpenAiProvider(
                                     val id = tc.get("id")?.asString
 
                                     val builder = collectedToolCalls.getOrPut(index.toString()) {
-                                        ToolCall.Builder().apply {
-                                            if (id != null) this.id = id
-                                        }
+                                        MutableToolCallData(id = id ?: "", functionName = StringBuilder(), arguments = StringBuilder())
                                     }
                                     if (name != null) builder.functionName.append(name)
                                     if (args != null) builder.arguments.append(args)
@@ -136,7 +134,7 @@ class OpenAiProvider(
 
                 EventSources.createFactory(client).newEventSource(sseRequest, listener)
 
-                while (!done.get() && !cancelled.get() && isActive) {
+                while (!done.get() && !cancelled.get() && coroutineContext.isActive) {
                     kotlinx.coroutines.delay(100)
                 }
             }
@@ -312,18 +310,19 @@ class OpenAiProvider(
         )
     }
 
-    private class ToolCall.Builder {
-        var id: String = ""
-        val functionName = StringBuilder()
-        val arguments = StringBuilder()
+}
 
-        fun build(): ToolCall = ToolCall(
-            id = id,
-            type = "function",
-            function = ToolFunction(
-                name = functionName.toString(),
-                arguments = arguments.toString(),
-            )
+private class MutableToolCallData(
+    var id: String,
+    val functionName: StringBuilder,
+    val arguments: StringBuilder,
+) {
+    fun build(): ToolCall = ToolCall(
+        id = id,
+        type = "function",
+        function = ToolFunction(
+            name = functionName.toString(),
+            arguments = arguments.toString(),
         )
-    }
+    )
 }

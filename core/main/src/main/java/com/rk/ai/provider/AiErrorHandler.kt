@@ -43,7 +43,7 @@ object AiErrorClassifier {
 }
 
 class AiRetryPolicy(
-    private val maxRetries: Int = 3,
+    val maxRetries: Int = 3,
     private val baseDelayMs: Long = 2000L,
     private val maxDelayMs: Long = 30000L,
 ) {
@@ -106,5 +106,3 @@ object AiRequestTracker {
         successfulRequests = 0
     }
 }
-
-private val <T> ConcurrentHashMap<String, T> get() = this // Unused, just for clarity

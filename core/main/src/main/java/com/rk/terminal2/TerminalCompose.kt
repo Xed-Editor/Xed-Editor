@@ -45,6 +45,7 @@ fun ModernTerminalView(
         TerminalToolbar(
             isConnected = isConnected,
             onClear = onClear,
+            lineCount = lines.size,
         )
 
         LazyColumn(
@@ -80,6 +81,7 @@ fun ModernTerminalView(
 private fun TerminalToolbar(
     isConnected: Boolean,
     onClear: () -> Unit,
+    lineCount: Int = 0,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -108,7 +110,7 @@ private fun TerminalToolbar(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                text = "${lines.size} lines",
+                text = "${lineCount} lines",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 8.dp),

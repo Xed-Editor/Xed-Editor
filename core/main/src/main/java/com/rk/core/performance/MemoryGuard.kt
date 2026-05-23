@@ -9,7 +9,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.lang.management.ManagementFactory
 import java.util.concurrent.ConcurrentLinkedQueue
 
 object MemoryGuard {

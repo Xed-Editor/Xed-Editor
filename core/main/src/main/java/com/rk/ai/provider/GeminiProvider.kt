@@ -5,6 +5,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -106,7 +107,7 @@ class GeminiProvider(
 
                 EventSources.createFactory(client).newEventSource(httpRequest, listener)
 
-                while (!done.get() && !cancelled.get() && isActive) {
+                while (!done.get() && !cancelled.get() && coroutineContext.isActive) {
                     kotlinx.coroutines.delay(100)
                 }
             }

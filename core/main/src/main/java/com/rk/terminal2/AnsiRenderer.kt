@@ -78,31 +78,34 @@ object AnsiColorParser {
 
         var i = 0
         while (i < params.size) {
-            when (params[i]) {
-                0 -> { fg = null; bg = null; bold = false; italic = false; underline = false; strikethrough = false; blink = false; dim = false; inverse = false }
-                1 -> bold = true
-                2 -> dim = true
-                3 -> italic = true
-                4 -> underline = true
-                7 -> inverse = true
-                9 -> strikethrough = true
-                22 -> bold = false; dim = false
-                23 -> italic = false
-                24 -> underline = false
-                27 -> inverse = false
-                29 -> strikethrough = false
-                in 30..37 -> fg = ansiColors[params[i]]
-                in 90..97 -> fg = brightAnsiColors[params[i]]
-                in 40..47 -> bg = ansiColors[params[i] - 10]
-                in 100..107 -> bg = brightAnsiColors[params[i] - 60]
-                38 -> {
+            val code = params[i]
+            when {
+                code == 0 -> {
+                    fg = null; bg = null; bold = false; italic = false; underline = false; strikethrough = false; blink = false; dim = false; inverse = false
+                }
+                code == 1 -> bold = true
+                code == 2 -> dim = true
+                code == 3 -> italic = true
+                code == 4 -> underline = true
+                code == 7 -> inverse = true
+                code == 9 -> strikethrough = true
+                code == 22 -> { bold = false; dim = false }
+                code == 23 -> italic = false
+                code == 24 -> underline = false
+                code == 27 -> inverse = false
+                code == 29 -> strikethrough = false
+                code in 30..37 -> fg = ansiColors[code]
+                code in 90..97 -> fg = brightAnsiColors[code]
+                code in 40..47 -> bg = ansiColors[code - 10]
+                code in 100..107 -> bg = brightAnsiColors[code - 60]
+                code == 38 -> {
                     if (i + 2 < params.size && params[i + 1] == 5) {
                         fg = parse256Color(params[i + 2]); i += 2
                     } else if (i + 4 < params.size && params[i + 1] == 2) {
                         fg = parseTrueColor(params[i + 2], params[i + 3], params[i + 4]); i += 4
                     }
                 }
-                48 -> {
+                code == 48 -> {
                     if (i + 2 < params.size && params[i + 1] == 5) {
                         bg = parse256Color(params[i + 2]); i += 2
                     } else if (i + 4 < params.size && params[i + 1] == 2) {
