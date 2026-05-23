@@ -1,4 +1,4 @@
-Name: Translation Safety Check
+name: Translation Safety Check
 
 on:
   push:
@@ -29,32 +29,36 @@ jobs:
 
       - name: Collect changed strings.xml diffs
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
         run: |
           mkdir -p scan
 
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git fetch origin "${{ github.base_ref }}"
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            git fetch origin "$BASE_REF"
 
-            # Fixed command substitution syntax and variable isolation
-            FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'strings.xml$' || true)
+            # Safely get the file list without GitHub template engine interference
+            FILES=$(git diff --name-only "origin/$BASE_REF...HEAD" | grep 'strings.xml$' || true)
 
             for file in $FILES; do
-              echo "Scanning $file"
-              # Fixed variable references and basename substitution
-              git diff origin/${{ github.base_ref }}...HEAD -- "$file" > "scan/$(basename "$file").diff"
+              echo "Scanning file: $file"
+              git diff "origin/$BASE_REF...HEAD" -- "$file" > "scan/$(basename "$file").diff"
             done
           else
-            # Handled cases where the before SHA might be empty/zeroes (e.g., new branches)
-            BEFORE_SHA="${{ github.event.before }}"
-            if [[ "$BEFORE_SHA" == "0000000000000000000000000000000000000000" || -z "$BEFORE_SHA" ]]; then
-              BEFORE_SHA="HEAD~1"
+            # Safeguard against zero-valued SHAs on fresh branch pushes
+            START_SHA="$BEFORE_SHA"
+            if [[ "$START_SHA" == "0000000000000000000000000000000000000000" || -z "$START_SHA" ]]; then
+              START_SHA="HEAD~1"
             fi
 
-            FILES=$(git diff --name-only "$BEFORE_SHA" "${{ github.sha }}" | grep 'strings.xml$' || true)
+            FILES=$(git diff --name-only "$START_SHA" "$CURRENT_SHA" | grep 'strings.xml$' || true)
 
             for file in $FILES; do
-              echo "Scanning $file"
-              git diff "$BEFORE_SHA" "${{ github.sha }}" -- "$file" > "scan/$(basename "$file").diff"
+              echo "Scanning file: $file"
+              git diff "$START_SHA" "$CURRENT_SHA" -- "$file" > "scan/$(basename "$file").diff"
             done
           fi
 
