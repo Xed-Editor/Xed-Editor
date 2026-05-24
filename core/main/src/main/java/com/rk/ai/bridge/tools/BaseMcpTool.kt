@@ -4,24 +4,31 @@ import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpTool
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
+import com.rk.ai.bridge.textResult
 import java.io.File
 
 abstract class BaseMcpTool : McpTool {
 
+    @Volatile private var cachedRequiredKeys: Set<String>? = null
+    @Volatile private var cachedOptionalKeys: Set<String>? = null
+
     override suspend fun execute(args: JsonObject, context: McpToolContext): McpToolResult {
-        return try {
+        val start = System.currentTimeMillis()
+        try {
             validateRequired(args)
-            executeValidated(args, context)
+            val result = executeValidated(args, context)
+            return result.copy(durationMs = System.currentTimeMillis() - start)
         } catch (e: ToolError) {
-            McpToolResult.error(e.message, e.code)
+            return McpToolResult.error(e.message, duration = System.currentTimeMillis() - start)
         } catch (e: Exception) {
-            McpToolResult.error("${e::class.java.simpleName}: ${e.message ?: "internal error"}")
+            return McpToolResult.error("${e::class.java.simpleName}: ${e.message ?: "internal error"}",
+                duration = System.currentTimeMillis() - start)
         }
     }
 
     protected abstract suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult
 
-    // ── Argument extraction ──
+    override fun getTimeoutMs(): Long = 60_000L
 
     protected fun requireString(args: JsonObject, name: String, maxLength: Int = 10_485_760): String {
         val value = args.get(name)?.asString.orEmpty().take(maxLength)
@@ -43,32 +50,48 @@ abstract class BaseMcpTool : McpTool {
         return args.get(name)?.takeIf { it.isJsonPrimitive }?.asString?.take(maxLength) ?: default
     }
 
-    protected fun optionalInt(args: JsonObject, name: String, default: Int): Int {
-        return args.get(name)?.takeIf { it.isJsonPrimitive }?.asInt ?: default
+    protected fun optionalInt(args: JsonObject, name: String, default: Int? = null): Int? {
+        val value = args.get(name)?.takeIf { it.isJsonPrimitive && !it.isJsonNull }?.asInt
+        return value ?: default
+    }
+
+    protected fun optionalPositiveInt(args: JsonObject, name: String, default: Int? = null): Int? {
+        val value = args.get(name)?.takeIf { it.isJsonPrimitive && !it.isJsonNull }?.asInt
+        return if (value != null && value > 0) value else default
     }
 
     protected fun optionalBoolean(args: JsonObject, name: String, default: Boolean = false): Boolean {
         return args.get(name)?.takeIf { it.isJsonPrimitive }?.asBoolean ?: default
     }
 
-    protected fun optionalLong(args: JsonObject, name: String, default: Long): Long {
+    protected fun optionalLong(args: JsonObject, name: String, default: Long = 0L): Long {
         return args.get(name)?.takeIf { it.isJsonPrimitive }?.asLong ?: default
     }
 
-    // ── Path resolution with security ──
+    protected fun getPathParam(args: JsonObject): String? {
+        return args.get("path")?.asString
+            ?: args.get("filePath")?.asString
+            ?: args.get("file")?.asString
+            ?: args.get("name")?.asString
+    }
 
-    protected fun safeResolvePath(context: McpToolContext, path: String): File {
-        return Security.safeResolve(context.ideService, path) ?: run {
-            val file = context.ideService.resolvePath(path)
-            if (file != null) {
-                val canonical = Security.canonicalize(file)
-                val workspace = context.ideService.getPrimaryWorkspacePath()
-                if (workspace.isNotBlank() && !Security.isInsideWorkspace(canonical, listOf(workspace))) {
-                    throw ToolError.PathOutsideWorkspace(path)
-                }
-                return canonical
-            }
-            val workspace = context.ideService.getPrimaryWorkspacePath()
+    protected fun getContentParam(args: JsonObject): String? {
+        return args.get("content")?.asString
+            ?: args.get("text")?.asString
+            ?: args.get("newContent")?.asString
+    }
+
+    protected fun getQueryParam(args: JsonObject): String? {
+        return args.get("query")?.asString
+            ?: args.get("pattern")?.asString
+            ?: args.get("search")?.asString
+            ?: args.get("text")?.asString
+    }
+
+    protected fun resolvePathOrThrow(context: McpToolContext, path: String): File {
+        val ideService = context.ideService
+        return ideService.resolvePath(path) ?: run {
+            val workspace = ideService.getPrimaryWorkspacePath()
             if (workspace.isNotBlank()) {
                 val root = File(workspace)
                 val name = path.substringAfterLast("/")
@@ -86,14 +109,12 @@ abstract class BaseMcpTool : McpTool {
         }
     }
 
-    // ── Auto-validation ──
-
-    @Volatile private var cachedRequiredKeys: Set<String>? = null
-
     private fun requiredKeys(): Set<String> {
         val cached = cachedRequiredKeys
         if (cached != null) return cached
-        return requiredParams.keys.toSet().also { cachedRequiredKeys = it }
+        val keys = getRequiredParams().keys.toSet()
+        cachedRequiredKeys = keys
+        return keys
     }
 
     private fun validateRequired(args: JsonObject) {

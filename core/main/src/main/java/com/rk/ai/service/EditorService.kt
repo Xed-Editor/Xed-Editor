@@ -41,7 +41,7 @@ class EditorService(
         val content = withContext(Dispatchers.Main) {
             current.editorState.editor.get()?.text?.toString().orEmpty()
         }
-        json.addProperty("content", content)
+        json.addProperty("content", if (content.length > 512_000) content.take(512_000) + "\n\n... (truncated at 500KB)" else content)
         return json
     }
 

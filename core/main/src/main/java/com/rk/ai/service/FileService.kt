@@ -18,24 +18,27 @@ import kotlinx.coroutines.withContext
 
 class FileService(private val tabRepository: TabRepository) {
 
-    private val pathCache = LinkedHashMap<String, File>(32, 0.75f, true)
+    private val pathCache = LinkedHashMap<String, PathCacheEntry>(32, 0.75f, true)
     private val pathCacheMaxSize = 128
-    private val contentCache = LinkedHashMap<String, CacheEntry>(16, 0.75f, true)
+    private val contentCache = LinkedHashMap<String, ContentCacheEntry>(16, 0.75f, true)
     private val contentCacheMaxSize = 64
     private val contentCacheMaxFileSize = 1_048_576L
 
-    private class CacheEntry(val content: String, val timestamp: Long)
+    private class PathCacheEntry(val file: File, val timestamp: Long)
+    private class ContentCacheEntry(val content: String, val fileModified: Long, val timestamp: Long)
 
     fun resolvePath(path: String): File? {
         val normalized = path.trim()
-        pathCache[normalized]?.let { if (it.exists()) return it }
+        pathCache[normalized]?.let {
+            if (it.file.exists() && System.currentTimeMillis() - it.timestamp < 5000) return it.file
+        }
         val resolved = if (normalized.isNotBlank() && !normalized.startsWith("file:") && !File(normalized).isAbsolute) {
             resolveRelativePathFromOpenEditor(normalized, tabRepository) ?: resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         } else {
             resolveWorkspacePath(IdeBridge.workspacePathForResolution(), path)
         }
         if (resolved != null) {
-            pathCache[normalized] = resolved
+            pathCache[normalized] = PathCacheEntry(resolved, System.currentTimeMillis())
             if (pathCache.size > pathCacheMaxSize) {
                 val oldest = pathCache.keys.firstOrNull()
                 if (oldest != null) pathCache.remove(oldest)
@@ -71,29 +74,43 @@ class FileService(private val tabRepository: TabRepository) {
         return output
     }
 
-    suspend fun getFileContent(filePath: String): String? {
+    suspend fun getFileContent(filePath: String, startLine: Int? = null, endLine: Int? = null): String? {
         val openTab = findTabByPath(filePath)
-        if (openTab != null) {
+        if (openTab != null && startLine == null && endLine == null) {
             return withContext(Dispatchers.Main) {
                 openTab.editorState.editor.get()?.text?.toString()
             }
         }
         val canonical = File(filePath).absolutePath
         val now = System.currentTimeMillis()
-        contentCache[canonical]?.let {
-            if (now - it.timestamp < 2000) return it.content
+        if (startLine == null && endLine == null) {
+            val cached = contentCache[canonical]
+            val diskFile = File(canonical)
+            if (cached != null && diskFile.exists()) {
+                val diskModified = diskFile.lastModified()
+                if (cached.fileModified == diskModified && now - cached.timestamp < 5000) return cached.content
+            }
         }
         return withContext(Dispatchers.IO) {
             val file = File(canonical)
             if (!file.exists() || !file.isFile) return@withContext null
             val length = file.length()
-            val content = if (length > 10 * 1024 * 1024) {
-                file.useLines { it.take(5000).joinToString("\n") }
+            val lastModified = file.lastModified()
+            
+            val content = if (startLine != null || endLine != null) {
+                val s = startLine ?: 1
+                val e = endLine ?: Int.MAX_VALUE
+                file.useLines { lines ->
+                    lines.drop(s - 1).take(e - s + 1).joinToString("\n")
+                }
+            } else if (length > 10 * 1024 * 1024) {
+                file.useLines { it.take(5000).joinToString("\n") } + "\n\n... (file >10MB, truncated to 5000 lines)"
             } else {
                 file.readText()
             }
-            if (length <= contentCacheMaxFileSize) {
-                contentCache[canonical] = CacheEntry(content, now)
+            
+            if (startLine == null && endLine == null && length <= contentCacheMaxFileSize) {
+                contentCache[canonical] = ContentCacheEntry(content, lastModified, now)
                 if (contentCache.size > contentCacheMaxSize) {
                     contentCache.keys.firstOrNull()?.let { contentCache.remove(it) }
                 }

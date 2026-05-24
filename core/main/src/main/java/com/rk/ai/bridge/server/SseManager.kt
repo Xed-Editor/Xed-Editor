@@ -3,18 +3,16 @@ package com.rk.ai.bridge.server
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.rk.ai.bridge.IdeNotificationSender
+import fi.iki.elonen.NanoHTTPD
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.io.PrintWriter
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import fi.iki.elonen.NanoHTTPD
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
 class SseManager(
     private val mcpDispatcher: McpDispatcher,
@@ -23,12 +21,18 @@ class SseManager(
     private val scope: CoroutineScope,
 ) : IdeNotificationSender {
 
-    private val clientFlows = ConcurrentHashMap<String, MutableSharedFlow<String>>()
-
     private val sseClients = ConcurrentHashMap<String, PrintWriter>()
     private val sseLock = Any()
     val size: Int get() = synchronized(sseLock) { sseClients.size }
     private val keepaliveIntervalMs = 15_000L
+
+    init {
+        scope.launch {
+            mcpDispatcher.streamingResponses.collect { (sessionId, payload) ->
+                pushToSession(sessionId, mcpDispatcher.notificationJson("tool/stream", payload))
+            }
+        }
+    }
 
     fun createSseStream(session: NanoHTTPD.IHTTPSession): NanoHTTPD.Response {
         val sessionId = UUID.randomUUID().toString()
@@ -92,21 +96,6 @@ class SseManager(
             return true
         }
         return false
-    }
-
-    fun getStreamFlow(sessionId: String): SharedFlow<String> {
-        var flow = clientFlows.get(sessionId)
-        if (flow == null) {
-            flow = MutableSharedFlow(extraBufferCapacity = 64)
-            val existing = clientFlows.putIfAbsent(sessionId, flow)
-            if (existing != null) flow = existing
-        }
-        return flow
-    }
-
-    fun streamToSession(sessionId: String, chunk: String) {
-        clientFlows.get(sessionId)?.tryEmit(chunk)
-        pushToSession(sessionId, chunk)
     }
 
     override fun sendNotification(method: String, params: JsonObject) {

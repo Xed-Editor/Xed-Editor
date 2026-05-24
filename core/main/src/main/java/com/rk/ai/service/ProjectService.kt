@@ -33,15 +33,23 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
 
     fun getPrimaryWorkspacePath(): String = IdeBridge.primaryWorkspacePath()
 
-    suspend fun searchCode(query: String, limit: Int): JsonArray {
+    suspend fun searchCode(query: String, limit: Int, path: String? = null, isRegex: Boolean = false): JsonArray {
         val app = application ?: return JsonArray()
         val vm = searchViewModel()
         val mv = viewModel ?: return JsonArray()
+        
+        val root = if (path != null) {
+            resolvePath(path) ?: File(IdeBridge.primaryWorkspacePath())
+        } else {
+            File(IdeBridge.primaryWorkspacePath())
+        }
+
         val results = withContext(Dispatchers.IO) {
             vm.searchCode(
                 context = app, mainViewModel = mv,
-                projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper(),
-                query = query, useIndex = Settings.always_index_projects
+                projectRoot = root.toFileWrapper(),
+                query = query, useIndex = Settings.always_index_projects && path == null && !isRegex,
+                isRegex = isRegex
             ).toList()
         }
         return JsonArray().apply {
@@ -56,13 +64,68 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
         }
     }
 
-    suspend fun findFiles(query: String, limit: Int): JsonArray {
+    suspend fun searchSymbols(query: String, limit: Int, path: String? = null): JsonArray {
+        val escapedQuery = Regex.escape(query)
+        val declarationPattern = Regex("\\b(class|interface|object|fun|def|function|var|val|let|const|enum|struct|type)\\s+$escapedQuery\\b", RegexOption.IGNORE_CASE)
+        val allResults = searchCode(query, limit * 5, path = path, isRegex = false)
+        return JsonArray().apply {
+            var count = 0
+            allResults.forEach { element ->
+                if (count >= limit) return@forEach
+                val obj = element.asJsonObject
+                val snippet = obj.get("snippet").asString
+                if (declarationPattern.containsMatchIn(snippet)) {
+                    add(obj)
+                    count++
+                }
+            }
+            if (count == 0) {
+                allResults.take(limit).forEach { add(it) }
+            }
+        }
+    }
+
+    suspend fun findFiles(query: String, limit: Int, path: String? = null): JsonArray {
+        val root = if (path != null) {
+            resolvePath(path) ?: File(IdeBridge.primaryWorkspacePath())
+        } else {
+            File(IdeBridge.primaryWorkspacePath())
+        }
+        if (!root.exists() || !root.isDirectory) return JsonArray()
+
+        val isGlob = query.any { it == '*' || it == '?' || it == '[' }
+
+        if (isGlob) {
+            val results = JsonArray()
+            val ignored = AiConfig.ignoredDirectories
+            withContext(Dispatchers.IO) {
+                val regex = globToRegex(query)
+                val pattern = Regex(regex, RegexOption.IGNORE_CASE)
+                root.walkTopDown()
+                    .onEnter { it.name !in ignored }
+                    .filter { it.isFile }
+                    .take(limit * 2)
+                    .filter { file ->
+                        val relative = file.toRelativeString(root).let { if (it.startsWith("/")) it else "/$it" }
+                        pattern.matches(relative) || pattern.matches(file.name)
+                    }
+                    .take(limit)
+                    .forEach { file ->
+                        results.add(JsonObject().apply {
+                            addProperty("path", file.absolutePath)
+                            addProperty("name", file.name)
+                        })
+                    }
+            }
+            return results
+        }
+
         val app = application ?: return JsonArray()
         val vm = searchViewModel()
         val results = withContext(Dispatchers.IO) {
             vm.searchFileName(
                 context = app,
-                projectRoot = File(IdeBridge.primaryWorkspacePath()).toFileWrapper(),
+                projectRoot = root.toFileWrapper(),
                 query = query, useIndex = Settings.always_index_projects
             ).toList()
         }
@@ -74,6 +137,40 @@ class ProjectService(private val tabRepo: TabRepository, private val viewModel: 
                 })
             }
         }
+    }
+
+    private fun globToRegex(glob: String): String {
+        val sb = StringBuilder()
+        var i = 0
+        while (i < glob.length) {
+            val c = glob[i]
+            when (c) {
+                '*' -> {
+                    if (i + 1 < glob.length && glob[i + 1] == '*') {
+                        sb.append(".*")
+                        i++
+                        if (i + 1 < glob.length && glob[i + 1] == '/') i++
+                    } else {
+                        sb.append("[^/]*")
+                    }
+                }
+                '?' -> sb.append("[^/]")
+                '.' -> sb.append("\\.")
+                '/' -> sb.append("/")
+                '[' -> {
+                    val close = glob.indexOf(']', i)
+                    if (close == -1) {
+                        sb.append(Regex.escape(c.toString()))
+                    } else {
+                        sb.append(glob.substring(i, close + 1))
+                        i = close
+                    }
+                }
+                else -> sb.append(Regex.escape(c.toString()))
+            }
+            i++
+        }
+        return "^$sb$"
     }
 
     private data class StructureCache(val path: String, val depth: Int, val items: Int, val result: String, val timestamp: Long)

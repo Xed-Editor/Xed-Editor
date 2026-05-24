@@ -10,6 +10,53 @@ object AiConfig {
         "/home", "/storage/emulated/0", "/sdcard",
     )
 
+    val commonReuseRoots: Set<String> = setOf(
+        "/", "/storage/emulated/0", "/home",
+    )
+
+    object Discovery {
+        val openCodeConfigFile = "opencode.json"
+        val openCodeMcpFile = "mcp.json"
+        val geminiSettingsFile = "settings.json"
+        val xedIdeDir = ".xed"
+        val openCodeDir = ".opencode"
+        val xedBridgeEnvFile = "xed-bridge.env"
+        val ideEnvFile = "ide.env"
+        val xedBridgeEnvHomeFile = ".xed-bridge.env"
+        val launcherScriptFile = "launcher.sh"
+
+        val discoveryDirs = listOf(
+            "gemini/ide",
+            "terminal/gemini-sheet/gemini/ide",
+            "terminal/gemini-sheet/gemini/ide",
+            "terminal/opencode-sheet/gemini/ide",
+            "terminal/opencode-sheet/opencode/ide",
+            "ide-bridge",
+        )
+
+        val tmpDiscoveryDir = "/tmp/xed-ide"
+    }
+
+    object Debug {
+        val defaultDebugEnvValue = "true"
+        val defaultDebugLogFile = "/home/.gemini/xed-debug.log"
+        val defaultContextTraceDir = "/home/.gemini/xed-traces"
+    }
+
+    object Paths {
+        const val linker32Bit = "/system/bin/linker64"
+        const val linker64Bit = "/system/bin/linker"
+        const val sandboxHomePath = "/home"
+        const val binSh = "/system/bin/sh"
+        const val binBash = "/bin/bash"
+        const val sandboxBinary = "sandbox"
+    }
+
+    object Agents {
+        const val geminiName = "gemini"
+        const val opencodeName = "opencode"
+    }
+
     object ProjectDetection {
         val configFiles = mapOf(
             "package.json" to Pair("JavaScript/TypeScript", "npm/yarn/pnpm"),

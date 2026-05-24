@@ -6,40 +6,36 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolRegistry
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.rk.ai.bridge.McpToolResult
+import com.rk.ai.bridge.tools.ToolError
+import com.rk.ai.service.IdeService
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
-class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
-
+class McpDispatcher(
+    private val toolRegistry: () -> McpToolRegistry,
+    private val ideService: IdeService,
+    private val serverScope: CoroutineScope,
+    private val sendNotification: (String, JsonObject) -> Unit = { _, _ -> },
+) {
     private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val _streamingResponses = MutableSharedFlow<Pair<String, JsonObject>>(extraBufferCapacity = 128)
+    val streamingResponses: Flow<Pair<String, JsonObject>> = _streamingResponses.asSharedFlow()
 
-    suspend fun dispatch(
-        id: JsonElement,
-        method: String,
-        request: JsonObject,
-        context: McpToolContext? = null,
-    ): String = withContext(Dispatchers.IO) {
-        when (method) {
-            "initialize" -> initializeResult(id, request)
-            "tools/list" -> toolsListResult(id)
-            "tools/call" -> toolsCallResult(id, request, context)
-            "notifications/initialized" -> resultJson(id, JsonObject())
-            "ping" -> resultJson(id, JsonObject())
-            else -> errorJson(id, -32601, "method not found: $method")
-        }
-    }
-
-    private suspend fun toolsCallResult(id: JsonElement, request: JsonObject, context: McpToolContext?): String {
-        val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
-        val name = params.get("name")?.asString.orEmpty()
-        val args = params.getAsJsonObject("arguments") ?: JsonObject()
-        val toolContext = context ?: return errorJson(id, -32603, "no tool context available")
-        val result = toolRegistry().execute(name, args, toolContext)
-            ?: return errorJson(id, -32601, "unknown tool: $name")
-        if (!result.success) {
-            return result.toMcpErrorJson(id).let { gson.toJson(it) }
-        }
-        return resultJson(id, result.toMcpJson())
+    suspend fun dispatch(id: JsonElement, method: String, request: JsonObject): String = when (method) {
+        "initialize" -> initializeResult(id, request)
+        "tools/list" -> toolsListResult(id)
+        "tools/call" -> toolsCallResult(id, request)
+        "notifications/initialized" -> resultJson(id, JsonObject())
+        "ping" -> resultJson(id, JsonObject())
+        else -> errorJson(id, -32601, "method not found: $method")
     }
 
     private fun initializeResult(id: JsonElement, request: JsonObject): String = resultJson(id, JsonObject().apply {
@@ -50,16 +46,65 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
             ?.takeIf { it.isNotBlank() }
             ?: "2025-03-26"
         addProperty("protocolVersion", negotiatedProtocol)
-        add("capabilities", JsonObject().apply { add("tools", JsonObject()) })
+        add("capabilities", JsonObject().apply {
+            add("tools", JsonObject())
+            add("streaming", JsonObject())
+        })
         add("serverInfo", JsonObject().apply {
             addProperty("name", "xed-ide-bridge")
-            addProperty("version", "1.0.0")
+            addProperty("version", "2.0.0")
             addProperty("instructions", "Call the 'getGuidelines' tool to learn about high-performance workflow patterns for this IDE.")
         })
     })
 
     private fun toolsListResult(id: JsonElement): String =
         resultJson(id, JsonObject().apply { add("tools", toolRegistry().listSchemas()) })
+
+    private suspend fun toolsCallResult(id: JsonElement, request: JsonObject): String {
+        val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
+        val name = params.get("name")?.asString.orEmpty()
+        val args = params.getAsJsonObject("arguments") ?: JsonObject()
+        val timeoutMs = toolRegistry().getTimeoutMs(name)
+        return try {
+            val result = executeTool(name, args, timeoutMs)
+            resultJson(id, result.toJson())
+        } catch (e: ToolError) {
+            errorJson(id, e.code, e.message)
+        } catch (e: TimeoutCancellationException) {
+            errorJson(id, -32000, "tool '$name' timed out after ${timeoutMs}ms")
+        } catch (e: CancellationException) {
+            errorJson(id, -32000, "tool '$name' was cancelled")
+        } catch (e: Exception) {
+            errorJson(id, -32603, "${e::class.java.simpleName}: ${e.message ?: "internal error"}")
+        }
+    }
+
+    private suspend fun executeTool(name: String, args: JsonObject, timeoutMs: Long): McpToolResult = coroutineScope {
+        val tool = toolRegistry().get(name) ?: return@coroutineScope McpToolResult.error("unknown tool: $name")
+
+        val context = McpToolContext(
+            ideService = ideService,
+            scope = this,
+            timeoutMs = timeoutMs,
+        )
+
+        val progressJob = launch {
+            context.progress.collect { message ->
+                sendNotification("tool/progress", JsonObject().apply {
+                    addProperty("tool", name)
+                    addProperty("message", message)
+                })
+            }
+        }
+
+        try {
+            withTimeout(timeoutMs) {
+                tool.execute(args, context)
+            }
+        } finally {
+            progressJob.cancel()
+        }
+    }
 
     fun resultJson(id: JsonElement?, result: JsonObject): String =
         JsonObject().apply {
@@ -72,10 +117,7 @@ class McpDispatcher(private val toolRegistry: () -> McpToolRegistry) {
         JsonObject().apply {
             addProperty("jsonrpc", "2.0")
             add("id", id ?: JsonNull.INSTANCE)
-            add("error", JsonObject().apply {
-                addProperty("code", code)
-                addProperty("message", message)
-            })
+            add("error", JsonObject().apply { addProperty("code", code); addProperty("message", message) })
         }.let { gson.toJson(it) }
 
     fun notificationJson(method: String, params: JsonObject): String =

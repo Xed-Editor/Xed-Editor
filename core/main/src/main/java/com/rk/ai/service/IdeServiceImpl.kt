@@ -39,11 +39,11 @@ class IdeServiceImpl(
 
     override fun resolvePath(path: String): File? = fileService.resolvePath(path)
     override fun listFiles(directory: File, recursive: Boolean, maxFiles: Int): List<String> = fileService.listFiles(directory, recursive, maxFiles)
-    override suspend fun getFileContent(filePath: String): String? = fileService.getFileContent(filePath)
+    override suspend fun getFileContent(filePath: String, startLine: Int?, endLine: Int?): String? = fileService.getFileContent(filePath, startLine, endLine)
     override suspend fun writeFile(file: File, content: String) {
         fileService.writeFile(file, content)
         viewModel.viewModelScope.launch {
-            kotlinx.coroutines.delay(500) // Wait for LSP to process
+            kotlinx.coroutines.delay(500)
             val diags = lspService.getDiagnostics(file.absolutePath)
             if (diags.size() > 0) {
                 notificationSender?.sendNotification("ide/diagnosticsUpdated", JsonObject().apply {
@@ -81,13 +81,16 @@ class IdeServiceImpl(
 
     override suspend fun getGitStatus(workspacePath: String): JsonObject = gitService.getGitStatus(workspacePath)
     override suspend fun getGitDiff(workspacePath: String): String = gitService.getGitDiff(workspacePath)
+    override suspend fun gitCommit(workspacePath: String, message: String, all: Boolean): String = gitService.gitCommit(workspacePath, message, all)
+    override suspend fun gitCheckout(workspacePath: String, target: String): String = gitService.gitCheckout(workspacePath, target)
 
     override suspend fun runCommand(command: String, timeoutSeconds: Long): CommandResult = terminalService.runCommand(command, timeoutSeconds)
     override suspend fun getTerminalOutput(lines: Int?): String = terminalService.getTerminalOutput(lines)
 
     override fun getPrimaryWorkspacePath(): String = projectService.getPrimaryWorkspacePath()
-    override suspend fun searchCode(query: String, limit: Int): JsonArray = projectService.searchCode(query, limit)
-    override suspend fun findFiles(query: String, limit: Int): JsonArray = projectService.findFiles(query, limit)
+    override suspend fun searchCode(query: String, limit: Int, path: String?, isRegex: Boolean): JsonArray = projectService.searchCode(query, limit, path, isRegex)
+    override suspend fun searchSymbols(query: String, limit: Int, path: String?): JsonArray = projectService.searchSymbols(query, limit, path)
+    override suspend fun findFiles(query: String, limit: Int, path: String?): JsonArray = projectService.findFiles(query, limit, path)
     override suspend fun getProjectStructure(path: String, maxDepth: Int, maxItems: Int): String = projectService.getProjectStructure(path, maxDepth, maxItems)
     override suspend fun getProjectConfig(workspacePath: String): JsonObject = projectService.getProjectConfig(workspacePath)
     override suspend fun getSymbolUnderCursor(): JsonObject = projectService.getSymbolUnderCursor()

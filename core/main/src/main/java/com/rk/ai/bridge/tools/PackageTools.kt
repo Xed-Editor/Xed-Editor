@@ -5,258 +5,148 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
+import java.net.URLEncoder
 
-abstract class BasePackageTool : BaseMcpTool() {
-    override val timeoutMs: Long = 20_000L
+class NpmSearchTool : BaseMcpTool() {
+    override fun getName(): String = "npm_search"
+    override fun getDescription(): String = "Searches npm registry for packages."
+    override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("limit" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Package name or search term"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "limit" to "Maximum results (default: 10)"
+    )
+    override fun getTimeoutMs(): Long = 30_000L
 
-    protected fun httpGetText(urlString: String): Result<String> = runCatching {
-        val url = URL(urlString)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.connectTimeout = 10_000
-        connection.readTimeout = 10_000
-        connection.setRequestProperty("User-Agent", "Xed-Editor-Bridge/1.0")
-        connection.setRequestProperty("Accept", "application/json")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = withContext(Dispatchers.IO) {
+        val query = requireString(args, "query")
+        val limit = (optionalPositiveInt(args, "limit") ?: 10).coerceIn(1, 50)
 
-        connection.responseCode.let { code ->
-            if (code != 200) throw RuntimeException("HTTP $code: ${connection.responseMessage}")
+        val url = "https://registry.npmjs.org/-/v1/search?text=${URLEncoder.encode(query, "UTF-8")}&size=$limit"
+        val json = httpGet(url)
+        val data = JsonParser.parseString(json).asJsonObject
+        val objects = data.getAsJsonObject("objects")?.getAsJsonArray("objects")
+            ?: data.getAsJsonArray("objects") ?: JsonArray()
+
+        val text = buildString {
+            appendLine("npm search results for: $query")
+            appendLine()
+            objects.forEach { obj ->
+                val pkg = obj.asJsonObject?.getAsJsonObject("package") ?: return@forEach
+                val name = pkg.get("name")?.asString ?: "?"
+                val version = pkg.get("version")?.asString ?: "?"
+                val description = pkg.get("description")?.asString ?: ""
+                val publisher = pkg.getAsJsonObject("publisher")?.get("username")?.asString ?: pkg.getAsJsonObject("author")?.get("name")?.asString ?: "?"
+                appendLine("$name@$version")
+                if (description.isNotBlank()) appendLine("  $description")
+                appendLine("  Publisher: $publisher")
+                appendLine()
+            }
         }
 
-        val reader = BufferedReader(InputStreamReader(connection.inputStream, Charsets.UTF_8))
-        val text = reader.use { it.readText() }
-        connection.disconnect()
-        text
+        McpToolResult.success(text.ifEmpty { "No packages found for: $query" })
     }
 }
 
-class NpmSearchTool : BasePackageTool() {
-    override val name: String = "npm_search"
-    override val description: String = "Searches the npm registry for packages."
-    override val requiredParams: Map<String, String> = mapOf("query" to "string")
-    override val optionalParams: Map<String, String> = mapOf("limit" to "number")
-
-    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
-        val query = requireString(args, "query", maxLength = 200)
-        val limit = optionalInt(args, "limit", 10).coerceIn(1, 30)
-
-        context.pushProgress(0.3f, "Searching npm for \"$query\"...")
-
-        val encoded = java.net.URLEncoder.encode(query, "UTF-8")
-        val result = httpGetText("https://registry.npmjs.org/-/v1/search?text=$encoded&size=$limit")
-
-        return result.fold(
-            onSuccess = { text ->
-                context.pushProgress(0.7f, "Formatting results...")
-                val json = JsonParser.parseString(text).asJsonObject
-                val total = json.get("total")?.asInt ?: 0
-                val objects = json.getAsJsonArray("objects") ?: JsonArray()
-
-                val output = buildString {
-                    appendLine("npm search: $query")
-                    appendLine("Total results: $total")
-                    appendLine()
-
-                    objects.forEach { obj ->
-                        val pkg = obj.asJsonObject.getAsJsonObject("package")
-                        val name = pkg.get("name")?.asString ?: "?"
-                        val version = pkg.get("version")?.asString ?: "?"
-                        val description = pkg.get("description")?.asString ?: ""
-                        val publisher = pkg.getAsJsonObject("publisher")?.get("username")?.asString ?: "?"
-                        val keywords = pkg.getAsJsonArray("keywords")?.joinToString(", ") ?: ""
-                        val npmUrl = "https://www.npmjs.com/package/$name"
-
-                        appendLine("$name@$version")
-                        appendLine("  $description")
-                        appendLine("  Publisher: $publisher")
-                        if (keywords.isNotBlank()) appendLine("  Keywords: $keywords")
-                        appendLine("  URL: $npmUrl")
-                        appendLine()
-                    }
-                }
-
-                context.pushProgress(1f, "Done")
-                resultText(enforceOutputLimit(output))
-            },
-            onFailure = { e ->
-                McpToolResult.error("npm search failed: ${e.message}", -32000)
-            }
-        )
-    }
-}
-
-class PipSearchTool : BasePackageTool() {
-    override val name: String = "pip_search"
-    override val description: String = "Searches PyPI (Python Package Index) for packages."
-    override val requiredParams: Map<String, String> = mapOf("query" to "string")
-    override val optionalParams: Map<String, String> = mapOf("limit" to "number")
-
-    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
-        val query = requireString(args, "query", maxLength = 200)
-        val limit = optionalInt(args, "limit", 10).coerceIn(1, 30)
-
-        context.pushProgress(0.3f, "Searching PyPI for \"$query\"...")
-
-        val encoded = java.net.URLEncoder.encode(query, "UTF-8")
-        val result = httpGetText("https://pypi.org/search/api/?q=$encoded&per_page=$limit")
-
-        return result.fold(
-            onSuccess = { text ->
-                context.pushProgress(0.7f, "Formatting results...")
-                val json = JsonParser.parseString(text).asJsonObject
-                val total = json.get("total")?.asInt ?: 0
-                val items = json.getAsJsonArray("items") ?: JsonArray()
-
-                val output = buildString {
-                    appendLine("PyPI search: $query")
-                    appendLine("Total results: $total")
-                    appendLine()
-
-                    items.forEach { item ->
-                        val obj = item.asJsonObject
-                        val name = obj.get("name")?.asString ?: "?"
-                        val version = obj.get("version")?.asString ?: "?"
-                        val description = obj.get("description")?.asString ?: ""
-                        val url = obj.get("url")?.asString ?: ""
-                        val author = obj.get("author")?.asString ?: "?"
-
-                        appendLine("$name $version")
-                        appendLine("  $description")
-                        appendLine("  Author: $author")
-                        appendLine("  URL: $url")
-                        appendLine()
-                    }
-                }
-
-                context.pushProgress(1f, "Done")
-                resultText(enforceOutputLimit(output))
-            },
-            onFailure = { e ->
-                McpToolResult.error("PyPI search failed: ${e.message}", -32000)
-            }
-        )
-    }
-}
-
-class MavenSearchTool : BasePackageTool() {
-    override val name: String = "maven_search"
-    override val description: String = "Searches Maven Central for artifacts. Returns groupId, artifactId, version, and description."
-    override val requiredParams: Map<String, String> = mapOf("query" to "string")
-    override val optionalParams: Map<String, String> = mapOf(
-        "limit" to "number",
-        "groupId" to "string",
+class PipSearchTool : BaseMcpTool() {
+    override fun getName(): String = "pip_search"
+    override fun getDescription(): String = "Searches PyPI (Python Package Index) for packages."
+    override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("limit" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Package name or search term"
     )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "limit" to "Maximum results (default: 10)"
+    )
+    override fun getTimeoutMs(): Long = 30_000L
 
-    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
-        val query = requireString(args, "query", maxLength = 200)
-        val limit = optionalInt(args, "limit", 10).coerceIn(1, 30)
-        val groupId = optionalString(args, "groupId")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = withContext(Dispatchers.IO) {
+        val query = requireString(args, "query")
+        val limit = (optionalPositiveInt(args, "limit") ?: 10).coerceIn(1, 50)
 
-        context.pushProgress(0.3f, "Searching Maven Central for \"$query\"...")
+        val url = "https://pypi.org/simple/"
+        val html = httpGet(url)
+        val lines = html.split("\n")
+            .filter { it.contains(query, ignoreCase = true) }
+            .map { it.replace(Regex("<[^>]*>"), "").trim() }
+            .filter { it.isNotBlank() }
+            .take(limit)
 
-        val encodedQuery = java.net.URLEncoder.encode(
-            if (groupId.isNotBlank()) "g:$groupId AND $query" else query, "UTF-8"
-        )
-        val result = httpGetText(
-            "https://search.maven.org/solrsearch/select?q=$encodedQuery&rows=$limit&wt=json"
-        )
+        val text = buildString {
+            appendLine("PyPI packages matching: $query")
+            appendLine()
+            lines.forEach { appendLine("  $it") }
+        }
 
-        return result.fold(
-            onSuccess = { text ->
-                context.pushProgress(0.7f, "Formatting results...")
-                val json = JsonParser.parseString(text).asJsonObject
-                val response = json.getAsJsonObject("response")
-                val total = response?.get("numFound")?.asInt ?: 0
-                val docs = response?.getAsJsonArray("docs") ?: JsonArray()
-
-                val output = buildString {
-                    appendLine("Maven Central search: $query")
-                    appendLine("Total results: $total")
-                    appendLine()
-
-                    docs.forEach { doc ->
-                        val obj = doc.asJsonObject
-                        val g = obj.get("g")?.asString ?: "?"
-                        val a = obj.get("a")?.asString ?: "?"
-                        val v = obj.get("latestVersion")?.asString ?: obj.get("v")?.asString ?: "?"
-                        val description = obj.get("description")?.asString ?: obj.get("s")?.asString ?: ""
-
-                        appendLine("$g:$a:$v")
-                        if (description.isNotBlank()) appendLine("  $description")
-                        appendLine("  Dependency:")
-                        appendLine("  implementation(\"$g:$a:$v\")")
-                        appendLine()
-                    }
-                }
-
-                context.pushProgress(1f, "Done")
-                resultText(enforceOutputLimit(output))
-            },
-            onFailure = { e ->
-                McpToolResult.error("Maven search failed: ${e.message}", -32000)
-            }
-        )
+        McpToolResult.success(text.ifEmpty { "No packages found for: $query" })
     }
 }
 
-class GradleDependencySearchTool : BasePackageTool() {
-    override val name: String = "gradle_dependency_search"
-    override val description: String = "Searches for Gradle dependencies from Maven Central. Returns ready-to-use implementation() snippets."
-    override val requiredParams: Map<String, String> = mapOf("query" to "string")
-    override val optionalParams: Map<String, String> = mapOf("limit" to "number")
+class MavenSearchTool : BaseMcpTool() {
+    override fun getName(): String = "maven_search"
+    override fun getDescription(): String = "Searches Maven Central for artifacts."
+    override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("limit" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Search term (groupId:artifactId or name)"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "limit" to "Maximum results (default: 10)"
+    )
+    override fun getTimeoutMs(): Long = 30_000L
 
-    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
-        val query = requireString(args, "query", maxLength = 200)
-        val limit = optionalInt(args, "limit", 10).coerceIn(1, 30)
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = withContext(Dispatchers.IO) {
+        val query = requireString(args, "query")
+        val limit = (optionalPositiveInt(args, "limit") ?: 10).coerceIn(1, 50)
 
-        context.pushProgress(0.3f, "Searching Maven Central for \"$query\"...")
+        val url = "https://search.maven.org/solrsearch/select?q=${URLEncoder.encode(query, "UTF-8")}&rows=$limit&wt=json"
+        val json = httpGet(url)
+        val data = JsonParser.parseString(json).asJsonObject
+        val docs = data.getAsJsonObject("response")?.getAsJsonArray("docs") ?: JsonArray()
 
-        val encoded = java.net.URLEncoder.encode(query, "UTF-8")
-        val result = httpGetText(
-            "https://search.maven.org/solrsearch/select?q=$encoded&rows=$limit&wt=json"
-        )
-
-        return result.fold(
-            onSuccess = { text ->
-                context.pushProgress(0.7f, "Formatting results...")
-                val json = JsonParser.parseString(text).asJsonObject
-                val response = json.getAsJsonObject("response")
-                val total = response?.get("numFound")?.asInt ?: 0
-                val docs = response?.getAsJsonArray("docs") ?: JsonArray()
-
-                val output = buildString {
-                    appendLine("Gradle dependency search: $query")
-                    appendLine("Total results: $total")
-                    appendLine()
-
-                    docs.forEach { doc ->
-                        val obj = doc.asJsonObject
-                        val g = obj.get("g")?.asString ?: "?"
-                        val a = obj.get("a")?.asString ?: "?"
-                        val v = obj.get("latestVersion")?.asString ?: obj.get("v")?.asString ?: "?"
-                        val description = obj.get("description")?.asString ?: obj.get("s")?.asString ?: ""
-                        val tags = listOfNotNull(
-                            obj.get("tags")?.asString,
-                            obj.get("ec")?.asString,
-                        ).filter { it.isNotBlank() }.joinToString(", ")
-
-                        appendLine("$g:$a:$v")
-                        if (description.isNotBlank()) appendLine("  $description")
-                        if (tags.isNotBlank()) appendLine("  Tags: $tags")
-                        appendLine("  Gradle:")
-                        appendLine("  implementation(\"$g:$a:$v\")")
-                        appendLine()
-                    }
+        val text = buildString {
+            appendLine("Maven Central results for: $query")
+            appendLine()
+            docs.forEach { doc ->
+                val obj = doc.asJsonObject
+                val g = obj.get("g")?.asString ?: "?"
+                val a = obj.get("a")?.asString ?: "?"
+                val latestVersion = obj.get("latestVersion")?.asString ?: "?"
+                val timestamp = obj.get("timestamp")?.asLong ?: 0
+                appendLine("$g:$a")
+                appendLine("  Latest: $latestVersion")
+                if (timestamp > 0) {
+                    val date = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
+                        .format(java.util.Date(timestamp))
+                    appendLine("  Updated: $date")
                 }
-
-                context.pushProgress(1f, "Done")
-                resultText(enforceOutputLimit(output))
-            },
-            onFailure = { e ->
-                McpToolResult.error("Search failed: ${e.message}", -32000)
+                appendLine()
             }
-        )
+        }
+
+        McpToolResult.success(text.ifEmpty { "No artifacts found for: $query" })
     }
+}
+
+private fun httpGet(urlStr: String): String {
+    val url = URI(urlStr).toURL()
+    val conn = url.openConnection() as HttpURLConnection
+    conn.connectTimeout = 20_000
+    conn.readTimeout = 20_000
+    conn.setRequestProperty("User-Agent", "Xed-Editor/2.0")
+    conn.setRequestProperty("Accept", "application/json")
+
+    val reader = BufferedReader(InputStreamReader(
+        if (conn.responseCode in 200..299) conn.inputStream else conn.errorStream
+    ))
+    return reader.readText()
 }

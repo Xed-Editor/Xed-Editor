@@ -292,15 +292,18 @@ class SearchViewModel : ViewModel() {
         projectRoot: FileObject,
         query: String,
         useIndex: Boolean = true,
+        isRegex: Boolean = false,
     ): Flow<CodeItem> =
         channelFlow {
                 // Search in opened tabs
                 val openedEditorTabs = mainViewModel.tabs.mapNotNull { it as? EditorTab }
                 val openPaths = openedEditorTabs.map { it.file.getAbsolutePath() }.toSet()
 
+                val rootPath = projectRoot.getAbsolutePath().let { if (it.endsWith("/")) it else "$it/" }
                 for (tab in openedEditorTabs) {
                     val fileExt = tab.file.getExtension()
                     if (!matchesFileMask(fileExt)) continue
+                    if (!tab.file.getAbsolutePath().startsWith(rootPath) && tab.file.getAbsolutePath() != projectRoot.getAbsolutePath()) continue
 
                     val editor = tab.editorState.editor.get()
                     val content = editor?.text
@@ -308,7 +311,14 @@ class SearchViewModel : ViewModel() {
                         val lineCount = content.lineCount
                         for (lineIndex in 0 until lineCount) {
                             val line = content.getLine(lineIndex).toString()
-                            val indices = findAllIndices(line, query, ignoreCase = ignoreCase)
+                            val indices = if (isRegex) {
+                                runCatching {
+                                    val pattern = if (ignoreCase) "(?i)$query" else query
+                                    Regex(pattern).findAll(line).map { it.range.first }.toList()
+                                }.getOrDefault(emptyList())
+                            } else {
+                                findAllIndices(line, query, ignoreCase = ignoreCase)
+                            }
                             for (index in indices) {
                                 currentCoroutineContext().ensureActive()
                                 send(
@@ -330,7 +340,7 @@ class SearchViewModel : ViewModel() {
                 }
 
                 // Search through other files
-                if (!useIndex) {
+                if (!useIndex || isRegex) {
                     searchCodeWithoutIndex(
                         context = context,
                         mainViewModel = mainViewModel,
@@ -339,6 +349,7 @@ class SearchViewModel : ViewModel() {
                         query = query,
                         openPaths = openPaths,
                         send = ::send,
+                        isRegex = isRegex,
                     )
                 } else {
                     searchCodeWithIndex(
@@ -366,6 +377,7 @@ class SearchViewModel : ViewModel() {
 
         val dao = getDatabase(context, projectRoot).codeIndexDao()
 
+        val rootPath = projectRoot.getAbsolutePath().let { if (it.endsWith("/")) it else "$it/" }
         while (true) {
             val results =
                 if (ignoreCase) {
@@ -377,6 +389,7 @@ class SearchViewModel : ViewModel() {
 
             for (result in results) {
                 if (result.path in openPaths) continue
+                if (!result.path.startsWith(rootPath) && result.path != projectRoot.getAbsolutePath()) continue
 
                 val file = File(result.path).toFileWrapper()
                 val fileExt = file.getExtension()
@@ -415,6 +428,7 @@ class SearchViewModel : ViewModel() {
         openPaths: Set<String>,
         send: suspend (CodeItem) -> Unit,
         isResultHidden: Boolean = false,
+        isRegex: Boolean = false,
     ) {
         val childFiles = parent.listFiles()
 
@@ -440,19 +454,28 @@ class SearchViewModel : ViewModel() {
                     openPaths = openPaths,
                     send = send,
                     isResultHidden = isResultHidden,
+                    isRegex = isRegex,
                 )
                 continue
             }
 
             if (!isFileSearchable(file)) continue
             val charset = Charset.forName(Settings.encoding)
+            val regex = if (isRegex) {
+                val pattern = if (ignoreCase) "(?i)$query" else query
+                runCatching { Regex(pattern) }.getOrNull()
+            } else null
 
             file.useInputStream { inputStream ->
                 inputStream.bufferedReader(charset).useLines { lineSequence ->
                     lineSequence.forEachIndexed { lineIndex, line ->
                         val chunks = line.chunked(MAX_CHUNK_SIZE)
                         chunks.forEachIndexed { chunkIndex, chunk ->
-                            val indices = findAllIndices(chunk, query, ignoreCase = ignoreCase)
+                            val indices = if (regex != null) {
+                                regex.findAll(chunk).map { it.range.first }.toList()
+                            } else {
+                                findAllIndices(chunk, query, ignoreCase = ignoreCase)
+                            }
                             for (index in indices) {
                                 val absoluteCharIndex = (chunkIndex * MAX_CHUNK_SIZE) + index
                                 currentCoroutineContext().ensureActive()

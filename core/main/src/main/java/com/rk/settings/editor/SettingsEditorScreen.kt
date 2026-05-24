@@ -5,7 +5,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -99,8 +103,64 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
+            var showAgentMenu by remember { mutableStateOf(false) }
+            val agents = com.rk.ai.session.AiSessionManager.availableAgents()
+            val currentAgent = com.rk.ai.session.AiSessionManager.resolveAgent(Settings.ai_agent)
+
             var showModelDialog by remember { mutableStateOf(false) }
             var modelInputValue by remember { mutableStateOf(Settings.ai_model) }
+            var showProfileMenu by remember { mutableStateOf(false) }
+
+            val profiles = remember { com.rk.ai.agents.AgentProfileManager.loadProfiles() }
+
+            Surface(
+                onClick = { showProfileMenu = true },
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Profile",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            text = "Saved agent configurations",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    val activeProfile = profiles.find { it.agentType == Settings.ai_agent && it.model == Settings.ai_model }
+                    Text(
+                        text = activeProfile?.name ?: "Custom",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Box {
+                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        DropdownMenu(expanded = showProfileMenu, onDismissRequest = { showProfileMenu = false }) {
+                            profiles.forEach { p ->
+                                DropdownMenuItem(
+                                    text = { Text(p.displayLabel()) },
+                                    onClick = {
+                                        com.rk.ai.agents.AgentProfileManager.applyProfile(p)
+                                        showProfileMenu = false
+                                    },
+                                    leadingIcon = if (p.agentType == Settings.ai_agent && p.model == Settings.ai_model) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    } else null,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
 
             Surface(
                 onClick = { showModelDialog = true },
@@ -138,6 +198,54 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             }
 
+            SettingsToggle(
+                label = stringResource(strings.ai_agent),
+                description = stringResource(strings.ai_agent_desc),
+                state = remember { mutableStateOf(true) },
+                showSwitch = false,
+                default = true,
+                startWidget = {
+                    Box {
+                        Surface(
+                            onClick = { showAgentMenu = true },
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = currentAgent.displayName,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
+                        }
+                        DropdownMenu(expanded = showAgentMenu, onDismissRequest = { showAgentMenu = false }) {
+                            agents.forEach { agent ->
+                                DropdownMenuItem(
+                                    text = { Text(agent.displayName) },
+                                    onClick = {
+                                        Settings.ai_agent = agent.name
+                                        com.rk.ai.session.AiSessionManager.switchAgent(agent.name)
+                                        showAgentMenu = false
+                                    },
+                                    leadingIcon = if (agent.name == Settings.ai_agent) {
+                                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                    } else null,
+                                )
+                            }
+                        }
+                    }
+                },
+            )
+
             if (showModelDialog) {
                 SingleInputDialog(
                     title = stringResource(strings.ai_model),
@@ -148,6 +256,20 @@ fun SettingsEditorScreen(navController: NavController) {
                     onFinish = { modelInputValue = Settings.ai_model; showModelDialog = false },
                 )
             }
+
+            EditorSettingsToggle(
+                label = stringResource(strings.ai_project_config),
+                description = stringResource(strings.ai_project_config_desc),
+                default = Settings.ai_project_config_enabled,
+                sideEffect = { Settings.ai_project_config_enabled = it },
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(strings.gemini_auto_apply),
+                description = stringResource(strings.gemini_auto_apply_desc),
+                default = Settings.ai_auto_apply,
+                sideEffect = { Settings.ai_auto_apply = it },
+            )
 
             EditorSettingsToggle(
                 label = stringResource(strings.auto_close_tags),

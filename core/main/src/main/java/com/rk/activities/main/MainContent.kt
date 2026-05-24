@@ -50,7 +50,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import com.rk.ai.ActiveSession
+import com.rk.ai.InlineAgentBar
+import com.rk.ai.AiAgentSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf
@@ -225,15 +226,24 @@ fun MainContent(
             }
         }
 
-        if (mainViewModel.showAiSheet) {
-            val session = ActiveSession.session
-            com.rk.tabs.editor.AgentCliSheet(
-                onDismissRequest = { mainViewModel.showAiSheet = false },
-                cwd = mainViewModel.aiSheetCwd ?: "/storage/emulated/0",
-                session = session,
-                modifier = Modifier.align(Alignment.BottomCenter),
+        AnimatedVisibility(
+            visible = mainViewModel.showAiSheet,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            AiAgentSheet(
+                viewModel = mainViewModel,
+                onDismissRequest = { mainViewModel.showAiSheet = false }
             )
         }
+
+        InlineAgentBar(
+            viewModel = mainViewModel,
+            visible = mainViewModel.showInlineAgent && !mainViewModel.showAiSheet,
+            onDismiss = { mainViewModel.showInlineAgent = false },
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
     }
 }
 

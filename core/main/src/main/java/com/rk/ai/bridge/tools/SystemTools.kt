@@ -7,8 +7,8 @@ import com.rk.ai.bridge.McpToolResult
 import com.rk.utils.application
 
 class GetIdeInfoTool : BaseMcpTool() {
-    override val name: String = "getIdeInfo"
-    override val description: String = "Returns IDE status and a pointer to system guidelines."
+    override fun getName(): String = "getIdeInfo"
+    override fun getDescription(): String = "Returns IDE status and a pointer to system guidelines."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val info = IdeBridge.getBridgeInfo()
         val version = runCatching { application?.packageManager?.getPackageInfo(application!!.packageName, 0)?.versionName }.getOrNull().orEmpty()
@@ -19,16 +19,22 @@ class GetIdeInfoTool : BaseMcpTool() {
             addProperty("workspace", context.ideService.getPrimaryWorkspacePath())
             addProperty("guidelines", "Call 'getGuidelines' for recommended high-performance workflows.")
         }.toString()
-        return resultText(text)
+        return McpToolResult.success(text)
     }
 }
 
 class RunCommandTool : BaseMcpTool() {
-    override val name: String = "runCommand"
-    override val description: String = "Runs a shell command in the terminal environment."
-    override val requiredParams: Map<String, String> = mapOf("command" to "string")
-    override val optionalParams: Map<String, String> = mapOf("timeoutSeconds" to "number")
-    override val timeoutMs: Long = 120_000L
+    override fun getName(): String = "runCommand"
+    override fun getDescription(): String = "Runs a shell command in the terminal environment. PREFER NATIVE MCP TOOLS instead: use readFile/cat for reading, searchCode/grep for search, findFiles/glob for file find, head for head, tail for tail, wc for word count, stat for metadata, listFiles/ls for directory listing. Only use runCommand for compiling, running, or package installs that have no native tool."
+    override fun getRequiredParams(): Map<String, String> = mapOf("command" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("timeoutSeconds" to "number")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "command" to "Shell command to execute"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "timeoutSeconds" to "Timeout in seconds (default: 120)"
+    )
+    override fun getTimeoutMs(): Long = 120_000L
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val command = requireString(args, "command")
         val timeout = optionalLong(args, "timeoutSeconds", 120L)
@@ -39,28 +45,34 @@ class RunCommandTool : BaseMcpTool() {
             append("exit ${result.exitCode}")
             if (result.timedOut) append(" (timed out)")
         }
-        return resultText(enforceOutputLimit(text))
+        return McpToolResult.success(text)
     }
 }
 
 class ShowMessageTool : BaseMcpTool() {
-    override val name: String = "showMessage"
-    override val description: String = "Displays a short toast notification message."
-    override val requiredParams: Map<String, String> = mapOf("message" to "string")
+    override fun getName(): String = "showMessage"
+    override fun getDescription(): String = "Displays a short toast notification message."
+    override fun getRequiredParams(): Map<String, String> = mapOf("message" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "message" to "Message text to display"
+    )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val message = requireString(args, "message")
         context.ideService.showMessage(message)
-        return resultText("shown")
+        return McpToolResult.success("shown")
     }
 }
 
 class GetProjectConfigTool : BaseMcpTool() {
-    override val name: String = "getProjectConfig"
-    override val description: String = "Detects project configuration."
-    override val optionalParams: Map<String, String> = mapOf("path" to "string")
+    override fun getName(): String = "getProjectConfig"
+    override fun getDescription(): String = "Detects project configuration."
+    override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "path" to "Project path (default: workspace root)"
+    )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val path = optionalString(args, "path").ifBlank { context.ideService.getPrimaryWorkspacePath() }
         val config = context.ideService.getProjectConfig(path)
-        return resultJson(config)
+        return McpToolResult.success(config.toString())
     }
 }

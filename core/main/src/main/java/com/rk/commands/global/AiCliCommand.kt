@@ -1,6 +1,8 @@
 package com.rk.commands.global
 
 import com.rk.ai.IdeBridge
+import com.rk.ai.session.AgentEnvironmentBuilder
+import com.rk.ai.session.AiSessionManager
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
@@ -20,7 +22,10 @@ import java.io.File
 class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
     override val id: String = "global.ai_cli"
 
-    override fun getLabel(): String = "AI CLI"
+    override fun getLabel(): String {
+        val agent = AiSessionManager.currentAgent
+        return "${agent.displayName} CLI"
+    }
 
     override fun action(actionContext: ActionContext) {
         val currentEditorTab = commandContext.mainViewModel.currentTab as? EditorTab
@@ -33,32 +38,23 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 }
             ?: "/storage/emulated/0"
         val bridge = IdeBridge.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
-        val launcher = localBinDir().child("opencode-cli").absolutePath
-        val model = Settings.ai_model.takeIf { it.isNotBlank() }
+        val agent = AiSessionManager.currentAgent
+        val launcher = localBinDir().child(agent.shellScriptName).absolutePath
+        val agentArgs = agent.buildArgs(emptyList(), workspaceDir, Settings.ai_model.takeIf { it.isNotBlank() })
         val args = buildList {
                 add(launcher)
-                if (model != null) { add("-m"); add(model) }
+                addAll(agentArgs)
             }.toTypedArray()
-
-        val env = arrayOf(
-            "XED_IDE_URL=http://${bridge.host}:${bridge.port}",
-            "XED_IDE_HOST=${bridge.host}",
-            "XED_IDE_PORT=${bridge.port}",
-            "XED_IDE_AUTH_TOKEN=${bridge.token}",
-            "IDE_SERVER_PORT=${bridge.port}",
-            "IDE_AUTH_TOKEN=${bridge.token}",
-            "WORKSPACE_DIR=$workspaceDir",
-        )
 
         launchTerminal(
             actionContext.currentActivity,
             TerminalCommand(
                 exe = "/bin/bash",
                 args = args,
-                id = "ai-cli",
+                id = "${agent.name}-cli",
                 terminatePreviousSession = false,
                 workingDir = workspaceDir,
-                env = env,
+                env = AgentEnvironmentBuilder.buildMinimalBridgeEnv(bridge, workspaceDir),
             ),
         )
     }
