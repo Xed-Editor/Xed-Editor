@@ -23,8 +23,8 @@ class McpDispatcher(
     private val toolRegistry: () -> McpToolRegistry,
     private val ideService: IdeService,
     private val serverScope: CoroutineScope,
-    private val sendNotification: (String, JsonObject) -> Unit = { _, _ -> },
 ) {
+    @Volatile var sendNotification: (String, JsonObject) -> Unit = { _, _ -> }
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val _streamingResponses = MutableSharedFlow<Pair<String, JsonObject>>(extraBufferCapacity = 128)
     val streamingResponses: Flow<Pair<String, JsonObject>> = _streamingResponses.asSharedFlow()

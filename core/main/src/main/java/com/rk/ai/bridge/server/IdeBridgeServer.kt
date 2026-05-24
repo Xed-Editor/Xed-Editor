@@ -36,13 +36,12 @@ class IdeBridgeServer(
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val serverScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var toolRegistry = McpToolRegistry()
+    private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
     private val mcpDispatcher = McpDispatcher(
         toolRegistry = { toolRegistry },
         ideService = initialIdeService,
         serverScope = serverScope,
-        sendNotification = { method, params -> sseManager.sendNotification(method, params) }
     )
-    private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
     private val sseManager = SseManager(mcpDispatcher, { gson.toJson(currentIdeContext()) }, { httpSessionTracker.updateSseCount(it) }, serverScope)
 
     @Volatile var connectedClients: Int = 0; private set
@@ -63,6 +62,7 @@ class IdeBridgeServer(
     private val toolConcurrencyLimit = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
 
     init {
+        mcpDispatcher.sendNotification = { method, params -> sseManager.sendNotification(method, params) }
         registerTools(toolRegistry)
         httpSessionTracker.startBackgroundCleanup(serverScope)
     }
