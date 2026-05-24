@@ -4,7 +4,7 @@
     <string name="internal_storage">אחסון חיצוני</string>
     <string name="unsupported_content">תוכן לא נתמך</string>
     <string name="save">שמירה</string>
-    <string name="open_directory">פתח תיקיה</string>
+    <string name="open_directory">פתיחת תיקיה</string>
     <string name="new_file">קובץ חדש</string>
     <string name="wait">אנא המתן…</string>
     <string name="copy">העתק</string>
@@ -92,7 +92,7 @@
     <string name="undo">בטל</string>
     <string name="apply">החל</string>
     <string name="text_size_desc">הגדר גודל טקסט</string>
-    <string name="restart_required">‫נדרש הפעלה מחדש</string>
+    <string name="restart_required">‫נדרשת הפעלה מחדש</string>
     <string name="settings">הגדרות</string>
     <string name="check_for_updates">בדוק אם יש עדכונים</string>
     <string name="theme_mode">עיצוב</string>
