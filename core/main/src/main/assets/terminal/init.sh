@@ -29,7 +29,7 @@ fi
 
 ensure_packages_once() {
     local marker_file="/.cache/.packages_ensured"
-    local PACKAGES=("command-not-found" "sudo" "xkb-data")
+    local PACKAGES=("command-not-found" "sudo" "xkb-data" "libjemalloc-dev")
 
     # Exit early if already done
     [[ -f "$marker_file" ]] && return 0

@@ -127,6 +127,83 @@ rm "$TMP_DIR"/sandbox.tar.gz
 # DO NOT REMOVE THIS FILE JUST DON'T, TRUST ME
 touch $LOCAL/.terminal_setup_ok_DO_NOT_REMOVE
 
+
+
+info "Installing Node.js APT hook…"
+
+mkdir -p "$SANDBOX_DIR/etc/apt/apt.conf.d"
+mkdir -p "$SANDBOX_DIR/usr/local/bin"
+
+cat > "$SANDBOX_DIR/etc/apt/apt.conf.d/99node-hook" << 'EOF'
+DPkg::Post-Invoke {
+    "if [ -x /usr/bin/node ]; then /usr/local/bin/node-postinstall.sh; fi";
+};
+EOF
+
+cat > "$SANDBOX_DIR/usr/local/bin/node-postinstall.sh" << 'EOF'
+#!/bin/sh
+set -e
+
+echo "[node-hook] Running Node.js post-install hook..."
+
+JEMALLOC=""
+
+echo "[node-hook] Searching for jemalloc..."
+
+for path in \
+    /usr/lib/*/libjemalloc.so* \
+    /usr/lib/libjemalloc.so* \
+    /lib/*/libjemalloc.so* \
+    /lib/libjemalloc.so*; do
+
+    if [ -e "$path" ]; then
+        JEMALLOC="$path"
+        echo "[node-hook] Found jemalloc: $JEMALLOC"
+        break
+    fi
+done
+
+if [ -z "$JEMALLOC" ]; then
+    echo "[node-hook] jemalloc not installed, skipping"
+    exit 0
+fi
+
+if [ ! -e /usr/bin/node ]; then
+    echo "[node-hook] Node binary not found, skipping"
+    exit 0
+fi
+
+if [ -e /usr/bin/node.distrib ]; then
+    echo "[node-hook] Node already wrapped, skipping"
+    exit 0
+fi
+
+echo "[node-hook] Verifying node binary..."
+
+if file /usr/bin/node | grep -q ELF; then
+    echo "[node-hook] Wrapping Node.js with jemalloc..."
+
+    mv /usr/bin/node /usr/bin/node.distrib
+
+    cat > /usr/bin/node << WRAP
+#!/bin/sh
+LD_PRELOAD=$JEMALLOC exec /usr/bin/node.distrib "\$@"
+WRAP
+
+    chmod +x /usr/bin/node
+
+    echo "[node-hook] Node wrapper installed successfully"
+else
+    echo "[node-hook] /usr/bin/node is not an ELF binary, skipping"
+fi
+EOF
+
+chmod +x "$SANDBOX_DIR/usr/local/bin/node-postinstall.sh"
+
+info "Node.js APT hook installed"
+
+
+
 if [ $# -gt 0 ]; then
     sh $@
 else
