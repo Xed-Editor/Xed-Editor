@@ -10,8 +10,8 @@ import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.ScriptedLspServer
 
 object XML : ScriptedLspServer() {
-    override val id: String = "xml"
-    override val languageName: String = "XML"
+    override val id = "xml"
+    override val languageName = "XML"
     override val serverName = "lemminx"
     override val supportedExtensions = BuiltinFileType.XML.extensions
     override val icon = BuiltinFileType.XML.icon
