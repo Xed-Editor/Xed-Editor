@@ -5,12 +5,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.App
+import com.rk.App.Companion.extensionManager
 import com.rk.activities.settings.SettingsActivity
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionError
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.StoreExtension
+import com.rk.extension.UpdatableExtension
 import com.rk.extension.installExtensionFromZip
 import com.rk.extension.load
 import com.rk.file.toFileObject
@@ -34,7 +36,7 @@ suspend fun runExtensionUninstallAction(
     updateInstallState: (InstallState) -> Unit,
     activity: AppCompatActivity?,
 ) {
-    App.extensionManager.uninstallExtension(extension.id).onFailure {
+    extensionManager.uninstallExtension(extension.id).onFailure {
         errorDialog(it, activity)
         return
     }
@@ -58,7 +60,7 @@ suspend fun runExtensionInstallAction(
             loading.setMessage(strings.installing.getString())
 
             val result =
-                App.extensionManager.installStoreExtension(context, extension).getOrElse {
+                extensionManager.installStoreExtension(context, extension).getOrElse {
                     loading.hide()
                     errorDialog(it.message ?: strings.unknown_error.getString(), activity)
                     updateInstallState(InstallState.Idle)
@@ -80,6 +82,46 @@ suspend fun runExtensionInstallAction(
             loading?.hide()
             errorDialog(it, activity)
             updateInstallState(InstallState.Idle)
+        }
+}
+
+suspend fun runExtensionUpdateAction(
+    extension: UpdatableExtension,
+    updateInstallState: (InstallState) -> Unit,
+    scope: CoroutineScope,
+    context: Context,
+    activity: AppCompatActivity?,
+) {
+    updateInstallState(InstallState.Updating)
+    var loading: LoadingPopup? = null
+
+    runCatching {
+            loading = LoadingPopup(activity).show()
+            loading.setMessage(strings.updating.getString())
+
+            val result =
+                extensionManager.installStoreExtension(context, extension.store).getOrElse {
+                    loading.hide()
+                    errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                    updateInstallState(InstallState.Idle)
+                    return@runCatching
+                }
+
+            handleInstallResult(result, activity, { updateInstallState(InstallState.Idle) }) { ext ->
+                updateInstallState(InstallState.Installed)
+
+                scope.launch(Dispatchers.Default) {
+                    ext.load(application!!).onFailure {
+                        errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                    }
+                }
+            }
+            loading.hide()
+        }
+        .onFailure {
+            loading?.hide()
+            errorDialog(it, activity)
+            updateInstallState(InstallState.Updatable)
         }
 }
 

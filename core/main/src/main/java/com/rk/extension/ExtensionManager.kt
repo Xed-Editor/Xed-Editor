@@ -42,6 +42,33 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         }
     }
 
+    fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
+
+    fun getExtension(extensionId: ExtensionId): Extension? {
+        val local = localExtensions[extensionId]
+        val store = storeExtension[extensionId]
+
+        return when {
+            local != null && store != null -> UpdatableExtension(local, store)
+            local != null -> local
+            store != null -> store
+            else -> null
+        }
+    }
+
+    fun getSyncedExtensions(): List<Extension> {
+        val allIds = localExtensions.keys + storeExtension.keys
+        return allIds.mapNotNull { id -> getExtension(id) }
+    }
+
+    fun getLocalExtensions(): List<Extension> {
+        return getSyncedExtensions().filterIsInstance<LocalExtension>()
+    }
+
+    fun getStoreExtensions(): List<Extension> {
+        return getSyncedExtensions().filter { it is StoreExtension || it is UpdatableExtension }
+    }
+
     suspend fun indexLocalExtensions() =
         mutex.withLock {
             localExtensions.clear()
@@ -182,11 +209,4 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             delete()
         } else if (name.startsWith(pkgName)) delete()
     }
-
-    fun isInstalled(extensionId: ExtensionId) = localExtensions.containsKey(extensionId)
-
-    fun getExtension(extensionId: ExtensionId) = localExtensions[extensionId] ?: storeExtension[extensionId]
-
-    fun getExtensionManifest(extensionId: ExtensionId) =
-        localExtensions[extensionId]?.manifest ?: storeExtension[extensionId]?.manifest
 }

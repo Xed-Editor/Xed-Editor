@@ -59,6 +59,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayoutLazyColumn
 import com.rk.extension.Extension
 import com.rk.extension.StoreExtension
+import com.rk.extension.UpdatableExtension
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.Typography
@@ -116,10 +117,10 @@ fun ExtensionScreen(navController: NavController) {
         remember(selectedCategory) {
             derivedStateOf {
                 when (selectedCategory) {
-                    ExtensionCategories.ALL -> extensionManager.localExtensions + extensionManager.storeExtension
-                    ExtensionCategories.LOCAL -> extensionManager.localExtensions
-                    ExtensionCategories.STORE -> extensionManager.storeExtension
-                }.map { it.value }
+                    ExtensionCategories.ALL -> extensionManager.getSyncedExtensions()
+                    ExtensionCategories.LOCAL -> extensionManager.getLocalExtensions()
+                    ExtensionCategories.STORE -> extensionManager.getStoreExtensions()
+                }
             }
         }
     val filteredExtensions by
@@ -211,24 +212,28 @@ fun ExtensionScreen(navController: NavController) {
 
         if (sortedExtension.isNotEmpty() || isIndexing || isFetching) {
             items(sortedExtension, key = { it.id }) { extension ->
-                var installState by remember {
-                    mutableStateOf(
-                        if (extensionManager.isInstalled(extension.id)) {
-                            InstallState.Installed
-                        } else {
-                            InstallState.Idle
-                        }
-                    )
-                }
+                var installState by
+                    remember(extension) {
+                        mutableStateOf(
+                            if (extensionManager.isInstalled(extension.id)) {
+                                if (extension is UpdatableExtension && extension.isUpdatable()) {
+                                    InstallState.Updatable
+                                } else {
+                                    InstallState.Installed
+                                }
+                            } else {
+                                InstallState.Idle
+                            }
+                        )
+                    }
 
                 ExtensionCard(
                     modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
                     extension = extension,
                     installState = installState,
-                    onInstallClick = {
-                        runExtensionInstallAction(extension, { installState = it }, scope, context, activity)
-                    },
-                    onUninstallClick = { runExtensionUninstallAction(extension, { installState = it }, activity) },
+                    onInstallClick = { runExtensionInstallAction(it, { installState = it }, scope, context, activity) },
+                    onUninstallClick = { runExtensionUninstallAction(it, { installState = it }, activity) },
+                    onUpdateClick = { runExtensionUpdateAction(it, { installState = it }, scope, context, activity) },
                     onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
                 )
             }

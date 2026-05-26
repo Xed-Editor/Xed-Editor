@@ -16,7 +16,8 @@ import okhttp3.Request
 
 @Serializable private data class ExtensionDetail(val downloads: Int? = null, val download: DownloadUrls)
 
-@Serializable private data class DownloadUrls(val icon: String? = null, val readme: String? = null, val zip: String)
+@Serializable
+private data class DownloadUrls(val icon: String? = null, val readme: String? = null, val zip: String, val size: Int)
 
 object ExtensionRegistry {
     private const val TAG = "ExtensionRegistry"
@@ -45,16 +46,22 @@ object ExtensionRegistry {
 
     fun getChangelogUrl(id: String): String = "$BASE_URL/$id/CHANGELOG.md"
 
-    suspend fun getDownloadCount(id: String): Int? = getDetails(id)?.downloads
-
-    private suspend fun getDetails(id: String): ExtensionDetail? =
-        runCatching {
-                withContext(Dispatchers.IO) {
-                    val jsonString = requestJson("$BASE_URL/$id")
-                    json.decodeFromString<ExtensionDetail>(jsonString)
+    suspend fun getStats(id: String): ExtensionStats {
+        val details =
+            runCatching {
+                    withContext(Dispatchers.IO) {
+                        val jsonString = requestJson("$BASE_URL/$id")
+                        json.decodeFromString<ExtensionDetail>(jsonString)
+                    }
                 }
-            }
-            .getOrNull()
+                .getOrNull()
+
+        return ExtensionStats(
+            downloadCount = details?.downloads,
+            rating = null,
+            size = details?.download?.size?.toLong(),
+        )
+    }
 
     private fun requestJson(url: String): String {
         val req = Request.Builder().url(url).build()
@@ -69,7 +76,7 @@ object ExtensionRegistry {
     suspend fun downloadZip(manifest: ExtensionManifest, destFile: File): Boolean =
         withContext(Dispatchers.IO) {
             runCatching {
-                    val zipUrl = getDetails(manifest.id)?.download?.zip ?: error("Extension ZIP file was not found.")
+                    val zipUrl = "$BASE_URL/${manifest.id}/plugin.zip"
 
                     val request = Request.Builder().url(zipUrl).build()
                     client.newCall(request).execute().use { response ->
