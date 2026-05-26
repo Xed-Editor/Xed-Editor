@@ -522,7 +522,7 @@
     <string name="index_project_desc">Indexar puede mejorar los tiempos de búsqueda para proyectos grandes</string>
     <string name="always_index_projects">Siempre indexar proyectos</string>
     <string name="indexing_stats">%1$s archivos indexados, el tamaño de la base de datos es %2$s</string>
-    <string name="ask_deletion_many">¿Está seguro que desea eliminar permanentemente %d archivos?</string>
+    <string name="ask_deletion_many">¿Confirma que desea eliminar permanentemente %d archivos?</string>
     <string name="files_unsaved">Archivos no guardados</string>
     <string name="ask_multiple_unsaved">¿Está seguro que desea descartes estos documentos no guardados?</string>
     <string name="ask_lsp_update">¿Le gustaría actualizar el idioma \'%s\' del servidor?</string>
@@ -629,4 +629,11 @@
     <string name="invalid_color">Color no válido</string>
     <string name="color_picker">Elije un color</string>
     <string name="inlay_hints">Consejos embebidos</string>
+    <string name="updating">Actualizar…</string>
+    <string name="auto_closing_bracket">Auto‐cerrar corchete</string>
+    <string name="auto_closing_bracket_desc">Inserta automáticamente coincidencias de cierre de corchete</string>
+    <string name="confirm_exit_dialog">Confirmar diálogo de salida</string>
+    <string name="confirm_exit_dialog_desc">Muestra un diálogo de confirmación antes de cerrar la aplicación</string>
+    <string name="sort_lines_ascending">Ordena líneas ascencentes</string>
+    <string name="sort_lines_descending">Ordenar líneas descendentes</string>
 </resources>
