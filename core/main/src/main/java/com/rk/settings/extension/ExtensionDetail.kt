@@ -1,7 +1,9 @@
 package com.rk.settings.extension
 
+import android.content.Intent
 import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,10 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -42,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
@@ -50,6 +53,7 @@ import com.rk.App.Companion.extensionManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
+import com.rk.extension.UpdatableExtension
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
@@ -67,12 +71,17 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
 
     var isRefreshing by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
+    var showSourceCodeSheet by remember { mutableStateOf(false) }
 
     RefreshablePreferenceLayout(
         label = extension?.name ?: stringResource(strings.ext_not_found),
         backArrowVisible = true,
         isExpandedScreen = true,
         actions = {
+            IconButton(onClick = { showSourceCodeSheet = true }) {
+                Icon(painter = painterResource(drawables.xml), contentDescription = null)
+            }
+
             if (extension?.hasSettings == true) {
                 IconButton(
                     enabled = extensionManager.isInstalled(extension.id),
@@ -97,7 +106,11 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
             var installState by remember {
                 mutableStateOf(
                     if (extensionManager.isInstalled(extension.id)) {
-                        InstallState.Installed
+                        if (extension is UpdatableExtension && extension.isUpdatable()) {
+                            InstallState.Updatable
+                        } else {
+                            InstallState.Installed
+                        }
                     } else {
                         InstallState.Idle
                     }
@@ -105,9 +118,13 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
             }
 
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                AboutSection(extension, installState, { installState = it }, scope)
+                AboutSection(extension, refreshKey, installState, { installState = it }, scope)
             }
             TabSection(extension, scope, refreshKey, onLoaded = { isRefreshing = false })
+
+            if (showSourceCodeSheet) {
+                SourceCodeSheet(extension) { showSourceCodeSheet = false }
+            }
         }
     }
 }
@@ -115,14 +132,13 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
 @Composable
 private fun AboutSection(
     extension: Extension,
+    refreshKey: Int,
     installState: InstallState,
     updateInstallState: (InstallState) -> Unit,
     scope: CoroutineScope,
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current as? AppCompatActivity
-
-    var showSourceCodeSheet by remember { mutableStateOf(false) }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         AsyncImage(
@@ -148,49 +164,83 @@ private fun AboutSection(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                Row(
+                    modifier =
+                        Modifier.clickable(
+                            enabled = extension.author.github != null,
+                            onClick = {
+                                val githubProfileUrl = extension.author.github.let { "https://github.com/$it" }
+                                val intent = Intent(Intent.ACTION_VIEW, githubProfileUrl.toUri())
+                                context.startActivity(intent)
+                            },
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                    Text(
+                        text = "${extension.author}",
+                        style = Typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
                 Text(
-                    text = "${extension.author} • v${extension.version}",
+                    text = " • v${extension.version}",
                     style = Typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-            }
-        }
 
-        IconButton(onClick = { showSourceCodeSheet = true }) {
-            Icon(painter = painterResource(drawables.xml), contentDescription = null)
+                val isUpdatable = extension is UpdatableExtension && extension.isUpdatable()
+                if (isUpdatable) {
+                    Text(
+                        text = " → v${extension.newVersion}",
+                        style = Typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
 
         ExtensionActionButton(
             extension = extension,
             installState = installState,
             scope = scope,
-            onInstallClick = { runExtensionInstallAction(extension, updateInstallState, scope, context, activity) },
-            onUninstallClick = { runExtensionUninstallAction(extension, updateInstallState, activity) },
+            onInstallClick = { runExtensionInstallAction(it, updateInstallState, scope, context, activity) },
+            onUninstallClick = { runExtensionUninstallAction(it, updateInstallState, activity) },
+            onUpdateClick = { runExtensionUpdateAction(it, updateInstallState, scope, context, activity) },
         )
     }
 
-    val size by produceState("---") { value = formatFileSize(extension.calcSize()) }
-    val rating by
-        produceState<Pair<String, ImageVector?>>("---" to null) {
-            val rating = extension.getRating() ?: return@produceState
-            value = rating.toString() to Icons.Default.Star
+    var size by remember { mutableStateOf("---") }
+    var rating by remember { mutableStateOf("---") }
+    var downloadCount by remember { mutableStateOf("---") }
+    var showStar by remember { mutableStateOf(false) }
+
+    LaunchedEffect(refreshKey) {
+        val stats = extension.getStats()
+        stats.size?.let { size = formatFileSize(it) }
+        stats.rating?.let {
+            rating = it.toString()
+            showStar = true
         }
-    val downloadCount by
-        produceState("---") {
-            val count = extension.getDownloadCount() ?: return@produceState
-            value = formatNumberCompact(count)
-        }
-    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.rating).uppercase(), rating.first, rating.second)
-        ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
+        stats.downloadCount?.let { downloadCount = formatNumberCompact(it) }
     }
 
-    if (showSourceCodeSheet) {
-        SourceCodeSheet(extension) { showSourceCodeSheet = false }
+    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
+        ExtensionStats(
+            Modifier.weight(1f),
+            stringResource(strings.rating).uppercase(),
+            rating,
+            if (showStar) Icons.Default.Star else null,
+        )
+        ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
     }
 }
 

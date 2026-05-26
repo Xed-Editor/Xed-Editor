@@ -27,6 +27,7 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.rk.extension.Extension
+import com.rk.extension.UpdatableExtension
 import com.rk.resources.drawables
 import com.rk.theme.Typography
 
@@ -38,6 +39,7 @@ fun ExtensionCard(
     installState: InstallState = InstallState.Idle,
     onInstallClick: suspend (Extension) -> Unit,
     onUninstallClick: suspend (Extension) -> Unit,
+    onUpdateClick: suspend (UpdatableExtension) -> Unit,
     onClick: (Extension) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
@@ -81,10 +83,21 @@ fun ExtensionCard(
                         style = Typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+
+                    val isUpdatable = extension is UpdatableExtension && extension.isUpdatable()
+                    if (isUpdatable) {
+                        Text(
+                            text = " → v${extension.newVersion}",
+                            style = Typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
 
-            ExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick)
+            ExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick, onUpdateClick)
         }
     }
 }

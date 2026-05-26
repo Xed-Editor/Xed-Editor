@@ -5,7 +5,11 @@ import android.content.pm.PackageManager
 import dalvik.system.PathClassLoader
 import java.io.File
 import java.util.Date
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+
+data class ExtensionStats(val downloadCount: Int?, val rating: Float?, val size: Long?)
 
 sealed interface Extension {
     val id: ExtensionId
@@ -23,13 +27,9 @@ sealed interface Extension {
     val readmeUrl: String
     val changelogUrl: String
 
-    suspend fun calcSize(): Long
-
-    suspend fun getRating(): Float?
+    suspend fun getStats(): ExtensionStats
 
     suspend fun getReviews(): List<Review>
-
-    suspend fun getDownloadCount(): Int?
 }
 
 data class Review(val rating: Int, val text: String, val author: String, val date: Date, val authorResponse: String?)
@@ -69,8 +69,6 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override val hasSettings: Boolean
         get() = manifest.hasSettings
 
-    override suspend fun getRating() = null
-
     override val iconUrl: String
         get() = ExtensionRegistry.getIconUrl(manifest.id)
 
@@ -80,11 +78,9 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override val changelogUrl
         get() = ExtensionRegistry.getChangelogUrl(manifest.id)
 
-    override suspend fun calcSize() = 0L // TODO
+    override suspend fun getStats() = ExtensionRegistry.getStats(manifest.id)
 
     override suspend fun getReviews(): List<Review> = emptyList()
-
-    override suspend fun getDownloadCount() = ExtensionRegistry.getDownloadCount(manifest.id)
 }
 
 /** Extensions that are installed locally (from disk). */
@@ -145,76 +141,79 @@ data class LocalExtension(
     override val changelogUrl
         get() = "$installPath/CHANGELOG.md"
 
-    override suspend fun calcSize(): Long {
-        var totalSize = 0L
-        val stack = ArrayDeque<File>()
-        stack.add(File(installPath))
-
-        loop@ while (stack.isNotEmpty()) {
-            val current = stack.removeLast()
-            runCatching {
-                if (current.isDirectory()) {
-                    val files = current.listFiles() ?: continue@loop
-                    stack.addAll(files)
-                } else {
-                    totalSize += current.length()
-                }
-            }
-        }
-        return totalSize
+    override suspend fun getStats(): ExtensionStats {
+        return ExtensionStats(null, null, calcSize())
     }
 
-    override suspend fun getRating() = null
+    private suspend fun calcSize(): Long {
+        return withContext(Dispatchers.IO) {
+            var totalSize = 0L
+            val stack = ArrayDeque<File>()
+            stack.add(File(installPath))
+
+            loop@ while (stack.isNotEmpty()) {
+                val current = stack.removeLast()
+                runCatching {
+                    if (current.isDirectory()) {
+                        val files = current.listFiles() ?: continue@loop
+                        stack.addAll(files)
+                    } else {
+                        totalSize += current.length()
+                    }
+                }
+            }
+            totalSize
+        }
+    }
 
     override suspend fun getReviews(): List<Review> = emptyList()
-
-    override suspend fun getDownloadCount() = null
 }
 
 data class UpdatableExtension(val installed: LocalExtension, val store: StoreExtension) : Extension {
     override val id
-        get() = installed.id
+        get() = store.id
 
     override val name
-        get() = installed.name
+        get() = store.name
 
     override val version
         get() = installed.version
 
+    val newVersion: String
+        get() = store.version
+
     override val author
-        get() = installed.author
+        get() = store.author
 
     override val description
-        get() = installed.description
+        get() = store.description
 
     override val tags
-        get() = installed.tags
+        get() = store.tags
 
     override val repository
-        get() = installed.repository
+        get() = store.repository
 
     override val license
-        get() = installed.license
+        get() = store.license
 
     override val hasSettings: Boolean
         get() = installed.hasSettings
 
     override val iconUrl
-        get() = installed.iconUrl
+        get() = store.iconUrl
 
     override val readmeUrl
-        get() = installed.readmeUrl
+        get() = store.readmeUrl
 
     override val changelogUrl
-        get() = installed.changelogUrl
+        get() = store.changelogUrl
 
-    override suspend fun calcSize() = installed.calcSize()
-
-    override suspend fun getRating() = store.getRating()
+    override suspend fun getStats() = store.getStats()
 
     override suspend fun getReviews() = store.getReviews()
 
-    override suspend fun getDownloadCount() = store.getDownloadCount()
+    fun isUpdatable() = installed.version != store.version
 }
 
 fun LocalExtension.classLoader(parent: ClassLoader?) = PathClassLoader(apkFile.absolutePath, parent)
