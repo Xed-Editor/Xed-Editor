@@ -145,7 +145,8 @@ private fun AboutSection(
             model =
                 ImageRequest.Builder(LocalContext.current)
                     .data(extension.iconUrl)
-                    .fallback(drawables.extension)
+                    .placeholder(drawables.extension)
+                    .error(drawables.extension)
                     .crossfade(true)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)

@@ -2,11 +2,13 @@ package com.rk.settings.extension
 
 import android.graphics.Typeface
 import android.text.Spanned
+import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -79,9 +81,16 @@ fun MarkdownViewer(url: String?, refreshKey: Int, onLoaded: () -> Unit, modifier
             }
 
             is MarkdownStatus.Success -> {
+                val selectionColors = LocalTextSelectionColors.current
+                val selectionBackground = selectionColors.backgroundColor
                 AndroidView(
                     factory = { ctx -> TextView(ctx) },
-                    update = { it.text = state.spanned },
+                    update = {
+                        it.text = state.spanned
+                        it.setTextIsSelectable(true)
+                        it.movementMethod = LinkMovementMethod.getInstance()
+                        it.highlightColor = selectionBackground.toArgb()
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

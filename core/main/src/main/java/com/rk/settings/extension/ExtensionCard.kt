@@ -51,17 +51,21 @@ fun ExtensionCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
     ) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             AsyncImage(
                 model =
                     ImageRequest.Builder(LocalContext.current)
                         .data(extension.iconUrl)
-                        .fallback(drawables.extension)
+                        .placeholder(drawables.extension)
+                        .error(drawables.extension)
                         .crossfade(true)
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED)
                         .build(),
-                modifier = Modifier.size(56.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
+                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
                 contentDescription = null,
             )
 
