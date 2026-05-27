@@ -61,7 +61,7 @@ fun FileIcon(file: FileObject, iconTint: Color? = null, isExpanded: Boolean = fa
                 MaterialTheme.colorScheme.primary
             } else MaterialTheme.colorScheme.secondary
 
-    val useTint = currentIconPack.value?.info?.applyTint == true
+    val useTint = currentIconPack.value?.manifest?.applyTint == true
 
     if (iconPackFile != null) {
         AsyncImage(
@@ -104,7 +104,7 @@ fun FileNameIcon(fileName: String, isDirectory: Boolean, iconTint: Color? = null
                 MaterialTheme.colorScheme.primary
             } else MaterialTheme.colorScheme.secondary
 
-    val useTint = currentIconPack.value?.info?.applyTint == true
+    val useTint = currentIconPack.value?.manifest?.applyTint == true
 
     if (iconPackFile != null) {
         AsyncImage(

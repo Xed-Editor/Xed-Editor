@@ -13,8 +13,8 @@ data class ExtensionManifest(
     val version: String = "1.0.0",
     val description: String? = null,
     val author: ExtensionAuthor,
-    val minAppVersion: Int = -1, // -1 means supports all versions
-    val targetAppVersion: Int = -1, // -1 means supports all versions
+    val minAppVersion: Int? = null, // null means no minimum restriction
+    val maxAppVersion: Int? = null, // null means no maximum restriction
     val repository: String,
     val license: String? = null,
     val tags: List<String> = emptyList(),

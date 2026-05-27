@@ -11,7 +11,13 @@ typealias IconPackId = String
 typealias IconPackPath = String
 
 @Serializable
-data class IconPackInfo(val id: IconPackId, val name: String, val applyTint: Boolean = false, val icons: IconPackList)
+data class IconPackManifest(
+    val id: IconPackId,
+    val name: String,
+    val minAppVersion: Int? = null,
+    val applyTint: Boolean = false,
+    val icons: IconPackList,
+)
 
 @Serializable
 data class IconPackList(
@@ -25,7 +31,7 @@ data class IconPackList(
     val languageNames: Map<String, IconPackPath> = emptyMap(),
 )
 
-data class IconPack(val info: IconPackInfo, val installDir: File) {
+data class IconPack(val manifest: IconPackManifest, val installDir: File) {
     fun getIconFileForFile(file: FileObject, isExpanded: Boolean = false): File? {
         val fileName = file.getName()
         val isDirectory = file.isDirectory()
@@ -37,26 +43,27 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
             if (isDirectory) {
                 if (isExpanded) {
                     // First use folderNamesExpanded, then defaultFolderExpanded
-                    info.icons.folderNamesExpanded[fileName.lowercase()]
+                    manifest.icons.folderNamesExpanded[fileName.lowercase()]
                         ?.let { installDir.resolve(it) }
-                        ?.takeIf { it.exists() } ?: installDir.resolve(info.icons.defaultFolderExpanded)
+                        ?.takeIf { it.exists() } ?: installDir.resolve(manifest.icons.defaultFolderExpanded)
                 } else {
                     // First use folderNames, then defaultFolder
-                    info.icons.folderNames[fileName.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
-                        ?: installDir.resolve(info.icons.defaultFolder)
+                    manifest.icons.folderNames[fileName.lowercase()]
+                        ?.let { installDir.resolve(it) }
+                        ?.takeIf { it.exists() } ?: installDir.resolve(manifest.icons.defaultFolder)
                 }
             } else {
                 // First use fileNames, then fileExtensions, then languageNames, then defaultFile
                 val ext = fileName.substringAfterLast(".", "")
 
-                info.icons.fileNames[fileName.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
-                    ?: info.icons.fileExtensions[ext.lowercase()]
+                manifest.icons.fileNames[fileName.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
+                    ?: manifest.icons.fileExtensions[ext.lowercase()]
                         ?.let { installDir.resolve(it) }
                         ?.takeIf { it.exists() }
-                    ?: info.icons.languageNames[FileTypeManager.fromExtension(ext).name.lowercase()]
+                    ?: manifest.icons.languageNames[FileTypeManager.fromExtension(ext).name.lowercase()]
                         ?.let { installDir.resolve(it) }
                         ?.takeIf { it.exists() }
-                    ?: installDir.resolve(info.icons.defaultFile)
+                    ?: installDir.resolve(manifest.icons.defaultFile)
             }
 
         // If no icon was working (even the fallback ones)
@@ -68,11 +75,13 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
     fun getIconFileForExt(fileExtension: String): File? {
         val path =
             // First use fileExtensions, then languageNames, then defaultFile
-            info.icons.fileExtensions[fileExtension.lowercase()]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
-                ?: info.icons.languageNames[FileTypeManager.fromExtension(fileExtension).name.lowercase()]
+            manifest.icons.fileExtensions[fileExtension.lowercase()]
+                ?.let { installDir.resolve(it) }
+                ?.takeIf { it.exists() }
+                ?: manifest.icons.languageNames[FileTypeManager.fromExtension(fileExtension).name.lowercase()]
                     ?.let { installDir.resolve(it) }
                     ?.takeIf { it.exists() }
-                ?: installDir.resolve(info.icons.defaultFile)
+                ?: installDir.resolve(manifest.icons.defaultFile)
 
         // If no icon was working (even the fallback ones)
         if (!path.exists()) return null
@@ -86,9 +95,9 @@ data class IconPack(val info: IconPackInfo, val installDir: File) {
 
         val path =
             // First use fileExtensions, then languageNames, then defaultFile
-            extension?.let { info.icons.fileExtensions[it] }?.let { installDir.resolve(it) }?.takeIf { it.exists() }
-                ?: info.icons.languageNames[typeName]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
-                ?: installDir.resolve(info.icons.defaultFile)
+            extension?.let { manifest.icons.fileExtensions[it] }?.let { installDir.resolve(it) }?.takeIf { it.exists() }
+                ?: manifest.icons.languageNames[typeName]?.let { installDir.resolve(it) }?.takeIf { it.exists() }
+                ?: installDir.resolve(manifest.icons.defaultFile)
 
         // If no icon was working (even the fallback ones)
         if (!path.exists()) return null

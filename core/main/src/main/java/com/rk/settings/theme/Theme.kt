@@ -180,17 +180,17 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
             )
 
             iconPackManager.iconPacks.forEach { (id, iconPack) ->
-                val iconPackInfo = iconPack.info
+                val iconPackManifest = iconPack.manifest
 
                 SettingsToggle(
-                    label = iconPackInfo.name,
+                    label = iconPackManifest.name,
                     description = null,
                     showSwitch = false,
                     default = false,
                     startWidget = {
                         RadioButton(
                             modifier = Modifier.padding(start = 16.dp),
-                            selected = currentIconPack.value?.info?.id == id,
+                            selected = currentIconPack.value?.manifest?.id == id,
                             onClick = null,
                         )
                     },
@@ -201,7 +201,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                     endWidget = {
                         IconButton(
                             onClick = {
-                                if (currentIconPack.value?.info?.id == id) {
+                                if (currentIconPack.value?.manifest?.id == id) {
                                     currentIconPack.value = null
                                     Settings.icon_pack = ""
                                 }

@@ -66,20 +66,10 @@ suspend fun ThemeConfig.installTheme() =
             return@withContext
         }
 
-        if (targetVersion == null) {
-            dialog(
-                context = SettingsActivity.instance,
-                title = strings.theme_install_failed.getString(),
-                msg = strings.theme_version_missing.getString(),
-                cancelable = false,
-            )
-            return@withContext
-        }
-
         val packageName = application!!.packageName
         val packageManager = application!!.packageManager
         val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
-        if (targetVersion.toLong() != currentVersionCode) {
+        if (minAppVersion != null && minAppVersion.toLong() > currentVersionCode) {
             dialog(
                 context = SettingsActivity.instance,
                 title = strings.warning.getString(),
