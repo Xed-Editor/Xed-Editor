@@ -64,7 +64,7 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.AgentCliSheet
 import com.rk.tabs.editor.AgentSheetTerminal
 import com.rk.terminal.TerminalViewModel
-import com.rk.terminal.changeSession
+import com.rk.terminal.changeTerminalSession
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.terminal.virtualkeys.VirtualKeysListener

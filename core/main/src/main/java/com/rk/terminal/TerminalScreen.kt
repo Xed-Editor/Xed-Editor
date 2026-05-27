@@ -66,9 +66,11 @@ import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
 import android.app.Activity
+import android.content.Context
 import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.termux.terminal.TerminalSession
+import java.io.File
 import com.rk.theme.LocalThemeHolder
 import com.rk.theme.ThemeHolder
 import com.rk.utils.dpToPx
@@ -161,8 +163,7 @@ private fun ColumnScope.TerminalView(
                 if (activity != null && binder != null && service != null) {
                     val session = if (initialCwd != null) {
                         val sessionId = File(initialCwd).name + " #${service.sessionList.size + 1}"
-                        val intent = android.content.Intent().apply { putExtra("cwd", initialCwd) }
-                        val info = binder.createSession(sessionId, client, activity, intent)
+                        val info = binder.createSession(sessionId, client, activity)
                         service.currentSession.value = info?.id ?: service.currentSession.value
                         info?.session
                     } else if (pendingCommand != null) {

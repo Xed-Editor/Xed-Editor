@@ -1,6 +1,7 @@
 package com.rk.terminal
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Build
 import com.rk.activities.main.MainActivity
 import com.rk.exec.pendingCommand
@@ -15,6 +16,9 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
 import com.rk.utils.isFDroid
+import com.rk.terminal.NEXT_STAGE
+import com.rk.terminal.getNextStage
+import com.rk.terminal.setupTerminalFiles
 import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -136,9 +140,8 @@ object MkSession {
             }
 
         val actualShell: String
-        val installNextStage = (activity as? Terminal)?.installNextStage
         val actualArgs: Array<String> =
-            if (installNextStage != null && installNextStage == NEXT_STAGE.EXTRACTION) {
+            if (getNextStage() == NEXT_STAGE.EXTRACTION) {
                 actualShell = "/system/bin/sh"
                 mutableListOf("-c", setupSH.absolutePath, *args).toTypedArray()
             } else {
