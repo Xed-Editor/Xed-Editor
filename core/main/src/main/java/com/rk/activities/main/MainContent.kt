@@ -51,7 +51,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import com.rk.ai.InlineAgentBar
-import com.rk.ai.AiAgentSheet
+import com.rk.ai.UnifiedToolSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
 import com.rk.components.compose.utils.addIf

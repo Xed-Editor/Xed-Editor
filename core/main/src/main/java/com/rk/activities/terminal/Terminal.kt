@@ -55,10 +55,11 @@ import com.rk.resources.strings
 import com.rk.terminal.NEXT_STAGE
 import com.rk.terminal.SessionService
 import com.rk.terminal.TerminalBackEnd
+import androidx.activity.viewModels
+import com.rk.terminal.TerminalViewModel
 import com.rk.terminal.TerminalScreen
 import com.rk.terminal.changeSession
 import com.rk.terminal.getNextStage
-import com.rk.terminal.terminalView
 import com.rk.theme.XedTheme
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
@@ -76,60 +77,39 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class Terminal : AppCompatActivity() {
-    var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
-    var isBound = false
-
-    val serviceConnection =
-        object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                val binder = service as SessionService.SessionBinder
-                sessionBinder = WeakReference(binder)
-                // sessionBinder = WeakReference(binder)
-                isBound = true
-                handleIntent(intent)
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                isBound = false
-                sessionBinder = null
-            }
-        }
+    private val terminalViewModel: TerminalViewModel by viewModels()
 
     override fun onStart() {
         super.onStart()
         ContextCompat.startForegroundService(this, Intent(this, SessionService::class.java))
-
-        Intent(this, SessionService::class.java).also { intent ->
-            bindService(intent, serviceConnection, BIND_AUTO_CREATE)
-        }
+        terminalViewModel.bindService(this)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        handleIntent(intent)
     }
 
     override fun onResume() {
         super.onResume()
         instance = this
+        handleIntent(intent)
     }
 
     fun handleIntent(intent: Intent) {
         this.intent = intent
-        val binder = sessionBinder?.get() ?: return
-        terminalView.get() ?: return
+        val binder = terminalViewModel.sessionBinder ?: return
+        terminalViewModel.terminalView ?: return
 
-        val pwd = intent.getStringExtra("cwd")
-        if (pwd == null) {
-            return
-        }
+        val pwd = intent.getStringExtra("cwd") ?: return
         val sessionId = File(pwd).name
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val client = TerminalBackEnd()
+            val client = TerminalBackEnd(terminalViewModel)
             val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)!!
 
-            this@Terminal.changeSession(info.id)
+            this@Terminal.changeSession(info.id, terminalViewModel)
             setIntent(Intent())
         }
     }
@@ -170,7 +150,7 @@ class Terminal : AppCompatActivity() {
         setContent {
             XedTheme {
                 Surface {
-                    if (sessionBinder != null) {
+                    if (terminalViewModel.sessionBinder != null) {
                         TerminalScreenHost(this)
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -365,7 +345,7 @@ class Terminal : AppCompatActivity() {
                     }
                 }
             } else {
-                TerminalScreen(terminalActivity = this@Terminal)
+                TerminalScreen(terminalViewModel = terminalViewModel)
             }
         }
     }
@@ -455,12 +435,6 @@ class Terminal : AppCompatActivity() {
                             withContext(Dispatchers.Main) { onProgress(downloadedBytes, totalBytes) }
                         }
                     }
-                }
-            }
-        }
-    }
-}
-             }
                 }
             }
         }

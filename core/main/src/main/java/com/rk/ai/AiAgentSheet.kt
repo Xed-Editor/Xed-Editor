@@ -10,8 +10,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
@@ -46,6 +47,8 @@ import com.rk.tabs.editor.AgentCliSheet
 import com.rk.tabs.editor.AgentSheetTerminal
 import com.rk.terminal.TerminalViewModel
 import com.rk.terminal.TerminalScreenInternal
+import com.rk.terminal.changeSession
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import java.io.File
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.Dispatchers
@@ -253,7 +256,7 @@ fun UnifiedToolSheet(
                     Tab(
                         selected = viewModel.bottomPanelMode == BottomPanelMode.AI,
                         onClick = { viewModel.bottomPanelMode = BottomPanelMode.AI },
-                        icon = { Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp)) },
+                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), null, modifier = Modifier.size(18.dp)) },
                         text = { Text("AI Agent", style = MaterialTheme.typography.labelMedium) },
                         selectedContentColor = colorScheme.primary,
                         unselectedContentColor = colorScheme.onSurfaceVariant
@@ -261,7 +264,7 @@ fun UnifiedToolSheet(
                     Tab(
                         selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
                         onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
-                        icon = { Icon(Icons.Default.Terminal, null, modifier = Modifier.size(18.dp)) },
+                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.terminal), null, modifier = Modifier.size(18.dp)) },
                         text = { Text("Terminal", style = MaterialTheme.typography.labelMedium) },
                         selectedContentColor = colorScheme.primary,
                         unselectedContentColor = colorScheme.onSurfaceVariant
@@ -366,7 +369,7 @@ fun UnifiedToolSheet(
                                     }
                                 },
                                 leadingIcon = if (sessionId == service.currentSession.value) {
-                                    { Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(16.dp)) }
+                                    { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), null, modifier = Modifier.size(16.dp)) }
                                 } else null
                             )
                         }

@@ -16,9 +16,9 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(private val terminalViewModel: TerminalViewModel) : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(private val terminalViewModel: TerminalViewModel? = null) : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
-        terminalViewModel.terminalView?.onScreenUpdated()
+        terminalViewModel?.terminalView?.onScreenUpdated()
     }
 
     override fun onTitleChanged(changedSession: TerminalSession) {}
@@ -31,8 +31,8 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel) : Termin
 
     override fun onPasteTextFromClipboard(session: TerminalSession?) {
         val clip = ClipboardUtils.getText().toString()
-        if (clip.trim { it <= ' ' }.isNotEmpty() && terminalViewModel.terminalView?.mEmulator != null) {
-            terminalViewModel.terminalView?.mEmulator?.paste(clip)
+        if (clip.trim { it <= ' ' }.isNotEmpty() && terminalViewModel?.terminalView?.mEmulator != null) {
+            terminalViewModel?.terminalView?.mEmulator?.paste(clip)
         }
     }
 
@@ -83,7 +83,7 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel) : Termin
 
     override fun onScale(scale: Float): Float {
         val fontScale = scale.coerceIn(11f, 45f)
-        terminalViewModel.terminalView?.setTextSize(fontScale.toInt())
+        terminalViewModel?.terminalView?.setTextSize(fontScale.toInt())
         return fontScale
     }
 
@@ -111,13 +111,13 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel) : Termin
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            val activity = terminalViewModel.terminalView?.context as? Terminal ?: return false
-            val binder = terminalViewModel.sessionBinder ?: return false
+            val activity = terminalViewModel?.terminalView?.context as? Terminal ?: return false
+            val binder = terminalViewModel?.sessionBinder ?: return false
             binder.terminateSession(binder.getService()?.currentSession?.value ?: "")
             if (binder.getService()?.sessionList?.isEmpty() == true) {
                 activity.finish()
             } else {
-                activity.changeSession(binder.getService()?.sessionList?.first() ?: "", terminalViewModel)
+                activity.changeSession(binder.getService()?.sessionList?.first() ?: "", terminalViewModel!!)
             }
             return true
         }
@@ -134,22 +134,22 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel) : Termin
 
     // keys
     override fun readControlKey(): Boolean {
-        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.CTRL, true)
+        val state = terminalViewModel?.virtualKeysView?.readSpecialButton(SpecialButton.CTRL, true)
         return state != null && state
     }
 
     override fun readAltKey(): Boolean {
-        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.ALT, true)
+        val state = terminalViewModel?.virtualKeysView?.readSpecialButton(SpecialButton.ALT, true)
         return state != null && state
     }
 
     override fun readShiftKey(): Boolean {
-        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.SHIFT, true)
+        val state = terminalViewModel?.virtualKeysView?.readSpecialButton(SpecialButton.SHIFT, true)
         return state != null && state
     }
 
     override fun readFnKey(): Boolean {
-        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.FN, true)
+        val state = terminalViewModel?.virtualKeysView?.readSpecialButton(SpecialButton.FN, true)
         return state != null && state
     }
 
@@ -162,13 +162,13 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel) : Termin
     }
 
     private fun setTerminalCursorBlinkingState(start: Boolean) {
-        if (terminalViewModel.terminalView?.mEmulator != null) {
-            terminalViewModel.terminalView?.setTerminalCursorBlinkerState(start, true)
+        if (terminalViewModel?.terminalView?.mEmulator != null) {
+            terminalViewModel?.terminalView?.setTerminalCursorBlinkerState(start, true)
         }
     }
 
     private fun showSoftInput() {
-        val view = terminalViewModel.terminalView ?: return
+        val view = terminalViewModel?.terminalView ?: return
         view.post {
             view.isFocusable = true
             view.isFocusableInTouchMode = true

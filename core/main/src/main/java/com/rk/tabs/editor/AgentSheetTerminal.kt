@@ -188,6 +188,7 @@ fun AgentCliSheet(
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
     bottomBar: (@Composable () -> Unit)? = null,
+    content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val ui = rememberGeminiSheetUiState()
 
@@ -204,6 +205,7 @@ fun AgentCliSheet(
         onDrag = ui.onDrag,
         onDragEnd = ui.onDragEndForInline,
         bottomBar = bottomBar,
+        content = content,
     )
 }
 
@@ -218,6 +220,7 @@ fun AgentCliModalSheet(
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
     bottomBar: (@Composable () -> Unit)? = null,
+    content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -250,6 +253,7 @@ fun AgentCliModalSheet(
             onDrag = ui.onDrag,
             onDragEnd = { ui.onDragEndForModal?.invoke() },
             bottomBar = bottomBar,
+            content = content,
         )
     }
 }
@@ -268,6 +272,7 @@ private fun AgentCliSheetContent(
     onDragStart: () -> Unit,
     onDrag: (Float) -> Unit,
     onDragEnd: () -> Unit,
+    content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(
@@ -324,6 +329,8 @@ private fun AgentCliSheetContent(
             if (showTerminal) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
                 AgentSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
+            } else {
+                content?.invoke(this)
             }
 
             bottomBar?.let {
