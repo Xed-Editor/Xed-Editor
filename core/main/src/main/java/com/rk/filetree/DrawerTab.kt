@@ -3,9 +3,8 @@ package com.rk.filetree
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.rk.icons.Icon
-import java.io.Serializable
 
-abstract class DrawerTab : Serializable {
+abstract class DrawerTab {
     @Composable abstract fun Content(modifier: Modifier)
 
     abstract fun getName(): String

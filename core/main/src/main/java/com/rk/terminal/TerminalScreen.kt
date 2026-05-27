@@ -79,7 +79,9 @@ import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
 import java.lang.ref.WeakReference
 import java.util.Properties
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun TerminalPanel(
@@ -161,25 +163,55 @@ private fun ColumnScope.TerminalView(
                 val service = binder?.getService()
 
                 if (activity != null && binder != null && service != null) {
-                    val session = if (initialCwd != null) {
-                        val sessionId = File(initialCwd).name + " #${service.sessionList.size + 1}"
-                        val info = binder.createSession(sessionId, client, activity)
-                        service.currentSession.value = info?.id ?: service.currentSession.value
-                        info?.session
-                    } else if (pendingCommand != null) {
-                        service.currentSession.value = pendingCommand!!.id
-                        binder.getSession(pendingCommand!!.id)
-                            ?: binder.createSession(pendingCommand!!.id, client, activity)?.session
-                    } else {
-                        val currentId = service.currentSession.value
-                        binder.getSession(currentId)
-                            ?: binder.createSession(currentId, client, activity)?.session
-                    }
+                    val scope = androidx.compose.runtime.rememberCoroutineScope()
+                    
+                    val mainViewModel = (activity as? MainActivity)?.viewModel
+                    val activeTab = mainViewModel?.tabManager?.currentTab as? EditorTab
+                    val activeFile = activeTab?.file?.getAbsolutePath() ?: ""
+                    val activeProject = activeTab?.projectRoot?.getAbsolutePath() ?: ""
 
-                    if (session != null) {
-                        session.updateTerminalSessionClient(client)
-                        attachSession(session)
-                        setTerminalViewClient(client)
+                    if (initialCwd != null) {
+                        scope.launch(Dispatchers.IO) {
+                            val sessionId = File(initialCwd).name + " #${service.sessionList.size + 1}"
+                            val info = binder.createSession(sessionId, client, activity, activeFile, activeProject)
+                            withContext(Dispatchers.Main) {
+                                service.currentSession.value = info?.id ?: service.currentSession.value
+                                info?.session?.let {
+                                    it.updateTerminalSessionClient(client)
+                                    attachSession(it)
+                                    setTerminalViewClient(client)
+                                }
+                            }
+                        }
+                    } else if (pendingCommand != null) {
+                        scope.launch(Dispatchers.IO) {
+                            val pcmd = pendingCommand!!
+                            val info = binder.getSession(pcmd.id)?.let { SessionInfo(pcmd.id, "", it) }
+                                ?: binder.createSession(pcmd.id, client, activity, activeFile, activeProject)
+                            
+                            withContext(Dispatchers.Main) {
+                                service.currentSession.value = pcmd.id
+                                info?.session?.let {
+                                    it.updateTerminalSessionClient(client)
+                                    attachSession(it)
+                                    setTerminalViewClient(client)
+                                }
+                            }
+                        }
+                    } else {
+                        scope.launch(Dispatchers.IO) {
+                            val currentId = service.currentSession.value
+                            val info = binder.getSession(currentId)?.let { SessionInfo(currentId, "", it) }
+                                ?: binder.createSession(currentId, client, activity, activeFile, activeProject)
+                            
+                            withContext(Dispatchers.Main) {
+                                info?.session?.let {
+                                    it.updateTerminalSessionClient(client)
+                                    attachSession(it)
+                                    setTerminalViewClient(client)
+                                }
+                            }
+                        }
                     }
                 }
 

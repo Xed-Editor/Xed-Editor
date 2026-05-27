@@ -1,15 +1,13 @@
 package com.rk.activities.main
 
+import com.google.gson.*
 import com.rk.file.child
 import com.rk.resources.strings
 import com.rk.tabs.base.Tab
 import com.rk.utils.application
 import com.rk.utils.toast
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serializable
+import java.io.File
+import java.lang.reflect.Type
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -24,7 +22,28 @@ import kotlinx.coroutines.withContext
  * @property currentTabIndex The index of the tab that was active when the session was saved. This is used to restore
  *   the user's focus to the correct tab.
  */
-data class SessionState(val tabStates: List<TabState>, val currentTabIndex: Int) : Serializable
+data class SessionState(val tabStates: List<TabState>, val currentTabIndex: Int)
+
+class TabStateAdapter : JsonSerializer<TabState>, JsonDeserializer<TabState> {
+    override fun serialize(src: TabState, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+        val jsonElement = when (src) {
+            is EditorTabState -> context.serialize(src, EditorTabState::class.java)
+            is FileTabState -> context.serialize(src, FileTabState::class.java)
+        }
+        jsonElement.asJsonObject.addProperty("type", src.javaClass.simpleName)
+        return jsonElement
+    }
+
+    override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): TabState {
+        val jsonObject = json.asJsonObject
+        val type = jsonObject.get("type").asString
+        return when (type) {
+            "EditorTabState" -> context.deserialize(json, EditorTabState::class.java)
+            "FileTabState" -> context.deserialize(json, FileTabState::class.java)
+            else -> throw JsonParseException("Unknown type: $type")
+        }
+    }
+}
 
 /**
  * Manages the saving and loading of the user's session state.
@@ -36,17 +55,20 @@ data class SessionState(val tabStates: List<TabState>, val currentTabIndex: Int)
  * synchronized using a [kotlinx.coroutines.sync.Mutex] to ensure thread safety.
  */
 object SessionManager {
+    private val gson = GsonBuilder()
+        .registerTypeAdapter(TabState::class.java, TabStateAdapter())
+        .create()
+        
     val mutex = Mutex()
     var preloadedSession: SessionState? = null
-    var tabCacheFile = application!!.filesDir.child("session")
+    var tabCacheFile = application!!.filesDir.child("session.json")
 
     suspend fun preloadSession() =
         mutex.withLock {
             runCatching {
                     if (tabCacheFile.exists() && tabCacheFile.canRead()) {
-                        ObjectInputStream(FileInputStream(tabCacheFile)).use { ois ->
-                            preloadedSession = ois.readObject() as? SessionState
-                        }
+                        val json = tabCacheFile.readText()
+                        preloadedSession = gson.fromJson(json, SessionState::class.java)
                     }
                 }
                 .onFailure { it.printStackTrace() }
@@ -58,8 +80,8 @@ object SessionManager {
                 runCatching {
                         val tabStates = tabs.mapNotNull { it.getState() }
                         val sessionState = SessionState(tabStates, currentTabIndex)
-
-                        ObjectOutputStream(FileOutputStream(tabCacheFile)).use { oos -> oos.writeObject(sessionState) }
+                        val json = gson.toJson(sessionState)
+                        tabCacheFile.writeText(json)
                     }
                     .onFailure {
                         it.printStackTrace()

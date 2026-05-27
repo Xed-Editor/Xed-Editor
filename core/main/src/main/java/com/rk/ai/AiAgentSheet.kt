@@ -338,7 +338,7 @@ fun UnifiedToolSheet(
                         onClick = {
                             if (editor?.canUndo() == true) {
                                 editor.undo()
-                                currentTab!!.editorState.updateUndoRedo()
+                                currentTab?.editorState?.updateUndoRedo()
                             }
                         },
                         enabled = editor?.canUndo() == true,
@@ -351,7 +351,7 @@ fun UnifiedToolSheet(
                         onClick = {
                             if (editor?.canRedo() == true) {
                                 editor.redo()
-                                currentTab!!.editorState.updateUndoRedo()
+                                currentTab?.editorState?.updateUndoRedo()
                             }
                         },
                         enabled = editor?.canRedo() == true,
@@ -407,11 +407,20 @@ fun UnifiedToolSheet(
                                     terminalViewModel.terminalView?.let { tv ->
                                         val activity = tv.context as? android.app.Activity ?: return@let
                                         val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
-                                        terminalViewModel.sessionBinder?.createSession(
-                                            "main #${service?.sessionList?.size?.plus(1) ?: 1}",
-                                            client,
-                                            activity,
-                                        )
+                                        val sessionBinder = terminalViewModel.sessionBinder ?: return@let
+                                        val activeTab = viewModel.currentTab as? EditorTab
+                                        val activeFile = activeTab?.file?.getAbsolutePath() ?: ""
+                                        val activeProject = activeTab?.projectRoot?.getAbsolutePath() ?: ""
+
+                                        scope.launch(Dispatchers.IO) {
+                                            sessionBinder.createSession(
+                                                "main #${service?.sessionList?.size?.plus(1) ?: 1}",
+                                                client,
+                                                activity,
+                                                activeFile = activeFile,
+                                                activeProject = activeProject
+                                            )
+                                        }
                                     }
                                 },
                                 leadingIcon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)) }
@@ -687,11 +696,23 @@ private fun TerminalQuickActions(
                     val activity = tv.context as? android.app.Activity ?: return@let
                     val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
                     val service = terminalViewModel.sessionBinder?.getService()
-                    terminalViewModel.sessionBinder?.createSession(
-                        "main #${service?.sessionList?.size?.plus(1) ?: 1}",
-                        client,
-                        activity,
-                    )
+                    val sessionBinder = terminalViewModel.sessionBinder ?: return@let
+                    
+                    // We don't have direct access to mainViewModel here easily if it's a private sub-component
+                    // But in this context, UnifiedToolSheet provides viewModel
+                    val activeTab = (tv.context as? MainActivity)?.viewModel?.currentTab as? EditorTab
+                    val activeFile = activeTab?.file?.getAbsolutePath() ?: ""
+                    val activeProject = activeTab?.projectRoot?.getAbsolutePath() ?: ""
+                    
+                    scope.launch(Dispatchers.IO) {
+                        sessionBinder.createSession(
+                            "main #${service?.sessionList?.size?.plus(1) ?: 1}",
+                            client,
+                            activity,
+                            activeFile = activeFile,
+                            activeProject = activeProject
+                        )
+                    }
                 }
             },
             color = colorScheme.surfaceVariant,

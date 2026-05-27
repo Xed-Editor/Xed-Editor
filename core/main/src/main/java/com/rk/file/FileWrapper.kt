@@ -107,6 +107,10 @@ class FileWrapper(var file: File) : FileObject {
             }
         }
 
+    override suspend fun <R> useOutputStream(append: Boolean, block: suspend (OutputStream) -> R): R {
+        return withContext(Dispatchers.IO) { getOutPutStream(append).use { block(it) } }
+    }
+
     override fun getAbsolutePath(): String {
         return file.absolutePath
     }

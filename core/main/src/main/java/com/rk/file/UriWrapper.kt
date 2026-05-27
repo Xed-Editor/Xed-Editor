@@ -155,6 +155,10 @@ class UriWrapper : FileObject {
                 ?: throw IOException("Could not open input stream for: ${file.uri}")
         }
 
+    override suspend fun <R> useOutputStream(append: Boolean, block: suspend (OutputStream) -> R): R {
+        return withContext(Dispatchers.IO) { getOutPutStream(append).use { block(it) } }
+    }
+
     override suspend fun getMimeType(context: Context): String? =
         withContext(Dispatchers.IO) {
             val uri = toUri()
@@ -224,29 +228,11 @@ class UriWrapper : FileObject {
         }
 
     override fun canWrite(): Boolean {
-        if (file.canWrite()) {
-            return true
-        }
-
-        runCatching {
-            runBlocking { getOutPutStream(true).close() }
-            return true
-        }
-
-        return false
+        return file.canWrite()
     }
 
     override fun canRead(): Boolean {
-        if (file.canRead()) {
-            return true
-        }
-
-        runCatching {
-            runBlocking { getInputStream().close() }
-            return true
-        }
-
-        return false
+        return file.canRead()
     }
 
     override fun canExecute(): Boolean {

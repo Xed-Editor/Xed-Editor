@@ -99,8 +99,9 @@ suspend fun ThemeConfig.installTheme() =
     }
 
 private fun ThemeConfig.finishThemeInstall(name: String) {
-    val themeFile = themeDir().child(name)
-    ObjectOutputStream(FileOutputStream(themeFile)).use { out -> out.writeObject(this) }
+    val themeFile = themeDir().child(name + ".json")
+    val gson = GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC).create()
+    themeFile.writeText(gson.toJson(this))
 }
 
 fun updateThemes() {
@@ -115,13 +116,12 @@ fun loadThemes() {
         return
     }
 
+    val gson = GsonBuilder().excludeFieldsWithModifiers(java.lang.reflect.Modifier.STATIC).create()
     themeDir.listFiles()?.forEach { file ->
         runCatching {
-                ObjectInputStream(FileInputStream(file)).use { input ->
-                    val config = input.readObject() as? ThemeConfig
-                    if (config != null) {
-                        themes.add(config.build())
-                    }
+                val config = gson.fromJson(file.readText(), ThemeConfig::class.java)
+                if (config != null) {
+                    themes.add(config.build())
                 }
             }
             .onFailure {

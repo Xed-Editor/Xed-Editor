@@ -56,8 +56,6 @@ import com.rk.AppScope
 import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -76,16 +74,6 @@ inline fun runOnUiThread(runnable: Runnable) {
 inline fun toast(@StringRes resId: Int) {
     toast(resId.getString())
 }
-
-suspend fun FileObject.writeObject(obj: Any) =
-    withContext(Dispatchers.IO) { ObjectOutputStream(getOutPutStream(false)).use { oos -> oos.writeObject(obj) } }
-
-suspend fun FileObject.readObject(): Any? =
-    withContext(Dispatchers.IO) {
-        ObjectInputStream(getInputStream()).use { ois ->
-            return@withContext ois.readObject()
-        }
-    }
 
 fun toast(message: String?) {
     if (message.isNullOrBlank()) {

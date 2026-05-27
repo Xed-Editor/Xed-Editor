@@ -26,9 +26,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
+import java.util.concurrent.ConcurrentHashMap
+
 class SessionService : Service() {
-    private val sessions = hashMapOf<SessionId, TerminalSession>()
-    private val sessionWorkDirs = mutableMapOf<SessionId, SessionPwd>()
+    private val sessions = ConcurrentHashMap<SessionId, TerminalSession>()
+    private val sessionWorkDirs = ConcurrentHashMap<SessionId, SessionPwd>()
     val sessionList = mutableStateListOf<String>()
     var currentSession = mutableStateOf("main")
     private var deamonRunning = false
@@ -38,9 +40,15 @@ class SessionService : Service() {
 
         fun getService(): SessionService? = weakService.get()
 
-        fun createSession(id: SessionId, client: TerminalSessionClient, activity: android.app.Activity): SessionInfo? {
+        suspend fun createSession(
+            id: SessionId,
+            client: TerminalSessionClient,
+            activity: android.app.Activity,
+            activeFile: String = "",
+            activeProject: String = ""
+        ): SessionInfo? {
             val s = weakService.get() ?: return null
-            return MkSession.createSession(activity, client, id).let {
+            return MkSession.createSession(activity, client, id, activeFile, activeProject).let {
                 val (session, pwd) = it
                 s.sessions[id] = session
                 s.sessionWorkDirs[id] = pwd
@@ -92,6 +100,9 @@ class SessionService : Service() {
     private val notificationManager by lazy { getSystemService(NotificationManager::class.java) }
 
     fun getCurrentTerminalSession(): TerminalSession? {
+        if (wakeLock?.isHeld == false) {
+            wakeLock?.acquire(10 * 60 * 1000L /*10 minutes*/)
+        }
         return sessions[currentSession.value]
     }
 
@@ -159,7 +170,7 @@ class SessionService : Service() {
                 if (wakeLock?.isHeld == true) {
                     wakeLock?.release()
                 } else {
-                    wakeLock?.acquire()
+                    wakeLock?.acquire(10 * 60 * 1000L /*10 minutes*/)
                 }
                 updateNotification()
             }

@@ -28,10 +28,12 @@ import kotlinx.coroutines.runBlocking
 
 object MkSession {
 
-    fun createSession(
+    suspend fun createSession(
         activity: Activity,
         sessionClient: TerminalSessionClient,
         sessionId: String,
+        activeFile: String = "",
+        activeProject: String = ""
     ): Pair<TerminalSession, SessionPwd> {
         val envVariables =
             mapOf(
@@ -47,7 +49,7 @@ object MkSession {
                 "PATH" to "${System.getenv("PATH")}:${localBinDir().absolutePath}",
             )
 
-        val workingDir = runBlocking { getPwd(activity, activity.intent) }
+        val workingDir = getPwd(activity, activity.intent)
 
         val tmpDir = File(getTempDir(), "terminal/$sessionId")
 
@@ -56,12 +58,6 @@ object MkSession {
         }
 
         tmpDir.mkdirs()
-
-        val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab
-        val activeFile = if (currentTab is EditorTab) currentTab.file.getAbsolutePath() else ""
-        val activeProject = MainActivity.instance?.viewModel?.tabManager?.currentTab?.let { 
-            if (it is EditorTab) it.projectRoot?.getAbsolutePath() else null 
-        } ?: ""
 
         val env =
             mutableListOf(
@@ -142,7 +138,7 @@ object MkSession {
 
         val actualShell: String
         val actualArgs: Array<String> =
-            if (runBlocking(Dispatchers.IO) { getNextStage(activity) } == NEXT_STAGE.EXTRACTION) {
+            if (getNextStage(activity) == NEXT_STAGE.EXTRACTION) {
                 actualShell = "/system/bin/sh"
                 mutableListOf("-c", setupSH.absolutePath, *args).toTypedArray()
             } else {

@@ -104,12 +104,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action) {
-            if (intent.data == null) {
+            val uri = intent.data
+            if (uri == null) {
                 errorDialog(strings.invalid_intent.getFilledString(intent.toString()))
                 return
             }
-
-            val uri = intent.data!!
 
             if (uri.toString().startsWith("content://telephony")) {
                 toast(strings.unsupported_content)

@@ -86,9 +86,7 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.dialog
-import com.rk.utils.readObject
 import com.rk.utils.toast
-import com.rk.utils.writeObject
 import java.io.File
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -98,67 +96,102 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import android.net.Uri
+import com.rk.file.toFileObject
+
+data class DrawerTabData(val type: String, val rootUri: String?)
+
 object DrawerPersistence {
     private val saveMutex = Mutex()
+    private val gson = Gson()
 
-    private const val DRAWER_TABS = "drawerTabs"
-    private const val CURRENT_DRAWER_TAB = "currentDrawerTab"
-    private const val EXPANDED_FILE_TREE_NODES = "expandedFileTree"
+    private const val DRAWER_TABS = "drawerTabs.json"
+    private const val CURRENT_DRAWER_TAB = "currentDrawerTab.json"
+    private const val EXPANDED_FILE_TREE_NODES = "expandedFileTree.json"
 
     suspend fun saveState() {
         saveMutex.withLock {
-            val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
-            val serializableList = ArrayList(drawerTabs)
-            file.writeObject(serializableList)
+            val file = application!!.filesDir.child(DRAWER_TABS)
+            val dataList = drawerTabs.mapNotNull { tab ->
+                when (tab) {
+                    is FileTreeTab -> DrawerTabData("FileTreeTab", tab.root.toUri().toString())
+                    else -> null
+                }
+            }
+            file.writeText(gson.toJson(dataList))
 
-            val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
+            val currentTabFile = application!!.filesDir.child(CURRENT_DRAWER_TAB)
             if (currentDrawerTab != null) {
-                currentTabFile.writeObject(currentDrawerTab!!)
+                val currentTab = currentDrawerTab
+                val data = when (currentTab) {
+                    is FileTreeTab -> DrawerTabData("FileTreeTab", currentTab.root.toUri().toString())
+                    else -> null
+                }
+                if (data != null) {
+                    currentTabFile.writeText(gson.toJson(data))
+                }
             } else {
-                currentTabFile.delete()
+                if (currentTabFile.exists()) currentTabFile.delete()
             }
 
-            val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
-            fileTreeViewModel.get()?.getExpandedNodes()?.let { expandedNodeFile.writeObject(it) }
+            val expandedNodeFile = application!!.filesDir.child(EXPANDED_FILE_TREE_NODES)
+            fileTreeViewModel.get()?.getExpandedNodes()?.let { nodes ->
+                val nodeData = nodes.map { it.key.toUri().toString() to it.value }.toMap()
+                expandedNodeFile.writeText(gson.toJson(nodeData))
+            }
         }
     }
 
     suspend fun restoreState() {
         saveMutex.withLock {
             runCatching {
-                    val loadedTabs =
-                        withContext(Dispatchers.IO) {
-                            val file = FileWrapper(application!!.filesDir.child(DRAWER_TABS))
+                val file = application!!.filesDir.child(DRAWER_TABS)
+                val loadedTabs = if (file.exists() && file.canRead()) {
+                    val json = file.readText()
+                    val type = object : TypeToken<List<DrawerTabData>>() {}.type
+                    val dataList: List<DrawerTabData> = gson.fromJson(json, type)
+                    dataList.mapNotNull { data ->
+                        if (data.type == "FileTreeTab" && data.rootUri != null) {
+                            FileTreeTab(Uri.parse(data.rootUri).toFileObject(false))
+                        } else null
+                    }
+                } else {
+                    emptyList()
+                }
 
-                            if (file.exists() && file.canRead()) {
-                                file.readObject() as? ArrayList<DrawerTab> ?: emptyList()
-                            } else {
-                                emptyList()
-                            }
+                // Update the existing state list on Main thread
+                withContext(Dispatchers.Main) {
+                    drawerTabs.clear()
+                    drawerTabs.addAll(loadedTabs)
+                    drawerTabs.forEach { it.onAdded() }
+                }
+
+                val currentTabFile = application!!.filesDir.child(CURRENT_DRAWER_TAB)
+                if (currentTabFile.exists() && currentTabFile.canRead()) {
+                    val json = currentTabFile.readText()
+                    val data = gson.fromJson(json, DrawerTabData::class.java)
+                    if (data.type == "FileTreeTab" && data.rootUri != null) {
+                        val root = Uri.parse(data.rootUri).toFileObject(false)
+                        drawerTabs.find { it is FileTreeTab && it.root.toUri().toString() == data.rootUri }?.let {
+                            selectTab(it)
                         }
-
-                    // Update the existing state list on Main thread
-                    withContext(Dispatchers.Main) {
-                        drawerTabs.clear()
-                        drawerTabs.addAll(loadedTabs)
-                    }
-
-                    val currentTabFile = FileWrapper(application!!.filesDir.child(CURRENT_DRAWER_TAB))
-                    if (currentTabFile.exists() && currentTabFile.canRead()) {
-                        selectTab(currentTabFile.readObject() as DrawerTab)
-                    }
-
-                    val expandedNodeFile = FileWrapper(application!!.filesDir.child(EXPANDED_FILE_TREE_NODES))
-                    if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
-                        fileTreeViewModel
-                            .get()
-                            ?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
                     }
                 }
-                .onFailure {
-                    it.printStackTrace()
-                    toast(strings.project_restore_failed)
+
+                val expandedNodeFile = application!!.filesDir.child(EXPANDED_FILE_TREE_NODES)
+                if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
+                    val json = expandedNodeFile.readText()
+                    val type = object : TypeToken<Map<String, Boolean>>() {}.type
+                    val nodeData: Map<String, Boolean> = gson.fromJson(json, type)
+                    val nodes = nodeData.map { Uri.parse(it.key).toFileObject(false) to it.value }.toMap()
+                    fileTreeViewModel.get()?.setExpandedNodes(nodes)
                 }
+            }.onFailure {
+                it.printStackTrace()
+                toast(strings.project_restore_failed)
+            }
         }
     }
 }

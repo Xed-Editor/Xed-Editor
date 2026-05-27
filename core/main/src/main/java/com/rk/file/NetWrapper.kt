@@ -76,6 +76,10 @@ class NetWrapper(private val url: URL) : FileObject {
         throw UnsupportedOperationException("URL is read-only")
     }
 
+    override suspend fun <R> useOutputStream(append: Boolean, block: suspend (OutputStream) -> R): R {
+        throw UnsupportedOperationException("URL is read-only")
+    }
+
     override fun getAbsolutePath(): String = url.toString()
 
     override suspend fun length(): Long {

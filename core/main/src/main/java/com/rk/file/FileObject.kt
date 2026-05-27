@@ -48,6 +48,8 @@ interface FileObject : Serializable {
 
     suspend fun getOutPutStream(append: Boolean): OutputStream
 
+    suspend fun <R> useOutputStream(append: Boolean, block: suspend (OutputStream) -> R): R
+
     fun getAbsolutePath(): String
 
     suspend fun length(): Long

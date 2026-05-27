@@ -1,25 +1,29 @@
 package com.rk.activities.main
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
+import com.rk.file.toFileObject
 import com.rk.tabs.base.Tab
 import com.rk.tabs.base.TabRegistry
-import java.io.Serializable
 import kotlinx.coroutines.launch
 
-sealed interface TabState : Serializable {
+sealed interface TabState {
     suspend fun toTab(): Tab?
 }
 
 data class EditorTabState(
-    val fileObject: FileObject,
-    val projectRoot: FileObject?,
+    val fileUri: String,
+    val projectRootUri: String?,
     val cursor: EditorCursorState,
     val scrollX: Int,
     val scrollY: Int,
     val unsavedContent: String?,
 ) : TabState {
     override suspend fun toTab(): Tab? {
+        val fileObject = Uri.parse(fileUri).toFileObject(true)
+        val projectRoot = projectRootUri?.let { Uri.parse(it).toFileObject(false) }
+        
         if (!fileObject.exists() && !fileObject.canRead()) return null
 
         MainActivity.instance!!.viewModel.apply {
@@ -51,9 +55,11 @@ data class EditorTabState(
     }
 }
 
-data class EditorCursorState(val lineLeft: Int, val columnLeft: Int, val lineRight: Int, val columnRight: Int) :
-    Serializable
+data class EditorCursorState(val lineLeft: Int, val columnLeft: Int, val lineRight: Int, val columnRight: Int)
 
-data class FileTabState(val fileObject: FileObject) : TabState {
-    override suspend fun toTab() = TabRegistry.getTab(fileObject, null, MainActivity.instance!!.viewModel)
+data class FileTabState(val fileUri: String) : TabState {
+    override suspend fun toTab(): Tab? {
+        val fileObject = Uri.parse(fileUri).toFileObject(true)
+        return TabRegistry.getTab(fileObject, null, MainActivity.instance!!.viewModel)
+    }
 }

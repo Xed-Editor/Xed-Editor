@@ -16,8 +16,13 @@ import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
+import java.lang.ref.WeakReference
 
-class TerminalBackEnd(private val terminalViewModel: TerminalViewModel? = null) : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalViewClient, TerminalSessionClient {
+    private val viewModelRef = WeakReference(terminalViewModel)
+    private val terminalViewModel: TerminalViewModel?
+        get() = viewModelRef.get()
+
     override fun onTextChanged(changedSession: TerminalSession) {
         terminalViewModel?.terminalView?.onScreenUpdated()
     }

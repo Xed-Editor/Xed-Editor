@@ -647,20 +647,22 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
     override fun getState(): TabState? {
         val editor = editorState.editor.get() ?: return null
-        return EditorTabState(
-            fileObject = file,
-            projectRoot = projectRoot,
-            cursor =
-                EditorCursorState(
-                    lineLeft = editor.cursor.leftLine,
-                    columnLeft = editor.cursor.leftColumn,
-                    lineRight = editor.cursor.rightLine,
-                    columnRight = editor.cursor.rightColumn,
-                ),
-            scrollX = editor.scrollX,
-            scrollY = editor.scrollY,
-            unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
-        )
+        return runBlocking {
+            EditorTabState(
+                fileUri = file.toUri().toString(),
+                projectRootUri = projectRoot?.toUri()?.toString(),
+                cursor =
+                    EditorCursorState(
+                        lineLeft = editor.cursor.leftLine,
+                        columnLeft = editor.cursor.leftColumn,
+                        lineRight = editor.cursor.rightLine,
+                        columnRight = editor.cursor.rightColumn,
+                    ),
+                scrollX = editor.scrollX,
+                scrollY = editor.scrollY,
+                unsavedContent = if (editorState.isDirty) editor.text.toString() else null,
+            )
+        }
     }
 
     @Composable

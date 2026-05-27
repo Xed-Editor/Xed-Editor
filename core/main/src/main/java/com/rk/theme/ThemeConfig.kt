@@ -1,11 +1,6 @@
 package com.rk.theme
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonParser
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serial
-import java.io.Serializable
 
 data class BaseColors(
     val primary: String? = null,
@@ -44,7 +39,7 @@ data class BaseColors(
     val surfaceContainer: String? = null,
     val surfaceContainerHigh: String? = null,
     val surfaceContainerHighest: String? = null,
-) : Serializable
+)
 
 data class ThemePalette(
     val baseColors: BaseColors?,
@@ -85,21 +80,8 @@ data class ThemePalette(
      * }
      * ```
      */
-    @Transient var tokenColors: JsonElement? = null,
-) : Serializable {
-    @Serial
-    private fun writeObject(out: ObjectOutputStream) {
-        out.defaultWriteObject()
-        out.writeObject(tokenColors?.toString())
-    }
-
-    @Serial
-    private fun readObject(input: ObjectInputStream) {
-        input.defaultReadObject()
-        val tokenColorsStr = input.readObject() as? String
-        tokenColors = tokenColorsStr?.let { JsonParser.parseString(it) }
-    }
-}
+    var tokenColors: JsonElement? = null,
+)
 
 data class ThemeConfig(
     val id: String?,
@@ -108,4 +90,4 @@ data class ThemeConfig(
     val inheritBase: Boolean?,
     val light: ThemePalette?,
     val dark: ThemePalette?,
-) : Serializable
+)
