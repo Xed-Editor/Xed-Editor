@@ -17,6 +17,8 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 import java.lang.ref.WeakReference
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalViewClient, TerminalSessionClient {
     private val viewModelRef = WeakReference(terminalViewModel)
@@ -132,7 +134,7 @@ class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalVi
             } else {
                 val firstSession = binder.getService()?.sessionList?.firstOrNull() ?: return false
                 (context as? Activity)?.let { activity ->
-                    com.rk.AppScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                    com.rk.AppScope.launch(com.rk.AppDispatchers.Main) {
                         changeTerminalSession(firstSession, terminalViewModel!!, activity)
                     }
                 }

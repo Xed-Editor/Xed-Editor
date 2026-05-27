@@ -8,7 +8,7 @@ import android.os.IBinder
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import com.rk.BaseViewModel
 import com.termux.view.TerminalView
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import java.lang.ref.WeakReference
@@ -16,7 +16,7 @@ import java.lang.ref.WeakReference
 /** Used by settings screen for live font size preview */
 var settingsTerminalView = WeakReference<TerminalView?>(null)
 
-class TerminalViewModel : ViewModel() {
+class TerminalViewModel : BaseViewModel() {
     var sessionBinder by mutableStateOf<SessionService.SessionBinder?>(null)
     var isBound by mutableStateOf(false)
 

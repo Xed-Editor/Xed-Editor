@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.DelicateCoroutinesApi
 
 typealias drawables = R.drawable
 
@@ -12,9 +11,8 @@ typealias strings = R.string
 
 typealias plurals = R.plurals
 
-@OptIn(DelicateCoroutinesApi::class)
 object Res {
-    @JvmField var application: Application? = null
+    @JvmField var application: Context? = null
 }
 
 inline fun Int.getString(context: Context = Res.application!!): String {

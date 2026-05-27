@@ -40,27 +40,6 @@ import kotlinx.coroutines.launch
 
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
-    companion object {
-        private var _extensionManager: ExtensionManager? = null
-        val extensionManager: ExtensionManager
-            get() {
-                if (_extensionManager == null) {
-                    _extensionManager = ExtensionManager(application!!)
-                }
-
-                return _extensionManager!!
-            }
-
-        private var _iconPackManager: IconPackManager? = null
-        val iconPackManager: IconPackManager
-            get() {
-                if (_iconPackManager == null) {
-                    _iconPackManager = IconPackManager(application!!)
-                }
-
-                return _iconPackManager!!
-            }
-    }
 
     init {
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
@@ -71,6 +50,7 @@ class App : Application() {
         super.onCreate()
         application = this
         Res.application = this
+        XedManager.init(this)
 
         updateThemes()
         LspPersistence.restoreServers()
@@ -85,14 +65,17 @@ class App : Application() {
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
 
-        AppScope.launch(Dispatchers.IO) {
-            launch(Dispatchers.IO) {
+        val extensionManager = XedManager.extensionManager
+        val iconPackManager = XedManager.iconPackManager
+
+        AppScope.safeLaunch(AppDispatchers.IO) {
+            launch(AppDispatchers.IO) {
                 extensionManager.indexLocalExtensions()
                 extensionManager.loadAllExtensions()
                 registerActivityLifecycleCallbacks(ExtensionAPIManager)
             }
 
-            launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
+            launch(AppDispatchers.IO) { iconPackManager.indexIconPacks() }
 
             launch { LanguageManager.initGrammarRegistry() }
 
@@ -100,9 +83,9 @@ class App : Application() {
 
             launch { CodeHighlighter.registerMarkdownCodeHighlighter(this@App) }
 
-            launch(Dispatchers.IO) { SessionManager.preloadSession() }
+            launch(AppDispatchers.IO) { SessionManager.preloadSession() }
 
-            launch(Dispatchers.IO) {
+            launch(AppDispatchers.IO) {
                 val editorFontPath = Settings.editor_font_path.ifEmpty { DEFAULT_EDITOR_FONT_PATH }
                 val isEditorAsset = if (editorFontPath.isNotEmpty()) Settings.is_editor_font_asset else true
 
@@ -117,11 +100,11 @@ class App : Application() {
                 FontCache.loadFont(this@App, terminalFontPath, isTerminalAsset)
             }
 
-            launch(Dispatchers.IO) { Preference.preloadAllSettings() }
+            launch(AppDispatchers.IO) { Preference.preloadAllSettings() }
 
             launch { DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir) }
 
-            launch(Dispatchers.IO) {
+            launch(AppDispatchers.IO) {
                 getTempDir().apply {
                     if (exists() && listFiles().isNullOrEmpty().not()) {
                         deleteRecursively()

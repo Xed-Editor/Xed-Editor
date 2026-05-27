@@ -4,9 +4,11 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.commands.Command
+import com.rk.BaseViewModel
+import com.rk.AppDispatchers
+import com.rk.withMain
+import com.rk.safeLaunch
 import com.rk.settings.Settings
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +20,7 @@ enum class BottomPanelMode {
     AI, TERMINAL
 }
 
-class MainViewModel : ViewModel() {
+class MainViewModel : BaseViewModel() {
     val tabManager = TabManager()
     val editorManager = EditorManager(this)
 
@@ -100,7 +102,7 @@ class MainViewModel : ViewModel() {
 
     private fun restoreSessionsIfNeeded() {
         if (Settings.restore_sessions) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.safeLaunch(AppDispatchers.IO) {
                 restoreTabs()
                 sessionRestored.complete(Unit)
             }
@@ -119,7 +121,7 @@ class MainViewModel : ViewModel() {
 
             val deferredRestoredTabs = session.tabStates.mapNotNull { tabState -> tabState.toTab() }
 
-            withContext(Dispatchers.Main) {
+            withMain {
                 deferredRestoredTabs.forEach { tabManager.addTab(it, false) }
                 tabManager.setCurrentTab(session.currentTabIndex)
             }
