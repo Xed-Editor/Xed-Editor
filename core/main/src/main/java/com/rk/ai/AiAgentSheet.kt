@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -237,11 +238,11 @@ fun UnifiedToolSheet(
     AgentCliSheet(
         onDismissRequest = onDismissRequest,
         cwd = cwd.value,
-        session = null, // We'll handle our own terminal content
+        session = null,
         modifier = modifier,
         showTerminal = false,
         headerContent = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
                 TabRow(
                     selectedTabIndex = if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1,
                     containerColor = Color.Transparent,
@@ -249,24 +250,25 @@ fun UnifiedToolSheet(
                     indicator = { tabPositions ->
                         TabRowDefaults.SecondaryIndicator(
                             Modifier.tabIndicatorOffset(tabPositions[if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1]),
-                            color = colorScheme.primary
+                            color = colorScheme.primary,
+                            height = 3.dp
                         )
                     },
-                    modifier = Modifier.height(44.dp)
+                    modifier = Modifier.height(48.dp)
                 ) {
                     Tab(
                         selected = viewModel.bottomPanelMode == BottomPanelMode.AI,
                         onClick = { viewModel.bottomPanelMode = BottomPanelMode.AI },
-                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(18.dp)) },
-                        text = { Text("AI Agent", style = MaterialTheme.typography.labelMedium) },
+                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(20.dp)) },
+                        text = { Text("AI Agent", style = MaterialTheme.typography.labelLarge) },
                         selectedContentColor = colorScheme.primary,
                         unselectedContentColor = colorScheme.onSurfaceVariant
                     )
                     Tab(
                         selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
                         onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
-                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.terminal), modifier = Modifier.size(18.dp)) },
-                        text = { Text("Terminal", style = MaterialTheme.typography.labelMedium) },
+                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.terminal), modifier = Modifier.size(20.dp)) },
+                        text = { Text("Terminal", style = MaterialTheme.typography.labelLarge) },
                         selectedContentColor = colorScheme.primary,
                         unselectedContentColor = colorScheme.onSurfaceVariant
                     )
@@ -304,100 +306,101 @@ fun UnifiedToolSheet(
                 val currentTab = viewModel.currentTab as? EditorTab
                 val editor = currentTab?.editorState?.editor?.get()
 
-                IconButton(
-                    onClick = {
-                        if (editor?.canUndo() == true) {
-                            editor.undo()
-                            currentTab!!.editorState.updateUndoRedo()
-                        }
-                    },
-                    enabled = editor?.canUndo() == true
-                ) {
-                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), contentDescription = "Undo")
-                }
-
-                IconButton(
-                    onClick = {
-                        if (editor?.canRedo() == true) {
-                            editor.redo()
-                            currentTab!!.editorState.updateUndoRedo()
-                        }
-                    },
-                    enabled = editor?.canRedo() == true
-                ) {
-                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), contentDescription = "Redo")
-                }
-
-                IconButton(onClick = { startAgent(cwd.value, forceRestart = true) }) {
-                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), contentDescription = "Restart")
-                }
-
-                IconButton(onClick = {
-                    scope.launch(Dispatchers.IO) {
-                        val saved = saveDirtyEditors()
-                        withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = {
+                            if (editor?.canUndo() == true) {
+                                editor.undo()
+                                currentTab!!.editorState.updateUndoRedo()
+                            }
+                        },
+                        enabled = editor?.canUndo() == true,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), contentDescription = "Undo", tint = if (editor?.canUndo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
                     }
-                }) {
-                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), contentDescription = "Sync")
-                }
 
-                IconButton(onClick = {
-                    AiSessionManager.stopSession()
-                    appendLog("Agent stopped.")
-                }) {
-                    Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error.copy(alpha = 0.7f))
+                    IconButton(
+                        onClick = {
+                            if (editor?.canRedo() == true) {
+                                editor.redo()
+                                currentTab!!.editorState.updateUndoRedo()
+                            }
+                        },
+                        enabled = editor?.canRedo() == true,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), contentDescription = "Redo", tint = if (editor?.canRedo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
+                    }
+
+                    IconButton(onClick = { startAgent(cwd.value, forceRestart = true) }, modifier = Modifier.size(32.dp)) {
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), contentDescription = "Restart", tint = colorScheme.onSurfaceVariant)
+                    }
+
+                    IconButton(onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            val saved = saveDirtyEditors()
+                            withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                        }
+                    }, modifier = Modifier.size(32.dp)) {
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), contentDescription = "Sync", tint = colorScheme.onSurfaceVariant)
+                    }
+
+                    IconButton(onClick = {
+                        AiSessionManager.stopSession()
+                        appendLog("Agent stopped.")
+                    }, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error)
+                    }
                 }
             } else if (viewModel.bottomPanelMode == BottomPanelMode.TERMINAL) {
                 var showSessionMenu by remember { mutableStateOf(false) }
-                Box {
-                    IconButton(onClick = { showSessionMenu = true }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant)
-                    }
-                    val service = terminalViewModel.sessionBinder?.getService()
-                    DropdownMenu(expanded = showSessionMenu, onDismissRequest = { showSessionMenu = false }) {
-                        service?.sessionList?.forEach { sessionId ->
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box {
+                        IconButton(onClick = { showSessionMenu = true }, modifier = Modifier.size(32.dp)) {
+                            Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant)
+                        }
+                        val service = terminalViewModel.sessionBinder?.getService()
+                        DropdownMenu(expanded = showSessionMenu, onDismissRequest = { showSessionMenu = false }) {
+                            service?.sessionList?.forEach { sessionId ->
+                                DropdownMenuItem(
+                                    text = { Text(sessionId, style = MaterialTheme.typography.bodySmall) },
+                                    onClick = {
+                                        showSessionMenu = false
+                                        val activity = terminalViewModel.terminalView?.context as? android.app.Activity
+                                        if (activity is com.rk.activities.terminal.Terminal) {
+                                            activity.changeSession(sessionId, terminalViewModel)
+                                        } else {
+                                            service.currentSession.value = sessionId
+                                        }
+                                    },
+                                    leadingIcon = if (sessionId == service.currentSession.value) {
+                                        { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(16.dp)) }
+                                    } else null
+                                )
+                            }
+                            HorizontalDivider()
                             DropdownMenuItem(
-                                text = { Text(sessionId, style = MaterialTheme.typography.bodySmall) },
+                                text = { Text("New Session", style = MaterialTheme.typography.bodySmall) },
                                 onClick = {
                                     showSessionMenu = false
-                                    val activity = terminalViewModel.terminalView?.context as? android.app.Activity
-                                    if (activity is com.rk.activities.terminal.Terminal) {
-                                        activity.changeSession(sessionId, terminalViewModel)
-                                    } else {
-                                        // Handle session change in bottom sheet
-                                        service.currentSession.value = sessionId
-                                        // We might need a more general changeSession helper
+                                    terminalViewModel.terminalView?.let {
+                                        val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
+                                        terminalViewModel.sessionBinder?.createSession(
+                                            "main #${service?.sessionList?.size?.plus(1) ?: 1}",
+                                            client,
+                                            it.context as android.app.Activity,
+                                        )
                                     }
                                 },
-                                leadingIcon = if (sessionId == service.currentSession.value) {
-                                    { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(16.dp)) }
-                                } else null
+                                leadingIcon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)) }
                             )
                         }
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text("New Session", style = MaterialTheme.typography.bodySmall) },
-                            onClick = {
-                                showSessionMenu = false
-                                terminalViewModel.terminalView?.let {
-                                    val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
-                                    terminalViewModel.sessionBinder?.createSession(
-                                        "main #${service?.sessionList?.size?.plus(1) ?: 1}",
-                                        client,
-                                        it.context as android.app.Activity,
-                                    )
-                                }
-                            },
-                            leadingIcon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)) }
-                        )
                     }
-                }
-                
-                IconButton(onClick = {
-                    // Navigate to terminal settings - this might need careful handling if not in Terminal activity
-                    // For now, let's keep it simple
-                }) {
-                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.settings), contentDescription = "Settings", tint = colorScheme.onSurfaceVariant)
+                    
+                    IconButton(onClick = { /* TODO */ }, modifier = Modifier.size(32.dp)) {
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.settings), contentDescription = "Settings", tint = colorScheme.onSurfaceVariant)
+                    }
                 }
             }
         },
@@ -420,7 +423,8 @@ fun UnifiedToolSheet(
                 BottomPanelMode.TERMINAL -> {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.surface
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(8.dp)
                     ) {
                         com.rk.terminal.TerminalPanel(
                             terminalViewModel = terminalViewModel
@@ -447,66 +451,77 @@ private fun StatusBar(
     onClearTranscript: () -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val dotColor = if (isRunning) Color(0xFF4CAF50) else Color(0xFFEF5350)
+    val statusColor = if (isRunning) Color(0xFF4CAF50) else Color(0xFFEF5350)
     val bridgeClients = IdeBridge.connectedClients()
     val bridgeOnline = IdeBridge.isRunning()
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().height(32.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
+            // Agent Status
+            Row(
                 modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(dotColor)
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = if (isRunning) "Running" else "Stopped",
-                color = dotColor,
-                style = MaterialTheme.typography.labelSmall,
-            )
-            Spacer(Modifier.width(6.dp))
-
-            if (bridgeOnline) {
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107))
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = if (bridgeClients > 0) "${bridgeClients} client" else "bridge",
-                    color = if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107),
-                    style = MaterialTheme.typography.labelSmall,
-                )
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(statusColor.copy(alpha = 0.1f))
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
                 Spacer(Modifier.width(6.dp))
+                Text(
+                    text = if (isRunning) "Active" else "Stopped",
+                    color = statusColor,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                )
+            }
+            
+            Spacer(Modifier.width(8.dp))
+
+            // Bridge Status
+            if (bridgeOnline) {
+                val bridgeColor = if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107)
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(bridgeColor.copy(alpha = 0.1f))
+                        .padding(horizontal = 8.dp, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(bridgeColor))
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = if (bridgeClients > 0) "${bridgeClients} link" else "bridge",
+                        color = bridgeColor,
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
             }
 
+            // Agent Selector
             Box {
                 Surface(
                     onClick = onToggleAgentMenu,
-                    shape = RoundedCornerShape(4.dp),
-                    color = colorScheme.primaryContainer,
-                    modifier = Modifier.height(22.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = colorScheme.secondaryContainer.copy(alpha = 0.7f),
+                    modifier = Modifier.height(24.dp),
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = agent.displayName,
-                            color = colorScheme.onPrimaryContainer,
+                            color = colorScheme.onSecondaryContainer,
                             style = MaterialTheme.typography.labelSmall,
                         )
                         Icon(
                             Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = "Switch agent",
+                            contentDescription = null,
                             modifier = Modifier.size(14.dp),
-                            tint = colorScheme.onPrimaryContainer,
+                            tint = colorScheme.onSecondaryContainer,
                         )
                     }
                 }
@@ -516,35 +531,30 @@ private fun StatusBar(
                             text = { Text(a.displayName, style = MaterialTheme.typography.bodySmall) },
                             onClick = { onSelectAgent(a) },
                             leadingIcon = if (a == agent) {
-                                { Text("\u2713", style = MaterialTheme.typography.bodySmall) }
+                                { Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp)) } // Checkmark replacement
                             } else null,
                         )
                     }
                 }
             }
 
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.weight(1f))
+            
+            // Path display
             Text(
                 text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
-                color = colorScheme.onSurfaceVariant,
+                color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(1f)
-                    .background(colorScheme.surfaceContainerHigh, RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
             )
+            
             if (transcript.isNotBlank()) {
-                Spacer(Modifier.width(4.dp))
-                TextButton(onClick = onClearTranscript, modifier = Modifier.height(24.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
-                    Text("Clear", style = MaterialTheme.typography.labelSmall, color = colorScheme.onSurfaceVariant)
-                }
-                IconButton(onClick = onToggleTranscript, modifier = Modifier.size(24.dp)) {
+                IconButton(onClick = onToggleTranscript, modifier = Modifier.size(28.dp)) {
                     Icon(
                         if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = if (showTranscript) "Hide log" else "Show log",
-                        modifier = Modifier.size(20.dp),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
                         tint = colorScheme.onSurfaceVariant,
                     )
                 }
@@ -647,61 +657,55 @@ private fun QuickActions(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 4.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (!isRunning) {
-            AssistChip(
+            Button(
                 onClick = { onAction("/restart") },
-                label = { Text("Start Agent", style = MaterialTheme.typography.labelSmall) },
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                modifier = Modifier.height(32.dp),
                 shape = RoundedCornerShape(16.dp),
-            )
+                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+            ) {
+                Text("Start Agent", style = MaterialTheme.typography.labelMedium)
+            }
         } else {
-            AssistChip(
-                onClick = { onAction("/stop") },
-                label = { Text("Stop", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction("/sync") },
-                label = { Text("Sync Files", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction(prompt("Explain the code")) },
-                label = { Text("Explain", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction(prompt("Find bugs and issues")) },
-                label = { Text("Find Bugs", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction(prompt("Suggest improvements")) },
-                label = { Text("Refactor", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction(prompt("Add unit tests")) },
-                label = { Text("Add Tests", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction(prompt("Write documentation")) },
-                label = { Text("Document", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction("/export") },
-                label = { Text("Export", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
-            AssistChip(
-                onClick = { onAction("/refresh") },
-                label = { Text("Refresh", style = MaterialTheme.typography.labelSmall) },
-                shape = RoundedCornerShape(16.dp),
-            )
+            // Action buttons as compact chips
+            ActionChip(label = "Explain", onClick = { onAction(prompt("Explain the code")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Bugs", onClick = { onAction(prompt("Find bugs and issues")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Refactor", onClick = { onAction(prompt("Suggest improvements")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Tests", onClick = { onAction(prompt("Add unit tests")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Docs", onClick = { onAction(prompt("Write documentation")) }, color = colorScheme.secondaryContainer)
+            
+            Spacer(Modifier.width(8.dp))
+            VerticalDivider(modifier = Modifier.height(24.dp), color = colorScheme.outlineVariant)
+            Spacer(Modifier.width(8.dp) )
+
+            ActionChip(label = "Sync", onClick = { onAction("/sync") }, color = colorScheme.surfaceVariant)
+            ActionChip(label = "Refresh", onClick = { onAction("/refresh") }, color = colorScheme.surfaceVariant)
+            ActionChip(label = "Export", onClick = { onAction("/export") }, color = colorScheme.surfaceVariant)
+            ActionChip(label = "Stop", onClick = { onAction("/stop") }, color = colorScheme.errorContainer, labelColor = colorScheme.error)
+        }
+    }
+}
+
+@Composable
+private fun ActionChip(
+    label: String,
+    onClick: () -> Unit,
+    color: Color,
+    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = color,
+        modifier = Modifier.height(32.dp)
+    ) {
+        Box(modifier = Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
+            Text(label, style = MaterialTheme.typography.labelMedium, color = labelColor)
         }
     }
 }

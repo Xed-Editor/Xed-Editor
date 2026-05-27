@@ -279,16 +279,17 @@ private fun AgentCliSheetContent(
         modifier =
             modifier
                 .fillMaxWidth()
+                .height(terminalHeight)
                 .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 .border(1.dp, colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .padding(horizontal = 12.dp, vertical = 6.dp),
+                .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             // Unified Header Row with Drag Support
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp)
+                    .height(36.dp)
                     .pointerInput(Unit) {
                         detectVerticalDragGestures(
                             onDragStart = { onDragStart() },
@@ -307,7 +308,9 @@ private fun AgentCliSheetContent(
                         color = colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
-                        modifier = Modifier.background(colorScheme.surfaceContainerHigh, RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)
+                        modifier = Modifier
+                            .background(colorScheme.surfaceContainerHigh, RoundedCornerShape(4.dp))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
                 
@@ -326,15 +329,16 @@ private fun AgentCliSheetContent(
 
             headerContent?.invoke()
 
-            if (showTerminal) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
-                AgentSheetTerminal(session = session, modifier = Modifier.fillMaxWidth(), height = terminalHeight)
-            } else {
-                content?.invoke(this)
+            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                if (showTerminal) {
+                    AgentSheetTerminal(session = session, modifier = Modifier.fillMaxSize())
+                } else {
+                    content?.invoke(this@Column)
+                }
             }
 
             bottomBar?.let {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
                 it()
             }
         }
