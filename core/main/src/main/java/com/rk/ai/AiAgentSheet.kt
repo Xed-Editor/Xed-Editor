@@ -436,7 +436,7 @@ fun UnifiedToolSheet(
             when (viewModel.bottomPanelMode) {
                 BottomPanelMode.AI -> {
                     if (aiSession != null && isAiRunning) {
-                        AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = true)
+                        AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
                     } else {
                         AgentEmptyState(
                             isRunning = isAiRunning,
@@ -452,7 +452,7 @@ fun UnifiedToolSheet(
                     ) {
                         com.rk.terminal.TerminalPanel(
                             terminalViewModel = terminalViewModel,
-                            showKeys = true,
+                            showKeys = false,
                             initialCwd = viewModel.terminalCwd,
                         )
                         // Clear the terminalCwd after it's been used to avoid repeated session creation
