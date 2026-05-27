@@ -20,16 +20,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -49,9 +39,10 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -128,70 +119,26 @@ fun TerminalPanel(
         }
 
         if (showKeys) {
-            val pagerState = rememberPagerState(pageCount = { 2 })
-            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
-                when (page) {
-                    0 -> {
-                        AndroidView(
-                            factory = { context ->
-                                VirtualKeysView(context, null).apply {
-                                    terminalViewModel.virtualKeysView = this
-                                    virtualKeysViewClient =
-                                        terminalViewModel.terminalView?.mTermSession?.let { VirtualKeysListener(it) }
+            AndroidView(
+                factory = { context ->
+                    VirtualKeysView(context, null).apply {
+                        terminalViewModel.virtualKeysView = this
+                        virtualKeysViewClient =
+                            terminalViewModel.terminalView?.mTermSession?.let { VirtualKeysListener(it) }
 
-                                    buttonTextColor = onSurfaceColor
+                        buttonTextColor = onSurfaceColor
 
-                                    reload(
-                                        VirtualKeysInfo(
-                                            Settings.terminal_extra_keys,
-                                            "",
-                                            VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                                        )
-                                    )
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth().height(75.dp),
+                        reload(
+                            VirtualKeysInfo(
+                                Settings.terminal_extra_keys,
+                                "",
+                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                            )
                         )
                     }
-
-                    1 -> {
-                        var text by rememberSaveable { mutableStateOf("") }
-                        val focusRequester = remember { FocusRequester() }
-
-                        TextField(
-                            value = text,
-                            onValueChange = { text = it },
-                            maxLines = 1,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions =
-                                KeyboardActions(
-                                    onDone = {
-                                        if (text.isEmpty()) {
-                                            val eventDown =
-                                                KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
-                                            val eventUp =
-                                                KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
-                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
-                                        } else {
-                                            terminalViewModel.terminalView?.currentSession?.write(text)
-                                            val eventDown =
-                                                KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
-                                            val eventUp =
-                                                KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
-                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
-                                            text = ""
-                                        }
-                                    }
-                                ),
-                            modifier = Modifier.fillMaxWidth().height(75.dp).focusRequester(focusRequester),
-                        )
-
-                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
-                    }
-                }
-            }
+                },
+                modifier = Modifier.fillMaxWidth().height(75.dp),
+            )
         }
     }
 }

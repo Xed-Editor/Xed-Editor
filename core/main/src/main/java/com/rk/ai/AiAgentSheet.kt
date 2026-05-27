@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -45,7 +43,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -558,7 +555,6 @@ private fun UnifiedCommandBar(
     currentFile: String,
 ) {
     var showAgentMenu by remember { mutableStateOf(false) }
-    var commandInput by remember { mutableStateOf("") }
     val colorScheme = MaterialTheme.colorScheme
     val availableAgents = AiSessionManager.availableAgents()
 
@@ -625,75 +621,6 @@ private fun UnifiedCommandBar(
                 hasSelection = hasSelection,
                 onAction = onAction,
             )
-        }
-
-        // Row 4: Common command input for both modes
-        Surface(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp),
-            shape = RoundedCornerShape(14.dp),
-            color = colorScheme.surfaceContainerLow,
-            tonalElevation = 1.dp,
-        ) {
-            Row(
-                modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 2.dp, bottom = 2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    if (mode == BottomPanelMode.AI) Icons.Outlined.Psychology else Icons.Outlined.Terminal,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                )
-                Spacer(Modifier.width(8.dp))
-                BasicTextField(
-                    value = commandInput,
-                    onValueChange = { commandInput = it },
-                    modifier = Modifier.weight(1f).heightIn(min = 36.dp),
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = colorScheme.onSurface),
-                    decorationBox = { innerTextField ->
-                        Box {
-                            if (commandInput.isEmpty()) {
-                                Text(
-                                    if (mode == BottomPanelMode.AI) "Ask AI to edit code..." else "Type a command...",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                                )
-                            }
-                            innerTextField()
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions(
-                        onSend = {
-                            if (commandInput.isNotBlank()) {
-                                if (mode == BottomPanelMode.AI) {
-                                    onAction(commandInput)
-                                } else {
-                                    terminalViewModel.terminalView?.currentSession?.write(commandInput + "\n")
-                                }
-                                commandInput = ""
-                            }
-                        }
-                    ),
-                )
-                FilledTonalIconButton(
-                    onClick = {
-                        if (commandInput.isNotBlank()) {
-                            if (mode == BottomPanelMode.AI) {
-                                onAction(commandInput)
-                            } else {
-                                terminalViewModel.terminalView?.currentSession?.write(commandInput + "\n")
-                            }
-                            commandInput = ""
-                        }
-                    },
-                    modifier = Modifier.size(36.dp),
-                    enabled = commandInput.isNotBlank(),
-                ) {
-                    Icon(Icons.Outlined.Send, contentDescription = "Send", modifier = Modifier.size(18.dp))
-                }
-            }
         }
     }
 }
