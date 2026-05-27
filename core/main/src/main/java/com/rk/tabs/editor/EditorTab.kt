@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.platform.LocalConfiguration
@@ -84,8 +86,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -140,7 +142,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         editorState.content = null
         editorState.editor.get()?.setText("")
         editorState.editor.get()?.release()
-        GlobalScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
+        AppScope.launch(Dispatchers.IO) { lspConnector?.disconnect() }
     }
 
     override fun onTabSelected() {
@@ -448,22 +450,35 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(patch.filePath, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                                 if (patch.oldText.isNotBlank()) {
-                                    Text("Current", style = MaterialTheme.typography.labelMedium)
+                                    Text("Current", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error)
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
+                                        shape = RoundedCornerShape(4.dp),
+                                        modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp)
+                                    ) {
+                                        Text(
+                                            text = patch.oldText,
+                                            modifier = Modifier.padding(8.dp).verticalScroll(rememberScrollState()),
+                                            fontFamily = FontFamily.Monospace,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onErrorContainer
+                                        )
+                                    }
+                                }
+                                Text("Proposed", style = MaterialTheme.typography.labelMedium, color = Color(0xFF4CAF50))
+                                Surface(
+                                    color = Color(0xFF4CAF50).copy(alpha = 0.1f),
+                                    shape = RoundedCornerShape(4.dp),
+                                    modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp)
+                                ) {
                                     Text(
-                                        text = patch.oldText,
-                                        modifier = Modifier.fillMaxWidth().heightIn(max = 120.dp).verticalScroll(rememberScrollState()),
+                                        text = patch.newText,
+                                        modifier = Modifier.padding(8.dp).verticalScroll(rememberScrollState()),
                                         fontFamily = FontFamily.Monospace,
                                         style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
-                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                                 }
-                                Text("Proposed", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                                Text(
-                                    text = patch.newText,
-                                    modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp).verticalScroll(rememberScrollState()),
-                                    fontFamily = FontFamily.Monospace,
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
                             }
                         },
                         confirmButton = {

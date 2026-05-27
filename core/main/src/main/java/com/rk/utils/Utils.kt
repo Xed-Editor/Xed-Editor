@@ -62,7 +62,6 @@ import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,7 +69,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
-    GlobalScope.launch(Dispatchers.Main) { runnable.run() }
+    AppScope.launch(Dispatchers.Main) { runnable.run() }
 }
 
 inline fun toast(@StringRes resId: Int) {

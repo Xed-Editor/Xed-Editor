@@ -22,8 +22,8 @@ import com.rk.utils.dialog
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -144,7 +144,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
 fun startThemeFlipperIfNotRunning() {
     if (flipperJob == null || flipperJob?.isActive?.not() == true) {
         flipperJob =
-            GlobalScope.launch(Dispatchers.IO) {
+            AppScope.launch(Dispatchers.IO) {
                 runCatching {
                         while (isActive && Settings.theme_flipper) {
                             delay(7000)

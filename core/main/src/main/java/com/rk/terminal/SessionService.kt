@@ -22,7 +22,6 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
@@ -115,7 +114,7 @@ class SessionService : Service() {
         startForeground(1, notification)
 
         if (deamonRunning.not()) {
-            GlobalScope.launch(Dispatchers.IO) { deamonRunning = true }
+            AppScope.launch(Dispatchers.IO) { deamonRunning = true }
         }
 
         if (wakeLock == null) {

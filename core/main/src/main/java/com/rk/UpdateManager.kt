@@ -177,7 +177,7 @@ object UpdateManager {
                 }
 
                 if (lastVersionCode <= 81) {
-                    GlobalScope.launch {
+                    AppScope.launch {
                         runCatching {
                             application!!.filesDir.child("projects").toFileWrapper().renameTo("drawerTabs")
                             application!!.filesDir.child("currentTab").toFileWrapper().renameTo("currentDrawerTab")

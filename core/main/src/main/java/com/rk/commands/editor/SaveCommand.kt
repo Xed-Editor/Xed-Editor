@@ -11,7 +11,6 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class SaveCommand(commandContext: CommandContext) : EditorCommand(commandContext) {
@@ -20,7 +19,7 @@ class SaveCommand(commandContext: CommandContext) : EditorCommand(commandContext
     override fun getLabel(): String = strings.save.getString()
 
     override fun action(editorActionContext: EditorActionContext) {
-        GlobalScope.launch(Dispatchers.IO) { editorActionContext.editorTab.save() }
+        AppScope.launch(Dispatchers.IO) { editorActionContext.editorTab.save() }
     }
 
     override fun isEnabled(editorNonActionContext: EditorNonActionContext): Boolean {

@@ -11,7 +11,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.editor.EditorTab
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class SaveAllCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
@@ -21,7 +20,7 @@ class SaveAllCommand(commandContext: CommandContext) : GlobalCommand(commandCont
 
     override fun action(actionContext: ActionContext) {
         commandContext.mainViewModel.tabs.filterIsInstance<EditorTab>().forEach {
-            GlobalScope.launch(Dispatchers.IO) { it.save() }
+            AppScope.launch(Dispatchers.IO) { it.save() }
         }
     }
 

@@ -1,9 +1,11 @@
 package com.rk.ai.agents
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.rk.settings.Settings
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
+@Serializable
 data class AgentProfile(
     val name: String,
     val agentType: String = "gemini",
@@ -13,21 +15,20 @@ data class AgentProfile(
 }
 
 object AgentProfileManager {
-    private val gson = Gson()
+    private val jsonParser = Json { ignoreUnknownKeys = true }
 
     fun loadProfiles(): List<AgentProfile> {
-        val json = Settings.ai_profiles_json
-        if (json.isBlank()) return defaultProfiles()
+        val jsonText = Settings.ai_profiles_json
+        if (jsonText.isBlank()) return defaultProfiles()
         return try {
-            val type = object : TypeToken<List<AgentProfile>>() {}.type
-            gson.fromJson(json, type) ?: defaultProfiles()
+            jsonParser.decodeFromString<List<AgentProfile>>(jsonText)
         } catch (_: Exception) {
             defaultProfiles()
         }
     }
 
     fun saveProfiles(profiles: List<AgentProfile>) {
-        Settings.ai_profiles_json = gson.toJson(profiles)
+        Settings.ai_profiles_json = jsonParser.encodeToString(profiles)
     }
 
     fun addProfile(profile: AgentProfile) {

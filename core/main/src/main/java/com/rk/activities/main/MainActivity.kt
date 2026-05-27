@@ -32,7 +32,6 @@ import com.rk.utils.toast
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -56,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onPause() {
         isPaused = true
-        GlobalScope.launch(Dispatchers.IO) {
+        AppScope.launch(Dispatchers.IO) {
             SessionManager.saveSession(viewModel.tabs, viewModel.currentTabIndex)
             DrawerPersistence.saveState()
             foregroundListener.values.forEach { it.invoke(false) }

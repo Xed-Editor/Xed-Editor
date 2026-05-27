@@ -69,7 +69,6 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -294,7 +293,7 @@ class Terminal : AppCompatActivity() {
 
                             else -> {
                                 error.printStackTrace()
-                                GlobalScope.launch(Dispatchers.IO) {
+                                AppScope.launch(Dispatchers.IO) {
                                     if (file?.absolutePath?.contains(localBinDir().absolutePath) == true) {
                                         localBinDir().deleteRecursively()
                                     }

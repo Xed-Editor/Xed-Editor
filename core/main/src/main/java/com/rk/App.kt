@@ -36,7 +36,6 @@ import java.util.Locale
 import java.util.concurrent.Executors
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -86,7 +85,7 @@ class App : Application() {
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
 
-        GlobalScope.launch(Dispatchers.IO) {
+        AppScope.launch(Dispatchers.IO) {
             launch(Dispatchers.IO) {
                 extensionManager.indexLocalExtensions()
                 extensionManager.loadAllExtensions()

@@ -12,7 +12,6 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -23,7 +22,7 @@ object UpdateChecker {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun checkForUpdates(branch: String) {
-        GlobalScope.launch(Dispatchers.IO) {
+        AppScope.launch(Dispatchers.IO) {
             try {
                 if (Settings.check_for_update.not()) {
                     return@launch

@@ -10,5 +10,5 @@ import kotlinx.coroutines.GlobalScope
 @OptIn(DelicateCoroutinesApi::class)
 val DefaultScope: CoroutineScope
     get() {
-        return MainActivity.instance?.lifecycleScope ?: GlobalScope
+        return MainActivity.instance?.lifecycleScope ?: AppScope
     }

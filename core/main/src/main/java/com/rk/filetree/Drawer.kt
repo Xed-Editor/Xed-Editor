@@ -184,7 +184,7 @@ fun addProject(fileObject: FileObject, save: Boolean = false) {
     drawerTabs.add(tab)
     selectTab(tab)
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
+        AppScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 
@@ -194,7 +194,7 @@ fun addProject(tab: DrawerTab, save: Boolean = false) {
     drawerTabs.add(tab)
     selectTab(tab)
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
+        AppScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 
@@ -213,7 +213,7 @@ fun removeProject(fileObject: FileObject, save: Boolean = false) {
     drawerTabs.removeAt(index)
 
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
+        AppScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 
@@ -232,7 +232,7 @@ fun removeProject(tab: DrawerTab, save: Boolean = false) {
     drawerTabs.removeAt(index)
 
     if (save) {
-        GlobalScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
+        AppScope.launch(Dispatchers.IO) { DrawerPersistence.saveState() }
     }
 }
 

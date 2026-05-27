@@ -164,7 +164,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                     val loading = LoadingPopup(activity, null)
                     loading.show()
 
-                    GlobalScope.launch(Dispatchers.IO) {
+                    AppScope.launch(Dispatchers.IO) {
                         val fileObject = uri.toFileObject(expectedIsFile = true)
 
                         val tempFile = getTempDir().child("terminal-backup.tar.gz")
@@ -215,7 +215,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                         mimeType = "application/octet-stream",
                         title = "terminal-backup.tar.gz",
                     ) { fileObject ->
-                        GlobalScope.launch(Dispatchers.IO) {
+                        AppScope.launch(Dispatchers.IO) {
                             if (fileObject != null) {
                                 val targetFile = getTempDir().child("terminal-backup.tar.gz")
 
@@ -298,7 +298,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                         onCancel = {},
                         okString = strings.delete,
                         onOk = {
-                            GlobalScope.launch(Dispatchers.IO) {
+                            AppScope.launch(Dispatchers.IO) {
                                 val loading = LoadingPopup(activity, null)
                                 loading.show()
                                 runCatching {

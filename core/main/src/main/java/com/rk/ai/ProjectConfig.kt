@@ -1,20 +1,22 @@
 package com.rk.ai
 
-import com.google.gson.Gson
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.GeminiAgent
 import com.rk.ai.agents.OpenCodeAgent
 import com.rk.ai.session.AiSessionManager
 import com.rk.settings.Settings
 import java.io.File
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
+@Serializable
 data class ProjectAiConfig(
     val agent: String? = null,
     val extraArgs: List<String>? = null,
 )
 
 object ProjectConfigLoader {
-    private val gson = Gson()
+    private val jsonParser = Json { ignoreUnknownKeys = true }
 
     fun loadForWorkspace(workspacePath: String): ProjectAiConfig? {
         if (!Settings.ai_project_config_enabled) return null
@@ -22,8 +24,8 @@ object ProjectConfigLoader {
         val configFile = File(root, ".xed/agent.json")
         if (!configFile.exists()) return null
         return try {
-            val json = configFile.readText()
-            gson.fromJson(json, ProjectAiConfig::class.java)
+            val jsonText = configFile.readText()
+            jsonParser.decodeFromString<ProjectAiConfig>(jsonText)
         } catch (_: Exception) { null }
     }
 
