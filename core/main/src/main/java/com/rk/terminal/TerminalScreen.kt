@@ -96,11 +96,8 @@ import java.lang.ref.WeakReference
 import java.util.Properties
 import kotlinx.coroutines.launch
 
-var terminalView = WeakReference<TerminalView?>(null)
-var virtualKeysView = WeakReference<VirtualKeysView?>(null)
-
 @Composable
-fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
+fun TerminalScreen(modifier: Modifier = Modifier, terminalViewModel: TerminalViewModel) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -121,7 +118,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Terminal, navController: NavController) {
+fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalViewModel: TerminalViewModel, navController: NavController) {
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
     val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
     val isDarkMode = isSystemInDarkTheme()
@@ -237,7 +234,7 @@ private fun ColumnScope.TerminalView(
     currentTheme: ThemeHolder,
     surfaceColor: Int,
     onSurfaceColor: Int,
-    terminalActivity: Terminal,
+    terminalViewModel: TerminalViewModel,
 ) {
     AndroidView(
         factory = { context ->
@@ -254,28 +251,25 @@ private fun ColumnScope.TerminalView(
                     terminalColors = terminalColors,
                 )
 
-                terminalView = WeakReference(this)
+                terminalViewModel.terminalView = this
                 setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                val client = TerminalBackEnd()
+                val client = TerminalBackEnd(terminalViewModel)
 
                 val session =
                     if (pendingCommand != null) {
-                        terminalActivity.sessionBinder?.get()!!.getService()!!.currentSession.value = pendingCommand!!.id
-                        terminalActivity.sessionBinder?.get()!!.getSession(pendingCommand!!.id)
-                            ?: terminalActivity.sessionBinder
-                                ?.get()!!
-                                .createSession(pendingCommand!!.id, client, terminalActivity)!!
+                        terminalViewModel.sessionBinder?.getService()!!.currentSession.value = pendingCommand!!.id
+                        terminalViewModel.sessionBinder!!.getSession(pendingCommand!!.id)
+                            ?: terminalViewModel.sessionBinder!!
+                                .createSession(pendingCommand!!.id, client, context as Terminal)!!
                                 .session
                     } else {
-                        terminalActivity.sessionBinder
-                            ?.get()!!
-                            .getSession(terminalActivity.sessionBinder?.get()!!.getService()!!.currentSession.value)
-                            ?: terminalActivity.sessionBinder
-                                ?.get()!!
+                        terminalViewModel.sessionBinder!!
+                            .getSession(terminalViewModel.sessionBinder?.getService()!!.currentSession.value)
+                            ?: terminalViewModel.sessionBinder!!
                                 .createSession(
-                                    terminalActivity.sessionBinder?.get()!!.getService()!!.currentSession.value,
+                                    terminalViewModel.sessionBinder?.getService()!!.currentSession.value,
                                     client,
-                                    terminalActivity,
+                                    context as Terminal,
                                 )!!
                                 .session
                     }
@@ -451,11 +445,11 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
     }
 }
 
-fun Terminal.changeSession(sessionId: String) {
-    val terminalView = terminalView.get() ?: return
-    val binder = sessionBinder!!.get()!!
+fun Terminal.changeSession(sessionId: String, terminalViewModel: TerminalViewModel) {
+    val terminalView = terminalViewModel.terminalView ?: return
+    val binder = terminalViewModel.sessionBinder ?: return
 
-    val client = TerminalBackEnd()
+    val client = TerminalBackEnd(terminalViewModel)
     val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this)?.session ?: return
 
     session.updateTerminalSessionClient(client)
@@ -466,15 +460,15 @@ fun Terminal.changeSession(sessionId: String) {
         post {
             keepScreenOn = true
             setFocusableInTouchMode(true)
-            focusAndShowKeyboard()
+            focusAndShowKeyboard(terminalViewModel)
         }
     }
-    virtualKeysView.get()?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
+    terminalViewModel.virtualKeysView?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
 
     binder.getService()?.currentSession?.value = sessionId
 }
 
-private fun TerminalView.focusAndShowKeyboard() {
+private fun TerminalView.focusAndShowKeyboard(terminalViewModel: TerminalViewModel) {
     post {
         isFocusable = true
         isFocusableInTouchMode = true
@@ -494,6 +488,12 @@ private fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: 
     mEmulator?.mColors?.mCurrentColors?.apply {
         set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor)
         set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor)
+        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
+    }
+
+    invalidate()
+}
+INDEX_BACKGROUND, surfaceColor)
         set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
     }
 

@@ -16,9 +16,9 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(private val terminalViewModel: TerminalViewModel) : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
-        terminalView.get()?.onScreenUpdated()
+        terminalViewModel.terminalView?.onScreenUpdated()
     }
 
     override fun onTitleChanged(changedSession: TerminalSession) {}
@@ -31,8 +31,8 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun onPasteTextFromClipboard(session: TerminalSession?) {
         val clip = ClipboardUtils.getText().toString()
-        if (clip.trim { it <= ' ' }.isNotEmpty() && terminalView.get()?.mEmulator != null) {
-            terminalView.get()?.mEmulator?.paste(clip)
+        if (clip.trim { it <= ' ' }.isNotEmpty() && terminalViewModel.terminalView?.mEmulator != null) {
+            terminalViewModel.terminalView?.mEmulator?.paste(clip)
         }
     }
 
@@ -83,7 +83,7 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun onScale(scale: Float): Float {
         val fontScale = scale.coerceIn(11f, 45f)
-        terminalView.get()?.setTextSize(fontScale.toInt())
+        terminalViewModel.terminalView?.setTextSize(fontScale.toInt())
         return fontScale
     }
 
@@ -111,14 +111,13 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            val activity = Terminal.instance ?: return false
-            activity.sessionBinder
-                ?.get()
-                ?.terminateSession(activity.sessionBinder?.get()!!.getService()!!.currentSession.value)
-            if (activity.sessionBinder?.get()!!.getService()!!.sessionList.isEmpty()) {
+            val activity = terminalViewModel.terminalView?.context as? Terminal ?: return false
+            val binder = terminalViewModel.sessionBinder ?: return false
+            binder.terminateSession(binder.getService()?.currentSession?.value ?: "")
+            if (binder.getService()?.sessionList?.isEmpty() == true) {
                 activity.finish()
             } else {
-                activity.changeSession(activity.sessionBinder?.get()!!.getService()!!.sessionList.first())
+                activity.changeSession(binder.getService()?.sessionList?.first() ?: "", terminalViewModel)
             }
             return true
         }
@@ -135,22 +134,22 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     // keys
     override fun readControlKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.CTRL, true)
+        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.CTRL, true)
         return state != null && state
     }
 
     override fun readAltKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.ALT, true)
+        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.ALT, true)
         return state != null && state
     }
 
     override fun readShiftKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.SHIFT, true)
+        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.SHIFT, true)
         return state != null && state
     }
 
     override fun readFnKey(): Boolean {
-        val state = virtualKeysView.get()?.readSpecialButton(SpecialButton.FN, true)
+        val state = terminalViewModel.virtualKeysView?.readSpecialButton(SpecialButton.FN, true)
         return state != null && state
     }
 
@@ -163,13 +162,13 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
     }
 
     private fun setTerminalCursorBlinkingState(start: Boolean) {
-        if (terminalView.get()?.mEmulator != null) {
-            terminalView.get()?.setTerminalCursorBlinkerState(start, true)
+        if (terminalViewModel.terminalView?.mEmulator != null) {
+            terminalViewModel.terminalView?.setTerminalCursorBlinkerState(start, true)
         }
     }
 
     private fun showSoftInput() {
-        val view = terminalView.get() ?: return
+        val view = terminalViewModel.terminalView ?: return
         view.post {
             view.isFocusable = true
             view.isFocusableInTouchMode = true

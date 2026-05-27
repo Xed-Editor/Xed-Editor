@@ -136,10 +136,7 @@ class Terminal : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        if (isBound) {
-            unbindService(serviceConnection)
-            isBound = false
-        }
+        terminalViewModel.unbindService(this)
     }
 
     private fun needsNotificationPermission(): Boolean {
@@ -458,6 +455,12 @@ class Terminal : AppCompatActivity() {
                             withContext(Dispatchers.Main) { onProgress(downloadedBytes, totalBytes) }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+             }
                 }
             }
         }
