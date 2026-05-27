@@ -72,6 +72,7 @@ object Settings {
     var sandbox by CachedPreference("sandbox", true)
     var ai_auto_apply by CachedPreference("ai_auto_apply", false)
     var ai_agent by CachedPreference("ai_agent", "gemini")
+    var ai_profiles_json by CachedPreference("ai_profiles_json", "")
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)
     var ai_api_key by CachedPreference("ai_api_key", "")
     var ai_inline_completion by CachedPreference("ai_inline_completion", true)

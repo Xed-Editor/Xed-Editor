@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.ai.session.AiSessionManager
+import com.rk.icons.XedIcon
+import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -90,7 +92,7 @@ fun InlineAgentBar(
                     if (response != null) {
                         Spacer(Modifier.width(8.dp))
                         IconButton(onClick = { response = null }) {
-                            XedIcon(com.rk.icons.Icon.DrawableRes(com.rk.resources.drawables.delete), contentDescription = "Clear Response", modifier = Modifier.size(20.dp))
+                            XedIcon(com.rk.icons.Icon.DrawableRes(drawables.close), contentDescription = "Clear Response", modifier = Modifier.size(20.dp))
                         }
                     }
                     Spacer(Modifier.width(8.dp))

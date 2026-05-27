@@ -455,7 +455,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                         fontFamily = FontFamily.Monospace,
                                         style = MaterialTheme.typography.bodySmall,
                                     )
-                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), alpha = 0.5f)
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                                 }
                                 Text("Proposed", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                                 Text(
