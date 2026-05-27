@@ -45,7 +45,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.rk.DefaultScope
@@ -69,7 +68,6 @@ import com.rk.lsp.LspConnector
 import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
 import com.rk.resources.getString
-import com.rk.AppScope
 import com.rk.resources.strings
 import com.rk.runner.currentRunner
 import com.rk.search.EditorSearchPanel
@@ -89,9 +87,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -59,7 +59,6 @@ import java.io.FileOutputStream
 import java.lang.Runtime.getRuntime
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
