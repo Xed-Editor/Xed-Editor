@@ -656,4 +656,5 @@
     <string name="confirm_exit_dialog_desc">Affiche un message de confirmation avant de fermer le logiciel</string>
     <string name="sort_lines_ascending">Trier les lignes (ascendant)</string>
     <string name="sort_lines_descending">Trier les lignes (descendant)</string>
+    <string name="updating">Mise à jour…</string>
 </resources>
