@@ -76,3 +76,33 @@ class GetProjectConfigTool : BaseMcpTool() {
         return McpToolResult.success(config.toString())
     }
 }
+
+class GetEnvironmentTool : BaseMcpTool() {
+    override fun getName(): String = "getEnvironment"
+    override fun getDescription(): String = "Returns system and sandbox environment variables."
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = buildJsonResult {
+        System.getenv().forEach { (k, v) -> addProperty(k, v) }
+    }
+}
+
+class GetClipboardTool : BaseMcpTool() {
+    override fun getName(): String = "getClipboard"
+    override fun getDescription(): String = "Returns the current device clipboard content."
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = withContext(kotlinx.coroutines.Dispatchers.Main) {
+        val cm = application?.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+        val text = cm?.primaryClip?.getItemAt(0)?.text?.toString().orEmpty()
+        McpToolResult.success(text)
+    }
+}
+
+class WriteToClipboardTool : BaseMcpTool() {
+    override fun getName(): String = "writeToClipboard"
+    override fun getDescription(): String = "Sets the device clipboard content."
+    override fun getRequiredParams(): Map<String, String> = mapOf("text" to "string")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = withContext(kotlinx.coroutines.Dispatchers.Main) {
+        val text = requireString(args, "text")
+        val cm = application?.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+        cm?.setPrimaryClip(android.content.ClipData.newPlainText("Xed AI", text))
+        McpToolResult.success("Copied to clipboard.")
+    }
+}

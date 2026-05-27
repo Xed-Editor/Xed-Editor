@@ -85,26 +85,27 @@ object GeminiCli {
         onOutput: ((String) -> Unit)?,
     ): ShellUtils.Result {
         setupTerminalFiles()
-        val command =
-            buildList {
-                    if (ideBridge != null) {
-                        val tmpDir = File(getTempDir(), "terminal/gemini-sheet")
-                        addAll(AgentEnvironmentBuilder.buildMinimalBridgeEnv(ideBridge, workingDir ?: "").toList())
-                        addAll(AgentEnvironmentBuilder.buildDebugEnv().map { "${it.key}=${it.value}" })
-                        add("TMPDIR=${tmpDir.absolutePath}")
-                        add("TMP_DIR=${tmpDir.absolutePath}")
-                    }
-                    add("/bin/bash")
-                    add(localBinDir().child("gemini-cli-headless").absolutePath)
-                    addAll(args)
-                }
-                .toTypedArray()
+        val extraEnv = mutableMapOf<String, String>()
+        if (ideBridge != null) {
+            val tmpDir = File(getTempDir(), "terminal/gemini-sheet")
+            extraEnv.putAll(AgentEnvironmentBuilder.buildMinimalBridgeEnv(ideBridge, workingDir ?: "").map { 
+                val split = it.split("=", limit = 2)
+                split[0] to split[1]
+            }.toMap())
+            extraEnv.putAll(AgentEnvironmentBuilder.buildDebugEnv())
+            extraEnv["TMPDIR"] = tmpDir.absolutePath
+            extraEnv["TMP_DIR"] = tmpDir.absolutePath
+        }
+
+        val command = listOf("/bin/bash", localBinDir().child("gemini-cli-headless").absolutePath) + args
+        
         return if (onOutput == null) {
-            ShellUtils.runUbuntu(workingDir, *command, timeoutSeconds = timeoutSeconds)
+            ShellUtils.runUbuntu(workingDir, *command.toTypedArray(), extraEnv = extraEnv, timeoutSeconds = timeoutSeconds)
         } else {
             ShellUtils.runUbuntuStreaming(
                 workingDir,
-                *command,
+                *command.toTypedArray(),
+                extraEnv = extraEnv,
                 timeoutSeconds = timeoutSeconds,
                 onStdout = onOutput,
                 onStderr = onOutput,

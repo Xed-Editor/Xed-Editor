@@ -18,10 +18,47 @@ class SearchCodeTool : BaseMcpTool() {
     )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
-        val limit = optionalPositiveInt(args, "limit") ?: 50
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 500)
         val path = getPathParam(args)
         val results = context.ideService.searchCode(query, limit, path = path, isRegex = false)
-        return McpToolResult.success(results.toString())
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No results found.")
+        return McpToolResult.success(sb.toString().trim())
+    }
+}
+
+class GrepSearchTool : BaseMcpTool() {
+    override fun getName(): String = "grep_search"
+    override fun getDescription(): String = "Advanced text pattern search project-wide or scoped to a directory. Optimized for AI navigation. Supports regex."
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Text or regex to search for",
+        "pattern" to "Alternative to query",
+        "limit" to "Maximum results (default: 50, max: 1000)",
+        "path" to "Scoped directory"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 1000)
+        val path = getPathParam(args)
+        val results = context.ideService.searchCode(query, limit, path = path, isRegex = true)
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No matches found.")
+        return McpToolResult.success(sb.toString().trim())
     }
 }
 
@@ -39,10 +76,19 @@ class GrepTool : BaseMcpTool() {
     )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
-        val limit = optionalPositiveInt(args, "limit") ?: 50
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 500)
         val path = getPathParam(args)
         val results = context.ideService.searchCode(query, limit, path = path, isRegex = true)
-        return McpToolResult.success(results.toString())
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No matches found.")
+        return McpToolResult.success(sb.toString().trim())
     }
 }
 
@@ -59,10 +105,19 @@ class SearchSymbolsTool : BaseMcpTool() {
     )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/symbol")
-        val limit = optionalPositiveInt(args, "limit") ?: 50
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 500)
         val path = getPathParam(args)
         val results = context.ideService.searchSymbols(query, limit, path = path)
-        return McpToolResult.success(results.toString())
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No symbols found.")
+        return McpToolResult.success(sb.toString().trim())
     }
 }
 
@@ -78,10 +133,16 @@ class FindFilesTool : BaseMcpTool() {
     )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
-        val limit = optionalPositiveInt(args, "limit") ?: 100
+        val limit = (optionalPositiveInt(args, "limit") ?: 100).coerceIn(1, 1000)
         val path = getPathParam(args)
         val results = context.ideService.findFiles(query, limit, path)
-        return McpToolResult.success(results.toString())
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            sb.append(obj.get("path")?.asString).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No files found.")
+        return McpToolResult.success(sb.toString().trim())
     }
 }
 
@@ -97,9 +158,15 @@ class GlobTool : BaseMcpTool() {
     )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
-        val limit = optionalPositiveInt(args, "limit") ?: 100
+        val limit = (optionalPositiveInt(args, "limit") ?: 100).coerceIn(1, 1000)
         val path = getPathParam(args)
         val results = context.ideService.findFiles(query, limit, path)
-        return McpToolResult.success(results.toString())
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            sb.append(obj.get("path")?.asString).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No matches found.")
+        return McpToolResult.success(sb.toString().trim())
     }
 }

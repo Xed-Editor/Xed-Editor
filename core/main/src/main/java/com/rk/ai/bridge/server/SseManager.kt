@@ -57,10 +57,28 @@ class SseManager(
         val writer = PrintWriter(output, true)
         synchronized(sseLock) { sseClients[sessionId] = writer; onClientsChanged(sseClients.size) }
         val input = PipedInputStream(output)
-        val response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/event-stream", input, -1L).apply {
+        
+        // Use a tracked input stream to detect closure
+        val trackedInput = object : java.io.InputStream() {
+            override fun read(): Int = input.read()
+            override fun read(b: ByteArray, off: Int, len: Int): Int = input.read(b, off, len)
+            override fun available(): Int = input.available()
+            override fun close() {
+                input.close()
+                output.close()
+                synchronized(sseLock) {
+                    if (sseClients.remove(sessionId) != null) {
+                        onClientsChanged(sseClients.size)
+                    }
+                }
+            }
+        }
+
+        val response = NanoHTTPD.newFixedLengthResponse(NanoHTTPD.Response.Status.OK, "text/event-stream", trackedInput, -1L).apply {
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")
+            addHeader("Connection", "keep-alive")
         }
         return response to writer
     }
@@ -88,14 +106,12 @@ class SseManager(
     }
 
     fun pushToSession(sessionId: String, responseBody: String): Boolean {
-        val writer = synchronized(sseLock) { sseClients[sessionId] }
-        if (writer != null) {
-            synchronized(sseLock) {
-                writer.print("event: message\n"); writer.print("data: $responseBody\n\n"); writer.flush()
-            }
-            return true
+        val writer = synchronized(sseLock) { sseClients[sessionId] } ?: return false
+        synchronized(writer) {
+            writer.print("event: message\ndata: $responseBody\n\n")
+            writer.flush()
         }
-        return false
+        return true
     }
 
     override fun sendNotification(method: String, params: JsonObject) {
@@ -104,7 +120,10 @@ class SseManager(
         synchronized(sseLock) {
             sseClients.forEach { (id, writer) ->
                 runCatching {
-                    writer.print("event: message\n"); writer.print("data: $notification\n\n"); writer.flush()
+                    synchronized(writer) {
+                        writer.print("event: message\ndata: $notification\n\n")
+                        writer.flush()
+                    }
                     if (writer.checkError()) deadClients.add(id)
                 }.onFailure { deadClients.add(id) }
             }

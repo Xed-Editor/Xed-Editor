@@ -24,15 +24,15 @@ class McpDispatcher(
     private val ideService: IdeService,
     private val serverScope: CoroutineScope,
 ) {
-    @Volatile var sendNotification: (String, JsonObject) -> Unit = { _, _ -> }
+    @Volatile var sendNotification: (String, String, JsonObject) -> Unit = { _, _, _ -> }
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val _streamingResponses = MutableSharedFlow<Pair<String, JsonObject>>(extraBufferCapacity = 128)
     val streamingResponses: Flow<Pair<String, JsonObject>> = _streamingResponses.asSharedFlow()
 
-    suspend fun dispatch(id: JsonElement, method: String, request: JsonObject): String = when (method) {
+    suspend fun dispatch(sessionId: String, id: JsonElement, method: String, request: JsonObject): String = when (method) {
         "initialize" -> initializeResult(id, request)
         "tools/list" -> toolsListResult(id)
-        "tools/call" -> toolsCallResult(id, request)
+        "tools/call" -> toolsCallResult(sessionId, id, request)
         "notifications/initialized" -> resultJson(id, JsonObject())
         "ping" -> resultJson(id, JsonObject())
         else -> errorJson(id, -32601, "method not found: $method")
@@ -60,13 +60,13 @@ class McpDispatcher(
     private fun toolsListResult(id: JsonElement): String =
         resultJson(id, JsonObject().apply { add("tools", toolRegistry().listSchemas()) })
 
-    private suspend fun toolsCallResult(id: JsonElement, request: JsonObject): String {
+    private suspend fun toolsCallResult(sessionId: String, id: JsonElement, request: JsonObject): String {
         val params = request.getAsJsonObject("params") ?: return errorJson(id, -32602, "missing params")
         val name = params.get("name")?.asString.orEmpty()
         val args = params.getAsJsonObject("arguments") ?: JsonObject()
         val timeoutMs = toolRegistry().getTimeoutMs(name)
         return try {
-            val result = executeTool(name, args, timeoutMs)
+            val result = executeTool(sessionId, name, args, timeoutMs)
             resultJson(id, result.toJson())
         } catch (e: ToolError) {
             errorJson(id, e.code, e.message)
@@ -79,7 +79,7 @@ class McpDispatcher(
         }
     }
 
-    private suspend fun executeTool(name: String, args: JsonObject, timeoutMs: Long): McpToolResult = coroutineScope {
+    private suspend fun executeTool(sessionId: String, name: String, args: JsonObject, timeoutMs: Long): McpToolResult = coroutineScope {
         val tool = toolRegistry().get(name) ?: return@coroutineScope McpToolResult.error("unknown tool: $name")
 
         val context = McpToolContext(
@@ -90,7 +90,7 @@ class McpDispatcher(
 
         val progressJob = launch {
             context.progress.collect { message ->
-                sendNotification("tool/progress", JsonObject().apply {
+                sendNotification(sessionId, "tool/progress", JsonObject().apply {
                     addProperty("tool", name)
                     addProperty("message", message)
                 })

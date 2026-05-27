@@ -46,7 +46,6 @@ class IdeBridgeServer(
 
     @Volatile var connectedClients: Int = 0; private set
     val toolsCount: Int get() = toolRegistry.listSchemas().size()
-    @Volatile private var activeMcpSessionId: String? = null
 
     var ideService: IdeService = initialIdeService
         set(value) {
@@ -62,7 +61,7 @@ class IdeBridgeServer(
     private val toolConcurrencyLimit = Semaphore(MAX_CONCURRENT_TOOL_CALLS)
 
     init {
-        mcpDispatcher.sendNotification = { method, params -> sseManager.sendNotification(method, params) }
+        mcpDispatcher.sendNotification = { sessionId, method, params -> sseManager.pushToSession(sessionId, mcpDispatcher.notificationJson(method, params)) }
         registerTools(toolRegistry)
         httpSessionTracker.startBackgroundCleanup(serverScope)
     }
@@ -84,7 +83,8 @@ class IdeBridgeServer(
             register(SaveOpenFilesTool()); register(RefreshOpenEditorsTool()); register(RefreshFileTool())
             register(OpenDiffTool()); register(GetDiffResultTool()); register(RejectDiffTool())
             register(RunCommandTool()); register(ShowMessageTool())
-            register(SearchCodeTool()); register(GrepTool())
+            register(GetEnvironmentTool()); register(GetClipboardTool()); register(WriteToClipboardTool())
+            register(SearchCodeTool()); register(GrepTool()); register(GrepSearchTool())
             register(SearchSymbolsTool())
             register(FindFilesTool()); register(GlobTool())
             register(HeadTool()); register(TailTool()); register(WcTool())
@@ -143,19 +143,21 @@ class IdeBridgeServer(
         coroutineScope { toolConcurrencyLimit.withPermit { block() } }
 
     private suspend fun handleMcp(session: IHTTPSession, rawPostBody: String?): Response {
-        if (session.method == Method.GET) return sseManager.createMcpStream(
-            resolveMcpSessionId("initialize", null) ?: "default"
-        )
+        val method = if (session.method == Method.GET) "initialize" else parseJsonRequest(rawPostBody)?.get("method")?.asString.orEmpty()
+        val requestedSessionId = session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
+        val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
+
+        if (session.method == Method.GET) return sseManager.createMcpStream(sessionId)
         if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
+        
         val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
         val id = request.get("id") ?: JsonNull.INSTANCE
-        val method = request.get("method")?.asString.orEmpty()
-        val responseSessionId = resolveMcpSessionId(method, session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() })
+        
         val result = withConcurrencyLimit {
-            mcpDispatcher.dispatch(id, method, request)
+            mcpDispatcher.dispatch(sessionId, id, method, request)
         }
         return json(Response.Status.OK, result).apply {
-            responseSessionId?.let { addHeader(MCP_SESSION_ID_HEADER, it) }
+            addHeader(MCP_SESSION_ID_HEADER, sessionId)
         }
     }
 
@@ -167,7 +169,7 @@ class IdeBridgeServer(
         val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
         val id = request.get("id") ?: JsonNull.INSTANCE
         val responseBody = withConcurrencyLimit {
-            mcpDispatcher.dispatch(id, method, request)
+            mcpDispatcher.dispatch(sessionId, id, method, request)
         }
         if (sseManager.pushToSession(sessionId, responseBody)) {
             return json(Response.Status.OK, mcpDispatcher.resultJson(id, JsonObject().apply { addProperty("_ack", true) }))
@@ -176,13 +178,11 @@ class IdeBridgeServer(
     }
 
     private fun resolveMcpSessionId(method: String, requestedSessionId: String?): String? {
-        if (!requestedSessionId.isNullOrBlank()) { activeMcpSessionId = requestedSessionId; return requestedSessionId }
+        if (!requestedSessionId.isNullOrBlank()) { return requestedSessionId }
         if (method == "initialize") {
-            val newId = httpSessionTracker.createSession()
-            activeMcpSessionId = newId; return newId
+            return httpSessionTracker.createSession()
         }
-        activeMcpSessionId?.let { httpSessionTracker.touchSession(it) }
-        return activeMcpSessionId
+        return null
     }
 
     private suspend fun handleExternalEditor(session: IHTTPSession, rawPostBody: String?): Response {
@@ -230,7 +230,6 @@ class IdeBridgeServer(
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
         addProperty("httpClients", httpSessionTracker.httpSessionCount)
         addProperty("tools", toolRegistry.listSchemas().size()); addProperty("tokenPrefix", token.take(8))
-        add("activeSessionId", if (activeMcpSessionId != null) JsonObject().apply { addProperty("id", activeMcpSessionId) } else JsonNull.INSTANCE)
     })
 
     private fun isAuthorized(session: IHTTPSession): Boolean {

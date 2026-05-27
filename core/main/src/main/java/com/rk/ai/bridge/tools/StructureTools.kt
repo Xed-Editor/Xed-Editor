@@ -63,7 +63,7 @@ class GetProjectSummaryTool : BaseMcpTool() {
 
         sb.append("\n")
 
-        val importantFiles = listOf("README.md", "README", "build.gradle.kts", "build.gradle", "package.json", "pom.xml", "Cargo.toml", "requirements.txt")
+        val importantFiles = listOf("README.md", "README", "GEMINI.md", "build.gradle.kts", "build.gradle", "package.json", "pom.xml", "Cargo.toml", "requirements.txt")
         importantFiles.forEach { name ->
             val file = java.io.File(root, name)
             if (file.exists() && file.isFile) {

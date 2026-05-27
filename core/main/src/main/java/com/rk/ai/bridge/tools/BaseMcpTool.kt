@@ -94,20 +94,24 @@ abstract class BaseMcpTool : McpTool {
             val workspace = ideService.getPrimaryWorkspacePath()
             if (workspace.isNotBlank()) {
                 val root = File(workspace)
-                val name = path.substringAfterLast("/")
+                val name = path.substringAfterLast("/").substringAfterLast("\\")
                 val suggestions = root.walkTopDown()
                     .maxDepth(3)
-                    .filter { it.name.contains(name, ignoreCase = true) }
-                    .take(3)
+                    .onEnter { !it.name.startsWith(".") }
+                    .filter { !it.isDirectory && it.name.contains(name, ignoreCase = true) }
+                    .take(5)
                     .map { it.absolutePath }
                     .toList()
                 if (suggestions.isNotEmpty()) {
-                    throw ToolError.PathOutsideWorkspace("$path not found. Did you mean:\n${suggestions.joinToString("\n")}")
+                    throw ToolError.PathOutsideWorkspace("'$path' not found. Did you mean one of these?\n${suggestions.joinToString("\n")}")
                 }
             }
-            throw ToolError.PathOutsideWorkspace(path)
+            throw ToolError.PathOutsideWorkspace("'$path' not found or outside workspace.")
         }
     }
+
+    protected fun buildJsonResult(data: JsonObject): McpToolResult = McpToolResult.success(data.toString())
+    protected fun buildJsonResult(block: JsonObject.() -> Unit): McpToolResult = buildJsonResult(JsonObject().apply(block))
 
     private fun requiredKeys(): Set<String> {
         val cached = cachedRequiredKeys

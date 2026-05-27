@@ -79,6 +79,7 @@ suspend fun ubuntuProcess(
     root: File = sandboxDir(),
     workingDir: String? = null,
     command: List<String>,
+    extraEnv: Map<String, String> = emptyMap(),
 ): Process =
     withContext(Dispatchers.IO) {
         if (!root.exists()) throw NoSuchFileException(root)
@@ -122,6 +123,7 @@ suspend fun ubuntuProcess(
         val processBuilder = ProcessBuilder(linker, *args.toTypedArray())
 
         processBuilder.environment().let { env ->
+            env.putAll(extraEnv)
             env["WKDIR"] = workingDir.orEmpty()
             env["COLORTERM"] = "truecolor"
             env["TERM"] = "xterm-256color"
