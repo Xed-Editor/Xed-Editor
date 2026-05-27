@@ -51,12 +51,15 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rk.activities.main.MainActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.editor.FontCache
 import com.rk.exec.pendingCommand
+import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.file.sandboxDir
+import com.rk.tabs.editor.EditorTab
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
@@ -138,6 +141,10 @@ private fun ColumnScope.TerminalView(
     terminalViewModel: TerminalViewModel,
     initialCwd: String? = null,
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val activity = context as? android.app.Activity
+    
     AndroidView(
         factory = { context ->
             TerminalView(context, null).apply {
@@ -158,13 +165,10 @@ private fun ColumnScope.TerminalView(
                 applyTerminalSettings(context)
                 val client = TerminalBackEnd(terminalViewModel)
 
-                val activity = context as? android.app.Activity
                 val binder = terminalViewModel.sessionBinder
                 val service = binder?.getService()
 
                 if (activity != null && binder != null && service != null) {
-                    val scope = androidx.compose.runtime.rememberCoroutineScope()
-                    
                     val mainViewModel = (activity as? MainActivity)?.viewModel
                     val activeTab = mainViewModel?.tabManager?.currentTab as? EditorTab
                     val activeFile = activeTab?.file?.getAbsolutePath() ?: ""
@@ -285,7 +289,7 @@ private fun ColumnScope.TerminalView(
     )
 }
 
-fun changeTerminalSession(sessionId: String, terminalViewModel: TerminalViewModel, activity: Activity) {
+suspend fun changeTerminalSession(sessionId: String, terminalViewModel: TerminalViewModel, activity: Activity) {
     val termView = terminalViewModel.terminalView ?: return
     val binder = terminalViewModel.sessionBinder ?: return
 

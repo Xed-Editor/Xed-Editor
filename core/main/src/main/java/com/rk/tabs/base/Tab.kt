@@ -16,7 +16,7 @@ abstract class Tab {
     open val file: FileObject? = null
 
     /** Can be null if tab should not be restored. */
-    open fun getState(): TabState? = null
+    open suspend fun getState(): TabState? = null
 
     abstract val tabTitle: MutableState<String>
 

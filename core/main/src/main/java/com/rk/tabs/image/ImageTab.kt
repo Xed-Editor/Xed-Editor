@@ -124,7 +124,7 @@ class ImageTab(override val file: FileObject) : Tab() {
         }
     }
 
-    override fun getState(): TabState {
-        return runBlocking { FileTabState(file.toUri().toString()) }
+    override suspend fun getState(): TabState {
+        return FileTabState(file.toUri().toString())
     }
 }

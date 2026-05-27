@@ -98,7 +98,6 @@ import kotlinx.coroutines.withContext
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import android.net.Uri
 import com.rk.file.toFileObject
 
 data class DrawerTabData(val type: String, val rootUri: String?)

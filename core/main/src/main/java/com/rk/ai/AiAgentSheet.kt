@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.BottomPanelMode
 import com.rk.ai.agents.AiAgent
@@ -390,7 +391,9 @@ fun UnifiedToolSheet(
                                         terminalViewModel.terminalView?.let { termView ->
                                             val activity = termView.context as? android.app.Activity
                                             if (activity != null) {
-                                                com.rk.terminal.changeTerminalSession(sessionId, terminalViewModel, activity)
+                                                scope.launch {
+                                                    com.rk.terminal.changeTerminalSession(sessionId, terminalViewModel, activity)
+                                                }
                                             }
                                         }
                                     },
@@ -732,7 +735,9 @@ private fun TerminalQuickActions(
                         if (nextSession != null) {
                             val activity = terminalViewModel.terminalView?.context as? android.app.Activity
                             if (activity != null) {
-                                com.rk.terminal.changeTerminalSession(nextSession, terminalViewModel, activity)
+                                scope.launch {
+                                    com.rk.terminal.changeTerminalSession(nextSession, terminalViewModel, activity)
+                                }
                             }
                         }
                     }

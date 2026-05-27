@@ -78,7 +78,10 @@ object SessionManager {
         withContext(Dispatchers.IO) {
             mutex.withLock {
                 runCatching {
-                        val tabStates = tabs.mapNotNull { it.getState() }
+                        val tabStates = mutableListOf<TabState>()
+                        for (tab in tabs) {
+                            tab.getState()?.let { tabStates.add(it) }
+                        }
                         val sessionState = SessionState(tabStates, currentTabIndex)
                         val json = gson.toJson(sessionState)
                         tabCacheFile.writeText(json)

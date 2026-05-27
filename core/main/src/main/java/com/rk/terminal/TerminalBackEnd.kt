@@ -132,7 +132,9 @@ class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalVi
             } else {
                 val firstSession = binder.getService()?.sessionList?.firstOrNull() ?: return false
                 (context as? Activity)?.let { activity ->
-                    changeTerminalSession(firstSession, terminalViewModel!!, activity)
+                    com.rk.AppScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                        changeTerminalSession(firstSession, terminalViewModel!!, activity)
+                    }
                 }
             }
             return true
