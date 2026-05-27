@@ -34,7 +34,7 @@ fun LocalExtension.load(application: Application) = run {
     }
 
     val minAppVersion = manifest.minAppVersion
-    val maxAppVersion = manifest.targetAppVersion
+    val maxAppVersion = manifest.maxAppVersion
 
     val xedVersionCode =
         PackageInfoCompat.getLongVersionCode(application.packageManager.getPackageInfo(application.packageName, 0))

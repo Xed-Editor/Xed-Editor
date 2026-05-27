@@ -3,6 +3,7 @@ package com.rk.icons.pack
 import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.pm.PackageInfoCompat
 import com.rk.activities.settings.SettingsActivity
 import com.rk.file.child
 import com.rk.file.createDirIfNot
@@ -11,6 +12,7 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.utils.application
 import com.rk.utils.dialog
 import java.io.File
 import java.util.zip.ZipFile
@@ -53,21 +55,40 @@ class IconPackManager(private val context: Application) {
         }
 
     private fun installIconPackFromDir(dir: File) {
-        val iconPackInfo = validateIconPack(dir) ?: return
+        val iconPackManifest = validateIconPack(dir) ?: return
 
-        val installDir = iconPackDir.child(iconPackInfo.id)
+        val packageName = application!!.packageName
+        val packageManager = application!!.packageManager
+        val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
+        if (iconPackManifest.minAppVersion != null && iconPackManifest.minAppVersion.toLong() > currentVersionCode) {
+            dialog(
+                context = SettingsActivity.instance,
+                title = strings.warning.getString(),
+                msg = strings.incompatible_theme_warning.getString(),
+                cancelString = strings.cancel,
+                okString = strings.continue_action,
+                onOk = { writeIconPackToDisk(iconPackManifest, dir) },
+            )
+            return
+        }
+
+        writeIconPackToDisk(iconPackManifest, dir)
+    }
+
+    private fun writeIconPackToDisk(iconPackManifest: IconPackManifest, dir: File) {
+        val installDir = iconPackDir.child(iconPackManifest.id)
         if (installDir.exists()) {
-            uninstallIconPack(iconPackInfo.id)
+            uninstallIconPack(iconPackManifest.id)
         }
 
         dir.copyRecursively(installDir, overwrite = true)
 
-        val iconPack = IconPack(iconPackInfo, installDir)
-        iconPacks[iconPackInfo.id] = iconPack
+        val iconPack = IconPack(iconPackManifest, installDir)
+        iconPacks[iconPackManifest.id] = iconPack
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    internal fun validateIconPack(dir: File): IconPackInfo? {
+    internal fun validateIconPack(dir: File): IconPackManifest? {
         val iconPackJson = dir.resolve("manifest.json")
         if (!iconPackJson.exists()) {
             dialog(
@@ -79,8 +100,8 @@ class IconPackManager(private val context: Application) {
 
             return null
         }
-        val iconPackInfo =
-            runCatching { json.decodeFromString<IconPackInfo>(iconPackJson.readText()) }
+        val iconPackManifest =
+            runCatching { json.decodeFromString<IconPackManifest>(iconPackJson.readText()) }
                 .getOrElse { e ->
                     if (e is MissingFieldException) {
                         val fields = e.missingFields.joinToString("\n") { "• $it" }
@@ -101,7 +122,7 @@ class IconPackManager(private val context: Application) {
                     return null
                 }
 
-        return iconPackInfo
+        return iconPackManifest
     }
 
     fun uninstallIconPack(iconPackId: IconPackId) {
@@ -118,10 +139,10 @@ class IconPackManager(private val context: Application) {
                     val manifestJson = dir.resolve("manifest.json")
                     if (manifestJson.exists()) {
                         runCatching {
-                            val iconPackInfo = json.decodeFromString<IconPackInfo>(manifestJson.readText())
-                            val installDir = iconPackDir.child(iconPackInfo.id)
-                            val iconPack = IconPack(iconPackInfo, installDir)
-                            iconPacks[iconPackInfo.id] = iconPack
+                            val iconPackManifest = json.decodeFromString<IconPackManifest>(manifestJson.readText())
+                            val installDir = iconPackDir.child(iconPackManifest.id)
+                            val iconPack = IconPack(iconPackManifest, installDir)
+                            iconPacks[iconPackManifest.id] = iconPack
                         }
                     }
                 }

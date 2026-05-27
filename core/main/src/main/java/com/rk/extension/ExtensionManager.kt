@@ -168,7 +168,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
 
             if (extensionInfo.minAppVersion != -1 && xedVersionCode < extensionInfo.minAppVersion) {
                 return@withContext InstallResult.Error(ExtensionError.OUTDATED_CLIENT)
-            } else if (extensionInfo.targetAppVersion != -1 && xedVersionCode > extensionInfo.targetAppVersion) {
+            } else if (extensionInfo.maxAppVersion != -1 && xedVersionCode > extensionInfo.maxAppVersion) {
                 return@withContext InstallResult.Error(ExtensionError.OUTDATED_EXTENSION)
             }
 

@@ -104,7 +104,7 @@ data class ThemePalette(
 data class ThemeConfig(
     val id: String?,
     val name: String?,
-    val targetVersion: Int?,
+    val minAppVersion: Int?,
     val inheritBase: Boolean?,
     val light: ThemePalette?,
     val dark: ThemePalette?,
