@@ -12,7 +12,9 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.showTerminalNotice
+import java.io.File
 
 class TerminalCommand(commandContext: CommandContext) : GlobalCommand(commandContext) {
     override val id: String = "global.terminal"
@@ -22,27 +24,28 @@ class TerminalCommand(commandContext: CommandContext) : GlobalCommand(commandCon
     override fun action(actionContext: ActionContext) {
         val activity = actionContext.currentActivity
         showTerminalNotice(activity) {
-            val intent =
-                Intent(activity, Terminal::class.java).apply {
-                    commandContext.mainViewModel.currentTab?.file?.let { currentFile ->
-                        //                                //                                val currentFile =
-                        // viewModel.currentTab?.file ?:
-                        //                                // return@apply
-                        //                                //                                val currentPath =
-                        // currentFile.getAbsolutePath()
-                        //                                //                                val project =
-                        //                                //                                    tabs
-                        //                                //                                        .filter {
-                        //                                // currentPath.startsWith(it.fileObject.getAbsolutePath()) }
-                        //                                //                                        .maxByOrNull {
-                        //                                // it.fileObject.getAbsolutePath().length } ?: return@apply
-                        //                                //                                putExtra("cwd",
-
-                        // TODO: Fix this
-                    }
-                }
+            val cwd = computeCwd()
+            val intent = Intent(activity, Terminal::class.java)
+            if (cwd != null) intent.putExtra("cwd", cwd)
             activity.startActivity(intent)
         }
+    }
+
+    private fun computeCwd(): String? {
+        val tab = commandContext.mainViewModel.currentTab
+        if (tab is EditorTab) {
+            val projectRoot = tab.projectRoot
+            if (projectRoot != null) {
+                val path = projectRoot.getAbsolutePath()
+                if (path.isNotBlank() && path.startsWith("/")) return path
+            }
+            val filePath = tab.file.getAbsolutePath()
+            if (filePath.startsWith("/")) {
+                val file = File(filePath)
+                return if (file.isDirectory) filePath else file.parent
+            }
+        }
+        return null
     }
 
     override fun isSupported(): Boolean = InbuiltFeatures.terminal.state.value

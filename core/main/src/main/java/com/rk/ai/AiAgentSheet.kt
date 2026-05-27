@@ -17,21 +17,36 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.AutoFixHigh
+import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.Psychology
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Send
+import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -256,31 +271,57 @@ fun UnifiedToolSheet(
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabPositions[if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1]),
                         color = colorScheme.primary,
-                        height = 2.dp
+                        height = 3.dp
                     )
                 },
-                modifier = Modifier.width(280.dp).height(48.dp)
+                modifier = Modifier.height(48.dp)
             ) {
                 Tab(
                     selected = viewModel.bottomPanelMode == BottomPanelMode.AI,
                     onClick = { viewModel.bottomPanelMode = BottomPanelMode.AI },
-                    text = { Text("AI Agent", style = MaterialTheme.typography.labelLarge) },
+                    icon = {
+                        Icon(
+                            Icons.Outlined.Psychology,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    },
+                    text = {
+                        Text(
+                            "AI Agent",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = if (viewModel.bottomPanelMode == BottomPanelMode.AI) FontWeight.SemiBold else FontWeight.Normal,
+                        )
+                    },
                     selectedContentColor = colorScheme.primary,
-                    unselectedContentColor = colorScheme.onSurfaceVariant
+                    unselectedContentColor = colorScheme.onSurfaceVariant,
                 )
                 Tab(
                     selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
                     onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
-                    text = { Text("Terminal", style = MaterialTheme.typography.labelLarge) },
+                    icon = {
+                        Icon(
+                            Icons.Outlined.Terminal,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    },
+                    text = {
+                        Text(
+                            "Terminal",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = if (viewModel.bottomPanelMode == BottomPanelMode.TERMINAL) FontWeight.SemiBold else FontWeight.Normal,
+                        )
+                    },
                     selectedContentColor = colorScheme.primary,
-                    unselectedContentColor = colorScheme.onSurfaceVariant
+                    unselectedContentColor = colorScheme.onSurfaceVariant,
                 )
             }
         },
         controls = {
             if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    FilledTonalIconButton(
                         onClick = {
                             if (editor?.canUndo() == true) {
                                 editor.undo()
@@ -288,12 +329,12 @@ fun UnifiedToolSheet(
                             }
                         },
                         enabled = editor?.canUndo() == true,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(30.dp)
                     ) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), modifier = Modifier.size(20.dp), tint = if (editor?.canUndo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), modifier = Modifier.size(18.dp), tint = if (editor?.canUndo() == true) colorScheme.onSurface else colorScheme.onSurface.copy(alpha = 0.38f))
                     }
 
-                    IconButton(
+                    FilledTonalIconButton(
                         onClick = {
                             if (editor?.canRedo() == true) {
                                 editor.redo()
@@ -301,30 +342,30 @@ fun UnifiedToolSheet(
                             }
                         },
                         enabled = editor?.canRedo() == true,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(30.dp)
                     ) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), modifier = Modifier.size(20.dp), tint = if (editor?.canRedo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), modifier = Modifier.size(18.dp), tint = if (editor?.canRedo() == true) colorScheme.onSurface else colorScheme.onSurface.copy(alpha = 0.38f))
                     }
 
-                    IconButton(onClick = { startAgent(cwd.value, forceRestart = true) }, modifier = Modifier.size(32.dp)) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), modifier = Modifier.size(20.dp), tint = colorScheme.onSurfaceVariant)
+                    FilledTonalIconButton(onClick = { startAgent(cwd.value, forceRestart = true) }, modifier = Modifier.size(30.dp)) {
+                        Icon(Icons.Outlined.Refresh, contentDescription = "Restart", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
                     }
 
-                    IconButton(onClick = {
+                    FilledTonalIconButton(onClick = {
                         scope.launch(Dispatchers.IO) {
                             val saved = saveDirtyEditors()
                             withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
                         }
-                    }, modifier = Modifier.size(32.dp)) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), modifier = Modifier.size(20.dp), tint = colorScheme.onSurfaceVariant)
+                    }, modifier = Modifier.size(30.dp)) {
+                        Icon(Icons.Outlined.Save, contentDescription = "Sync", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
                     }
                 }
             } else if (viewModel.bottomPanelMode == BottomPanelMode.TERMINAL) {
                 var showSessionMenu by remember { mutableStateOf(false) }
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box {
-                        IconButton(onClick = { showSessionMenu = true }, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                        FilledTonalIconButton(onClick = { showSessionMenu = true }, modifier = Modifier.size(30.dp)) {
+                            Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                         }
                         val service = terminalViewModel.sessionBinder?.getService()
                         DropdownMenu(expanded = showSessionMenu, onDismissRequest = { showSessionMenu = false }) {
@@ -354,7 +395,7 @@ fun UnifiedToolSheet(
                                         }
                                     },
                                     leadingIcon = if (sessionId == service.currentSession.value) {
-                                        { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(16.dp)) }
+                                        { Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary) }
                                     } else null
                                 )
                             }
@@ -378,8 +419,14 @@ fun UnifiedToolSheet(
                         }
                     }
                     
-                    IconButton(onClick = { /* TODO */ }, modifier = Modifier.size(32.dp)) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.settings), modifier = Modifier.size(20.dp), tint = colorScheme.onSurfaceVariant)
+                    FilledTonalIconButton(onClick = {
+                        val ctx = context
+                        android.content.Intent(ctx, com.rk.activities.settings.SettingsActivity::class.java).apply {
+                            putExtra("route", com.rk.activities.settings.SettingsRoutes.TerminalSettings.route)
+                            ctx.startActivity(this)
+                        }
+                    }, modifier = Modifier.size(30.dp)) {
+                        Icon(Icons.Outlined.AutoFixHigh, contentDescription = "Settings", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -404,7 +451,15 @@ fun UnifiedToolSheet(
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             when (viewModel.bottomPanelMode) {
                 BottomPanelMode.AI -> {
-                    AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
+                    if (aiSession != null && isAiRunning) {
+                        AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
+                    } else {
+                        AgentEmptyState(
+                            isRunning = isAiRunning,
+                            agentName = currentAgent.displayName,
+                            onStart = { startAgent(cwd.value, forceRestart = true) },
+                        )
+                    }
                 }
                 BottomPanelMode.TERMINAL -> {
                     Surface(
@@ -417,6 +472,71 @@ fun UnifiedToolSheet(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AgentEmptyState(
+    isRunning: Boolean,
+    agentName: String,
+    onStart: () -> Unit,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        colorScheme.surface.copy(alpha = 0.5f),
+                        colorScheme.surfaceContainerLowest,
+                    )
+                )
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Surface(
+                modifier = Modifier.size(64.dp),
+                shape = CircleShape,
+                color = colorScheme.primaryContainer.copy(alpha = 0.5f),
+            ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Icon(
+                        Icons.Outlined.AutoFixHigh,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    "$agentName Ready",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = colorScheme.onSurface,
+                )
+                Text(
+                    "Tap start to begin an AI-powered session",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center,
+                )
+            }
+            Button(
+                onClick = onStart,
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(horizontal = 28.dp, vertical = 10.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
+            ) {
+                Icon(Icons.Outlined.Psychology, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Start Agent", style = MaterialTheme.typography.labelLarge)
             }
         }
     }
@@ -467,11 +587,13 @@ private fun UnifiedCommandBar(
         )
 
         // Row 2: Bottom wire (virtual keys) - common for both modes
+        HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f), thickness = 0.5.dp)
         AndroidView<VirtualKeysView>(
-            modifier = Modifier.fillMaxWidth().height(42.dp),
+            modifier = Modifier.fillMaxWidth().height(40.dp),
             factory = { ctx ->
                 VirtualKeysView(ctx, null).apply {
                     setButtonTextColor(colorScheme.onSurface.toArgb())
+                    setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
                     runCatching {
                         val info = VirtualKeysInfo(
                             Settings.terminal_extra_keys,
@@ -491,6 +613,7 @@ private fun UnifiedCommandBar(
                 }
                 keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
                 keys.setButtonTextColor(colorScheme.onSurface.toArgb())
+                keys.setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
             },
         )
 
@@ -505,26 +628,57 @@ private fun UnifiedCommandBar(
         }
 
         // Row 4: Common command input for both modes
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Surface(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp),
+            shape = RoundedCornerShape(14.dp),
+            color = colorScheme.surfaceContainerLow,
+            tonalElevation = 1.dp,
         ) {
-            OutlinedTextField(
-                value = commandInput,
-                onValueChange = { commandInput = it },
-                placeholder = {
-                    Text(
-                        if (mode == BottomPanelMode.AI) "Send a message..." else "Type a command...",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                },
-                modifier = Modifier.weight(1f).height(40.dp),
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp),
-                textStyle = MaterialTheme.typography.bodySmall,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(
-                    onSend = {
+            Row(
+                modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 2.dp, bottom = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    if (mode == BottomPanelMode.AI) Icons.Outlined.Psychology else Icons.Outlined.Terminal,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+                Spacer(Modifier.width(8.dp))
+                BasicTextField(
+                    value = commandInput,
+                    onValueChange = { commandInput = it },
+                    modifier = Modifier.weight(1f).heightIn(min = 36.dp),
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(color = colorScheme.onSurface),
+                    decorationBox = { innerTextField ->
+                        Box {
+                            if (commandInput.isEmpty()) {
+                                Text(
+                                    if (mode == BottomPanelMode.AI) "Ask AI to edit code..." else "Type a command...",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            if (commandInput.isNotBlank()) {
+                                if (mode == BottomPanelMode.AI) {
+                                    onAction(commandInput)
+                                } else {
+                                    terminalViewModel.terminalView?.currentSession?.write(commandInput + "\n")
+                                }
+                                commandInput = ""
+                            }
+                        }
+                    ),
+                )
+                FilledTonalIconButton(
+                    onClick = {
                         if (commandInput.isNotBlank()) {
                             if (mode == BottomPanelMode.AI) {
                                 onAction(commandInput)
@@ -533,25 +687,12 @@ private fun UnifiedCommandBar(
                             }
                             commandInput = ""
                         }
-                    }
-                ),
-            )
-            Spacer(Modifier.width(8.dp))
-            FilledTonalIconButton(
-                onClick = {
-                    if (commandInput.isNotBlank()) {
-                        if (mode == BottomPanelMode.AI) {
-                            onAction(commandInput)
-                        } else {
-                            terminalViewModel.terminalView?.currentSession?.write(commandInput + "\n")
-                        }
-                        commandInput = ""
-                    }
-                },
-                modifier = Modifier.size(40.dp),
-                enabled = commandInput.isNotBlank(),
-            ) {
-                Icon(Icons.Outlined.Send, contentDescription = "Send", modifier = Modifier.size(18.dp))
+                    },
+                    modifier = Modifier.size(36.dp),
+                    enabled = commandInput.isNotBlank(),
+                ) {
+                    Icon(Icons.Outlined.Send, contentDescription = "Send", modifier = Modifier.size(18.dp))
+                }
             }
         }
     }
@@ -578,81 +719,171 @@ private fun StatusBar(
     val bridgeClients = IdeBridge.connectedClients()
     val bridgeOnline = IdeBridge.isRunning()
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(28.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
-            Spacer(Modifier.width(8.dp))
-
-            if (bridgeOnline && mode == BottomPanelMode.AI) {
-                val bridgeColor = if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107)
-                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(bridgeColor))
-                Spacer(Modifier.width(8.dp))
-            }
-
-            Box {
-                Text(
-                    text = if (mode == BottomPanelMode.AI) agent.displayName else "Terminal",
-                    color = colorScheme.primary,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.clickable { if (mode == BottomPanelMode.AI) onToggleAgentMenu() }
-                )
-
-                if (mode == BottomPanelMode.AI) {
-                    DropdownMenu(
-                        expanded = showAgentMenu,
-                        onDismissRequest = { onToggleAgentMenu() },
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(30.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Agent pill
+                Box {
+                    Surface(
+                        modifier = Modifier
+                            .height(26.dp)
+                            .clickable { if (mode == BottomPanelMode.AI) onToggleAgentMenu() },
+                        shape = RoundedCornerShape(13.dp),
+                        color = if (mode == BottomPanelMode.AI)
+                            colorScheme.primaryContainer.copy(alpha = 0.6f)
+                        else
+                            colorScheme.secondaryContainer.copy(alpha = 0.6f),
                     ) {
-                        availableAgents.forEach { a ->
-                            DropdownMenuItem(
-                                text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(a.displayName, style = MaterialTheme.typography.bodySmall)
-                                        if (a == agent) {
-                                            Spacer(Modifier.width(8.dp))
-                                            Icon(
-                                                Icons.Default.Check,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(16.dp),
-                                                tint = colorScheme.primary,
-                                            )
-                                        }
-                                    }
-                                },
-                                onClick = { onSelectAgent(a) },
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
+                            Spacer(Modifier.width(6.dp))
+                            Icon(
+                                if (mode == BottomPanelMode.AI) Icons.Outlined.Psychology else Icons.Outlined.Terminal,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
                             )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = if (mode == BottomPanelMode.AI) agent.displayName else "Terminal",
+                                color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            )
+                            if (mode == BottomPanelMode.AI) {
+                                Spacer(Modifier.width(2.dp))
+                                Icon(
+                                    Icons.Outlined.KeyboardArrowDown,
+                                    contentDescription = "Switch",
+                                    modifier = Modifier.size(14.dp),
+                                    tint = colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                                )
+                            }
+                        }
+                    }
+
+                    if (mode == BottomPanelMode.AI) {
+                        DropdownMenu(
+                            expanded = showAgentMenu,
+                            onDismissRequest = { onToggleAgentMenu() },
+                        ) {
+                            availableAgents.forEachIndexed { index, a ->
+                                if (index > 0) HorizontalDivider(modifier = Modifier.padding(horizontal = 12.dp))
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                if (a.name == "gemini") Icons.Outlined.Psychology else Icons.Outlined.AutoFixHigh,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(18.dp),
+                                                tint = if (a == agent) colorScheme.primary else colorScheme.onSurfaceVariant,
+                                            )
+                                            Spacer(Modifier.width(10.dp))
+                                            Column {
+                                                Text(a.displayName, style = MaterialTheme.typography.bodyMedium)
+                                                Text(
+                                                    "Switch to ${a.displayName}",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                                )
+                                            }
+                                            if (a == agent) {
+                                                Spacer(Modifier.width(8.dp))
+                                                Icon(
+                                                    Icons.Default.Check,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(18.dp),
+                                                    tint = colorScheme.primary,
+                                                )
+                                            }
+                                        }
+                                    },
+                                    onClick = { onSelectAgent(a) },
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(8.dp))
 
-            Text(
-                text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
-                color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                style = MaterialTheme.typography.labelSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-
-            if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
-                IconButton(onClick = onToggleTranscript, modifier = Modifier.size(24.dp)) {
-                    Icon(
-                        if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = colorScheme.onSurfaceVariant,
-                    )
+                // CWD chip
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Outlined.Code,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
+                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
-                TextButton(onClick = onClearTranscript, modifier = Modifier.height(24.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
-                    Text("Clear", style = MaterialTheme.typography.labelSmall, color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+
+                Spacer(Modifier.width(4.dp))
+
+                // Bridge status dot
+                if (bridgeOnline && mode == BottomPanelMode.AI) {
+                    Surface(
+                        shape = CircleShape,
+                        color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.size(22.dp),
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                            Box(
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (bridgeClients > 0) Color(0xFF4CAF50)
+                                        else Color(0xFFFFC107)
+                                    )
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(4.dp))
+                }
+
+                Spacer(Modifier.weight(1f))
+
+                // Transcript controls
+                if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
+                    FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(26.dp)) {
+                        Icon(
+                            if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                            contentDescription = if (showTranscript) "Hide transcript" else "Show transcript",
+                            modifier = Modifier.size(16.dp),
+                            tint = colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(2.dp))
+                    FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(26.dp)) {
+                        Icon(
+                            Icons.Outlined.Delete,
+                            contentDescription = "Clear transcript",
+                            modifier = Modifier.size(14.dp),
+                            tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        )
+                    }
                 }
             }
-        }
 
         AnimatedVisibility(
             visible = showTranscript && transcript.isNotBlank(),
@@ -664,7 +895,7 @@ private fun StatusBar(
                     .fillMaxWidth()
                     .heightIn(max = 140.dp)
                     .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 color = colorScheme.surfaceContainerHigh,
                 border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.3f))
             ) {
@@ -676,7 +907,7 @@ private fun StatusBar(
                     text = transcript,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(10.dp)
                         .verticalScroll(scrollState),
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                     color = colorScheme.onSurface,
@@ -717,40 +948,89 @@ private fun QuickActions(
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
             ) {
+                Icon(Icons.Outlined.Psychology, contentDescription = null, modifier = Modifier.size(14.dp))
+                Spacer(Modifier.width(6.dp))
                 Text("Start Agent", style = MaterialTheme.typography.labelSmall)
             }
         } else {
-            ActionChip(label = "Explain", onClick = { onAction(prompt("Explain the code")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Bugs", onClick = { onAction(prompt("Find bugs and issues")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Refactor", onClick = { onAction(prompt("Suggest improvements")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Tests", onClick = { onAction(prompt("Add unit tests")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Docs", onClick = { onAction(prompt("Write documentation")) }, color = colorScheme.secondaryContainer)
+            ActionChip(
+                icon = { Icon(Icons.Outlined.Code, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Explain",
+                onClick = { onAction(prompt("Explain the code")) },
+                color = colorScheme.secondaryContainer,
+            )
+            ActionChip(
+                icon = { Icon(Icons.Outlined.BugReport, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Bugs",
+                onClick = { onAction(prompt("Find bugs and issues")) },
+                color = colorScheme.secondaryContainer,
+            )
+            ActionChip(
+                icon = { Icon(Icons.Outlined.AutoFixHigh, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Refactor",
+                onClick = { onAction(prompt("Suggest improvements")) },
+                color = colorScheme.secondaryContainer,
+            )
+            ActionChip(
+                icon = { Icon(Icons.Outlined.Science, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Tests",
+                onClick = { onAction(prompt("Add unit tests")) },
+                color = colorScheme.secondaryContainer,
+            )
+            ActionChip(
+                icon = { Icon(Icons.Outlined.Description, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Docs",
+                onClick = { onAction(prompt("Write documentation")) },
+                color = colorScheme.secondaryContainer,
+            )
 
             Spacer(Modifier.width(4.dp))
             VerticalDivider(modifier = Modifier.height(18.dp), color = colorScheme.outlineVariant)
             Spacer(Modifier.width(4.dp))
 
-            ActionChip(label = "Sync", onClick = { onAction("/sync") }, color = colorScheme.surfaceVariant)
-            ActionChip(label = "Export", onClick = { onAction("/export") }, color = colorScheme.surfaceVariant)
-            ActionChip(label = "Stop", onClick = { onAction("/stop") }, color = colorScheme.errorContainer, labelColor = colorScheme.error)
+            ActionChip(
+                icon = { Icon(Icons.Outlined.Sync, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Sync",
+                onClick = { onAction("/sync") },
+                color = colorScheme.surfaceVariant,
+            )
+            ActionChip(
+                icon = { Icon(Icons.Outlined.FileUpload, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Export",
+                onClick = { onAction("/export") },
+                color = colorScheme.surfaceVariant,
+            )
+            ActionChip(
+                icon = { Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                label = "Stop",
+                onClick = { onAction("/stop") },
+                color = colorScheme.errorContainer,
+                labelColor = colorScheme.error,
+            )
         }
     }
 }
 
 @Composable
 private fun ActionChip(
+    icon: (@Composable () -> Unit)? = null,
     label: String,
     onClick: () -> Unit,
     color: Color,
-    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         color = color,
-        modifier = Modifier.height(28.dp)
+        modifier = Modifier.height(30.dp),
     ) {
-        Box(modifier = Modifier.padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            icon?.invoke()
+            if (icon != null) Spacer(Modifier.width(4.dp))
             Text(label, style = MaterialTheme.typography.labelSmall, color = labelColor)
         }
     }
