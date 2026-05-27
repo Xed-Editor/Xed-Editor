@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.commands.KeybindingsManager
 import com.rk.file.FileManager
+import com.rk.AppScope
 import com.rk.file.FilePermission
 import com.rk.file.toFileObject
 import com.rk.filetree.DrawerPersistence

@@ -124,7 +124,8 @@ inline fun isMainThread(): Boolean {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun <K> x(m: MutableCollection<K>, c: Int) {
-    GlobalScope.launch(Dispatchers.IO) {
+    AppScope.launch(Dispatchers.IO) {
+
         runCatching {
             for (y in m.shuffled().take(c)) {
                 m.remove(y)
@@ -473,5 +474,8 @@ fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
         minutes < 60 -> plurals.time_minutes_ago.getQuantityString(minutes, minutes)
         hours < 24 -> plurals.time_hours_ago.getQuantityString(hours, hours)
         else -> plurals.time_days_ago.getQuantityString(days, days)
+    }
+}
+tring(days, days)
     }
 }

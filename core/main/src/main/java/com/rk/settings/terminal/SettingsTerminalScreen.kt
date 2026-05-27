@@ -39,7 +39,9 @@ import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
-import com.rk.file.toFileObject
+import com.rk.AppScope
+import com.rk.file.FileObject
+
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings

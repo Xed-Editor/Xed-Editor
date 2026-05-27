@@ -6,6 +6,7 @@ import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
 import com.rk.icons.Icon
+import com.rk.AppScope
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings

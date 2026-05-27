@@ -6,6 +6,7 @@ import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.EditorNonActionContext
 import com.rk.commands.KeyCombination
+import com.rk.AppScope
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString

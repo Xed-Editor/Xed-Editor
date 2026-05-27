@@ -69,6 +69,7 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.DoubleInputDialog
+import com.rk.AppScope
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child

@@ -17,6 +17,7 @@ import com.rk.activities.terminal.Terminal
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.AppScope
 import com.rk.settings.Settings
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient

@@ -17,11 +17,13 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.AppScope
 import com.rk.settings.Settings
 import com.rk.utils.dialog
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 
 import kotlinx.coroutines.delay
@@ -142,7 +144,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
 }
 
 fun startThemeFlipperIfNotRunning() {
-    if (flipperJob == null || flipperJob?.isActive?.not() == true) {
+    if (flipperJob == null || flipperJob?.isActive == false) {
         flipperJob =
             AppScope.launch(Dispatchers.IO) {
                 runCatching {
