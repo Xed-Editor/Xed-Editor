@@ -166,9 +166,9 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val pm = context.packageManager
             val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
 
-            if (extensionInfo.minAppVersion != -1 && xedVersionCode < extensionInfo.minAppVersion) {
+            if (extensionInfo.minAppVersion != null && xedVersionCode < extensionInfo.minAppVersion) {
                 return@withContext InstallResult.Error(ExtensionError.OUTDATED_CLIENT)
-            } else if (extensionInfo.maxAppVersion != -1 && xedVersionCode > extensionInfo.maxAppVersion) {
+            } else if (extensionInfo.maxAppVersion != null && xedVersionCode > extensionInfo.maxAppVersion) {
                 return@withContext InstallResult.Error(ExtensionError.OUTDATED_EXTENSION)
             }
 

@@ -39,7 +39,10 @@ fun LocalExtension.load(application: Application) = run {
     val xedVersionCode =
         PackageInfoCompat.getLongVersionCode(application.packageManager.getPackageInfo(application.packageName, 0))
 
-    if (!(minAppVersion <= xedVersionCode && maxAppVersion <= xedVersionCode)) {
+    if (
+        (minAppVersion != null && xedVersionCode < minAppVersion) ||
+            (maxAppVersion != null && xedVersionCode > maxAppVersion)
+    ) {
         return@run Result.failure(
             RuntimeException(
                 "Extension '${manifest.name}' (${manifest.version}) is not compatible with this version of Xed-Editor (min: $minAppVersion, max: $maxAppVersion, Xed-Editor: $xedVersionCode)"
