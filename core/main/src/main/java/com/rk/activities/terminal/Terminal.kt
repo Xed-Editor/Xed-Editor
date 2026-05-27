@@ -94,20 +94,20 @@ class Terminal : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         instance = this
-        handleIntent(intent)
+        if (terminalViewModel.sessionBinder != null) {
+            handleIntent(intent)
+        }
     }
 
     fun handleIntent(intent: Intent) {
-        this.intent = intent
         val binder = terminalViewModel.sessionBinder ?: return
-        terminalViewModel.terminalView ?: return
-
         val pwd = intent.getStringExtra("cwd") ?: return
         val sessionId = File(pwd).name
 
         lifecycleScope.launch(Dispatchers.Main) {
             val client = TerminalBackEnd(terminalViewModel)
-            val info = binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)!!
+            val info =
+                binder.getSessionInfoByPwd(pwd) ?: binder.createSession(sessionId, client, this@Terminal)!!
 
             this@Terminal.changeSession(info.id, terminalViewModel)
             setIntent(Intent())
@@ -150,11 +150,22 @@ class Terminal : AppCompatActivity() {
         setContent {
             XedTheme {
                 Surface {
-                    if (terminalViewModel.sessionBinder != null) {
+                    val binder = terminalViewModel.sessionBinder
+                    if (binder != null) {
+                        LaunchedEffect(binder) {
+                            handleIntent(intent)
+                        }
                         TerminalScreenHost(this)
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Error: No service connection")
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                LinearProgressIndicator(modifier = Modifier.width(200.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Connecting to terminal service...",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                     }
                 }

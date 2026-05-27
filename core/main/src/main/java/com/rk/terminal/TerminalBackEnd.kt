@@ -114,7 +114,14 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel? = null) 
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
             val context = terminalViewModel?.terminalView?.context ?: return false
             val binder = terminalViewModel?.sessionBinder ?: return false
-            binder.terminateSession(binder.getService()?.currentSession?.value ?: "")
+            
+            // Find the correct session ID for this session
+            val sessionId = binder.getService()?.sessionList?.find { 
+                binder.getSession(it) == session 
+            } ?: binder.getService()?.currentSession?.value ?: ""
+            
+            binder.terminateSession(sessionId)
+            
             if (binder.getService()?.sessionList?.isEmpty() == true) {
                 val terminalActivity = context as? Terminal
                 terminalActivity?.finish()
