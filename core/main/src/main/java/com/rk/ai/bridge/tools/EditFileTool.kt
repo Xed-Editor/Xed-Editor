@@ -49,6 +49,16 @@ class EditFileTool : BaseMcpTool() {
         val index = content.indexOf(oldString)
 
         if (index == -1) {
+            val oldTrimmed = oldString.trim()
+            if (oldTrimmed.isNotBlank()) {
+                val trimmedIndex = content.indexOf(oldTrimmed)
+                if (trimmedIndex != -1 && content.indexOf(oldTrimmed, trimmedIndex + 1) == -1) {
+                    val newContent = content.substring(0, trimmedIndex) + newString + content.substring(trimmedIndex + oldTrimmed.length)
+                    if (dryRun) return McpToolResult.success("[dry-run] Found unique match by trimming whitespace. Would edit ${file.name}")
+                    return applyEdit(ideService, file, content, newContent, filePath)
+                }
+            }
+
             if (partialMatch) {
                 val lines = content.split("\n")
                 val oldTrimmed = oldString.trim()

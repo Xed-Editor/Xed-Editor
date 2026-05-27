@@ -34,7 +34,12 @@ class ReadFileTool : BaseMcpTool() {
             val e = if (endLine != null) endLine else if (count != null) s + count - 1 else null
             readLineRange(file, s, e)
         } else {
-            context.ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+            val text = context.ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+            if (text.length > 250_000) {
+                text.take(250_000) + "\n\n... (truncated at 250KB. Use startLine/endLine to read specific sections)"
+            } else {
+                text
+            }
         }
         return McpToolResult.success(content)
     }
@@ -69,7 +74,12 @@ class CatTool : BaseMcpTool() {
             val e = if (endLine != null) endLine else if (count != null) s + count - 1 else null
             readLineRange(file, s, e)
         } else {
-            context.ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+            val text = context.ideService.getFileContent(file.absolutePath, null, null).orEmpty()
+            if (text.length > 250_000) {
+                text.take(250_000) + "\n\n... (truncated at 250KB. Use startLine/endLine to read specific sections)"
+            } else {
+                text
+            }
         }
         return McpToolResult.success(content)
     }
