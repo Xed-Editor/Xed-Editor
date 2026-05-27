@@ -165,6 +165,7 @@ private fun ColumnScope.TerminalView(
                 settingsTerminalView = WeakReference(this)
                 applyTerminalSettings(context)
                 val client = TerminalBackEnd(terminalViewModel)
+                setTerminalViewClient(client)
 
                 val binder = terminalViewModel.sessionBinder
                 val service = binder?.getService()
@@ -184,7 +185,6 @@ private fun ColumnScope.TerminalView(
                                 info?.session?.let {
                                     it.updateTerminalSessionClient(client)
                                     attachSession(it)
-                                    setTerminalViewClient(client)
                                 }
                             }
                         }
@@ -199,7 +199,6 @@ private fun ColumnScope.TerminalView(
                                 info?.session?.let {
                                     it.updateTerminalSessionClient(client)
                                     attachSession(it)
-                                    setTerminalViewClient(client)
                                 }
                             }
                         }
@@ -213,7 +212,6 @@ private fun ColumnScope.TerminalView(
                                 info?.session?.let {
                                     it.updateTerminalSessionClient(client)
                                     attachSession(it)
-                                    setTerminalViewClient(client)
                                 }
                             }
                         }

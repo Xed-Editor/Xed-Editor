@@ -162,7 +162,7 @@ public final class TerminalView extends View {
                     return true;
                 }
                 requestFocus();
-                mClient.onSingleTapUp(event);
+                if (mClient != null) mClient.onSingleTapUp(event);
                 return true;
             }
 
@@ -189,7 +189,7 @@ public final class TerminalView extends View {
             public boolean onScale(float focusX, float focusY, float scale) {
                 if (mEmulator == null || isSelectingText()) return true;
                 mScaleFactor *= scale;
-                mScaleFactor = mClient.onScale(mScaleFactor);
+                if (mClient != null) mScaleFactor = mClient.onScale(mScaleFactor);
                 return true;
             }
 
@@ -249,7 +249,7 @@ public final class TerminalView extends View {
             @Override
             public void onLongPress(MotionEvent event) {
                 if (mGestureRecognizer.isInProgress()) return;
-                if (mClient.onLongPress(event)) return;
+                if (mClient != null && mClient.onLongPress(event)) return;
                 if (!isSelectingText()) {
                     performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                     startTextSelectionMode(event);
@@ -309,7 +309,7 @@ public final class TerminalView extends View {
         // an alternate view is not selected, like an EditText. This is necessary if an activity is
         // initially started with the alternate view or if activity is returned to from another app
         // and the alternate view was the one selected the last time.
-        if (mClient.isTerminalViewSelected()) {
+        if (mClient != null && mClient.isTerminalViewSelected()) {
             if (mClient.shouldEnforceCharBasedInput()) {
                 // Some keyboards seems do not reset the internal state on TYPE_NULL.
                 // Affects mostly Samsung stock keyboards.
@@ -342,7 +342,7 @@ public final class TerminalView extends View {
 
             @Override
             public boolean finishComposingText() {
-                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED) mClient.logInfo(LOG_TAG, "IME: finishComposingText()");
+                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null) mClient.logInfo(LOG_TAG, "IME: finishComposingText()");
                 super.finishComposingText();
 
                 sendTextToTerminal(getEditable());
@@ -352,7 +352,7 @@ public final class TerminalView extends View {
 
             @Override
             public boolean commitText(CharSequence text, int newCursorPosition) {
-                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED) {
+                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null) {
                     mClient.logInfo(LOG_TAG, "IME: commitText(\"" + text + "\", " + newCursorPosition + ")");
                 }
                 super.commitText(text, newCursorPosition);
@@ -367,7 +367,7 @@ public final class TerminalView extends View {
 
             @Override
             public boolean deleteSurroundingText(int leftLength, int rightLength) {
-                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED) {
+                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null) {
                     mClient.logInfo(LOG_TAG, "IME: deleteSurroundingText(" + leftLength + ", " + rightLength + ")");
                 }
                 // The stock Samsung keyboard with 'Auto check spelling' enabled sends leftLength > 1.
@@ -394,7 +394,7 @@ public final class TerminalView extends View {
                     }
 
                     // Check onKeyDown() for details.
-                    if (mClient.readShiftKey())
+                    if (mClient != null && mClient.readShiftKey())
                         codePoint = Character.toUpperCase(codePoint);
 
                     boolean ctrlHeld = false;
@@ -644,14 +644,14 @@ public final class TerminalView extends View {
 
     @Override
     public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
+        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null)
             mClient.logInfo(LOG_TAG, "onKeyPreIme(keyCode=" + keyCode + ", event=" + event + ")");
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             cancelRequestAutoFill();
             if (isSelectingText()) {
                 stopTextSelectionMode();
                 return true;
-            } else if (mClient.shouldBackButtonBeMappedToEscape()) {
+            } else if (mClient != null && mClient.shouldBackButtonBeMappedToEscape()) {
                 // Intercept back button to treat it as escape:
                 switch (event.getAction()) {
                     case KeyEvent.ACTION_DOWN:
@@ -660,7 +660,7 @@ public final class TerminalView extends View {
                         return onKeyUp(keyCode, event);
                 }
             }
-        } else if (mClient.shouldUseCtrlSpaceWorkaround() &&
+        } else if (mClient != null && mClient.shouldUseCtrlSpaceWorkaround() &&
                    keyCode == KeyEvent.KEYCODE_SPACE && event.isCtrlPressed()) {
             /* ctrl+space does not work on some ROMs without this workaround.
                However, this breaks it on devices where it works out of the box. */
@@ -767,17 +767,17 @@ public final class TerminalView extends View {
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
+        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null)
             mClient.logInfo(LOG_TAG, "onKeyDown(keyCode=" + keyCode + ", isSystem()=" + event.isSystem() + ", event=" + event + ")");
         if (mEmulator == null) return true;
         if (isSelectingText()) {
             stopTextSelectionMode();
         }
 
-        if (mClient.onKeyDown(keyCode, event, mTermSession)) {
+        if (mClient != null && mClient.onKeyDown(keyCode, event, mTermSession)) {
             invalidate();
             return true;
-        } else if (event.isSystem() && (!mClient.shouldBackButtonBeMappedToEscape() || keyCode != KeyEvent.KEYCODE_BACK)) {
+        } else if (event.isSystem() && (mClient == null || !mClient.shouldBackButtonBeMappedToEscape() || keyCode != KeyEvent.KEYCODE_BACK)) {
             return super.onKeyDown(keyCode, event);
         } else if (event.getAction() == KeyEvent.ACTION_MULTIPLE && keyCode == KeyEvent.KEYCODE_UNKNOWN) {
             mTermSession.write(event.getCharacters());
@@ -785,9 +785,9 @@ public final class TerminalView extends View {
         }
 
         final int metaState = event.getMetaState();
-        final boolean controlDown = event.isCtrlPressed() || mClient.readControlKey();
-        final boolean leftAltDown = (metaState & KeyEvent.META_ALT_LEFT_ON) != 0 || mClient.readAltKey();
-        final boolean shiftDown = event.isShiftPressed() || mClient.readShiftKey();
+        final boolean controlDown = event.isCtrlPressed() || (mClient != null && mClient.readControlKey());
+        final boolean leftAltDown = (metaState & KeyEvent.META_ALT_LEFT_ON) != 0 || (mClient != null && mClient.readAltKey());
+        final boolean shiftDown = event.isShiftPressed() || (mClient != null && mClient.readShiftKey());
         final boolean rightAltDownFromEvent = (metaState & KeyEvent.META_ALT_RIGHT_ON) != 0;
 
         int keyMod = 0;
@@ -797,7 +797,7 @@ public final class TerminalView extends View {
         if (event.isNumLockOn()) keyMod |= KeyHandler.KEYMOD_NUM_LOCK;
         // https://github.com/termux/termux-app/issues/731
         if (!event.isFunctionPressed() && handleKeyCode(keyCode, keyMod)) {
-            if (TERMINAL_VIEW_KEY_LOGGING_ENABLED) mClient.logInfo(LOG_TAG, "handleKeyCode() took key event");
+            if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null) mClient.logInfo(LOG_TAG, "handleKeyCode() took key event");
             return true;
         }
 
@@ -812,10 +812,10 @@ public final class TerminalView extends View {
         int effectiveMetaState = event.getMetaState() & ~bitsToClear;
 
         if (shiftDown) effectiveMetaState |= KeyEvent.META_SHIFT_ON | KeyEvent.META_SHIFT_LEFT_ON;
-        if (mClient.readFnKey()) effectiveMetaState |= KeyEvent.META_FUNCTION_ON;
+        if (mClient != null && mClient.readFnKey()) effectiveMetaState |= KeyEvent.META_FUNCTION_ON;
 
         int result = event.getUnicodeChar(effectiveMetaState);
-        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
+        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null)
             mClient.logInfo(LOG_TAG, "KeyEvent#getUnicodeChar(" + effectiveMetaState + ") returned: " + result);
         if (result == 0) {
             return false;
@@ -842,7 +842,7 @@ public final class TerminalView extends View {
     }
 
     public void inputCodePoint(int eventSource, int codePoint, boolean controlDownFromEvent, boolean leftAltDownFromEvent) {
-        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED) {
+        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null) {
             mClient.logInfo(LOG_TAG, "inputCodePoint(eventSource=" + eventSource + ", codePoint=" + codePoint + ", controlDownFromEvent=" + controlDownFromEvent + ", leftAltDownFromEvent="
                 + leftAltDownFromEvent + ")");
         }
@@ -853,10 +853,10 @@ public final class TerminalView extends View {
         if (mEmulator != null)
             mEmulator.setCursorBlinkState(true);
 
-        final boolean controlDown = controlDownFromEvent || mClient.readControlKey();
-        final boolean altDown = leftAltDownFromEvent || mClient.readAltKey();
+        final boolean controlDown = controlDownFromEvent || (mClient != null && mClient.readControlKey());
+        final boolean altDown = leftAltDownFromEvent || (mClient != null && mClient.readAltKey());
 
-        if (mClient.onCodePoint(codePoint, controlDown, mTermSession)) return;
+        if (mClient != null && mClient.onCodePoint(codePoint, controlDown, mTermSession)) return;
 
         if (controlDown) {
             if (codePoint >= 'a' && codePoint <= 'z') {
@@ -951,14 +951,14 @@ public final class TerminalView extends View {
      */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
+        if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null)
             mClient.logInfo(LOG_TAG, "onKeyUp(keyCode=" + keyCode + ", event=" + event + ")");
 
         // Do not return for KEYCODE_BACK and send it to the client since user may be trying
         // to exit the activity.
         if (mEmulator == null && keyCode != KeyEvent.KEYCODE_BACK) return true;
 
-        if (mClient.onKeyUp(keyCode, event)) {
+        if (mClient != null && mClient.onKeyUp(keyCode, event)) {
             invalidate();
             return true;
         } else if (event.isSystem()) {
@@ -991,7 +991,7 @@ public final class TerminalView extends View {
         if (mEmulator == null || (newColumns != mEmulator.mColumns || newRows != mEmulator.mRows)) {
             mTermSession.updateSize(newColumns, newRows, (int) mRenderer.getFontWidth(), mRenderer.getFontLineSpacing());
             mEmulator = mTermSession.getEmulator();
-            mClient.onEmulatorSet();
+            if (mClient != null) mClient.onEmulatorSet();
 
             // Update mTerminalCursorBlinkerRunnable inner class mEmulator on session change
             if (mTerminalCursorBlinkerRunnable != null)
@@ -1111,7 +1111,7 @@ public final class TerminalView extends View {
             if (context == null) return null;
             return context.getSystemService(AutofillManager.class);
         } catch (Exception e) {
-            mClient.logStackTraceWithMessage(LOG_TAG, "Failed to get AutofillManager service", e);
+            if (mClient != null) mClient.logStackTraceWithMessage(LOG_TAG, "Failed to get AutofillManager service", e);
             return null;
         }
     }
@@ -1123,7 +1123,7 @@ public final class TerminalView extends View {
             AutofillManager autofillManager = getAutoFillManagerService();
             return autofillManager != null && autofillManager.isEnabled();
         } catch (Exception e) {
-            mClient.logStackTraceWithMessage(LOG_TAG, "Failed to check if Autofill is enabled", e);
+            if (mClient != null) mClient.logStackTraceWithMessage(LOG_TAG, "Failed to check if Autofill is enabled", e);
             return false;
         }
     }
@@ -1157,7 +1157,7 @@ public final class TerminalView extends View {
                 autofillManager.requestAutofill(this);
             }
         } catch (Exception e) {
-            mClient.logStackTraceWithMessage(LOG_TAG, "Failed to request Autofill", e);
+            if (mClient != null) mClient.logStackTraceWithMessage(LOG_TAG, "Failed to request Autofill", e);
         }
     }
 
@@ -1172,7 +1172,7 @@ public final class TerminalView extends View {
                 autofillManager.cancel();
             }
         } catch (Exception e) {
-            mClient.logStackTraceWithMessage(LOG_TAG, "Failed to cancel Autofill request", e);
+            if (mClient != null) mClient.logStackTraceWithMessage(LOG_TAG, "Failed to cancel Autofill request", e);
         }
     }
 
@@ -1195,17 +1195,17 @@ public final class TerminalView extends View {
 
         // If cursor blinking rate is not valid
         if (blinkRate != 0 && (blinkRate < TERMINAL_CURSOR_BLINK_RATE_MIN || blinkRate > TERMINAL_CURSOR_BLINK_RATE_MAX)) {
-            mClient.logError(LOG_TAG, "The cursor blink rate must be in between " + TERMINAL_CURSOR_BLINK_RATE_MIN + "-" + TERMINAL_CURSOR_BLINK_RATE_MAX + ": " + blinkRate);
+            if (mClient != null) mClient.logError(LOG_TAG, "The cursor blink rate must be in between " + TERMINAL_CURSOR_BLINK_RATE_MIN + "-" + TERMINAL_CURSOR_BLINK_RATE_MAX + ": " + blinkRate);
             mTerminalCursorBlinkerRate = 0;
             result = false;
         } else {
-            mClient.logVerbose(LOG_TAG, "Setting cursor blinker rate to " + blinkRate);
+            if (mClient != null) mClient.logVerbose(LOG_TAG, "Setting cursor blinker rate to " + blinkRate);
             mTerminalCursorBlinkerRate = blinkRate;
             result = true;
         }
 
         if (mTerminalCursorBlinkerRate == 0) {
-            mClient.logVerbose(LOG_TAG, "Cursor blinker disabled");
+            if (mClient != null) mClient.logVerbose(LOG_TAG, "Cursor blinker disabled");
             stopTerminalCursorBlinker();
         }
 
@@ -1275,13 +1275,13 @@ public final class TerminalView extends View {
                 return;
             // If cursor blinder is to be started only if cursor is enabled
             else if (startOnlyIfCursorEnabled && ! mEmulator.isCursorEnabled()) {
-                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
+                if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null)
                     mClient.logVerbose(LOG_TAG, "Ignoring call to start cursor blinker since cursor is not enabled");
                 return;
             }
 
             // Start cursor blinker runnable
-            if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
+            if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null)
                 mClient.logVerbose(LOG_TAG, "Starting cursor blinker with the blink rate " + mTerminalCursorBlinkerRate);
             if (mTerminalCursorBlinkerHandler == null)
                 mTerminalCursorBlinkerHandler = new Handler(Looper.getMainLooper());
@@ -1296,7 +1296,7 @@ public final class TerminalView extends View {
      */
     private void stopTerminalCursorBlinker() {
         if (mTerminalCursorBlinkerHandler != null && mTerminalCursorBlinkerRunnable != null) {
-            if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
+            if (TERMINAL_VIEW_KEY_LOGGING_ENABLED && mClient != null)
                 mClient.logVerbose(LOG_TAG, "Stopping cursor blinker");
             mTerminalCursorBlinkerHandler.removeCallbacks(mTerminalCursorBlinkerRunnable);
         }
@@ -1410,14 +1410,14 @@ public final class TerminalView extends View {
         }
 
         showTextSelectionCursors(event);
-        mClient.copyModeChanged(isSelectingText());
+        if (mClient != null) mClient.copyModeChanged(isSelectingText());
 
         invalidate();
     }
 
     public void stopTextSelectionMode() {
         if (hideTextSelectionCursors()) {
-            mClient.copyModeChanged(isSelectingText());
+            if (mClient != null) mClient.copyModeChanged(isSelectingText());
             invalidate();
         }
     }
