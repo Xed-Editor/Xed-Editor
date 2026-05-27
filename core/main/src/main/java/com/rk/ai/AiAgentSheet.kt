@@ -10,12 +10,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -27,6 +31,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -328,11 +333,24 @@ fun UnifiedToolSheet(
                                     text = { Text(sessionId, style = MaterialTheme.typography.bodySmall) },
                                     onClick = {
                                         showSessionMenu = false
-                                        val activity = terminalViewModel.terminalView?.context as? android.app.Activity
-                                        if (activity is com.rk.activities.terminal.Terminal) {
-                                            activity.changeSession(sessionId, terminalViewModel)
-                                        } else {
-                                            service.currentSession.value = sessionId
+                                        terminalViewModel.terminalView?.let { termView ->
+                                            val activity = termView.context as? android.app.Activity
+                                            if (activity is com.rk.activities.terminal.Terminal) {
+                                                activity.changeSession(sessionId, terminalViewModel)
+                                            } else if (activity != null) {
+                                                val sessionBinder = terminalViewModel.sessionBinder
+                                                if (sessionBinder != null) {
+                                                    service.currentSession.value = sessionId
+                                                    val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
+                                                    val newSession = sessionBinder.getSession(sessionId)
+                                                        ?: sessionBinder.createSession(sessionId, client, activity)?.session
+                                                    newSession?.let {
+                                                        it.updateTerminalSessionClient(client)
+                                                        termView.attachSession(it)
+                                                        termView.setTerminalViewClient(client)
+                                                    }
+                                                }
+                                            }
                                         }
                                     },
                                     leadingIcon = if (sessionId == service.currentSession.value) {
@@ -345,12 +363,13 @@ fun UnifiedToolSheet(
                                 text = { Text("New Session", style = MaterialTheme.typography.bodySmall) },
                                 onClick = {
                                     showSessionMenu = false
-                                    terminalViewModel.terminalView?.let {
+                                    terminalViewModel.terminalView?.let { tv ->
+                                        val activity = tv.context as? android.app.Activity ?: return@let
                                         val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
                                         terminalViewModel.sessionBinder?.createSession(
                                             "main #${service?.sessionList?.size?.plus(1) ?: 1}",
                                             client,
-                                            it.context as android.app.Activity,
+                                            activity,
                                         )
                                     }
                                 },
@@ -418,75 +437,141 @@ private fun UnifiedCommandBar(
     hasSelection: Boolean,
     currentFile: String,
 ) {
+    var showAgentMenu by remember { mutableStateOf(false) }
+    var commandInput by remember { mutableStateOf("") }
     val colorScheme = MaterialTheme.colorScheme
+    val availableAgents = AiSessionManager.availableAgents()
 
     Column(modifier = Modifier.fillMaxWidth().background(colorScheme.surfaceContainerHighest)) {
-        if (mode == BottomPanelMode.AI) {
-            StatusBar(
-                isRunning = isAiRunning,
-                cwd = cwd,
-                agent = agent,
-                availableAgents = AiSessionManager.availableAgents(),
-                showAgentMenu = false,
-                onToggleAgentMenu = { },
-                onSelectAgent = { agent ->
-                    if (agent != AiSessionManager.currentAgent) {
-                        AiSessionManager.switchAgent(agent.name)
-                        onAction("/restart")
+        // Row 1: Status bar - common for both modes
+        StatusBar(
+            mode = mode,
+            isRunning = isAiRunning,
+            cwd = cwd,
+            agent = agent,
+            availableAgents = availableAgents,
+            showAgentMenu = showAgentMenu,
+            onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
+            onSelectAgent = { selectedAgent ->
+                showAgentMenu = false
+                if (selectedAgent != AiSessionManager.currentAgent) {
+                    AiSessionManager.switchAgent(selectedAgent.name)
+                    onAction("/restart")
+                }
+            },
+            transcript = transcript,
+            showTranscript = showTranscript,
+            onToggleTranscript = onToggleTranscript,
+            onClearTranscript = onClearTranscript,
+            terminalViewModel = terminalViewModel,
+        )
+
+        // Row 2: Bottom wire (virtual keys) - common for both modes
+        AndroidView<VirtualKeysView>(
+            modifier = Modifier.fillMaxWidth().height(42.dp),
+            factory = { ctx ->
+                VirtualKeysView(ctx, null).apply {
+                    setButtonTextColor(colorScheme.onSurface.toArgb())
+                    runCatching {
+                        val info = VirtualKeysInfo(
+                            Settings.terminal_extra_keys,
+                            "",
+                            VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                        )
+                        reload(info)
                     }
-                },
-                transcript = transcript,
-                showTranscript = showTranscript,
-                onToggleTranscript = onToggleTranscript,
-                onClearTranscript = onClearTranscript,
-            )
-            
+                    terminalViewModel.virtualKeysView = this
+                }
+            },
+            update = { keys ->
+                val session = if (mode == BottomPanelMode.AI) {
+                    AiSessionManager.session
+                } else {
+                    terminalViewModel.terminalView?.mTermSession
+                }
+                keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
+                keys.setButtonTextColor(colorScheme.onSurface.toArgb())
+            },
+        )
+
+        // Row 3: Quick actions (AI mode only)
+        if (mode == BottomPanelMode.AI) {
             QuickActions(
                 isRunning = isAiRunning,
                 currentFile = currentFile,
                 hasSelection = hasSelection,
                 onAction = onAction,
             )
-        } else {
-            AndroidView<VirtualKeysView>(
-                modifier = Modifier.fillMaxWidth().height(75.dp),
-                factory = { context ->
-                    VirtualKeysView(context, null).apply {
-                        setButtonTextColor(colorScheme.onSurface.toArgb())
-                        runCatching {
-                            val info = VirtualKeysInfo(
-                                Settings.terminal_extra_keys,
-                                "",
-                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                            )
-                            reload(info)
+        }
+
+        // Row 4: Common command input for both modes
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedTextField(
+                value = commandInput,
+                onValueChange = { commandInput = it },
+                placeholder = {
+                    Text(
+                        if (mode == BottomPanelMode.AI) "Send a message..." else "Type a command...",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                },
+                modifier = Modifier.weight(1f).height(40.dp),
+                singleLine = true,
+                shape = RoundedCornerShape(8.dp),
+                textStyle = MaterialTheme.typography.bodySmall,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(
+                    onSend = {
+                        if (commandInput.isNotBlank()) {
+                            if (mode == BottomPanelMode.AI) {
+                                onAction(commandInput)
+                            } else {
+                                terminalViewModel.terminalView?.currentSession?.write(commandInput + "\n")
+                            }
+                            commandInput = ""
                         }
-                        terminalViewModel.virtualKeysView = this
+                    }
+                ),
+            )
+            Spacer(Modifier.width(8.dp))
+            FilledTonalIconButton(
+                onClick = {
+                    if (commandInput.isNotBlank()) {
+                        if (mode == BottomPanelMode.AI) {
+                            onAction(commandInput)
+                        } else {
+                            terminalViewModel.terminalView?.currentSession?.write(commandInput + "\n")
+                        }
+                        commandInput = ""
                     }
                 },
-                update = { keys ->
-                    val session = terminalViewModel.terminalView?.mTermSession
-                    keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
-                    keys.setButtonTextColor(colorScheme.onSurface.toArgb())
-                },
-            )
+                modifier = Modifier.size(40.dp),
+                enabled = commandInput.isNotBlank(),
+            ) {
+                Icon(Icons.Outlined.Send, contentDescription = "Send", modifier = Modifier.size(18.dp))
+            }
         }
     }
 }
 
 @Composable
 private fun StatusBar(
-    isRunning: Boolean,
-    cwd: String,
-    agent: AiAgent,
-    availableAgents: List<AiAgent>,
-    showAgentMenu: Boolean,
-    onToggleAgentMenu: () -> Unit,
-    onSelectAgent: (AiAgent) -> Unit,
-    transcript: String,
-    showTranscript: Boolean,
-    onToggleTranscript: () -> Unit,
-    onClearTranscript: () -> Unit,
+    mode: BottomPanelMode = BottomPanelMode.AI,
+    isRunning: Boolean = false,
+    cwd: String = "",
+    agent: AiAgent = AiSessionManager.currentAgent,
+    availableAgents: List<AiAgent> = emptyList(),
+    showAgentMenu: Boolean = false,
+    onToggleAgentMenu: () -> Unit = {},
+    onSelectAgent: (AiAgent) -> Unit = {},
+    transcript: String = "",
+    showTranscript: Boolean = false,
+    onToggleTranscript: () -> Unit = {},
+    onClearTranscript: () -> Unit = {},
+    terminalViewModel: TerminalViewModel? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val statusColor = if (isRunning) Color(0xFF4CAF50) else Color(0xFFEF5350)
@@ -501,21 +586,50 @@ private fun StatusBar(
             Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
             Spacer(Modifier.width(8.dp))
 
-            if (bridgeOnline) {
+            if (bridgeOnline && mode == BottomPanelMode.AI) {
                 val bridgeColor = if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107)
                 Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(bridgeColor))
                 Spacer(Modifier.width(8.dp))
             }
 
-            Text(
-                text = agent.displayName,
-                color = colorScheme.primary,
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier.clickable { onToggleAgentMenu() }
-            )
+            Box {
+                Text(
+                    text = if (mode == BottomPanelMode.AI) agent.displayName else "Terminal",
+                    color = colorScheme.primary,
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.clickable { if (mode == BottomPanelMode.AI) onToggleAgentMenu() }
+                )
+
+                if (mode == BottomPanelMode.AI) {
+                    DropdownMenu(
+                        expanded = showAgentMenu,
+                        onDismissRequest = { onToggleAgentMenu() },
+                    ) {
+                        availableAgents.forEach { a ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(a.displayName, style = MaterialTheme.typography.bodySmall)
+                                        if (a == agent) {
+                                            Spacer(Modifier.width(8.dp))
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(16.dp),
+                                                tint = colorScheme.primary,
+                                            )
+                                        }
+                                    }
+                                },
+                                onClick = { onSelectAgent(a) },
+                            )
+                        }
+                    }
+                }
+            }
 
             Spacer(Modifier.width(12.dp))
-            
+
             Text(
                 text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
                 color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -524,8 +638,8 @@ private fun StatusBar(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
-            
-            if (transcript.isNotBlank()) {
+
+            if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
                 IconButton(onClick = onToggleTranscript, modifier = Modifier.size(24.dp)) {
                     Icon(
                         if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
@@ -591,19 +705,19 @@ private fun QuickActions(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!isRunning) {
             Button(
                 onClick = { onAction("/restart") },
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-                modifier = Modifier.height(32.dp),
-                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.height(30.dp),
+                shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
             ) {
-                Text("Start Agent", style = MaterialTheme.typography.labelMedium)
+                Text("Start Agent", style = MaterialTheme.typography.labelSmall)
             }
         } else {
             ActionChip(label = "Explain", onClick = { onAction(prompt("Explain the code")) }, color = colorScheme.secondaryContainer)
@@ -611,13 +725,12 @@ private fun QuickActions(
             ActionChip(label = "Refactor", onClick = { onAction(prompt("Suggest improvements")) }, color = colorScheme.secondaryContainer)
             ActionChip(label = "Tests", onClick = { onAction(prompt("Add unit tests")) }, color = colorScheme.secondaryContainer)
             ActionChip(label = "Docs", onClick = { onAction(prompt("Write documentation")) }, color = colorScheme.secondaryContainer)
-            
+
             Spacer(Modifier.width(4.dp))
-            VerticalDivider(modifier = Modifier.height(20.dp), color = colorScheme.outlineVariant)
+            VerticalDivider(modifier = Modifier.height(18.dp), color = colorScheme.outlineVariant)
             Spacer(Modifier.width(4.dp))
 
             ActionChip(label = "Sync", onClick = { onAction("/sync") }, color = colorScheme.surfaceVariant)
-            ActionChip(label = "Refresh", onClick = { onAction("/refresh") }, color = colorScheme.surfaceVariant)
             ActionChip(label = "Export", onClick = { onAction("/export") }, color = colorScheme.surfaceVariant)
             ActionChip(label = "Stop", onClick = { onAction("/stop") }, color = colorScheme.errorContainer, labelColor = colorScheme.error)
         }
@@ -633,12 +746,12 @@ private fun ActionChip(
 ) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(14.dp),
         color = color,
-        modifier = Modifier.height(32.dp)
+        modifier = Modifier.height(28.dp)
     ) {
-        Box(modifier = Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
-            Text(label, style = MaterialTheme.typography.labelMedium, color = labelColor)
+        Box(modifier = Modifier.padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = labelColor)
         }
     }
 }

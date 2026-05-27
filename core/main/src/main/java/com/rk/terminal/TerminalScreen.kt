@@ -119,7 +119,13 @@ fun TerminalPanel(
     val currentTheme = LocalThemeHolder.current
 
     Column(modifier = modifier.fillMaxSize()) {
-        TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalViewModel)
+        if (terminalViewModel.sessionBinder?.getService() != null) {
+            TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalViewModel)
+        } else {
+            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                Text("Connecting to terminal service...", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
 
         if (showKeys) {
             val pagerState = rememberPagerState(pageCount = { 2 })
@@ -257,33 +263,31 @@ private fun ColumnScope.TerminalView(
                 )
 
                 terminalViewModel.terminalView = this
+                settingsTerminalView = WeakReference(this)
                 setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
                 val client = TerminalBackEnd(terminalViewModel)
 
-                val session =
-                    if (pendingCommand != null) {
-                        terminalViewModel.sessionBinder?.getService()!!.currentSession.value = pendingCommand!!.id
-                        terminalViewModel.sessionBinder!!.getSession(pendingCommand!!.id)
-                            ?: terminalViewModel.sessionBinder!!
-                                .createSession(pendingCommand!!.id, client, context as Terminal)!!
-                                .session
+                val activity = context as? android.app.Activity
+                val binder = terminalViewModel.sessionBinder
+                val service = binder?.getService()
+
+                if (activity != null && binder != null && service != null) {
+                    val session = if (pendingCommand != null) {
+                        service.currentSession.value = pendingCommand!!.id
+                        binder.getSession(pendingCommand!!.id)
+                            ?: binder.createSession(pendingCommand!!.id, client, activity)?.session
                     } else {
-                        val currentId = terminalViewModel.sessionBinder?.getService()!!.currentSession.value
-                        terminalViewModel.sessionBinder!!
-                            .getSession(currentId)
-                            ?: terminalViewModel.sessionBinder!!
-                                .createSession(
-                                    currentId,
-                                    client,
-                                    context as android.app.Activity
-,
-                                )!!
-                                .session
+                        val currentId = service.currentSession.value
+                        binder.getSession(currentId)
+                            ?: binder.createSession(currentId, client, activity)?.session
                     }
 
-                session.updateTerminalSessionClient(client)
-                attachSession(session)
-                setTerminalViewClient(client)
+                    if (session != null) {
+                        session.updateTerminalSessionClient(client)
+                        attachSession(session)
+                        setTerminalViewClient(client)
+                    }
+                }
 
                 // Legacy behavior
                 val fontFile = sandboxDir().child("etc/font.ttf")
@@ -379,10 +383,11 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalViewModel: TerminalViewModel
                             }
                             terminalViewModel.terminalView?.let {
                                 val client = TerminalBackEnd(terminalViewModel)
+                                val activity = it.context as? android.app.Activity ?: return@let
                                 terminalViewModel.sessionBinder?.createSession(
-                                    generateUniqueString(terminalViewModel.sessionBinder?.getService()!!.sessionList),
+                                    generateUniqueString(terminalViewModel.sessionBinder?.getService()?.sessionList ?: emptyList()),
                                     client,
-                                    it.context as Terminal,
+                                    activity,
                                 )
                             }
                         }

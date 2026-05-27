@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
+import android.app.Activity
 import com.rk.activities.terminal.Terminal
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
@@ -111,13 +112,31 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel? = null) 
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            val activity = terminalViewModel?.terminalView?.context as? Terminal ?: return false
+            val context = terminalViewModel?.terminalView?.context ?: return false
             val binder = terminalViewModel?.sessionBinder ?: return false
             binder.terminateSession(binder.getService()?.currentSession?.value ?: "")
             if (binder.getService()?.sessionList?.isEmpty() == true) {
-                activity.finish()
+                val terminalActivity = context as? Terminal
+                terminalActivity?.finish()
+                if (terminalActivity == null) {
+                    (context as? Activity)?.finish()
+                }
             } else {
-                activity.changeSession(binder.getService()?.sessionList?.first() ?: "", terminalViewModel!!)
+                val activity = context as? Terminal
+                if (activity != null) {
+                    activity.changeSession(binder.getService()?.sessionList?.first() ?: "", terminalViewModel!!)
+                } else {
+                    (context as? Activity)?.let { ctx ->
+                        val firstSession = binder.getService()?.sessionList?.firstOrNull() ?: return false
+                        val sessionBinder = binder
+                        val termView = terminalViewModel?.terminalView ?: return false
+                        val termClient = TerminalBackEnd(terminalViewModel)
+                        val newSession = sessionBinder.getSession(firstSession) ?: return false
+                        newSession.updateTerminalSessionClient(termClient)
+                        termView.attachSession(newSession)
+                        termView.setTerminalViewClient(termClient)
+                    }
+                }
             }
             return true
         }
