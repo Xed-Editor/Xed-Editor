@@ -25,6 +25,8 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.ContentPaste
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Send
@@ -297,11 +299,25 @@ fun UnifiedToolSheet(
                     selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
                     onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
                     icon = {
-                        Icon(
-                            Icons.Outlined.Terminal,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
+                        BadgedBox(
+                            badge = {
+                                val sessionCount = terminalViewModel.sessionBinder?.getService()?.sessionList?.size ?: 0
+                                if (sessionCount > 1) {
+                                    Badge(
+                                        containerColor = colorScheme.primary,
+                                        contentColor = colorScheme.onPrimary,
+                                    ) {
+                                        Text(sessionCount.toString())
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                Icons.Outlined.Terminal,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
                     },
                     text = {
                         Text(
@@ -410,7 +426,7 @@ fun UnifiedToolSheet(
                             ctx.startActivity(this)
                         }
                     }, modifier = Modifier.size(30.dp)) {
-                        Icon(Icons.Outlined.AutoFixHigh, contentDescription = "Settings", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
+                        Icon(Icons.Outlined.Settings, contentDescription = "Settings", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -607,7 +623,7 @@ private fun UnifiedCommandBar(
             },
         )
 
-        // Row 3: Quick actions (AI mode only)
+        // Row 3: Quick actions
         if (mode == BottomPanelMode.AI) {
             QuickActions(
                 isRunning = isAiRunning,
@@ -615,7 +631,95 @@ private fun UnifiedCommandBar(
                 hasSelection = hasSelection,
                 onAction = onAction,
             )
+        } else if (mode == BottomPanelMode.TERMINAL) {
+            TerminalQuickActions(
+                terminalViewModel = terminalViewModel,
+                onAction = onAction,
+            )
         }
+    }
+}
+
+@Composable
+private fun TerminalQuickActions(
+    terminalViewModel: TerminalViewModel,
+    onAction: (String) -> Unit,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val scope = rememberCoroutineScope()
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ActionChip(
+            icon = { Icon(Icons.Outlined.ContentPaste, contentDescription = null, modifier = Modifier.size(14.dp)) },
+            label = "Paste",
+            onClick = {
+                terminalViewModel.terminalView?.mTermSession?.let { session ->
+                    val clip = com.blankj.utilcode.util.ClipboardUtils.getText().toString()
+                    if (clip.isNotBlank()) {
+                        session.write(clip)
+                    }
+                }
+            },
+            color = colorScheme.secondaryContainer,
+        )
+
+        ActionChip(
+            icon = { Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(14.dp)) },
+            label = "Clear",
+            onClick = {
+                terminalViewModel.terminalView?.mTermSession?.write("clear\n")
+            },
+            color = colorScheme.secondaryContainer,
+        )
+
+        ActionChip(
+            icon = { Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp)) },
+            label = "New Session",
+            onClick = {
+                terminalViewModel.terminalView?.let { tv ->
+                    val activity = tv.context as? android.app.Activity ?: return@let
+                    val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
+                    val service = terminalViewModel.sessionBinder?.getService()
+                    terminalViewModel.sessionBinder?.createSession(
+                        "main #${service?.sessionList?.size?.plus(1) ?: 1}",
+                        client,
+                        activity,
+                    )
+                }
+            },
+            color = colorScheme.surfaceVariant,
+        )
+
+        ActionChip(
+            icon = { Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(14.dp)) },
+            label = "Kill Session",
+            onClick = {
+                terminalViewModel.terminalView?.mTermSession?.let { session ->
+                    val binder = terminalViewModel.sessionBinder ?: return@let
+                    val service = binder.getService() ?: return@let
+                    val sessionId = service.sessionList.find { binder.getSession(it) == session }
+                    if (sessionId != null) {
+                        binder.terminateSession(sessionId)
+                        val nextSession = service.sessionList.firstOrNull()
+                        if (nextSession != null) {
+                            val activity = terminalViewModel.terminalView?.context as? android.app.Activity
+                            if (activity != null) {
+                                com.rk.terminal.changeTerminalSession(nextSession, terminalViewModel, activity)
+                            }
+                        }
+                    }
+                }
+            },
+            color = colorScheme.errorContainer,
+            labelColor = colorScheme.error,
+        )
     }
 }
 
@@ -727,6 +831,10 @@ private fun StatusBar(
 
                 // CWD chip
                 Surface(
+                    onClick = {
+                        com.blankj.utilcode.util.ClipboardUtils.copyText("Path", cwd)
+                        com.rk.utils.toast("Path copied to clipboard")
+                    },
                     shape = RoundedCornerShape(8.dp),
                     color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 ) {
