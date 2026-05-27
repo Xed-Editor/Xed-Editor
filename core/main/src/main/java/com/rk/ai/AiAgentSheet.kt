@@ -2,7 +2,9 @@ package com.rk.ai
 
 import android.app.Activity
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,25 +14,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.BottomPanelMode
 import com.rk.ai.agents.AiAgent
@@ -42,15 +42,16 @@ import com.rk.filetree.currentDrawerTab
 import com.rk.filetree.drawerTabs
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
-import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.AgentCliSheet
 import com.rk.tabs.editor.AgentSheetTerminal
 import com.rk.terminal.TerminalViewModel
-import com.rk.terminal.TerminalScreenInternal
 import com.rk.terminal.changeSession
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import com.rk.terminal.virtualkeys.VirtualKeysConstants
+import com.rk.terminal.virtualkeys.VirtualKeysInfo
+import com.rk.terminal.virtualkeys.VirtualKeysListener
+import com.rk.terminal.virtualkeys.VirtualKeysView
 import java.io.File
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.Dispatchers
@@ -242,70 +243,37 @@ fun UnifiedToolSheet(
         modifier = modifier,
         showTerminal = false,
         headerContent = {
-            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
-                TabRow(
-                    selectedTabIndex = if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1,
-                    containerColor = Color.Transparent,
-                    divider = {},
-                    indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(tabPositions[if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1]),
-                            color = colorScheme.primary,
-                            height = 3.dp
-                        )
-                    },
-                    modifier = Modifier.height(48.dp)
-                ) {
-                    Tab(
-                        selected = viewModel.bottomPanelMode == BottomPanelMode.AI,
-                        onClick = { viewModel.bottomPanelMode = BottomPanelMode.AI },
-                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(20.dp)) },
-                        text = { Text("AI Agent", style = MaterialTheme.typography.labelLarge) },
-                        selectedContentColor = colorScheme.primary,
-                        unselectedContentColor = colorScheme.onSurfaceVariant
+            TabRow(
+                selectedTabIndex = if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1,
+                containerColor = Color.Transparent,
+                divider = {},
+                indicator = { tabPositions ->
+                    TabRowDefaults.SecondaryIndicator(
+                        Modifier.tabIndicatorOffset(tabPositions[if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1]),
+                        color = colorScheme.primary,
+                        height = 2.dp
                     )
-                    Tab(
-                        selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
-                        onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
-                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.terminal), modifier = Modifier.size(20.dp)) },
-                        text = { Text("Terminal", style = MaterialTheme.typography.labelLarge) },
-                        selectedContentColor = colorScheme.primary,
-                        unselectedContentColor = colorScheme.onSurfaceVariant
-                    )
-                }
-
-                if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
-                    var showAgentMenu by remember { mutableStateOf(false) }
-                    StatusBar(
-                        isRunning = isAiRunning,
-                        cwd = cwd.value,
-                        agent = currentAgent,
-                        availableAgents = AiSessionManager.availableAgents(),
-                        showAgentMenu = showAgentMenu,
-                        onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
-                        onSelectAgent = { agent ->
-                            showAgentMenu = false
-                            if (agent != AiSessionManager.currentAgent) {
-                                AiSessionManager.switchAgent(agent.name)
-                                startAgent(cwd.value, forceRestart = true)
-                            }
-                        },
-                        transcript = transcript,
-                        showTranscript = showTranscript,
-                        onToggleTranscript = { showTranscript = !showTranscript },
-                        onClearTranscript = {
-                            viewModel.agentTranscript = ""
-                            showTranscript = false
-                        },
-                    )
-                }
+                },
+                modifier = Modifier.width(280.dp).height(48.dp)
+            ) {
+                Tab(
+                    selected = viewModel.bottomPanelMode == BottomPanelMode.AI,
+                    onClick = { viewModel.bottomPanelMode = BottomPanelMode.AI },
+                    text = { Text("AI Agent", style = MaterialTheme.typography.labelLarge) },
+                    selectedContentColor = colorScheme.primary,
+                    unselectedContentColor = colorScheme.onSurfaceVariant
+                )
+                Tab(
+                    selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
+                    onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
+                    text = { Text("Terminal", style = MaterialTheme.typography.labelLarge) },
+                    selectedContentColor = colorScheme.primary,
+                    unselectedContentColor = colorScheme.onSurfaceVariant
+                )
             }
         },
         controls = {
             if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
-                val currentTab = viewModel.currentTab as? EditorTab
-                val editor = currentTab?.editorState?.editor?.get()
-
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = {
@@ -317,7 +285,7 @@ fun UnifiedToolSheet(
                         enabled = editor?.canUndo() == true,
                         modifier = Modifier.size(32.dp)
                     ) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), contentDescription = "Undo", tint = if (editor?.canUndo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), modifier = Modifier.size(20.dp), tint = if (editor?.canUndo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
                     }
 
                     IconButton(
@@ -330,11 +298,11 @@ fun UnifiedToolSheet(
                         enabled = editor?.canRedo() == true,
                         modifier = Modifier.size(32.dp)
                     ) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), contentDescription = "Redo", tint = if (editor?.canRedo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), modifier = Modifier.size(20.dp), tint = if (editor?.canRedo() == true) colorScheme.primary else colorScheme.onSurface.copy(alpha = 0.38f))
                     }
 
                     IconButton(onClick = { startAgent(cwd.value, forceRestart = true) }, modifier = Modifier.size(32.dp)) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), contentDescription = "Restart", tint = colorScheme.onSurfaceVariant)
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), modifier = Modifier.size(20.dp), tint = colorScheme.onSurfaceVariant)
                     }
 
                     IconButton(onClick = {
@@ -343,14 +311,7 @@ fun UnifiedToolSheet(
                             withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
                         }
                     }, modifier = Modifier.size(32.dp)) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), contentDescription = "Sync", tint = colorScheme.onSurfaceVariant)
-                    }
-
-                    IconButton(onClick = {
-                        AiSessionManager.stopSession()
-                        appendLog("Agent stopped.")
-                    }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error)
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), modifier = Modifier.size(20.dp), tint = colorScheme.onSurfaceVariant)
                     }
                 }
             } else if (viewModel.bottomPanelMode == BottomPanelMode.TERMINAL) {
@@ -358,7 +319,7 @@ fun UnifiedToolSheet(
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box {
                         IconButton(onClick = { showSessionMenu = true }, modifier = Modifier.size(32.dp)) {
-                            Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant)
+                            Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                         }
                         val service = terminalViewModel.sessionBinder?.getService()
                         DropdownMenu(expanded = showSessionMenu, onDismissRequest = { showSessionMenu = false }) {
@@ -399,39 +360,116 @@ fun UnifiedToolSheet(
                     }
                     
                     IconButton(onClick = { /* TODO */ }, modifier = Modifier.size(32.dp)) {
-                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.settings), contentDescription = "Settings", tint = colorScheme.onSurfaceVariant)
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.settings), modifier = Modifier.size(20.dp), tint = colorScheme.onSurfaceVariant)
                     }
                 }
             }
         },
         bottomBar = {
-            if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
-                QuickActions(
-                    isRunning = isAiRunning,
-                    currentFile = cwd.value.split("/").lastOrNull() ?: "",
-                    hasSelection = selectedText.isNotBlank(),
-                    onAction = { handleInput(it) },
-                )
-            }
+            UnifiedCommandBar(
+                mode = viewModel.bottomPanelMode,
+                isAiRunning = isAiRunning,
+                cwd = cwd.value,
+                agent = currentAgent,
+                transcript = transcript,
+                showTranscript = showTranscript,
+                onToggleTranscript = { showTranscript = !showTranscript },
+                onClearTranscript = { viewModel.agentTranscript = "" },
+                onAction = { handleInput(it) },
+                terminalViewModel = terminalViewModel,
+                hasSelection = selectedText.isNotBlank(),
+                currentFile = cwd.value.split("/").lastOrNull() ?: ""
+            )
         },
     ) {
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             when (viewModel.bottomPanelMode) {
                 BottomPanelMode.AI -> {
-                    AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize())
+                    AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
                 }
                 BottomPanelMode.TERMINAL -> {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(8.dp)
                     ) {
                         com.rk.terminal.TerminalPanel(
-                            terminalViewModel = terminalViewModel
+                            terminalViewModel = terminalViewModel,
+                            showKeys = false
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun UnifiedCommandBar(
+    mode: BottomPanelMode,
+    isAiRunning: Boolean,
+    cwd: String,
+    agent: AiAgent,
+    transcript: String,
+    showTranscript: Boolean,
+    onToggleTranscript: () -> Unit,
+    onClearTranscript: () -> Unit,
+    onAction: (String) -> Unit,
+    terminalViewModel: TerminalViewModel,
+    hasSelection: Boolean,
+    currentFile: String,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
+    Column(modifier = Modifier.fillMaxWidth().background(colorScheme.surfaceContainerHighest)) {
+        if (mode == BottomPanelMode.AI) {
+            StatusBar(
+                isRunning = isAiRunning,
+                cwd = cwd,
+                agent = agent,
+                availableAgents = AiSessionManager.availableAgents(),
+                showAgentMenu = false,
+                onToggleAgentMenu = { },
+                onSelectAgent = { agent ->
+                    if (agent != AiSessionManager.currentAgent) {
+                        AiSessionManager.switchAgent(agent.name)
+                        onAction("/restart")
+                    }
+                },
+                transcript = transcript,
+                showTranscript = showTranscript,
+                onToggleTranscript = onToggleTranscript,
+                onClearTranscript = onClearTranscript,
+            )
+            
+            QuickActions(
+                isRunning = isAiRunning,
+                currentFile = currentFile,
+                hasSelection = hasSelection,
+                onAction = onAction,
+            )
+        } else {
+            AndroidView<VirtualKeysView>(
+                modifier = Modifier.fillMaxWidth().height(75.dp),
+                factory = { context ->
+                    VirtualKeysView(context, null).apply {
+                        setButtonTextColor(colorScheme.onSurface.toArgb())
+                        runCatching {
+                            val info = VirtualKeysInfo(
+                                Settings.terminal_extra_keys,
+                                "",
+                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                            )
+                            reload(info)
+                        }
+                        terminalViewModel.virtualKeysView = this
+                    }
+                },
+                update = { keys ->
+                    val session = terminalViewModel.terminalView?.mTermSession
+                    keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
+                    keys.setButtonTextColor(colorScheme.onSurface.toArgb())
+                },
+            )
         }
     }
 }
@@ -455,108 +493,49 @@ private fun StatusBar(
     val bridgeClients = IdeBridge.connectedClients()
     val bridgeOnline = IdeBridge.isRunning()
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(32.dp),
+            modifier = Modifier.fillMaxWidth().height(28.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Agent Status
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(statusColor.copy(alpha = 0.1f))
-                    .padding(horizontal = 8.dp, vertical = 2.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = if (isRunning) "Active" else "Stopped",
-                    color = statusColor,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                )
-            }
-            
+            Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
             Spacer(Modifier.width(8.dp))
 
-            // Bridge Status
             if (bridgeOnline) {
                 val bridgeColor = if (bridgeClients > 0) Color(0xFF4CAF50) else Color(0xFFFFC107)
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(bridgeColor.copy(alpha = 0.1f))
-                        .padding(horizontal = 8.dp, vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(bridgeColor))
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = if (bridgeClients > 0) "${bridgeClients} link" else "bridge",
-                        color = bridgeColor,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                }
+                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(bridgeColor))
                 Spacer(Modifier.width(8.dp))
             }
 
-            // Agent Selector
-            Box {
-                Surface(
-                    onClick = onToggleAgentMenu,
-                    shape = RoundedCornerShape(12.dp),
-                    color = colorScheme.secondaryContainer.copy(alpha = 0.7f),
-                    modifier = Modifier.height(24.dp),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = agent.displayName,
-                            color = colorScheme.onSecondaryContainer,
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                        Icon(
-                            Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = colorScheme.onSecondaryContainer,
-                        )
-                    }
-                }
-                DropdownMenu(expanded = showAgentMenu, onDismissRequest = onToggleAgentMenu) {
-                    availableAgents.forEach { a ->
-                        DropdownMenuItem(
-                            text = { Text(a.displayName, style = MaterialTheme.typography.bodySmall) },
-                            onClick = { onSelectAgent(a) },
-                            leadingIcon = if (a == agent) {
-                                { Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp)) } // Checkmark replacement
-                            } else null,
-                        )
-                    }
-                }
-            }
+            Text(
+                text = agent.displayName,
+                color = colorScheme.primary,
+                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                modifier = Modifier.clickable { onToggleAgentMenu() }
+            )
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(12.dp))
             
-            // Path display
             Text(
                 text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
-                color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
             )
             
             if (transcript.isNotBlank()) {
-                IconButton(onClick = onToggleTranscript, modifier = Modifier.size(28.dp)) {
+                IconButton(onClick = onToggleTranscript, modifier = Modifier.size(24.dp)) {
                     Icon(
                         if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(16.dp),
                         tint = colorScheme.onSurfaceVariant,
                     )
+                }
+                TextButton(onClick = onClearTranscript, modifier = Modifier.height(24.dp), contentPadding = PaddingValues(horizontal = 4.dp)) {
+                    Text("Clear", style = MaterialTheme.typography.labelSmall, color = colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
                 }
             }
         }
@@ -569,34 +548,97 @@ private fun StatusBar(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 160.dp)
-                    .padding(bottom = 4.dp),
+                    .heightIn(max = 140.dp)
+                    .padding(vertical = 4.dp),
                 shape = RoundedCornerShape(8.dp),
                 color = colorScheme.surfaceContainerHigh,
+                border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.3f))
             ) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("Transcript", style = MaterialTheme.typography.labelSmall, color = colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                    }
-                    HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f))
-                    val scrollState = rememberScrollState()
-                    LaunchedEffect(transcript) {
-                        if (showTranscript) scrollState.animateScrollTo(scrollState.maxValue)
-                    }
-                    Text(
-                        text = transcript,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .verticalScroll(scrollState),
-                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                        color = colorScheme.onSurface,
-                    )
+                val scrollState = rememberScrollState()
+                LaunchedEffect(transcript) {
+                    if (showTranscript) scrollState.animateScrollTo(scrollState.maxValue)
                 }
+                Text(
+                    text = transcript,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .verticalScroll(scrollState),
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    color = colorScheme.onSurface,
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun QuickActions(
+    isRunning: Boolean,
+    currentFile: String,
+    hasSelection: Boolean,
+    onAction: (String) -> Unit,
+) {
+    fun prompt(text: String) = buildString {
+        append(text)
+        if (currentFile.isNotBlank()) append(" in $currentFile")
+        if (hasSelection) append(" (selected code provided as context)")
+    }
+
+    val colorScheme = MaterialTheme.colorScheme
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (!isRunning) {
+            Button(
+                onClick = { onAction("/restart") },
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                modifier = Modifier.height(32.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+            ) {
+                Text("Start Agent", style = MaterialTheme.typography.labelMedium)
+            }
+        } else {
+            ActionChip(label = "Explain", onClick = { onAction(prompt("Explain the code")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Bugs", onClick = { onAction(prompt("Find bugs and issues")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Refactor", onClick = { onAction(prompt("Suggest improvements")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Tests", onClick = { onAction(prompt("Add unit tests")) }, color = colorScheme.secondaryContainer)
+            ActionChip(label = "Docs", onClick = { onAction(prompt("Write documentation")) }, color = colorScheme.secondaryContainer)
+            
+            Spacer(Modifier.width(4.dp))
+            VerticalDivider(modifier = Modifier.height(20.dp), color = colorScheme.outlineVariant)
+            Spacer(Modifier.width(4.dp))
+
+            ActionChip(label = "Sync", onClick = { onAction("/sync") }, color = colorScheme.surfaceVariant)
+            ActionChip(label = "Refresh", onClick = { onAction("/refresh") }, color = colorScheme.surfaceVariant)
+            ActionChip(label = "Export", onClick = { onAction("/export") }, color = colorScheme.surfaceVariant)
+            ActionChip(label = "Stop", onClick = { onAction("/stop") }, color = colorScheme.errorContainer, labelColor = colorScheme.error)
+        }
+    }
+}
+
+@Composable
+private fun ActionChip(
+    label: String,
+    onClick: () -> Unit,
+    color: Color,
+    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = color,
+        modifier = Modifier.height(32.dp)
+    ) {
+        Box(modifier = Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
+            Text(label, style = MaterialTheme.typography.labelMedium, color = labelColor)
         }
     }
 }
@@ -635,77 +677,5 @@ private fun exportSession(viewModel: MainViewModel, cwd: String) {
         context.startActivity(android.content.Intent.createChooser(intent, "Export Agent Session"))
     } catch (e: Exception) {
         com.rk.utils.toast("Export failed: ${e.message}")
-    }
-}
-
-@Composable
-private fun QuickActions(
-    isRunning: Boolean,
-    currentFile: String,
-    hasSelection: Boolean,
-    onAction: (String) -> Unit,
-) {
-    fun prompt(text: String) = buildString {
-        append(text)
-        if (currentFile.isNotBlank()) append(" in $currentFile")
-        if (hasSelection) append(" (selected code provided as context)")
-    }
-
-    val colorScheme = MaterialTheme.colorScheme
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (!isRunning) {
-            Button(
-                onClick = { onAction("/restart") },
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-                modifier = Modifier.height(32.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
-            ) {
-                Text("Start Agent", style = MaterialTheme.typography.labelMedium)
-            }
-        } else {
-            // Action buttons as compact chips
-            ActionChip(label = "Explain", onClick = { onAction(prompt("Explain the code")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Bugs", onClick = { onAction(prompt("Find bugs and issues")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Refactor", onClick = { onAction(prompt("Suggest improvements")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Tests", onClick = { onAction(prompt("Add unit tests")) }, color = colorScheme.secondaryContainer)
-            ActionChip(label = "Docs", onClick = { onAction(prompt("Write documentation")) }, color = colorScheme.secondaryContainer)
-            
-            Spacer(Modifier.width(8.dp))
-            VerticalDivider(modifier = Modifier.height(24.dp), color = colorScheme.outlineVariant)
-            Spacer(Modifier.width(8.dp) )
-
-            ActionChip(label = "Sync", onClick = { onAction("/sync") }, color = colorScheme.surfaceVariant)
-            ActionChip(label = "Refresh", onClick = { onAction("/refresh") }, color = colorScheme.surfaceVariant)
-            ActionChip(label = "Export", onClick = { onAction("/export") }, color = colorScheme.surfaceVariant)
-            ActionChip(label = "Stop", onClick = { onAction("/stop") }, color = colorScheme.errorContainer, labelColor = colorScheme.error)
-        }
-    }
-}
-
-@Composable
-private fun ActionChip(
-    label: String,
-    onClick: () -> Unit,
-    color: Color,
-    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
-) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        color = color,
-        modifier = Modifier.height(32.dp)
-    ) {
-        Box(modifier = Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
-            Text(label, style = MaterialTheme.typography.labelMedium, color = labelColor)
-        }
     }
 }

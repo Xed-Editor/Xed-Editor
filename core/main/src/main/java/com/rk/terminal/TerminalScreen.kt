@@ -111,6 +111,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalViewModel: TerminalVie
 fun TerminalPanel(
     modifier: Modifier = Modifier,
     terminalViewModel: TerminalViewModel,
+    showKeys: Boolean = true,
 ) {
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
     val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
@@ -120,67 +121,69 @@ fun TerminalPanel(
     Column(modifier = modifier.fillMaxSize()) {
         TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalViewModel)
 
-        val pagerState = rememberPagerState(pageCount = { 2 })
-        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
-            when (page) {
-                0 -> {
-                    AndroidView(
-                        factory = { context ->
-                            VirtualKeysView(context, null).apply {
-                                terminalViewModel.virtualKeysView = this
-                                virtualKeysViewClient =
-                                    terminalViewModel.terminalView?.mTermSession?.let { VirtualKeysListener(it) }
+        if (showKeys) {
+            val pagerState = rememberPagerState(pageCount = { 2 })
+            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
+                when (page) {
+                    0 -> {
+                        AndroidView(
+                            factory = { context ->
+                                VirtualKeysView(context, null).apply {
+                                    terminalViewModel.virtualKeysView = this
+                                    virtualKeysViewClient =
+                                        terminalViewModel.terminalView?.mTermSession?.let { VirtualKeysListener(it) }
 
-                                buttonTextColor = onSurfaceColor
+                                    buttonTextColor = onSurfaceColor
 
-                                reload(
-                                    VirtualKeysInfo(
-                                        Settings.terminal_extra_keys,
-                                        "",
-                                        VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                                    reload(
+                                        VirtualKeysInfo(
+                                            Settings.terminal_extra_keys,
+                                            "",
+                                            VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth().height(75.dp),
-                    )
-                }
-
-                1 -> {
-                    var text by rememberSaveable { mutableStateOf("") }
-                    val focusRequester = remember { FocusRequester() }
-
-                    TextField(
-                        value = text,
-                        onValueChange = { text = it },
-                        maxLines = 1,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                        keyboardActions =
-                            KeyboardActions(
-                                onDone = {
-                                    if (text.isEmpty()) {
-                                        val eventDown =
-                                            KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
-                                        val eventUp =
-                                            KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
-                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
-                                    } else {
-                                        terminalViewModel.terminalView?.currentSession?.write(text)
-                                        val eventDown =
-                                            KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
-                                        val eventUp =
-                                            KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
-                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
-                                        text = ""
-                                    }
                                 }
-                            ),
-                        modifier = Modifier.fillMaxWidth().height(75.dp).focusRequester(focusRequester),
-                    )
+                            },
+                            modifier = Modifier.fillMaxWidth().height(75.dp),
+                        )
+                    }
 
-                    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                    1 -> {
+                        var text by rememberSaveable { mutableStateOf("") }
+                        val focusRequester = remember { FocusRequester() }
+
+                        TextField(
+                            value = text,
+                            onValueChange = { text = it },
+                            maxLines = 1,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onDone = {
+                                        if (text.isEmpty()) {
+                                            val eventDown =
+                                                KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
+                                            val eventUp =
+                                                KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
+                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
+                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
+                                        } else {
+                                            terminalViewModel.terminalView?.currentSession?.write(text)
+                                            val eventDown =
+                                                KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
+                                            val eventUp =
+                                                KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
+                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
+                                            terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
+                                            text = ""
+                                        }
+                                    }
+                                ),
+                            modifier = Modifier.fillMaxWidth().height(75.dp).focusRequester(focusRequester),
+                        )
+
+                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                    }
                 }
             }
         }

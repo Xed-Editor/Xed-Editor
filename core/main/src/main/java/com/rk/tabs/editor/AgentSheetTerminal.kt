@@ -282,63 +282,69 @@ private fun AgentCliSheetContent(
                 .height(terminalHeight)
                 .background(colorScheme.surfaceContainerHighest, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 .border(1.dp, colorScheme.outlineVariant.copy(alpha = 0.5f), RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .padding(horizontal = 12.dp, vertical = 4.dp),
+                .padding(bottom = 4.dp),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Unified Header Row with Drag Support
+            // Unified Modern Header Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(36.dp)
-                    .pointerInput(Unit) {
-                        detectVerticalDragGestures(
-                            onDragStart = { onDragStart() },
-                            onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                            onDragEnd = onDragEnd,
-                        )
-                    },
+                    .height(48.dp)
+                    .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Left: Title + CWD
-                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                    Text("AI Agent", color = colorScheme.onSurface, style = MaterialTheme.typography.titleSmall)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
-                        color = colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.labelSmall,
-                        maxLines = 1,
+                // Left & Center: Integrated Tabs + Drag Handle
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onDragStart = { onDragStart() },
+                                onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                                onDragEnd = onDragEnd,
+                            )
+                        },
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    // This slot will hold the TabRow from headerContent
+                    headerContent?.invoke()
+                    
+                    // Centered Drag Handle Pill
+                    Box(
                         modifier = Modifier
-                            .background(colorScheme.surfaceContainerHigh, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .align(Alignment.TopCenter)
+                            .padding(top = 8.dp)
+                            .size(width = 36.dp, height = 4.dp)
+                            .background(colorScheme.outlineVariant.copy(alpha = 0.4f), RoundedCornerShape(2.dp))
                     )
                 }
                 
-                // Right: Controls + Hide
+                // Right: Controls + Close
                 Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    modifier = Modifier.fillMaxHeight(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End,
                 ) {
                     controls?.invoke(this)
                     IconButton(onClick = onDismissRequest, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Hide", tint = colorScheme.onSurfaceVariant)
+                        Icon(Icons.Outlined.Close, contentDescription = "Close", tint = colorScheme.onSurfaceVariant)
                     }
                 }
             }
 
-            headerContent?.invoke()
-
+            // Main Content Area
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 if (showTerminal) {
-                    AgentSheetTerminal(session = session, modifier = Modifier.fillMaxSize())
+                    AgentSheetTerminal(session = session, modifier = Modifier.fillMaxSize(), showKeys = false)
                 } else {
                     content?.invoke(this@Column)
                 }
             }
 
+            // Bottom Bar (Unified Command Bar)
             bottomBar?.let {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = colorScheme.outlineVariant.copy(alpha = 0.3f))
+                HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.2f))
                 it()
             }
         }
@@ -346,11 +352,16 @@ private fun AgentCliSheetContent(
 }
 
 @Composable
-fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier, height: Dp = 595.dp) {
+fun AgentSheetTerminal(
+    session: TerminalSession?,
+    modifier: Modifier = Modifier,
+    height: Dp = 595.dp,
+    showKeys: Boolean = true,
+) {
     val colorScheme = MaterialTheme.colorScheme
     val currentTheme = LocalThemeHolder.current
     val isDarkMode = isSystemInDarkTheme()
-    val keysHeight = 75.dp
+    val keysHeight = if (showKeys) 75.dp else 0.dp
     val terminalBodyHeight = (height - keysHeight).coerceAtLeast(160.dp)
     
     if (session == null) {
@@ -368,12 +379,14 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
     var lastBoundSession by remember { mutableStateOf<TerminalSession?>(null) }
 
     Column(
-        modifier = modifier.height(height),
+        modifier = if (showKeys) modifier.height(height) else modifier.fillMaxSize(),
     ) {
         AndroidView<TerminalView>(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(terminalBodyHeight),
+            modifier = if (showKeys) {
+                Modifier.fillMaxWidth().height(terminalBodyHeight)
+            } else {
+                Modifier.fillMaxWidth().weight(1f)
+            },
             factory = { context ->
                 TerminalView(context, null).apply {
                     val client = AgentTerminalClient(this) { virtualKeysViewRef.get() }
@@ -438,27 +451,29 @@ fun AgentSheetTerminal(session: TerminalSession?, modifier: Modifier = Modifier,
             },
         )
 
-        AndroidView<VirtualKeysView>(
-            modifier = Modifier.fillMaxWidth().height(keysHeight),
-            factory = { context ->
-                VirtualKeysView(context, null).apply {
-                    setButtonTextColor(colorScheme.onSurface.toArgb())
-                    runCatching {
-                        val info = VirtualKeysInfo(
-                            Settings.terminal_extra_keys,
-                            "",
-                            VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                        )
-                        reload(info)
+        if (showKeys) {
+            AndroidView<VirtualKeysView>(
+                modifier = Modifier.fillMaxWidth().height(keysHeight),
+                factory = { context ->
+                    VirtualKeysView(context, null).apply {
+                        setButtonTextColor(colorScheme.onSurface.toArgb())
+                        runCatching {
+                            val info = VirtualKeysInfo(
+                                Settings.terminal_extra_keys,
+                                "",
+                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                            )
+                            reload(info)
+                        }
+                        virtualKeysViewRef = WeakReference(this)
                     }
-                    virtualKeysViewRef = WeakReference(this)
-                }
-            },
-            update = { keys ->
-                keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
-                keys.setButtonTextColor(colorScheme.onSurface.toArgb())
-            },
-        )
+                },
+                update = { keys ->
+                    keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
+                    keys.setButtonTextColor(colorScheme.onSurface.toArgb())
+                },
+            )
+        }
     }
 }
 
