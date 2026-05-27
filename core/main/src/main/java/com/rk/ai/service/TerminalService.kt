@@ -3,6 +3,8 @@ package com.rk.ai.service
 import com.rk.ai.IdeBridge
 import com.rk.ai.session.AiSessionManager
 import com.rk.exec.ShellUtils
+import com.rk.terminal.SessionService
+import com.termux.terminal.TerminalSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -21,10 +23,15 @@ class TerminalService {
     }
 
     suspend fun getTerminalOutput(lines: Int?): String {
-        val session = AiSessionManager.session
-        val agentName = AiSessionManager.currentAgent.displayName
-        if (session == null || !session.isRunning) return "No active $agentName terminal session"
+        // Prioritize active user terminal session
+        val userSession = SessionService.instance.get()?.getCurrentTerminalSession()
+        val session: TerminalSession = userSession 
+            ?: AiSessionManager.session 
+            ?: return "No active terminal session found"
+
+        if (!session.isRunning) return "Terminal session is not running"
         val emulator = session.emulator ?: return "Terminal emulator not available"
+        
         return withContext(Dispatchers.IO) {
             val full = synchronized(emulator) {
                 emulator.screen.getTranscriptTextWithoutJoinedLines()

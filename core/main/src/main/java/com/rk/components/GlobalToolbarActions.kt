@@ -82,11 +82,17 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         }
 
         if (InbuiltFeatures.terminal.state.value) {
-            IconButton(onClick = { terminalCommand.action(ActionContext(context as Activity)) }) {
+            IconButton(onClick = { 
+                viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.TERMINAL
+                viewModel.showBottomPanel = true 
+            }) {
                 XedIcon(terminalCommand.getIcon())
             }
 
-            IconButton(onClick = { viewModel.showAiSheet = true }) {
+            IconButton(onClick = { 
+                viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.AI
+                viewModel.showBottomPanel = true 
+            }) {
                 XedIcon(aiCliCommand.getIcon())
             }
         }

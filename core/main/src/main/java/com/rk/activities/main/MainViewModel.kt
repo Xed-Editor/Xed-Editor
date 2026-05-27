@@ -14,6 +14,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
+enum class BottomPanelMode {
+    AI, TERMINAL
+}
+
 class MainViewModel : ViewModel() {
     val tabManager = TabManager()
     val editorManager = EditorManager(this)
@@ -61,7 +65,17 @@ class MainViewModel : ViewModel() {
         commandPaletteInitialPlaceholder = null
     }
 
-    var showAiSheet by mutableStateOf(false)
+    var showBottomPanel by mutableStateOf(false)
+    var bottomPanelMode by mutableStateOf(BottomPanelMode.AI)
+    
+    // Legacy alias for compatibility during migration
+    var showAiSheet: Boolean
+        get() = showBottomPanel && bottomPanelMode == BottomPanelMode.AI
+        set(value) {
+            showBottomPanel = value
+            if (value) bottomPanelMode = BottomPanelMode.AI
+        }
+    
     var aiSheetCwd by mutableStateOf<String?>(null)
     var agentPrompt by mutableStateOf("")
     var agentTranscript by mutableStateOf("")

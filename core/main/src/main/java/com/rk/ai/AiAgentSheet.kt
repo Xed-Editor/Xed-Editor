@@ -1,11 +1,7 @@
 package com.rk.ai
 
 import android.app.Activity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -14,6 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
@@ -23,11 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.rk.activities.main.MainViewModel
+import com.rk.activities.main.BottomPanelMode
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.session.AiSessionManager
 import com.rk.file.FileWrapper
@@ -37,9 +39,13 @@ import com.rk.filetree.currentDrawerTab
 import com.rk.filetree.drawerTabs
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
+import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.AgentCliSheet
+import com.rk.tabs.editor.AgentSheetTerminal
+import com.rk.terminal.TerminalViewModel
+import com.rk.terminal.TerminalScreenInternal
 import java.io.File
 import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.Dispatchers
@@ -48,15 +54,24 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AiAgentSheet(
+fun UnifiedToolSheet(
     viewModel: MainViewModel,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    terminalViewModel: TerminalViewModel = viewModel(),
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val activity = context as? Activity
     val colorScheme = MaterialTheme.colorScheme
+
+    // Ensure terminal service is bound when the sheet is open
+    DisposableEffect(Unit) {
+        terminalViewModel.bindService(context)
+        onDispose {
+            terminalViewModel.unbindService(context)
+        }
+    }
 
     fun terminalHomeDir(): String =
         if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath
@@ -77,8 +92,9 @@ fun AiAgentSheet(
     LaunchedEffect(viewModel.currentTab, currentDrawerTab) {
         cwd.value = currentProjectDir()
     }
-    val session = AiSessionManager.session
-    val isRunning = session?.isRunning == true
+    
+    val aiSession = AiSessionManager.session
+    val isAiRunning = aiSession?.isRunning == true
     var showTranscript by remember { mutableStateOf(false) }
     val transcript = viewModel.agentTranscript
 
@@ -202,12 +218,12 @@ fun AiAgentSheet(
         }
     }
 
-    LaunchedEffect(viewModel.agentPrompt, viewModel.showAiSheet) {
-        if (!viewModel.showAiSheet) return@LaunchedEffect
-        consumePendingPrompt()?.let { handleInput(it) }
+    LaunchedEffect(viewModel.agentPrompt, viewModel.showBottomPanel) {
+        if (!viewModel.showBottomPanel) return@LaunchedEffect
+        if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
+            consumePendingPrompt()?.let { handleInput(it) }
+        }
     }
-
-    var showAgentMenu by remember { mutableStateOf(false) }
 
     val currentAgent = AiSessionManager.currentAgent
     val currentTab = viewModel.currentTab as? EditorTab
@@ -217,89 +233,199 @@ fun AiAgentSheet(
     AgentCliSheet(
         onDismissRequest = onDismissRequest,
         cwd = cwd.value,
-        session = session,
+        session = null, // We'll handle our own terminal content
         modifier = modifier,
+        showTerminal = false,
         headerContent = {
-            StatusBar(
-                isRunning = isRunning,
-                cwd = cwd.value,
-                agent = currentAgent,
-                availableAgents = AiSessionManager.availableAgents(),
-                showAgentMenu = showAgentMenu,
-                onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
-                onSelectAgent = { agent ->
-                    showAgentMenu = false
-                    if (agent != AiSessionManager.currentAgent) {
-                        AiSessionManager.switchAgent(agent.name)
-                        startAgent(cwd.value, forceRestart = true)
-                    }
-                },
-                transcript = transcript,
-                showTranscript = showTranscript,
-                onToggleTranscript = { showTranscript = !showTranscript },
-                onClearTranscript = {
-                    viewModel.agentTranscript = ""
-                    showTranscript = false
-                },
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TabRow(
+                    selectedTabIndex = if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1,
+                    containerColor = Color.Transparent,
+                    divider = {},
+                    indicator = { tabPositions ->
+                        TabRowDefaults.SecondaryIndicator(
+                            Modifier.tabIndicatorOffset(tabPositions[if (viewModel.bottomPanelMode == BottomPanelMode.AI) 0 else 1]),
+                            color = colorScheme.primary
+                        )
+                    },
+                    modifier = Modifier.height(44.dp)
+                ) {
+                    Tab(
+                        selected = viewModel.bottomPanelMode == BottomPanelMode.AI,
+                        onClick = { viewModel.bottomPanelMode = BottomPanelMode.AI },
+                        icon = { Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(18.dp)) },
+                        text = { Text("AI Agent", style = MaterialTheme.typography.labelMedium) },
+                        selectedContentColor = colorScheme.primary,
+                        unselectedContentColor = colorScheme.onSurfaceVariant
+                    )
+                    Tab(
+                        selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
+                        onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
+                        icon = { Icon(Icons.Default.Terminal, null, modifier = Modifier.size(18.dp)) },
+                        text = { Text("Terminal", style = MaterialTheme.typography.labelMedium) },
+                        selectedContentColor = colorScheme.primary,
+                        unselectedContentColor = colorScheme.onSurfaceVariant
+                    )
+                }
+
+                if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
+                    var showAgentMenu by remember { mutableStateOf(false) }
+                    StatusBar(
+                        isRunning = isAiRunning,
+                        cwd = cwd.value,
+                        agent = currentAgent,
+                        availableAgents = AiSessionManager.availableAgents(),
+                        showAgentMenu = showAgentMenu,
+                        onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
+                        onSelectAgent = { agent ->
+                            showAgentMenu = false
+                            if (agent != AiSessionManager.currentAgent) {
+                                AiSessionManager.switchAgent(agent.name)
+                                startAgent(cwd.value, forceRestart = true)
+                            }
+                        },
+                        transcript = transcript,
+                        showTranscript = showTranscript,
+                        onToggleTranscript = { showTranscript = !showTranscript },
+                        onClearTranscript = {
+                            viewModel.agentTranscript = ""
+                            showTranscript = false
+                        },
+                    )
+                }
+            }
         },
         controls = {
-            val currentTab = viewModel.currentTab as? EditorTab
-            val editor = currentTab?.editorState?.editor?.get()
+            if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
+                val currentTab = viewModel.currentTab as? EditorTab
+                val editor = currentTab?.editorState?.editor?.get()
 
-            IconButton(
-                onClick = {
-                    if (editor?.canUndo() == true) {
-                        editor.undo()
-                        currentTab!!.editorState.updateUndoRedo()
-                    }
-                },
-                enabled = editor?.canUndo() == true
-            ) {
-                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), contentDescription = "Undo")
-            }
-
-            IconButton(
-                onClick = {
-                    if (editor?.canRedo() == true) {
-                        editor.redo()
-                        currentTab!!.editorState.updateUndoRedo()
-                    }
-                },
-                enabled = editor?.canRedo() == true
-            ) {
-                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), contentDescription = "Redo")
-            }
-
-            IconButton(onClick = { startAgent(cwd.value, forceRestart = true) }) {
-                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), contentDescription = "Restart")
-            }
-
-            IconButton(onClick = {
-                scope.launch(Dispatchers.IO) {
-                    val saved = saveDirtyEditors()
-                    withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                IconButton(
+                    onClick = {
+                        if (editor?.canUndo() == true) {
+                            editor.undo()
+                            currentTab!!.editorState.updateUndoRedo()
+                        }
+                    },
+                    enabled = editor?.canUndo() == true
+                ) {
+                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.undo), contentDescription = "Undo")
                 }
-            }) {
-                XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), contentDescription = "Sync")
-            }
 
-            IconButton(onClick = {
-                AiSessionManager.stopSession()
-                appendLog("Agent stopped.")
-            }) {
-                Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error.copy(alpha = 0.7f))
+                IconButton(
+                    onClick = {
+                        if (editor?.canRedo() == true) {
+                            editor.redo()
+                            currentTab!!.editorState.updateUndoRedo()
+                        }
+                    },
+                    enabled = editor?.canRedo() == true
+                ) {
+                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.redo), contentDescription = "Redo")
+                }
+
+                IconButton(onClick = { startAgent(cwd.value, forceRestart = true) }) {
+                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.restart), contentDescription = "Restart")
+                }
+
+                IconButton(onClick = {
+                    scope.launch(Dispatchers.IO) {
+                        val saved = saveDirtyEditors()
+                        withContext(Dispatchers.Main) { appendLog("Synced $saved dirty editor file(s).") }
+                    }
+                }) {
+                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.save), contentDescription = "Sync")
+                }
+
+                IconButton(onClick = {
+                    AiSessionManager.stopSession()
+                    appendLog("Agent stopped.")
+                }) {
+                    Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error.copy(alpha = 0.7f))
+                }
+            } else if (viewModel.bottomPanelMode == BottomPanelMode.TERMINAL) {
+                var showSessionMenu by remember { mutableStateOf(false) }
+                Box {
+                    IconButton(onClick = { showSessionMenu = true }) {
+                        Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant)
+                    }
+                    val service = terminalViewModel.sessionBinder?.getService()
+                    DropdownMenu(expanded = showSessionMenu, onDismissRequest = { showSessionMenu = false }) {
+                        service?.sessionList?.forEach { sessionId ->
+                            DropdownMenuItem(
+                                text = { Text(sessionId, style = MaterialTheme.typography.bodySmall) },
+                                onClick = {
+                                    showSessionMenu = false
+                                    val activity = terminalViewModel.terminalView?.context as? android.app.Activity
+                                    if (activity is com.rk.activities.terminal.Terminal) {
+                                        activity.changeSession(sessionId, terminalViewModel)
+                                    } else {
+                                        // Handle session change in bottom sheet
+                                        service.currentSession.value = sessionId
+                                        // We might need a more general changeSession helper
+                                    }
+                                },
+                                leadingIcon = if (sessionId == service.currentSession.value) {
+                                    { Icon(Icons.Default.AutoAwesome, null, modifier = Modifier.size(16.dp)) }
+                                } else null
+                            )
+                        }
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text("New Session", style = MaterialTheme.typography.bodySmall) },
+                            onClick = {
+                                showSessionMenu = false
+                                terminalViewModel.terminalView?.let {
+                                    val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
+                                    terminalViewModel.sessionBinder?.createSession(
+                                        "main #${service?.sessionList?.size?.plus(1) ?: 1}",
+                                        client,
+                                        it.context as android.app.Activity,
+                                    )
+                                }
+                            },
+                            leadingIcon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)) }
+                        )
+                    }
+                }
+                
+                IconButton(onClick = {
+                    // Navigate to terminal settings - this might need careful handling if not in Terminal activity
+                    // For now, let's keep it simple
+                }) {
+                    Icon(Icons.Outlined.Settings, contentDescription = "Settings", tint = colorScheme.onSurfaceVariant)
+                }
             }
         },
         bottomBar = {
-            QuickActions(
-                isRunning = isRunning,
-                currentFile = cwd.value.split("/").lastOrNull() ?: "",
-                hasSelection = selectedText.isNotBlank(),
-                onAction = { handleInput(it) },
-            )
+            if (viewModel.bottomPanelMode == BottomPanelMode.AI) {
+                QuickActions(
+                    isRunning = isAiRunning,
+                    currentFile = cwd.value.split("/").lastOrNull() ?: "",
+                    hasSelection = selectedText.isNotBlank(),
+                    onAction = { handleInput(it) },
+                )
+            }
         },
-    )
+    ) {
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            when (viewModel.bottomPanelMode) {
+                BottomPanelMode.AI -> {
+                    AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize())
+                }
+                BottomPanelMode.TERMINAL -> {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.surface
+                    ) {
+                        com.rk.terminal.TerminalPanel(
+                            terminalViewModel = terminalViewModel
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,46 +24,35 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -108,7 +99,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalViewModel: TerminalVie
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
         composable("terminal") {
-            TerminalScreenInternal(terminalActivity = terminalActivity, navController = navController)
+            TerminalScreenInternal(terminalViewModel = terminalViewModel, navController = navController)
         }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
         composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
@@ -116,15 +107,91 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalViewModel: TerminalVie
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalViewModel: TerminalViewModel, navController: NavController) {
+fun TerminalPanel(
+    modifier: Modifier = Modifier,
+    terminalViewModel: TerminalViewModel,
+) {
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
     val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
     val isDarkMode = isSystemInDarkTheme()
+    val currentTheme = LocalThemeHolder.current
+
+    Column(modifier = modifier.fillMaxSize()) {
+        TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalViewModel)
+
+        val pagerState = rememberPagerState(pageCount = { 2 })
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
+            when (page) {
+                0 -> {
+                    AndroidView(
+                        factory = { context ->
+                            VirtualKeysView(context, null).apply {
+                                terminalViewModel.virtualKeysView = this
+                                virtualKeysViewClient =
+                                    terminalViewModel.terminalView?.mTermSession?.let { VirtualKeysListener(it) }
+
+                                buttonTextColor = onSurfaceColor
+
+                                reload(
+                                    VirtualKeysInfo(
+                                        Settings.terminal_extra_keys,
+                                        "",
+                                        VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                                    )
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().height(75.dp),
+                    )
+                }
+
+                1 -> {
+                    var text by rememberSaveable { mutableStateOf("") }
+                    val focusRequester = remember { FocusRequester() }
+
+                    TextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        maxLines = 1,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = {
+                                    if (text.isEmpty()) {
+                                        val eventDown =
+                                            KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
+                                        val eventUp =
+                                            KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
+                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
+                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
+                                    } else {
+                                        terminalViewModel.terminalView?.currentSession?.write(text)
+                                        val eventDown =
+                                            KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
+                                        val eventUp =
+                                            KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
+                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventDown)
+                                        terminalViewModel.terminalView?.dispatchKeyEvent(eventUp)
+                                        text = ""
+                                    }
+                                }
+                            ),
+                        modifier = Modifier.fillMaxWidth().height(75.dp).focusRequester(focusRequester),
+                    )
+
+                    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalViewModel: TerminalViewModel, navController: NavController) {
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
-    val currentTheme = LocalThemeHolder.current
 
     DisposableEffect(Unit) { onDispose { keyboardController?.hide() } }
 
@@ -139,7 +206,7 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalViewModel: Ter
         ModalNavigationDrawer(
             drawerState = drawerState,
             gesturesEnabled = drawerState.isOpen,
-            drawerContent = { TerminalDrawer(drawerWidth, terminalActivity, navController) },
+            drawerContent = { TerminalDrawer(drawerWidth, terminalViewModel, navController) },
             content = {
                 Scaffold(
                     topBar = {
@@ -153,75 +220,10 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalViewModel: Ter
                         )
                     }
                 ) { paddingValues ->
-                    Column(modifier = Modifier.padding(paddingValues)) {
-                        TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalActivity)
-
-                        val pagerState = rememberPagerState(pageCount = { 2 })
-                        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(75.dp)) { page ->
-                            when (page) {
-                                0 -> {
-                                    AndroidView(
-                                        factory = { context ->
-                                            VirtualKeysView(context, null).apply {
-                                                virtualKeysView = WeakReference(this)
-                                                virtualKeysViewClient =
-                                                    terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
-
-                                                buttonTextColor = onSurfaceColor
-
-                                                reload(
-                                                    VirtualKeysInfo(
-                                                        Settings.terminal_extra_keys,
-                                                        "",
-                                                        VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                                                    )
-                                                )
-                                            }
-                                        },
-                                        modifier = Modifier.fillMaxWidth().height(75.dp),
-                                    )
-                                }
-
-                                1 -> {
-                                    var text by rememberSaveable { mutableStateOf("") }
-                                    val focusRequester = remember { FocusRequester() }
-
-                                    TextField(
-                                        value = text,
-                                        onValueChange = { text = it },
-                                        maxLines = 1,
-                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                        keyboardActions =
-                                            KeyboardActions(
-                                                onDone = {
-                                                    if (text.isEmpty()) {
-                                                        // Dispatch enter key events if text is empty
-                                                        val eventDown =
-                                                            KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
-                                                        val eventUp =
-                                                            KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                                        terminalView.get()?.dispatchKeyEvent(eventDown)
-                                                        terminalView.get()?.dispatchKeyEvent(eventUp)
-                                                    } else {
-                                                        terminalView.get()?.currentSession?.write(text)
-                                                        val eventDown =
-                                                            KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
-                                                        val eventUp =
-                                                            KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-                                                        terminalView.get()?.dispatchKeyEvent(eventDown)
-                                                        terminalView.get()?.dispatchKeyEvent(eventUp)
-                                                        text = ""
-                                                    }
-                                                }
-                                            ),
-                                        modifier = Modifier.fillMaxWidth().height(75.dp).focusRequester(focusRequester),
-                                    )
-
-                                    LaunchedEffect(Unit) { focusRequester.requestFocus() }
-                                }
-                            }
-                        }
-                    }
+                    TerminalPanel(
+                        modifier = Modifier.padding(paddingValues),
+                        terminalViewModel = terminalViewModel
+                    )
                 }
             },
         )
@@ -263,13 +265,15 @@ private fun ColumnScope.TerminalView(
                                 .createSession(pendingCommand!!.id, client, context as Terminal)!!
                                 .session
                     } else {
+                        val currentId = terminalViewModel.sessionBinder?.getService()!!.currentSession.value
                         terminalViewModel.sessionBinder!!
-                            .getSession(terminalViewModel.sessionBinder?.getService()!!.currentSession.value)
+                            .getSession(currentId)
                             ?: terminalViewModel.sessionBinder!!
                                 .createSession(
-                                    terminalViewModel.sessionBinder?.getService()!!.currentSession.value,
+                                    currentId,
                                     client,
-                                    context as Terminal,
+                                    context as android.app.Activity
+,
                                 )!!
                                 .session
                     }
@@ -300,26 +304,24 @@ private fun ColumnScope.TerminalView(
                     val heightChanged = (bottom - top) != (oldBottom - oldTop)
 
                     if (widthChanged || heightChanged) {
-                        val terminalColors =
+                        val colors =
                             if (isDarkMode) {
                                 currentTheme.darkTerminalColors
                             } else {
                                 currentTheme.lightTerminalColors
                             }
-                        terminalView
-                            .get()
-                            ?.applyTerminalColors(
-                                surfaceColor = surfaceColor,
-                                onSurfaceColor = onSurfaceColor,
-                                terminalColors = terminalColors,
-                            )
+                        applyTerminalColors(
+                            surfaceColor = surfaceColor,
+                            onSurfaceColor = onSurfaceColor,
+                            terminalColors = colors,
+                        )
                     }
                 }
 
                 post {
                     keepScreenOn = true
                     isFocusableInTouchMode = true
-                    focusAndShowKeyboard()
+                    focusAndShowKeyboard(terminalViewModel)
                 }
             }
         },
@@ -329,29 +331,29 @@ private fun ColumnScope.TerminalView(
                 .weight(1f)
                 .pointerInteropFilter { event ->
                     if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_UP) {
-                        terminalView.get()?.focusAndShowKeyboard()
+                        terminalViewModel.terminalView?.focusAndShowKeyboard(terminalViewModel)
                     }
                     false
                 },
-        update = { terminalView ->
-            val terminalColors =
+        update = { view ->
+            val colors =
                 if (isDarkMode) {
                     currentTheme.darkTerminalColors
                 } else {
                     currentTheme.lightTerminalColors
                 }
 
-            terminalView.applyTerminalColors(
+            view.applyTerminalColors(
                 surfaceColor = surfaceColor,
                 onSurfaceColor = onSurfaceColor,
-                terminalColors = terminalColors,
+                terminalColors = colors,
             )
         },
     )
 }
 
 @Composable
-private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navController: NavController) {
+private fun TerminalDrawer(drawerWidth: Dp, terminalViewModel: TerminalViewModel, navController: NavController) {
     ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
@@ -366,32 +368,26 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                             fun generateUniqueString(existingStrings: List<String>): String {
                                 var index = 1
                                 var newString: String
-
                                 do {
                                     newString = "main #$index"
                                     index++
                                 } while (newString in existingStrings)
-
                                 return newString
                             }
-                            terminalView.get()?.let {
-                                val client = TerminalBackEnd()
-                                terminalActivity.sessionBinder
-                                    ?.get()!!
-                                    .createSession(
-                                        generateUniqueString(
-                                            terminalActivity.sessionBinder?.get()!!.getService()!!.sessionList
-                                        ),
-                                        client,
-                                        terminalActivity,
-                                    )
+                            terminalViewModel.terminalView?.let {
+                                val client = TerminalBackEnd(terminalViewModel)
+                                terminalViewModel.sessionBinder?.createSession(
+                                    generateUniqueString(terminalViewModel.sessionBinder?.getService()!!.sessionList),
+                                    client,
+                                    it.context as Terminal,
+                                )
                             }
                         }
                     ) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(strings.add_session))
                     }
 
-                    IconButton(onClick = { navController.navigate("terminal_settings") }) {
+                    IconButton(onClick = { navController.navigate(SettingsRoutes.TerminalSettings.route) }) {
                         Icon(
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = stringResource(strings.settings),
@@ -400,7 +396,7 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                 }
             }
 
-            val service = terminalActivity.sessionBinder?.get()?.getService()
+            val service = terminalViewModel.sessionBinder?.getService()
             service?.sessionList?.let {
                 LazyColumn {
                     items(it) { sessionId ->
@@ -408,7 +404,10 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                         NavigationDrawerItem(
                             label = { Text(text = sessionId) },
                             selected = isSelected,
-                            onClick = { terminalActivity.changeSession(sessionId) },
+                            onClick = { 
+                                val activity = terminalViewModel.terminalView?.context as? Terminal
+                                activity?.changeSession(sessionId, terminalViewModel) 
+                            },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                             badge = {
                                 IconButton(
@@ -418,13 +417,17 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
                                             val sessionBefore = service.sessionList.getOrNull(index - 1)
                                             val sessionAfter = service.sessionList.getOrNull(index + 1)
                                             val neighborSession = sessionBefore ?: sessionAfter
-                                            neighborSession?.let { terminalActivity.changeSession(it) }
+                                            neighborSession?.let { 
+                                                val activity = terminalViewModel.terminalView?.context as? Terminal
+                                                activity?.changeSession(it, terminalViewModel) 
+                                            }
                                         }
 
-                                        terminalActivity.sessionBinder?.get()?.terminateSession(sessionId)
+                                        terminalViewModel.sessionBinder?.terminateSession(sessionId)
 
                                         if (service.sessionList.isEmpty()) {
-                                            terminalActivity.finish()
+                                            val activity = terminalViewModel.terminalView?.context as? Terminal
+                                            activity?.finish()
                                             service.actionExit()
                                         }
                                     },
@@ -446,42 +449,41 @@ private fun TerminalDrawer(drawerWidth: Dp, terminalActivity: Terminal, navContr
 }
 
 fun Terminal.changeSession(sessionId: String, terminalViewModel: TerminalViewModel) {
-    val terminalView = terminalViewModel.terminalView ?: return
+    val termView = terminalViewModel.terminalView ?: return
     val binder = terminalViewModel.sessionBinder ?: return
 
     val client = TerminalBackEnd(terminalViewModel)
     val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this)?.session ?: return
 
     session.updateTerminalSessionClient(client)
-    terminalView.attachSession(session)
-    terminalView.setTerminalViewClient(client)
+    termView.attachSession(session)
+    termView.setTerminalViewClient(client)
 
-    terminalView.apply {
+    termView.apply {
         post {
             keepScreenOn = true
             setFocusableInTouchMode(true)
             focusAndShowKeyboard(terminalViewModel)
         }
     }
-    terminalViewModel.virtualKeysView?.apply { virtualKeysViewClient = VirtualKeysListener(terminalView.mTermSession) }
+    terminalViewModel.virtualKeysView?.apply { virtualKeysViewClient = VirtualKeysListener(termView.mTermSession) }
 
     binder.getService()?.currentSession?.value = sessionId
 }
 
-private fun TerminalView.focusAndShowKeyboard(terminalViewModel: TerminalViewModel) {
+fun TerminalView.focusAndShowKeyboard(terminalViewModel: TerminalViewModel) {
     post {
         isFocusable = true
         isFocusableInTouchMode = true
         requestFocus()
-        val inputMethodManager = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-        inputMethodManager?.restartInput(this)
-        inputMethodManager?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+        val imm = context.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.restartInput(this)
+        imm?.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
     }
 }
 
-private fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
+fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
     this.onScreenUpdated()
-
     mEmulator?.mColors?.reset()
     TerminalColors.COLOR_SCHEME.updateWith(terminalColors)
 
@@ -490,12 +492,5 @@ private fun TerminalView.applyTerminalColors(onSurfaceColor: Int, surfaceColor: 
         set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor)
         set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
     }
-
-    invalidate()
-}
-INDEX_BACKGROUND, surfaceColor)
-        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
-    }
-
     invalidate()
 }

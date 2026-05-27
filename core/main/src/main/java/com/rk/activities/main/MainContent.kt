@@ -227,20 +227,20 @@ fun MainContent(
         }
 
         AnimatedVisibility(
-            visible = mainViewModel.showAiSheet,
+            visible = mainViewModel.showBottomPanel,
             enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
             exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            AiAgentSheet(
+            UnifiedToolSheet(
                 viewModel = mainViewModel,
-                onDismissRequest = { mainViewModel.showAiSheet = false }
+                onDismissRequest = { mainViewModel.showBottomPanel = false }
             )
         }
 
         InlineAgentBar(
             viewModel = mainViewModel,
-            visible = mainViewModel.showInlineAgent && !mainViewModel.showAiSheet,
+            visible = mainViewModel.showInlineAgent && !mainViewModel.showBottomPanel,
             onDismiss = { mainViewModel.showInlineAgent = false },
             modifier = Modifier.align(Alignment.BottomCenter),
         )

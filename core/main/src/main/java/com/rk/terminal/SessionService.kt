@@ -38,7 +38,7 @@ class SessionService : Service() {
 
         fun getService(): SessionService? = weakService.get()
 
-        fun createSession(id: SessionId, client: TerminalSessionClient, activity: Terminal): SessionInfo? {
+        fun createSession(id: SessionId, client: TerminalSessionClient, activity: android.app.Activity): SessionInfo? {
             val s = weakService.get() ?: return null
             return MkSession.createSession(activity, client, id).let {
                 val (session, pwd) = it
@@ -83,8 +83,17 @@ class SessionService : Service() {
         }
     }
 
+    companion object {
+        var instance = WeakReference<SessionService?>(null)
+            private set
+    }
+
     private val binder = SessionBinder(this)
     private val notificationManager by lazy { getSystemService(NotificationManager::class.java) }
+
+    fun getCurrentTerminalSession(): TerminalSession? {
+        return sessions[currentSession.value]
+    }
 
     override fun onBind(intent: Intent?): IBinder {
         return binder
@@ -97,6 +106,7 @@ class SessionService : Service() {
         if (wakeLock?.isHeld == true) {
             wakeLock?.release()
         }
+        instance.clear()
         super.onDestroy()
     }
 
@@ -110,6 +120,7 @@ class SessionService : Service() {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
+        instance = WeakReference(this)
         createNotificationChannel()
         val notification = createNotification()
         startForeground(1, notification)
