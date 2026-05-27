@@ -52,6 +52,7 @@ import com.rk.theme.currentTheme
 import com.rk.theme.gitAdded
 import com.rk.theme.gitConflicted
 import com.rk.theme.gitDeleted
+import com.rk.AppScope
 import com.rk.theme.gitModified
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import java.io.File
@@ -459,9 +460,7 @@ fun parseExtensions(input: String): List<String> {
 fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
     if (startTimeMillis == -1L) return null
 
-    val diff = (currentTimeMillis - startTimeMillis)
-    if (diff < 0) return null
-
+    val diff = currentTimeMillis - startTimeMillis
     val seconds = (diff / 1000).toInt()
     val minutes = seconds / 60
     val hours = minutes / 60
@@ -476,6 +475,4 @@ fun timeAgo(currentTimeMillis: Long, startTimeMillis: Long): String? {
         else -> plurals.time_days_ago.getQuantityString(days, days)
     }
 }
-tring(days, days)
-    }
-}
+

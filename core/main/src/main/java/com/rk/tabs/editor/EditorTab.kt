@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.rk.AppScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
@@ -68,6 +69,7 @@ import com.rk.lsp.LspConnector
 import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
 import com.rk.resources.getString
+import com.rk.AppScope
 import com.rk.resources.strings
 import com.rk.runner.currentRunner
 import com.rk.search.EditorSearchPanel
