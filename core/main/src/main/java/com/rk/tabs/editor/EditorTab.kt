@@ -446,7 +446,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         title = { Text(patch.title) },
                         text = {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(patch.filePath, style = MaterialTheme.typography.bodySmall)
+                                Text(patch.filePath, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                                 if (patch.oldText.isNotBlank()) {
                                     Text("Current", style = MaterialTheme.typography.labelMedium)
                                     Text(
@@ -455,8 +455,9 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                         fontFamily = FontFamily.Monospace,
                                         style = MaterialTheme.typography.bodySmall,
                                     )
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), alpha = 0.5f)
                                 }
-                                Text("Proposed", style = MaterialTheme.typography.labelMedium)
+                                Text("Proposed", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                                 Text(
                                     text = patch.newText,
                                     modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp).verticalScroll(rememberScrollState()),

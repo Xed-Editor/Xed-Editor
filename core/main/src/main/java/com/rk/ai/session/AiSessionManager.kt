@@ -179,7 +179,7 @@ object AiSessionManager {
             add(sandbox)
             add("/bin/bash")
             add(wrapperScript.absolutePath)
-            addAll(agent.buildArgs(extraArgs, workingDir, Settings.ai_model.takeIf { it.isNotBlank() }))
+            addAll(agent.buildArgs(extraArgs, workingDir, null))
         }
         return "/system/bin/sh" to arrayOf("sh", *command.toTypedArray())
     }

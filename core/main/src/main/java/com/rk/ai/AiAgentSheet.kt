@@ -224,7 +224,6 @@ fun AiAgentSheet(
                 isRunning = isRunning,
                 cwd = cwd.value,
                 agent = currentAgent,
-                model = Settings.ai_model.ifEmpty { currentAgent.defaultModel },
                 availableAgents = AiSessionManager.availableAgents(),
                 showAgentMenu = showAgentMenu,
                 onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
@@ -288,7 +287,7 @@ fun AiAgentSheet(
             IconButton(onClick = {
                 AiSessionManager.stopSession()
                 appendLog("Agent stopped.")
-            }, enabled = isRunning) {
+            }) {
                 Icon(Icons.Outlined.Close, contentDescription = "Stop", tint = colorScheme.error.copy(alpha = 0.7f))
             }
         },
@@ -308,7 +307,6 @@ private fun StatusBar(
     isRunning: Boolean,
     cwd: String,
     agent: AiAgent,
-    model: String,
     availableAgents: List<AiAgent>,
     showAgentMenu: Boolean,
     onToggleAgentMenu: () -> Unit,
@@ -395,19 +393,6 @@ private fun StatusBar(
                 }
             }
 
-            if (model.isNotBlank()) {
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = model,
-                    color = colorScheme.tertiary,
-                    style = MaterialTheme.typography.labelSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .background(colorScheme.tertiaryContainer.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
-                        .padding(horizontal = 5.dp, vertical = 2.dp),
-                )
-            }
             Spacer(Modifier.width(6.dp))
             Text(
                 text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
@@ -457,12 +442,16 @@ private fun StatusBar(
                         Text("Transcript", style = MaterialTheme.typography.labelSmall, color = colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                     }
                     HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f))
+                    val scrollState = rememberScrollState()
+                    LaunchedEffect(transcript) {
+                        if (showTranscript) scrollState.animateScrollTo(scrollState.maxValue)
+                    }
                     Text(
                         text = transcript,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(scrollState),
                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                         color = colorScheme.onSurface,
                     )

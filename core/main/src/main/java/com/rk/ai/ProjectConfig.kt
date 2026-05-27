@@ -10,7 +10,6 @@ import java.io.File
 
 data class ProjectAiConfig(
     val agent: String? = null,
-    val model: String? = null,
     val extraArgs: List<String>? = null,
 )
 
@@ -37,15 +36,11 @@ object ProjectConfigLoader {
             }
             AiSessionManager.switchAgent(agent.name)
         }
-        config.model?.let { model ->
-            if (model.isNotBlank()) Settings.ai_model = model
-        }
     }
 
     fun describeConfig(config: ProjectAiConfig): String = buildString {
         append("Project config: ")
         config.agent?.let { append("agent=$it ") }
-        config.model?.let { append("model=$it ") }
     }
 
     private fun findProjectRoot(workspacePath: String): File? {

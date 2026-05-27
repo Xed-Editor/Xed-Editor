@@ -41,10 +41,9 @@ object AiCompletionEngine {
 
         val customUrl = Settings.ai_completion_url.ifBlank { null }
         val customKey = Settings.ai_api_key.ifBlank { null }
-        val customModel = Settings.ai_completion_model.ifBlank { null }
 
-        if (customUrl != null && customKey != null && customModel != null) {
-            return ApiConfig(customUrl, customKey, customModel)
+        if (customUrl != null && customKey != null) {
+            return ApiConfig(customUrl, customKey, "custom")
         }
 
         return when (agentName) {
@@ -55,14 +54,14 @@ object AiCompletionEngine {
                 ApiConfig(
                     url = Settings.ai_completion_url.ifBlank { "https://api.litellm.ai/v1/chat/completions" },
                     apiKey = key,
-                    model = Settings.ai_completion_model.ifBlank { "deepseek/deepseek-v4-flash" },
+                    model = "deepseek/deepseek-v4-flash",
                 )
             }
             "gemini" -> {
                 val key = Settings.ai_api_key.ifBlank {
                     System.getenv("GEMINI_API_KEY") ?: System.getenv("GOOGLE_API_KEY") ?: return null
                 }
-                val model = Settings.ai_completion_model.ifBlank { "gemini-2.5-flash" }
+                val model = "gemini-2.0-flash"
                 ApiConfig(
                     url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key",
                     apiKey = key,
@@ -74,7 +73,7 @@ object AiCompletionEngine {
                 ApiConfig(
                     url = Settings.ai_completion_url.ifBlank { "https://api.openai.com/v1/chat/completions" },
                     apiKey = key,
-                    model = Settings.ai_completion_model.ifBlank { "gpt-4o" },
+                    model = "gpt-4o",
                 )
             }
         }
@@ -90,7 +89,8 @@ object AiCompletionEngine {
         val config = resolveConfig() ?: return@withContext null
 
         val lines = content.split("\n")
-        val prefixLines = lines.takeLast(50).dropLast(maxOf(0, lines.size - cursorLine - 1))
+        val currentLineIdx = cursorLine.coerceIn(0, lines.size - 1)
+        val prefixLines = lines.subList(maxOf(0, currentLineIdx - 50), currentLineIdx + 1)
         val prefix = prefixLines.joinToString("\n")
 
         val systemPrompt = "You are a code completion engine. Given the code context before the cursor, output ONLY the most likely next code. No explanation, no markdown, no backticks. Complete the current line or add the next logical line. Match existing code style and indentation. Keep under 80 characters. If unsure, output nothing."

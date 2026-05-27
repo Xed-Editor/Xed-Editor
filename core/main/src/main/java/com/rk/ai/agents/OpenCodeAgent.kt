@@ -5,15 +5,9 @@ object OpenCodeAgent : AiAgent {
     override val displayName: String = "OpenCode"
     override val cliBinaryName: String = "opencode-cli-headless"
     override val shellScriptName: String = "opencode-cli"
-    override val modelFlagName: String = "-m"
-    override val defaultModel: String = ""
 
-    override fun buildArgs(extraArgs: List<String>, workingDir: String, model: String?): List<String> =
+    override fun buildArgs(extraArgs: List<String>, workingDir: String): List<String> =
         buildList {
-            if (!model.isNullOrBlank()) {
-                add(modelFlagName)
-                add(model)
-            }
             if (extraArgs.isEmpty()) return@buildList
             val i = extraArgs.indexOf("--prompt-interactive")
             if (i >= 0 && i + 1 < extraArgs.size) {

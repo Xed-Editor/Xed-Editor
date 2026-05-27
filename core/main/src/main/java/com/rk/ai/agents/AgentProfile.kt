@@ -7,13 +7,9 @@ import com.rk.settings.Settings
 data class AgentProfile(
     val name: String,
     val agentType: String = "gemini",
-    val model: String = "",
     val extraArgs: String = "",
 ) {
-    fun displayLabel(): String = buildString {
-        append(name)
-        if (model.isNotBlank()) append(" ($model)")
-    }
+    fun displayLabel(): String = name
 }
 
 object AgentProfileManager {
@@ -49,13 +45,11 @@ object AgentProfileManager {
 
     fun applyProfile(profile: AgentProfile) {
         Settings.ai_agent = profile.agentType
-        Settings.ai_model = profile.model
         com.rk.ai.session.AiSessionManager.switchAgent(profile.agentType)
     }
 
     private fun defaultProfiles(): List<AgentProfile> = listOf(
-        AgentProfile(name = "Fast", agentType = "gemini", model = "gemini-2.5-flash"),
-        AgentProfile(name = "Pro", agentType = "gemini", model = "gemini-2.5-pro"),
-        AgentProfile(name = "OpenCode", agentType = "opencode", model = ""),
+        AgentProfile(name = "Gemini", agentType = "gemini"),
+        AgentProfile(name = "OpenCode", agentType = "opencode"),
     )
 }

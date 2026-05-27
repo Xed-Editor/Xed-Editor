@@ -40,7 +40,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
         val bridge = IdeBridge.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
         val agent = AiSessionManager.currentAgent
         val launcher = localBinDir().child(agent.shellScriptName).absolutePath
-        val agentArgs = agent.buildArgs(emptyList(), workspaceDir, Settings.ai_model.takeIf { it.isNotBlank() })
+        val agentArgs = agent.buildArgs(emptyList(), workspaceDir)
         val args = buildList {
                 add(launcher)
                 addAll(agentArgs)

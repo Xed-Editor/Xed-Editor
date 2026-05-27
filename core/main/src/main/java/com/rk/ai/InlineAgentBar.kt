@@ -87,6 +87,12 @@ fun InlineAgentBar(
                         shape = RoundedCornerShape(12.dp),
                         textStyle = MaterialTheme.typography.bodySmall,
                     )
+                    if (response != null) {
+                        Spacer(Modifier.width(8.dp))
+                        IconButton(onClick = { response = null }) {
+                            XedIcon(com.rk.icons.Icon.DrawableRes(com.rk.resources.drawables.delete), contentDescription = "Clear Response", modifier = Modifier.size(20.dp))
+                        }
+                    }
                     Spacer(Modifier.width(8.dp))
                     FilledTonalIconButton(
                         onClick = {
