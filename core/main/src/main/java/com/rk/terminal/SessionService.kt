@@ -13,7 +13,7 @@ import android.os.PowerManager
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
-import com.rk.activities.terminal.Terminal
+import com.rk.activities.main.MainActivity
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -168,7 +168,9 @@ class SessionService : Service() {
     }
 
     private fun createNotification(): Notification {
-        val intent = Intent(this, Terminal::class.java)
+        val intent = Intent(this, com.rk.activities.main.MainActivity::class.java).apply {
+            putExtra("open_terminal", true)
+        }
         val pendingIntent =
             PendingIntent.getActivity(
                 this,

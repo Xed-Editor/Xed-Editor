@@ -67,7 +67,14 @@ class MainViewModel : ViewModel() {
 
     var showBottomPanel by mutableStateOf(false)
     var bottomPanelMode by mutableStateOf(BottomPanelMode.AI)
+    var terminalCwd by mutableStateOf<String?>(null)
     
+    fun openTerminal(cwd: String? = null) {
+        terminalCwd = cwd
+        bottomPanelMode = BottomPanelMode.TERMINAL
+        showBottomPanel = true
+    }
+
     // Legacy alias for compatibility during migration
     var showAiSheet: Boolean
         get() = showBottomPanel && bottomPanelMode == BottomPanelMode.AI

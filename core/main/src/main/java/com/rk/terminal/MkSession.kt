@@ -1,10 +1,8 @@
 package com.rk.terminal
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Build
 import com.rk.activities.main.MainActivity
-import com.rk.activities.terminal.Terminal
 import com.rk.exec.pendingCommand
 import com.rk.file.FileWrapper
 import com.rk.file.child

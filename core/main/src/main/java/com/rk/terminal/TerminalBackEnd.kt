@@ -8,10 +8,10 @@ import android.view.inputmethod.InputMethodManager
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import android.app.Activity
-import com.rk.activities.terminal.Terminal
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
 import com.rk.terminal.virtualkeys.SpecialButton
+import com.rk.terminal.changeTerminalSession
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -123,26 +123,11 @@ class TerminalBackEnd(private val terminalViewModel: TerminalViewModel? = null) 
             binder.terminateSession(sessionId)
             
             if (binder.getService()?.sessionList?.isEmpty() == true) {
-                val terminalActivity = context as? Terminal
-                terminalActivity?.finish()
-                if (terminalActivity == null) {
-                    (context as? Activity)?.finish()
-                }
+                (context as? Activity)?.finish()
             } else {
-                val activity = context as? Terminal
-                if (activity != null) {
-                    activity.changeSession(binder.getService()?.sessionList?.first() ?: "", terminalViewModel!!)
-                } else {
-                    (context as? Activity)?.let { ctx ->
-                        val firstSession = binder.getService()?.sessionList?.firstOrNull() ?: return false
-                        val sessionBinder = binder
-                        val termView = terminalViewModel?.terminalView ?: return false
-                        val termClient = TerminalBackEnd(terminalViewModel)
-                        val newSession = sessionBinder.getSession(firstSession) ?: return false
-                        newSession.updateTerminalSessionClient(termClient)
-                        termView.attachSession(newSession)
-                        termView.setTerminalViewClient(termClient)
-                    }
+                val firstSession = binder.getService()?.sessionList?.firstOrNull() ?: return false
+                (context as? Activity)?.let { activity ->
+                    changeTerminalSession(firstSession, terminalViewModel!!, activity)
                 }
             }
             return true

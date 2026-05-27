@@ -1,7 +1,6 @@
 package com.rk.tabs.editor
 
 import android.content.Context
-import android.graphics.Typeface
 import android.util.Log
 import com.rk.resources.drawables
 import com.rk.icons.XedIcon
@@ -33,7 +32,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.blankj.utilcode.util.ClipboardUtils
 import com.rk.editor.FontCache
 import com.rk.settings.Settings
-import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.settings.terminal.TerminalCursorStyle
 import com.rk.terminal.virtualkeys.SpecialButton
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
@@ -42,6 +40,8 @@ import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
 import com.rk.utils.dpToPx
+import com.rk.terminal.applyTerminalSettings
+import com.rk.terminal.applyTerminalColors
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -338,7 +338,7 @@ private fun AgentCliSheetContent(
             // Main Content Area
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 if (showTerminal) {
-                    AgentSheetTerminal(session = session, modifier = Modifier.fillMaxSize(), showKeys = false)
+                    AgentSheetTerminal(session = session, modifier = Modifier.fillMaxSize(), showKeys = true)
                 } else {
                     content?.invoke(this@Column)
                 }
@@ -396,13 +396,8 @@ fun AgentSheetTerminal(
                     setTerminalViewClient(client)
                     session?.updateTerminalSessionClient(client)
                     
-                    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
-                    runCatching {
-                        val fontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
-                        val font = FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset) ?: Typeface.MONOSPACE
-                        setTypeface(font)
-                    }
-                    applyGeminiSheetTerminalColors(
+                    applyTerminalSettings(context)
+                    applyTerminalColors(
                         onSurfaceColor = colorScheme.onSurface.toArgb(),
                         surfaceColor = colorScheme.surface.toArgb(),
                         terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
@@ -413,7 +408,7 @@ fun AgentSheetTerminal(
                         val widthChanged = (right - left) != (oldRight - oldLeft)
                         val heightChanged = (bottom - top) != (oldBottom - oldTop)
                         if (widthChanged || heightChanged) {
-                            applyGeminiSheetTerminalColors(
+                            applyTerminalColors(
                                 onSurfaceColor = colorScheme.onSurface.toArgb(),
                                 surfaceColor = colorScheme.surface.toArgb(),
                                 terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
@@ -445,7 +440,7 @@ fun AgentSheetTerminal(
                     lastBoundSession = session
                 }
                 view.attachSession(session)
-                view.applyGeminiSheetTerminalColors(
+                view.applyTerminalColors(
                     onSurfaceColor = colorScheme.onSurface.toArgb(),
                     surfaceColor = colorScheme.surface.toArgb(),
                     terminalColors = if (isDarkMode) currentTheme.darkTerminalColors else currentTheme.lightTerminalColors,
@@ -477,16 +472,4 @@ fun AgentSheetTerminal(
             )
         }
     }
-}
-
-private fun TerminalView.applyGeminiSheetTerminalColors(onSurfaceColor: Int, surfaceColor: Int, terminalColors: Properties) {
-    onScreenUpdated()
-    mEmulator?.mColors?.reset()
-    TerminalColors.COLOR_SCHEME.updateWith(terminalColors)
-    mEmulator?.mColors?.mCurrentColors?.apply {
-        set(TextStyle.COLOR_INDEX_FOREGROUND, onSurfaceColor)
-        set(TextStyle.COLOR_INDEX_BACKGROUND, surfaceColor)
-        set(TextStyle.COLOR_INDEX_CURSOR, onSurfaceColor)
-    }
-    invalidate()
 }

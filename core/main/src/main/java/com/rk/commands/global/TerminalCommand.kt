@@ -1,8 +1,6 @@
 package com.rk.commands.global
 
-import android.content.Intent
 import android.view.KeyEvent
-import com.rk.activities.terminal.Terminal
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
@@ -25,9 +23,7 @@ class TerminalCommand(commandContext: CommandContext) : GlobalCommand(commandCon
         val activity = actionContext.currentActivity
         showTerminalNotice(activity) {
             val cwd = computeCwd()
-            val intent = Intent(activity, Terminal::class.java)
-            if (cwd != null) intent.putExtra("cwd", cwd)
-            activity.startActivity(intent)
+            commandContext.mainViewModel.openTerminal(cwd)
         }
     }
 

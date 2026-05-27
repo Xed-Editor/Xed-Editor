@@ -93,6 +93,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     suspend fun handleIntent(intent: Intent) {
+        if (intent.hasExtra("open_terminal")) {
+            val cwd = intent.getStringExtra("cwd")
+            withContext(Dispatchers.Main) {
+                viewModel.openTerminal(cwd)
+            }
+            setIntent(Intent())
+            return
+        }
+
         if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action) {
             if (intent.data == null) {
                 errorDialog(strings.invalid_intent.getFilledString(intent.toString()))

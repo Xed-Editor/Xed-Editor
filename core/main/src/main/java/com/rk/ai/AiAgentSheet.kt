@@ -373,21 +373,8 @@ fun UnifiedToolSheet(
                                         showSessionMenu = false
                                         terminalViewModel.terminalView?.let { termView ->
                                             val activity = termView.context as? android.app.Activity
-                                            if (activity is com.rk.activities.terminal.Terminal) {
-                                                activity.changeSession(sessionId, terminalViewModel)
-                                            } else if (activity != null) {
-                                                val sessionBinder = terminalViewModel.sessionBinder
-                                                if (sessionBinder != null) {
-                                                    service.currentSession.value = sessionId
-                                                    val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
-                                                    val newSession = sessionBinder.getSession(sessionId)
-                                                        ?: sessionBinder.createSession(sessionId, client, activity)?.session
-                                                    newSession?.let {
-                                                        it.updateTerminalSessionClient(client)
-                                                        termView.attachSession(it)
-                                                        termView.setTerminalViewClient(client)
-                                                    }
-                                                }
+                                            if (activity != null) {
+                                                com.rk.terminal.changeTerminalSession(sessionId, terminalViewModel, activity)
                                             }
                                         }
                                     },
@@ -449,7 +436,7 @@ fun UnifiedToolSheet(
             when (viewModel.bottomPanelMode) {
                 BottomPanelMode.AI -> {
                     if (aiSession != null && isAiRunning) {
-                        AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
+                        AgentSheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = true)
                     } else {
                         AgentEmptyState(
                             isRunning = isAiRunning,
@@ -465,8 +452,15 @@ fun UnifiedToolSheet(
                     ) {
                         com.rk.terminal.TerminalPanel(
                             terminalViewModel = terminalViewModel,
-                            showKeys = false
+                            showKeys = true,
+                            initialCwd = viewModel.terminalCwd,
                         )
+                        // Clear the terminalCwd after it's been used to avoid repeated session creation
+                        LaunchedEffect(viewModel.terminalCwd) {
+                            if (viewModel.terminalCwd != null) {
+                                viewModel.terminalCwd = null
+                            }
+                        }
                     }
                 }
             }

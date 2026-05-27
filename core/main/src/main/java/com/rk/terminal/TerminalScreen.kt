@@ -52,7 +52,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.activities.settings.SettingsRoutes
-import com.rk.activities.terminal.Terminal
 import com.rk.animations.NavigationAnimationTransitions
 import com.rk.editor.FontCache
 import com.rk.exec.pendingCommand
@@ -66,8 +65,10 @@ import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
+import android.app.Activity
 import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
+import com.termux.terminal.TerminalSession
 import com.rk.theme.LocalThemeHolder
 import com.rk.theme.ThemeHolder
 import com.rk.utils.dpToPx
@@ -79,30 +80,11 @@ import java.util.Properties
 import kotlinx.coroutines.launch
 
 @Composable
-fun TerminalScreen(modifier: Modifier = Modifier, terminalViewModel: TerminalViewModel) {
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = "terminal",
-        enterTransition = { NavigationAnimationTransitions.enterTransition },
-        exitTransition = { NavigationAnimationTransitions.exitTransition },
-        popEnterTransition = { NavigationAnimationTransitions.popEnterTransition },
-        popExitTransition = { NavigationAnimationTransitions.popExitTransition },
-    ) {
-        composable("terminal") {
-            TerminalScreenInternal(terminalViewModel = terminalViewModel, navController = navController)
-        }
-        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
-        composable(SettingsRoutes.TerminalFontScreen.route) { TerminalFontScreen() }
-        composable(SettingsRoutes.TerminalExtraKeys.route) { TerminalExtraKeys() }
-    }
-}
-
-@Composable
 fun TerminalPanel(
     modifier: Modifier = Modifier,
     terminalViewModel: TerminalViewModel,
     showKeys: Boolean = true,
+    initialCwd: String? = null,
 ) {
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
     val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
@@ -111,7 +93,7 @@ fun TerminalPanel(
 
     Column(modifier = modifier.fillMaxSize()) {
         if (terminalViewModel.sessionBinder?.getService() != null) {
-            TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalViewModel)
+            TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalViewModel, initialCwd)
         } else {
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 Text("Connecting to terminal service...", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -143,49 +125,6 @@ fun TerminalPanel(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalViewModel: TerminalViewModel, navController: NavController) {
-    val scope = rememberCoroutineScope()
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    DisposableEffect(Unit) { onDispose { keyboardController?.hide() } }
-
-    Box(modifier = Modifier.imePadding()) {
-        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-        val configuration = LocalConfiguration.current
-        val screenWidthDp = configuration.screenWidthDp
-        val drawerWidth = (screenWidthDp * 0.84).dp
-
-        BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
-
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            gesturesEnabled = drawerState.isOpen,
-            drawerContent = { TerminalDrawer(drawerWidth, terminalViewModel, navController) },
-            content = {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(text = stringResource(strings.terminal)) },
-                            navigationIcon = {
-                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                    Icon(Icons.Default.Menu, null)
-                                }
-                            },
-                        )
-                    }
-                ) { paddingValues ->
-                    TerminalPanel(
-                        modifier = Modifier.padding(paddingValues),
-                        terminalViewModel = terminalViewModel
-                    )
-                }
-            },
-        )
-    }
-}
-
 @Composable
 private fun ColumnScope.TerminalView(
     isDarkMode: Boolean,
@@ -193,6 +132,7 @@ private fun ColumnScope.TerminalView(
     surfaceColor: Int,
     onSurfaceColor: Int,
     terminalViewModel: TerminalViewModel,
+    initialCwd: String? = null,
 ) {
     AndroidView(
         factory = { context ->
@@ -211,7 +151,7 @@ private fun ColumnScope.TerminalView(
 
                 terminalViewModel.terminalView = this
                 settingsTerminalView = WeakReference(this)
-                setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
+                applyTerminalSettings(context)
                 val client = TerminalBackEnd(terminalViewModel)
 
                 val activity = context as? android.app.Activity
@@ -219,7 +159,13 @@ private fun ColumnScope.TerminalView(
                 val service = binder?.getService()
 
                 if (activity != null && binder != null && service != null) {
-                    val session = if (pendingCommand != null) {
+                    val session = if (initialCwd != null) {
+                        val sessionId = File(initialCwd).name + " #${service.sessionList.size + 1}"
+                        val intent = android.content.Intent().apply { putExtra("cwd", initialCwd) }
+                        val info = binder.createSession(sessionId, client, activity, intent)
+                        service.currentSession.value = info?.id ?: service.currentSession.value
+                        info?.session
+                    } else if (pendingCommand != null) {
                         service.currentSession.value = pendingCommand!!.id
                         binder.getSession(pendingCommand!!.id)
                             ?: binder.createSession(pendingCommand!!.id, client, activity)?.session
@@ -306,109 +252,12 @@ private fun ColumnScope.TerminalView(
     )
 }
 
-@Composable
-private fun TerminalDrawer(drawerWidth: Dp, terminalViewModel: TerminalViewModel, navController: NavController) {
-    ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(text = stringResource(strings.sessions), style = MaterialTheme.typography.titleLarge)
-                Row(horizontalArrangement = Arrangement.End) {
-                    IconButton(
-                        onClick = {
-                            fun generateUniqueString(existingStrings: List<String>): String {
-                                var index = 1
-                                var newString: String
-                                do {
-                                    newString = "main #$index"
-                                    index++
-                                } while (newString in existingStrings)
-                                return newString
-                            }
-                            terminalViewModel.terminalView?.let {
-                                val client = TerminalBackEnd(terminalViewModel)
-                                val activity = it.context as? android.app.Activity ?: return@let
-                                terminalViewModel.sessionBinder?.createSession(
-                                    generateUniqueString(terminalViewModel.sessionBinder?.getService()?.sessionList ?: emptyList()),
-                                    client,
-                                    activity,
-                                )
-                            }
-                        }
-                    ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(strings.add_session))
-                    }
-
-                    IconButton(onClick = { navController.navigate(SettingsRoutes.TerminalSettings.route) }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = stringResource(strings.settings),
-                        )
-                    }
-                }
-            }
-
-            val service = terminalViewModel.sessionBinder?.getService()
-            service?.sessionList?.let {
-                LazyColumn {
-                    items(it) { sessionId ->
-                        val isSelected = sessionId == service.currentSession.value
-                        NavigationDrawerItem(
-                            label = { Text(text = sessionId) },
-                            selected = isSelected,
-                            onClick = { 
-                                val activity = terminalViewModel.terminalView?.context as? Terminal
-                                activity?.changeSession(sessionId, terminalViewModel) 
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                            badge = {
-                                IconButton(
-                                    onClick = {
-                                        if (isSelected) {
-                                            val index = service.sessionList.indexOf(sessionId)
-                                            val sessionBefore = service.sessionList.getOrNull(index - 1)
-                                            val sessionAfter = service.sessionList.getOrNull(index + 1)
-                                            val neighborSession = sessionBefore ?: sessionAfter
-                                            neighborSession?.let { 
-                                                val activity = terminalViewModel.terminalView?.context as? Terminal
-                                                activity?.changeSession(it, terminalViewModel) 
-                                            }
-                                        }
-
-                                        terminalViewModel.sessionBinder?.terminateSession(sessionId)
-
-                                        if (service.sessionList.isEmpty()) {
-                                            val activity = terminalViewModel.terminalView?.context as? Terminal
-                                            activity?.finish()
-                                            service.actionExit()
-                                        }
-                                    },
-                                    modifier = Modifier.size(24.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Delete,
-                                        contentDescription = stringResource(strings.delete),
-                                        modifier = Modifier.size(20.dp),
-                                    )
-                                }
-                            },
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-fun Terminal.changeSession(sessionId: String, terminalViewModel: TerminalViewModel) {
+fun changeTerminalSession(sessionId: String, terminalViewModel: TerminalViewModel, activity: Activity) {
     val termView = terminalViewModel.terminalView ?: return
     val binder = terminalViewModel.sessionBinder ?: return
 
     val client = TerminalBackEnd(terminalViewModel)
-    val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, this)?.session ?: return
+    val session = binder.getSession(sessionId) ?: binder.createSession(sessionId, client, activity)?.session ?: return
 
     session.updateTerminalSessionClient(client)
     termView.attachSession(session)
@@ -424,6 +273,23 @@ fun Terminal.changeSession(sessionId: String, terminalViewModel: TerminalViewMod
     terminalViewModel.virtualKeysView?.apply { virtualKeysViewClient = VirtualKeysListener(termView.mTermSession) }
 
     binder.getService()?.currentSession?.value = sessionId
+}
+
+fun TerminalView.applyTerminalSettings(context: Context) {
+    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
+    val fontFile = sandboxDir().child("etc/font.ttf")
+    if (fontFile.exists()) {
+        setTypeface(Typeface.createFromFile(fontFile))
+    } else {
+        val fontPath = Settings.terminal_font_path
+        val font = if (fontPath.isNotEmpty()) {
+            FontCache.getTypeface(context, fontPath, Settings.is_terminal_font_asset)
+                ?: FontCache.getTypeface(context, com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH, true)
+        } else {
+            FontCache.getTypeface(context, com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH, true)
+        }
+        setTypeface(font)
+    }
 }
 
 fun TerminalView.focusAndShowKeyboard(terminalViewModel: TerminalViewModel) {
