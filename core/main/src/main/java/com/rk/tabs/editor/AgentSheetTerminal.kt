@@ -3,6 +3,8 @@ package com.rk.tabs.editor
 import android.content.Context
 import android.graphics.Typeface
 import android.util.Log
+import com.rk.resources.drawables
+import com.rk.icons.XedIcon
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
@@ -328,7 +330,7 @@ private fun AgentCliSheetContent(
                 ) {
                     controls?.invoke(this)
                     IconButton(onClick = onDismissRequest, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Outlined.Close, contentDescription = "Close", tint = colorScheme.onSurfaceVariant)
+                        XedIcon(com.rk.icons.Icon.DrawableRes(drawables.close), contentDescription = "Close", tint = colorScheme.onSurfaceVariant)
                     }
                 }
             }
