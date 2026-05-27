@@ -663,13 +663,6 @@ private fun StatusBar(
                         ) {
                             Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
                             Spacer(Modifier.width(6.dp))
-                            Icon(
-                                if (mode == BottomPanelMode.AI) Icons.Outlined.Psychology else Icons.Outlined.Terminal,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
-                            )
-                            Spacer(Modifier.width(4.dp))
                             Text(
                                 text = if (mode == BottomPanelMode.AI) agent.displayName else "Terminal",
                                 color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
@@ -909,12 +902,6 @@ private fun QuickActions(
             VerticalDivider(modifier = Modifier.height(18.dp), color = colorScheme.outlineVariant)
             Spacer(Modifier.width(4.dp))
 
-            ActionChip(
-                icon = { Icon(Icons.Outlined.Sync, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Sync",
-                onClick = { onAction("/sync") },
-                color = colorScheme.surfaceVariant,
-            )
             ActionChip(
                 icon = { Icon(Icons.Outlined.FileUpload, contentDescription = null, modifier = Modifier.size(14.dp)) },
                 label = "Export",

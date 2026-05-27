@@ -23,6 +23,7 @@ import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 object MkSession {
@@ -141,7 +142,7 @@ object MkSession {
 
         val actualShell: String
         val actualArgs: Array<String> =
-            if (runBlocking { getNextStage(activity) } == NEXT_STAGE.EXTRACTION) {
+            if (runBlocking(Dispatchers.IO) { getNextStage(activity) } == NEXT_STAGE.EXTRACTION) {
                 actualShell = "/system/bin/sh"
                 mutableListOf("-c", setupSH.absolutePath, *args).toTypedArray()
             } else {
