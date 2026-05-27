@@ -5,6 +5,8 @@ import com.rk.ai.IdeBridge
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 import com.rk.utils.application
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GetIdeInfoTool : BaseMcpTool() {
     override fun getName(): String = "getIdeInfo"
