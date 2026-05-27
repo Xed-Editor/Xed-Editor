@@ -108,6 +108,7 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(libs.compose.dnd)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.kotlinx.coroutines)
     implementation(libs.androidsvg.aar)
     implementation(libs.ec4j.core)
     implementation(libs.kotlinx.serialization.json)

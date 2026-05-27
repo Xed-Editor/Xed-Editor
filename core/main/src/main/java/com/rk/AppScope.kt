@@ -1,7 +1,8 @@
 package com.rk
 
+import com.rk.AppDispatchers
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
@@ -12,7 +13,7 @@ import kotlinx.coroutines.cancel
  */
 object AppScope : CoroutineScope {
     private val job = SupervisorJob()
-    override val coroutineContext = AppDispatchers.Default + job
+    override val coroutineContext: CoroutineContext = AppDispatchers.DefaultDispatcher + job
 
     /**
      * Cancels all coroutines running in this scope.

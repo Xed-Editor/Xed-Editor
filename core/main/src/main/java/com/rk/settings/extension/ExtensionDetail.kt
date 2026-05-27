@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
-import com.rk.App.Companion.extensionManager
+import com.rk.XedManager
 import com.rk.components.compose.preferences.base.RefreshablePreferenceLayout
 import com.rk.extension.Extension
 import com.rk.icons.Icon
@@ -81,7 +81,7 @@ fun ExtensionDetail(extension: Extension?) {
         } else {
             var installState by remember {
                 mutableStateOf(
-                    if (extensionManager.isInstalled(extension.id)) {
+                    if (XedManager.extensionManager.isInstalled(extension.id)) {
                         InstallState.Installed
                     } else {
                         InstallState.Idle

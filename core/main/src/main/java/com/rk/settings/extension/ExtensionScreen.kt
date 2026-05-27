@@ -52,7 +52,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rk.App.Companion.extensionManager
+import com.rk.XedManager
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -100,8 +100,8 @@ fun ExtensionScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             runCatching {
-                extensionManager.indexLocalExtensions()
-                extensionManager.indexStoreExtensions()
+                XedManager.extensionManager.indexLocalExtensions()
+                XedManager.extensionManager.indexStoreExtensions()
             }
         }
     }
@@ -116,9 +116,9 @@ fun ExtensionScreen(navController: NavController) {
         remember(selectedCategory) {
             derivedStateOf {
                 when (selectedCategory) {
-                    ExtensionCategories.ALL -> extensionManager.localExtensions + extensionManager.storeExtension
-                    ExtensionCategories.LOCAL -> extensionManager.localExtensions
-                    ExtensionCategories.STORE -> extensionManager.storeExtension
+                    ExtensionCategories.ALL -> XedManager.extensionManager.localExtensions + XedManager.extensionManager.storeExtension
+                    ExtensionCategories.LOCAL -> XedManager.extensionManager.localExtensions
+                    ExtensionCategories.STORE -> XedManager.extensionManager.storeExtension
                 }.map { it.value }
             }
         }
@@ -137,7 +137,7 @@ fun ExtensionScreen(navController: NavController) {
     LaunchedEffect(refreshKey, selectedCategory) {
         if (selectedCategory == ExtensionCategories.STORE) return@LaunchedEffect
         isIndexing = true
-        extensionManager.indexLocalExtensions()
+        XedManager.extensionManager.indexLocalExtensions()
         isIndexing = false
         isRefreshing = false
     }
@@ -146,7 +146,7 @@ fun ExtensionScreen(navController: NavController) {
         if (selectedCategory == ExtensionCategories.LOCAL) return@LaunchedEffect
         runCatching {
                 isFetching = true
-                extensionManager.indexStoreExtensions()
+                XedManager.extensionManager.indexStoreExtensions()
             }
             .also {
                 isFetching = false
@@ -213,7 +213,7 @@ fun ExtensionScreen(navController: NavController) {
             items(sortedExtension, key = { it.id }) { extension ->
                 var installState by remember {
                     mutableStateOf(
-                        if (extensionManager.isInstalled(extension.id)) {
+                        if (XedManager.extensionManager.isInstalled(extension.id)) {
                             InstallState.Installed
                         } else {
                             InstallState.Idle

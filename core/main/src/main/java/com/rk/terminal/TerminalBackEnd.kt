@@ -136,9 +136,12 @@ class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalVi
                 (context as? Activity)?.finish()
             } else {
                 val firstSession = binder.getService()?.sessionList?.firstOrNull() ?: return false
-                (context as? Activity)?.let { activity ->
-                    terminalViewModel?.viewModelScope?.launch(com.rk.AppDispatchers.Main) {
-                        changeTerminalSession(firstSession, terminalViewModel, activity)
+                val tvm = terminalViewModel
+                if (tvm != null) {
+                    (context as? Activity)?.let { activity ->
+                        tvm.viewModelScope.launch(com.rk.AppDispatchers.Main) {
+                            changeTerminalSession(firstSession, tvm, activity)
+                        }
                     }
                 }
             }

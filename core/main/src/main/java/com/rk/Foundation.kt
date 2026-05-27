@@ -1,9 +1,10 @@
 package com.rk
 
-import android.util.Log
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rk.extension.ExtensionManager
@@ -11,6 +12,7 @@ import com.rk.icons.pack.IconPackManager
 import java.lang.ref.WeakReference
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.*
 
 /**
  * Foundation utilities for the application.
@@ -47,8 +49,8 @@ object XedManager {
 /**
  * Extension to access the application instance safely.
  */
-val Context.app: Application
-    get() = applicationContext as Application
+val android.content.Context.app: android.app.Application
+    get() = applicationContext as android.app.Application
 
 /**
  * Centralized logger for the application.
@@ -66,7 +68,7 @@ object XedLog {
 object AppDispatchers {
     var IO: CoroutineDispatcher = Dispatchers.IO
     var Main: CoroutineDispatcher = Dispatchers.Main
-    var Default: CoroutineDispatcher = Dispatchers.Default
+    var DefaultDispatcher: CoroutineDispatcher = Dispatchers.Default
     var Unconfined: CoroutineDispatcher = Dispatchers.Unconfined
 }
 

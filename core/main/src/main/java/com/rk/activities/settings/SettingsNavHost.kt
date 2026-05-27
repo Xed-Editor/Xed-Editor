@@ -106,7 +106,8 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             arguments = listOf(navArgument("extensionId", builder = { type = NavType.StringType })),
         ) {
             val extensionId = it.arguments?.getString("extensionId")
-            val extension = extensionId?.let { App.extensionManager.getExtension(it) }
+                                val extension = extensionId?.let { com.rk.XedManager.extensionManager.getExtension(it) }
+
             ExtensionDetail(extension)
         }
         composable(SettingsRoutes.Git.route) { GitSettings() }

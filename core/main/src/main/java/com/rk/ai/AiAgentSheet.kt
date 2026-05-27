@@ -51,8 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.activities.main.MainActivity
-import com.rk.activities.main.MainActivity
-import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.BottomPanelMode
 import com.rk.ai.agents.AiAgent

@@ -10,11 +10,9 @@ import com.rk.AppDispatchers
 import com.rk.withMain
 import com.rk.safeLaunch
 import com.rk.settings.Settings
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.rk.commands.Command
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 
 enum class BottomPanelMode {
     AI, TERMINAL

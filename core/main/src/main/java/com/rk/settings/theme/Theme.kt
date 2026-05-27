@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.App.Companion.iconPackManager
+import com.rk.XedManager.iconPackManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.components.BottomSheetContent
@@ -179,7 +179,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                 },
             )
 
-            iconPackManager.iconPacks.forEach { (id, iconPack) ->
+            for ((id, iconPack) in iconPackManager.iconPacks) {
                 val iconPackInfo = iconPack.info
 
                 SettingsToggle(

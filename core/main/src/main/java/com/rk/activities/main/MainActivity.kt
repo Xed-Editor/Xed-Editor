@@ -7,6 +7,11 @@ import android.view.KeyEvent
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.*
+import androidx.lifecycle.*
+import androidx.navigation.compose.*
 import com.rk.BaseActivity
 import com.rk.commands.KeybindingsManager
 import com.rk.file.FileManager

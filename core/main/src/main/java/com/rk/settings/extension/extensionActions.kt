@@ -34,7 +34,7 @@ suspend fun runExtensionUninstallAction(
     updateInstallState: (InstallState) -> Unit,
     activity: AppCompatActivity?,
 ) {
-    App.extensionManager.uninstallExtension(extension.id).onFailure {
+    com.rk.XedManager.extensionManager.uninstallExtension(extension.id).onFailure {
         errorDialog(it, activity)
         return
     }
@@ -58,7 +58,7 @@ suspend fun runExtensionInstallAction(
             loading.setMessage(strings.installing.getString())
 
             val result =
-                App.extensionManager.installStoreExtension(context, extension).getOrElse {
+                com.rk.XedManager.extensionManager.installStoreExtension(context, extension).getOrElse {
                     loading.hide()
                     errorDialog(it.message ?: strings.unknown_error.getString(), activity)
                     updateInstallState(InstallState.Idle)
@@ -101,7 +101,7 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                         loading.setMessage(strings.installing.getString())
                     }
 
-                    val result = App.extensionManager.installExtensionFromZip(fileObject)
+                    val result = com.rk.XedManager.extensionManager.installExtensionFromZip(fileObject)
 
                     withContext(Dispatchers.Main) {
                         handleInstallResult(result, activity) { ext ->

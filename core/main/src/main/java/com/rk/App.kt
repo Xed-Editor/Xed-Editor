@@ -34,9 +34,7 @@ import com.rk.utils.getTempDir
 import com.rk.xededitor.BuildConfig
 import java.util.Locale
 import java.util.concurrent.Executors
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
@@ -68,7 +66,7 @@ class App : Application() {
         val extensionManager = XedManager.extensionManager
         val iconPackManager = XedManager.iconPackManager
 
-        AppScope.safeLaunch(AppDispatchers.IO) {
+        AppScope.safeLaunch(context = AppDispatchers.IO) {
             launch(AppDispatchers.IO) {
                 extensionManager.indexLocalExtensions()
                 extensionManager.loadAllExtensions()
