@@ -143,7 +143,7 @@ private fun ColumnScope.TerminalView(
     initialCwd: String? = null,
 ) {
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val activity = context as? android.app.Activity
     
     AndroidView(

@@ -11,12 +11,15 @@ import android.app.Activity
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
 import com.rk.terminal.virtualkeys.SpecialButton
+import com.rk.AppDispatchers
+import com.rk.AppScope
 import com.rk.terminal.changeTerminalSession
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 import java.lang.ref.WeakReference
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -134,8 +137,8 @@ class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalVi
             } else {
                 val firstSession = binder.getService()?.sessionList?.firstOrNull() ?: return false
                 (context as? Activity)?.let { activity ->
-                    com.rk.AppScope.launch(com.rk.AppDispatchers.Main) {
-                        changeTerminalSession(firstSession, terminalViewModel!!, activity)
+                    terminalViewModel?.viewModelScope?.launch(com.rk.AppDispatchers.Main) {
+                        changeTerminalSession(firstSession, terminalViewModel, activity)
                     }
                 }
             }
