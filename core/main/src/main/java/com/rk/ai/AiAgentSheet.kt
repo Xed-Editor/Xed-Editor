@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.*
@@ -256,7 +257,7 @@ fun UnifiedToolSheet(
                     Tab(
                         selected = viewModel.bottomPanelMode == BottomPanelMode.AI,
                         onClick = { viewModel.bottomPanelMode = BottomPanelMode.AI },
-                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), null, modifier = Modifier.size(18.dp)) },
+                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(18.dp)) },
                         text = { Text("AI Agent", style = MaterialTheme.typography.labelMedium) },
                         selectedContentColor = colorScheme.primary,
                         unselectedContentColor = colorScheme.onSurfaceVariant
@@ -264,7 +265,7 @@ fun UnifiedToolSheet(
                     Tab(
                         selected = viewModel.bottomPanelMode == BottomPanelMode.TERMINAL,
                         onClick = { viewModel.bottomPanelMode = BottomPanelMode.TERMINAL },
-                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.terminal), null, modifier = Modifier.size(18.dp)) },
+                        icon = { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.terminal), modifier = Modifier.size(18.dp)) },
                         text = { Text("Terminal", style = MaterialTheme.typography.labelMedium) },
                         selectedContentColor = colorScheme.primary,
                         unselectedContentColor = colorScheme.onSurfaceVariant
@@ -369,7 +370,7 @@ fun UnifiedToolSheet(
                                     }
                                 },
                                 leadingIcon = if (sessionId == service.currentSession.value) {
-                                    { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), null, modifier = Modifier.size(16.dp)) }
+                                    { XedIcon(com.rk.icons.Icon.DrawableRes(drawables.auto_fix), modifier = Modifier.size(16.dp)) }
                                 } else null
                             )
                         }
@@ -396,7 +397,7 @@ fun UnifiedToolSheet(
                     // Navigate to terminal settings - this might need careful handling if not in Terminal activity
                     // For now, let's keep it simple
                 }) {
-                    Icon(Icons.Outlined.Settings, contentDescription = "Settings", tint = colorScheme.onSurfaceVariant)
+                    XedIcon(com.rk.icons.Icon.DrawableRes(drawables.settings), contentDescription = "Settings", tint = colorScheme.onSurfaceVariant)
                 }
             }
         },

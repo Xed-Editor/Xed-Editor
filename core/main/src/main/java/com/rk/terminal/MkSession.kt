@@ -14,7 +14,6 @@ import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
-import com.rk.terminal.SessionService.SessionPwd
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
 import com.rk.utils.isFDroid
