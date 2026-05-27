@@ -1,6 +1,10 @@
+package com.rk.terminal
+
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import com.rk.activities.main.MainActivity
+import com.rk.activities.terminal.Terminal
 import com.rk.exec.pendingCommand
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -10,6 +14,7 @@ import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
+import com.rk.terminal.SessionService.SessionPwd
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
 import com.rk.utils.isFDroid
@@ -134,6 +139,7 @@ object MkSession {
             }
 
         val actualShell: String
+        val installNextStage = (activity as? Terminal)?.installNextStage
         val actualArgs: Array<String> =
             if (installNextStage != null && installNextStage == NEXT_STAGE.EXTRACTION) {
                 actualShell = "/system/bin/sh"

@@ -13,14 +13,15 @@ import com.termux.view.TerminalView
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import java.lang.ref.WeakReference
 
+var terminalView = WeakReference<TerminalView?>(null)
+
 class TerminalViewModel : ViewModel() {
     var sessionBinder by mutableStateOf<SessionService.SessionBinder?>(null)
     var isBound by mutableStateOf(false)
     
-    private var _terminalView = WeakReference<TerminalView?>(null)
     var terminalView: TerminalView?
-        get() = _terminalView.get()
-        set(value) { _terminalView = WeakReference(value) }
+        get() = com.rk.terminal.terminalView.get()
+        set(value) { com.rk.terminal.terminalView = WeakReference(value) }
 
     private var _virtualKeysView = WeakReference<VirtualKeysView?>(null)
     var virtualKeysView: VirtualKeysView?
@@ -55,7 +56,7 @@ class TerminalViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         // Ensure references are cleared
-        _terminalView.clear()
+        com.rk.terminal.terminalView = WeakReference(null)
         _virtualKeysView.clear()
     }
 }
