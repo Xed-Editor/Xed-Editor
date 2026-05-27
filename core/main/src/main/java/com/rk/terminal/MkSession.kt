@@ -141,7 +141,7 @@ object MkSession {
 
         val actualShell: String
         val actualArgs: Array<String> =
-            if (getNextStage() == NEXT_STAGE.EXTRACTION) {
+            if (runBlocking { getNextStage(activity) } == NEXT_STAGE.EXTRACTION) {
                 actualShell = "/system/bin/sh"
                 mutableListOf("-c", setupSH.absolutePath, *args).toTypedArray()
             } else {

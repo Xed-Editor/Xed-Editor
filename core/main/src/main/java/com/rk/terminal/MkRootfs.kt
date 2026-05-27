@@ -14,7 +14,7 @@ enum class NEXT_STAGE {
     EXTRACTION,
 }
 
-suspend fun CoroutineScope.getNextStage(context: Context): NEXT_STAGE {
+suspend fun getNextStage(context: Context): NEXT_STAGE {
     if (isMainThread()) {
         throw RuntimeException("IO operation on the main thread")
     }
