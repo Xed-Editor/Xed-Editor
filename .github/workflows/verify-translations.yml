@@ -1,13 +1,5 @@
 name: Translation Safety Check
 
-on:
-  push:
-    paths:
-      - "**/strings.xml"
-  pull_request:
-    paths:
-      - "**/strings.xml"
-
 jobs:
   scan-translations:
     runs-on: ubuntu-latest
