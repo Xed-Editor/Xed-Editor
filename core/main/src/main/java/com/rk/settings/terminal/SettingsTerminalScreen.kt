@@ -292,7 +292,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 showSwitch = false,
                 sideEffect = {
                     dialog(
-                        context = activity,
+                        activity = activity,
                         title = strings.attention.getString(),
                         msg = strings.uninstall_terminal_warning.getString(),
                         onCancel = {},
@@ -380,7 +380,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 onCheckedChange = {
                     if (it) {
                         dialog(
-                            context = activity,
+                            activity = activity,
                             title = strings.attention.getString(),
                             msg = strings.saf_expose_warning.getString(),
                             okString = strings.continue_action,

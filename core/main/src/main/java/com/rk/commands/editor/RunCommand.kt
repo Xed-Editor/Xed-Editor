@@ -29,7 +29,7 @@ class RunCommand : EditorCommand() {
         DefaultScope.launch {
             Settings.runs += 1
             RunnerManager.run(
-                context = activity,
+                activity = activity,
                 fileObject = editorTab.file,
                 onMultipleRunners = {
                     editorTab.editorState.showRunnerDialog = true

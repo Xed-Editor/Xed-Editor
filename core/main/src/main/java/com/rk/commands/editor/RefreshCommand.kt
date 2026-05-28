@@ -19,7 +19,7 @@ class RefreshCommand : EditorCommand() {
         val currentTab = editorActionContext.editorTab
         if (currentTab.editorState.isDirty) {
             dialog(
-                context = editorActionContext.currentActivity,
+                activity = editorActionContext.currentActivity,
                 title = strings.attention.getString(),
                 msg = strings.ask_refresh.getString(),
                 okString = strings.refresh,

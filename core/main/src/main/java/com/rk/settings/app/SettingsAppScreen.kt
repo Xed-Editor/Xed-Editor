@@ -157,7 +157,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 onSwitch = {
                     if (it) {
                         dialog(
-                            context = activity,
+                            activity = activity,
                             title = strings.attention.getString(),
                             msg = strings.debug_mode_warn.getString(),
                             onCancel = { InbuiltFeatures.debugMode.setEnable(false) },

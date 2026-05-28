@@ -205,7 +205,7 @@ fun Activity.handleSupport() {
 
 private fun Activity.showCombinedDonationDialog() {
     dialog(
-        context = this,
+        activity = this,
         title = strings.enjoying_xed.getString(),
         msg = strings.support_message.getFilledString(Settings.saves.toString(), Settings.runs.toString()),
         okString = strings.yes_support,

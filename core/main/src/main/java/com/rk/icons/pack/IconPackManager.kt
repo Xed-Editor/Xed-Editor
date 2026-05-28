@@ -62,7 +62,7 @@ class IconPackManager(private val context: Application) {
         val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
         if (iconPackManifest.minAppVersion != null && iconPackManifest.minAppVersion.toLong() > currentVersionCode) {
             dialog(
-                context = SettingsActivity.instance,
+                activity = SettingsActivity.instance,
                 title = strings.warning.getString(),
                 msg = strings.incompatible_theme_warning.getString(),
                 cancelString = strings.cancel,

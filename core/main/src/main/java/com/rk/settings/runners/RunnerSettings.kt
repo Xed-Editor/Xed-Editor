@@ -21,7 +21,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +43,10 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.file.FileWrapper
 import com.rk.icons.Error
+import com.rk.icons.Icon
+import com.rk.icons.XedIcon
 import com.rk.icons.XedIcons
+import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.RunnerManager
@@ -150,15 +152,20 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
         if (RunnerManager.extensionRunners.isNotEmpty()) {
             PreferenceGroup(heading = stringResource(strings.ext)) {
                 RunnerManager.extensionRunners.forEach { runner ->
-                    key(runner.id) {
-                        SettingsToggle(
-                            label = runner.label,
-                            description = runner.description,
-                            default = runner.isEnabled(),
-                            sideEffect = { runner.setEnabled(it) },
-                            onClick = runner.onConfigure,
-                        )
-                    }
+                    SettingsToggle(
+                        label = runner.label,
+                        description = runner.description,
+                        startWidget = {
+                            XedIcon(
+                                icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
+                                contentDescription = null,
+                                modifier = Modifier.padding(start = 16.dp),
+                            )
+                        },
+                        default = runner.isEnabled(),
+                        sideEffect = { runner.setEnabled(it) },
+                        onClick = runner.onConfigure,
+                    )
                 }
             }
         }

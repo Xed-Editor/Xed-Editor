@@ -214,7 +214,7 @@ fun isChinaDevice(context: Context): Boolean {
 fun showTerminalNotice(activity: Activity, onOk: () -> Unit) {
     if (isChinaDevice(activity) && !Settings.terminal_virus_notice) {
         dialog(
-            context = activity,
+            activity = activity,
             title = strings.attention.getString(),
             msg = strings.terminal_virus_notice.getString(),
             onOk = {

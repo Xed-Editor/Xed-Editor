@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -132,7 +133,10 @@ fun LogScreen(
                                     trailingIcon = {
                                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownMenuExpanded)
                                     },
-                                    modifier = Modifier.menuAnchor().fillMaxWidth().height(42.dp),
+                                    modifier =
+                                        Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                                            .fillMaxWidth()
+                                            .height(42.dp),
                                 )
 
                                 ExposedDropdownMenu(
@@ -211,7 +215,7 @@ private fun reportLogs(logText: String, issueTitle: String, copyLabel: String) {
         val trimmedUrl =
             urlStart + URLEncoder.encode("```log \nPaste the logs here\n ```", StandardCharsets.UTF_8.toString())
         dialog(
-            context = context,
+            activity = context,
             title = strings.logs_too_long.getString(),
             msg = strings.logs_too_long_desc.getString(),
             okString = strings.continue_action,

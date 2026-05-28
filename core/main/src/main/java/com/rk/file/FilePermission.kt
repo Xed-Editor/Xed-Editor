@@ -72,8 +72,7 @@ object FilePermission {
         }
         if (shouldAsk) {
             dialog(
-                context = activity,
-                onDialog = { dialogRef = WeakReference(it) },
+                activity = activity,
                 title = strings.manage_storage.getString(),
                 msg = strings.manage_storage_reason.getString(),
                 cancelString = strings.ignore,

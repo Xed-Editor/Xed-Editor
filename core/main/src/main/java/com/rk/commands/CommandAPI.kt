@@ -46,13 +46,13 @@ abstract class Command {
 
     abstract fun getLabel(): String
 
+    abstract fun getIcon(): Icon
+
     abstract fun action(actionContext: ActionContext)
 
     open fun isEnabled(): Boolean = true
 
     open fun isSupported(): Boolean = true
-
-    abstract fun getIcon(): Icon
 
     open val preferText: Boolean = false
 

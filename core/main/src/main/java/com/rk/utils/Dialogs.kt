@@ -1,7 +1,6 @@
 package com.rk.utils
 
 import android.app.Activity
-import android.content.Context
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -32,7 +31,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 
-fun errorDialog(msg: String, context: Context? = MainActivity.instance, title: String = strings.error.getString()) {
+fun errorDialog(msg: String, activity: Activity? = MainActivity.instance, title: String = strings.error.getString()) {
     Log.e("ERROR_DIALOG", msg)
 
     runOnUiThread {
@@ -45,7 +44,7 @@ fun errorDialog(msg: String, context: Context? = MainActivity.instance, title: S
             return@runOnUiThread
         }
 
-        dialog(context = context, title = title, msg = msg, onOk = {})
+        dialog(activity = activity, title = title, msg = msg, onOk = {})
     }
 }
 
@@ -53,8 +52,7 @@ fun errorDialog(@StringRes msgRes: Int) {
     runOnUiThread { errorDialog(msg = msgRes.getString()) }
 }
 
-// todo handle multple function call for same throwable
-fun errorDialog(throwable: Throwable, context: Context? = MainActivity.instance) {
+fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instance) {
     runOnUiThread {
         if (throwable.message.toString().contains("Job was cancelled")) {
             Log.w("ERROR_DIALOG", throwable.message.toString())
@@ -68,7 +66,7 @@ fun errorDialog(throwable: Throwable, context: Context? = MainActivity.instance)
             }
         }
 
-        errorDialog(msg = message.toString(), context = context)
+        errorDialog(msg = message.toString(), activity = activity)
     }
 }
 
@@ -92,27 +90,26 @@ var isDialogShowing = false
     private set
 
 fun dialog(
-    context: Context? = MainActivity.instance,
+    activity: Activity? = MainActivity.instance,
     title: String? = null,
     msg: String,
     @StringRes cancelString: Int = strings.cancel,
     @StringRes okString: Int = strings.ok,
-    onDialog: (AlertDialog?) -> Unit = {},
     onOk: (AlertDialog?) -> Unit = {},
     onCancel: ((AlertDialog?) -> Unit)? = null,
     cancelable: Boolean = true,
 ) {
-    if (context == null) {
+    if (activity == null) {
         toast(strings.unknown_error)
         return
     }
     var alertDialog: AlertDialog? = null
     runOnUiThread {
-        MaterialAlertDialogBuilder(context).apply {
+        MaterialAlertDialogBuilder(activity).apply {
             setOnCancelListener { isDialogShowing = false }
 
             setView(
-                ComposeView(context).apply {
+                ComposeView(activity).apply {
                     setContent {
                         XedTheme {
                             Surface {
@@ -143,7 +140,7 @@ fun dialog(
                 }
             )
 
-            if (context is Activity && (context.isFinishing || context.isDestroyed)) {
+            if (activity.isFinishing || activity.isDestroyed) {
                 toast(msg)
                 return@runOnUiThread
             }

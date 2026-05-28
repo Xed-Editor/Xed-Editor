@@ -59,7 +59,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 default = false,
                 sideEffect = {
                     dialog(
-                        context = activity,
+                        activity = activity,
                         title = strings.force_crash.getString(),
                         msg = strings.force_crash_confirm.getString(),
                         onCancel = {},
