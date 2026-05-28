@@ -1,13 +1,20 @@
 package com.rk.ai
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material.icons.outlined.Terminal
-import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,6 +48,7 @@ val toolSheetTabs = listOf(
     ),
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToolSheetTabBar(
     selectedMode: BottomPanelMode,
@@ -50,35 +58,45 @@ fun ToolSheetTabBar(
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    TabRow(
-        selectedTabIndex = toolSheetTabs.indexOfFirst { it.mode == selectedMode }.coerceAtLeast(0),
-        containerColor = Color.Transparent,
-        divider = {},
-        indicator = { tabPositions ->
-            val idx = toolSheetTabs.indexOfFirst { it.mode == selectedMode }.coerceAtLeast(0)
-            if (tabPositions.isNotEmpty()) {
-                Box(
-                    Modifier
-                        .offset(x = tabPositions[idx].left)
-                        .width(tabPositions[idx].width)
-                        .height(3.dp)
-                        .background(colorScheme.primary)
-                )
-            }
-        },
-        modifier = modifier.height(48.dp),
+    Row(
+        modifier = modifier
+            .background(colorScheme.surfaceContainerLow, RoundedCornerShape(12.dp))
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         toolSheetTabs.forEach { tab ->
-            Tab(
-                selected = selectedMode == tab.mode,
+            val isSelected = selectedMode == tab.mode
+            
+            val containerColor by animateColorAsState(
+                targetValue = if (isSelected) colorScheme.surfaceContainerHigh else Color.Transparent,
+                animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                label = "TabContainerColor"
+            )
+            
+            val contentColor by animateColorAsState(
+                targetValue = if (isSelected) colorScheme.primary else colorScheme.onSurfaceVariant,
+                animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                label = "TabContentColor"
+            )
+
+            val borderStroke = if (isSelected) {
+                BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.2f))
+            } else null
+
+            Surface(
                 onClick = { onSelectTab(tab.mode) },
-                enabled = true,
-                icon = {
-                    if (tab.badge != null) {
-                        BadgedBox(badge = { tab.badge?.invoke() }) {
-                            Icon(tab.icon, contentDescription = null, modifier = Modifier.size(18.dp))
-                        }
-                    } else if (tab.mode == BottomPanelMode.TERMINAL) {
+                shape = RoundedCornerShape(8.dp),
+                color = containerColor,
+                border = borderStroke,
+                modifier = Modifier.height(34.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (tab.mode == BottomPanelMode.TERMINAL) {
                         BadgedBox(
                             badge = {
                                 val sessionCount = terminalViewModel.sessionBinder?.getService()?.sessionList?.size ?: 0
@@ -86,28 +104,30 @@ fun ToolSheetTabBar(
                                     Badge(
                                         containerColor = colorScheme.primary,
                                         contentColor = colorScheme.onPrimary,
+                                        modifier = Modifier.offset(x = 4.dp, y = (-4).dp)
                                     ) {
-                                        Text(sessionCount.toString())
+                                        Text(sessionCount.toString(), style = MaterialTheme.typography.labelSmall)
                                     }
                                 }
                             }
                         ) {
-                            Icon(tab.icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(tab.icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = contentColor)
                         }
                     } else {
-                        Icon(tab.icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(tab.icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = contentColor)
                     }
-                },
-                text = {
+                    
+                    Spacer(Modifier.width(6.dp))
+                    
                     Text(
-                        tab.label,
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = if (selectedMode == tab.mode) FontWeight.SemiBold else FontWeight.Normal,
+                        text = tab.label,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+                        ),
+                        color = contentColor
                     )
-                },
-                selectedContentColor = colorScheme.primary,
-                unselectedContentColor = colorScheme.onSurfaceVariant,
-            )
+                }
+            }
         }
     }
 }

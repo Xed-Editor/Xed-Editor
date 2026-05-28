@@ -36,11 +36,17 @@ fun ToolSheetControls(
 
     when (mode) {
         BottomPanelMode.AI -> {
-            Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 FilledTonalIconButton(
                     onClick = onUndo,
                     enabled = canUndo,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(36.dp),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
                 ) {
                     XedIcon(
                         com.rk.icons.Icon.DrawableRes(drawables.undo),
@@ -52,7 +58,10 @@ fun ToolSheetControls(
                 FilledTonalIconButton(
                     onClick = onRedo,
                     enabled = canRedo,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(36.dp),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
                 ) {
                     XedIcon(
                         com.rk.icons.Icon.DrawableRes(drawables.redo),
@@ -61,12 +70,34 @@ fun ToolSheetControls(
                     )
                 }
 
-                FilledTonalIconButton(onClick = onRestartAgent, modifier = Modifier.size(30.dp)) {
-                    Icon(Icons.Outlined.Refresh, contentDescription = "Restart", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
+                FilledTonalIconButton(
+                    onClick = onRestartAgent,
+                    modifier = Modifier.size(36.dp),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Icon(
+                        Icons.Outlined.Refresh,
+                        contentDescription = "Restart",
+                        modifier = Modifier.size(18.dp),
+                        tint = colorScheme.onSurfaceVariant
+                    )
                 }
 
-                FilledTonalIconButton(onClick = onSyncFiles, modifier = Modifier.size(30.dp)) {
-                    Icon(Icons.Outlined.Save, contentDescription = "Sync", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
+                FilledTonalIconButton(
+                    onClick = onSyncFiles,
+                    modifier = Modifier.size(36.dp),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Icon(
+                        Icons.Outlined.Save,
+                        contentDescription = "Sync",
+                        modifier = Modifier.size(18.dp),
+                        tint = colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -75,13 +106,31 @@ fun ToolSheetControls(
             var showSessionMenu by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
             val ctx = LocalContext.current
-            Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Box {
-                    FilledTonalIconButton(onClick = { showSessionMenu = true }, modifier = Modifier.size(30.dp)) {
-                        Icon(Icons.Default.Menu, contentDescription = "Sessions", tint = colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    FilledTonalIconButton(
+                        onClick = { showSessionMenu = true },
+                        modifier = Modifier.size(36.dp),
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = "Sessions",
+                            tint = colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                     val service = terminalViewModel.sessionBinder?.getService()
-                    DropdownMenu(expanded = showSessionMenu, onDismissRequest = { showSessionMenu = false }) {
+                    DropdownMenu(
+                        expanded = showSessionMenu,
+                        onDismissRequest = { showSessionMenu = false }
+                    ) {
                         service?.sessionList?.forEach { sessionId ->
                             DropdownMenuItem(
                                 text = { Text(sessionId, style = MaterialTheme.typography.bodySmall) },
@@ -97,11 +146,18 @@ fun ToolSheetControls(
                                     }
                                 },
                                 leadingIcon = if (sessionId == service.currentSession.value) {
-                                    { Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary) }
+                                    {
+                                        Icon(
+                                            Icons.Default.Check,
+                                            null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
                                 } else null
                             )
                         }
-                        HorizontalDivider()
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                         DropdownMenuItem(
                             text = { Text("New Session", style = MaterialTheme.typography.bodySmall) },
                             onClick = {
@@ -124,13 +180,24 @@ fun ToolSheetControls(
                     }
                 }
                 
-                FilledTonalIconButton(onClick = {
-                    android.content.Intent(ctx, com.rk.activities.settings.SettingsActivity::class.java).apply {
-                        putExtra("route", com.rk.activities.settings.SettingsRoutes.TerminalSettings.route)
-                        ctx.startActivity(this)
-                    }
-                }, modifier = Modifier.size(30.dp)) {
-                    Icon(Icons.Outlined.Settings, contentDescription = "Settings", modifier = Modifier.size(18.dp), tint = colorScheme.onSurfaceVariant)
+                FilledTonalIconButton(
+                    onClick = {
+                        android.content.Intent(ctx, com.rk.activities.settings.SettingsActivity::class.java).apply {
+                            putExtra("route", com.rk.activities.settings.SettingsRoutes.TerminalSettings.route)
+                            ctx.startActivity(this)
+                        }
+                    },
+                    modifier = Modifier.size(36.dp),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Icon(
+                        Icons.Outlined.Settings,
+                        contentDescription = "Settings",
+                        modifier = Modifier.size(18.dp),
+                        tint = colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }

@@ -1,8 +1,13 @@
 package com.rk.tabs.editor
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -12,51 +17,90 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.termux.terminal.TerminalSession
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
-private data class SheetUiState(
-    val sheetHeight: Dp,
-    val onDragStart: () -> Unit,
-    val onDrag: (Float) -> Unit,
-    val onDragEndForInline: () -> Unit,
-    val onDragEndForModal: (() -> Unit)? = null,
-)
+@Stable
+class ToolSheetState(
+    val density: Density,
+    val coroutineScope: CoroutineScope,
+    minHeightDp: Dp,
+    maxHeightDp: Dp,
+    initialHeightDp: Dp,
+) {
+    var minHeightPx by mutableFloatStateOf(minHeightDp.value * density.density)
+        private set
+    var maxHeightPx by mutableFloatStateOf(maxHeightDp.value * density.density)
+        private set
+    
+    private val animatableHeight = Animatable(initialHeightDp.value * density.density)
+    
+    val heightPx: Float
+        get() = animatableHeight.value
+
+    val heightDp: Dp
+        get() = (animatableHeight.value / density.density).dp
+
+    suspend fun updateBounds(minPx: Float, maxPx: Float) {
+        minHeightPx = minPx
+        maxHeightPx = maxPx
+        val target = animatableHeight.value.coerceIn(minPx, maxPx)
+        if (target != animatableHeight.value) {
+            animatableHeight.snapTo(target)
+        }
+    }
+
+    suspend fun snapTo(px: Float) {
+        animatableHeight.snapTo(px.coerceIn(minHeightPx, maxHeightPx))
+    }
+
+    suspend fun animateTo(px: Float, initialVelocity: Float = 0f) {
+        animatableHeight.animateTo(
+            targetValue = px.coerceIn(minHeightPx, maxHeightPx),
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            ),
+            initialVelocity = initialVelocity
+        )
+    }
+}
 
 @Composable
-private fun rememberSheetUiState(
-    minHeight: Dp = 320.dp,
-    initialHeight: Dp = 560.dp,
-    onModalMinimize: (() -> Unit)? = null,
-    onModalExpand: (() -> Unit)? = null,
-): SheetUiState {
+fun rememberToolSheetState(
+    minHeight: Dp,
+    initialHeight: Dp,
+    maxHeight: Dp,
+): ToolSheetState {
     val density = LocalDensity.current
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.90f).dp
-    var sheetHeight by remember { mutableStateOf(initialHeight.coerceIn(minHeight, maxHeight)) }
-    var handleDrag by remember { mutableStateOf(0f) }
+    val coroutineScope = rememberCoroutineScope()
+    
+    val state = remember {
+        ToolSheetState(
+            density = density,
+            coroutineScope = coroutineScope,
+            minHeightDp = minHeight,
+            maxHeightDp = maxHeight,
+            initialHeightDp = initialHeight
+        )
+    }
 
-    return SheetUiState(
-        sheetHeight = sheetHeight,
-        onDragStart = { handleDrag = 0f },
-        onDrag = { dragAmount ->
-            handleDrag += dragAmount
-            sheetHeight = (sheetHeight - with(density) { dragAmount.toDp() }).coerceIn(minHeight, maxHeight)
-        },
-        onDragEndForInline = {},
-        onDragEndForModal = {
-            when {
-                handleDrag > 60f -> onModalMinimize?.invoke()
-                handleDrag < -60f -> onModalExpand?.invoke()
-            }
-        },
-    )
+    LaunchedEffect(minHeight, maxHeight) {
+        val minPx = minHeight.value * density.density
+        val maxPx = maxHeight.value * density.density
+        state.updateBounds(minPx, maxPx)
+    }
+
+    return state
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,20 +116,32 @@ fun ToolSheetContainer(
     bottomBar: (@Composable () -> Unit)? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
-    val ui = rememberSheetUiState()
+    val density = LocalDensity.current
+    val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
+    val imeHeightDp = with(density) { WindowInsets.ime.getBottom(density).toDp() }
+    val navBarHeightDp = with(density) { WindowInsets.navigationBars.getBottom(density).toDp() }
+    val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
+
+    val availableHeight = screenHeightDp - imeHeightDp - navBarHeightDp - statusBarHeightDp
+    val maxHeight = (availableHeight * 0.92f).coerceAtLeast(300.dp)
+    val minHeight = 240.dp.coerceAtMost(maxHeight)
+    val initialHeight = (availableHeight * 0.6f).coerceIn(minHeight, maxHeight)
+    
+    val state = rememberToolSheetState(
+        minHeight = minHeight,
+        initialHeight = initialHeight,
+        maxHeight = maxHeight
+    )
 
     ToolSheetContent(
+        state = state,
         onDismissRequest = onDismissRequest,
         cwd = cwd,
         session = session,
         modifier = modifier,
-        sheetHeight = ui.sheetHeight,
         showTerminal = showTerminal,
         headerContent = headerContent,
         controls = controls,
-        onDragStart = ui.onDragStart,
-        onDrag = ui.onDrag,
-        onDragEnd = ui.onDragEndForInline,
         bottomBar = bottomBar,
         content = content,
     )
@@ -106,10 +162,24 @@ fun ToolSheetModalContainer(
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
-    val ui = rememberSheetUiState(
-        onModalMinimize = { scope.launch { runCatching { sheetState.partialExpand() } } },
-        onModalExpand = { scope.launch { sheetState.expand() } },
+    
+    val density = LocalDensity.current
+    val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
+    val imeHeightDp = with(density) { WindowInsets.ime.getBottom(density).toDp() }
+    val navBarHeightDp = with(density) { WindowInsets.navigationBars.getBottom(density).toDp() }
+    val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
+
+    val availableHeight = screenHeightDp - imeHeightDp - navBarHeightDp - statusBarHeightDp
+    val maxHeight = (availableHeight * 0.92f).coerceAtLeast(300.dp)
+    val minHeight = 240.dp.coerceAtMost(maxHeight)
+    val initialHeight = (availableHeight * 0.6f).coerceIn(minHeight, maxHeight)
+    
+    val state = rememberToolSheetState(
+        minHeight = minHeight,
+        initialHeight = initialHeight,
+        maxHeight = maxHeight
     )
+
     LaunchedEffect(Unit) {
         runCatching { sheetState.expand() }
     }
@@ -123,17 +193,14 @@ fun ToolSheetModalContainer(
         containerColor = Color.Transparent,
     ) {
         ToolSheetContent(
+            state = state,
             onDismissRequest = onDismissRequest,
             cwd = cwd,
             session = session,
             modifier = Modifier.fillMaxWidth(),
-            sheetHeight = ui.sheetHeight,
             showTerminal = showTerminal,
             headerContent = headerContent,
             controls = controls,
-            onDragStart = ui.onDragStart,
-            onDrag = ui.onDrag,
-            onDragEnd = { ui.onDragEndForModal?.invoke() },
             bottomBar = bottomBar,
             content = content,
         )
@@ -142,122 +209,221 @@ fun ToolSheetModalContainer(
 
 @Composable
 private fun ToolSheetContent(
+    state: ToolSheetState,
     onDismissRequest: () -> Unit,
     cwd: String,
     session: TerminalSession?,
     modifier: Modifier = Modifier,
-    sheetHeight: Dp = 595.dp,
     showTerminal: Boolean = true,
     headerContent: (@Composable () -> Unit)? = null,
     controls: (@Composable RowScope.() -> Unit)? = null,
     bottomBar: (@Composable () -> Unit)? = null,
-    onDragStart: () -> Unit,
-    onDrag: (Float) -> Unit,
-    onDragEnd: () -> Unit,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val coroutineScope = rememberCoroutineScope()
+    val configuration = LocalConfiguration.current
+    
+    val isTablet = configuration.screenWidthDp >= 600
+    
+    val shape = if (isTablet) RoundedCornerShape(24.dp) else RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    
+    val bottomPadding = if (isTablet) {
+        16.dp
+    } else {
+        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    }
+    
+    var isDragging by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(sheetHeight)
-            .shadow(8.dp, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            .then(
+                if (isTablet) {
+                    Modifier.padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+                } else {
+                    Modifier
+                }
+            )
+            .height(state.heightDp)
+            .shadow(
+                elevation = if (isTablet) 16.dp else 12.dp,
+                shape = shape,
+                clip = true
+            )
             .background(
-                Brush.verticalGradient(
+                brush = Brush.verticalGradient(
                     colors = listOf(
                         colorScheme.surfaceContainerHigh,
-                        colorScheme.surfaceContainerHighest,
+                        colorScheme.surfaceContainerLow,
                     )
                 ),
-                RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                shape = shape,
             )
             .border(
-                0.5.dp,
-                colorScheme.outlineVariant.copy(alpha = 0.4f),
-                RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                width = 1.dp,
+                color = colorScheme.outlineVariant.copy(alpha = 0.2f),
+                shape = shape,
             ),
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Header Row
-            Row(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = bottomPadding)
+        ) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Left & Center: Tabs + Drag Handle
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .pointerInput(Unit) {
-                            detectVerticalDragGestures(
-                                onDragStart = { onDragStart() },
-                                onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                                onDragEnd = onDragEnd,
-                            )
+                    .draggable(
+                        orientation = Orientation.Vertical,
+                        state = rememberDraggableState { delta ->
+                            coroutineScope.launch {
+                                state.snapTo(state.heightPx - delta)
+                            }
                         },
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    headerContent?.invoke()
-
-                    // Drag Handle Pill
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 8.dp)
-                            .size(width = 40.dp, height = 4.dp)
-                            .background(
-                                colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                RoundedCornerShape(2.dp),
-                            ),
+                        onDragStarted = { isDragging = true },
+                        onDragStopped = { velocity ->
+                            isDragging = false
+                            val minPx = state.minHeightPx
+                            val maxPx = state.maxHeightPx
+                            val midPx = (minPx + maxPx) / 2f
+                            
+                            val heightVelocity = -velocity
+                            coroutineScope.launch {
+                                val targetPx = when {
+                                    heightVelocity > 1200f -> maxPx
+                                    heightVelocity < -1200f -> minPx
+                                    else -> {
+                                        val current = state.heightPx
+                                        val distMin = (current - minPx).absoluteValue
+                                        val distMid = (current - midPx).absoluteValue
+                                        val distMax = (current - maxPx).absoluteValue
+                                        
+                                        if (distMin < distMid && distMin < distMax) minPx
+                                        else if (distMax < distMin && distMax < distMid) maxPx
+                                        else midPx
+                                    }
+                                }
+                                state.animateTo(targetPx, heightVelocity)
+                            }
+                        }
                     )
-                }
+                    .background(colorScheme.surfaceContainerHigh.copy(alpha = 0.5f))
+            ) {
+                DragHandle(isDragging = isDragging)
 
-                // Right: Controls + Close
                 Row(
-                    modifier = Modifier.fillMaxHeight(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .padding(horizontal = 12.dp, vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End,
                 ) {
-                    controls?.invoke(this)
-                    Spacer(Modifier.width(4.dp))
-                    FilledIconButton(
-                        onClick = onDismissRequest,
-                        modifier = Modifier.size(28.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        ),
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.CenterStart
                     ) {
-                        XedIcon(
-                            com.rk.icons.Icon.DrawableRes(drawables.close),
-                            contentDescription = "Close",
-                            modifier = Modifier.size(16.dp),
-                            tint = colorScheme.onSurfaceVariant,
-                        )
+                        headerContent?.invoke()
+                    }
+
+                    Spacer(Modifier.width(8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        controls?.invoke(this)
+                        Spacer(Modifier.width(8.dp))
+                        
+                        FilledIconButton(
+                            onClick = onDismissRequest,
+                            modifier = Modifier.size(36.dp),
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                                contentColor = colorScheme.onSurfaceVariant
+                            ),
+                        ) {
+                            XedIcon(
+                                com.rk.icons.Icon.DrawableRes(drawables.close),
+                                contentDescription = "Close",
+                                modifier = Modifier.size(18.dp),
+                                tint = colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
+                
+                HorizontalDivider(
+                    color = colorScheme.outlineVariant.copy(alpha = 0.15f),
+                    thickness = 0.5.dp
+                )
             }
 
-            // Main Content Area
-            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(colorScheme.surfaceContainerLowest)
+            ) {
                 if (showTerminal) {
-                    SheetTerminal(session = session, modifier = Modifier.fillMaxSize(), showKeys = true)
+                    SheetTerminal(
+                        session = session,
+                        modifier = Modifier.fillMaxSize(),
+                        showKeys = true
+                    )
                 } else {
                     content?.invoke(this@Column)
                 }
             }
 
-            // Bottom Bar
             bottomBar?.let {
                 HorizontalDivider(
                     color = colorScheme.outlineVariant.copy(alpha = 0.15f),
                     thickness = 0.5.dp,
                 )
-                it()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(colorScheme.surfaceContainerLow)
+                ) {
+                    it()
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun DragHandle(
+    isDragging: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val handleColor by animateColorAsState(
+        targetValue = if (isDragging) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "DragHandleColor"
+    )
+    val handleWidth by animateDpAsState(
+        targetValue = if (isDragging) 48.dp else 36.dp,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "DragHandleWidth"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = handleWidth, height = 4.dp)
+                .background(
+                    color = handleColor,
+                    shape = RoundedCornerShape(2.dp)
+                )
+        )
     }
 }

@@ -81,37 +81,40 @@ fun UnifiedCommandBar(
             terminalViewModel = terminalViewModel,
         )
 
-        HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f), thickness = 0.5.dp)
-        AndroidView<VirtualKeysView>(
-            modifier = Modifier.fillMaxWidth().height(40.dp),
-            factory = { ctx ->
-                VirtualKeysView(ctx, null).apply {
-                    setButtonTextColor(colorScheme.onSurface.toArgb())
-                    setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
-                    runCatching {
-                        val info = VirtualKeysInfo(
-                            Settings.terminal_extra_keys,
-                            "",
-                            VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                        )
-                        reload(info)
+        if (mode == BottomPanelMode.TERMINAL || mode == BottomPanelMode.AI) {
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f), thickness = 0.5.dp)
+            AndroidView<VirtualKeysView>(
+                modifier = Modifier.fillMaxWidth().height(40.dp),
+                factory = { ctx ->
+                    VirtualKeysView(ctx, null).apply {
+                        setButtonTextColor(colorScheme.onSurface.toArgb())
+                        setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
+                        runCatching {
+                            val info = VirtualKeysInfo(
+                                Settings.terminal_extra_keys,
+                                "",
+                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                            )
+                            reload(info)
+                        }
+                        terminalViewModel.virtualKeysView = this
                     }
-                    terminalViewModel.virtualKeysView = this
-                }
-            },
-            update = { keys ->
-                val session = if (mode == BottomPanelMode.AI) {
-                    AiProvider.sessionManager?.sessionState?.value as? TerminalSession
-                } else {
-                    terminalViewModel.terminalView?.mTermSession
-                }
-                keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
-                keys.setButtonTextColor(colorScheme.onSurface.toArgb())
-                keys.setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
-            },
-        )
+                },
+                update = { keys ->
+                    val session = if (mode == BottomPanelMode.AI) {
+                        AiProvider.sessionManager?.sessionState?.value as? TerminalSession
+                    } else {
+                        terminalViewModel.terminalView?.mTermSession
+                    }
+                    keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
+                    keys.setButtonTextColor(colorScheme.onSurface.toArgb())
+                    keys.setBackgroundColor(colorScheme.surfaceContainerHighest.toArgb())
+                },
+            )
+        }
 
         if (mode == BottomPanelMode.AI) {
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.15f), thickness = 0.5.dp)
             QuickActions(
                 isRunning = isAiRunning,
                 currentFile = currentFile,
@@ -119,6 +122,7 @@ fun UnifiedCommandBar(
                 onAction = onAction,
             )
         } else if (mode == BottomPanelMode.TERMINAL) {
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.15f), thickness = 0.5.dp)
             TerminalQuickActions(
                 terminalViewModel = terminalViewModel,
                 onAction = onAction,
@@ -243,164 +247,190 @@ private fun StatusBar(
     val bridgeClients = AiProvider.ideBridge?.connectedClients() ?: 0
     val bridgeOnline = AiProvider.ideBridge?.isRunning() == true
 
-        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(30.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box {
-                    Surface(
-                        modifier = Modifier
-                            .height(26.dp)
-                            .clickable { if (mode == BottomPanelMode.AI) onToggleAgentMenu() },
-                        shape = RoundedCornerShape(13.dp),
-                        color = if (mode == BottomPanelMode.AI)
-                            colorScheme.primaryContainer.copy(alpha = 0.6f)
-                        else
-                            colorScheme.secondaryContainer.copy(alpha = 0.6f),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = if (mode == BottomPanelMode.AI) (agent?.displayName ?: "AI") else "Terminal",
-                                color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            )
-                            if (mode == BottomPanelMode.AI) {
-                                Spacer(Modifier.width(2.dp))
-                                Icon(
-                                    Icons.Outlined.KeyboardArrowDown,
-                                    contentDescription = "Switch",
-                                    modifier = Modifier.size(14.dp),
-                                    tint = colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
-                                )
-                            }
-                        }
-                    }
+    val infiniteTransition = rememberInfiniteTransition(label = "PulseState")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "PulseAlpha"
+    )
 
-                    if (mode == BottomPanelMode.AI) {
-                        DropdownMenu(
-                            expanded = showAgentMenu,
-                            onDismissRequest = { onToggleAgentMenu() },
-                        ) {
-                            availableAgents.forEachIndexed { index, a ->
-                                if (index > 0) HorizontalDivider(modifier = Modifier.padding(horizontal = 12.dp))
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                if (a.cliBinaryName == "gemini") Icons.Outlined.Psychology else Icons.Outlined.AutoFixHigh,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp),
-                                                tint = if (a == agent) colorScheme.primary else colorScheme.onSurfaceVariant,
-                                            )
-                                            Spacer(Modifier.width(10.dp))
-                                            Column {
-                                                    Text(a.displayName, style = MaterialTheme.typography.bodyMedium)
-                                                    Text(
-                                                        "Switch to ${a.displayName.split("/").last()}",
-                                                    style = MaterialTheme.typography.labelSmall,
-                                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                                )
-                                            }
-                                            if (a == agent) {
-                                                Spacer(Modifier.width(8.dp))
-                                                Icon(
-                                                    Icons.Default.Check,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(18.dp),
-                                                    tint = colorScheme.primary,
-                                                )
-                                            }
-                                        }
-                                    },
-                                    onClick = { onSelectAgent(a) },
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(Modifier.width(8.dp))
-
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(36.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box {
                 Surface(
-                    onClick = {
-                        com.blankj.utilcode.util.ClipboardUtils.copyText("Path", cwd)
-                        com.rk.utils.toast("Path copied to clipboard")
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    onClick = { if (mode == BottomPanelMode.AI) onToggleAgentMenu() },
+                    enabled = mode == BottomPanelMode.AI,
+                    shape = RoundedCornerShape(14.dp),
+                    color = if (mode == BottomPanelMode.AI)
+                        colorScheme.primaryContainer.copy(alpha = 0.6f)
+                    else
+                        colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                    modifier = Modifier.height(28.dp)
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(
-                            Icons.Outlined.Code,
-                            contentDescription = null,
-                            modifier = Modifier.size(12.dp),
-                            tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
-                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-
-                Spacer(Modifier.width(4.dp))
-
-                if (bridgeOnline && mode == BottomPanelMode.AI) {
-                    Surface(
-                        shape = CircleShape,
-                        color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        modifier = Modifier.size(22.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(12.dp)) {
+                            if (isRunning) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(12.dp)
+                                        .clip(CircleShape)
+                                        .background(statusColor.copy(alpha = pulseAlpha * 0.4f))
+                                )
+                            }
                             Box(
                                 modifier = Modifier
-                                    .size(7.dp)
+                                    .size(6.dp)
                                     .clip(CircleShape)
-                                    .background(
-                                        if (bridgeClients > 0) Color(0xFF4CAF50)
-                                        else Color(0xFFFFC107)
-                                    )
+                                    .background(statusColor)
+                            )
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = if (mode == BottomPanelMode.AI) (agent?.displayName ?: "AI") else "Terminal",
+                            color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        )
+                        if (mode == BottomPanelMode.AI) {
+                            Spacer(Modifier.width(2.dp))
+                            Icon(
+                                Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Switch",
+                                modifier = Modifier.size(14.dp),
+                                tint = colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
                             )
                         }
                     }
-                    Spacer(Modifier.width(4.dp))
                 }
 
-                Spacer(Modifier.weight(1f))
-
-                if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
-                    FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(26.dp)) {
-                        Icon(
-                            if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = if (showTranscript) "Hide transcript" else "Show transcript",
-                            modifier = Modifier.size(16.dp),
-                            tint = colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.width(2.dp))
-                    FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(26.dp)) {
-                        Icon(
-                            Icons.Outlined.Delete,
-                            contentDescription = "Clear transcript",
-                            modifier = Modifier.size(14.dp),
-                            tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        )
+                if (mode == BottomPanelMode.AI) {
+                    DropdownMenu(
+                        expanded = showAgentMenu,
+                        onDismissRequest = { onToggleAgentMenu() },
+                    ) {
+                        availableAgents.forEachIndexed { index, a ->
+                            if (index > 0) HorizontalDivider(modifier = Modifier.padding(horizontal = 12.dp))
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            if (a.cliBinaryName == "gemini") Icons.Outlined.Psychology else Icons.Outlined.AutoFixHigh,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp),
+                                            tint = if (a == agent) colorScheme.primary else colorScheme.onSurfaceVariant,
+                                        )
+                                        Spacer(Modifier.width(10.dp))
+                                        Column {
+                                            Text(a.displayName, style = MaterialTheme.typography.bodyMedium)
+                                            Text(
+                                                "Switch to ${a.displayName.split("/").last()}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                            )
+                                        }
+                                        if (a == agent) {
+                                            Spacer(Modifier.width(8.dp))
+                                            Icon(
+                                                Icons.Default.Check,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(18.dp),
+                                                tint = colorScheme.primary,
+                                            )
+                                        }
+                                    }
+                                },
+                                onClick = { onSelectAgent(a) },
+                            )
+                        }
                     }
                 }
             }
+
+            Spacer(Modifier.width(8.dp))
+
+            Surface(
+                onClick = {
+                    com.blankj.utilcode.util.ClipboardUtils.copyText("Path", cwd)
+                    com.rk.utils.toast("Path copied to clipboard")
+                },
+                shape = RoundedCornerShape(8.dp),
+                color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        Icons.Outlined.Code,
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
+                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+
+            Spacer(Modifier.width(4.dp))
+
+            if (bridgeOnline && mode == BottomPanelMode.AI) {
+                Surface(
+                    shape = CircleShape,
+                    color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.size(22.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier = Modifier
+                                .size(7.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (bridgeClients > 0) Color(0xFF4CAF50)
+                                    else Color(0xFFFFC107)
+                                )
+                        )
+                    }
+                }
+                Spacer(Modifier.width(4.dp))
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
+                FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = if (showTranscript) "Hide transcript" else "Show transcript",
+                        modifier = Modifier.size(16.dp),
+                        tint = colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.width(4.dp))
+                FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        Icons.Outlined.Delete,
+                        contentDescription = "Clear transcript",
+                        modifier = Modifier.size(14.dp),
+                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    )
+                }
+            }
+        }
 
         AnimatedVisibility(
             visible = showTranscript && transcript.isNotBlank(),
@@ -530,19 +560,26 @@ internal fun ActionChip(
     color: Color,
     labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(8.dp),
         color = color,
-        modifier = Modifier.height(30.dp),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.15f)),
+        modifier = Modifier.height(32.dp),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
             icon?.invoke()
-            if (icon != null) Spacer(Modifier.width(4.dp))
-            Text(label, style = MaterialTheme.typography.labelSmall, color = labelColor)
+            if (icon != null) Spacer(Modifier.width(6.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+                color = labelColor
+            )
         }
     }
 }
