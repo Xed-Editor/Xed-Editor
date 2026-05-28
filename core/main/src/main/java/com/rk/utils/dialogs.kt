@@ -30,11 +30,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 
-fun errorDialog(
-    activity: Activity? = MainActivity.instance,
-    title: String = strings.error.getString(),
-    msg: String,
-) {
+fun errorDialog(activity: Activity? = MainActivity.instance, title: String = strings.error.getString(), msg: String) {
     Log.e("ERROR_DIALOG", msg)
 
     runOnUiThread {
