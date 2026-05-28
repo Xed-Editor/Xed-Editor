@@ -2,11 +2,13 @@ package com.rk.ai.service
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.rk.settings.Settings
 import java.io.File
 import java.util.LinkedHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 class GitService {
@@ -101,6 +103,13 @@ class GitService {
             val commit = git.commit()
             commit.setMessage(message)
             if (all) commit.setAll(true)
+            val name = Settings.git_name.ifBlank { null }
+            val email = Settings.git_email.ifBlank { null }
+            if (name != null && email != null) {
+                val ident = PersonIdent(name, email)
+                commit.setAuthor(ident)
+                commit.setCommitter(ident)
+            }
             val rev = commit.call()
             lastStatus = null
             invalidateRepoCache(workspacePath)
