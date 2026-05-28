@@ -186,7 +186,7 @@ fun FileActionDialogs(
                             viewModel.updateCache(file)
                             viewModel.createValue = ""
                         }
-                        .onFailure { errorDialog(it) }
+                        .onFailure { errorDialog(throwable = it) }
                 }
             },
             onFinish = { viewModel.closeCreateDialog() },

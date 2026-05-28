@@ -13,7 +13,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.application
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import java.io.File
 import java.util.zip.ZipFile
 import kotlinx.coroutines.Dispatchers
@@ -61,12 +61,12 @@ class IconPackManager(private val context: Application) {
         val packageManager = application!!.packageManager
         val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
         if (iconPackManifest.minAppVersion != null && iconPackManifest.minAppVersion.toLong() > currentVersionCode) {
-            dialog(
+            dialogRes(
                 activity = SettingsActivity.instance,
                 title = strings.warning.getString(),
                 msg = strings.incompatible_theme_warning.getString(),
-                cancelString = strings.cancel,
-                okString = strings.continue_action,
+                cancelRes = strings.cancel,
+                okRes = strings.continue_action,
                 onOk = { writeIconPackToDisk(iconPackManifest, dir) },
             )
             return
@@ -91,7 +91,7 @@ class IconPackManager(private val context: Application) {
     internal fun validateIconPack(dir: File): IconPackManifest? {
         val iconPackJson = dir.resolve("manifest.json")
         if (!iconPackJson.exists()) {
-            dialog(
+            dialogRes(
                 SettingsActivity.instance,
                 strings.icon_pack_install_failed.getString(),
                 strings.manifest_missing.getString(),
@@ -105,7 +105,7 @@ class IconPackManager(private val context: Application) {
                 .getOrElse { e ->
                     if (e is MissingFieldException) {
                         val fields = e.missingFields.joinToString("\n") { "• $it" }
-                        dialog(
+                        dialogRes(
                             SettingsActivity.instance,
                             strings.icon_pack_install_failed.getString(),
                             strings.manifest_missing_fields.getFilledString(fields),
@@ -113,7 +113,7 @@ class IconPackManager(private val context: Application) {
                         )
                         return null
                     }
-                    dialog(
+                    dialogRes(
                         SettingsActivity.instance,
                         strings.icon_pack_install_failed.getString(),
                         e.localizedMessage ?: strings.unknown_err.getString(),

@@ -38,7 +38,7 @@ import com.rk.settings.editor.refreshEditors
 import com.rk.theme.amoled
 import com.rk.theme.currentTheme
 import com.rk.theme.dynamicTheme
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.toast
 import com.rk.xededitor.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -156,7 +156,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 checked = InbuiltFeatures.debugMode.state.value,
                 onSwitch = {
                     if (it) {
-                        dialog(
+                        dialogRes(
                             activity = activity,
                             title = strings.attention.getString(),
                             msg = strings.debug_mode_warn.getString(),

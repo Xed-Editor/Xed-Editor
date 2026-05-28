@@ -21,17 +21,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.activities.main.MainActivity
-import com.rk.components.compose.preferences.base.DividerColumn
+import com.rk.extension.XedExtensionPoint
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.theme.XedTheme
 
-fun errorDialog(msg: String, activity: Activity? = MainActivity.instance, title: String = strings.error.getString()) {
+fun errorDialog(
+    activity: Activity? = MainActivity.instance,
+    title: String = strings.error.getString(),
+    msg: String,
+) {
     Log.e("ERROR_DIALOG", msg)
 
     runOnUiThread {
@@ -44,7 +47,7 @@ fun errorDialog(msg: String, activity: Activity? = MainActivity.instance, title:
             return@runOnUiThread
         }
 
-        dialog(activity = activity, title = title, msg = msg, onOk = {})
+        dialogRes(activity = activity, title = title, msg = msg, onOk = {})
     }
 }
 
@@ -52,7 +55,7 @@ fun errorDialog(@StringRes msgRes: Int) {
     runOnUiThread { errorDialog(msg = msgRes.getString()) }
 }
 
-fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instance) {
+fun errorDialog(activity: Activity? = MainActivity.instance, throwable: Throwable) {
     runOnUiThread {
         if (throwable.message.toString().contains("Job was cancelled")) {
             Log.w("ERROR_DIALOG", throwable.message.toString())
@@ -66,7 +69,7 @@ fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instanc
             }
         }
 
-        errorDialog(msg = message.toString(), activity = activity)
+        errorDialog(activity = activity, msg = message.toString())
     }
 }
 
@@ -89,12 +92,35 @@ fun errorDialog(exception: Exception) {
 var isDialogShowing = false
     private set
 
+fun dialogRes(
+    activity: Activity? = MainActivity.instance,
+    title: String? = null,
+    msg: String,
+    @StringRes cancelRes: Int = strings.cancel,
+    @StringRes okRes: Int = strings.ok,
+    onOk: (AlertDialog?) -> Unit = {},
+    onCancel: ((AlertDialog?) -> Unit)? = null,
+    cancelable: Boolean = true,
+) {
+    dialog(
+        activity = activity,
+        title = title,
+        msg = msg,
+        cancelText = cancelRes.getString(),
+        okText = okRes.getString(),
+        onOk = onOk,
+        onCancel = onCancel,
+        cancelable = cancelable,
+    )
+}
+
+@XedExtensionPoint
 fun dialog(
     activity: Activity? = MainActivity.instance,
     title: String? = null,
     msg: String,
-    @StringRes cancelString: Int = strings.cancel,
-    @StringRes okString: Int = strings.ok,
+    cancelText: String = strings.cancel.getString(),
+    okText: String = strings.ok.getString(),
     onOk: (AlertDialog?) -> Unit = {},
     onCancel: ((AlertDialog?) -> Unit)? = null,
     cancelable: Boolean = true,
@@ -112,28 +138,22 @@ fun dialog(
                 ComposeView(activity).apply {
                     setContent {
                         XedTheme {
-                            Surface {
-                                Surface {
-                                    Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
-                                        DividerColumn(startIndent = 0.dp, endIndent = 0.dp, dividersToSkip = 0) {
-                                            alertDialog?.setCancelable(cancelable)
-                                            DialogContent(
-                                                alertDialog = alertDialog,
-                                                title = title,
-                                                msg = msg,
-                                                cancelString = cancelString,
-                                                okString = okString,
-                                                onOk = { onOk(alertDialog) },
-                                                onCancel =
-                                                    if (onCancel == null) {
-                                                        null
-                                                    } else {
-                                                        { onCancel.invoke(alertDialog) }
-                                                    },
-                                            )
-                                        }
-                                    }
-                                }
+                            Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
+                                alertDialog?.setCancelable(cancelable)
+                                DialogContent(
+                                    alertDialog = alertDialog,
+                                    title = title,
+                                    msg = msg,
+                                    cancelString = cancelText,
+                                    okString = okText,
+                                    onOk = { onOk(alertDialog) },
+                                    onCancel =
+                                        if (onCancel == null) {
+                                            null
+                                        } else {
+                                            { onCancel.invoke(alertDialog) }
+                                        },
+                                )
                             }
                         }
                     }
@@ -156,8 +176,8 @@ private fun DialogContent(
     alertDialog: AlertDialog?,
     title: String?,
     msg: String,
-    @StringRes cancelString: Int,
-    @StringRes okString: Int,
+    cancelString: String,
+    okString: String,
     onOk: () -> Unit,
     onCancel: (() -> Unit)? = null,
 ) {
@@ -186,7 +206,7 @@ private fun DialogContent(
                         onCancel()
                     }
                 ) {
-                    Text(stringResource(cancelString))
+                    Text(cancelString)
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))
@@ -198,8 +218,42 @@ private fun DialogContent(
                     onOk()
                 }
             ) {
-                Text(stringResource(okString))
+                Text(okString)
             }
+        }
+    }
+}
+
+@XedExtensionPoint
+fun composableDialog(
+    activity: Activity? = MainActivity.instance,
+    cancelable: Boolean = true,
+    composable: @Composable (AlertDialog?) -> Unit,
+) {
+    if (activity == null) {
+        toast(strings.unknown_error)
+        return
+    }
+    var alertDialog: AlertDialog? = null
+    runOnUiThread {
+        MaterialAlertDialogBuilder(activity).apply {
+            setOnCancelListener { isDialogShowing = false }
+
+            setView(
+                ComposeView(activity).apply {
+                    setContent {
+                        XedTheme {
+                            Surface(shape = MaterialTheme.shapes.large, tonalElevation = 1.dp) {
+                                alertDialog?.setCancelable(cancelable)
+                                composable(alertDialog)
+                            }
+                        }
+                    }
+                }
+            )
+
+            alertDialog = show()
+            isDialogShowing = true
         }
     }
 }

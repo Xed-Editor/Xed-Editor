@@ -14,7 +14,7 @@ import androidx.core.net.toUri
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -71,12 +71,12 @@ object FilePermission {
             }
         }
         if (shouldAsk) {
-            dialog(
+            dialogRes(
                 activity = activity,
                 title = strings.manage_storage.getString(),
                 msg = strings.manage_storage_reason.getString(),
-                cancelString = strings.ignore,
-                okString = strings.ok,
+                cancelRes = strings.ignore,
+                okRes = strings.ok,
                 onOk = {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)

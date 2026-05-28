@@ -53,7 +53,7 @@ import com.rk.search.EditorSearchPanel
 import com.rk.tabs.editor.CodeEditorState
 import com.rk.theme.XedTheme
 import com.rk.utils.copyToClipboard
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import java.lang.ref.WeakReference
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -214,11 +214,11 @@ private fun reportLogs(logText: String, issueTitle: String, copyLabel: String) {
     if (url.length > 2048) {
         val trimmedUrl =
             urlStart + URLEncoder.encode("```log \nPaste the logs here\n ```", StandardCharsets.UTF_8.toString())
-        dialog(
+        dialogRes(
             activity = context,
             title = strings.logs_too_long.getString(),
             msg = strings.logs_too_long_desc.getString(),
-            okString = strings.continue_action,
+            okRes = strings.continue_action,
             onOk = {
                 copyToClipboard(copyLabel, logText, true)
                 val browserIntent = Intent(Intent.ACTION_VIEW, trimmedUrl.toUri())

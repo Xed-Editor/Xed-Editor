@@ -260,7 +260,7 @@ class Editor : CodeEditor {
                 typefaceText = font ?: Typeface.DEFAULT
                 typefaceLineNumber = font ?: Typeface.DEFAULT
             }
-            .onFailure { errorDialog(it) }
+            .onFailure { errorDialog(throwable = it) }
     }
 
     fun showSuggestions(yes: Boolean) {

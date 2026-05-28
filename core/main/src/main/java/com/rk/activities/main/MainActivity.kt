@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
     suspend fun handleIntent(intent: Intent) {
         if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action) {
             if (intent.data == null) {
-                errorDialog(strings.invalid_intent.getFilledString(intent.toString()))
+                errorDialog(msg = strings.invalid_intent.getFilledString(intent.toString()))
                 return
             }
 

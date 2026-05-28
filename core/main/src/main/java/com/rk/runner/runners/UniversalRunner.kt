@@ -16,7 +16,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.terminal.setupAssetFile
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import kotlinx.coroutines.launch
 
 object UniversalRunner : Runner() {
@@ -37,7 +37,7 @@ object UniversalRunner : Runner() {
         setupAssetFile("universal_runner")
 
         if (fileObject !is FileWrapper) {
-            dialog(title = strings.attention.getString(), msg = strings.non_native_filetype.getString(), onOk = {})
+            dialogRes(title = strings.attention.getString(), msg = strings.non_native_filetype.getString(), onOk = {})
             return
         }
 
@@ -47,10 +47,10 @@ object UniversalRunner : Runner() {
                 path.startsWith("/storage/") ||
                 path.startsWith(Environment.getExternalStorageDirectory().absolutePath)
         ) {
-            dialog(
+            dialogRes(
                 title = strings.attention.getString(),
                 msg = strings.sdcard_filetype.getString(),
-                okString = strings.continue_action,
+                okRes = strings.continue_action,
                 onCancel = {},
                 onOk = { DefaultScope.launch { launchUniversalRunner(context, fileObject) } },
             )

@@ -18,7 +18,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.toast
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +58,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    dialog(
+                    dialogRes(
                         activity = activity,
                         title = strings.force_crash.getString(),
                         msg = strings.force_crash_confirm.getString(),

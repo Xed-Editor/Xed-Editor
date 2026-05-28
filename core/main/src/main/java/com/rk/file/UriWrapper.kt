@@ -80,7 +80,7 @@ class UriWrapper : FileObject {
             URLDecoder.decode(file.uri.toString(), "UTF-8")
                 .removePrefix("content://com.termux.documents/tree//data/data/com.termux/files/home/document/")
         if (path.startsWith("/data").not()) {
-            errorDialog("Converting termux uri into realpath failed: \nURI : ${file.uri}\n\nPATH : $path")
+            errorDialog(msg = "Converting termux uri into realpath failed: \nURI : ${file.uri}\n\nPATH : $path")
         }
         // dialog(title = "PATH", msg = path, onOk = {})
         return File(path)

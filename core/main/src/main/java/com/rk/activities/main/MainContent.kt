@@ -65,7 +65,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
@@ -148,12 +148,12 @@ fun MainContent(
                                     if (tabIndex == -1) return@TabItem
 
                                     if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                        dialog(
+                                        dialogRes(
                                             title = strings.file_unsaved.getString(),
                                             msg = strings.ask_unsaved.getString(),
                                             onOk = { mainViewModel.tabManager.removeTab(tabIndex) },
                                             onCancel = {},
-                                            okString = strings.discard,
+                                            okRes = strings.discard,
                                         )
                                     } else {
                                         mainViewModel.tabManager.removeTab(tabIndex)
@@ -167,12 +167,12 @@ fun MainContent(
                                             tabIndex != index && (tab as? EditorTab)?.editorState?.isDirty == true
                                         }
                                     if (unsavedOtherTabs.isNotEmpty()) {
-                                        dialog(
+                                        dialogRes(
                                             title = strings.files_unsaved.getString(),
                                             msg = strings.ask_multiple_unsaved.getString(),
                                             onOk = { mainViewModel.tabManager.removeOtherTabs() },
                                             onCancel = {},
-                                            okString = strings.discard,
+                                            okRes = strings.discard,
                                         )
                                     } else {
                                         mainViewModel.tabManager.removeOtherTabs()
@@ -184,12 +184,12 @@ fun MainContent(
                                             (tab as? EditorTab)?.editorState?.isDirty == true
                                         }
                                     if (unsavedTabs.isNotEmpty()) {
-                                        dialog(
+                                        dialogRes(
                                             title = strings.files_unsaved.getString(),
                                             msg = strings.ask_multiple_unsaved.getString(),
                                             onOk = { mainViewModel.tabManager.removeAllTabs() },
                                             onCancel = {},
-                                            okString = strings.discard,
+                                            okRes = strings.discard,
                                         )
                                     } else {
                                         mainViewModel.tabManager.removeAllTabs()

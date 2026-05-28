@@ -79,7 +79,7 @@ object RunnerManager {
         val availableRunners = getAvailableRunners(fileObject)
 
         if (availableRunners.isEmpty()) {
-            errorDialog("No runners available", activity)
+            errorDialog(activity, msg = "No runners available")
             return
         }
 

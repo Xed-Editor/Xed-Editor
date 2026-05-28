@@ -46,7 +46,7 @@ import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
 import com.rk.terminal.terminalView
 import com.rk.utils.LoadingPopup
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.dpToPx
 import com.rk.utils.getTempDir
 import com.rk.utils.toast
@@ -291,12 +291,12 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 description = stringResource(strings.uninstall_terminal),
                 showSwitch = false,
                 sideEffect = {
-                    dialog(
+                    dialogRes(
                         activity = activity,
                         title = strings.attention.getString(),
                         msg = strings.uninstall_terminal_warning.getString(),
                         onCancel = {},
-                        okString = strings.delete,
+                        okRes = strings.delete,
                         onOk = {
                             GlobalScope.launch(Dispatchers.IO) {
                                 val loading = LoadingPopup(activity, null)
@@ -379,11 +379,11 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 checked = exposeHomeDirState,
                 onCheckedChange = {
                     if (it) {
-                        dialog(
+                        dialogRes(
                             activity = activity,
                             title = strings.attention.getString(),
                             msg = strings.saf_expose_warning.getString(),
-                            okString = strings.continue_action,
+                            okRes = strings.continue_action,
                             onCancel = {},
                             onOk = {
                                 Settings.expose_home_dir = true

@@ -18,7 +18,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.theme.themes
 import com.rk.utils.application
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import java.io.FileInputStream
@@ -47,7 +47,7 @@ suspend fun loadConfigFromJson(file: FileObject): ThemeConfig? =
 suspend fun ThemeConfig.installTheme() =
     withContext(Dispatchers.IO) {
         if (id == null) {
-            dialog(
+            dialogRes(
                 activity = SettingsActivity.instance,
                 title = strings.theme_install_failed.getString(),
                 msg = strings.theme_id_missing.getString(),
@@ -57,7 +57,7 @@ suspend fun ThemeConfig.installTheme() =
         }
 
         if (name == null) {
-            dialog(
+            dialogRes(
                 activity = SettingsActivity.instance,
                 title = strings.theme_install_failed.getString(),
                 msg = strings.theme_name_missing.getString(),
@@ -70,12 +70,12 @@ suspend fun ThemeConfig.installTheme() =
         val packageManager = application!!.packageManager
         val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
         if (minAppVersion != null && minAppVersion.toLong() > currentVersionCode) {
-            dialog(
+            dialogRes(
                 activity = SettingsActivity.instance,
                 title = strings.warning.getString(),
                 msg = strings.incompatible_theme_warning.getString(),
-                cancelString = strings.cancel,
-                okString = strings.continue_action,
+                cancelRes = strings.cancel,
+                okRes = strings.continue_action,
                 onOk = {
                     finishThemeInstall(name)
                     updateThemes()

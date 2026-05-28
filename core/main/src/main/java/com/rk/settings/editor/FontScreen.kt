@@ -181,7 +181,7 @@ fun FontScreen(
                             }
                             .onFailure {
                                 if (it.message?.isNotBlank() == true) {
-                                    errorDialog(it)
+                                    errorDialog(throwable = it)
                                 }
                             }
                     },

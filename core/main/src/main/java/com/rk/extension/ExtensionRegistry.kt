@@ -90,7 +90,7 @@ object ExtensionRegistry {
                 }
                 .onFailure {
                     it.printStackTrace()
-                    errorDialog(it)
+                    errorDialog(throwable = it)
                 }
                 .getOrElse { false }
         }
