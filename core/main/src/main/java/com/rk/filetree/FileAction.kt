@@ -106,8 +106,9 @@ object TerminalAction : FileAction() {
 
     override fun action(context: FileActionContext) {
         val file = context.file
-        showTerminalNotice(activity = MainActivity.instance!!) {
-            MainActivity.instance?.viewModel?.openTerminal(file.getAbsolutePath())
+        val activity = MainActivity.instance ?: return
+        showTerminalNotice(activity = activity) {
+            activity.viewModel.openTerminal(file.getAbsolutePath())
         }
     }
 

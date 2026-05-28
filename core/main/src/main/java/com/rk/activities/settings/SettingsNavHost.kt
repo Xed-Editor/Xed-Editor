@@ -68,7 +68,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             "${SettingsRoutes.ExcludeFiles.route}/{isDrawer}",
             arguments = listOf(navArgument("isDrawer", builder = { type = NavType.BoolType })),
         ) {
-            val isDrawer = it.arguments?.getBoolean("isDrawer")!!
+            val isDrawer = it.arguments?.getBoolean("isDrawer") ?: return@composable
             ExcludeFiles(isDrawer)
         }
         composable(SettingsRoutes.DeveloperOptions.route) { DeveloperOptions(navController = navController) }
@@ -82,8 +82,8 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             "${SettingsRoutes.LspServerDetail.route}/{serverId}",
             arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
         ) { backStackEntry ->
-            val serverId = backStackEntry.arguments?.getString("serverId")!!
-            val server = LspRegistry.getForId(serverId)!!
+            val serverId = backStackEntry.arguments?.getString("serverId") ?: return@composable
+            val server = LspRegistry.getForId(serverId) ?: return@composable
             LspServerDetail(navController, server)
         }
         composable(
@@ -94,9 +94,9 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
                     navArgument("instanceId", builder = { type = NavType.StringType }),
                 ),
         ) { backStackEntry ->
-            val serverId = backStackEntry.arguments?.getString("serverId")!!
-            val server = LspRegistry.getForId(serverId)!!
-            val instanceId = backStackEntry.arguments?.getString("instanceId")!!
+            val serverId = backStackEntry.arguments?.getString("serverId") ?: return@composable
+            val server = LspRegistry.getForId(serverId) ?: return@composable
+            val instanceId = backStackEntry.arguments?.getString("instanceId") ?: return@composable
             LspServerLogs(server, instanceId)
         }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }

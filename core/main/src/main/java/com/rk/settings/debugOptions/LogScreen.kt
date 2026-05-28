@@ -202,7 +202,7 @@ fun LogScreen(
 }
 
 private fun reportLogs(logText: String, issueTitle: String, copyLabel: String) {
-    val context = SettingsActivity.instance!!
+                        val context = SettingsActivity.instance ?: return
 
     val encodedTitle = URLEncoder.encode(issueTitle, StandardCharsets.UTF_8.toString())
     val urlStart = "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=$encodedTitle&body="

@@ -202,7 +202,7 @@ class LspConnector(
                                 duration = SnackbarDuration.Short,
                             )
                         if (result == SnackbarResult.ActionPerformed) {
-                            val activity = MainActivity.instance!!
+                            val activity = MainActivity.instance ?: return@launch
                             val intent = Intent(activity, SettingsActivity::class.java)
                             intent.putExtra("route", SettingsRoutes.LspSettings.route)
                             activity.startActivity(intent)
@@ -379,16 +379,19 @@ class LspConnector(
     @Throws(Exception::class)
     suspend fun requestDefinition(editor: CodeEditor): Either<List<Location>, List<LocationLink>> {
         return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .definition(
+            val req = requireNotNull(
+                lspEditor?.languageServerWrapper?.requestManager,
+                { "requestManager not initialized" }
+            )
+            requireNotNull(
+                req.definition(
                     DefinitionParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
+                ),
+                { "definition future is null" }
+            ).get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
     }
 
@@ -401,17 +404,20 @@ class LspConnector(
     @Throws(Exception::class)
     suspend fun requestReferences(editor: CodeEditor): List<Location?> {
         return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .references(
+            val req = requireNotNull(
+                lspEditor?.languageServerWrapper?.requestManager,
+                { "requestManager not initialized" }
+            )
+            requireNotNull(
+                req.references(
                     ReferenceParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                         ReferenceContext(true),
                     )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
+                ),
+                { "references future is null" }
+            ).get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
     }
 
@@ -424,17 +430,20 @@ class LspConnector(
     @Throws(Exception::class)
     suspend fun requestRenameSymbol(editor: CodeEditor, newName: String): WorkspaceEdit {
         return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .rename(
+            val req = requireNotNull(
+                lspEditor?.languageServerWrapper?.requestManager,
+                { "requestManager not initialized" }
+            )
+            requireNotNull(
+                req.rename(
                     RenameParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                         newName,
                     )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
+                ),
+                { "rename future is null" }
+            ).get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
     }
 
@@ -449,16 +458,17 @@ class LspConnector(
         editor: CodeEditor
     ): Either3<Range?, PrepareRenameResult?, PrepareRenameDefaultBehavior?>? {
         return withContext(Dispatchers.IO) {
-            lspEditor!!
-                .languageServerWrapper
-                .requestManager!!
-                .prepareRename(
+            val req = requireNotNull(
+                lspEditor?.languageServerWrapper?.requestManager,
+                { "requestManager not initialized" }
+            )
+            req.prepareRename(
                     PrepareRenameParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     )
-                )!!
-                .get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
+                )
+                ?.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
     }
 

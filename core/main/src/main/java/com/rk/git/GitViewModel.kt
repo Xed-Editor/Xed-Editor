@@ -405,7 +405,7 @@ class GitViewModel : ViewModel() {
             try {
                 Git.open(currentRoot.value).use { git ->
                     val rootPath = currentRoot.value?.absolutePath ?: return@use
-                    changes[rootPath]!!
+                    (changes[rootPath] ?: return@use)
                         .filter { it.isChecked }
                         .forEach { change ->
                             when (change.type) {

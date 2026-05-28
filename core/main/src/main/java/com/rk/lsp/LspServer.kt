@@ -61,8 +61,9 @@ abstract class LspServer {
     }
 
     fun connectAllSuitableEditors(excludedEditors: List<EditorTab> = emptyList()) {
+        val activity = MainActivity.instance ?: return
         val suitableTabs =
-            MainActivity.instance!!.viewModel.run {
+            activity.viewModel.run {
                 tabs.filterIsInstance<EditorTab>().filter {
                     !excludedEditors.contains(it) && this@LspServer.supportedExtensions.contains(it.file.getExtension())
                 }
@@ -75,11 +76,11 @@ abstract class LspServer {
         get() = _instances.toList()
 
     fun addInstance(instance: LspServerInstance) {
-        _instances.add(instance)
+        kotlinx.coroutines.MainScope().launch { _instances.add(instance) }
     }
 
     fun removeInstance(instance: LspServerInstance) {
-        _instances.remove(instance)
+        kotlinx.coroutines.MainScope().launch { _instances.remove(instance) }
     }
 
     abstract suspend fun isInstalled(context: Context): Boolean

@@ -6,6 +6,8 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -68,12 +70,16 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     var hasError by mutableStateOf(false)
 
     fun addLog(messageParams: MessageParams) {
-        logs.add(LspLogEntry(level = messageParams.type, message = messageParams.message))
+        Handler(Looper.getMainLooper()).post {
+            logs.add(LspLogEntry(level = messageParams.type, message = messageParams.message))
+        }
     }
 
     fun addLog(lspLogEntry: LspLogEntry) {
-        if (lspLogEntry.level == MessageType.Error) hasError = true
-        logs.add(lspLogEntry)
+        Handler(Looper.getMainLooper()).post {
+            if (lspLogEntry.level == MessageType.Error) hasError = true
+            logs.add(lspLogEntry)
+        }
     }
 
     fun getLspLogs() = logs.toList()
@@ -85,8 +91,8 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
             lspProject.getLanguageServerWrapper(it, server.serverName)
         }
             ?: run {
-                hasError = true
                 addLog(LspLogEntry(MessageType.Error, "Language server instance not found..."))
+                Handler(Looper.getMainLooper()).post { hasError = true }
                 return null
             }
     }
@@ -127,7 +133,7 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
         return withContext(Dispatchers.IO) {
             addLog(LspLogEntry(MessageType.Info, "User started language server instance..."))
             val wrapper = getWrapper() ?: return@withContext emptyList()
-            hasError = false
+            withContext(Dispatchers.Main) { hasError = false }
             DefinitionPrevention.unregister(lspProject, server)
             try {
                 wrapper.start()
@@ -145,8 +151,9 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
         val editors = lspProject.getEditors()
         val filteredEditors = editors.filter { server.supportedExtensions.contains(it.fileExt) }
         filteredEditors.forEach { editor ->
+            val activity = MainActivity.instance ?: return@forEach
             val matchingEditorTab =
-                MainActivity.instance!!.viewModel.run {
+                activity.viewModel.run {
                     tabs.filterIsInstance<EditorTab>().find { it.editorState.editor.get() == editor.editor }
                 } ?: return@forEach
             matchingEditorTab.applyHighlightingAndConnectLSP()

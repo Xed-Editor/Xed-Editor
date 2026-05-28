@@ -277,7 +277,8 @@ fun Editor.registerXedEvents(
                 keyCode == KeyEvent.KEYCODE_J
         if (shouldBeIntercepted) event.markAsConsumed()
 
-        KeybindingsManager.handleEditorEvent(event, MainActivity.instance!!)
+        val activity = MainActivity.instance ?: return@subscribeAlways
+        KeybindingsManager.handleEditorEvent(event, activity)
     }
 }
 

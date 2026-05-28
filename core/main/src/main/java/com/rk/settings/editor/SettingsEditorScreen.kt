@@ -446,7 +446,7 @@ fun SettingsEditorScreen(navController: NavController) {
             NextScreenCard(
                 label = stringResource(strings.exclude_files_drawer),
                 description = stringResource(strings.exclude_files_drawer_desc),
-                onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/true") },
+                onClick = { settingsNavController.get()?.navigate("${SettingsRoutes.ExcludeFiles.route}/true") },
             )
 
             EditorSettingsToggle(
@@ -473,7 +473,7 @@ fun SettingsEditorScreen(navController: NavController) {
             NextScreenCard(
                 label = stringResource(strings.exclude_files_search),
                 description = stringResource(strings.exclude_files_search_desc),
-                onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/false") },
+                onClick = { settingsNavController.get()?.navigate("${SettingsRoutes.ExcludeFiles.route}/false") },
             )
 
             EditorSettingsToggle(

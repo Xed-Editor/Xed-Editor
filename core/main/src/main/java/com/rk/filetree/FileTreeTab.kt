@@ -99,7 +99,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         FileTree(
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
             rootNode = root.toFileTreeNode(),
-            viewModel = fileTreeViewModel.get()!!,
+            viewModel = fileTreeViewModel.get() ?: return@FileTree,
             onFileClick = { node ->
                 scope.launch(Dispatchers.IO) {
                     mainViewModel?.editorManager?.openFile(node.file, projectRoot = root, switchToTab = true)
@@ -274,6 +274,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
 
     override fun onRemoved() {
         Preference.removeKey(indexingPreferenceKey)
-        searchViewModel.get()?.deleteIndex(MainActivity.instance!!, root)
+        val activity = MainActivity.instance ?: return
+        searchViewModel.get()?.deleteIndex(activity, root)
     }
 }

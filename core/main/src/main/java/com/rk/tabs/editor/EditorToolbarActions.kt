@@ -79,7 +79,10 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
             }
             toolbarActions.forEach { command ->
                 IconButton(
-                    onClick = { command.performCommand(ActionContext(activity!!)) },
+                    onClick = {
+                        val act = activity ?: return@IconButton
+                        command.performCommand(ActionContext(act))
+                    },
                     modifier = Modifier.size(48.dp),
                     enabled = command.isEnabled(),
                     colors =
@@ -124,7 +127,8 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
                                     )
                                 },
                                 onClick = {
-                                    command.performCommand(ActionContext(activity!!))
+                                    val act = activity ?: return@DropdownMenuItem
+                                    command.performCommand(ActionContext(act))
                                     expanded = false
                                 },
                                 leadingIcon = {

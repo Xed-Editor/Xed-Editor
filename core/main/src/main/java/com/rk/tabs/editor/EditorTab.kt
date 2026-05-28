@@ -118,7 +118,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
     override val name: String
         get() = strings.editor.getString()
 
-    val scope = CoroutineScope(Dispatchers.Default)
+    val scope = CoroutineScope(Dispatchers.Main)
 
     override var tabTitle: MutableState<String> =
         mutableStateOf(file.getName()).also {
@@ -172,13 +172,16 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
             if (editorState.content == null) {
                 withContext(Dispatchers.IO) {
                     runCatching {
-                            editorState.content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
+                            val content = file.getInputStream().use { ContentIO.createFrom(it, charset) }
                             lastModifiedAt = file.lastModified()
-                            editorState.contentLoaded.complete(Unit)
+                            withContext(Dispatchers.Main) {
+                                editorState.content = content
+                                editorState.contentLoaded.complete(Unit)
 
-                            if (Settings.detect_bin_files && hasBinaryChars(editorState.content.toString())) {
-                                editorState.editable = false
-                                showNotice(BINARY_NOTICE_KEY) { id -> BinaryNotice(id) }
+                                if (Settings.detect_bin_files && hasBinaryChars(content.toString())) {
+                                    editorState.editable = false
+                                    showNotice(BINARY_NOTICE_KEY) { id -> BinaryNotice(id) }
+                                }
                             }
                         }
                         .onFailure { errorDialog(it) }
@@ -323,7 +326,8 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     }
 
                     val content = editorState.content.toString()
-                    val normalizedContent = editorState.editor.get()!!.lineEnding.applyOn(content)
+                    val editor = editorState.editor.get() ?: return@withContext
+                    val normalizedContent = editor.lineEnding.applyOn(content)
                     file.writeText(normalizedContent, charset)
                     lastModifiedAt = file.lastModified()
 
@@ -357,7 +361,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             scope.launch {
                                 write()
                                 searchViewModel.get()?.syncIndex(file)
-                                gitViewModel.get()?.syncChanges(file.getAbsolutePath())!!.join()
+                                gitViewModel.get()?.syncChanges(file.getAbsolutePath())?.join()
                             }
                         }
                     }
@@ -522,7 +526,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 editorState.jumpToLineError = strings.value_small.getString()
                             }
                         },
-                        onConfirm = { editorState.editor.get()!!.jumpToLine(editorState.jumpToLineValue.toInt() - 1) },
+                        onConfirm = { editorState.editor.get()?.jumpToLine(editorState.jumpToLineValue.toInt().coerceAtLeast(1) - 1) },
                         onFinish = {
                             editorState.jumpToLineValue = ""
                             editorState.jumpToLineError = null

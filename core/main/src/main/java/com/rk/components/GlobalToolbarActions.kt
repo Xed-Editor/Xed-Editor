@@ -101,8 +101,9 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     }
 
     if (fileSearchDialog && currentDrawerTab is FileTreeTab) {
+        val searchVm = searchViewModel.get() ?: return
         FileSearchDialog(
-            searchViewModel = searchViewModel.get()!!,
+            searchViewModel = searchVm,
             projectFile = (currentDrawerTab as FileTreeTab).root,
             onFinish = { fileSearchDialog = false },
             onSelect = { projectFile, fileObject ->
@@ -117,7 +118,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                         drawerStateRef.get()?.close()
                     } else {
                         fileTreeViewModel.get()?.goToFolder(projectFile, fileObject)
-                        drawerStateRef.get()!!.open()
+                        drawerStateRef.get()?.open()
                     }
                 }
             },
@@ -125,9 +126,10 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     }
 
     if (codeSearchDialog && currentDrawerTab is FileTreeTab) {
+        val searchVm = searchViewModel.get() ?: return
         CodeSearchDialog(
             mainViewModel = viewModel,
-            searchViewModel = searchViewModel.get()!!,
+            searchViewModel = searchVm,
             projectFile = (currentDrawerTab as FileTreeTab).root,
             onFinish = { codeSearchDialog = false },
         )
@@ -248,8 +250,8 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
             inputValue = fileName,
             onInputValueChange = { fileName = it },
             onConfirm = {
+                tempFileNameDialog = false
                 DefaultScope.launch(Dispatchers.IO) {
-                    tempFileNameDialog = false
                     tempFile.createFileIfNot()
                     viewModel.editorManager.openFile(tempFile, projectRoot = null, switchToTab = true)
                 }

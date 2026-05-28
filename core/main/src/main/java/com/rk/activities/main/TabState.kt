@@ -26,12 +26,13 @@ data class EditorTabState(
         
         if (!fileObject.exists() && !fileObject.canRead()) return null
 
-        MainActivity.instance!!.viewModel.apply {
+        val activity = MainActivity.instance ?: return null
+        activity.viewModel.apply {
             val editorTab = editorManager.createEditorTab(fileObject, projectRoot)
 
             viewModelScope.launch {
                 editorTab.editorState.contentRendered.await()
-                val editor = editorTab.editorState.editor.get()!!
+                val editor = editorTab.editorState.editor.get() ?: return@launch
                 unsavedContent?.let {
                     editorTab.editorState.isDirty = true
                     editor.setText(it)
@@ -60,6 +61,7 @@ data class EditorCursorState(val lineLeft: Int, val columnLeft: Int, val lineRig
 data class FileTabState(val fileUri: String) : TabState {
     override suspend fun toTab(): Tab? {
         val fileObject = Uri.parse(fileUri).toFileObject(true)
-        return TabRegistry.getTab(fileObject, null, MainActivity.instance!!.viewModel)
+        val activity = MainActivity.instance ?: return null
+        return TabRegistry.getTab(fileObject, null, activity.viewModel)
     }
 }

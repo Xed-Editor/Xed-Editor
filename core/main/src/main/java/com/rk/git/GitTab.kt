@@ -199,7 +199,8 @@ class GitTab(val viewModel: GitViewModel) : DrawerTab() {
                         onClick = {
                             scope.launch {
                                 viewModel.pull().join()
-                                MainActivity.instance!!.viewModel.tabs.filterIsInstance<EditorTab>().forEach {
+                                val activity = MainActivity.instance ?: return@launch
+                                activity.viewModel.tabs.filterIsInstance<EditorTab>().forEach {
                                     if (findGitRoot(it.file.getAbsolutePath()) != null) {
                                         it.refresh()
                                     }

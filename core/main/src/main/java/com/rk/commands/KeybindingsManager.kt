@@ -58,59 +58,69 @@ object KeybindingsManager {
     val keybindMap = mutableMapOf<KeyCombination, String>()
 
     fun saveKeybindings() {
-        val json = gson.toJson(customKeybinds)
-        Preference.setString(KEY_KEYBINDINGS, json)
+        synchronized(this) {
+            val json = gson.toJson(customKeybinds)
+            Preference.setString(KEY_KEYBINDINGS, json)
+        }
     }
 
     fun loadKeybindings() {
-        try {
-            val json = Preference.getString(KEY_KEYBINDINGS, "")
-            if (json.isEmpty()) return
+        synchronized(this) {
+            try {
+                val json = Preference.getString(KEY_KEYBINDINGS, "")
+                if (json.isEmpty()) return
 
-            val type = Array<KeyAction>::class.java
-            val loadedActions = gson.fromJson(json, type)
-            customKeybinds.clear()
-            customKeybinds.addAll(loadedActions)
-        } finally {
-            generateKeybindMap()
+                val type = Array<KeyAction>::class.java
+                val loadedActions = gson.fromJson(json, type)
+                customKeybinds.clear()
+                customKeybinds.addAll(loadedActions)
+            } finally {
+                generateKeybindMap()
+            }
         }
     }
 
     fun conflictsWithExisting(keyCombination: KeyCombination, command: Command): Boolean {
-        return keybindMap.containsKey(keyCombination) && keybindMap[keyCombination] != command.id
+        return synchronized(this) {
+            keybindMap.containsKey(keyCombination) && keybindMap[keyCombination] != command.id
+        }
     }
 
     fun resetCustomKey(commandId: String) {
-        customKeybinds.removeIf { it.commandId == commandId }
-        saveKeybindings()
-        generateKeybindMap()
+        synchronized(this) {
+            customKeybinds.removeIf { it.commandId == commandId }
+            saveKeybindings()
+            generateKeybindMap()
+        }
     }
 
     fun resetAllKeys() {
-        customKeybinds.clear()
-        saveKeybindings()
-        generateKeybindMap()
+        synchronized(this) {
+            customKeybinds.clear()
+            saveKeybindings()
+            generateKeybindMap()
+        }
     }
 
     fun editCustomKey(keyAction: KeyAction) {
-        val index = customKeybinds.indexOfFirst { it.commandId == keyAction.commandId }
-        if (index != -1) {
-            customKeybinds[index] = keyAction
-        } else {
-            customKeybinds.add(keyAction)
+        synchronized(this) {
+            val index = customKeybinds.indexOfFirst { it.commandId == keyAction.commandId }
+            if (index != -1) {
+                customKeybinds[index] = keyAction
+            } else {
+                customKeybinds.add(keyAction)
+            }
+            saveKeybindings()
+            generateKeybindMap()
         }
-        saveKeybindings()
-        generateKeybindMap()
     }
 
     fun generateKeybindMap() {
         keybindMap.clear()
 
-        // First add user's custom keybindings
         customKeybinds.forEach { keybind -> keybindMap[keybind.keyCombination] = keybind.commandId }
         val customCommandIds = customKeybinds.map { it.commandId }.toSet()
 
-        // If no custom keybind is set, proceed with default keybindings
         for (command in CommandProvider.commandList) {
             if (customCommandIds.contains(command.id)) continue
             command.defaultKeybinds?.let { keybindMap[it] = command.id }
@@ -118,14 +128,15 @@ object KeybindingsManager {
     }
 
     fun getKeyCombinationForCommand(commandId: String): KeyCombination? {
-        return keybindMap.entries.find { it.value == commandId }?.key
+        return synchronized(this) { keybindMap.entries.find { it.value == commandId }?.key }
     }
 
     fun handleGlobalEvent(event: KeyEvent, mainActivity: MainActivity): Boolean {
         if (event.action != KeyEvent.ACTION_DOWN) return false
 
         val keyCombination = KeyCombination.fromEvent(event)
-        val commandId = keybindMap[keyCombination] ?: return false
+        val localMap = synchronized(this) { HashMap(keybindMap) }
+        val commandId = localMap[keyCombination] ?: return false
         val command = CommandProvider.getForId(commandId) ?: return false
         if (!command.isSupported() || !command.isEnabled()) return false
 
@@ -140,7 +151,8 @@ object KeybindingsManager {
         if (event.action != KeyEvent.ACTION_DOWN) return false
 
         val keyCombination = KeyCombination.fromEvent(event)
-        val commandId = keybindMap[keyCombination] ?: return false
+        val localMap = synchronized(this) { HashMap(keybindMap) }
+        val commandId = localMap[keyCombination] ?: return false
         val command = CommandProvider.getForId(commandId) ?: return false
         if (!command.isSupported() || !command.isEnabled()) return false
 

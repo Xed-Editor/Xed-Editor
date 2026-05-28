@@ -1,5 +1,7 @@
 package com.rk.settings
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,6 +41,10 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
     }
 
     internal fun applyStateValue(value: T) {
-        state = value
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            state = value
+        } else {
+            Handler(Looper.getMainLooper()).post { state = value }
+        }
     }
 }

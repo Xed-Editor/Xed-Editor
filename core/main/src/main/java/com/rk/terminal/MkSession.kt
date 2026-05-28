@@ -116,8 +116,9 @@ object MkSession {
 
         val args: Array<String>
 
+        val pcmd = pendingCommand
         val shell =
-            if (pendingCommand == null) {
+            if (pcmd == null) {
                 args =
                     if (Settings.sandbox) {
                         arrayOf(sandboxSH.absolutePath)
@@ -125,12 +126,12 @@ object MkSession {
                         arrayOf()
                     }
                 "/system/bin/sh"
-            } else if (pendingCommand!!.sandbox.not()) {
-                args = pendingCommand!!.args
-                pendingCommand!!.exe
+            } else if (pcmd.sandbox.not()) {
+                args = pcmd.args
+                pcmd.exe
             } else {
                 args =
-                    mutableListOf(sandboxSH.absolutePath, pendingCommand!!.exe, *pendingCommand!!.args)
+                    mutableListOf(sandboxSH.absolutePath, pcmd.exe, *pcmd.args)
                         .toTypedArray<String>()
 
                 "/system/bin/sh"

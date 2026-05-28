@@ -27,8 +27,9 @@ suspend fun isTerminalWorking(): Boolean =
     }
 
 fun launchTerminal(context: Context, terminalCommand: TerminalCommand) {
-    showTerminalNotice(activity = MainActivity.instance!!) {
+    val activity = MainActivity.instance ?: return
+    showTerminalNotice(activity = activity) {
         pendingCommand = terminalCommand
-        MainActivity.instance?.viewModel?.openTerminal()
+        activity.viewModel.openTerminal()
     }
 }

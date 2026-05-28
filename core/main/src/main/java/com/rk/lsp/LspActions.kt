@@ -63,9 +63,9 @@ suspend fun EditorManager.jumpToPosition(file: FileObject, projectRoot: FileObje
 fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.lspConnector!!
+                val baseLspConnector = editorTab.lspConnector ?: return@launch
                 val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
+                val editor = editorState.editor.get() ?: return@launch
 
                 val eitherDefinitions = baseLspConnector.requestDefinition(editor)
                 val definitions = if (eitherDefinitions.isLeft) eitherDefinitions.left else eitherDefinitions.right
@@ -137,9 +137,9 @@ fun goToDefinition(scope: CoroutineScope, context: Context, viewModel: MainViewM
 fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewModel, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.lspConnector!!
+                val baseLspConnector = editorTab.lspConnector ?: return@launch
                 val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
+                val editor = editorState.editor.get() ?: return@launch
 
                 val references = baseLspConnector.requestReferences(editor)
 
@@ -150,8 +150,9 @@ fun goToReferences(scope: CoroutineScope, context: Context, viewModel: MainViewM
 
                 // If only one reference exists, immediately view reference
                 if (references.size == 1) {
-                    val range = references[0]!!.range
-                    var uriString = references[0]!!.uri
+                    val ref = references[0] ?: return@launch
+                    val range = ref.range
+                    var uriString = ref.uri
                     uriString = fixHomeLocation(context, uriString)
 
                     val uri = uriString.toUri()
@@ -205,9 +206,9 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                 var currentName = ""
 
                 val file = editorTab.file
-                val baseLspConnector = editorTab.lspConnector!!
+                val baseLspConnector = editorTab.lspConnector ?: return@launch
                 val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
+                val editor = editorState.editor.get() ?: return@launch
 
                 if (baseLspConnector.isPrepareRenameSymbolSupported()) {
                     val prepareRename = baseLspConnector.requestPrepareRenameSymbol(editor)
@@ -217,15 +218,18 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                         return@launch
                     }
 
-                    if (prepareRename.isFirst && prepareRename.first!!.start.line == prepareRename.first!!.end.line) {
-                        currentName =
-                            editor.text
-                                .getLineString(prepareRename.first!!.start.line)
-                                .substring(prepareRename.first!!.start.character, prepareRename.first!!.end.character)
+                    if (prepareRename.isFirst) {
+                        val first = prepareRename.first ?: return@launch
+                        if (first.start.line == first.end.line) {
+                            currentName =
+                                editor.text
+                                    .getLineString(first.start.line)
+                                    .substring(first.start.character, first.end.character)
+                        }
                     }
 
                     if (prepareRename.isSecond) {
-                        currentName = prepareRename.second!!.placeholder
+                        currentName = prepareRename.second?.placeholder ?: return@launch
                     }
 
                     if (prepareRename.isThird && editor.cursor.range.start.line == editor.cursor.range.end.line) {
@@ -253,8 +257,9 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                                     return@launch
                                 }
 
-                                val edits = changes[file.toUri().toString()]!!
-                                baseLspConnector.getEventManager()!!.emitAsync(EventType.applyEdits) {
+                                val edits = changes[file.toUri().toString()] ?: return@launch
+                                val eventManager = baseLspConnector.getEventManager() ?: return@launch
+                                eventManager.emitAsync(EventType.applyEdits) {
                                     put("edits", edits)
                                     put(editor.text)
                                 }
@@ -275,7 +280,7 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
 
 fun applyFormattingOptions(eventManager: LspEventManager, editorTab: EditorTab) {
     val editor = editorTab.editorState.editor.get() ?: return
-    val formattingOptions = eventManager.getOption<FormattingOptions>()!!
+    val formattingOptions = eventManager.getOption<FormattingOptions>() ?: return
     formattingOptions.tabSize = editor.tabWidth
     formattingOptions.isInsertSpaces = !editor.editorLanguage.useTab()
     formattingOptions.isInsertFinalNewline = editor.insertFinalNewline
@@ -288,10 +293,10 @@ fun applyFormattingOptions(eventManager: LspEventManager, editorTab: EditorTab) 
  */
 suspend fun formatDocumentSuspend(editorTab: EditorTab) {
     runCatching {
-            val baseLspConnector = editorTab.lspConnector!!
+            val baseLspConnector = editorTab.lspConnector ?: return
             val editorState = editorTab.editorState
-            val editor = editorState.editor.get()!!
-            val eventManager = baseLspConnector.getEventManager()!!
+            val editor = editorState.editor.get() ?: return
+            val eventManager = baseLspConnector.getEventManager() ?: return
 
             applyFormattingOptions(eventManager, editorTab)
 
@@ -310,10 +315,10 @@ fun formatDocument(scope: CoroutineScope, editorTab: EditorTab) {
 fun formatDocumentRange(scope: CoroutineScope, editorTab: EditorTab) {
     scope.launch(Dispatchers.Default) {
         runCatching {
-                val baseLspConnector = editorTab.lspConnector!!
+                val baseLspConnector = editorTab.lspConnector ?: return@launch
                 val editorState = editorTab.editorState
-                val editor = editorState.editor.get()!!
-                val eventManager = baseLspConnector.getEventManager()!!
+                val editor = editorState.editor.get() ?: return@launch
+                val eventManager = baseLspConnector.getEventManager() ?: return@launch
 
                 applyFormattingOptions(eventManager, editorTab)
 

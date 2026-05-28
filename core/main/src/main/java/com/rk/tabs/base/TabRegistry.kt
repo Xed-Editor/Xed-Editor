@@ -11,7 +11,7 @@ fun interface TabFactory {
 }
 
 object TabRegistry {
-    private val registeredTabs = mutableMapOf<String, TabFactory>()
+    private val registeredTabs = java.util.concurrent.ConcurrentHashMap<String, TabFactory>()
 
     fun registerTab(tabFactory: TabFactory, fileExtensions: List<String>) {
         fileExtensions.forEach { registeredTabs[it] = tabFactory }
@@ -25,8 +25,9 @@ object TabRegistry {
         val ext = file.getExtension()
         val type = FileTypeManager.fromExtension(ext)
 
-        if (registeredTabs.containsKey(ext)) {
-            return registeredTabs[ext]!!.createTab(file, projectRoot, viewModel)
+        val factory = registeredTabs[ext]
+        if (factory != null) {
+            return factory.createTab(file, projectRoot, viewModel)
         }
 
         return when (type) {

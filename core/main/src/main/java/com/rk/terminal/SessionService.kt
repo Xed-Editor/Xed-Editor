@@ -33,7 +33,7 @@ class SessionService : Service() {
     private val sessionWorkDirs = ConcurrentHashMap<SessionId, SessionPwd>()
     val sessionList = mutableStateListOf<String>()
     var currentSession = mutableStateOf("main")
-    private var deamonRunning = false
+    @Volatile private var deamonRunning = false
 
     class SessionBinder(svc: SessionService) : Binder() {
         private val weakService = WeakReference(svc)

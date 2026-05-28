@@ -198,7 +198,8 @@ object DrawerPersistence {
 
 fun createServices() {
     serviceTabs.clear()
-    serviceTabs.add(GitTab(gitViewModel.get()!!))
+    val vm = gitViewModel.get() ?: return
+    serviceTabs.add(GitTab(vm))
 }
 
 var drawerTabs = mutableStateListOf<DrawerTab>()
@@ -679,13 +680,14 @@ private fun AddProjectDialog(
                     title = stringResource(strings.private_files),
                     description = stringResource(strings.private_files_desc),
                     onClick = {
+                        val act = activity ?: return@AddDialogItem
                         if (!Settings.has_shown_private_data_dir_warning) {
                             showPrivateFileWarning {
                                 Settings.has_shown_private_data_dir_warning = true
-                                lifecycleScope.launch { onAddProject(FileWrapper(activity!!.filesDir.parentFile!!)) }
+                                lifecycleScope.launch { onAddProject(FileWrapper(act.filesDir.parentFile!!)) }
                             }
                         } else {
-                            lifecycleScope.launch { onAddProject(FileWrapper(activity!!.filesDir.parentFile!!)) }
+                            lifecycleScope.launch { onAddProject(FileWrapper(act.filesDir.parentFile!!)) }
                         }
                         onDismiss()
                     },

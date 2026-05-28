@@ -12,17 +12,18 @@ import com.rk.lsp.servers.TypeScript
 import com.rk.lsp.servers.XML
 
 object LspRegistry {
+    private val lock = Any()
     private val _extensionServers = mutableStateListOf<LspServer>()
     val extensionServers: List<LspServer>
-        get() = _extensionServers.toList()
+        get() = synchronized(lock) { _extensionServers.toList() }
 
     val builtInServer = listOf(Python, HTML, Emmet, CSS, TypeScript, JSON, Bash, XML)
 
     private val _externalServers = mutableStateListOf<LspServer>()
     val externalServers: List<LspServer>
-        get() = _externalServers.toList()
+        get() = synchronized(lock) { _externalServers.toList() }
 
-    private val configuration: MutableMap<LspServer, Boolean> = mutableMapOf()
+    private val configuration = java.util.concurrent.ConcurrentHashMap<LspServer, Boolean>()
 
     suspend fun updateConfiguration(context: Context) {
         (builtInServer + extensionServers).forEach { configuration[it] = it.isInstalled(context) }
@@ -36,34 +37,36 @@ object LspRegistry {
     }
 
     fun addExternalServer(server: LspServer) {
-        _externalServers.add(server)
+        synchronized(lock) { _externalServers.add(server) }
     }
 
     fun removeExternalServer(server: LspServer) {
-        _externalServers.remove(server)
+        synchronized(lock) { _externalServers.remove(server) }
     }
 
     fun clearExternalServers() {
-        _externalServers.clear()
+        synchronized(lock) { _externalServers.clear() }
     }
 
     fun replaceExternalServer(replaceIndex: Int, newServer: LspServer) {
-        _externalServers[replaceIndex] = newServer
+        synchronized(lock) { _externalServers[replaceIndex] = newServer }
     }
 
     fun getForId(id: String): LspServer? {
         return builtInServer.find { it.id == id }
-            ?: _externalServers.find { it.id == id }
-            ?: _extensionServers.find { it.id == id }
+            ?: synchronized(lock) { _externalServers.find { it.id == id } }
+            ?: synchronized(lock) { _extensionServers.find { it.id == id } }
     }
 
     fun registerServer(server: LspServer) {
-        if (!_extensionServers.contains(server)) {
-            _extensionServers.add(server)
+        synchronized(lock) {
+            if (!_extensionServers.contains(server)) {
+                _extensionServers.add(server)
+            }
         }
     }
 
     fun unregisterServer(server: LspServer) {
-        _extensionServers.remove(server)
+        synchronized(lock) { _extensionServers.remove(server) }
     }
 }

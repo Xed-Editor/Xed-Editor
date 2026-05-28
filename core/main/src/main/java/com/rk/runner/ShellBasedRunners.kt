@@ -48,7 +48,7 @@ object ShellBasedRunners {
     }
 
     suspend fun deleteRunner(runner: ShellBasedRunner, deleteScript: Boolean = true) {
-        runners.remove(runner)
+        withContext(Dispatchers.Main) { runners.remove(runner) }
         saveRunners()
         runnerDir().child("${runner.getName()}.sh").createFileIfNot().delete()
     }
@@ -59,8 +59,11 @@ object ShellBasedRunners {
             if (file.exists()) {
                 val content = file.readText()
                 val type = object : TypeToken<List<ShellBasedRunner>>() {}.type
-                runners.clear()
-                runners.addAll(Gson().fromJson<List<ShellBasedRunner>>(content, type))
+                val loaded = Gson().fromJson<List<ShellBasedRunner>>(content, type)
+                withContext(Dispatchers.Main) {
+                    runners.clear()
+                    runners.addAll(loaded)
+                }
             }
         }
     }

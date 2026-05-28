@@ -50,7 +50,10 @@ fun ExtraKeys(editorTab: EditorTab) {
                 icon = if (command.preferText) Icon.TextIcon(command.getLabel()) else command.getIcon(),
                 isOn = command is ToggleableCommand && command.isOn(),
                 enabled = command.isEnabled() && command.isSupported(),
-                onClick = { command.performCommand(ActionContext(MainActivity.instance!!)) },
+                onClick = {
+                    val activity = MainActivity.instance
+                    if (activity != null) command.performCommand(ActionContext(activity))
+                },
             )
         }
 

@@ -66,14 +66,16 @@ class FileTreeCacheManager(
         scope.launch(Dispatchers.IO) {
             try {
                 val fileList = runCatching { file.listFiles() }.getOrElse {
-                    _loadingStates[file] = false
+                    scope.launch(Dispatchers.Main) { _loadingStates[file] = false }
                     return@launch
                 }
                 val sortedFiles = sortAndFilterFiles(fileList)
-                fileListCache[file] = sortedFiles
-                scope.launch { delay(300); _loadingStates[file] = false }
+                scope.launch(Dispatchers.Main) {
+                    fileListCache[file] = sortedFiles
+                    scope.launch { delay(300); _loadingStates[file] = false }
+                }
             } catch (_: Exception) {
-                _loadingStates[file] = false
+                scope.launch(Dispatchers.Main) { _loadingStates[file] = false }
             }
         }
     }
@@ -88,35 +90,41 @@ class FileTreeCacheManager(
         scope.launch(Dispatchers.IO) {
             try {
                 val fileList = runCatching { node.file.listFiles() }.getOrElse {
-                    _loadingStates[node.file] = false
+                    scope.launch(Dispatchers.Main) { _loadingStates[node.file] = false }
                     return@launch
                 }
                 val sortedFiles = sortAndFilterFiles(fileList)
-                fileListCache[node.file] = sortedFiles
-                scope.launch { delay(300); _loadingStates[node.file] = false }
+                scope.launch(Dispatchers.Main) {
+                    fileListCache[node.file] = sortedFiles
+                    scope.launch { delay(300); _loadingStates[node.file] = false }
+                }
             } catch (_: Exception) {
-                _loadingStates[node.file] = false
+                scope.launch(Dispatchers.Main) { _loadingStates[node.file] = false }
             }
         }
     }
 
     suspend fun loadChildrenForNodeSynchronous(node: FileTreeNode) {
-        if (fileListCache.containsKey(node.file)) {
-            _loadingStates[node.file] = false
-            return
+        withContext(Dispatchers.Main) {
+            if (fileListCache.containsKey(node.file)) {
+                _loadingStates[node.file] = false
+                return@withContext
+            }
+            _loadingStates[node.file] = true
         }
-        _loadingStates[node.file] = true
 
         try {
             val fileList = runCatching { node.file.listFiles() }.getOrElse {
-                _loadingStates[node.file] = false
+                withContext(Dispatchers.Main) { _loadingStates[node.file] = false }
                 return
             }
             val sortedFiles = sortAndFilterFiles(fileList)
-            fileListCache[node.file] = sortedFiles
-            scope.launch { delay(300); _loadingStates[node.file] = false }
+            withContext(Dispatchers.Main) {
+                fileListCache[node.file] = sortedFiles
+                scope.launch { delay(300); _loadingStates[node.file] = false }
+            }
         } catch (_: Exception) {
-            _loadingStates[node.file] = false
+            withContext(Dispatchers.Main) { _loadingStates[node.file] = false }
         }
     }
 

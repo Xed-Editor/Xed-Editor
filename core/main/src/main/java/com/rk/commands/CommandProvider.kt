@@ -84,7 +84,7 @@ object CommandProvider {
 
     fun buildCommands() =
         synchronized(this) {
-            val commandContext = CommandContext { MainActivity.instance!!.viewModel }
+            val commandContext = CommandContext { MainActivity.instance?.viewModel ?: error("MainActivity destroyed") }
 
             registerBuiltin(DocumentationCommand(commandContext)) { DocumentationCommand = it }
             registerBuiltin(TerminalCommand(commandContext)) { TerminalCommand = it }
@@ -132,13 +132,17 @@ object CommandProvider {
     }
 
     fun registerCommand(command: Command) {
-        if (!_commandList.contains(command)) {
-            _commandList.add(command)
+        synchronized(this) {
+            if (!_commandList.contains(command)) {
+                _commandList.add(command)
+            }
         }
     }
 
     fun unregisterCommand(command: Command) {
-        _commandList.remove(command)
+        synchronized(this) {
+            _commandList.remove(command)
+        }
     }
 
     fun getForId(id: String): Command? = findRecursive(id, commandList)

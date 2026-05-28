@@ -206,10 +206,12 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 default = false,
                 sideEffect = {
                     val fileManager =
-                        if (SettingsActivity.instance != null) {
-                            SettingsActivity.instance!!.fileManager
+                        val act = SettingsActivity.instance
+                        if (act != null) {
+                            act.fileManager
                         } else {
-                            MainActivity.instance!!.fileManager
+                            val activity = MainActivity.instance ?: return@SettingsToggle
+                            activity.fileManager
                         }
 
                     fileManager.createNewFile(
