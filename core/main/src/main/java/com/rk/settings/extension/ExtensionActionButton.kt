@@ -49,11 +49,6 @@ fun ExtensionActionButton(
                 onClick = { scope.launch { onInstallClick(extension) } },
                 shape = RoundedCornerShape(10.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                    ),
             ) {
                 Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
@@ -101,6 +96,11 @@ fun ExtensionActionButton(
                 onClick = { scope.launch { onUpdateClick(updatableExtension) } },
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary,
+                    ),
             ) {
                 Icon(
                     painterResource(drawables.update),

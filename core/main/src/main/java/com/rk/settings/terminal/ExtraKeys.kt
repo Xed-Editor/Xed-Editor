@@ -1,6 +1,5 @@
 package com.rk.settings.terminal
 
-import android.content.Intent
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,7 +26,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
 import com.rk.components.ResetButton
 import com.rk.editor.Editor
 import com.rk.file.BuiltinFileType
@@ -37,6 +35,7 @@ import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorNotice
 import com.rk.utils.isSystemInDarkTheme
+import com.rk.utils.openUrl
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
@@ -114,8 +113,7 @@ fun TerminalExtraKeys() {
                     IconButton(
                         onClick = {
                             val url = "https://wiki.termux.com/wiki/Touch_Keyboard#Extra_Keys_Row"
-                            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                            context.startActivity(intent)
+                            context.openUrl(url)
                         }
                     ) {
                         Icon(
