@@ -123,7 +123,7 @@ fun ToolSheetContainer(
     val navBarHeightDp = with(density) { WindowInsets.navigationBars.getBottom(density).toDp() }
     val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
-    val isTablet = screenWidthDp >= 600
+    val isTablet = screenWidthDp >= 600.dp
 
     val availableHeight = screenHeightDp - imeHeightDp - navBarHeightDp - statusBarHeightDp
     val maxHeight = (availableHeight * 0.92f).coerceAtLeast(300.dp)
@@ -174,7 +174,7 @@ fun ToolSheetModalContainer(
     val navBarHeightDp = with(density) { WindowInsets.navigationBars.getBottom(density).toDp() }
     val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
-    val isTablet = screenWidthDp >= 600
+    val isTablet = screenWidthDp >= 600.dp
 
     val availableHeight = screenHeightDp - imeHeightDp - navBarHeightDp - statusBarHeightDp
     val maxHeight = (availableHeight * 0.92f).coerceAtLeast(300.dp)
