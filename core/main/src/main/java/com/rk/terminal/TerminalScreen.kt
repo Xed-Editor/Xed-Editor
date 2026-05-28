@@ -178,40 +178,61 @@ private fun ColumnScope.TerminalView(
 
                     if (initialCwd != null) {
                         scope.launch(Dispatchers.IO) {
-                            val sessionId = File(initialCwd).name + " #${service.sessionList.size + 1}"
-                            val info = binder.createSession(sessionId, client, activity, activeFile, activeProject)
-                            withContext(Dispatchers.Main) {
-                                service.currentSession.value = info?.id ?: service.currentSession.value
-                                info?.session?.let {
-                                    it.updateTerminalSessionClient(client)
-                                    attachSession(it)
+                            try {
+                                val sessionId = File(initialCwd).name + " #${service.sessionList.size + 1}"
+                                val info = binder.createSession(sessionId, client, activity, activeFile, activeProject)
+                                withContext(Dispatchers.Main) {
+                                    service.currentSession.value = info?.id ?: service.currentSession.value
+                                    info?.session?.let {
+                                        it.updateTerminalSessionClient(client)
+                                        attachSession(it)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                withContext(Dispatchers.Main) {
+                                    com.rk.utils.errorDialog(e)
                                 }
                             }
                         }
                     } else if (pendingCommand != null) {
                         scope.launch(Dispatchers.IO) {
-                            val pcmd = pendingCommand!!
-                            val info = binder.getSession(pcmd.id)?.let { SessionInfo(pcmd.id, "", it) }
-                                ?: binder.createSession(pcmd.id, client, activity, activeFile, activeProject)
-                            
-                            withContext(Dispatchers.Main) {
-                                service.currentSession.value = pcmd.id
-                                info?.session?.let {
-                                    it.updateTerminalSessionClient(client)
-                                    attachSession(it)
+                            try {
+                                val pcmd = pendingCommand!!
+                                val info = binder.getSession(pcmd.id)?.let { SessionInfo(pcmd.id, "", it) }
+                                    ?: binder.createSession(pcmd.id, client, activity, activeFile, activeProject)
+
+                                withContext(Dispatchers.Main) {
+                                    service.currentSession.value = pcmd.id
+                                    info?.session?.let {
+                                        it.updateTerminalSessionClient(client)
+                                        attachSession(it)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                withContext(Dispatchers.Main) {
+                                    com.rk.utils.errorDialog(e)
                                 }
                             }
                         }
                     } else {
                         scope.launch(Dispatchers.IO) {
-                            val currentId = service.currentSession.value
-                            val info = binder.getSession(currentId)?.let { SessionInfo(currentId, "", it) }
-                                ?: binder.createSession(currentId, client, activity, activeFile, activeProject)
-                            
-                            withContext(Dispatchers.Main) {
-                                info?.session?.let {
-                                    it.updateTerminalSessionClient(client)
-                                    attachSession(it)
+                            try {
+                                val currentId = service.currentSession.value
+                                val info = binder.getSession(currentId)?.let { SessionInfo(currentId, "", it) }
+                                    ?: binder.createSession(currentId, client, activity, activeFile, activeProject)
+
+                                withContext(Dispatchers.Main) {
+                                    info?.session?.let {
+                                        it.updateTerminalSessionClient(client)
+                                        attachSession(it)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                withContext(Dispatchers.Main) {
+                                    com.rk.utils.errorDialog(e)
                                 }
                             }
                         }

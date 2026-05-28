@@ -2,6 +2,7 @@ package com.termux.terminal;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.system.ErrnoException;
 import android.system.Os;
@@ -78,7 +79,7 @@ public final class TerminalSession extends TerminalOutput {
      */
     public String mSessionName;
 
-    final Handler mMainThreadHandler = new MainThreadHandler();
+    final Handler mMainThreadHandler = new MainThreadHandler(Looper.getMainLooper());
 
     private final String mShellPath;
     private final String mCwd;
@@ -365,6 +366,10 @@ public final class TerminalSession extends TerminalOutput {
 
     @SuppressLint("HandlerLeak")
     class MainThreadHandler extends Handler {
+
+        MainThreadHandler(Looper looper) {
+            super(looper);
+        }
 
         final byte[] mReceiveBuffer = new byte[4 * 1024];
 
