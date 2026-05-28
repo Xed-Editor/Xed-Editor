@@ -14,12 +14,24 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.RunnerImpl
+import com.rk.runner.Runner
 import com.rk.terminal.setupAssetFile
 import com.rk.utils.dialog
 import kotlinx.coroutines.launch
 
-class UniversalRunner : RunnerImpl() {
+object UniversalRunner : Runner() {
+
+    override val id = "universal"
+    override val label = strings.universal_runner.getString()
+    override val description = strings.universal_runner_desc.getString()
+
+    override fun matcher(fileObject: FileObject): Boolean {
+        return Regex(
+                ".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"
+            )
+            .matches(fileObject.getName())
+    }
+
     @SuppressLint("SdCardPath")
     override suspend fun run(context: Context, fileObject: FileObject) {
         setupAssetFile("universal_runner")
@@ -56,15 +68,11 @@ class UniversalRunner : RunnerImpl() {
                     sandbox = true,
                     exe = "/bin/bash",
                     args = arrayOf(localBinDir().child("universal_runner").absolutePath, fileObject.getAbsolutePath()),
-                    id = "universal_runner",
+                    id = strings.universal_runner.getString(),
                     terminatePreviousSession = true,
                     workingDir = fileObject.getParentFile()?.getAbsolutePath() ?: "/",
                 ),
         )
-    }
-
-    override fun getName(): String {
-        return strings.universal_runner.getString()
     }
 
     override fun getIcon(context: Context): Icon {

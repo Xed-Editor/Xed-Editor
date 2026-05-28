@@ -63,6 +63,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.utils.openDocs
 import com.rk.utils.parseExtensions
 import com.rk.utils.toast
 import kotlinx.coroutines.CoroutineScope
@@ -161,6 +162,7 @@ fun LspSettings(navController: NavController) {
         },
     ) {
         InfoBlock(
+            onClick = { context.openDocs("lsp") },
             icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
             text = stringResource(strings.info_lsp),
         )

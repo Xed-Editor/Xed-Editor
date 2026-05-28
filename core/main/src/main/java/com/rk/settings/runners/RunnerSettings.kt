@@ -21,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -36,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
-import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock
 import com.rk.components.SettingsToggle
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -46,9 +47,10 @@ import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.runner.RunnerManager
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
-import com.rk.settings.Settings
+import com.rk.utils.openDocs
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
@@ -63,7 +65,9 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
 
     val nameFocusRequester = remember { FocusRequester() }
     val regexFocusRequester = remember { FocusRequester() }
+
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     var regexFieldValue by remember { mutableStateOf(TextFieldValue("", selection = TextRange(runnerName.length))) }
 
@@ -126,32 +130,37 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
         },
     ) {
         InfoBlock(
+            onClick = { context.openDocs("runners") },
             icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
             text = stringResource(strings.info_runners),
         )
 
         PreferenceGroup(heading = stringResource(strings.built_in)) {
-            SettingsToggle(
-                label = stringResource(strings.html_preview),
-                description = stringResource(strings.html_preview_desc),
-                default = Settings.enable_html_runner,
-                sideEffect = { Settings.enable_html_runner = it },
-                onClick = { navController.navigate(SettingsRoutes.HtmlRunner.route) },
-            )
+            RunnerManager.builtinRunners.forEach { runner ->
+                SettingsToggle(
+                    label = runner.label,
+                    description = runner.description,
+                    default = runner.isEnabled(),
+                    sideEffect = { runner.setEnabled(it) },
+                    onClick = runner.onConfigure,
+                )
+            }
+        }
 
-            SettingsToggle(
-                label = stringResource(strings.markdown_preview),
-                description = stringResource(strings.markdown_preview_desc),
-                default = Settings.enable_md_runner,
-                sideEffect = { Settings.enable_md_runner = it },
-            )
-
-            SettingsToggle(
-                label = stringResource(strings.universal_runner),
-                description = stringResource(strings.universal_runner_desc),
-                default = Settings.enable_universal_runner,
-                sideEffect = { Settings.enable_universal_runner = it },
-            )
+        if (RunnerManager.extensionRunners.isNotEmpty()) {
+            PreferenceGroup(heading = stringResource(strings.ext)) {
+                RunnerManager.extensionRunners.forEach { runner ->
+                    key(runner.id) {
+                        SettingsToggle(
+                            label = runner.label,
+                            description = runner.description,
+                            default = runner.isEnabled(),
+                            sideEffect = { runner.setEnabled(it) },
+                            onClick = runner.onConfigure,
+                        )
+                    }
+                }
+            }
         }
 
         PreferenceGroup(heading = stringResource(strings.external)) {
@@ -179,10 +188,10 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                     ShellBasedRunners.runners.forEach { runner ->
                         SettingsToggle(
                             modifier = Modifier,
-                            label = runner.getName(),
+                            label = runner.label,
                             description = null,
-                            default = false,
-                            sideEffect = { _ ->
+                            default = runner.isEnabled(),
+                            onClick = {
                                 MainActivity.instance?.let {
                                     it.lifecycleScope.launch {
                                         it.viewModel.editorManager.openFile(FileWrapper(runner.getScript()), null, true)
@@ -190,7 +199,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                                     }
                                 }
                             },
-                            showSwitch = false,
+                            sideEffect = { runner.setEnabled(it) },
                             endWidget = {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -199,7 +208,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                                     IconButton(
                                         onClick = {
                                             isEditingExisting = runner
-                                            runnerName = runner.getName()
+                                            runnerName = runner.label
                                             regexFieldValue =
                                                 regexFieldValue.copy(
                                                     text = runner.regex,
@@ -325,7 +334,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                         onClick = {
                             // Check for duplicate names only when creating new runner
                             if (isEditingExisting == null) {
-                                if (ShellBasedRunners.runners.any { it.getName() == runnerName }) {
+                                if (ShellBasedRunners.runners.any { it.label == runnerName }) {
                                     nameError = strings.runner_name_exists.getString()
                                     return@TextButton
                                 }
@@ -334,7 +343,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                             scope.launch {
                                 if (isEditingExisting == null) {
                                     // Create new runner
-                                    val runner = ShellBasedRunner(name = runnerName, regex = regexFieldValue.text)
+                                    val runner = ShellBasedRunner(label = runnerName, regex = regexFieldValue.text)
                                     val created = ShellBasedRunners.newRunner(runner)
                                     if (created) {
                                         // Refresh list
@@ -350,10 +359,10 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                                     // Update existing runner
                                     val updatedRunner =
                                         ShellBasedRunner(
-                                            name = runnerName, // Name remains the same
+                                            label = runnerName, // Name remains the same
                                             regex = regexFieldValue.text,
                                         )
-                                    ShellBasedRunners.deleteRunner(isEditingExisting!!, deleteScript = false)
+                                    ShellBasedRunners.deleteRunner(isEditingExisting!!)
                                     val updated = ShellBasedRunners.newRunner(updatedRunner)
                                     if (updated) {
                                         // Refresh list

@@ -4,22 +4,34 @@ import android.content.Context
 import android.content.Intent
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
+import com.rk.activities.settings.SettingsRoutes
+import com.rk.activities.settings.settingsNavController
 import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.RunnerImpl
+import com.rk.runner.Runner
 import com.rk.runner.runners.web.HttpServer
 import com.rk.settings.Settings
 import com.rk.utils.toast
 import java.net.BindException
 
-class HtmlRunner : RunnerImpl() {
-    companion object {
-        var httpServer: HttpServer? = null
+object HtmlRunner : Runner() {
+
+    var httpServer: HttpServer? = null
+
+    override val id = "html_preview"
+    override val label = strings.html_preview.getString()
+    override val description = strings.html_preview_desc.getString()
+
+    override fun matcher(fileObject: FileObject): Boolean {
+        val htmlExtensions = BuiltinFileType.HTML.extensions.joinToString("|")
+        return Regex(".*\\.($htmlExtensions|svg)$").matches(fileObject.getName())
     }
+
+    override val onConfigure: () -> Unit = { settingsNavController.get()?.navigate(SettingsRoutes.HtmlRunner.route) }
 
     override suspend fun run(context: Context, fileObject: FileObject) {
         stop()
@@ -48,12 +60,8 @@ class HtmlRunner : RunnerImpl() {
             .launchUrl(context, url.toUri())
     }
 
-    override fun getName(): String {
-        return strings.html_preview.getString()
-    }
-
-    override fun getIcon(context: Context): Icon {
-        return BuiltinFileType.HTML.icon!!
+    override fun getIcon(context: Context): Icon? {
+        return BuiltinFileType.HTML.icon
     }
 
     override suspend fun isRunning(): Boolean = httpServer?.isAlive == true

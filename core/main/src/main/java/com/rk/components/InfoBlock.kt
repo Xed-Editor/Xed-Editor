@@ -1,6 +1,7 @@
 package com.rk.components
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,10 +30,11 @@ fun InfoBlock(
     icon: @Composable (() -> Unit)? = null,
     shape: Shape = RoundedCornerShape(12.dp),
     warning: Boolean = false,
+    onClick: (() -> Unit)? = null,
 ) {
     PreferenceGroup(modifier = modifier) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.clickable(enabled = onClick != null, onClick = { onClick?.invoke() }).fillMaxWidth(),
             shape = shape,
             colors =
                 if (warning) CardDefaults.cardColors(MaterialTheme.colorScheme.warningSurface)

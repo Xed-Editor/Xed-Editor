@@ -1,7 +1,9 @@
 package com.rk.tabs.editor
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,6 +44,7 @@ import com.rk.color.ColorPicker
 import com.rk.components.AddDialogItem
 import com.rk.components.SingleInputDialog
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
+import com.rk.extension.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
 import com.rk.file.child
@@ -51,7 +54,6 @@ import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.currentRunner
 import com.rk.search.EditorSearchPanel
 import com.rk.search.FindingsDialog
 import com.rk.settings.Settings
@@ -62,7 +64,6 @@ import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
 import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.ContentIO
-import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import java.nio.file.Paths
 import kotlinx.coroutines.CompletableDeferred
@@ -169,8 +170,8 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
     }
 
     companion object {
-        const val BINARY_NOTICE_KEY = "binary_file"
-        const val EDITORCONFIG_NOTICE_KEY = "editorconfig_changed"
+        private const val BINARY_NOTICE_KEY = "binary_file"
+        private const val EDITORCONFIG_NOTICE_KEY = "editorconfig_changed"
     }
 
     @Composable
@@ -209,11 +210,13 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         )
     }
 
+    @XedExtensionPoint
     fun showNotice(id: String, notice: @Composable (String) -> Unit) {
         if (editorState.notices.contains(id)) return
         editorState.notices[id] = notice
     }
 
+    @XedExtensionPoint
     fun removeNotice(id: String) {
         editorState.notices.remove(id)
     }
@@ -352,28 +355,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
             Column {
                 if (editorState.showRunnerDialog) {
-                    ModalBottomSheet(
-                        onDismissRequest = {
-                            editorState.showRunnerDialog = false
-                            editorState.runnersToShow = emptyList()
-                        }
-                    ) {
-                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
-                            editorState.runnersToShow.forEach { runner ->
-                                AddDialogItem(
-                                    icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
-                                    title = runner.getName(),
-                                ) {
-                                    DefaultScope.launch {
-                                        currentRunner = WeakReference(runner)
-                                        runner.run(context, file)
-                                        editorState.showRunnerDialog = false
-                                        editorState.runnersToShow = emptyList()
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    RunnerSheet(context)
                 }
 
                 if (editorState.showFindingsDialog) {
@@ -555,5 +537,38 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
     override fun toString(): String {
         return "[EditorTab] ${file.getAbsolutePath()}"
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun EditorTab.RunnerSheet(context: Context) {
+    ModalBottomSheet(
+        onDismissRequest = {
+            editorState.showRunnerDialog = false
+            editorState.runnersToShow = emptyList()
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(text = stringResource(strings.choose_runner), style = MaterialTheme.typography.titleLarge)
+
+            Column {
+                editorState.runnersToShow.forEach { runner ->
+                    AddDialogItem(
+                        icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
+                        title = runner.label,
+                    ) {
+                        DefaultScope.launch {
+                            runner.run(context, file)
+                            editorState.showRunnerDialog = false
+                            editorState.runnersToShow = emptyList()
+                        }
+                    }
+                }
+            }
+        }
     }
 }

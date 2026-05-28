@@ -4,7 +4,6 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -63,7 +62,7 @@ import com.rk.extension.UpdatableExtension
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.theme.Typography
-import com.rk.utils.openUrl
+import com.rk.utils.openDocs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -174,9 +173,8 @@ fun ExtensionScreen(navController: NavController) {
     ) {
         item {
             InfoBlock(
-                modifier =
-                    Modifier.clickable { activity?.openUrl("https://xed-editor.github.io/Xed-Docs/docs/extensions/") }
-                        .padding(bottom = 16.dp),
+                onClick = { activity?.openDocs("extensions") },
+                modifier = Modifier.padding(bottom = 16.dp),
                 icon = { Icon(imageVector = Icons.Outlined.Info, contentDescription = null) },
                 text = stringResource(strings.info_ext),
             )

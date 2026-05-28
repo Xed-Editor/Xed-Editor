@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import com.rk.color.ColorFormat
 import com.rk.editor.Editor
-import com.rk.runner.RunnerImpl
+import com.rk.runner.Runner
 import com.rk.search.CodeItem
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.Content
@@ -57,7 +57,7 @@ data class CodeEditorState(val initialContent: Content? = null) {
 
     var textmateScope by mutableStateOf<String?>(null)
 
-    var runnersToShow by mutableStateOf<List<RunnerImpl>>(emptyList())
+    var runnersToShow by mutableStateOf<List<Runner>>(emptyList())
     var showRunnerDialog by mutableStateOf(false)
 
     var showColorPicker by mutableStateOf<Pair<Color, ColorFormat>?>(null)

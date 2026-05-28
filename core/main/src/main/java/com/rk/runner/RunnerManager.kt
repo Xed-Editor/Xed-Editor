@@ -1,141 +1,85 @@
 package com.rk.runner
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.XedExtensionPoint
-import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkdownRunner
-import com.rk.settings.Settings
+import com.rk.settings.Preference
 import com.rk.utils.errorDialog
-import java.lang.ref.WeakReference
 
-abstract class RunnerImpl {
+abstract class Runner {
 
     abstract suspend fun run(context: Context, fileObject: FileObject)
-
-    abstract fun getName(): String
 
     abstract fun getIcon(context: Context): Icon?
 
     abstract suspend fun isRunning(): Boolean
 
     abstract suspend fun stop()
-}
 
-var currentRunner = WeakReference<RunnerImpl?>(null)
+    abstract fun matcher(fileObject: FileObject): Boolean
 
-abstract class RunnerBuilder(
-    val regex: Regex,
-    val enabled: () -> Boolean = { true },
-    val clazz: Class<out RunnerImpl>,
-) {
-    fun build(): RunnerImpl {
-        return clazz.getDeclaredConstructor().newInstance()
+    abstract val id: String
+    abstract val label: String
+    open val description: String? = null
+    open val onConfigure: (() -> Unit)? = null
+
+    fun isEnabled(): Boolean {
+        return Preference.getBoolean("runner_$id", true)
+    }
+
+    fun setEnabled(enabled: Boolean) {
+        Preference.setBoolean("runner_$id", enabled)
     }
 }
 
 object RunnerManager {
-    private val _runnerBuilders = mutableListOf<RunnerBuilder>()
 
-    val runnerBuilders: List<RunnerBuilder>
-        get() = _runnerBuilders.toList()
+    private val _extensionRunners = mutableStateListOf<Runner>()
 
-    init {
-        val htmlExtensions = BuiltinFileType.HTML.extensions.joinToString("|")
-        val markdownExtensions = BuiltinFileType.MARKDOWN.extensions.joinToString("|")
+    val extensionRunners: List<Runner>
+        get() = _extensionRunners.toList()
 
-        _runnerBuilders.apply {
-            add(
-                object :
-                    RunnerBuilder(
-                        regex = Regex(".*\\.($htmlExtensions|svg)$"),
-                        enabled = { Settings.enable_html_runner },
-                        clazz = HtmlRunner::class.java,
-                    ) {}
-            )
-            add(
-                object :
-                    RunnerBuilder(
-                        regex = Regex(".*\\.($markdownExtensions)$"),
-                        enabled = { Settings.enable_md_runner },
-                        clazz = MarkdownRunner::class.java,
-                    ) {}
-            )
-            add(
-                object :
-                    RunnerBuilder(
-                        regex =
-                            Regex(
-                                ".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"
-                            ),
-                        enabled = { Settings.enable_universal_runner },
-                        clazz = UniversalRunner::class.java,
-                    ) {}
-            )
+    val builtinRunners = listOf(HtmlRunner, MarkdownRunner, UniversalRunner)
+
+    @XedExtensionPoint
+    fun registerRunner(runner: Runner) {
+        if (!_extensionRunners.contains(runner)) {
+            _extensionRunners.add(runner)
         }
     }
 
     @XedExtensionPoint
-    fun registerRunner(runnerBuilder: RunnerBuilder) {
-        if (!_runnerBuilders.contains(runnerBuilder)) {
-            _runnerBuilders.add(runnerBuilder)
-        }
-    }
-
-    @XedExtensionPoint
-    fun unregisterRunner(runnerBuilder: RunnerBuilder) {
-        _runnerBuilders.remove(runnerBuilder)
+    fun unregisterRunner(runner: Runner) {
+        _extensionRunners.remove(runner)
     }
 
     fun isRunnable(fileObject: FileObject): Boolean {
-        ShellBasedRunners.runners.forEach {
-            val name = fileObject.getName()
-            val regex = Regex(it.regex)
-
-            if (regex.matches(name)) {
-                return true
-            }
-        }
-
-        runnerBuilders.forEach {
-            if (!it.enabled()) return@forEach
-
-            val name = fileObject.getName()
-            val regex = it.regex
-
-            if (regex.matches(name)) {
-                return true
-            }
-        }
-        return false
+        return getAvailableRunners(fileObject).isNotEmpty()
     }
 
-    suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<RunnerImpl>) -> Unit) {
-        val availableRunners = mutableListOf<RunnerImpl>()
+    fun getAvailableRunners(fileObject: FileObject): List<Runner> {
+        val result = mutableListOf<Runner>()
 
-        ShellBasedRunners.runners.forEach {
-            val name = fileObject.getName()
-            val regex = Regex(it.regex)
-
-            if (regex.matches(name)) {
-                availableRunners.add(it)
+        val runners = builtinRunners + extensionRunners + ShellBasedRunners.runners
+        runners.forEach {
+            if (it.isEnabled() && it.matcher(fileObject)) {
+                result.add(it)
             }
         }
 
-        runnerBuilders.forEach {
-            val name = fileObject.getName()
-            val regex = it.regex
+        return result
+    }
 
-            if (regex.matches(name)) {
-                availableRunners.add(it.build())
-            }
-        }
+    suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<Runner>) -> Unit) {
+        val availableRunners = getAvailableRunners(fileObject)
 
         if (availableRunners.isEmpty()) {
-            errorDialog("No runners available")
+            errorDialog("No runners available", context)
             return
         }
 
@@ -144,9 +88,5 @@ object RunnerManager {
         } else {
             onMultipleRunners.invoke(availableRunners)
         }
-    }
-
-    suspend fun onMainActivityResumed() {
-        currentRunner.get()?.stop()
     }
 }

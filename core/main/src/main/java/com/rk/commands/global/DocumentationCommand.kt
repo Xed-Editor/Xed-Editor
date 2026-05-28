@@ -1,8 +1,6 @@
 package com.rk.commands.global
 
-import android.content.Intent
 import android.view.KeyEvent
-import androidx.core.net.toUri
 import com.rk.commands.ActionContext
 import com.rk.commands.GlobalCommand
 import com.rk.commands.KeyCombination
@@ -11,6 +9,7 @@ import com.rk.icons.Menu_book
 import com.rk.icons.XedIcons
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.utils.openUrl
 
 class DocumentationCommand : GlobalCommand() {
     override val id: String = "global.documentation"
@@ -19,8 +18,7 @@ class DocumentationCommand : GlobalCommand() {
 
     override fun action(actionContext: ActionContext) {
         val url = "https://xed-editor.github.io/Xed-Docs/"
-        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-        actionContext.currentActivity.startActivity(intent)
+        actionContext.currentActivity.openUrl(url)
     }
 
     override fun getIcon(): Icon = Icon.VectorIcon(XedIcons.Menu_book)
