@@ -21,7 +21,7 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
             is Int -> Preference.getInt(key, defaultValue) as T
             is Long -> Preference.getLong(key, defaultValue) as T
             is Float -> Preference.getFloat(key, defaultValue) as T
-            else -> throw IllegalArgumentException("Unsupported preference type: ${defaultValue::class.java.simpleName}")
+            else -> throw IllegalArgumentException("Unsupported preference type: ${defaultValue!!::class.java.simpleName}")
         }
     }
 
@@ -34,7 +34,7 @@ class CachedPreference<T>(val key: String, val defaultValue: T) : ReadWritePrope
             is Int -> Preference.setInt(key, value)
             is Long -> Preference.setLong(key, value)
             is Float -> Preference.setFloat(key, value)
-            else -> throw IllegalArgumentException("Unsupported preference type: ${value::class.java.simpleName}")
+            else -> throw IllegalArgumentException("Unsupported preference type: ${value!!::class.java.simpleName}")
         }
     }
 

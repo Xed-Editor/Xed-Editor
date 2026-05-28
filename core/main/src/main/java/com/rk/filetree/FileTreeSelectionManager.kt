@@ -107,7 +107,7 @@ class FileTreeSelectionManager {
         }
     }
 
-    fun expandToRoot(fileObject: FileObject, projectFile: FileObject, checkCache: (FileObject) -> Boolean) {
+    suspend fun expandToRoot(fileObject: FileObject, projectFile: FileObject, checkCache: (FileObject) -> Boolean) {
         var currentFile: FileObject? = fileObject
         while (currentFile != null && currentFile != projectFile) {
             expandedNodes[currentFile] = true

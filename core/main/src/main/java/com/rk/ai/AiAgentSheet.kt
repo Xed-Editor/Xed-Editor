@@ -68,6 +68,7 @@ import com.rk.terminal.TerminalViewModel
 import com.rk.terminal.changeTerminalSession
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.terminal.virtualkeys.VirtualKeysInfo
+import com.termux.terminal.TerminalSession
 import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import java.io.File
@@ -117,7 +118,7 @@ fun UnifiedToolSheet(
         cwd.value = currentProjectDir()
     }
     
-    val aiSession = AiProvider.sessionManager?.sessionState?.value
+    val aiSession = AiProvider.sessionManager?.sessionState?.value as? TerminalSession
     val isAiRunning = aiSession?.isRunning == true
     var showTranscript by remember { mutableStateOf(false) }
     val transcript = viewModel.agentTranscript
@@ -164,7 +165,7 @@ fun UnifiedToolSheet(
 
     fun sendToAgent(text: String) {
         if (text.isBlank()) return
-        val runningSession = AiProvider.sessionManager?.sessionState?.value
+        val runningSession = AiProvider.sessionManager?.sessionState?.value as? TerminalSession
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
             scope.launch(Dispatchers.IO) {
                 val saved = saveDirtyEditors()
@@ -466,7 +467,7 @@ fun UnifiedToolSheet(
                     } else {
                         AgentEmptyState(
                             isRunning = isAiRunning,
-                            agentName = currentAgent.displayName,
+                            agentName = currentAgent?.displayName ?: "AI",
                             onStart = { startAgent(cwd.value, forceRestart = true) },
                         )
                     }
@@ -624,7 +625,7 @@ private fun UnifiedCommandBar(
             },
             update = { keys ->
                 val session = if (mode == BottomPanelMode.AI) {
-                    AiProvider.sessionManager?.sessionState?.value
+                    AiProvider.sessionManager?.sessionState?.value as? TerminalSession
                 } else {
                     terminalViewModel.terminalView?.mTermSession
                 }

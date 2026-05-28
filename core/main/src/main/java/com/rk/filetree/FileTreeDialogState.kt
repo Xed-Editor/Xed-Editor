@@ -7,39 +7,26 @@ import com.rk.file.FileObject
 
 class FileTreeDialogState {
     var showRenameDialog by mutableStateOf(false)
-        private set
     var renameFile by mutableStateOf<FileObject?>(null)
-        private set
     var renameValue by mutableStateOf("")
     var renameError by mutableStateOf<String?>(null)
 
     var showDeleteConfirmation by mutableStateOf(false)
-        private set
     var deleteFiles by mutableStateOf<List<FileObject>?>(null)
-        private set
     var deleteRoot by mutableStateOf<FileObject?>(null)
-        private set
 
     var showPropertiesDialog by mutableStateOf(false)
-        private set
     var propertyFile by mutableStateOf<FileObject?>(null)
-        private set
 
     var showCreateDialog by mutableStateOf(false)
-        private set
     var isCreateFile by mutableStateOf(true)
-        private set
     var createValue by mutableStateOf("")
     var createError by mutableStateOf<String?>(null)
     var createParentFile by mutableStateOf<FileObject?>(null)
-        private set
     var createRoot by mutableStateOf<FileObject?>(null)
-        private set
 
     var showCloseProjectConfirmation by mutableStateOf(false)
-        private set
     var projectConfirmationRoot by mutableStateOf<FileObject?>(null)
-        private set
 
     fun showRenameDialog(file: FileObject) {
         showRenameDialog = true

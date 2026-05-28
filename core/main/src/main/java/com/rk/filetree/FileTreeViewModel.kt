@@ -1,6 +1,7 @@
 package com.rk.filetree
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
 
 class FileTreeViewModel : ViewModel() {
@@ -62,7 +63,9 @@ class FileTreeViewModel : ViewModel() {
         set(v) { dialogState.projectConfirmationRoot = v }
 
     // ─── Cache State Accessors ────────────────────────────────────────
-    val sortMode get() = cacheManager.sortMode
+    var sortMode
+        get() = cacheManager.sortMode
+        set(v) { cacheManager.sortMode = v }
     val expandedNodes: Map<FileObject, Boolean> get() = selectionManager.expandedNodes
 
     // ─── Dialog Methods ───────────────────────────────────────────────
