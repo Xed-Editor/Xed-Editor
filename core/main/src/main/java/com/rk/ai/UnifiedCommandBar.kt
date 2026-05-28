@@ -58,7 +58,6 @@ fun UnifiedCommandBar(
     val availableAgents = AiProvider.sessionManager?.availableAgents() ?: emptyList()
 
     Column(modifier = Modifier.fillMaxWidth().background(colorScheme.surfaceContainerHighest)) {
-        HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f), thickness = 0.5.dp)
         StatusBar(
             mode = mode,
             isRunning = isAiRunning,

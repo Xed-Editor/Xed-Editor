@@ -74,6 +74,7 @@ fun ToolSheetControls(
         BottomPanelMode.TERMINAL -> {
             var showSessionMenu by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
+            val ctx = LocalContext.current
             Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box {
                     FilledTonalIconButton(onClick = { showSessionMenu = true }, modifier = Modifier.size(30.dp)) {
@@ -124,7 +125,6 @@ fun ToolSheetControls(
                 }
                 
                 FilledTonalIconButton(onClick = {
-                    val ctx = LocalContext.current
                     android.content.Intent(ctx, com.rk.activities.settings.SettingsActivity::class.java).apply {
                         putExtra("route", com.rk.activities.settings.SettingsRoutes.TerminalSettings.route)
                         ctx.startActivity(this)

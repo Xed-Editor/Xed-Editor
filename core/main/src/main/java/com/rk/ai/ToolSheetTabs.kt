@@ -1,6 +1,7 @@
 package com.rk.ai
 
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material.icons.outlined.Terminal
@@ -55,11 +56,15 @@ fun ToolSheetTabBar(
         divider = {},
         indicator = { tabPositions ->
             val idx = toolSheetTabs.indexOfFirst { it.mode == selectedMode }.coerceAtLeast(0)
-            TabRowDefaults.SecondaryIndicator(
-                Modifier.tabIndicatorOffset(tabPositions[idx]),
-                color = colorScheme.primary,
-                height = 3.dp
-            )
+            if (tabPositions.isNotEmpty()) {
+                Box(
+                    Modifier
+                        .offset(x = tabPositions[idx].left)
+                        .width(tabPositions[idx].width)
+                        .height(3.dp)
+                        .background(colorScheme.primary)
+                )
+            }
         },
         modifier = modifier.height(48.dp),
     ) {
@@ -70,7 +75,7 @@ fun ToolSheetTabBar(
                 enabled = true,
                 icon = {
                     if (tab.badge != null) {
-                        BadgedBox(badge = tab.badge) {
+                        BadgedBox(badge = { tab.badge?.invoke() }) {
                             Icon(tab.icon, contentDescription = null, modifier = Modifier.size(18.dp))
                         }
                     } else if (tab.mode == BottomPanelMode.TERMINAL) {
@@ -100,8 +105,8 @@ fun ToolSheetTabBar(
                         fontWeight = if (selectedMode == tab.mode) FontWeight.SemiBold else FontWeight.Normal,
                     )
                 },
-                selectedContentColor = if (enabled) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-                unselectedContentColor = if (enabled) colorScheme.onSurfaceVariant else colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                selectedContentColor = colorScheme.primary,
+                unselectedContentColor = colorScheme.onSurfaceVariant,
             )
         }
     }

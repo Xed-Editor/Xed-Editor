@@ -142,7 +142,7 @@ fun UnifiedToolSheet(
                 File(tab.root.getAbsolutePath())
             } else null
             if (root != null && org.eclipse.jgit.storage.file.FileRepositoryBuilder().findGitDir(root).gitDir != null) {
-                gitVm.loadRepository(root.absolutePath)
+                gitVm?.loadRepository(root.absolutePath)
             }
         }
     }

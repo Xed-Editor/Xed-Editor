@@ -52,6 +52,7 @@ fun GitPanel(
     var showNewBranchDialog by remember { mutableStateOf(false) }
     var newBranch by remember { mutableStateOf("") }
     var newBranchError by remember { mutableStateOf<String?>(null) }
+    val invalidBranchMsg = stringResource(strings.value_invalid)
 
     val gitChanges = gitViewModel.currentRoot.value?.absolutePath?.let { gitViewModel.changes[it] } ?: emptyList()
     val hasCheckedChanges by remember(gitChanges) {
@@ -193,7 +194,7 @@ fun GitPanel(
             error = newBranchError,
             onValueChange = {
                 newBranch = it
-                newBranchError = if (it.isBlank()) stringResource(strings.value_invalid) else null
+                newBranchError = if (it.isBlank()) invalidBranchMsg else null
             },
             onConfirm = {
                 gitViewModel.checkoutNew(newBranch, gitViewModel.currentBranch)
@@ -482,7 +483,6 @@ private fun GitCommitArea(
                     enabled = !isLoading,
                     onValueChange = onToggleAmend,
                     role = Role.Checkbox,
-                    indication = null,
                 )
                 .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
