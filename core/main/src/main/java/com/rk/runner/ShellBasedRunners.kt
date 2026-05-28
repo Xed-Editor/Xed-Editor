@@ -15,6 +15,7 @@ import com.rk.file.runnerDir
 import com.rk.icons.Icon
 import com.rk.resources.drawables
 import java.io.File
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,10 +29,10 @@ object ShellBasedRunners {
 
     suspend fun newRunner(runner: ShellBasedRunner): Boolean {
         return withContext(Dispatchers.IO) {
-            if (runners.find { it.getName() == runner.getName() } == null) {
+            if (runners.find { it.label == runner.label } == null) {
                 withContext(Dispatchers.Main) { runners.add(runner) }
                 runnerDir()
-                    .child("${runner.getName()}.sh")
+                    .child("${runner.label}.sh")
                     .createFileIfNot()
                     .writeText("echo \"This runner has no implementation. Click the runner and add your own script.\"")
                 saveRunners()
@@ -47,10 +48,10 @@ object ShellBasedRunners {
         localDir().child("runners.json").writeText(json)
     }
 
-    suspend fun deleteRunner(runner: ShellBasedRunner, deleteScript: Boolean = true) {
+    suspend fun deleteRunner(runner: ShellBasedRunner) {
         runners.remove(runner)
         saveRunners()
-        runnerDir().child("${runner.getName()}.sh").createFileIfNot().delete()
+        runnerDir().child("${runner.label}.sh").createFileIfNot().delete()
     }
 
     suspend fun indexRunners() {
@@ -66,25 +67,28 @@ object ShellBasedRunners {
     }
 }
 
-data class ShellBasedRunner(private val name: String, val regex: String) : Runner() {
+data class ShellBasedRunner(override val label: String, val regex: String) : Runner() {
+
+    override val id = Random.nextInt().toString()
+
+    override fun matcher(fileObject: FileObject): Boolean {
+        return Regex(regex).matches(fileObject.getName())
+    }
+
     override suspend fun run(context: Context, fileObject: FileObject) {
-        val script = runnerDir().child("${name}.sh").createFileIfNot()
+        val script = runnerDir().child("${label}.sh").createFileIfNot()
         launchTerminal(
             context,
             TerminalCommand(
                 exe = "/bin/bash",
                 args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),
-                id = name,
+                id = label,
             ),
         )
     }
 
-    override fun getName(): String {
-        return name
-    }
-
     fun getScript(): File {
-        return runnerDir().child("${getName()}.sh").createFileIfNot()
+        return runnerDir().child("$label.sh").createFileIfNot()
     }
 
     override fun getIcon(context: Context): Icon {

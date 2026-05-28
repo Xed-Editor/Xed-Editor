@@ -51,7 +51,6 @@ import com.rk.lsp.formatDocumentSuspend
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.currentRunner
 import com.rk.search.EditorSearchPanel
 import com.rk.search.FindingsDialog
 import com.rk.settings.Settings
@@ -62,7 +61,6 @@ import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
 import com.rk.utils.hasBinaryChars
 import io.github.rosemoe.sora.text.ContentIO
-import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import java.nio.file.Paths
 import kotlinx.coroutines.CompletableDeferred
@@ -362,10 +360,9 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                             editorState.runnersToShow.forEach { runner ->
                                 AddDialogItem(
                                     icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
-                                    title = runner.getName(),
+                                    title = runner.label,
                                 ) {
                                     DefaultScope.launch {
-                                        currentRunner = WeakReference(runner)
                                         runner.run(context, file)
                                         editorState.showRunnerDialog = false
                                         editorState.runnersToShow = emptyList()

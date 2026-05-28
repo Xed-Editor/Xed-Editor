@@ -1,119 +1,87 @@
 package com.rk.runner
 
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.XedExtensionPoint
-import com.rk.file.BuiltinFileType
 import com.rk.file.FileObject
 import com.rk.icons.Icon
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkdownRunner
-import com.rk.settings.Settings
+import com.rk.settings.Preference
 import com.rk.utils.errorDialog
-import java.lang.ref.WeakReference
 
 abstract class Runner {
 
     abstract suspend fun run(context: Context, fileObject: FileObject)
-
-    abstract fun getName(): String
 
     abstract fun getIcon(context: Context): Icon?
 
     abstract suspend fun isRunning(): Boolean
 
     abstract suspend fun stop()
+
+    abstract fun matcher(fileObject: FileObject): Boolean
+
+    abstract val id: String
+    abstract val label: String
+    open val description: String? = null
+    open val onConfigure: (() -> Unit)? = null
+
+    fun isEnabled(): Boolean {
+        return Preference.getBoolean("runner_$id", true)
+    }
+
+    fun setEnabled(enabled: Boolean) {
+        Preference.setBoolean("runner_$id", enabled)
+    }
 }
 
-var currentRunner = WeakReference<Runner?>(null)
-
-abstract class RunnerDefinition(val matcher: (FileObject) -> Boolean, val factory: () -> Runner)
-
 object RunnerManager {
-    private val _runnerDefinitions = mutableListOf<RunnerDefinition>()
 
-    val runnerDefinitions: List<RunnerDefinition>
-        get() = _runnerDefinitions.toList()
+    private val _extensionRunners = mutableStateListOf<Runner>()
 
-    init {
-        val htmlExtensions = BuiltinFileType.HTML.extensions.joinToString("|")
-        val markdownExtensions = BuiltinFileType.MARKDOWN.extensions.joinToString("|")
+    val extensionRunners: List<Runner>
+        get() = _extensionRunners.toList()
 
-        _runnerDefinitions.apply {
-            add(
-                object :
-                    RunnerDefinition(
-                        matcher = {
-                            Settings.enable_html_runner && Regex(".*\\.($htmlExtensions|svg)$").matches(it.getName())
-                        },
-                        factory = { HtmlRunner() },
-                    ) {}
-            )
-            add(
-                object :
-                    RunnerDefinition(
-                        matcher = {
-                            Settings.enable_md_runner && Regex(".*\\.($markdownExtensions)$").matches(it.getName())
-                        },
-                        factory = { MarkdownRunner() },
-                    ) {}
-            )
-            add(
-                object :
-                    RunnerDefinition(
-                        matcher = {
-                            Settings.enable_universal_runner &&
-                                Regex(
-                                        ".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"
-                                    )
-                                    .matches(it.getName())
-                        },
-                        factory = { UniversalRunner() },
-                    ) {}
-            )
+    val builtinRunners = listOf(HtmlRunner, MarkdownRunner, UniversalRunner)
+
+    @XedExtensionPoint
+    fun registerRunner(runner: Runner) {
+        if (!_extensionRunners.contains(runner)) {
+            _extensionRunners.add(runner)
         }
     }
 
     @XedExtensionPoint
-    fun registerRunner(runnerDefinition: RunnerDefinition) {
-        if (!_runnerDefinitions.contains(runnerDefinition)) {
-            _runnerDefinitions.add(runnerDefinition)
-        }
-    }
-
-    @XedExtensionPoint
-    fun unregisterRunner(runnerDefinition: RunnerDefinition) {
-        _runnerDefinitions.remove(runnerDefinition)
+    fun unregisterRunner(runner: Runner) {
+        _extensionRunners.remove(runner)
     }
 
     fun isRunnable(fileObject: FileObject): Boolean {
         ShellBasedRunners.runners.forEach {
-            val name = fileObject.getName()
-            val regex = Regex(it.regex)
-
-            if (regex.matches(name)) {
+            if (it.isEnabled() && it.matcher(fileObject)) {
                 return true
             }
         }
 
-        return runnerDefinitions.any { it.matcher(fileObject) }
+        val runners = builtinRunners + extensionRunners
+        return runners.any { it.isEnabled() && it.matcher(fileObject) }
     }
 
     suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<Runner>) -> Unit) {
         val availableRunners = mutableListOf<Runner>()
 
         ShellBasedRunners.runners.forEach {
-            val name = fileObject.getName()
-            val regex = Regex(it.regex)
-
-            if (regex.matches(name)) {
+            if (it.isEnabled() && it.matcher(fileObject)) {
                 availableRunners.add(it)
             }
         }
 
-        runnerDefinitions.forEach {
-            if (it.matcher(fileObject)) {
-                availableRunners.add(it.factory())
+        val runners = builtinRunners + extensionRunners
+        runners.forEach {
+            if (it.isEnabled() && it.matcher(fileObject)) {
+                availableRunners.add(it)
             }
         }
 
