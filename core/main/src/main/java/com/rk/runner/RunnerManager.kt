@@ -59,34 +59,27 @@ object RunnerManager {
     }
 
     fun isRunnable(fileObject: FileObject): Boolean {
-        ShellBasedRunners.runners.forEach {
+        return getAvailableRunners(fileObject).isNotEmpty()
+    }
+
+    fun getAvailableRunners(fileObject: FileObject): List<Runner> {
+        val result = mutableListOf<Runner>()
+
+        val runners = builtinRunners + extensionRunners + ShellBasedRunners.runners
+        runners.forEach {
             if (it.isEnabled() && it.matcher(fileObject)) {
-                return true
+                result.add(it)
             }
         }
 
-        val runners = builtinRunners + extensionRunners
-        return runners.any { it.isEnabled() && it.matcher(fileObject) }
+        return result
     }
 
     suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<Runner>) -> Unit) {
-        val availableRunners = mutableListOf<Runner>()
-
-        ShellBasedRunners.runners.forEach {
-            if (it.isEnabled() && it.matcher(fileObject)) {
-                availableRunners.add(it)
-            }
-        }
-
-        val runners = builtinRunners + extensionRunners
-        runners.forEach {
-            if (it.isEnabled() && it.matcher(fileObject)) {
-                availableRunners.add(it)
-            }
-        }
+        val availableRunners = getAvailableRunners(fileObject)
 
         if (availableRunners.isEmpty()) {
-            errorDialog("No runners available")
+            errorDialog("No runners available", context)
             return
         }
 
