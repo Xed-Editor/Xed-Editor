@@ -271,7 +271,7 @@ private fun ToolSheetContent(
             modifier = Modifier
                 .fillMaxSize()
                 .windowInsetsPadding(
-                    if (isTablet) WindowInsets(0) else WindowInsets.navigationBars
+                    if (isTablet) WindowInsets(0.dp) else WindowInsets.navigationBars
                 )
         ) {
             Column(
