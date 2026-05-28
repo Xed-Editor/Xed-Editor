@@ -3,7 +3,6 @@ package com.rk.components
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerState
@@ -11,6 +10,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +28,7 @@ import com.rk.settings.Settings
 inline fun getDrawerWidth(): Dp {
     val density = LocalDensity.current
     val widthPx = LocalWindowInfo.current.containerSize.width
-    val width = with(density) { (widthPx * 0.83f).toDp() }
+    val width = with(density) { (widthPx * 0.8f).toDp().coerceAtMost(360.dp) }
     return width
 }
 
@@ -55,6 +55,7 @@ fun ResponsiveDrawer(
                 PermanentDrawerSheet(
                     windowInsets = if (fullscreen) WindowInsets() else DrawerDefaults.windowInsets,
                     drawerShape = RectangleShape,
+                    modifier = Modifier.width(300.dp),
                     content = sheetContent,
                 )
             },

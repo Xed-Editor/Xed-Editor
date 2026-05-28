@@ -1,25 +1,37 @@
 package com.rk.activities.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LeadingIconTab
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Tab
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -40,16 +53,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
-import com.mohamedrejeb.compose.dnd.reorder.ReorderState
-import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
-import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import com.rk.ai.InlineAgentBar
 import com.rk.ai.UnifiedToolSheet
 import com.rk.commands.CommandPalette
@@ -71,11 +76,16 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
+import com.rk.theme.DesignTokens
 import com.rk.utils.dialog
 import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getGitColor
 import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.launch
+
+private val TAB_HEIGHT = 36.dp
+private val TAB_MIN_WIDTH = 80.dp
+private val TAB_MAX_WIDTH = 200.dp
 
 @Composable
 fun MainContent(
@@ -88,12 +98,10 @@ fun MainContent(
     val context = LocalContext.current
 
     preloadSelectionColor()
-
     FileActionDialogs(fileTreeViewModel, scope, context)
 
     if (mainViewModel.isDraggingPalette || mainViewModel.showCommandPalette) {
         val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command)
-
         CommandPalette(
             progress = if (mainViewModel.showCommandPalette) 1f else mainViewModel.draggingPaletteProgress.value,
             commands = CommandProvider.commandList,
@@ -132,85 +140,12 @@ fun MainContent(
                     }
                 }
 
-                val reorderState = rememberReorderState<Tab>(dragAfterLongPress = true)
+                EditorTabBar(
+                    mainViewModel = mainViewModel,
+                    fileTreeViewModel = fileTreeViewModel,
+                )
 
-                ReorderContainer(state = reorderState) {
-                    PrimaryScrollableTabRow(
-                        selectedTabIndex =
-                        if (mainViewModel.currentTabIndex < mainViewModel.tabs.size) mainViewModel.currentTabIndex
-                        else 0,
-                        modifier = Modifier.fillMaxWidth(),
-                        edgePadding = 0.dp,
-                        divider = {},
-                    ) {
-                        mainViewModel.tabs.forEachIndexed { index, tabState ->
-                            key(tabState) {
-                                TabItem(
-                                    mainViewModel = mainViewModel,
-                                    fileTreeViewModel = fileTreeViewModel,
-                                    reorderState = reorderState,
-                                    tabState = tabState,
-                                    index = index,
-                                    showIcon = Settings.show_tab_icons,
-                                    onCloseThis = {
-                                        val tabIndex = mainViewModel.tabs.indexOf(tabState)
-                                        if (tabIndex == -1) return@TabItem
-
-                                        if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                            dialog(
-                                                title = strings.file_unsaved.getString(),
-                                                msg = strings.ask_unsaved.getString(),
-                                                onOk = { mainViewModel.tabManager.removeTab(tabIndex) },
-                                                onCancel = {},
-                                                okString = strings.discard,
-                                            )
-                                        } else {
-                                            mainViewModel.tabManager.removeTab(tabIndex)
-                                        }
-                                    },
-                                    onCloseOthers = { index ->
-                                        mainViewModel.tabManager.setCurrentTab(index)
-
-                                        val unsavedOtherTabs =
-                                            mainViewModel.tabs.filterIndexed { tabIndex, tab ->
-                                                tabIndex != index && (tab as? EditorTab)?.editorState?.isDirty == true
-                                            }
-                                        if (unsavedOtherTabs.isNotEmpty()) {
-                                            dialog(
-                                                title = strings.files_unsaved.getString(),
-                                                msg = strings.ask_multiple_unsaved.getString(),
-                                                onOk = { mainViewModel.tabManager.removeOtherTabs() },
-                                                onCancel = {},
-                                                okString = strings.discard,
-                                            )
-                                        } else {
-                                            mainViewModel.tabManager.removeOtherTabs()
-                                        }
-                                    },
-                                    onCloseAll = {
-                                        val unsavedTabs =
-                                            mainViewModel.tabs.filter { tab ->
-                                                (tab as? EditorTab)?.editorState?.isDirty == true
-                                            }
-                                        if (unsavedTabs.isNotEmpty()) {
-                                            dialog(
-                                                title = strings.files_unsaved.getString(),
-                                                msg = strings.ask_multiple_unsaved.getString(),
-                                                onOk = { mainViewModel.tabManager.removeAllTabs() },
-                                                onCancel = {},
-                                                okString = strings.discard,
-                                            )
-                                        } else {
-                                            mainViewModel.tabManager.removeAllTabs()
-                                        }
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-
-                HorizontalDivider()
+                HorizontalDivider(thickness = DesignTokens.Divider.thin)
 
                 HorizontalPager(
                     state = pagerState,
@@ -248,137 +183,136 @@ fun MainContent(
 }
 
 @Composable
-private fun TabItem(
+private fun EditorTabBar(
     mainViewModel: MainViewModel,
     fileTreeViewModel: FileTreeViewModel,
-    reorderState: ReorderState<Tab>,
-    tabState: Tab,
-    index: Int,
-    showIcon: Boolean,
-    onCloseThis: (Int) -> Unit,
-    onCloseOthers: (Int) -> Unit,
-    onCloseAll: (Int) -> Unit,
 ) {
-    var calculatedTabWidth by
-        remember(
-            tabState,
-            tabState.tabTitle.value,
-            tabState is EditorTab && tabState.editorState.isDirty,
-            Settings.show_tab_icons,
-        ) {
-            mutableStateOf<Int?>(null)
-        }
-
-    ReorderableItem(
-        state = reorderState,
-        key = tabState,
-        data = tabState,
-        onDragEnter = { state ->
-            val index = mainViewModel.tabs.indexOf(tabState)
-            val oldIndex = mainViewModel.tabs.indexOf(state.data)
-
-            mainViewModel.tabManager.moveTab(oldIndex, index)
-        },
-        draggableContent = {
-            TabItemContent(
-                mainViewModel = mainViewModel,
-                fileTreeViewModel = fileTreeViewModel,
-                index = index,
-                calculatedTabWidth = calculatedTabWidth,
-                tabState = tabState,
-                onCloseThis = onCloseThis,
-                onCloseOthers = onCloseOthers,
-                onCloseAll = onCloseAll,
-                showIcon = showIcon,
-                isDraggableContent = true,
-            )
-        },
-        modifier = Modifier.fillMaxWidth().onSizeChanged { size -> calculatedTabWidth = size.width },
+    Surface(
+        tonalElevation = DesignTokens.Elevation.none,
+        color = MaterialTheme.colorScheme.surface,
     ) {
-        TabItemContent(
-            mainViewModel = mainViewModel,
-            fileTreeViewModel = fileTreeViewModel,
-            index = index,
-            calculatedTabWidth = calculatedTabWidth,
-            tabState = tabState,
-            onCloseThis = onCloseThis,
-            onCloseOthers = onCloseOthers,
-            onCloseAll = onCloseAll,
-            showIcon = showIcon,
-        )
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(TAB_HEIGHT),
+        ) {
+            items(mainViewModel.tabs, key = { it }) { tabState ->
+                key(tabState) {
+                    CompactTabItem(
+                        mainViewModel = mainViewModel,
+                        fileTreeViewModel = fileTreeViewModel,
+                        tabState = tabState,
+                        index = mainViewModel.tabs.indexOf(tabState),
+                    )
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun TabItemContent(
+private fun CompactTabItem(
     mainViewModel: MainViewModel,
     fileTreeViewModel: FileTreeViewModel,
-    index: Int,
-    calculatedTabWidth: Int?,
     tabState: Tab,
-    onCloseThis: (Int) -> Unit,
-    onCloseOthers: (Int) -> Unit,
-    onCloseAll: (Int) -> Unit,
-    showIcon: Boolean,
-    isDraggableContent: Boolean = false,
+    index: Int,
 ) {
     var showTabMenu by remember { mutableStateOf(false) }
     var showFileActionMenu by remember { mutableStateOf(false) }
-
     val context = LocalContext.current
-    val density = LocalDensity.current
-
     val isSelected = mainViewModel.currentTabIndex == index
-    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
 
-    val tabModifier =
-        Modifier.let { modifier ->
-                calculatedTabWidth?.let { width -> modifier.width(with(density) { width.toDp() }) } ?: modifier
-            }
-            .let { if (isDraggableContent) it.background(backgroundColor.copy(alpha = 0.4f)) else it }
-
-    val onClick: () -> Unit = {
-        if (isSelected) {
-            showTabMenu = true
-        } else {
-            mainViewModel.tabManager.setCurrentTab(index)
-        }
+    val bgColor = when {
+        isSelected -> MaterialTheme.colorScheme.surfaceContainerHigh
+        else -> MaterialTheme.colorScheme.surface
     }
 
+    val gitColor = getGitColor(tabState.file)
+    val activeColor = gitColor ?: MaterialTheme.colorScheme.primary
+    val inactiveColor = gitColor ?: MaterialTheme.colorScheme.onSurfaceVariant
+
     val underlineColor = getUnderlineColor(context, fileTreeViewModel, tabState.file)
-    val tabText: @Composable () -> Unit = {
-        Text(
-            text =
-                if (tabState is EditorTab && tabState.editorState.isDirty) {
-                    "*${tabState.tabTitle.value}"
-                } else {
-                    tabState.tabTitle.value
+
+    Box(
+        modifier = Modifier
+            .width(TAB_MIN_WIDTH.coerceAtMost(TAB_MAX_WIDTH))
+            .fillMaxHeight()
+            .background(bgColor)
+            .clickable {
+                if (isSelected) showTabMenu = true
+                else mainViewModel.tabManager.setCurrentTab(index)
+            }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 8.dp, end = 4.dp),
+        ) {
+            if (Settings.show_tab_icons && tabState.file != null) {
+                FileIcon(
+                    file = tabState.file!!,
+                    iconTint = if (isSelected) activeColor else inactiveColor,
+                    modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
+                )
+                Spacer(Modifier.width(6.dp))
+            }
+
+            Text(
+                text = buildString {
+                    if (tabState is EditorTab && tabState.editorState.isDirty) append("*")
+                    append(tabState.tabTitle.value)
                 },
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
-        )
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (isSelected) activeColor else inactiveColor,
+                modifier = Modifier.weight(1f),
+            )
+
+            IconButton(
+                onClick = { onCloseTab(mainViewModel, tabState) },
+                modifier = Modifier.size(20.dp),
+            ) {
+                Icon(
+                    painter = painterResource(drawables.close),
+                    contentDescription = stringResource(strings.close_this),
+                    modifier = Modifier.size(14.dp),
+                    tint = if (isSelected) activeColor.copy(alpha = 0.6f) else inactiveColor.copy(alpha = 0.3f),
+                )
+            }
+        }
+
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(activeColor),
+            )
+        }
 
         DropdownMenu(expanded = showTabMenu, onDismissRequest = { showTabMenu = false }) {
             DropdownMenuItem(
                 text = { Text(stringResource(strings.close_this)) },
                 onClick = {
                     showTabMenu = false
-                    onCloseThis(index)
+                    onCloseTab(mainViewModel, tabState)
                 },
             )
             DropdownMenuItem(
                 text = { Text(stringResource(strings.close_others)) },
                 onClick = {
                     showTabMenu = false
-                    onCloseOthers(index)
+                    closeOthers(mainViewModel, index)
                 },
             )
             DropdownMenuItem(
                 text = { Text(stringResource(strings.close_all)) },
                 onClick = {
                     showTabMenu = false
-                    onCloseAll(index)
+                    closeAll(mainViewModel)
                 },
             )
             tabState.file?.let {
@@ -404,7 +338,6 @@ private fun TabItemContent(
             DropdownMenu(expanded = showFileActionMenu, onDismissRequest = { showFileActionMenu = false }) {
                 val root = (tabState as? EditorTab)?.projectRoot
                 val actions = remember(it) { getActions(it, root) }
-
                 actions.forEach { action ->
                     when (action) {
                         is FileAction -> {
@@ -413,8 +346,8 @@ private fun TabItemContent(
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                 enabled = action.isEnabled(it),
                                 onClick = {
-                                    val context = FileActionContext(it, root, fileTreeViewModel, context)
-                                    action.action(context)
+                                    val ctx = FileActionContext(it, root, fileTreeViewModel, context)
+                                    action.action(ctx)
                                     showFileActionMenu = false
                                 },
                             )
@@ -426,8 +359,8 @@ private fun TabItemContent(
                                 leadingIcon = { XedIcon(action.icon, contentDescription = action.title) },
                                 enabled = action.isEnabled(files),
                                 onClick = {
-                                    val context = MultiFileActionContext(files, root, fileTreeViewModel, context)
-                                    action.action(context)
+                                    val ctx = MultiFileActionContext(files, root, fileTreeViewModel, context)
+                                    action.action(ctx)
                                     showFileActionMenu = false
                                 },
                             )
@@ -437,29 +370,59 @@ private fun TabItemContent(
             }
         }
     }
+}
 
-    val gitColor = getGitColor(tabState.file)
-    val activeColor = gitColor ?: MaterialTheme.colorScheme.primary
-    val inactiveColor = gitColor ?: MaterialTheme.colorScheme.onSurfaceVariant
+private fun onCloseTab(mainViewModel: MainViewModel, tabState: Tab) {
+    val tabIndex = mainViewModel.tabs.indexOf(tabState)
+    if (tabIndex == -1) return
 
-    if (showIcon && tabState.file != null) {
-        LeadingIconTab(
-            modifier = tabModifier,
-            selected = isSelected,
-            onClick = onClick,
-            icon = { FileIcon(file = tabState.file!!, iconTint = LocalContentColor.current) },
-            text = tabText,
-            selectedContentColor = activeColor,
-            unselectedContentColor = inactiveColor,
+    if (tabState is EditorTab && tabState.editorState.isDirty) {
+        dialog(
+            title = strings.file_unsaved.getString(),
+            msg = strings.ask_unsaved.getString(),
+            onOk = { mainViewModel.tabManager.removeTab(tabIndex) },
+            onCancel = {},
+            okString = strings.discard,
         )
     } else {
-        Tab(
-            modifier = tabModifier,
-            selected = isSelected,
-            onClick = onClick,
-            text = tabText,
-            selectedContentColor = activeColor,
-            unselectedContentColor = inactiveColor,
+        mainViewModel.tabManager.removeTab(tabIndex)
+    }
+}
+
+private fun closeOthers(mainViewModel: MainViewModel, index: Int) {
+    mainViewModel.tabManager.setCurrentTab(index)
+
+    val unsavedOtherTabs =
+        mainViewModel.tabs.filterIndexed { tabIndex, tab ->
+            tabIndex != index && (tab as? EditorTab)?.editorState?.isDirty == true
+        }
+    if (unsavedOtherTabs.isNotEmpty()) {
+        dialog(
+            title = strings.files_unsaved.getString(),
+            msg = strings.ask_multiple_unsaved.getString(),
+            onOk = { mainViewModel.tabManager.removeOtherTabs() },
+            onCancel = {},
+            okString = strings.discard,
         )
+    } else {
+        mainViewModel.tabManager.removeOtherTabs()
+    }
+}
+
+private fun closeAll(mainViewModel: MainViewModel) {
+    val unsavedTabs =
+        mainViewModel.tabs.filter { tab ->
+            (tab as? EditorTab)?.editorState?.isDirty == true
+        }
+    if (unsavedTabs.isNotEmpty()) {
+        dialog(
+            title = strings.files_unsaved.getString(),
+            msg = strings.ask_multiple_unsaved.getString(),
+            onOk = { mainViewModel.tabManager.removeAllTabs() },
+            onCancel = {},
+            okString = strings.discard,
+        )
+    } else {
+        mainViewModel.tabManager.removeAllTabs()
     }
 }

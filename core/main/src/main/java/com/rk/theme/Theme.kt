@@ -90,7 +90,11 @@ fun XedTheme(
         }
 
     CompositionLocalProvider(LocalThemeHolder provides themeHolder) {
-        MaterialTheme(colorScheme = colorScheme, typography = rememberAppTypography(LocalContext.current)) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = rememberAppTypography(LocalContext.current),
+            shapes = XedShapes,
+        ) {
             Surface(color = MaterialTheme.colorScheme.background) { content() }
         }
     }

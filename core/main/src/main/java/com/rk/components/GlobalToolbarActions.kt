@@ -6,8 +6,11 @@ import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -75,28 +78,44 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
         val aiCliCommand = CommandProvider.AiCliCommand
         val settingsCommand = CommandProvider.SettingsCommand
 
-        IconButton(onClick = { newFileCommand.action(ActionContext(context as Activity)) }) {
-            XedIcon(newFileCommand.getIcon())
+        IconButton(
+            onClick = { newFileCommand.action(ActionContext(context as Activity)) },
+            modifier = Modifier.size(36.dp),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+        ) {
+            XedIcon(newFileCommand.getIcon(), modifier = Modifier.size(20.dp))
         }
 
         if (InbuiltFeatures.terminal.state.value) {
-            IconButton(onClick = { 
-                viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.TERMINAL
-                viewModel.showBottomPanel = true 
-            }) {
-                XedIcon(terminalCommand.getIcon())
+            IconButton(
+                onClick = { 
+                    viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.TERMINAL
+                    viewModel.showBottomPanel = true 
+                },
+                modifier = Modifier.size(36.dp),
+                colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+            ) {
+                XedIcon(terminalCommand.getIcon(), modifier = Modifier.size(20.dp))
             }
 
-            IconButton(onClick = { 
-                viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.AI
-                viewModel.showBottomPanel = true 
-            }) {
-                XedIcon(aiCliCommand.getIcon())
+            IconButton(
+                onClick = { 
+                    viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.AI
+                    viewModel.showBottomPanel = true 
+                },
+                modifier = Modifier.size(36.dp),
+                colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+            ) {
+                XedIcon(aiCliCommand.getIcon(), modifier = Modifier.size(20.dp))
             }
         }
 
-        IconButton(onClick = { settingsCommand.action(ActionContext(context as Activity)) }) {
-            XedIcon(settingsCommand.getIcon())
+        IconButton(
+            onClick = { settingsCommand.action(ActionContext(context as Activity)) },
+            modifier = Modifier.size(36.dp),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+        ) {
+            XedIcon(settingsCommand.getIcon(), modifier = Modifier.size(20.dp))
         }
     }
 

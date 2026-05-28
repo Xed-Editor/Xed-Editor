@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -145,10 +146,11 @@ fun MainActivity.MainContentHost(
                         SnackbarHost(hostState = snackbarHostState) { data ->
                             Snackbar(
                                 snackbarData = data,
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                containerColor = MaterialTheme.colorScheme.inverseSurface,
+                                contentColor = MaterialTheme.colorScheme.inverseOnSurface,
                                 actionColor = MaterialTheme.colorScheme.primary,
-                                dismissActionContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                shape = RoundedCornerShape(10.dp),
+                                dismissActionContentColor = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.7f),
                             )
                         }
                     },
