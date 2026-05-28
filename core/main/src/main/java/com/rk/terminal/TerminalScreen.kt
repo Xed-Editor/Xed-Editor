@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -75,6 +76,7 @@ import com.rk.terminal.virtualkeys.VirtualKeysListener
 import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.termux.terminal.TerminalSession
 import java.io.File
+import com.rk.theme.DesignTokens
 import com.rk.theme.LocalThemeHolder
 import com.rk.theme.ThemeHolder
 import com.rk.utils.dpToPx
@@ -101,34 +103,69 @@ fun TerminalPanel(
 
     Column(modifier = modifier.fillMaxSize()) {
         if (terminalViewModel.sessionBinder?.getService() != null) {
-            TerminalView(isDarkMode, currentTheme, surfaceColor, onSurfaceColor, terminalViewModel, initialCwd)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(MaterialTheme.colorScheme.surface),
+            ) {
+                TerminalView(
+                    isDarkMode,
+                    currentTheme,
+                    surfaceColor,
+                    onSurfaceColor,
+                    terminalViewModel,
+                    initialCwd,
+                )
+            }
         } else {
-            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                Text("Connecting to terminal service...", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    "Connecting to terminal...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
 
         if (showKeys) {
-            AndroidView(
-                factory = { context ->
-                    VirtualKeysView(context, null).apply {
-                        terminalViewModel.virtualKeysView = this
-                        virtualKeysViewClient =
-                            terminalViewModel.terminalView?.mTermSession?.let { VirtualKeysListener(it) }
+            Surface(
+                tonalElevation = DesignTokens.Elevation.none,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                AndroidView(
+                    factory = { context ->
+                        VirtualKeysView(context, null).apply {
+                            terminalViewModel.virtualKeysView = this
+                            virtualKeysViewClient =
+                                terminalViewModel.terminalView?.mTermSession?.let { VirtualKeysListener(it) }
 
-                        buttonTextColor = onSurfaceColor
+                            buttonTextColor = onSurfaceColor
 
-                        reload(
-                            VirtualKeysInfo(
-                                Settings.terminal_extra_keys,
-                                "",
-                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                            reload(
+                                VirtualKeysInfo(
+                                    Settings.terminal_extra_keys,
+                                    "",
+                                    VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                                )
                             )
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().height(75.dp),
-            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                )
+            }
         }
     }
 }

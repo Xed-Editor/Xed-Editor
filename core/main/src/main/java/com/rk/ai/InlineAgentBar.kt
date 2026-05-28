@@ -3,21 +3,47 @@ package com.rk.ai
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Send
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
+import com.rk.theme.DesignTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,11 +78,12 @@ fun InlineAgentBar(
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shadowElevation = 8.dp,
-            tonalElevation = 4.dp,
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            shadowElevation = DesignTokens.Elevation.xlarge,
+            tonalElevation = DesignTokens.Elevation.none,
+            shape = DesignTokens.CornerRadius.large,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
+            Column(modifier = Modifier.padding(DesignTokens.Spacing.medium)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth(),
@@ -66,15 +93,18 @@ fun InlineAgentBar(
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.weight(1f),
                     )
-                    TextButton(onClick = {
-                        response = null
-                        onDismiss()
-                    }) {
-                        Icon(Icons.Outlined.Close, contentDescription = "Close", modifier = Modifier.size(18.dp))
+                    IconButton(
+                        onClick = {
+                            response = null
+                            onDismiss()
+                        },
+                        modifier = Modifier.size(28.dp),
+                    ) {
+                        Icon(Icons.Outlined.Close, contentDescription = "Close", modifier = Modifier.size(16.dp))
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(DesignTokens.Spacing.small))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -86,16 +116,27 @@ fun InlineAgentBar(
                         placeholder = { Text("Ask about code...", style = MaterialTheme.typography.bodySmall) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(DesignTokens.Spacing.small),
                         textStyle = MaterialTheme.typography.bodySmall,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        ),
                     )
                     if (response != null) {
-                        Spacer(Modifier.width(8.dp))
-                        IconButton(onClick = { response = null }) {
-                            XedIcon(com.rk.icons.Icon.DrawableRes(drawables.close), contentDescription = "Clear Response", modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(DesignTokens.Spacing.small))
+                        IconButton(
+                            onClick = { response = null },
+                            modifier = Modifier.size(28.dp),
+                        ) {
+                            XedIcon(
+                                com.rk.icons.Icon.DrawableRes(drawables.close),
+                                contentDescription = "Clear",
+                                modifier = Modifier.size(16.dp),
+                            )
                         }
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(DesignTokens.Spacing.small))
                     FilledTonalIconButton(
                         onClick = {
                             if (input.isBlank()) return@FilledTonalIconButton
@@ -114,27 +155,32 @@ fun InlineAgentBar(
                             }
                         },
                         enabled = input.isNotBlank() && !isLoading,
+                        modifier = Modifier.size(36.dp),
                     ) {
                         if (isLoading) {
-                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         } else {
-                            Icon(Icons.Outlined.Send, contentDescription = "Send")
+                            Icon(Icons.Outlined.Send, contentDescription = "Send", modifier = Modifier.size(16.dp))
                         }
                     }
                 }
 
                 response?.let { text ->
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(DesignTokens.Spacing.small))
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
+                        shape = RoundedCornerShape(DesignTokens.Spacing.small),
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 150.dp),
                     ) {
-                        Column(modifier = Modifier.padding(10.dp).verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+                        Column(
+                            modifier = Modifier
+                                .padding(DesignTokens.Spacing.small)
+                                .verticalScroll(rememberScrollState()),
+                        ) {
                             Text(
                                 text = text,
                                 style = MaterialTheme.typography.bodySmall.copy(
-                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
+                                    fontFamily = FontFamily.Monospace
                                 ),
                             )
                         }
