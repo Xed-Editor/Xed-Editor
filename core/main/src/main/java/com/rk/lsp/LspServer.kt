@@ -43,6 +43,16 @@ abstract class ScriptedLspServer : LspServer() {
 }
 
 abstract class LspServer {
+    abstract val id: String
+    abstract val languageName: String
+    abstract val serverName: String
+    abstract val supportedExtensions: List<String>
+    abstract val icon: Icon?
+
+    open val canBeUninstalled = true
+
+    open val expectedCapabilities: ServerCapabilities? = null
+
     suspend fun startAllInstances(): List<EditorTab> {
         val connectedEditors = mutableListOf<EditorTab>()
         _instances.forEach { connectedEditors.addAll(it.start()) }
@@ -114,16 +124,6 @@ abstract class LspServer {
     }
 
     override fun hashCode(): Int = id.hashCode()
-
-    open val expectedCapabilities: ServerCapabilities? = null
-
-    open val canBeUninstalled = true
-
-    abstract val id: String
-    abstract val languageName: String
-    abstract val serverName: String
-    abstract val supportedExtensions: List<String>
-    abstract val icon: Icon?
 }
 
 @Composable

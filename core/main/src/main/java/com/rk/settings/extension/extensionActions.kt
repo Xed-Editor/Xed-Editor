@@ -21,7 +21,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.LoadingPopup
 import com.rk.utils.application
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +37,7 @@ suspend fun runExtensionUninstallAction(
     activity: AppCompatActivity?,
 ) {
     extensionManager.uninstallExtension(extension.id).onFailure {
-        errorDialog(it, activity)
+        errorDialog(activity, it)
         return
     }
     updateInstallState(InstallState.Idle)
@@ -62,7 +62,7 @@ suspend fun runExtensionInstallAction(
             val result =
                 extensionManager.installStoreExtension(context, extension).getOrElse {
                     loading.hide()
-                    errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                    errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
                     updateInstallState(InstallState.Idle)
                     return@runCatching
                 }
@@ -72,7 +72,7 @@ suspend fun runExtensionInstallAction(
 
                 scope.launch(Dispatchers.Default) {
                     ext.load(application!!).onFailure {
-                        errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                        errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
                     }
                 }
             }
@@ -80,7 +80,7 @@ suspend fun runExtensionInstallAction(
         }
         .onFailure {
             loading?.hide()
-            errorDialog(it, activity)
+            errorDialog(activity, it)
             updateInstallState(InstallState.Idle)
         }
 }
@@ -102,7 +102,7 @@ suspend fun runExtensionUpdateAction(
             val result =
                 extensionManager.installStoreExtension(context, extension.store).getOrElse {
                     loading.hide()
-                    errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                    errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
                     updateInstallState(InstallState.Idle)
                     return@runCatching
                 }
@@ -112,7 +112,7 @@ suspend fun runExtensionUpdateAction(
 
                 scope.launch(Dispatchers.Default) {
                     ext.load(application!!).onFailure {
-                        errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                        errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
                     }
                 }
             }
@@ -120,7 +120,7 @@ suspend fun runExtensionUpdateAction(
         }
         .onFailure {
             loading?.hide()
-            errorDialog(it, activity)
+            errorDialog(activity, it)
             updateInstallState(InstallState.Updatable)
         }
 }
@@ -149,7 +149,7 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                         handleInstallResult(result, activity) { ext ->
                             scope.launch(Dispatchers.Default) {
                                 ext.load(application!!).onFailure {
-                                    errorDialog(it.message ?: strings.unknown_error.getString(), activity)
+                                    errorDialog(activity, msg = it.message ?: strings.unknown_error.getString())
                                 }
                             }
                         }
@@ -158,14 +158,15 @@ fun installExtensionFromUri(scope: CoroutineScope, uri: Uri?, activity: AppCompa
                     }
                 } else {
                     errorDialog(
-                        "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
                         activity,
+                        msg =
+                            "Install criteria failed \nis_zip = $isZip\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}",
                     )
                 }
             }
             .onFailure {
                 loading?.hide()
-                errorDialog(it, activity)
+                errorDialog(activity, it)
             }
     }
 }
@@ -185,9 +186,9 @@ private fun handleInstallResult(
         is InstallResult.Error -> {
             when (result.error) {
                 ExtensionError.OUTDATED_CLIENT ->
-                    errorDialog(strings.outdated_client.getString(), activity, strings.install_failed.getString())
+                    errorDialog(activity, strings.install_failed.getString(), strings.outdated_client.getString())
                 ExtensionError.OUTDATED_EXTENSION ->
-                    errorDialog(strings.outdated_extension.getString(), activity, strings.install_failed.getString())
+                    errorDialog(activity, strings.install_failed.getString(), strings.outdated_extension.getString())
             }
             onError()
         }
@@ -201,7 +202,7 @@ private fun handleInstallResult(
             val e = result.error
             if (e is MissingFieldException) {
                 val fields = e.missingFields.joinToString("\n") { "• $it" }
-                dialog(
+                dialogRes(
                     SettingsActivity.instance,
                     strings.extension_validation_failed.getString(),
                     strings.manifest_missing_fields.getFilledString(fields),
@@ -210,8 +211,8 @@ private fun handleInstallResult(
                 onError()
             } else {
                 errorDialog(
-                    e?.localizedMessage ?: strings.unknown_error.getString(),
                     activity,
+                    e?.localizedMessage ?: strings.unknown_error.getString(),
                     strings.extension_validation_failed.getString(),
                 )
                 onError()

@@ -25,7 +25,7 @@ import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.isDialogShowing
 import com.rk.utils.toast
 
@@ -204,12 +204,12 @@ fun Activity.handleSupport() {
 }
 
 private fun Activity.showCombinedDonationDialog() {
-    dialog(
-        context = this,
+    dialogRes(
+        activity = this,
         title = strings.enjoying_xed.getString(),
         msg = strings.support_message.getFilledString(Settings.saves.toString(), Settings.runs.toString()),
-        okString = strings.yes_support,
-        cancelString = strings.not_for_me,
+        okRes = strings.yes_support,
+        cancelRes = strings.not_for_me,
         cancelable = false,
         onCancel = {
             // User doesn't find value - stop asking

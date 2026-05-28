@@ -40,7 +40,7 @@ import com.rk.search.SearchViewModel
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.XedTheme
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import java.lang.ref.WeakReference
 import kotlinx.coroutines.launch
 
@@ -111,12 +111,12 @@ fun MainActivity.MainContentHost(
                 if (drawerState.isOpen) {
                     scope.launch { drawerState.close() }
                 } else if (viewModel.tabs.isNotEmpty() && Settings.confirm_exit) {
-                    dialog(
+                    dialogRes(
                         title = strings.attention.getString(),
                         msg = strings.confirm_exit.getString(),
                         onCancel = {},
                         onOk = { finish() },
-                        okString = strings.exit,
+                        okRes = strings.exit,
                     )
                 } else {
                     finish()

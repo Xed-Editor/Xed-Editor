@@ -7,7 +7,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.base.TabRegistry
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.expectOOM
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import kotlinx.coroutines.Dispatchers
@@ -61,10 +61,10 @@ class EditorManager(private val viewModel: MainViewModel) {
         }
 
         if (Settings.oom_prediction && expectOOM(fileObject.length())) {
-            dialog(
+            dialogRes(
                 title = strings.attention.getString(),
                 msg = strings.tab_memory_warning.getString(),
-                okString = strings.continue_action,
+                okRes = strings.continue_action,
                 onOk = { viewModel.viewModelScope.launch { function.invoke() } },
             )
         } else {

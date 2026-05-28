@@ -1,5 +1,6 @@
 package com.rk.runner
 
+import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import com.rk.extension.XedExtensionPoint
@@ -12,21 +13,20 @@ import com.rk.settings.Preference
 import com.rk.utils.errorDialog
 
 abstract class Runner {
-
-    abstract suspend fun run(context: Context, fileObject: FileObject)
-
-    abstract fun getIcon(context: Context): Icon?
-
-    abstract suspend fun isRunning(): Boolean
-
-    abstract suspend fun stop()
-
-    abstract fun matcher(fileObject: FileObject): Boolean
-
     abstract val id: String
     abstract val label: String
     open val description: String? = null
     open val onConfigure: (() -> Unit)? = null
+
+    abstract fun getIcon(context: Context): Icon?
+
+    abstract fun matcher(fileObject: FileObject): Boolean
+
+    abstract suspend fun run(context: Context, fileObject: FileObject)
+
+    abstract suspend fun isRunning(): Boolean
+
+    abstract suspend fun stop()
 
     fun isEnabled(): Boolean {
         return Preference.getBoolean("runner_$id", true)
@@ -75,16 +75,16 @@ object RunnerManager {
         return result
     }
 
-    suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<Runner>) -> Unit) {
+    suspend fun run(activity: Activity, fileObject: FileObject, onMultipleRunners: (List<Runner>) -> Unit) {
         val availableRunners = getAvailableRunners(fileObject)
 
         if (availableRunners.isEmpty()) {
-            errorDialog("No runners available", context)
+            errorDialog(activity, msg = "No runners available")
             return
         }
 
         if (availableRunners.size == 1) {
-            availableRunners[0].run(context, fileObject)
+            availableRunners[0].run(activity, fileObject)
         } else {
             onMultipleRunners.invoke(availableRunners)
         }

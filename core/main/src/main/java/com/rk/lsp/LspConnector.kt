@@ -13,7 +13,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorTab
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
 import com.rk.utils.info
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -287,12 +287,12 @@ class LspConnector(
                             if (messageParams == null) return
                             instance.addLog(messageParams)
                             when (messageParams.type) {
-                                MessageType.Error -> errorDialog(messageParams.message)
+                                MessageType.Error -> errorDialog(msg = messageParams.message)
                                 MessageType.Warning ->
-                                    dialog(title = strings.warning.getString(), msg = messageParams.message)
+                                    dialogRes(title = strings.warning.getString(), msg = messageParams.message)
 
                                 MessageType.Info ->
-                                    dialog(title = strings.info.getString(), msg = messageParams.message)
+                                    dialogRes(title = strings.info.getString(), msg = messageParams.message)
 
                                 MessageType.Log -> info(messageParams.message)
                                 MessageType.Debug -> {}

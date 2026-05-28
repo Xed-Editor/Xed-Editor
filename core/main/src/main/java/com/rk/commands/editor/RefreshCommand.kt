@@ -8,7 +8,7 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 
 class RefreshCommand : EditorCommand() {
     override val id: String = "editor.refresh"
@@ -18,11 +18,11 @@ class RefreshCommand : EditorCommand() {
     override fun action(editorActionContext: EditorActionContext) {
         val currentTab = editorActionContext.editorTab
         if (currentTab.editorState.isDirty) {
-            dialog(
-                context = editorActionContext.currentActivity,
+            dialogRes(
+                activity = editorActionContext.currentActivity,
                 title = strings.attention.getString(),
                 msg = strings.ask_refresh.getString(),
-                okString = strings.refresh,
+                okRes = strings.refresh,
                 onCancel = {},
                 onOk = { currentTab.refresh() },
             )

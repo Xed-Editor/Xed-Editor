@@ -62,7 +62,7 @@ import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.utils.dialog
+import com.rk.utils.dialogRes
 import java.io.File
 import kotlinx.coroutines.launch
 
@@ -313,7 +313,7 @@ fun DrawerContent(fullscreen: Boolean) {
                         openFolder = openFolder,
                         onAddProject = { fileObject -> scope.launch { viewModel.addFileTreeTab(fileObject, true) } },
                         showPrivateFileWarning = { callback ->
-                            dialog(
+                            dialogRes(
                                 title = strings.attention.getString(),
                                 msg = strings.warning_private_dir.getString(),
                                 onOk = { callback.invoke() },

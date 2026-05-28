@@ -163,7 +163,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 showNotice(BINARY_NOTICE_KEY) { id -> BinaryNotice(id) }
                             }
                         }
-                        .onFailure { errorDialog(it) }
+                        .onFailure { errorDialog(throwable = it) }
                 }
             }
         }
@@ -302,7 +302,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                     editorState.isDirty = false
                     lspConnector?.notifySave()
                 }
-                .onFailure { errorDialog(it) }
+                .onFailure { errorDialog(throwable = it) }
         }
     }
 

@@ -119,7 +119,7 @@ suspend fun ExtensionManager.loadAllExtensions() =
         for ((_, extension) in localExtensions) {
             launch(Dispatchers.IO) {
                 extension.load(application!!).onFailure {
-                    errorDialog(it.message ?: "Failed to load extension '${extension.name}'")
+                    errorDialog(msg = it.message ?: "Failed to load extension '${extension.name}'")
                 }
             }
         }
