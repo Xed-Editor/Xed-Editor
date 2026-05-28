@@ -3,6 +3,7 @@ package com.rk.ai
 import androidx.compose.runtime.mutableStateOf
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
+import com.rk.ai.session.AgentEnvironmentBuilder
 import com.rk.ai.session.AiSessionManager
 
 object AiRegistrar {
@@ -51,7 +52,7 @@ object AiRegistrar {
             timeoutSeconds: Long,
         ): String = AiSessionManager.runHeadless(prompt, workingDir, timeoutSeconds)
 
-        private fun toAgentInfo(agent: agents.AiAgent): AiProvider.AgentInfo =
+        private fun toAgentInfo(agent: AiAgent): AiProvider.AgentInfo =
             AiProvider.AgentInfo(
                 name = agent.name,
                 displayName = agent.displayName,
@@ -106,7 +107,7 @@ object AiRegistrar {
         override fun buildMinimalBridgeEnv(
             bridge: AiProvider.BridgeInfo,
             workingDir: String,
-        ): Array<String> = session.AgentEnvironmentBuilder.buildMinimalBridgeEnv(
+        ): Array<String> = AgentEnvironmentBuilder.buildMinimalBridgeEnv(
             IdeBridge.Info(port = bridge.port, token = bridge.token, host = bridge.host),
             workingDir,
         )
