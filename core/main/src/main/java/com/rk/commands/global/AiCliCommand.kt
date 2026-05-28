@@ -1,8 +1,6 @@
 package com.rk.commands.global
 
-import com.rk.ai.IdeBridge
-import com.rk.ai.session.AgentEnvironmentBuilder
-import com.rk.ai.session.AiSessionManager
+import com.rk.ai.AiProvider
 import com.rk.commands.ActionContext
 import com.rk.commands.CommandContext
 import com.rk.commands.GlobalCommand
@@ -23,8 +21,8 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
     override val id: String = "global.ai_cli"
 
     override fun getLabel(): String {
-        val agent = AiSessionManager.currentAgent
-        return "${agent.displayName} CLI"
+        val agent = AiProvider.sessionManager?.currentAgent
+        return "${agent?.displayName ?: "AI"} CLI"
     }
 
     override fun action(actionContext: ActionContext) {
@@ -37,8 +35,8 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                     if (file.isDirectory) file.absolutePath else file.parent
                 }
             ?: "/storage/emulated/0"
-        val bridge = IdeBridge.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
-        val agent = AiSessionManager.currentAgent
+        val bridge = AiProvider.ideBridge?.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
+        val agent = AiProvider.sessionManager?.currentAgent ?: return
         val launcher = localBinDir().child(agent.shellScriptName).absolutePath
         val agentArgs = agent.buildArgs(emptyList(), workspaceDir)
         val args = buildList {
@@ -54,7 +52,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 id = "${agent.name}-cli",
                 terminatePreviousSession = false,
                 workingDir = workspaceDir,
-                env = AgentEnvironmentBuilder.buildMinimalBridgeEnv(bridge, workspaceDir),
+                env = AiProvider.agentEnvBuilder?.buildMinimalBridgeEnv(bridge, workspaceDir) ?: emptyArray(),
             ),
         )
     }

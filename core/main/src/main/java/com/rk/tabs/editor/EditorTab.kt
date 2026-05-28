@@ -51,7 +51,7 @@ import com.rk.DefaultScope
 import com.rk.activities.main.EditorCursorState
 import com.rk.activities.main.EditorTabState
 import com.rk.activities.main.MainActivity
-import com.rk.ai.AiCompletionEngine
+import com.rk.ai.AiProvider
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.TabState
 import com.rk.activities.main.gitViewModel
@@ -580,7 +580,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                                 val column = withContext(Dispatchers.Main) { editor.cursor.leftColumn }
                                 val lang = editorState.textmateScope ?: ""
                                 val path = file.getAbsolutePath()
-                                val result = AiCompletionEngine.getInlineCompletion(
+                                val result = AiProvider.completionEngine?.getInlineCompletion(
                                     filePath = path,
                                     content = content,
                                     cursorLine = line,

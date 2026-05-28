@@ -104,8 +104,8 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
             var showAgentMenu by remember { mutableStateOf(false) }
-            val agents = com.rk.ai.session.AiSessionManager.availableAgents()
-            val currentAgent = com.rk.ai.session.AiSessionManager.resolveAgent(Settings.ai_agent)
+            val agents = com.rk.ai.AiProvider.sessionManager?.availableAgents() ?: emptyList()
+            val currentAgent = com.rk.ai.AiProvider.sessionManager?.resolveAgent(Settings.ai_agent)
 
             SettingsToggle(
                 label = stringResource(strings.ai_agent),
@@ -125,7 +125,7 @@ fun SettingsEditorScreen(navController: NavController) {
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = currentAgent.displayName,
+                                    text = currentAgent?.displayName ?: "—",
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
@@ -142,7 +142,7 @@ fun SettingsEditorScreen(navController: NavController) {
                                     text = { Text(agent.displayName) },
                                     onClick = {
                                         Settings.ai_agent = agent.name
-                                        com.rk.ai.session.AiSessionManager.switchAgent(agent.name)
+                                        com.rk.ai.AiProvider.sessionManager?.switchAgent(agent.name)
                                         showAgentMenu = false
                                     },
                                     leadingIcon = if (agent.name == Settings.ai_agent) {

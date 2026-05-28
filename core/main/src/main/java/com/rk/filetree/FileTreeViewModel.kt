@@ -1,448 +1,130 @@
 package com.rk.filetree
 
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.rk.activities.main.gitViewModel
-import com.rk.activities.main.searchViewModel
 import com.rk.file.FileObject
-import com.rk.search.GlobExcluder
-import com.rk.settings.Settings
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
-fun FileObject.toFileTreeNode(): FileTreeNode {
-    return FileTreeNode(file = this, isFile = isFile(), isDirectory = isDirectory(), name = getAppropriateName())
-}
 
 class FileTreeViewModel : ViewModel() {
-    // File option dialogs
-    var showRenameDialog by mutableStateOf(false)
-        private set
+    val dialogState = FileTreeDialogState()
+    val selectionManager = FileTreeSelectionManager()
+    val cacheManager = FileTreeCacheManager(viewModelScope)
 
-    var renameFile by mutableStateOf<FileObject?>(null)
-        private set
+    // ─── Dialog State Accessors ───────────────────────────────────────
+    var showRenameDialog
+        get() = dialogState.showRenameDialog
+        set(v) { dialogState.showRenameDialog = v }
+    var renameFile
+        get() = dialogState.renameFile
+        set(v) { dialogState.renameFile = v }
+    var renameValue
+        get() = dialogState.renameValue
+        set(v) { dialogState.renameValue = v }
+    var renameError
+        get() = dialogState.renameError
+        set(v) { dialogState.renameError = v }
+    var showDeleteConfirmation
+        get() = dialogState.showDeleteConfirmation
+        set(v) { dialogState.showDeleteConfirmation = v }
+    var deleteFiles
+        get() = dialogState.deleteFiles
+        set(v) { dialogState.deleteFiles = v }
+    var deleteRoot
+        get() = dialogState.deleteRoot
+        set(v) { dialogState.deleteRoot = v }
+    var showPropertiesDialog
+        get() = dialogState.showPropertiesDialog
+        set(v) { dialogState.showPropertiesDialog = v }
+    var propertyFile
+        get() = dialogState.propertyFile
+        set(v) { dialogState.propertyFile = v }
+    var showCreateDialog
+        get() = dialogState.showCreateDialog
+        set(v) { dialogState.showCreateDialog = v }
+    var isCreateFile
+        get() = dialogState.isCreateFile
+        set(v) { dialogState.isCreateFile = v }
+    var createValue
+        get() = dialogState.createValue
+        set(v) { dialogState.createValue = v }
+    var createError
+        get() = dialogState.createError
+        set(v) { dialogState.createError = v }
+    var createParentFile
+        get() = dialogState.createParentFile
+        set(v) { dialogState.createParentFile = v }
+    var createRoot
+        get() = dialogState.createRoot
+        set(v) { dialogState.createRoot = v }
+    var showCloseProjectConfirmation
+        get() = dialogState.showCloseProjectConfirmation
+        set(v) { dialogState.showCloseProjectConfirmation = v }
+    var projectConfirmationRoot
+        get() = dialogState.projectConfirmationRoot
+        set(v) { dialogState.projectConfirmationRoot = v }
 
-    var renameValue by mutableStateOf("")
+    // ─── Cache State Accessors ────────────────────────────────────────
+    val sortMode get() = cacheManager.sortMode
+    val expandedNodes: Map<FileObject, Boolean> get() = selectionManager.expandedNodes
 
-    var renameError by mutableStateOf<String?>(null)
-    var showDeleteConfirmation by mutableStateOf(false)
-        private set
+    // ─── Dialog Methods ───────────────────────────────────────────────
+    fun showRenameDialog(file: FileObject) = dialogState.showRenameDialog(file)
+    fun closeRenameDialog() = dialogState.closeRenameDialog()
+    fun showDeleteConfirmation(files: List<FileObject>, root: FileObject?) = dialogState.showDeleteConfirmation(files, root)
+    fun closeDeleteConfirmation() = dialogState.closeDeleteConfirmation()
+    fun showPropertiesDialog(file: FileObject) = dialogState.showPropertiesDialog(file)
+    fun closePropertiesDialog() = dialogState.closePropertiesDialog()
+    fun showCreateDialog(isCreateFile: Boolean, parentFile: FileObject, root: FileObject?) = dialogState.showCreateDialog(isCreateFile, parentFile, root)
+    fun closeCreateDialog() = dialogState.closeCreateDialog()
+    fun showCloseProjectConfirmation(root: FileObject) = dialogState.showCloseProjectConfirmation(root)
+    fun closeCloseProjectConfirmation() = dialogState.closeCloseProjectConfirmation()
 
-    var deleteFiles by mutableStateOf<List<FileObject>?>(null)
-        private set
-
-    var deleteRoot by mutableStateOf<FileObject?>(null)
-        private set
-
-    var showPropertiesDialog by mutableStateOf(false)
-        private set
-
-    var propertyFile by mutableStateOf<FileObject?>(null)
-        private set
-
-    var isCreateFile by mutableStateOf(true)
-        private set
-
-    var createValue by mutableStateOf("")
-    var createError by mutableStateOf<String?>(null)
-    var showCreateDialog by mutableStateOf(false)
-        private set
-
-    var createParentFile by mutableStateOf<FileObject?>(null)
-        private set
-
-    var createRoot by mutableStateOf<FileObject?>(null)
-        private set
-
-    var showCloseProjectConfirmation by mutableStateOf(false)
-        private set
-
-    var projectConfirmationRoot by mutableStateOf<FileObject?>(null)
-        private set
-
-    fun showRenameDialog(file: FileObject) {
-        showRenameDialog = true
-        renameValue = file.getName()
-        renameFile = file
-    }
-
-    fun closeRenameDialog() {
-        showRenameDialog = false
-        renameValue = ""
-        renameError = null
-        renameFile = null
-    }
-
-    fun showDeleteConfirmation(files: List<FileObject>, root: FileObject?) {
-        showDeleteConfirmation = true
-        deleteFiles = files
-        deleteRoot = root
-    }
-
-    fun closeDeleteConfirmation() {
-        showDeleteConfirmation = false
-        deleteFiles = null
-        deleteRoot = null
-    }
-
-    fun showPropertiesDialog(file: FileObject) {
-        showPropertiesDialog = true
-        propertyFile = file
-    }
-
-    fun closePropertiesDialog() {
-        showPropertiesDialog = false
-        propertyFile = null
-    }
-
-    fun showCreateDialog(isCreateFile: Boolean, parentFile: FileObject, root: FileObject?) {
-        this.isCreateFile = isCreateFile
-        showCreateDialog = true
-        createParentFile = parentFile
-        createRoot = root
-    }
-
-    fun closeCreateDialog() {
-        showCreateDialog = false
-        createError = null
-        createParentFile = null
-        createRoot = null
-    }
-
-    fun showCloseProjectConfirmation(root: FileObject) {
-        showCloseProjectConfirmation = true
-        projectConfirmationRoot = root
-    }
-
-    fun closeCloseProjectConfirmation() {
-        showCloseProjectConfirmation = false
-        projectConfirmationRoot = null
-    }
-
-    // File tree
-    var sortMode by mutableStateOf(SortMode.entries[Settings.sort_mode])
-    private val selectedFiles = mutableStateMapOf<FileObject, List<FileObject>>()
-    private val focusedFile = mutableStateMapOf<FileObject, FileObject>()
-    private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
-    private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
-    private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
-    private var fileOperationsCount by mutableIntStateOf(0)
-
-    private val excluder by derivedStateOf { GlobExcluder(Settings.excluded_files_drawer) }
-
-    fun getExpandedNodes(): Map<FileObject, Boolean> {
-        return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
-    }
-
-    fun setExpandedNodes(map: Map<FileObject, Boolean>) {
-        map.forEach { expandedNodes[it.key] = it.value }
-    }
-
-    fun toggleSelection(projectRoot: FileObject, fileObject: FileObject) {
-        if (isFileSelected(projectRoot, fileObject)) {
-            unselectFile(projectRoot, fileObject)
-        } else {
-            selectFile(projectRoot, fileObject)
-        }
-    }
-
-    fun selectFile(projectRoot: FileObject, fileObject: FileObject) {
-        selectedFiles[projectRoot] = selectedFiles[projectRoot]?.plus(fileObject) ?: listOf(fileObject)
-    }
-
-    fun unselectFile(projectRoot: FileObject, fileObject: FileObject) {
-        selectedFiles[projectRoot] = selectedFiles[projectRoot]?.minus(fileObject) ?: listOf(fileObject)
-        if (selectedFiles[projectRoot]?.isEmpty() == true) {
-            selectedFiles.remove(projectRoot)
-        }
-    }
-
-    fun unselectAllFiles(projectRoot: FileObject) {
-        selectedFiles.remove(projectRoot)
-    }
-
-    fun isFileSelected(projectRoot: FileObject, fileObject: FileObject): Boolean {
-        return selectedFiles[projectRoot]?.contains(fileObject) == true
-    }
-
-    fun isAnyFileSelected(projectRoot: FileObject): Boolean {
-        return selectedFiles[projectRoot]?.isNotEmpty() == true
-    }
-
-    fun getSelectionCount(projectRoot: FileObject): Int {
-        return selectedFiles[projectRoot]?.size ?: 0
-    }
-
-    fun getSelectedFiles(projectRoot: FileObject): List<FileObject> {
-        return selectedFiles[projectRoot] ?: emptyList()
-    }
-
-    suspend fun withFileOperation(block: suspend () -> Unit) {
-        registerFileOperation()
-        try {
-            block()
-        } finally {
-            unregisterFileOperation()
-        }
-    }
-
-    fun registerFileOperation() {
-        fileOperationsCount++
-    }
-
-    fun unregisterFileOperation() {
-        fileOperationsCount--
-    }
-
-    fun isFileOperationInProgress(): Boolean {
-        return fileOperationsCount > 0
-    }
-
-    private val cutNodes = mutableStateListOf<FileObject>()
-
-    // File -> Error severity (see DiagnosticRegion.java)
-    private val diagnosedNodes = mutableStateMapOf<FileObject, Int>()
-
-    // Track loading states to avoid showing spinners incorrectly
-    private val _loadingStates = mutableStateMapOf<FileObject, Boolean>()
-
-    fun isNodeExpanded(fileObject: FileObject): Boolean = expandedNodes[fileObject] == true
-
-    fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates[fileObject] == true
-
-    fun isNodeCut(fileObject: FileObject): Boolean = cutNodes.contains(fileObject)
-
-    fun markNodeAsCut(fileObject: FileObject) {
-        cutNodes.add(fileObject)
-    }
-
-    fun unmarkNodeAsCut(fileObject: FileObject) {
-        cutNodes.remove(fileObject)
-    }
-
-    fun diagnoseNode(fileObject: FileObject, severity: Int) {
-        diagnosedNodes[fileObject] = severity
-    }
-
-    fun undiagnoseNode(fileObject: FileObject) {
-        diagnosedNodes.remove(fileObject)
-    }
-
-    fun getNodeSeverity(fileObject: FileObject): Int {
-        return diagnosedNodes[fileObject] ?: -1
-    }
+    // ─── Selection Methods ────────────────────────────────────────────
+    fun getExpandedNodes(): Map<FileObject, Boolean> = selectionManager.getExpandedNodes()
+    fun setExpandedNodes(map: Map<FileObject, Boolean>) = selectionManager.setExpandedNodes(map)
+    fun toggleSelection(projectRoot: FileObject, fileObject: FileObject) = selectionManager.toggleSelection(projectRoot, fileObject)
+    fun selectFile(projectRoot: FileObject, fileObject: FileObject) = selectionManager.selectFile(projectRoot, fileObject)
+    fun unselectFile(projectRoot: FileObject, fileObject: FileObject) = selectionManager.unselectFile(projectRoot, fileObject)
+    fun unselectAllFiles(projectRoot: FileObject) = selectionManager.unselectAllFiles(projectRoot)
+    fun isFileSelected(projectRoot: FileObject, fileObject: FileObject): Boolean = selectionManager.isFileSelected(projectRoot, fileObject)
+    fun isAnyFileSelected(projectRoot: FileObject): Boolean = selectionManager.isAnyFileSelected(projectRoot)
+    fun getSelectionCount(projectRoot: FileObject): Int = selectionManager.getSelectionCount(projectRoot)
+    fun getSelectedFiles(projectRoot: FileObject): List<FileObject> = selectionManager.getSelectedFiles(projectRoot)
+    fun isNodeCut(fileObject: FileObject): Boolean = selectionManager.isNodeCut(fileObject)
+    fun markNodeAsCut(fileObject: FileObject) = selectionManager.markNodeAsCut(fileObject)
+    fun unmarkNodeAsCut(fileObject: FileObject) = selectionManager.unmarkNodeAsCut(fileObject)
+    fun diagnoseNode(fileObject: FileObject, severity: Int) = selectionManager.diagnoseNode(fileObject, severity)
+    fun undiagnoseNode(fileObject: FileObject) = selectionManager.undiagnoseNode(fileObject)
+    fun getNodeSeverity(fileObject: FileObject): Int = selectionManager.getNodeSeverity(fileObject)
+    fun isNodeExpanded(fileObject: FileObject): Boolean = selectionManager.isNodeExpanded(fileObject)
 
     fun toggleNodeExpansion(fileObject: FileObject) {
-        val wasExpanded = expandedNodes[fileObject] == true
-        expandedNodes[fileObject] = !wasExpanded
-
-        // If we're expanding and haven't loaded yet, trigger a load
-        if (!wasExpanded && !fileListCache.containsKey(fileObject)) {
-            _loadingStates[fileObject] = true
-        }
+        val nowExpanded = selectionManager.toggleNodeExpansion(fileObject)
+        cacheManager.onExpanding(fileObject, nowExpanded)
     }
 
-    fun getCollapsedName(node: FileTreeNode): String {
-        return collapsedNameCache[node.file] ?: node.name
-    }
-
-    suspend fun collapseNode(node: FileTreeNode): FileTreeNode {
-        var currentNode = node
-        var collapsedName = node.name
-        while (true) {
-            if (!isNodeExpanded(currentNode.file)) {
-                toggleNodeExpansion(currentNode.file)
-            }
-            loadChildrenForNodeSynchronous(currentNode)
-            val children = getNodeChildren(currentNode)
-            if (children.size != 1) {
-                break
-            }
-            val child = children.first()
-            if (!child.isDirectory) {
-                break
-            }
-            collapsedName += "/${child.name}"
-            currentNode = child
-        }
-        collapsedNameCache[node.file] = collapsedName
-        return currentNode
-    }
-
-    fun updateCache(file: FileObject) {
-        searchViewModel.get()?.syncIndex(file)
-        gitViewModel.get()?.syncChanges(file.getAbsolutePath())
-        if (file.isDirectory().not()) {
-            return
-        }
-        collapsedNameCache.remove(file)
-        _loadingStates[file] = true // Mark as loading
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Safely access file listing
-                val fileList =
-                    try {
-                        file.listFiles()
-                    } catch (e: Exception) {
-                        _loadingStates[file] = false
-                        return@launch
-                    }
-
-                // Process files
-                val sortedFiles = sortAndFilterFiles(fileList)
-
-                fileListCache[file] = sortedFiles
-
-                viewModelScope.launch {
-                    delay(300)
-                    _loadingStates[file] = false
-                }
-            } catch (e: Exception) {
-                _loadingStates[file] = false
-            }
-        }
-    }
-
-    fun isFileFocused(projectFile: FileObject, fileObject: FileObject) = focusedFile[projectFile] == fileObject
+    fun isFileFocused(projectFile: FileObject, fileObject: FileObject): Boolean = selectionManager.isFileFocused(projectFile, fileObject)
 
     suspend fun goToFolder(projectFile: FileObject, fileObject: FileObject) {
-        focusedFile[projectFile] = fileObject
-        viewModelScope.launch {
-            delay(1000)
-            focusedFile.remove(projectFile)
-        }
-
-        var currentFile: FileObject? = fileObject
-        while (currentFile != null && currentFile != projectFile) {
-            expandedNodes[currentFile] = true
-
-            // If we're expanding and haven't loaded yet, trigger a load
-            if (!fileListCache.containsKey(fileObject)) {
-                _loadingStates[currentFile] = true
-            }
-
-            currentFile = currentFile.getParentFile()
-        }
-        expandedNodes[projectFile] = true
+        selectionManager.focusFile(viewModelScope, projectFile, fileObject)
+        selectionManager.expandToRoot(fileObject, projectFile, cacheManager::isInCache)
     }
 
-    suspend fun refreshEverything() {
-        withContext(Dispatchers.IO) {
-            val keys = fileListCache.keys.toList()
-            keys.forEach { updateCache(it) }
-        }
-    }
+    // ─── Cache Methods ────────────────────────────────────────────────
+    fun isNodeLoading(fileObject: FileObject): Boolean = cacheManager.isNodeLoading(fileObject)
+    fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> = cacheManager.getNodeChildren(node)
+    fun getCollapsedName(node: FileTreeNode): String = cacheManager.getCollapsedName(node)
+    fun isFileOperationInProgress(): Boolean = cacheManager.isFileOperationInProgress()
+    fun registerFileOperation() = cacheManager.registerFileOperation()
+    fun unregisterFileOperation() = cacheManager.unregisterFileOperation()
+    suspend fun withFileOperation(block: suspend () -> Unit) = cacheManager.withFileOperation(block)
 
-    fun getNodeChildren(node: FileTreeNode): List<FileTreeNode> {
-        return fileListCache[node.file] ?: emptyList()
-    }
+    suspend fun collapseNode(node: FileTreeNode): FileTreeNode = cacheManager.collapseNode(
+        node,
+        isExpanded = selectionManager::isNodeExpanded,
+        expand = selectionManager::expandNode
+    )
 
-    fun loadChildrenForNode(node: FileTreeNode) {
-        // If already in cache, don't reload
-        if (fileListCache.containsKey(node.file)) {
-            _loadingStates[node.file] = false
-            return
-        }
-
-        // Set loading state
-        _loadingStates[node.file] = true
-
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Safely access file listing
-                val fileList =
-                    try {
-                        node.file.listFiles()
-                    } catch (_: Exception) {
-                        _loadingStates[node.file] = false
-                        return@launch
-                    }
-
-                // Process files
-                val sortedFiles = sortAndFilterFiles(fileList)
-
-                fileListCache[node.file] = sortedFiles
-                viewModelScope.launch {
-                    delay(300)
-                    _loadingStates[node.file] = false
-                }
-            } catch (_: Exception) {
-                _loadingStates[node.file] = false
-            }
-        }
-    }
-
-    suspend fun loadChildrenForNodeSynchronous(node: FileTreeNode) {
-        // If already in cache, don't reload
-        if (fileListCache.containsKey(node.file)) {
-            _loadingStates[node.file] = false
-            return
-        }
-
-        // Set loading state
-        _loadingStates[node.file] = true
-
-        try {
-            // Safely access file listing
-            val fileList =
-                try {
-                    node.file.listFiles()
-                } catch (_: Exception) {
-                    _loadingStates[node.file] = false
-                    return
-                }
-
-            // Process files
-            val sortedFiles = sortAndFilterFiles(fileList)
-
-            fileListCache[node.file] = sortedFiles
-            viewModelScope.launch {
-                delay(300)
-                _loadingStates[node.file] = false
-            }
-        } catch (_: Exception) {
-            _loadingStates[node.file] = false
-        }
-    }
-
-    private suspend fun calculateFileSizes(fileObjects: List<FileObject>): Map<FileObject, Long> {
-        val fileSizes = mutableMapOf<FileObject, Long>()
-        if (sortMode != SortMode.SORT_BY_SIZE) return fileSizes
-
-        fileObjects.forEach { file ->
-            if (!file.isDirectory()) {
-                fileSizes[file] = file.length()
-            }
-        }
-        return fileSizes
-    }
-
-    private suspend fun sortAndFilterFiles(fileObjects: List<FileObject>): List<FileTreeNode> {
-        val fileSizes = calculateFileSizes(fileObjects)
-
-        return fileObjects
-            .sortedWith(
-                compareBy<FileObject> { !it.isDirectory() }
-                    .thenComparator { f1, f2 ->
-                        when (sortMode) {
-                            SortMode.SORT_BY_NAME ->
-                                f1.getName().lowercase().compareTo(f2.getName().lowercase()) // A -> Z
-                            SortMode.SORT_BY_SIZE ->
-                                (fileSizes[f2] ?: 0L).compareTo(fileSizes[f1] ?: 0L) // Biggest first
-                            SortMode.SORT_BY_DATE -> (f2.lastModified()).compareTo(f1.lastModified()) // Newest first
-                        }
-                    }
-            )
-            .filter { !excluder.isExcluded(it.getAbsolutePath()) }
-            .map { it.toFileTreeNode() }
-    }
+    fun updateCache(file: FileObject) = cacheManager.updateCache(file)
+    fun loadChildrenForNode(node: FileTreeNode) = cacheManager.loadChildrenForNode(node)
+    suspend fun loadChildrenForNodeSynchronous(node: FileTreeNode) = cacheManager.loadChildrenForNodeSynchronous(node)
+    suspend fun refreshEverything() = cacheManager.refreshEverything()
 }

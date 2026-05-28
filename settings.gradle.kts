@@ -29,6 +29,7 @@ dependencyResolutionManagement {
 include(
     ":app",
     ":core:main",
+    ":core:ai",
     ":core:components",
     ":core:resources",
     ":core:terminal-view",

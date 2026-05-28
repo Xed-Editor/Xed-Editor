@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
-import com.rk.ai.session.AiSessionManager
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +40,8 @@ fun InlineAgentBar(
             state.projectRoot?.getAbsolutePath()
                 ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
         } else null
-        return AiSessionManager.runHeadless(prompt, wd ?: "/storage/emulated/0")
+        val sm = AiProvider.sessionManager ?: return "Error: AI module not available"
+        return sm.runHeadless(prompt, wd ?: "/storage/emulated/0")
     }
 
     AnimatedVisibility(
@@ -62,7 +62,7 @@ fun InlineAgentBar(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(
-                        text = "Ask ${AiSessionManager.currentAgent.displayName}",
+                        text = "Ask ${AiProvider.sessionManager?.currentAgent?.displayName ?: "AI"}",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.weight(1f),
                     )

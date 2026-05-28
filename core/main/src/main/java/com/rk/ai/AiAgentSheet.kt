@@ -53,8 +53,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.BottomPanelMode
-import com.rk.ai.agents.AiAgent
-import com.rk.ai.session.AiSessionManager
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeTab
@@ -119,7 +117,7 @@ fun UnifiedToolSheet(
         cwd.value = currentProjectDir()
     }
     
-    val aiSession = AiSessionManager.session
+    val aiSession = AiProvider.sessionManager?.sessionState?.value
     val isAiRunning = aiSession?.isRunning == true
     var showTranscript by remember { mutableStateOf(false) }
     val transcript = viewModel.agentTranscript
@@ -150,15 +148,15 @@ fun UnifiedToolSheet(
 
     fun startAgent(workingDir: String = cwd.value, extraArgs: List<String> = emptyList(), forceRestart: Boolean = false) {
         val currentActivity = activity ?: return
-        if (!forceRestart && extraArgs.isEmpty() && AiSessionManager.canReuseFor(workingDir)) {
-            IdeBridge.setWorkspacePath(workingDir)
-            appendLog("Reusing agent session: ${AiSessionManager.cwd}")
+        if (!forceRestart && extraArgs.isEmpty() && AiProvider.sessionManager?.canReuseFor(workingDir) == true) {
+            AiProvider.ideBridge?.setWorkspacePath(workingDir)
+            appendLog("Reusing agent session: ${AiProvider.sessionManager?.cwd ?: "?"}")
             return
         }
-        AiSessionManager.stopSession()
+        AiProvider.sessionManager?.stopSession()
         scope.launch(Dispatchers.Main) {
             val saved = withContext(Dispatchers.IO) { saveDirtyEditors() }
-            AiSessionManager.startSession(currentActivity, viewModel, workingDir, extraArgs)
+            AiProvider.sessionManager?.startSession(currentActivity, viewModel, workingDir, extraArgs)
             if (saved > 0) appendLog("Synced $saved dirty editor file(s) before agent start.")
             appendLog("Agent running in sheet: $workingDir")
         }
@@ -166,7 +164,7 @@ fun UnifiedToolSheet(
 
     fun sendToAgent(text: String) {
         if (text.isBlank()) return
-        val runningSession = AiSessionManager.session
+        val runningSession = AiProvider.sessionManager?.sessionState?.value
         if (runningSession?.isRunning == true && runningSession.emulator != null) {
             scope.launch(Dispatchers.IO) {
                 val saved = saveDirtyEditors()
@@ -195,15 +193,15 @@ fun UnifiedToolSheet(
             }
             "/restart" -> startAgent(forceRestart = true)
             "/stop" -> {
-                AiSessionManager.stopSession()
+                AiProvider.sessionManager?.stopSession()
                 appendLog("Agent stopped.")
             }
             "/export" -> exportSession(viewModel, cwd.value)
             "/bridge" -> {
-                val alive = IdeBridge.isRunning()
-                val health = if (alive) IdeBridge.healthCheck() else false
-                val info = IdeBridge.getBridgeInfo()
-                val workspacePath = IdeBridge.primaryWorkspacePath()
+                val alive = AiProvider.ideBridge?.isRunning() == true
+                val health = if (alive) (AiProvider.ideBridge?.healthCheck() == true) else false
+                val info = AiProvider.ideBridge?.getBridgeInfo()
+                val workspacePath = AiProvider.ideBridge?.primaryWorkspacePath() ?: ""
                 appendLog(
                     buildString {
                         appendLine("Bridge status:")
@@ -212,7 +210,7 @@ fun UnifiedToolSheet(
                             appendLine("  url=http://${info.host}:${info.port}")
                             appendLine("  token=${info.token.take(8)}...")
                         }
-                        appendLine("  clients=${IdeBridge.connectedClients()}")
+                        appendLine("  clients=${AiProvider.ideBridge?.connectedClients() ?: 0}")
                         appendLine("  workspace=$workspacePath")
                         appendLine()
                         appendLine("Inside agent terminal, run:")
@@ -239,7 +237,7 @@ fun UnifiedToolSheet(
         val pendingPrompt = consumePendingPrompt()
         if (pendingPrompt != null) {
             handleInput(pendingPrompt)
-        } else if (!AiSessionManager.canReuseFor(cwd.value)) {
+        } else if (AiProvider.sessionManager?.canReuseFor(cwd.value) != true) {
             startAgent(cwd.value)
         }
     }
@@ -251,7 +249,7 @@ fun UnifiedToolSheet(
         }
     }
 
-    val currentAgent = AiSessionManager.currentAgent
+    val currentAgent = AiProvider.sessionManager?.currentAgent
     val currentTab = viewModel.currentTab as? EditorTab
     val editor = currentTab?.editorState?.editor?.get()
     val selectedText = editor?.getSelectedText().orEmpty()
@@ -566,7 +564,7 @@ private fun UnifiedCommandBar(
     mode: BottomPanelMode,
     isAiRunning: Boolean,
     cwd: String,
-    agent: AiAgent,
+    agent: AiProvider.AgentInfo?,
     transcript: String,
     showTranscript: Boolean,
     onToggleTranscript: () -> Unit,
@@ -578,7 +576,7 @@ private fun UnifiedCommandBar(
 ) {
     var showAgentMenu by remember { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
-    val availableAgents = AiSessionManager.availableAgents()
+    val availableAgents = AiProvider.sessionManager?.availableAgents() ?: emptyList()
 
     Column(modifier = Modifier.fillMaxWidth().background(colorScheme.surfaceContainerHighest)) {
         // Row 1: Status bar - common for both modes
@@ -592,8 +590,9 @@ private fun UnifiedCommandBar(
             onToggleAgentMenu = { showAgentMenu = !showAgentMenu },
             onSelectAgent = { selectedAgent ->
                 showAgentMenu = false
-                if (selectedAgent != AiSessionManager.currentAgent) {
-                    AiSessionManager.switchAgent(selectedAgent.name)
+                val current = AiProvider.sessionManager?.currentAgent
+                if (selectedAgent.name != current?.name) {
+                    AiProvider.sessionManager?.switchAgent(selectedAgent.name)
                     onAction("/restart")
                 }
             },
@@ -625,7 +624,7 @@ private fun UnifiedCommandBar(
             },
             update = { keys ->
                 val session = if (mode == BottomPanelMode.AI) {
-                    AiSessionManager.session
+                    AiProvider.sessionManager?.sessionState?.value
                 } else {
                     terminalViewModel.terminalView?.mTermSession
                 }
@@ -754,11 +753,11 @@ private fun StatusBar(
     mode: BottomPanelMode = BottomPanelMode.AI,
     isRunning: Boolean = false,
     cwd: String = "",
-    agent: AiAgent = AiSessionManager.currentAgent,
-    availableAgents: List<AiAgent> = emptyList(),
+    agent: AiProvider.AgentInfo? = AiProvider.sessionManager?.currentAgent,
+    availableAgents: List<AiProvider.AgentInfo> = emptyList(),
     showAgentMenu: Boolean = false,
     onToggleAgentMenu: () -> Unit = {},
-    onSelectAgent: (AiAgent) -> Unit = {},
+    onSelectAgent: (AiProvider.AgentInfo) -> Unit = {},
     transcript: String = "",
     showTranscript: Boolean = false,
     onToggleTranscript: () -> Unit = {},
@@ -767,8 +766,8 @@ private fun StatusBar(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val statusColor = if (isRunning) Color(0xFF4CAF50) else Color(0xFFEF5350)
-    val bridgeClients = IdeBridge.connectedClients()
-    val bridgeOnline = IdeBridge.isRunning()
+    val bridgeClients = AiProvider.ideBridge?.connectedClients() ?: 0
+    val bridgeOnline = AiProvider.ideBridge?.isRunning() == true
 
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp)) {
             Row(
@@ -794,7 +793,7 @@ private fun StatusBar(
                             Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(statusColor))
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = if (mode == BottomPanelMode.AI) agent.displayName else "Terminal",
+                                text = if (mode == BottomPanelMode.AI) (agent?.displayName ?: "AI") else "Terminal",
                                 color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                             )
@@ -821,16 +820,16 @@ private fun StatusBar(
                                     text = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
-                                                if (a.name == "gemini") Icons.Outlined.Psychology else Icons.Outlined.AutoFixHigh,
+                                                if (a.cliBinaryName == "gemini") Icons.Outlined.Psychology else Icons.Outlined.AutoFixHigh,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(18.dp),
                                                 tint = if (a == agent) colorScheme.primary else colorScheme.onSurfaceVariant,
                                             )
                                             Spacer(Modifier.width(10.dp))
                                             Column {
-                                                Text(a.displayName, style = MaterialTheme.typography.bodyMedium)
-                                                Text(
-                                                    "Switch to ${a.displayName}",
+                                                    Text(a.displayName, style = MaterialTheme.typography.bodyMedium)
+                                                    Text(
+                                                        "Switch to ${a.displayName.split("/").last()}",
                                                     style = MaterialTheme.typography.labelSmall,
                                                     color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                                 )
@@ -1080,7 +1079,7 @@ private fun ActionChip(
 
 private fun exportSession(viewModel: MainViewModel, cwd: String) {
     val context = com.rk.utils.application ?: return
-    val agentName = AiSessionManager.currentAgent.displayName
+    val agentName = AiProvider.sessionManager?.currentAgent?.displayName ?: "AI"
     val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).format(java.util.Date())
     val transcript = viewModel.agentTranscript
     val markdown = buildString {
