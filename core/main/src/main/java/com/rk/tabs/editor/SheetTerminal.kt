@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.blankj.utilcode.util.ClipboardUtils
@@ -33,7 +32,7 @@ import java.lang.ref.WeakReference
 
 class SheetTerminalClient(
     private val view: TerminalView,
-    private val virtualKeysViewRef: () -> VirtualKeysView?
+    private val virtualKeysViewRef: () -> VirtualKeysView?,
 ) : TerminalViewClient, TerminalSessionClient {
 
     override fun onTextChanged(changedSession: TerminalSession) { view.onScreenUpdated() }
@@ -100,18 +99,15 @@ class SheetTerminalClient(
 fun SheetTerminal(
     session: TerminalSession?,
     modifier: Modifier = Modifier,
-    height: Dp = 595.dp,
     showKeys: Boolean = true,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val currentTheme = LocalThemeHolder.current
     val isDarkMode = isSystemInDarkTheme()
-    val keysHeight = if (showKeys) 75.dp else 0.dp
-    val terminalBodyHeight = (height - keysHeight).coerceAtLeast(160.dp)
 
     if (session == null) {
         Box(
-            modifier = modifier.height(height).background(colorScheme.surfaceContainerHigh, RoundedCornerShape(8.dp)),
+            modifier = modifier.fillMaxSize().background(colorScheme.surfaceContainerHigh),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -127,13 +123,9 @@ fun SheetTerminal(
     var terminalClient by remember { mutableStateOf<SheetTerminalClient?>(null) }
     var lastBoundSession by remember { mutableStateOf<TerminalSession?>(null) }
 
-    Column(modifier = if (showKeys) modifier.height(height) else modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         AndroidView<TerminalView>(
-            modifier = if (showKeys) {
-                Modifier.fillMaxWidth().height(terminalBodyHeight)
-            } else {
-                Modifier.fillMaxWidth().weight(1f)
-            },
+            modifier = Modifier.fillMaxWidth().weight(1f),
             factory = { context ->
                 TerminalView(context, null).apply {
                     val client = SheetTerminalClient(this) { virtualKeysViewRef.get() }
@@ -188,7 +180,7 @@ fun SheetTerminal(
 
         if (showKeys) {
             AndroidView<VirtualKeysView>(
-                modifier = Modifier.fillMaxWidth().height(keysHeight),
+                modifier = Modifier.fillMaxWidth().height(36.dp),
                 factory = { context ->
                     VirtualKeysView(context, null).apply {
                         setButtonTextColor(colorScheme.onSurface.toArgb())

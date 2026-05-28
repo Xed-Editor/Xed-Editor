@@ -83,9 +83,9 @@ fun UnifiedCommandBar(
         )
 
         if (mode == BottomPanelMode.TERMINAL || mode == BottomPanelMode.AI) {
-            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.3f), thickness = 0.5.dp)
+            DividerThin(colorScheme)
             AndroidView<VirtualKeysView>(
-                modifier = Modifier.fillMaxWidth().height(40.dp),
+                modifier = Modifier.fillMaxWidth().height(36.dp),
                 factory = { ctx ->
                     VirtualKeysView(ctx, null).apply {
                         setButtonTextColor(colorScheme.onSurface.toArgb())
@@ -115,7 +115,7 @@ fun UnifiedCommandBar(
         }
 
         if (mode == BottomPanelMode.AI) {
-            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.15f), thickness = 0.5.dp)
+            DividerThin(colorScheme)
             QuickActions(
                 isRunning = isAiRunning,
                 currentFile = currentFile,
@@ -123,7 +123,7 @@ fun UnifiedCommandBar(
                 onAction = onAction,
             )
         } else if (mode == BottomPanelMode.TERMINAL) {
-            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.15f), thickness = 0.5.dp)
+            DividerThin(colorScheme)
             TerminalQuickActions(
                 terminalViewModel = terminalViewModel,
                 onAction = onAction,
@@ -133,23 +133,28 @@ fun UnifiedCommandBar(
 }
 
 @Composable
+private fun DividerThin(colorScheme: androidx.compose.material3.ColorScheme) {
+    HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.12f), thickness = 0.5.dp)
+}
+
+@Composable
 private fun TerminalQuickActions(
     terminalViewModel: TerminalViewModel,
     onAction: (String) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val scope = rememberCoroutineScope()
-    
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 8.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         ActionChip(
-            icon = { Icon(Icons.Outlined.ContentPaste, contentDescription = null, modifier = Modifier.size(14.dp)) },
+            icon = { Icon(Icons.Outlined.ContentPaste, contentDescription = null, modifier = Modifier.size(13.dp)) },
             label = "Paste",
             onClick = {
                 terminalViewModel.terminalView?.mTermSession?.let { session ->
@@ -163,7 +168,7 @@ private fun TerminalQuickActions(
         )
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(14.dp)) },
+            icon = { Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(13.dp)) },
             label = "Clear",
             onClick = {
                 terminalViewModel.terminalView?.mTermSession?.write("clear\n")
@@ -172,26 +177,26 @@ private fun TerminalQuickActions(
         )
 
         ActionChip(
-            icon = { Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp)) },
-            label = "New Session",
+            icon = { Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            label = "New",
             onClick = {
                 terminalViewModel.terminalView?.let { tv ->
                     val activity = tv.context as? android.app.Activity ?: return@let
                     val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
                     val service = terminalViewModel.sessionBinder?.getService()
                     val sessionBinder = terminalViewModel.sessionBinder ?: return@let
-                    
+
                     val activeTab = (tv.context as? com.rk.activities.main.MainActivity)?.viewModel?.currentTab as? com.rk.tabs.editor.EditorTab
                     val activeFile = activeTab?.file?.getAbsolutePath() ?: ""
                     val activeProject = activeTab?.projectRoot?.getAbsolutePath() ?: ""
-                    
+
                     scope.launch(Dispatchers.IO) {
                         sessionBinder.createSession(
                             "main #${service?.sessionList?.size?.plus(1) ?: 1}",
                             client,
                             activity,
                             activeFile = activeFile,
-                            activeProject = activeProject
+                            activeProject = activeProject,
                         )
                     }
                 }
@@ -200,8 +205,8 @@ private fun TerminalQuickActions(
         )
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(14.dp)) },
-            label = "Kill Session",
+            icon = { Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            label = "Kill",
             onClick = {
                 terminalViewModel.terminalView?.mTermSession?.let { session ->
                     val binder = terminalViewModel.sessionBinder ?: return@let
@@ -254,59 +259,58 @@ private fun StatusBar(
         targetValue = 0.9f,
         animationSpec = infiniteRepeatable(
             animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
+            repeatMode = RepeatMode.Reverse,
         ),
-        label = "PulseAlpha"
+        label = "PulseAlpha",
     )
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(36.dp),
+            modifier = Modifier.fillMaxWidth().height(32.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box {
                 Surface(
                     onClick = { if (mode == BottomPanelMode.AI) onToggleAgentMenu() },
                     enabled = mode == BottomPanelMode.AI,
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(12.dp),
                     color = if (mode == BottomPanelMode.AI)
                         colorScheme.primaryContainer.copy(alpha = 0.6f)
                     else
                         colorScheme.secondaryContainer.copy(alpha = 0.6f),
-                    modifier = Modifier.height(28.dp)
+                    modifier = Modifier.height(26.dp),
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 10.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(12.dp)) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(10.dp)) {
                             if (isRunning) {
                                 Box(
                                     modifier = Modifier
-                                        .size(12.dp)
+                                        .size(10.dp)
                                         .clip(CircleShape)
-                                        .background(statusColor.copy(alpha = pulseAlpha * 0.4f))
+                                        .background(statusColor.copy(alpha = pulseAlpha * 0.4f)),
                                 )
                             }
                             Box(
                                 modifier = Modifier
-                                    .size(6.dp)
+                                    .size(5.dp)
                                     .clip(CircleShape)
-                                    .background(statusColor)
+                                    .background(statusColor),
                             )
                         }
-                        Spacer(Modifier.width(6.dp))
+                        Spacer(Modifier.width(4.dp))
                         Text(
                             text = if (mode == BottomPanelMode.AI) (agent?.displayName ?: "AI") else "Terminal",
                             color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         )
                         if (mode == BottomPanelMode.AI) {
-                            Spacer(Modifier.width(2.dp))
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Switch",
-                                modifier = Modifier.size(14.dp),
+                                modifier = Modifier.size(12.dp),
                                 tint = colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
                             )
                         }
@@ -356,27 +360,27 @@ private fun StatusBar(
                 }
             }
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
 
             Surface(
                 onClick = {
                     com.blankj.utilcode.util.ClipboardUtils.copyText("Path", cwd)
                     com.rk.utils.toast("Path copied to clipboard")
                 },
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(6.dp),
                 color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         Icons.Outlined.Code,
                         contentDescription = null,
-                        modifier = Modifier.size(12.dp),
+                        modifier = Modifier.size(10.dp),
                         tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     )
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(3.dp))
                     Text(
                         text = cwd.split("/").lastOrNull()?.takeIf { it.isNotBlank() } ?: "/",
                         color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
@@ -387,46 +391,44 @@ private fun StatusBar(
                 }
             }
 
-            Spacer(Modifier.width(4.dp))
-
             if (bridgeOnline && mode == BottomPanelMode.AI) {
+                Spacer(Modifier.width(4.dp))
                 Surface(
                     shape = CircleShape,
                     color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(20.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Box(
                             modifier = Modifier
-                                .size(7.dp)
+                                .size(6.dp)
                                 .clip(CircleShape)
                                 .background(
                                     if (bridgeClients > 0) Color(0xFF4CAF50)
                                     else Color(0xFFFFC107)
-                                )
+                                ),
                         )
                     }
                 }
-                Spacer(Modifier.width(4.dp))
             }
 
             Spacer(Modifier.weight(1f))
 
             if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
-                FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(28.dp)) {
+                FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(26.dp)) {
                     Icon(
                         if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                         contentDescription = if (showTranscript) "Hide transcript" else "Show transcript",
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(14.dp),
                         tint = colorScheme.onSurfaceVariant,
                     )
                 }
                 Spacer(Modifier.width(4.dp))
-                FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(28.dp)) {
+                FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(26.dp)) {
                     Icon(
                         Icons.Outlined.Delete,
                         contentDescription = "Clear transcript",
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(12.dp),
                         tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     )
                 }
@@ -441,11 +443,11 @@ private fun StatusBar(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 140.dp)
-                    .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(12.dp),
+                    .heightIn(max = 100.dp)
+                    .padding(vertical = 2.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = colorScheme.surfaceContainerHigh,
-                border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.3f))
+                border = BorderStroke(0.5.dp, colorScheme.outlineVariant.copy(alpha = 0.2f)),
             ) {
                 val scrollState = rememberScrollState()
                 LaunchedEffect(transcript) {
@@ -455,7 +457,7 @@ private fun StatusBar(
                     text = transcript,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp)
+                        .padding(8.dp)
                         .verticalScroll(scrollState),
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                     color = colorScheme.onSurface,
@@ -484,102 +486,121 @@ private fun QuickActions(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 8.dp, vertical = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         if (!isRunning) {
             Button(
                 onClick = { onAction("/restart") },
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-                modifier = Modifier.height(30.dp),
-                shape = RoundedCornerShape(15.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                modifier = Modifier.height(28.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
+                ),
             ) {
-                Icon(Icons.Outlined.Psychology, contentDescription = null, modifier = Modifier.size(14.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Start Agent", style = MaterialTheme.typography.labelSmall)
+                Icon(
+                    Icons.Outlined.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    "Start",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                )
             }
         } else {
-            ActionChip(
-                icon = { Icon(Icons.Outlined.Code, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Explain",
-                onClick = { onAction(prompt("Explain the code")) },
-                color = colorScheme.secondaryContainer,
-            )
-            ActionChip(
-                icon = { Icon(Icons.Outlined.BugReport, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Bugs",
-                onClick = { onAction(prompt("Find bugs and issues")) },
-                color = colorScheme.secondaryContainer,
-            )
-            ActionChip(
-                icon = { Icon(Icons.Outlined.AutoFixHigh, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Refactor",
-                onClick = { onAction(prompt("Suggest improvements")) },
-                color = colorScheme.secondaryContainer,
-            )
-            ActionChip(
-                icon = { Icon(Icons.Outlined.Science, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Tests",
-                onClick = { onAction(prompt("Add unit tests")) },
-                color = colorScheme.secondaryContainer,
-            )
-            ActionChip(
-                icon = { Icon(Icons.Outlined.Description, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Docs",
-                onClick = { onAction(prompt("Write documentation")) },
-                color = colorScheme.secondaryContainer,
-            )
-
-            Spacer(Modifier.width(4.dp))
-            VerticalDivider(modifier = Modifier.height(18.dp), color = colorScheme.outlineVariant)
-            Spacer(Modifier.width(4.dp))
-
-            ActionChip(
-                icon = { Icon(Icons.Outlined.FileUpload, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Export",
-                onClick = { onAction("/export") },
-                color = colorScheme.surfaceVariant,
-            )
-            ActionChip(
-                icon = { Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                label = "Stop",
+            Button(
                 onClick = { onAction("/stop") },
-                color = colorScheme.errorContainer,
-                labelColor = colorScheme.error,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                modifier = Modifier.height(28.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorScheme.errorContainer,
+                    contentColor = colorScheme.error,
+                ),
+            ) {
+                Icon(
+                    Icons.Outlined.Stop,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    "Stop",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                )
+            }
+        }
+
+        ActionChip(
+            icon = { Icon(Icons.Outlined.AutoFixHigh, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            label = "Fix",
+            onClick = { onAction(prompt("Fix bugs and issues")) },
+            color = colorScheme.tertiaryContainer,
+        )
+
+        ActionChip(
+            icon = { Icon(Icons.Outlined.Description, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            label = "Explain",
+            onClick = { onAction(prompt("Explain the code")) },
+            color = colorScheme.secondaryContainer,
+        )
+
+        ActionChip(
+            icon = { Icon(Icons.Outlined.Refresh, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            label = "Refactor",
+            onClick = { onAction(prompt("Refactor and improve code quality")) },
+            color = colorScheme.secondaryContainer,
+        )
+
+        ActionChip(
+            icon = { Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            label = "Review",
+            onClick = { onAction(prompt("Review code for improvements and issues")) },
+            color = colorScheme.secondaryContainer,
+        )
+
+        if (currentFile.isNotBlank()) {
+            ActionChip(
+                icon = { Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(13.dp)) },
+                label = "Add test",
+                onClick = { onAction(prompt("Write unit tests")) },
+                color = colorScheme.tertiaryContainer,
             )
         }
     }
 }
 
 @Composable
-internal fun ActionChip(
-    icon: (@Composable () -> Unit)? = null,
+private fun ActionChip(
+    icon: @Composable () -> Unit,
     label: String,
     onClick: () -> Unit,
     color: Color,
-    labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    labelColor: Color = MaterialTheme.colorScheme.onSurface,
+    modifier: Modifier = Modifier,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(8.dp),
-        color = color,
-        border = BorderStroke(1.dp, colorScheme.outlineVariant.copy(alpha = 0.15f)),
-        modifier = Modifier.height(32.dp),
+        shape = RoundedCornerShape(6.dp),
+        color = color.copy(alpha = 0.5f),
+        modifier = modifier.height(26.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp),
+            modifier = Modifier.padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ) {
-            icon?.invoke()
-            if (icon != null) Spacer(Modifier.width(6.dp))
+            icon()
+            Spacer(Modifier.width(3.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-                color = labelColor
+                style = MaterialTheme.typography.labelSmall,
+                color = labelColor,
             )
         }
     }

@@ -204,58 +204,56 @@ fun UnifiedToolSheet(
             )
         },
     ) {
-        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            when (viewModel.bottomPanelMode) {
-                BottomPanelMode.AI -> {
-                    if (aiSession != null && isAiRunning) {
-                        SheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
-                    } else {
-                        AgentEmptyState(
-                            isRunning = isAiRunning,
-                            agentName = currentAgent?.displayName ?: "AI",
-                            onStart = { logic.startAgent(cwd.value, forceRestart = true) },
-                        )
+        when (viewModel.bottomPanelMode) {
+            BottomPanelMode.AI -> {
+                if (aiSession != null && isAiRunning) {
+                    SheetTerminal(session = aiSession, modifier = Modifier.fillMaxSize(), showKeys = false)
+                } else {
+                    AgentEmptyState(
+                        isRunning = isAiRunning,
+                        agentName = currentAgent?.displayName ?: "AI",
+                        onStart = { logic.startAgent(cwd.value, forceRestart = true) },
+                    )
+                }
+            }
+            BottomPanelMode.TERMINAL -> {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surface,
+                ) {
+                    com.rk.terminal.TerminalPanel(
+                        terminalViewModel = terminalViewModel,
+                        showKeys = false,
+                        initialCwd = viewModel.terminalCwd,
+                    )
+                    LaunchedEffect(viewModel.terminalCwd) {
+                        if (viewModel.terminalCwd != null) {
+                            viewModel.terminalCwd = null
+                        }
                     }
                 }
-                BottomPanelMode.TERMINAL -> {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.surface,
-                    ) {
-                        com.rk.terminal.TerminalPanel(
-                            terminalViewModel = terminalViewModel,
-                            showKeys = false,
-                            initialCwd = viewModel.terminalCwd,
-                        )
-                        LaunchedEffect(viewModel.terminalCwd) {
-                            if (viewModel.terminalCwd != null) {
-                                viewModel.terminalCwd = null
+            }
+            BottomPanelMode.GIT -> {
+                if (gitVm != null) {
+                    GitPanel(
+                        gitViewModel = gitVm,
+                        onRefresh = {
+                            scope.launch {
+                                val root = gitVm.currentRoot.value?.absolutePath
+                                if (root != null) gitVm.syncChanges(root)
                             }
-                        }
-                    }
-                }
-                BottomPanelMode.GIT -> {
-                    if (gitVm != null) {
-                        GitPanel(
-                            gitViewModel = gitVm,
-                            onRefresh = {
-                                scope.launch {
-                                    val root = gitVm.currentRoot.value?.absolutePath
-                                    if (root != null) gitVm.syncChanges(root)
-                                }
-                            },
+                        },
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            "Git not available",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                "Git not available",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
                     }
                 }
             }
@@ -276,7 +274,7 @@ private fun AgentEmptyState(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        colorScheme.surface.copy(alpha = 0.5f),
+                        colorScheme.surface.copy(alpha = 0.3f),
                         colorScheme.surfaceContainerLowest,
                     )
                 )
@@ -285,10 +283,10 @@ private fun AgentEmptyState(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Surface(
-                modifier = Modifier.size(64.dp),
+                modifier = Modifier.size(48.dp),
                 shape = CircleShape,
                 color = colorScheme.primaryContainer.copy(alpha = 0.5f),
             ) {
@@ -296,15 +294,15 @@ private fun AgentEmptyState(
                     Icon(
                         Icons.Outlined.AutoFixHigh,
                         contentDescription = null,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = colorScheme.onPrimaryContainer,
                     )
                 }
             }
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     "$agentName Ready",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = colorScheme.onSurface,
                 )
                 Text(
@@ -316,13 +314,13 @@ private fun AgentEmptyState(
             }
             Button(
                 onClick = onStart,
-                shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(horizontal = 28.dp, vertical = 10.dp),
+                shape = RoundedCornerShape(16.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
             ) {
-                Icon(Icons.Outlined.Psychology, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Start Agent", style = MaterialTheme.typography.labelLarge)
+                Icon(Icons.Outlined.Psychology, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Start Agent", style = MaterialTheme.typography.labelMedium)
             }
         }
     }

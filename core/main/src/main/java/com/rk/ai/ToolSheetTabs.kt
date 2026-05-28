@@ -60,9 +60,9 @@ fun ToolSheetTabBar(
 
     Row(
         modifier = modifier
-            .background(colorScheme.surfaceContainerLow, RoundedCornerShape(12.dp))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+            .background(colorScheme.surfaceContainerLow, RoundedCornerShape(10.dp))
+            .padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         toolSheetTabs.forEach { tab ->
@@ -86,13 +86,13 @@ fun ToolSheetTabBar(
 
             Surface(
                 onClick = { onSelectTab(tab.mode) },
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(6.dp),
                 color = containerColor,
                 border = borderStroke,
-                modifier = Modifier.height(34.dp)
+                modifier = Modifier.height(30.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 12.dp),
+                    modifier = Modifier.padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -111,13 +111,13 @@ fun ToolSheetTabBar(
                                 }
                             }
                         ) {
-                            Icon(tab.icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = contentColor)
+                            Icon(tab.icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = contentColor)
                         }
                     } else {
-                        Icon(tab.icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = contentColor)
+                        Icon(tab.icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = contentColor)
                     }
                     
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(4.dp))
                     
                     Text(
                         text = tab.label,

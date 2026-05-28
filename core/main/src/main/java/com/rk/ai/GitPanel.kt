@@ -111,19 +111,17 @@ fun GitPanel(
                 onRefresh = onRefresh,
             )
 
-            Box(modifier = Modifier.fillMaxWidth().height(4.dp)) {
-                if (gitViewModel.isLoading) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxSize())
-                } else {
-                    HorizontalDivider()
-                }
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.12f), thickness = 0.5.dp)
+
+            if (gitViewModel.isLoading) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(2.dp))
             }
 
             if (gitChanges.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
                     state = rememberLazyListState(),
-                    contentPadding = PaddingValues(top = 4.dp),
+                    contentPadding = PaddingValues(top = 2.dp),
                 ) {
                     if (conflicts.isNotEmpty()) {
                         item {
@@ -258,7 +256,7 @@ private fun GitBranchHeader(
     onRefresh: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(modifier = Modifier.weight(1f)) {
@@ -328,7 +326,7 @@ private fun ConflictGroup(
             modifier = Modifier
                 .fillMaxWidth()
                 .combinedClickable(onClick = onToggle)
-                .padding(vertical = 4.dp),
+                .padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val rotation by animateFloatAsState(targetValue = if (!expanded) 0f else 90f, label = "rotation")
@@ -336,9 +334,9 @@ private fun ConflictGroup(
                 painterResource(drawables.chevron_right),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                modifier = Modifier.size(16.dp).rotate(rotation),
+                modifier = Modifier.size(14.dp).rotate(rotation),
             )
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(3.dp))
             TriStateCheckbox(
                 enabled = !gitViewModel.isLoading,
                 state = selectionState,
@@ -349,9 +347,9 @@ private fun ConflictGroup(
                         conflicts.forEach { gitViewModel.addChange(it) }
                     }
                 },
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(18.dp),
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
             Text(
                 text = stringResource(strings.conflicts),
                 style = MaterialTheme.typography.bodyMedium,
@@ -359,7 +357,7 @@ private fun ConflictGroup(
             )
         }
         AnimatedVisibility(visible = expanded) { ChangesItemList(conflicts, gitViewModel) }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
     }
 }
 
@@ -384,7 +382,7 @@ private fun ChangeGroup(
             modifier = Modifier
                 .fillMaxWidth()
                 .combinedClickable(onClick = onToggle)
-                .padding(vertical = 4.dp),
+                .padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val rotation by animateFloatAsState(targetValue = if (!expanded) 0f else 90f, label = "rotation")
@@ -392,9 +390,9 @@ private fun ChangeGroup(
                 painterResource(drawables.chevron_right),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                modifier = Modifier.size(16.dp).rotate(rotation),
+                modifier = Modifier.size(14.dp).rotate(rotation),
             )
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(3.dp))
             TriStateCheckbox(
                 enabled = !gitViewModel.isLoading,
                 state = selectionState,
@@ -405,9 +403,9 @@ private fun ChangeGroup(
                         items.forEach { gitViewModel.addChange(it) }
                     }
                 },
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(18.dp),
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
@@ -415,7 +413,7 @@ private fun ChangeGroup(
             )
         }
         AnimatedVisibility(visible = expanded) { ChangesItemList(items, gitViewModel) }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
     }
 }
 
@@ -423,14 +421,14 @@ private fun ChangeGroup(
 private fun ChangesItemList(items: List<GitChange>, gitViewModel: GitViewModel) {
     val colorScheme = MaterialTheme.colorScheme
 
-    Column(modifier = Modifier.padding(start = 40.dp)) {
+    Column(modifier = Modifier.padding(start = 36.dp)) {
         items.forEach { change ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(vertical = 1.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Checkbox(
                     enabled = !gitViewModel.isLoading,
@@ -473,38 +471,38 @@ private fun GitCommitArea(
     onCommit: () -> Unit,
     onCommitAndPush: () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(32.dp)
+                .height(28.dp)
                 .toggleable(
                     value = amend,
                     enabled = !isLoading,
                     onValueChange = onToggleAmend,
                     role = Role.Checkbox,
                 )
-                .padding(horizontal = 4.dp),
+                .padding(horizontal = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
                 checked = amend,
                 enabled = !isLoading,
                 onCheckedChange = null,
-                modifier = Modifier.size(18.dp),
+                modifier = Modifier.size(16.dp),
             )
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(4.dp))
             Text(stringResource(strings.amend), style = MaterialTheme.typography.labelSmall)
         }
         OutlinedTextField(
             enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth().height(80.dp),
+            modifier = Modifier.fillMaxWidth().height(64.dp),
             value = commitMessage,
             onValueChange = onChangeCommitMessage,
             placeholder = { Text(stringResource(strings.commit_message)) },
             textStyle = MaterialTheme.typography.bodySmall,
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(2.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
