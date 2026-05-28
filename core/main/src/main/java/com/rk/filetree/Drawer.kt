@@ -112,7 +112,8 @@ object DrawerPersistence {
 
     suspend fun saveState() {
         saveMutex.withLock {
-            val file = application!!.filesDir.child(DRAWER_TABS)
+            val appDir = application!!.filesDir
+            val file = appDir.child(DRAWER_TABS)
             val dataList = drawerTabs.mapNotNull { tab ->
                 when (tab) {
                     is FileTreeTab -> DrawerTabData("FileTreeTab", tab.root.toUri().toString())
@@ -136,7 +137,7 @@ object DrawerPersistence {
             }
 
             val expandedNodeFile = application!!.filesDir.child(EXPANDED_FILE_TREE_NODES)
-            fileTreeViewModel.get()?.getExpandedNodes()?.let { nodes ->
+            fileTreeViewModel.get()?.expandedNodes?.let { nodes ->
                 val nodeData = nodes.map { it.key.toUri().toString() to it.value }.toMap()
                 expandedNodeFile.writeText(gson.toJson(nodeData))
             }
