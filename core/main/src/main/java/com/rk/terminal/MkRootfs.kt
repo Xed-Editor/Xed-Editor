@@ -7,6 +7,7 @@ import com.rk.XedConstants
 import com.rk.file.child
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.LoadingPopup
 import com.rk.utils.getTempDir
