@@ -81,7 +81,6 @@ class FileTreeViewModel : ViewModel() {
     fun closeCloseProjectConfirmation() = dialogState.closeCloseProjectConfirmation()
 
     // ─── Selection Methods ────────────────────────────────────────────
-    fun getExpandedNodes(): Map<FileObject, Boolean> = selectionManager.getExpandedNodes()
     fun setExpandedNodes(map: Map<FileObject, Boolean>) = selectionManager.setExpandedNodes(map)
     fun toggleSelection(projectRoot: FileObject, fileObject: FileObject) = selectionManager.toggleSelection(projectRoot, fileObject)
     fun selectFile(projectRoot: FileObject, fileObject: FileObject) = selectionManager.selectFile(projectRoot, fileObject)
