@@ -171,7 +171,7 @@ fun TerminalPanel(
 }
 
 @Composable
-private fun ColumnScope.TerminalView(
+private fun TerminalView(
     isDarkMode: Boolean,
     currentTheme: ThemeHolder,
     surfaceColor: Int,

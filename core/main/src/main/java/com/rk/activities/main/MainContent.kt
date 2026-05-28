@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -253,7 +254,6 @@ private fun CompactTabItem(
                 FileIcon(
                     file = tabState.file!!,
                     iconTint = if (isSelected) activeColor else inactiveColor,
-                    modifier = Modifier.addIf(underlineColor != null) { drawErrorUnderline(underlineColor!!) },
                 )
                 Spacer(Modifier.width(6.dp))
             }
