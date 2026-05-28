@@ -14,12 +14,12 @@ import com.rk.icons.Icon
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runner.RunnerImpl
+import com.rk.runner.Runner
 import com.rk.terminal.setupAssetFile
 import com.rk.utils.dialog
 import kotlinx.coroutines.launch
 
-class UniversalRunner : RunnerImpl() {
+class UniversalRunner : Runner() {
     @SuppressLint("SdCardPath")
     override suspend fun run(context: Context, fileObject: FileObject) {
         setupAssetFile("universal_runner")

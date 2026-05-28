@@ -66,7 +66,7 @@ object ShellBasedRunners {
     }
 }
 
-data class ShellBasedRunner(private val name: String, val regex: String) : RunnerImpl() {
+data class ShellBasedRunner(private val name: String, val regex: String) : Runner() {
     override suspend fun run(context: Context, fileObject: FileObject) {
         val script = runnerDir().child("${name}.sh").createFileIfNot()
         launchTerminal(

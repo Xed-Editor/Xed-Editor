@@ -12,7 +12,7 @@ import com.rk.settings.Settings
 import com.rk.utils.errorDialog
 import java.lang.ref.WeakReference
 
-abstract class RunnerImpl {
+abstract class Runner {
 
     abstract suspend fun run(context: Context, fileObject: FileObject)
 
@@ -25,69 +25,65 @@ abstract class RunnerImpl {
     abstract suspend fun stop()
 }
 
-var currentRunner = WeakReference<RunnerImpl?>(null)
+var currentRunner = WeakReference<Runner?>(null)
 
-abstract class RunnerBuilder(
-    val regex: Regex,
-    val enabled: () -> Boolean = { true },
-    val clazz: Class<out RunnerImpl>,
-) {
-    fun build(): RunnerImpl {
-        return clazz.getDeclaredConstructor().newInstance()
-    }
-}
+abstract class RunnerDefinition(val matcher: (FileObject) -> Boolean, val factory: () -> Runner)
 
 object RunnerManager {
-    private val _runnerBuilders = mutableListOf<RunnerBuilder>()
+    private val _runnerDefinitions = mutableListOf<RunnerDefinition>()
 
-    val runnerBuilders: List<RunnerBuilder>
-        get() = _runnerBuilders.toList()
+    val runnerDefinitions: List<RunnerDefinition>
+        get() = _runnerDefinitions.toList()
 
     init {
         val htmlExtensions = BuiltinFileType.HTML.extensions.joinToString("|")
         val markdownExtensions = BuiltinFileType.MARKDOWN.extensions.joinToString("|")
 
-        _runnerBuilders.apply {
+        _runnerDefinitions.apply {
             add(
                 object :
-                    RunnerBuilder(
-                        regex = Regex(".*\\.($htmlExtensions|svg)$"),
-                        enabled = { Settings.enable_html_runner },
-                        clazz = HtmlRunner::class.java,
+                    RunnerDefinition(
+                        matcher = {
+                            Settings.enable_html_runner && Regex(".*\\.($htmlExtensions|svg)$").matches(it.getName())
+                        },
+                        factory = { HtmlRunner() },
                     ) {}
             )
             add(
                 object :
-                    RunnerBuilder(
-                        regex = Regex(".*\\.($markdownExtensions)$"),
-                        enabled = { Settings.enable_md_runner },
-                        clazz = MarkdownRunner::class.java,
+                    RunnerDefinition(
+                        matcher = {
+                            Settings.enable_md_runner && Regex(".*\\.($markdownExtensions)$").matches(it.getName())
+                        },
+                        factory = { MarkdownRunner() },
                     ) {}
             )
             add(
                 object :
-                    RunnerBuilder(
-                        regex =
-                            Regex(
-                                ".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"
-                            ),
-                        enabled = { Settings.enable_universal_runner },
-                        clazz = UniversalRunner::class.java,
+                    RunnerDefinition(
+                        matcher = {
+                            Settings.enable_universal_runner &&
+                                Regex(
+                                        ".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"
+                                    )
+                                    .matches(it.getName())
+                        },
+                        factory = { UniversalRunner() },
                     ) {}
             )
         }
     }
 
     @XedExtensionPoint
-    fun registerRunner(runnerBuilder: RunnerBuilder) {
-        if (!_runnerBuilders.contains(runnerBuilder)) {
-            _runnerBuilders.add(runnerBuilder)
+    fun registerRunner(runnerDefinition: RunnerDefinition) {
+        if (!_runnerDefinitions.contains(runnerDefinition)) {
+            _runnerDefinitions.add(runnerDefinition)
         }
     }
 
     @XedExtensionPoint
-    fun unregisterRunner(runnerBuilder: RunnerBuilder) {
-        _runnerBuilders.remove(runnerBuilder)
+    fun unregisterRunner(runnerDefinition: RunnerDefinition) {
+        _runnerDefinitions.remove(runnerDefinition)
     }
 
     fun isRunnable(fileObject: FileObject): Boolean {
@@ -100,21 +96,11 @@ object RunnerManager {
             }
         }
 
-        runnerBuilders.forEach {
-            if (!it.enabled()) return@forEach
-
-            val name = fileObject.getName()
-            val regex = it.regex
-
-            if (regex.matches(name)) {
-                return true
-            }
-        }
-        return false
+        return runnerDefinitions.any { it.matcher(fileObject) }
     }
 
-    suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<RunnerImpl>) -> Unit) {
-        val availableRunners = mutableListOf<RunnerImpl>()
+    suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<Runner>) -> Unit) {
+        val availableRunners = mutableListOf<Runner>()
 
         ShellBasedRunners.runners.forEach {
             val name = fileObject.getName()
@@ -125,12 +111,9 @@ object RunnerManager {
             }
         }
 
-        runnerBuilders.forEach {
-            val name = fileObject.getName()
-            val regex = it.regex
-
-            if (regex.matches(name)) {
-                availableRunners.add(it.build())
+        runnerDefinitions.forEach {
+            if (it.matcher(fileObject)) {
+                availableRunners.add(it.factory())
             }
         }
 
@@ -144,9 +127,5 @@ object RunnerManager {
         } else {
             onMultipleRunners.invoke(availableRunners)
         }
-    }
-
-    suspend fun onMainActivityResumed() {
-        currentRunner.get()?.stop()
     }
 }
