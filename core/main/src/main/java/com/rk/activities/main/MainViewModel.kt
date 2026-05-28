@@ -14,10 +14,6 @@ import com.rk.commands.Command
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.withLock
 
-enum class BottomPanelMode {
-    AI, TERMINAL
-}
-
 class MainViewModel : BaseViewModel() {
     val tabManager = TabManager()
     val editorManager = EditorManager(this)
