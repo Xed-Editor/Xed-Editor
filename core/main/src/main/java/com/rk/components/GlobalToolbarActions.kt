@@ -30,7 +30,6 @@ import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
-import com.rk.ai.IdeBridge
 import com.rk.commands.CommandProvider
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper

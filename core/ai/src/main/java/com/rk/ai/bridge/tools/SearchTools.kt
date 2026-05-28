@@ -1,0 +1,172 @@
+package com.rk.ai.bridge.tools
+
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.rk.ai.bridge.McpToolContext
+import com.rk.ai.bridge.McpToolResult
+class SearchCodeTool : BaseMcpTool() {
+    override fun getName(): String = "searchCode"
+    override fun getDescription(): String = "Searches text patterns project-wide. Accepts: query, pattern, search, text."
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Text to search for",
+        "pattern" to "Alternative to query",
+        "search" to "Alternative to query",
+        "text" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 50)",
+        "path" to "Scope search to a specific directory"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 500)
+        val path = getPathParam(args)
+        val results = context.ideService.searchCode(query, limit, path = path, isRegex = false)
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No results found.")
+        return McpToolResult.success(sb.toString().trim())
+    }
+}
+
+class GrepSearchTool : BaseMcpTool() {
+    override fun getName(): String = "grep_search"
+    override fun getDescription(): String = "Advanced text pattern search project-wide or scoped to a directory. Optimized for AI navigation. Supports regex."
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Text or regex to search for",
+        "pattern" to "Alternative to query",
+        "limit" to "Maximum results (default: 50, max: 1000)",
+        "path" to "Scoped directory"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 1000)
+        val path = getPathParam(args)
+        val results = context.ideService.searchCode(query, limit, path = path, isRegex = true)
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No matches found.")
+        return McpToolResult.success(sb.toString().trim())
+    }
+}
+
+class GrepTool : BaseMcpTool() {
+    override fun getName(): String = "grep"
+    override fun getDescription(): String = "Alias for searchCode with regex support. Searches text patterns project-wide."
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Regex pattern to search for",
+        "pattern" to "Alternative to query",
+        "search" to "Alternative to query",
+        "text" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 50)",
+        "path" to "Scope search to a specific directory"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/search/text")
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 500)
+        val path = getPathParam(args)
+        val results = context.ideService.searchCode(query, limit, path = path, isRegex = true)
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No matches found.")
+        return McpToolResult.success(sb.toString().trim())
+    }
+}
+
+class SearchSymbolsTool : BaseMcpTool() {
+    override fun getName(): String = "searchSymbols"
+    override fun getDescription(): String = "Searches code declarations (classes, functions, variables). Faster and more precise than grep."
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "symbol" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "Symbol name to search for",
+        "pattern" to "Alternative to query",
+        "symbol" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 50)",
+        "path" to "Scope search to a specific directory"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern/symbol")
+        val limit = (optionalPositiveInt(args, "limit") ?: 50).coerceIn(1, 500)
+        val path = getPathParam(args)
+        val results = context.ideService.searchSymbols(query, limit, path = path)
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            val filePath = obj.get("path")?.asString.orEmpty()
+            val line = obj.get("line")?.asInt ?: 0
+            val snippet = obj.get("snippet")?.asString.orEmpty().trim()
+            sb.append(filePath).append(":").append(line).append(": ").append(snippet).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No symbols found.")
+        return McpToolResult.success(sb.toString().trim())
+    }
+}
+
+class FindFilesTool : BaseMcpTool() {
+    override fun getName(): String = "findFiles"
+    override fun getDescription(): String = "Finds files by glob patterns like '*.kt' or '**/*.java'. Accepts: query, pattern, limit, path."
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "File name or glob pattern to search for (e.g. *.kt, **/*.java)",
+        "pattern" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 100)",
+        "path" to "Directory to search in (default: workspace root)"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
+        val limit = (optionalPositiveInt(args, "limit") ?: 100).coerceIn(1, 1000)
+        val path = getPathParam(args)
+        val results = context.ideService.findFiles(query, limit, path)
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            sb.append(obj.get("path")?.asString).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No files found.")
+        return McpToolResult.success(sb.toString().trim())
+    }
+}
+
+class GlobTool : BaseMcpTool() {
+    override fun getName(): String = "glob"
+    override fun getDescription(): String = "Alias for findFiles. Finds files by glob patterns."
+    override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "query" to "File name or glob pattern to search for (e.g. *.kt, **/*.java)",
+        "pattern" to "Alternative to query",
+        "limit" to "Maximum results to return (default: 100)",
+        "path" to "Directory to search in (default: workspace root)"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val query = getQueryParam(args) ?: throw ToolError.MissingParam("query/pattern")
+        val limit = (optionalPositiveInt(args, "limit") ?: 100).coerceIn(1, 1000)
+        val path = getPathParam(args)
+        val results = context.ideService.findFiles(query, limit, path)
+        val sb = StringBuilder()
+        results.forEach { el ->
+            val obj = el.asJsonObject
+            sb.append(obj.get("path")?.asString).append("\n")
+        }
+        if (sb.isEmpty()) return McpToolResult.success("No matches found.")
+        return McpToolResult.success(sb.toString().trim())
+    }
+}
