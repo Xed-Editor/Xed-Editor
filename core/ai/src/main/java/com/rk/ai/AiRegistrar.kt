@@ -1,6 +1,7 @@
 package com.rk.ai
 
 import androidx.compose.runtime.mutableStateOf
+import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.ai.session.AiSessionManager
 

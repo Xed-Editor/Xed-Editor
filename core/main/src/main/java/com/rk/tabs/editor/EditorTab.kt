@@ -312,7 +312,7 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
         }
     }
 
-    internal val saveMutex = Mutex()
+    val saveMutex = Mutex()
 
     private suspend fun write() {
         withContext(Dispatchers.IO) {

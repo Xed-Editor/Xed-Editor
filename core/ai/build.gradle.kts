@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.jgit)
     implementation(libs.commons.net)
     implementation(libs.androidx.documentfile)
+    implementation(libs.lsp4j)
 
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
