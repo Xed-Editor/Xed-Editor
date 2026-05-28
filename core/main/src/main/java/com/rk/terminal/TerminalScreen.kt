@@ -196,7 +196,7 @@ private fun ColumnScope.TerminalView(
                             }
                         }
                     } else if (pendingCommand != null) {
-                        val pcmd = pendingCommand ?: continue
+                        val pcmd = pendingCommand
                         scope.launch(Dispatchers.IO) {
                             try {
                                 val info = binder.getSession(pcmd.id)?.let { SessionInfo(pcmd.id, "", it) }

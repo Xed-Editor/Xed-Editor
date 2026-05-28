@@ -205,14 +205,9 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 showSwitch = false,
                 default = false,
                 sideEffect = {
+                    val activity = MainActivity.instance ?: return@SettingsToggle
                     val fileManager =
-                        val act = SettingsActivity.instance
-                        if (act != null) {
-                            act.fileManager
-                        } else {
-                            val activity = MainActivity.instance ?: return@SettingsToggle
-                            activity.fileManager
-                        }
+                        SettingsActivity.instance?.fileManager ?: activity.fileManager
 
                     fileManager.createNewFile(
                         mimeType = "application/octet-stream",

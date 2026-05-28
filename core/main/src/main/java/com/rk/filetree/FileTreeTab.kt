@@ -99,7 +99,7 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
         FileTree(
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
             rootNode = root.toFileTreeNode(),
-            viewModel = fileTreeViewModel.get() ?: return@FileTree,
+            viewModel = fileTreeViewModel.get() ?: return,
             onFileClick = { node ->
                 scope.launch(Dispatchers.IO) {
                     mainViewModel?.editorManager?.openFile(node.file, projectRoot = root, switchToTab = true)

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import com.rk.activities.main.MainActivity
 import com.rk.exec.TerminalCommand
+import kotlinx.coroutines.launch
 import com.rk.exec.launchTerminal
 import com.rk.file.FileObject
 import com.rk.tabs.editor.EditorTab
