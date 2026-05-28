@@ -417,7 +417,8 @@ fun DrawerContent(fullscreen: Boolean) {
                 val showHorizontalDivider by remember { derivedStateOf { lazyListState.canScrollForward } }
 
                 NavigationRail(
-                    modifier = Modifier.width(61.dp),
+                    modifier = Modifier.width(56.dp),
+                    containerColor = MaterialTheme.colorScheme.surface,
                     windowInsets = if (fullscreen) WindowInsets() else NavigationRailDefaults.windowInsets,
                 ) {
                     Column(modifier = Modifier.fillMaxHeight()) {
@@ -426,7 +427,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                 if (!tab.isSupported()) return@items
                                 NavigationRailItem(
                                     selected = currentDrawerTab == tab,
-                                    icon = { XedIcon(tab.getIcon()) },
+                                    icon = { XedIcon(tab.getIcon(), modifier = Modifier.size(18.dp)) },
                                     onClick = {
                                         if (currentDrawerTab == tab && currentServiceTab == null) {
                                             closeProjectDialog = true
@@ -434,9 +435,11 @@ fun DrawerContent(fullscreen: Boolean) {
                                             selectTab(tab)
                                         }
                                     },
-                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelSmall) },
                                     colors =
-                                        NavigationRailItemDefaults.colors().let {
+                                        NavigationRailItemDefaults.colors(
+                                            indicatorColor = if (currentDrawerTab == tab) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                                        ).let {
                                             if (currentServiceTab == null) it
                                             else
                                                 it.copy(
@@ -453,21 +456,21 @@ fun DrawerContent(fullscreen: Boolean) {
                             item {
                                 NavigationRailItem(
                                     selected = false,
-                                    icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null) },
+                                    icon = { Icon(imageVector = Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(18.dp)) },
                                     onClick = { showAddDialog = true },
-                                    label = { Text(stringResource(strings.add)) },
+                                    label = { Text(stringResource(strings.add), style = MaterialTheme.typography.labelSmall) },
                                 )
                             }
                         }
 
-                        if (showHorizontalDivider) HorizontalDivider()
+                        if (showHorizontalDivider) HorizontalDivider(thickness = 0.5.dp)
 
-                        Column(modifier = Modifier.wrapContentHeight().padding(vertical = 8.dp)) {
+                        Column(modifier = Modifier.wrapContentHeight().padding(vertical = 4.dp)) {
                             serviceTabs.forEach { tab ->
                                 if (!tab.isSupported()) return@forEach
                                 NavigationRailItem(
                                     selected = currentServiceTab == tab,
-                                    icon = { XedIcon(icon = tab.getIcon()) },
+                                    icon = { XedIcon(icon = tab.getIcon(), modifier = Modifier.size(18.dp)) },
                                     onClick = {
                                         if (currentServiceTab == tab) {
                                             currentServiceTab = null
@@ -475,7 +478,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                             currentServiceTab = tab
                                         }
                                     },
-                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                                    label = { Text(tab.getName(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.labelSmall) },
                                     enabled = tab.isEnabled(),
                                 )
                             }
@@ -483,9 +486,9 @@ fun DrawerContent(fullscreen: Boolean) {
                     }
                 }
 
-                VerticalDivider()
+                VerticalDivider(thickness = 0.5.dp)
 
-                Surface {
+                Surface(color = MaterialTheme.colorScheme.surface) {
                     Crossfade(targetState = currentDrawerTab, label = "file tree") { tab ->
                         if (currentServiceTab == null) {
                             if (tab != null) {
@@ -499,12 +502,14 @@ fun DrawerContent(fullscreen: Boolean) {
                                     Icon(
                                         painter = painterResource(drawables.outline_folder),
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                                        modifier = Modifier.size(48.dp),
                                     )
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(12.dp))
                                     Text(
                                         stringResource(strings.no_folder_opened),
-                                        color = MaterialTheme.colorScheme.onSurface,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                        style = MaterialTheme.typography.bodyMedium,
                                     )
                                 }
                             }
