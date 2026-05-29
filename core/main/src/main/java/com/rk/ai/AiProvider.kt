@@ -27,6 +27,7 @@ object AiProvider {
         fun getBridgeInfo(): BridgeInfo?
         fun primaryWorkspacePath(): String
         fun connectedClients(): Int
+        fun availableTools(): Int
         fun setWorkspacePath(path: String)
     }
 

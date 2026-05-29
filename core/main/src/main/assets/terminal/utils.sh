@@ -166,27 +166,60 @@ PY_MCP
     antigravity)
       export ANTIGRAVITY_IDE_SERVER_PORT="$port"
       export ANTIGRAVITY_IDE_AUTH_TOKEN="$token"
-      mkdir -p "$HOME/.config/agy"
-      XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.config/agy/mcp_config.json" python3 - <<'PY_MCP' 2>/dev/null || return 0
+      mkdir -p "$HOME/.gemini/antigravity-cli" "$HOME/.gemini/config" "$HOME/.config/agy"
+      XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" python3 - <<'PY_MCP' 2>/dev/null || {
 import json, os
-path = os.environ['XED_MCP_FILE']
 port = os.environ['XED_MCP_PORT']
 token = os.environ['XED_MCP_TOKEN']
-try:
-    with open(path) as f:
-        cfg = json.load(f)
-except Exception:
-    cfg = {}
-cfg.setdefault('mcpServers', {})['xed-ide'] = {
+home = os.environ.get('HOME', '')
+paths = [
+    os.path.join(home, '.gemini/antigravity-cli/mcp_config.json'),
+    os.path.join(home, '.gemini/config/mcp_config.json'),
+    os.path.join(home, '.config/agy/mcp_config.json'),
+]
+entry = {
     'serverUrl': f'http://127.0.0.1:{port}/mcp',
     'url': f'http://127.0.0.1:{port}/mcp',
     'type': 'remote',
     'enabled': True,
     'headers': {'Authorization': f'Bearer {token}'},
 }
-with open(path, 'w') as f:
-    json.dump(cfg, f, indent=2)
+for path in paths:
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        try:
+            with open(path) as f:
+                cfg = json.load(f)
+        except Exception:
+            cfg = {}
+        cfg.setdefault('mcpServers', {})['xed-ide'] = entry
+        with open(path, 'w') as f:
+            json.dump(cfg, f, indent=2)
+    except Exception:
+        pass
 PY_MCP
+        for path in \
+          "$HOME/.gemini/antigravity-cli/mcp_config.json" \
+          "$HOME/.gemini/config/mcp_config.json" \
+          "$HOME/.config/agy/mcp_config.json"; do
+          mkdir -p "$(dirname "$path")"
+          cat > "$path" <<AGY_MCP
+{
+  "mcpServers": {
+    "xed-ide": {
+      "serverUrl": "http://127.0.0.1:${port}/mcp",
+      "url": "http://127.0.0.1:${port}/mcp",
+      "type": "remote",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer ${token}"
+      }
+    }
+  }
+}
+AGY_MCP
+        done
+      }
       ;;
     codex)
       export CODEX_IDE_SERVER_PORT="$port"

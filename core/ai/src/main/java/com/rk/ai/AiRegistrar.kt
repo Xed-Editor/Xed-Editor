@@ -100,6 +100,7 @@ object AiRegistrar {
 
         override fun primaryWorkspacePath(): String = IdeBridge.primaryWorkspacePath()
         override fun connectedClients(): Int = IdeBridge.connectedClients()
+        override fun availableTools(): Int = IdeBridge.availableTools()
         override fun setWorkspacePath(path: String) = IdeBridge.setWorkspacePath(path)
     }
 

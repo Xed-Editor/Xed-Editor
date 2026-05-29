@@ -86,32 +86,67 @@ class AiSessionLogic(
                 appendLog("Agent stopped.")
             }
             "/export" -> exportSession()
-            "/bridge" -> {
-                val alive = AiProvider.ideBridge?.isRunning() == true
-                val health = if (alive) (AiProvider.ideBridge?.healthCheck() == true) else false
-                val info = AiProvider.ideBridge?.getBridgeInfo()
-                val workspacePath = AiProvider.ideBridge?.primaryWorkspacePath() ?: ""
-                appendLog(
-                    buildString {
-                        appendLine("Bridge status:")
-                        appendLine("  running=$alive health=$health")
-                        if (info != null) {
-                            appendLine("  url=http://${info.host}:${info.port}")
-                            appendLine("  token=${info.token.take(8)}...")
-                        }
-                        appendLine("  clients=${AiProvider.ideBridge?.connectedClients() ?: 0}")
-                        appendLine("  workspace=$workspacePath")
-                        appendLine()
-                        appendLine("Inside agent terminal, run:")
-                        if (workspacePath.isNotBlank()) {
-                            appendLine("  source $workspacePath/.xed/ide.env")
-                            appendLine("  cat $workspacePath/.xed/ide.json")
-                        }
-                        appendLine("  curl http://127.0.0.1:${info?.port ?: "?"}/health")
-                    }
-                )
-            }
+            "/bridge", "/doctor" -> reportBridgeStatus()
+            "/help" -> appendLog(
+                buildString {
+                    appendLine("AI sheet commands:")
+                    appendLine("  /doctor  Check MCP bridge, clients, tools, and config paths")
+                    appendLine("  /sync    Save dirty editor tabs before agent work")
+                    appendLine("  /refresh Refresh clean editor tabs from disk")
+                    appendLine("  /restart Restart the selected AI agent")
+                    appendLine("  /stop    Stop the current agent session")
+                    appendLine("  /export  Share the current AI transcript")
+                }
+            )
             else -> sendToAgent(input)
+        }
+    }
+
+
+    private fun reportBridgeStatus() {
+        scope.launch(Dispatchers.Main) {
+            val bridgeProvider = AiProvider.ideBridge
+            val currentActivity = activity
+            val dir = cwd()
+            if (bridgeProvider != null && currentActivity != null && !bridgeProvider.isRunning()) {
+                bridgeProvider.ensureStarted(viewModel, dir)
+            } else {
+                bridgeProvider?.setWorkspacePath(dir)
+            }
+
+            val alive = bridgeProvider?.isRunning() == true
+            val health = if (alive) withContext(Dispatchers.IO) { bridgeProvider?.healthCheck() == true } else false
+            val info = bridgeProvider?.getBridgeInfo()
+            val workspacePath = bridgeProvider?.primaryWorkspacePath().orEmpty()
+            val agent = AiProvider.sessionManager?.currentAgent
+            val clients = bridgeProvider?.connectedClients() ?: 0
+            val tools = bridgeProvider?.availableTools() ?: 0
+
+            appendLog(
+                buildString {
+                    appendLine("AI bridge diagnostics:")
+                    appendLine("  agent=${agent?.displayName ?: "AI"} (${agent?.name ?: "unknown"})")
+                    appendLine("  running=$alive health=$health clients=$clients tools=$tools")
+                    if (info != null) {
+                        appendLine("  url=http://${info.host}:${info.port}")
+                        appendLine("  token=${info.token.take(8)}...")
+                    }
+                    appendLine("  workspace=${workspacePath.ifBlank { dir }}")
+                    appendLine()
+                    appendLine("Expected config refresh:")
+                    appendLine("  Gemini: ~/.gemini/settings.json")
+                    appendLine("  OpenCode: ~/.config/opencode/opencode.json")
+                    appendLine("  Codex: ~/.codex/config.toml")
+                    appendLine("  Antigravity: ~/.gemini/config/mcp_config.json")
+                    appendLine()
+                    appendLine("Inside an agent terminal:")
+                    if (workspacePath.isNotBlank()) {
+                        appendLine("  source $workspacePath/.xed/ide.env")
+                        appendLine("  cat $workspacePath/.xed/ide.json")
+                    }
+                    appendLine("  curl http://127.0.0.1:${info?.port ?: "?"}/health")
+                }
+            )
         }
     }
 

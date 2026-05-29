@@ -89,6 +89,7 @@ fun UnifiedCommandBar(
             onToggleTranscript = onToggleTranscript,
             onClearTranscript = onClearTranscript,
             terminalViewModel = terminalViewModel,
+            onBridgeDetails = { onAction("/doctor") },
         )
 
         if (mode == BottomPanelMode.TERMINAL) {
@@ -378,10 +379,12 @@ private fun StatusBar(
     onToggleTranscript: () -> Unit = {},
     onClearTranscript: () -> Unit = {},
     terminalViewModel: TerminalViewModel? = null,
+    onBridgeDetails: () -> Unit = {},
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val statusColor = if (isRunning) Color(0xFF4CAF50) else Color(0xFFEF5350)
     val bridgeClients = AiProvider.ideBridge?.connectedClients() ?: 0
+    val bridgeTools = AiProvider.ideBridge?.availableTools() ?: 0
     val bridgeOnline = AiProvider.ideBridge?.isRunning() == true
 
     val infiniteTransition = rememberInfiniteTransition(label = "PulseState")
@@ -527,22 +530,49 @@ private fun StatusBar(
                 }
             }
 
-            if (bridgeOnline && mode == BottomPanelMode.AI) {
+            if (mode == BottomPanelMode.AI) {
                 Spacer(Modifier.width(4.dp))
                 Surface(
-                    shape = CircleShape,
-                    color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.size(22.dp),
+                    onClick = onBridgeDetails,
+                    shape = RoundedCornerShape(6.dp),
+                    color = when {
+                        !bridgeOnline -> colorScheme.errorContainer.copy(alpha = 0.75f)
+                        bridgeClients > 0 -> colorScheme.tertiaryContainer.copy(alpha = 0.75f)
+                        else -> colorScheme.surfaceVariant.copy(alpha = 0.75f)
+                    },
+                    modifier = Modifier.height(24.dp),
                 ) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(7.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (bridgeClients > 0) Color(0xFF4CAF50)
-                                    else Color(0xFFFFC107)
+                                    when {
+                                        !bridgeOnline -> colorScheme.error
+                                        bridgeClients > 0 -> Color(0xFF4CAF50)
+                                        else -> Color(0xFFFFC107)
+                                    }
                                 ),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = when {
+                                !bridgeOnline -> "MCP off"
+                                bridgeClients > 0 -> "MCP $bridgeClients/$bridgeTools"
+                                else -> "MCP ready"
+                            },
+                            color = when {
+                                !bridgeOnline -> colorScheme.onErrorContainer
+                                bridgeClients > 0 -> colorScheme.onTertiaryContainer
+                                else -> colorScheme.onSurfaceVariant
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
@@ -671,6 +701,13 @@ private fun QuickActions(
                 )
             }
         }
+
+        ActionChip(
+            icon = { Icon(Icons.Outlined.Settings, contentDescription = null, modifier = Modifier.size(15.dp)) },
+            label = "Bridge",
+            onClick = { onAction("/doctor") },
+            color = colorScheme.surfaceVariant,
+        )
 
         ActionChip(
             icon = { Icon(Icons.Outlined.AutoFixHigh, contentDescription = null, modifier = Modifier.size(15.dp)) },
