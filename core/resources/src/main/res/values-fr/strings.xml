@@ -657,4 +657,5 @@
     <string name="sort_lines_ascending">Trier les lignes (ascendant)</string>
     <string name="sort_lines_descending">Trier les lignes (descendant)</string>
     <string name="updating">Mise à jour…</string>
+    <string name="choose_runner">Choisir un lanceur</string>
 </resources>
