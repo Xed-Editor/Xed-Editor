@@ -640,4 +640,6 @@
     <string name="find_references_error">Nelze najít reference.</string>
     <string name="sort_lines_ascending">Seřadit řádky vzestupně</string>
     <string name="sort_lines_descending">Seřadit řádky sestupně</string>
+    <string name="updating">Aktualizování…</string>
+    <string name="choose_runner">Vybrat spouštěč</string>
 </resources>
