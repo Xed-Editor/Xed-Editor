@@ -3,24 +3,21 @@ package com.rk.activities.main
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -37,7 +34,7 @@ import com.rk.theme.DesignTokens
 import com.rk.utils.toast
 import kotlinx.coroutines.launch
 
-private val TOOLBAR_HEIGHT = 44.dp
+private val DRAG_STRIP_HEIGHT = 10.dp
 
 @Composable
 fun XedTopBar(
@@ -53,57 +50,70 @@ fun XedTopBar(
         Surface(
             tonalElevation = DesignTokens.Elevation.none,
             color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier
-                .fillMaxWidth()
-                .pointerInput(Unit) {
-                    detectVerticalDragGestures(
-                        onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                        onDragEnd = { onDragEnd() },
-                        onDragCancel = { onDragEnd() },
-                    )
-                },
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(TOOLBAR_HEIGHT)
-                    .padding(horizontal = 4.dp),
+                    .statusBarsPadding(),
             ) {
-                if (!isPermanentDrawer) {
-                    IconButton(
-                        onClick = {
-                            scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() }
+                // Slim drag strip at the very top — only this consumes pointer events
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(DRAG_STRIP_HEIGHT)
+                        .align(Alignment.TopCenter)
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                                onDragEnd = { onDragEnd() },
+                                onDragCancel = { onDragEnd() },
+                            )
                         },
-                        modifier = Modifier.size(36.dp),
-                    ) {
-                        Icon(
-                            Icons.Outlined.Menu,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+                )
 
-                Spacer(Modifier.width(4.dp))
-
-                GlobalToolbarActions(viewModel)
-
-                Spacer(Modifier.weight(1f))
-
-                if (viewModel.tabs.isNotEmpty()) {
-                    val tab =
-                        if (isV) {
-                            viewModel.tabs[viewModel.currentTabIndex]
-                        } else {
-                            viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+                // Toolbar content — no pointerInput, so buttons are clickable
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .padding(horizontal = 4.dp),
+                ) {
+                    if (!isPermanentDrawer) {
+                        IconButton(
+                            onClick = {
+                                scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() }
+                            },
+                        ) {
+                            Icon(
+                                Icons.Outlined.Menu,
+                                contentDescription = "Open navigation drawer",
+                                modifier = Modifier.size(22.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
+                    }
 
-                    if (tab != null) {
-                        tab.apply { Actions() }
-                    } else {
-                        toast(strings.unknown_error)
+                    Spacer(Modifier.width(2.dp))
+
+                    GlobalToolbarActions(viewModel)
+
+                    Spacer(Modifier.weight(1f))
+
+                    if (viewModel.tabs.isNotEmpty()) {
+                        val tab =
+                            if (isV) {
+                                viewModel.tabs[viewModel.currentTabIndex]
+                            } else {
+                                viewModel.tabs.getOrNull(viewModel.currentTabIndex)
+                            }
+
+                        if (tab != null) {
+                            tab.apply { Actions() }
+                        } else {
+                            toast(strings.unknown_error)
+                        }
                     }
                 }
             }

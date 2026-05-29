@@ -80,10 +80,9 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
 
         IconButton(
             onClick = { newFileCommand.action(ActionContext(context as Activity)) },
-            modifier = Modifier.size(36.dp),
             colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
         ) {
-            XedIcon(newFileCommand.getIcon(), modifier = Modifier.size(20.dp))
+            XedIcon(newFileCommand.getIcon(), modifier = Modifier.size(22.dp))
         }
 
         if (InbuiltFeatures.terminal.state.value) {
@@ -92,10 +91,9 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                     viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.TERMINAL
                     viewModel.showBottomPanel = true 
                 },
-                modifier = Modifier.size(36.dp),
                 colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
             ) {
-                XedIcon(terminalCommand.getIcon(), modifier = Modifier.size(20.dp))
+                XedIcon(terminalCommand.getIcon(), modifier = Modifier.size(22.dp))
             }
 
             IconButton(
@@ -103,19 +101,17 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
                     viewModel.bottomPanelMode = com.rk.activities.main.BottomPanelMode.AI
                     viewModel.showBottomPanel = true 
                 },
-                modifier = Modifier.size(36.dp),
                 colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
             ) {
-                XedIcon(aiCliCommand.getIcon(), modifier = Modifier.size(20.dp))
+                XedIcon(aiCliCommand.getIcon(), modifier = Modifier.size(22.dp))
             }
         }
 
         IconButton(
             onClick = { settingsCommand.action(ActionContext(context as Activity)) },
-            modifier = Modifier.size(36.dp),
             colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
         ) {
-            XedIcon(settingsCommand.getIcon(), modifier = Modifier.size(20.dp))
+            XedIcon(settingsCommand.getIcon(), modifier = Modifier.size(22.dp))
         }
     }
 
