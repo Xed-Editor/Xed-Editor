@@ -59,8 +59,8 @@ if (missingSoraXModules.isNotEmpty()) {
             appendLine("Initialize it before running Gradle:")
             appendLine("  git submodule update --init --recursive")
             appendLine()
-            appendLine("In GitHub Actions, use actions/checkout with:")
-            appendLine("  submodules: recursive")
+            appendLine("In GitHub Actions, run:")
+            appendLine("  bash .github/scripts/ensure-sorax.sh")
         }
     )
 }

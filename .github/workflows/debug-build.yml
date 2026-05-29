@@ -30,8 +30,8 @@ jobs:
           fetch-depth: 1
           submodules: recursive
 
-      - name: Initialize submodules
-        run: git submodule update --init --recursive --depth=1
+      - name: Initialize soraX editor engine
+        run: bash .github/scripts/ensure-sorax.sh
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5

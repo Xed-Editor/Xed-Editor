@@ -391,6 +391,8 @@ cd Xed-Editor
 
 # Ensure SoraX and its nested submodules are present before running Gradle
 git submodule update --init --recursive
+# CI can use the fallback helper if a shallow checkout leaves soraX empty
+bash .github/scripts/ensure-sorax.sh
 ```
 
 ### Build
