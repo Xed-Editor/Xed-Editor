@@ -1,15 +1,12 @@
 package com.rk.tabs.editor
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,8 +19,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.rk.components.XedDragHandle
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
+import com.rk.theme.DesignTokens
 import com.termux.terminal.TerminalSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -232,7 +231,7 @@ private fun ToolSheetContent(
     val colorScheme = MaterialTheme.colorScheme
     val coroutineScope = rememberCoroutineScope()
 
-    val shape = if (isTablet) RoundedCornerShape(20.dp) else RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+    val shape = if (isTablet) DesignTokens.BottomSheet.shapeTablet else DesignTokens.BottomSheet.shape
 
     var isDragging by remember { mutableStateOf(false) }
 
@@ -248,7 +247,7 @@ private fun ToolSheetContent(
             )
             .height(state.heightDp)
             .shadow(
-                elevation = if (isTablet) 20.dp else 12.dp,
+                elevation = if (isTablet) DesignTokens.BottomSheet.elevationTablet else DesignTokens.BottomSheet.elevation,
                 shape = shape,
                 clip = true,
             )
@@ -313,7 +312,7 @@ private fun ToolSheetContent(
                     )
                     .background(colorScheme.surfaceContainerHigh.copy(alpha = 0.5f))
             ) {
-                DragHandle(isDragging = isDragging)
+                XedDragHandle(isDragging = isDragging)
 
                 Row(
                     modifier = Modifier
@@ -395,36 +394,4 @@ private fun ToolSheetContent(
     }
 }
 
-@Composable
-private fun DragHandle(
-    isDragging: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    val handleColor by animateColorAsState(
-        targetValue = if (isDragging) colorScheme.primary else colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "DragHandleColor",
-    )
-    val handleWidth by animateDpAsState(
-        targetValue = if (isDragging) 48.dp else 36.dp,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        label = "DragHandleWidth",
-    )
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(10.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(width = handleWidth, height = 3.dp)
-                .background(
-                    color = handleColor,
-                    shape = RoundedCornerShape(2.dp),
-                ),
-        )
-    }
-}

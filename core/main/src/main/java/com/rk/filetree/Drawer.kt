@@ -31,12 +31,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
@@ -70,6 +68,7 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.gitViewModel
 import com.rk.components.AddDialogItem
 import com.rk.components.DoubleInputDialog
+import com.rk.components.XedBottomSheet
 import com.rk.AppScope
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -609,7 +608,6 @@ fun DrawerContent(fullscreen: Boolean) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddProjectDialog(
     onDismiss: () -> Unit,
@@ -622,8 +620,8 @@ private fun AddProjectDialog(
     val activity = context as? MainActivity
     val lifecycleScope = remember { activity?.lifecycleScope ?: DefaultScope }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
+    XedBottomSheet(onDismissRequest = onDismiss) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
             AddDialogItem(
                 icon = Icon.DrawableRes(drawables.file_symlink),
                 title = stringResource(strings.open_directory),

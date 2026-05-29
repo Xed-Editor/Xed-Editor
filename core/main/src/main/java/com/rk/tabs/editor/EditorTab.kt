@@ -14,13 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Surface
@@ -59,6 +55,7 @@ import com.rk.activities.main.searchViewModel
 import com.rk.color.ColorPicker
 import com.rk.components.AddDialogItem
 import com.rk.components.SingleInputDialog
+import com.rk.components.XedBottomSheet
 import com.rk.editor.intelligent.IntelligentFeatureRegistry
 import com.rk.file.FileObject
 import com.rk.file.FileTypeManager
@@ -377,7 +374,6 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
             MainActivity.instance?.handleSupport()
         }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val context = LocalContext.current
@@ -387,13 +383,13 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
             Column {
                 if (editorState.showRunnerDialog) {
-                    ModalBottomSheet(
+                    XedBottomSheet(
                         onDismissRequest = {
                             editorState.showRunnerDialog = false
                             editorState.runnersToShow = emptyList()
                         }
                     ) {
-                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
+                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
                             editorState.runnersToShow.forEach { runner ->
                                 AddDialogItem(
                                     icon = runner.getIcon(context) ?: Icon.DrawableRes(drawableRes = drawables.run),

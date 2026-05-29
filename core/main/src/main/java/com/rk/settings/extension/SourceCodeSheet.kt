@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.rk.components.SettingsToggle
+import com.rk.components.XedBottomSheet
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.extension.Extension
 import com.rk.resources.drawables
@@ -48,13 +47,12 @@ enum class SourceCodeProvider(val drawableRes: Int, val viewStringRes: Int) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SourceCodeSheet(extension: Extension, onDismissRequest: () -> Unit) {
     val context = LocalContext.current
     val sourceCodeProvider = SourceCodeProvider.fromUrl(extension.repository)
 
-    ModalBottomSheet(onDismissRequest) {
+    XedBottomSheet(onDismissRequest = onDismissRequest) {
         Column(modifier = Modifier.padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

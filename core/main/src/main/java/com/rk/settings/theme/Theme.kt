@@ -13,7 +13,6 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -36,6 +35,7 @@ import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.components.BottomSheetContent
 import com.rk.components.SettingsToggle
+import com.rk.components.XedBottomSheet
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -289,7 +289,7 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
         )
 
     if (showBottomSheet.value) {
-        ModalBottomSheet(onDismissRequest = { showBottomSheet.value = false }, sheetState = bottomSheetState) {
+        XedBottomSheet(onDismissRequest = { showBottomSheet.value = false }, sheetState = bottomSheetState) {
             BottomSheetContent(
                 title = { Text(text = stringResource(id = strings.theme_mode)) },
                 buttons = {

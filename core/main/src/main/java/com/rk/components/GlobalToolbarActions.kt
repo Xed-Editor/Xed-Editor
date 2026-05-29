@@ -6,11 +6,9 @@ import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,7 +54,6 @@ var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
 var codeSearchDialog by mutableStateOf(false)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalToolbarActions(viewModel: MainViewModel) {
     val context = LocalContext.current
@@ -142,8 +139,8 @@ fun GlobalToolbarActions(viewModel: MainViewModel) {
     }
 
     if (addDialog) {
-        ModalBottomSheet(onDismissRequest = { addDialog = false }) {
-            Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)) {
+        XedBottomSheet(onDismissRequest = { addDialog = false }) {
+            Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
                 AddDialogItem(icon = drawables.file, title = stringResource(strings.temp_file)) {
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)

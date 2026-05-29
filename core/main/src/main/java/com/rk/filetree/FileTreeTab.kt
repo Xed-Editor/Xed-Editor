@@ -15,9 +15,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -43,6 +43,7 @@ import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.gitViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.components.AddDialogItem
+import com.rk.components.XedBottomSheet
 import com.rk.components.codeSearchDialog
 import com.rk.components.fileSearchDialog
 import com.rk.file.FileObject
@@ -67,7 +68,6 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     val indexingPreferenceKey
         get() = "enable_indexing_${root.hashCode()}"
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content(modifier: Modifier) {
         var searchDialog by remember { mutableStateOf(false) }
@@ -125,14 +125,13 @@ class FileTreeTab(val root: FileObject) : DrawerTab() {
     }
 
     @Composable
-    @OptIn(ExperimentalMaterial3Api::class)
     private fun SearchSheet(onDismiss: () -> Unit, enableIndexing: Boolean, toggleIndexing: (Boolean) -> Unit) {
         val context = LocalContext.current
 
-        ModalBottomSheet(onDismissRequest = onDismiss) {
+        XedBottomSheet(onDismissRequest = onDismiss) {
             Column(
                 modifier =
-                    Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+                    Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                         .verticalScroll(rememberScrollState())
             ) {
                 val surfaceColor by

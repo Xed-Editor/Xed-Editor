@@ -3,6 +3,7 @@ package com.rk.theme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 object DesignTokens {
@@ -57,6 +58,15 @@ object DesignTokens {
     object Divider {
         val thin = 0.5.dp
         val regular = 1.dp
+    }
+
+    object BottomSheet {
+        val shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        val shapeTablet = RoundedCornerShape(20.dp)
+        val scrimColor = Color.Black.copy(alpha = 0.32f)
+        val elevation = 12.dp
+        val elevationTablet = 20.dp
+        val contentPadding = large
     }
 }
 
