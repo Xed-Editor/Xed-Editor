@@ -653,4 +653,6 @@
     <string name="sort_lines_ascending">Satırları artan sırada sırala</string>
     <string name="sort_lines_descending">Satırları azalan sırada sırala</string>
     <string name="updating">Güncelleniyor…</string>
+    <string name="choose_runner">Çalıştırıcıyı seç</string>
+    <string name="ext_cleanup_failed">Uzantı temizleme başarısız oldu</string>
 </resources>
