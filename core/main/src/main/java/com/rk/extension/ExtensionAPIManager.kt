@@ -7,73 +7,42 @@ import com.rk.App
 import com.rk.DefaultScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 object ExtensionAPIManager : Application.ActivityLifecycleCallbacks, CoroutineScope by DefaultScope {
-    private val mutex = Mutex()
+
+    private fun runForAll(block: ExtensionAPI.() -> Unit) {
+        App.extensionManager.loadedExtensions.values.forEach { loaded -> loaded?.api?.block() }
+    }
+
+    private fun runForAllAsync(block: ExtensionAPI.() -> Unit) {
+        launch { runForAll(block) }
+    }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        launch {
-            mutex.withLock {
-                launch {
-                    App.extensionManager.loadedExtensions.values.forEach {
-                        it?.onActivityCreated(activity, savedInstanceState)
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onActivityDestroyed(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch { App.extensionManager.loadedExtensions.values.forEach { it?.onActivityDestroyed(activity) } }
-            }
-        }
-    }
-
-    override fun onActivityPaused(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch { App.extensionManager.loadedExtensions.values.forEach { it?.onActivityPaused(activity) } }
-            }
-        }
-    }
-
-    override fun onActivityResumed(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch { App.extensionManager.loadedExtensions.values.forEach { it?.onActivityResumed(activity) } }
-            }
-        }
-    }
-
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-        launch {
-            mutex.withLock {
-                launch {
-                    App.extensionManager.loadedExtensions.values.forEach {
-                        it?.onActivitySaveInstanceState(activity, outState)
-                    }
-                }
-            }
-        }
+        runForAllAsync { onActivityCreated(activity, savedInstanceState) }
     }
 
     override fun onActivityStarted(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch { App.extensionManager.loadedExtensions.values.forEach { it?.onActivityStarted(activity) } }
-            }
-        }
+        runForAllAsync { onActivityStarted(activity) }
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+        runForAllAsync { onActivityResumed(activity) }
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+        runForAllAsync { onActivityPaused(activity) }
     }
 
     override fun onActivityStopped(activity: Activity) {
-        launch {
-            mutex.withLock {
-                launch { App.extensionManager.loadedExtensions.values.forEach { it?.onActivityStopped(activity) } }
-            }
-        }
+        runForAllAsync { onActivityStopped(activity) }
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+        runForAllAsync { onActivitySaveInstanceState(activity, outState) }
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
+        runForAllAsync { onActivityDestroyed(activity) }
     }
 }

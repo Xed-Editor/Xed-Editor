@@ -3,10 +3,18 @@ package com.rk.extension
 import android.content.Context
 import android.content.res.AssetManager
 import android.content.res.Resources
-import com.rk.settings.Preference
+import android.util.Log
+import com.rk.settings.debugOptions.LogCollector
+import kotlinx.coroutines.CoroutineScope
 
-class ExtensionContext(val extension: LocalExtension, val hostContext: Context) {
+class ExtensionContext(val extension: LocalExtension, val appContext: Context, val scope: CoroutineScope) {
     val settings = SharedPrefExtensionSettings(extension.id)
+
+    val currentActivity
+        get() = ActivityProvider.currentActivity
+
+    val appResources
+        get() = AppResources(appContext, appContext.resources, appContext.packageName)
 
     val assets: AssetManager by lazy {
         AssetManager::class.java.getDeclaredConstructor().newInstance().apply {
@@ -15,35 +23,25 @@ class ExtensionContext(val extension: LocalExtension, val hostContext: Context) 
         }
     }
 
-    val resources by lazy {
-        Resources(assets, hostContext.resources.displayMetrics, hostContext.resources.configuration)
+    val resources by lazy { Resources(assets, appContext.resources.displayMetrics, appContext.resources.configuration) }
+
+    fun logDebug(msg: String) {
+        Log.d(extension.id, msg)
+        LogCollector.reportDebug("[${extension.id}]$msg")
     }
-}
 
-interface ExtensionSettings {
-    fun getString(key: String, default: String): String?
+    fun logInfo(msg: String) {
+        Log.i(extension.id, msg)
+        LogCollector.reportInfo("[${extension.id}]$msg")
+    }
 
-    fun getBoolean(key: String, default: Boolean): Boolean
+    fun logWarn(msg: String) {
+        Log.w(extension.id, msg)
+        LogCollector.reportWarn("[${extension.id}]$msg")
+    }
 
-    fun getInt(key: String, default: Int): Int
-
-    fun putString(key: String, value: String)
-
-    fun putBoolean(key: String, value: Boolean)
-
-    fun putInt(key: String, value: Int)
-}
-
-class SharedPrefExtensionSettings(private val id: String) : ExtensionSettings {
-    override fun getString(key: String, default: String) = Preference.getString("$id.$key", default)
-
-    override fun getBoolean(key: String, default: Boolean) = Preference.getBoolean("$id.$key", default)
-
-    override fun getInt(key: String, default: Int) = Preference.getInt("$id.$key", default)
-
-    override fun putString(key: String, value: String) = Preference.setString("$id.$key", value)
-
-    override fun putBoolean(key: String, value: Boolean) = Preference.setBoolean("$id.$key", value)
-
-    override fun putInt(key: String, value: Int) = Preference.setInt("$id.$key", value)
+    fun logError(msg: String) {
+        Log.e(extension.id, msg)
+        LogCollector.reportError("[${extension.id}]$msg")
+    }
 }

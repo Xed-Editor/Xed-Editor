@@ -13,7 +13,7 @@ import com.rk.resources.strings
 
 @Composable
 fun ExtensionSettings(extension: Extension?) {
-    val api = App.extensionManager.loadedExtensions[extension]
+    val api = App.extensionManager.loadedExtensions[extension]?.api
 
     PreferenceLayout(label = extension?.name ?: stringResource(strings.ext_not_found)) {
         if (extension == null || api == null) {

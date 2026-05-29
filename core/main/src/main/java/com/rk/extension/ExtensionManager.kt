@@ -10,6 +10,7 @@ import java.io.File
 import java.util.zip.ZipFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -25,13 +26,15 @@ val Context.extensionDir: File
 
 internal fun Context.compiledDexDir() = extensionDir.resolve("oat")
 
+data class LoadedExtension(val api: ExtensionAPI, val scope: CoroutineScope)
+
 open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
     private val mutex = Mutex()
     val localExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
     val json = Json { ignoreUnknownKeys = true }
 
-    val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI?>()
+    val loadedExtensions = mutableStateMapOf<LocalExtension, LoadedExtension?>()
 
     init {
         launch(Dispatchers.IO) {
@@ -186,7 +189,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 val extension =
                     localExtensions[extensionId] ?: return@withContext Result.failure(Exception("Extension not found"))
 
-                loadedExtensions[extension]?.onUninstalled()
+                loadedExtensions[extension]?.api?.onUninstalled()
+                loadedExtensions[extension]?.scope?.cancel()
 
                 val extensionDir = File(extension.installPath)
                 if (!extensionDir.exists()) {

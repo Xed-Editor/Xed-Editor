@@ -14,6 +14,7 @@ import com.rk.editor.CodeHighlighter
 import com.rk.editor.FontCache
 import com.rk.editor.KeywordManager
 import com.rk.editor.LanguageManager
+import com.rk.extension.ActivityProvider
 import com.rk.extension.ExtensionAPIManager
 import com.rk.extension.ExtensionManager
 import com.rk.extension.loadAllExtensions
@@ -91,6 +92,7 @@ class App : Application() {
                 extensionManager.indexLocalExtensions()
                 extensionManager.loadAllExtensions()
                 registerActivityLifecycleCallbacks(ExtensionAPIManager)
+                registerActivityLifecycleCallbacks(ActivityProvider)
             }
 
             launch(Dispatchers.IO) { iconPackManager.indexIconPacks() }
