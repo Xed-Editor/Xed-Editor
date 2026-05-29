@@ -661,4 +661,5 @@
     <string name="sort_lines_ascending">Sortuj linijki rosnąco</string>
     <string name="sort_lines_descending">Sortuj linijki malejąco</string>
     <string name="updating">Aktualizacja…</string>
+    <string name="choose_runner">Wybierz program uruchamiający</string>
 </resources>
