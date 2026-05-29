@@ -8,13 +8,16 @@ object AntigravityAgent : AiAgent {
 
     override fun buildArgs(extraArgs: List<String>, workingDir: String): List<String> =
         buildList {
+            val i = extraArgs.indexOf("--prompt-interactive")
+            if (i >= 0 && i + 1 < extraArgs.size) {
+                add(extraArgs[i + 1])
+            } else if (extraArgs.isNotEmpty()) {
+                addAll(extraArgs)
+            }
             add("--print")
             add("--dangerously-skip-permissions")
             add("--print-timeout")
             add("60s")
-            if (extraArgs.isNotEmpty()) {
-                addAll(extraArgs)
-            }
         }
 
     override fun buildEnv(extraEnv: Map<String, String>): Map<String, String> =

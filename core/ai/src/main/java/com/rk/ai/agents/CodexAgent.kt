@@ -10,7 +10,12 @@ object CodexAgent : AiAgent {
         buildList {
             add("exec")
             if (extraArgs.isNotEmpty()) {
-                addAll(extraArgs)
+                val i = extraArgs.indexOf("--prompt-interactive")
+                if (i >= 0 && i + 1 < extraArgs.size) {
+                    add(extraArgs[i + 1])
+                } else {
+                    addAll(extraArgs)
+                }
             }
         }
 
