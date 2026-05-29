@@ -49,9 +49,12 @@ AGY_MCP
     warn "Bridge health check failed, MCP may be unavailable"
 fi
 
-# --- Install agy binary if not present (Termux-compatible build) ---
+# --- Install agy binary if not present ---
+# Note: agy.va39 is a standard Linux Go ELF (the actual Antigravity CLI).
+# agy is a small Android NDK helper (update checker) that only runs on
+# Termux/host. Inside Xed's proot sandbox we run agy.va39 directly.
 install_agy() {
-  info "Installing Antigravity CLI (Termux build)..."
+  info "Installing Antigravity CLI..."
 
   STAGING_DIR="$HOME/.cache/antigravity/staging"
   mkdir -p "$STAGING_DIR"
@@ -64,27 +67,27 @@ install_agy() {
   curl -fL -o "$staging_payload" "$AGY_TERMUX_URL" || { warn "Download failed"; return 1; }
 
   info "Extracting binaries..."
-  tar -xzf "$staging_payload" -C "$STAGING_DIR" bin/agy bin/agy.va39 2>/dev/null || {
+  tar -xzf "$staging_payload" -C "$STAGING_DIR" bin/agy.va39 bin/agy 2>/dev/null || {
     warn "Extraction failed"; return 1
   }
 
   mkdir -p "$LOCAL/bin"
-  cp "$STAGING_DIR/bin/agy" "$LOCAL/bin/agy" 2>/dev/null || { warn "Failed to copy agy"; return 1; }
   cp "$STAGING_DIR/bin/agy.va39" "$LOCAL/bin/agy.va39" 2>/dev/null || { warn "Failed to copy agy.va39"; return 1; }
-  chmod +x "$LOCAL/bin/agy" "$LOCAL/bin/agy.va39" 2>/dev/null || true
+  chmod +x "$LOCAL/bin/agy.va39" 2>/dev/null || true
   rm -rf "$STAGING_DIR"
-  info "Installed agy + agy.va39 to $LOCAL/bin"
+  info "Installed agy.va39 to $LOCAL/bin"
 }
 
 # Install if missing
-if ! command -v agy >/dev/null 2>&1; then
+AGY_BIN="$LOCAL/bin/agy.va39"
+if [ ! -x "$AGY_BIN" ]; then
   install_agy || warn "Installation failed — Antigravity CLI will be unavailable"
 fi
 
 # Launch
-if command -v agy >/dev/null 2>&1; then
+if [ -x "$AGY_BIN" ]; then
   info "Starting Antigravity CLI in $(pwd)"
-  exec agy "$@"
+  exec "$AGY_BIN" "$@"
 else
   warn "Antigravity CLI is not available."
   exit 1

@@ -8,8 +8,8 @@ object CodexAgent : AiAgent {
 
     override fun buildArgs(extraArgs: List<String>, workingDir: String): List<String> =
         buildList {
-            add("exec")
             if (extraArgs.isNotEmpty()) {
+                add("exec")
                 val i = extraArgs.indexOf("--prompt-interactive")
                 if (i >= 0 && i + 1 < extraArgs.size) {
                     add(extraArgs[i + 1])
