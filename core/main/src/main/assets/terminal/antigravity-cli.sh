@@ -54,7 +54,8 @@ if ! command -v agy >/dev/null 2>&1; then
   curl -fsSL https://antigravity.google/cli/install.sh > "$TMP_SCRIPT"
   # Replace the 'install' subcommand (which crashes with TCMalloc OOM in sandboxed envs)
   # with a no-op so the binary is just copied to the target dir
-  sed -i 's/"$BINARY_PATH" install.*|| true/true # install skipped/' "$TMP_SCRIPT"
+  # (Must escape $ in sed — unescaped $ is end-of-line anchor)
+  sed -i '/\$BINARY_PATH" install/c\true # install skipped' "$TMP_SCRIPT"
   bash "$TMP_SCRIPT" --dir "$LOCAL/bin" && chmod +x "$LOCAL/bin/agy" 2>/dev/null || true
   rm -f "$TMP_SCRIPT"
 fi

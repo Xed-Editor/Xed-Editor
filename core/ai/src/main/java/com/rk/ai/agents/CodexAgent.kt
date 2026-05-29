@@ -8,7 +8,6 @@ object CodexAgent : AiAgent {
 
     override fun buildArgs(extraArgs: List<String>, workingDir: String): List<String> =
         buildList {
-            add("--quiet")
             add("--approval-mode")
             add("auto-edit")
             add("--json")

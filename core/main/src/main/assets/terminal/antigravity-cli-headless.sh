@@ -45,7 +45,7 @@ if ! command -v agy >/dev/null 2>&1; then
   log "Installing Antigravity CLI..."
   TMP_SCRIPT="$(mktemp)"
   curl -fsSL https://antigravity.google/cli/install.sh > "$TMP_SCRIPT" 2>/dev/null
-  sed -i 's/"$BINARY_PATH" install.*|| true/true # install skipped/' "$TMP_SCRIPT"
+  sed -i '/\$BINARY_PATH" install/c\true # install skipped' "$TMP_SCRIPT"
   bash "$TMP_SCRIPT" --dir "$LOCAL/bin" >/dev/null 2>&1 && chmod +x "$LOCAL/bin/agy" 2>/dev/null || true
   rm -f "$TMP_SCRIPT" 2>/dev/null
 fi
