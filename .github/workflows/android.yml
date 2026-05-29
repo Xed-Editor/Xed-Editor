@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -30,16 +31,6 @@ jobs:
           java-version: "21"
           distribution: "temurin"
           cache: gradle
-
-      - name: Cache Gradle Build Files
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/libs.versions.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Decode and create secrets
         run: |
@@ -62,14 +53,6 @@ jobs:
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION_NAME" >> $GITHUB_OUTPUT
-
-      - name: Clone soraX dependency
-        run: |
-          rm -rf soraX
-          echo "Cloning soraX editor engine (with submodules)..."
-          git clone --depth=1 --recurse-submodules https://github.com/algospider/soraX.git soraX
-          ls -la soraX/oniguruma-native/src/main/cpp/oniguruma/
-          echo "soraX cloned successfully with $(ls soraX/ | wc -l) entries"
 
       - name: Build with Gradle
         run: |

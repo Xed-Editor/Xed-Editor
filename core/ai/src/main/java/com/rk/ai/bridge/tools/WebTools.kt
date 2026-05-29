@@ -329,7 +329,7 @@ private fun stripHtml(html: String): String {
         .replace(Regex("<style[^>]*>.*?</style>", setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)), " ")
         .replace(Regex("<[^>]*>"), " ")
         .let { htmlDecode(it) }
-        .replace(Regex("[ \t\x0B\f\r]+"), " ")
+        .replace(Regex("""[ \t\x0B\f\r]+"""), " ")
         .replace(Regex("\n{3,}"), "\n\n")
         .trim()
 }

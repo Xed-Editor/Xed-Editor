@@ -46,14 +46,15 @@ android {
 
     signingConfigs {
         create("release") {
-            val isGitHubActions = System.getenv("GITHUB_ACTIONS") == "true"
-
-            val propertiesFilePath =
-                if (isGitHubActions) {
-                    "/tmp/signing.properties"
-                } else {
-                    "/home/rohit/Android/xed-signing/signing.properties"
+            val envPath = System.getenv("SIGNING_PROPERTIES_FILE")
+            val propertiesFilePath = when {
+                !envPath.isNullOrEmpty() -> envPath
+                System.getenv("GITHUB_ACTIONS") == "true" -> "/tmp/signing.properties"
+                else -> {
+                    val localProps = rootProject.file("signing.properties")
+                    if (localProps.exists()) localProps.absolutePath else "/home/rohit/Android/xed-signing/signing.properties"
                 }
+            }
 
             val propertiesFile = File(propertiesFilePath)
             if (propertiesFile.exists()) {
@@ -61,12 +62,11 @@ android {
                 properties.load(propertiesFile.inputStream())
                 keyAlias = properties["keyAlias"] as String?
                 keyPassword = properties["keyPassword"] as String?
-                storeFile =
-                    if (isGitHubActions) {
-                        File("/tmp/xed.keystore")
-                    } else {
-                        (properties["storeFile"] as String?)?.let { File(it) }
-                    }
+                storeFile = when {
+                    System.getenv("GITHUB_ACTIONS") == "true" -> File("/tmp/xed.keystore")
+                    !System.getenv("KEYSTORE_FILE").isNullOrEmpty() -> File(System.getenv("KEYSTORE_FILE"))
+                    else -> (properties["storeFile"] as String?)?.let { File(it) }
+                }
 
                 storePassword = properties["storePassword"] as String?
             } else {
