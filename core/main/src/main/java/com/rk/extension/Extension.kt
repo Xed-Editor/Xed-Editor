@@ -3,6 +3,7 @@ package com.rk.extension
 import android.content.Context
 import android.content.pm.PackageManager
 import dalvik.system.PathClassLoader
+import io.github.z4kn4fein.semver.toVersionOrNull
 import java.io.File
 import java.util.Date
 import kotlinx.coroutines.Dispatchers
@@ -201,19 +202,23 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
         get() = installed.hasSettings
 
     override val iconUrl
-        get() = store.iconUrl
+        get() = if (isUpdatable()) store.iconUrl else installed.iconUrl
 
     override val readmeUrl
-        get() = store.readmeUrl
+        get() = if (isUpdatable()) store.readmeUrl else installed.readmeUrl
 
     override val changelogUrl
-        get() = store.changelogUrl
+        get() = if (isUpdatable()) store.changelogUrl else installed.changelogUrl
 
     override suspend fun getStats() = store.getStats()
 
     override suspend fun getReviews() = store.getReviews()
 
-    fun isUpdatable() = installed.version != store.version
+    fun isUpdatable(): Boolean {
+        val installedVersion = installed.version.toVersionOrNull() ?: return false
+        val storeVersion = store.version.toVersionOrNull() ?: return false
+        return installedVersion < storeVersion
+    }
 }
 
 fun LocalExtension.classLoader(parent: ClassLoader?) = PathClassLoader(apkFile.absolutePath, parent)

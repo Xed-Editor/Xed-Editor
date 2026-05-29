@@ -8,6 +8,8 @@ import com.rk.file.localBinDir
 import com.rk.file.sandboxHomeDir
 import com.rk.lsp.LspConnectionConfig
 import com.rk.lsp.ScriptedLspServer
+import io.github.z4kn4fein.semver.toVersion
+import io.github.z4kn4fein.semver.toVersionOrNull
 
 object XML : ScriptedLspServer() {
     override val id = "xml"
@@ -32,8 +34,9 @@ object XML : ScriptedLspServer() {
 
     override suspend fun isUpdatable(context: Context): Boolean {
         val versionFile = sandboxHomeDir().child(".lsp/lemminx/version.txt")
-        val currentVersion = runCatching { versionFile.readText().trim() }.getOrNull()
-        return currentVersion != LATEST_VERSION
+        val currentVersionText = runCatching { versionFile.readText().trim() }.getOrNull()
+        val currentVersion = currentVersionText?.toVersionOrNull() ?: return false
+        return currentVersion < LATEST_VERSION.toVersion()
     }
 
     override fun getConnectionConfig(): LspConnectionConfig {

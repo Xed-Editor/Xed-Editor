@@ -66,6 +66,7 @@ monarchJson = "1.0.2"
 regexOnig = "1.0.3"
 regexRe2j = "1.0.2"
 gson = "2.13.2"
+semver = "3.1.0"
 leakcanary = "2.14"
 motionCompose = "2.0.1"
 
@@ -173,6 +174,7 @@ anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "an
 pine-core = { module = "top.canyie.pine:core", version.ref = "coreVersion" }
 utilcode = { module = "com.blankj:utilcodex", version.ref = "utilcode" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }
 
 # Tree-sitter / editor
 tree-sitter = { module = "com.itsaky.androidide.treesitter:android-tree-sitter", version.ref = "tsBinding" }
