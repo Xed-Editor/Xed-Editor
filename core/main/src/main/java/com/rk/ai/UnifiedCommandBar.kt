@@ -331,7 +331,7 @@ private fun StatusBar(
                                             when {
                                                 a.cliBinaryName == "gemini" -> Icons.Outlined.Psychology
                                                 a.name == "codex" -> Icons.Outlined.Terminal
-                                                a.name == "antigravity" -> Icons.AutoMirrored.Filled.Launch
+                                                a.name == "antigravity" -> Icons.Outlined.Launch
                                                 else -> Icons.Outlined.AutoFixHigh
                                             },
                                             contentDescription = null,

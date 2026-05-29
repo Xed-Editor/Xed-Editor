@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class GetIdeInfoTool : BaseMcpTool() {
+    override fun getCategory(): String = "System"
     override fun getName(): String = "getIdeInfo"
     override fun getDescription(): String = "Returns IDE status and a pointer to system guidelines."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
@@ -26,6 +27,7 @@ class GetIdeInfoTool : BaseMcpTool() {
 }
 
 class RunCommandTool : BaseMcpTool() {
+    override fun getCategory(): String = "Terminal"
     override fun getName(): String = "runCommand"
     override fun getDescription(): String = "Runs a shell command in the terminal environment. PREFER NATIVE MCP TOOLS instead: use readFile/cat for reading, searchCode/grep for search, findFiles/glob for file find, head for head, tail for tail, wc for word count, stat for metadata, listFiles/ls for directory listing. Only use runCommand for compiling, running, or package installs that have no native tool."
     override fun getRequiredParams(): Map<String, String> = mapOf("command" to "string")
@@ -52,6 +54,7 @@ class RunCommandTool : BaseMcpTool() {
 }
 
 class ShowMessageTool : BaseMcpTool() {
+    override fun getCategory(): String = "System"
     override fun getName(): String = "showMessage"
     override fun getDescription(): String = "Displays a short toast notification message."
     override fun getRequiredParams(): Map<String, String> = mapOf("message" to "string")
@@ -66,6 +69,7 @@ class ShowMessageTool : BaseMcpTool() {
 }
 
 class GetProjectConfigTool : BaseMcpTool() {
+    override fun getCategory(): String = "Project"
     override fun getName(): String = "getProjectConfig"
     override fun getDescription(): String = "Detects project configuration."
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string")
@@ -80,6 +84,7 @@ class GetProjectConfigTool : BaseMcpTool() {
 }
 
 class GetEnvironmentTool : BaseMcpTool() {
+    override fun getCategory(): String = "System"
     override fun getName(): String = "getEnvironment"
     override fun getDescription(): String = "Returns system and sandbox environment variables."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = buildJsonResult {
@@ -88,6 +93,7 @@ class GetEnvironmentTool : BaseMcpTool() {
 }
 
 class GetClipboardTool : BaseMcpTool() {
+    override fun getCategory(): String = "System"
     override fun getName(): String = "getClipboard"
     override fun getDescription(): String = "Returns the current device clipboard content."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = withContext(kotlinx.coroutines.Dispatchers.Main) {
@@ -98,6 +104,7 @@ class GetClipboardTool : BaseMcpTool() {
 }
 
 class WriteToClipboardTool : BaseMcpTool() {
+    override fun getCategory(): String = "System"
     override fun getName(): String = "writeToClipboard"
     override fun getDescription(): String = "Sets the device clipboard content."
     override fun getRequiredParams(): Map<String, String> = mapOf("text" to "string")

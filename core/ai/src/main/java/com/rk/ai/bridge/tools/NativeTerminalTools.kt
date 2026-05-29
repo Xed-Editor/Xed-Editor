@@ -6,6 +6,7 @@ import com.rk.ai.bridge.McpToolResult
 import java.io.File
 
 class HeadTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "head"
     override fun getDescription(): String = "Reads first N lines of a file. Accepts: path, filePath, file, lines, count."
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -38,6 +39,7 @@ class HeadTool : BaseMcpTool() {
 }
 
 class TailTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "tail"
     override fun getDescription(): String = "Reads last N lines of a file. Accepts: path, filePath, file, lines, count."
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -70,6 +72,7 @@ class TailTool : BaseMcpTool() {
 }
 
 class WcTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "wc"
     override fun getDescription(): String = "Counts lines/words/chars/bytes. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -110,6 +113,7 @@ class WcTool : BaseMcpTool() {
 }
 
 class StatTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "stat"
     override fun getDescription(): String = "Gets file metadata (size, permissions, modified time). Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -156,6 +160,7 @@ class StatTool : BaseMcpTool() {
 }
 
 class CountLinesTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "countLines"
     override fun getDescription(): String = "Fast buffered byte-level line counting. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(

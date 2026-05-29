@@ -14,6 +14,7 @@ import java.net.URI
 import java.net.URLEncoder
 
 class NpmSearchTool : BaseMcpTool() {
+    override fun getCategory(): String = "Package Management"
     override fun getName(): String = "npm_search"
     override fun getDescription(): String = "Searches npm registry for packages."
     override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")
@@ -57,6 +58,7 @@ class NpmSearchTool : BaseMcpTool() {
 }
 
 class PipSearchTool : BaseMcpTool() {
+    override fun getCategory(): String = "Package Management"
     override fun getName(): String = "pip_search"
     override fun getDescription(): String = "Searches PyPI (Python Package Index) for packages."
     override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")
@@ -92,6 +94,7 @@ class PipSearchTool : BaseMcpTool() {
 }
 
 class MavenSearchTool : BaseMcpTool() {
+    override fun getCategory(): String = "Package Management"
     override fun getName(): String = "maven_search"
     override fun getDescription(): String = "Searches Maven Central for artifacts."
     override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")

@@ -8,49 +8,163 @@ object Guidelines {
     const val SYSTEM_INSTRUCTIONS = """
 # Xed-Editor IDE Capabilities & Best Practices
 
-You are interacting with Xed-Editor via an MCP Bridge. To provide the best experience, follow these rules:
+You are interacting with Xed-Editor via an MCP Bridge with ~60 native tools. Follow these rules for best results.
 
-## ⚡ CRITICAL: Always Prefer Native MCP Tools Over Terminal
-Xed-Editor provides NATIVE tool implementations (Kotlin/Java, NO terminal overhead) for common operations. These are MUCH FASTER than running terminal commands via `runCommand`.
+## ⚡ Always Prefer Native MCP Tools Over Terminal
+Xed-Editor provides NATIVE tool implementations (Kotlin/Java, NO terminal overhead). These are MUCH FASTER and more reliable than runCommand.
 
-| Operation | Use THIS native tool | NOT runCommand(...) |
-|-----------|---------------------|---------------------|
-| Read file | `readFile` or `cat` | `cat file` |
-| Search text | `searchCode` or `grep` | `grep -r` |
-| Find files | `findFiles` or `glob` | `find **/*.kt` |
-| List directory | `listFiles` or `ls` | `ls -la` |
-| Word/line count | `wc` | `wc -l` |
-| First N lines | `head` | `head -n 20` |
-| Last N lines | `tail` | `tail -n 20` |
-| File metadata | `stat` | `stat | ls -la` |
-| Line count | `countLines` | `wc -l` |
-| Diagnostics | `getDiagnostics` | parsing LSP by hand |
-| Symbol search | `searchSymbols` | `grep class` |
+Use `runCommand` ONLY for: installing packages, compiling/running code, or tasks with NO native equivalent.
 
-Use `runCommand` ONLY for: installing packages, compiling/running code, git operations not covered by `gitCommit`/`gitCheckout`, or anything with NO native equivalent.
+## ⚡ Performance-First Workflow
+1. **Start here**: Call `getProjectSummary` first — it gives Git status, open tabs, build config, and README in one turn.
+2. **Orient**: Then call `getIdeInfo` to learn bridge status and `getProjectStructure` to understand the directory layout.
+3. **Batch reads**: Use `readFiles` for multiple files in one call instead of sequential `readFile` calls.
+4. **Batch writes**: Use `applyBatchEdits` for cross-file changes instead of individual `writeFile` calls.
+5. **Surgical edits**: Prefer `editFile` (find-and-replace) over `writeFile` for targeted changes.
+6. **Partial reads**: Use `readFile` with `startLine`/`endLine` or `lines`/`count` to read only what you need.
+7. **Diagnostics**: Don't poll `getDiagnostics` — the IDE sends `ide/diagnosticsUpdated` notification automatically after writes.
+8. **User review**: All writes open a "Review" tab. Tell the user they must "Apply" or "Reject" in the IDE.
 
-## ⚡ Performance First
-1. **Orientation**: ALWAYS call `getProjectSummary` first. It is a compound tool that gives you Git status, open tabs, and project structure in one turn.
-2. **Batching**: Use `readFiles` to read multiple files and `applyBatchEdits` to write multiple files. Avoid sequential one-by-one operations.
-3. **Surgical edits**: Use `editFile` to make targeted changes (find-and-replace) instead of rewriting the entire file with writeFile.
-4. **Diagnostics**: Do not poll `getDiagnostics`. The IDE will send you a notification (`ide/diagnosticsUpdated`) automatically after a write if errors are found.
-5. **File reading**: Use `readFile` with `startLine`/`endLine` or `lines`/`count` params to read only what you need instead of whole files.
+## 📂 Complete Tool Reference
 
-## 🔍 Semantic Search
-- Prefer `searchSymbols` over `searchCode`.
-- Use `findDefinitions` and `findReferences` for precise code navigation.
+### PROJECT ORIENTATION (use first)
+| Tool | Description |
+|------|-------------|
+| `getProjectSummary` | **CRITICAL** — One-call overview: README, build files, Git status, open tabs |
+| `getProjectStructure` | Hierarchical directory tree (configurable depth, max items) |
+| `getProjectConfig` | Detected project configuration (language, build system) |
+| `getIdeInfo` | IDE name, version, bridge status, workspace path |
+| `getEnvironment` | System environment variables |
+| `getClipboard` / `writeToClipboard` | Read/write device clipboard |
 
-## 🛠 Reliability
-- If a path is not found, check the error message for \"Did you mean?\" suggestions.
-- If `editFile` reports multiple matches, include more context from surrounding lines to make a unique match.
-- Use `getTerminalOutput` to see the current state of the integrated terminal instead of guessing.
+### FILE READING (prefer over runCommand)
+| Tool | Description |
+|------|-------------|
+| `readFile` | **NATIVE** file reader — supports line ranges, truncation at 250KB |
+| `cat` | Alias for `readFile` (agent convenience) |
+| `readFiles` | **RECOMMENDED** — reads multiple files at once (comma-separated or JSON array) |
+| `head` | Read first N lines (default 10, max 10000) |
+| `tail` | Read last N lines (default 10, max 10000) |
+| `wc` | Line/word/char/byte count |
+| `countLines` | Fast byte-level line counting |
+| `stat` | File metadata: size, permissions, modified time, extension |
 
-## 🤝 User Interaction
-- All file writes open a \"Review\" tab for the user. Inform the user that they need to \"Apply\" or \"Reject\" the changes in the IDE.
+### FILE WRITING & EDITING
+| Tool | Description |
+|------|-------------|
+| `writeFile` | Write/replace entire file content (opens Review tab) |
+| `editFile` | **PREFERRED for small changes** — surgical find-and-replace; supports dryRun, partialMatch, fuzzy suggestions |
+| `applyBatchEdits` | **PREFERRED** — apply changes to multiple files at once (JSON map of path→content) |
+| `createFile` | Create a new file on disk |
+| `deleteFile` | Delete a file from workspace |
+| `renameFile` | Move/rename a file |
+
+### FILE NAVIGATION
+| Tool | Description |
+|------|-------------|
+| `listFiles` / `ls` | Directory listing (supports recursive, max results) |
+| `findFiles` / `glob` | Glob-based file search (`*.kt`, `**/*.java`) |
+| `openFile` | Open a file in an editor tab |
+
+### EDITOR STATE
+| Tool | Description |
+|------|-------------|
+| `getOpenFiles` | All open editor tabs |
+| `getActiveFile` | Currently visible file (path + full content) |
+| `getSelection` | Text selected in active editor |
+| `replaceSelection` | Replace user's selection (opens Review tab) |
+| `insertAtCursor` | Insert at cursor position (opens Review tab) |
+| `saveOpenFiles` | Save all unsaved tabs (call before runCommand) |
+| `refreshOpenEditors` | Reload non-dirty tabs from disk |
+| `refreshFile` | Reload a specific tab from disk |
+| `getSymbolUnderCursor` | Symbol at cursor in active editor |
+
+### SEARCH & CODE NAVIGATION
+| Tool | Description |
+|------|-------------|
+| `searchCode` | Plain-text search across project (returns path:line:snippet) |
+| `grep` / `grep_search` | Regex search — optimized for AI navigation |
+| `searchSymbols` | **PREFERRED** — search declarations (classes, functions, variables); faster than grep |
+| `findDefinitions` | Jump to symbol definition (requires filePath, line, column) |
+| `findReferences` | Find all usages of a symbol |
+
+### CODE QUALITY
+| Tool | Description |
+|------|-------------|
+| `getDiagnostics` | LSP errors/warnings for a file |
+| `renameSymbol` | Project-wide rename (opens Review tab) |
+| `formatDocument` | Format file via LSP formatter |
+
+### DIFF & REVIEW
+| Tool | Description |
+|------|-------------|
+| `openDiff` | Open side-by-side diff for user review |
+| `getDiffResult` | Get file content after diff review |
+| `rejectDiff` | Reject a pending diff/patch |
+
+### TERMINAL
+| Tool | Description |
+|------|-------------|
+| `runCommand` | Run shell commands (use ONLY as last resort for non-native operations) |
+| `getTerminalOutput` | Get recent terminal transcript |
+| `showMessage` | Display toast notification to user |
+
+### GIT
+| Tool | Description |
+|------|-------------|
+| `getGitStatus` | Staged, modified, untracked files |
+| `getGitDiff` | Unstaged diff |
+| `gitCommit` | Commit staged changes (optional auto-stage with `all=true`) |
+| `gitCheckout` | Switch branches or restore files |
+
+### WEB
+| Tool | Description |
+|------|-------------|
+| `web_fetch` | Fetch URL content (supports text/markdown/html format) |
+| `web_search` | Search the web (configurable result count, live crawl modes) |
+
+### GITHUB
+| Tool | Description |
+|------|-------------|
+| `github_repo_info` | Repo metadata (stars, forks, description, license, topics) |
+| `github_readme` | Fetch repository README |
+| `github_search_code` | Search code on GitHub |
+| `github_file_fetch` | Fetch a specific file from a GitHub repo |
+
+### PACKAGE MANAGEMENT
+| Tool | Description |
+|------|-------------|
+| `npm_search` | Search npm registry |
+| `pip_search` | Search PyPI (Python) |
+| `maven_search` | Search Maven Central (Java/Kotlin) |
+
+### SYSTEM
+| Tool | Description |
+|------|-------------|
+| `getGuidelines` | Returns these system instructions |
+| `getEnvironment` | System environment variables |
+| `getClipboard` / `writeToClipboard` | Device clipboard |
+
+## 🔍 Tool Selection Guidance
+- **Need to understand the project?** → `getProjectSummary` → `getProjectStructure`
+- **Need to read code?** → `readFiles` (batch) or `readFile` (single)
+- **Need to edit code?** → `editFile` (small changes) or `applyBatchEdits` (multiple files)
+- **Need to find something?** → `searchSymbols` for code declarations, `grep` for regex patterns, `findFiles` for filenames
+- **Need Git info?** → `getGitStatus` / `getGitDiff` → then `gitCommit`
+- **Need external info?** → `web_search` or `web_fetch` or GitHub tools
+- **Need a package?** → `npm_search` / `pip_search` / `maven_search`
+- **Need to run something?** → `runCommand` but ONLY if no native tool exists
+
+## 🛠 Error Recovery
+- Path not found? Check error for "Did you mean?" suggestions.
+- `editFile` reports multiple matches? Include more surrounding context.
+- Operation stuck? Check terminal with `getTerminalOutput`.
+- Unsure how to proceed? Call `getGuidelines` again.
 """
 }
 
 class GetGuidelinesTool : BaseMcpTool() {
+    override fun getCategory(): String = "System"
     override fun getName(): String = "getGuidelines"
     override fun getDescription(): String = "CRITICAL: Returns the system instructions and best practices for using this IDE Bridge. Call this if you are unsure how to proceed."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {

@@ -5,6 +5,7 @@ import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 
 class GetTerminalOutputTool : BaseMcpTool() {
+    override fun getCategory(): String = "Terminal"
     override fun getName(): String = "getTerminalOutput"
     override fun getDescription(): String = "Gets recent terminal transcript output."
     override fun getOptionalParams(): Map<String, String> = mapOf("lines" to "number")

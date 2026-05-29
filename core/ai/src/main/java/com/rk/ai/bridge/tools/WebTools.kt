@@ -14,6 +14,7 @@ import java.net.URL
 import java.net.URLEncoder
 
 class WebFetchTool : BaseMcpTool() {
+    override fun getCategory(): String = "Web"
     override fun getName(): String = "web_fetch"
     override fun getDescription(): String = "Fetches content from a specified URL. Returns the content as text."
     override fun getRequiredParams(): Map<String, String> = mapOf("url" to "string")
@@ -105,6 +106,7 @@ class WebFetchTool : BaseMcpTool() {
 }
 
 class WebSearchTool : BaseMcpTool() {
+    override fun getCategory(): String = "Web"
     override fun getName(): String = "web_search"
     override fun getDescription(): String = "Searches the web using a search engine. Returns search results with snippets."
     override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")

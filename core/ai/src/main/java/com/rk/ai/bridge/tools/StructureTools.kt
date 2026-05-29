@@ -5,6 +5,7 @@ import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 
 class GetProjectStructureTool : BaseMcpTool() {
+    override fun getCategory(): String = "Project"
     override fun getName(): String = "getProjectStructure"
     override fun getDescription(): String = "Returns a hierarchical project directory tree."
     override fun getRequiredParams(): Map<String, String> = mapOf("path" to "string")
@@ -26,6 +27,7 @@ class GetProjectStructureTool : BaseMcpTool() {
 }
 
 class GetProjectSummaryTool : BaseMcpTool() {
+    override fun getCategory(): String = "Project"
     override fun getName(): String = "getProjectSummary"
     override fun getDescription(): String = "CRITICAL: Use this as your FIRST tool call to get a high-level overview of the project (README, build files, config, open tabs, and git status)."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {

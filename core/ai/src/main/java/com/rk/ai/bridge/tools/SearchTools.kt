@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 class SearchCodeTool : BaseMcpTool() {
+    override fun getCategory(): String = "Search"
     override fun getName(): String = "searchCode"
     override fun getDescription(): String = "Searches text patterns project-wide. Accepts: query, pattern, search, text."
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
@@ -35,6 +36,7 @@ class SearchCodeTool : BaseMcpTool() {
 }
 
 class GrepSearchTool : BaseMcpTool() {
+    override fun getCategory(): String = "Search"
     override fun getName(): String = "grep_search"
     override fun getDescription(): String = "Advanced text pattern search project-wide or scoped to a directory. Optimized for AI navigation. Supports regex."
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
@@ -63,6 +65,7 @@ class GrepSearchTool : BaseMcpTool() {
 }
 
 class GrepTool : BaseMcpTool() {
+    override fun getCategory(): String = "Search"
     override fun getName(): String = "grep"
     override fun getDescription(): String = "Alias for searchCode with regex support. Searches text patterns project-wide."
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "search" to "string", "text" to "string", "limit" to "number", "path" to "string")
@@ -93,6 +96,7 @@ class GrepTool : BaseMcpTool() {
 }
 
 class SearchSymbolsTool : BaseMcpTool() {
+    override fun getCategory(): String = "Search"
     override fun getName(): String = "searchSymbols"
     override fun getDescription(): String = "Searches code declarations (classes, functions, variables). Faster and more precise than grep."
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "symbol" to "string", "limit" to "number", "path" to "string")
@@ -122,6 +126,7 @@ class SearchSymbolsTool : BaseMcpTool() {
 }
 
 class FindFilesTool : BaseMcpTool() {
+    override fun getCategory(): String = "Search"
     override fun getName(): String = "findFiles"
     override fun getDescription(): String = "Finds files by glob patterns like '*.kt' or '**/*.java'. Accepts: query, pattern, limit, path."
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")
@@ -147,6 +152,7 @@ class FindFilesTool : BaseMcpTool() {
 }
 
 class GlobTool : BaseMcpTool() {
+    override fun getCategory(): String = "Search"
     override fun getName(): String = "glob"
     override fun getDescription(): String = "Alias for findFiles. Finds files by glob patterns."
     override fun getOptionalParams(): Map<String, String> = mapOf("query" to "string", "pattern" to "string", "limit" to "number", "path" to "string")

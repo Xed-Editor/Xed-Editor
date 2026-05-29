@@ -6,6 +6,7 @@ import com.rk.ai.bridge.McpToolResult
 import java.io.File
 
 class ReadFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "readFile"
     override fun getDescription(): String = "NATIVE file reader. Much faster than terminal cat. Supports line range (startLine/endLine) and first-N-lines (lines/count). Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -46,6 +47,7 @@ class ReadFileTool : BaseMcpTool() {
 }
 
 class CatTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "cat"
     override fun getDescription(): String = "Same as readFile but named 'cat' for agent convenience. Accepts: path, filePath, file."
     override fun getOptionalParams(): Map<String, String> = mapOf(
@@ -86,6 +88,7 @@ class CatTool : BaseMcpTool() {
 }
 
 class ReadFilesTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "readFiles"
     override fun getDescription(): String = "RECOMMENDED: Reads multiple files at once. Use this to gather context across several related files in a single turn. Input 'filePaths' can be a comma-separated string or a JSON array of strings."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePaths" to "string")
@@ -117,6 +120,7 @@ class ReadFilesTool : BaseMcpTool() {
 }
 
 class WriteFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "writeFile"
     override fun getDescription(): String = "Writes new content to a file. Use this for single-file updates. For cross-file changes, prefer 'applyBatchEdits'. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "content" to "string")
@@ -134,6 +138,7 @@ class WriteFileTool : BaseMcpTool() {
 }
 
 class ListFilesTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "listFiles"
     override fun getDescription(): String = "NATIVE directory listing. Same as 'ls' but runs natively. Accepts: path, directoryPath."
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")
@@ -154,6 +159,7 @@ class ListFilesTool : BaseMcpTool() {
 }
 
 class LsTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "ls"
     override fun getDescription(): String = "Same as listFiles. Lists directory contents. Accepts: path, directoryPath."
     override fun getOptionalParams(): Map<String, String> = mapOf("path" to "string", "directoryPath" to "string", "recursive" to "boolean", "maxFiles" to "number")
@@ -174,6 +180,7 @@ class LsTool : BaseMcpTool() {
 }
 
 class OpenFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "openFile"
     override fun getDescription(): String = "Opens a file in an editor tab. Use this to focus the user's attention on a specific file."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
@@ -189,6 +196,7 @@ class OpenFileTool : BaseMcpTool() {
 }
 
 class CreateFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "createFile"
     override fun getDescription(): String = "Creates a new file on disk. Use this when starting new modules or adding assets."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
@@ -208,6 +216,7 @@ class CreateFileTool : BaseMcpTool() {
 }
 
 class DeleteFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "deleteFile"
     override fun getDescription(): String = "Deletes a file from the workspace. Use with caution."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
@@ -222,6 +231,7 @@ class DeleteFileTool : BaseMcpTool() {
 }
 
 class RenameFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "renameFile"
     override fun getDescription(): String = "Moves or renames a file. Updates disk state immediately."
     override fun getRequiredParams(): Map<String, String> = mapOf("sourcePath" to "string", "destPath" to "string")

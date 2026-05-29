@@ -5,6 +5,7 @@ import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 
 class ApplyBatchEditsTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "applyBatchEdits"
     override fun getDescription(): String = "RECOMMENDED: Applies multiple file changes at once. ALWAYS use this for cross-file refactorings to ensure consistency and minimize turns. Takes a JSON object where keys are absolute file paths and values are new content."
     override fun getRequiredParams(): Map<String, String> = mapOf("edits" to "object")

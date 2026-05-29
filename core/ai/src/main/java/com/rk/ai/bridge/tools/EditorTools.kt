@@ -5,6 +5,7 @@ import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 
 class GetOpenFilesTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "getOpenFiles"
     override fun getDescription(): String = "Lists all files currently open in editor tabs. Use this to understand the user's current working set."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
@@ -13,6 +14,7 @@ class GetOpenFilesTool : BaseMcpTool() {
 }
 
 class GetActiveFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "getActiveFile"
     override fun getDescription(): String = "Gets the path and full content of the file currently visible in the editor."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
@@ -22,6 +24,7 @@ class GetActiveFileTool : BaseMcpTool() {
 }
 
 class GetSelectionTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "getSelection"
     override fun getDescription(): String = "Returns the text currently selected by the user in the active editor."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
@@ -30,6 +33,7 @@ class GetSelectionTool : BaseMcpTool() {
 }
 
 class ReplaceSelectionTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "replaceSelection"
     override fun getDescription(): String = "Replaces the user's current selection with new text. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("newContent" to "string")
@@ -44,6 +48,7 @@ class ReplaceSelectionTool : BaseMcpTool() {
 }
 
 class InsertAtCursorTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "insertAtCursor"
     override fun getDescription(): String = "Inserts text at the user's current cursor position. Opens a review tab for the user."
     override fun getRequiredParams(): Map<String, String> = mapOf("newContent" to "string")
@@ -58,6 +63,7 @@ class InsertAtCursorTool : BaseMcpTool() {
 }
 
 class SaveOpenFilesTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "saveOpenFiles"
     override fun getDescription(): String = "Saves all unsaved changes in all open editor tabs. Recommended before running external commands."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
@@ -66,6 +72,7 @@ class SaveOpenFilesTool : BaseMcpTool() {
 }
 
 class RefreshOpenEditorsTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "refreshOpenEditors"
     override fun getDescription(): String = "Refreshes all non-dirty open editor tabs from disk."
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
@@ -75,6 +82,7 @@ class RefreshOpenEditorsTool : BaseMcpTool() {
 }
 
 class RefreshFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "Editor"
     override fun getName(): String = "refreshFile"
     override fun getDescription(): String = "Refreshes a specific editor tab from disk."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")

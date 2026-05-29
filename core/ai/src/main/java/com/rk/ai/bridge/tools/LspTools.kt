@@ -5,6 +5,7 @@ import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 
 class GetDiagnosticsTool : BaseMcpTool() {
+    override fun getCategory(): String = "Code Intelligence"
     override fun getName(): String = "getDiagnostics"
     override fun getDescription(): String = "Returns LSP diagnostics (errors, warnings) for a file."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
@@ -19,6 +20,7 @@ class GetDiagnosticsTool : BaseMcpTool() {
 }
 
 class FindDefinitionsTool : BaseMcpTool() {
+    override fun getCategory(): String = "Code Intelligence"
     override fun getName(): String = "findDefinitions"
     override fun getDescription(): String = "Finds the definition of a symbol at the given cursor position."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number", "column" to "number")
@@ -37,6 +39,7 @@ class FindDefinitionsTool : BaseMcpTool() {
 }
 
 class FindReferencesTool : BaseMcpTool() {
+    override fun getCategory(): String = "Code Intelligence"
     override fun getName(): String = "findReferences"
     override fun getDescription(): String = "Finds all usages of a symbol at the given cursor position."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number", "column" to "number")

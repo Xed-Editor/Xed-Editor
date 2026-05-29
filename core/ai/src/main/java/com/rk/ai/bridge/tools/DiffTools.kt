@@ -5,6 +5,7 @@ import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 
 class OpenDiffTool : BaseMcpTool() {
+    override fun getCategory(): String = "Diff"
     override fun getName(): String = "openDiff"
     override fun getDescription(): String = "Opens a side-by-side diff view for user review."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "newContent" to "string")
@@ -22,6 +23,7 @@ class OpenDiffTool : BaseMcpTool() {
 }
 
 class GetDiffResultTool : BaseMcpTool() {
+    override fun getCategory(): String = "Diff"
     override fun getName(): String = "getDiffResult"
     override fun getDescription(): String = "Returns the current file content after a diff review."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")
@@ -37,6 +39,7 @@ class GetDiffResultTool : BaseMcpTool() {
 }
 
 class RejectDiffTool : BaseMcpTool() {
+    override fun getCategory(): String = "Diff"
     override fun getName(): String = "rejectDiff"
     override fun getDescription(): String = "Rejects a pending diff/patch for a file."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")

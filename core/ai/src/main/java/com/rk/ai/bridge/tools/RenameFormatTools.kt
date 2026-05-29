@@ -5,6 +5,7 @@ import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolResult
 
 class RenameSymbolTool : BaseMcpTool() {
+    override fun getCategory(): String = "Code Intelligence"
     override fun getName(): String = "renameSymbol"
     override fun getDescription(): String = "Renames a symbol project-wide after user review."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string", "line" to "number", "column" to "number", "newName" to "string")
@@ -25,6 +26,7 @@ class RenameSymbolTool : BaseMcpTool() {
 }
 
 class FormatDocumentTool : BaseMcpTool() {
+    override fun getCategory(): String = "Code Intelligence"
     override fun getName(): String = "formatDocument"
     override fun getDescription(): String = "Formats a document using the LSP formatter."
     override fun getRequiredParams(): Map<String, String> = mapOf("filePath" to "string")

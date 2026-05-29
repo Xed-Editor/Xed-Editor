@@ -6,6 +6,7 @@ import com.google.gson.JsonObject
 interface McpTool {
     fun getName(): String
     fun getDescription(): String
+    fun getCategory(): String = "General"
     fun getRequiredParams(): Map<String, String> = emptyMap()
     fun getOptionalParams(): Map<String, String> = emptyMap()
     fun getRequiredParamDescriptions(): Map<String, String> = emptyMap()
@@ -17,6 +18,7 @@ interface McpTool {
     fun getSchema(): JsonObject = JsonObject().apply {
         addProperty("name", getName())
         addProperty("description", getDescription())
+        addProperty("category", getCategory())
         add("inputSchema", JsonObject().apply {
             addProperty("type", "object")
             add("properties", JsonObject().apply {

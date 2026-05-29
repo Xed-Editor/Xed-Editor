@@ -16,6 +16,7 @@ private const val GITHUB_API = "https://api.github.com"
 private const val USER_AGENT = "Xed-Editor/2.0"
 
 class GitHubRepoInfoTool : BaseMcpTool() {
+    override fun getCategory(): String = "GitHub"
     override fun getName(): String = "github_repo_info"
     override fun getDescription(): String = "Gets information about a GitHub repository (stars, forks, description, etc.)."
     override fun getRequiredParams(): Map<String, String> = mapOf("repo" to "string")
@@ -50,6 +51,7 @@ class GitHubRepoInfoTool : BaseMcpTool() {
 }
 
 class GitHubReadmeTool : BaseMcpTool() {
+    override fun getCategory(): String = "GitHub"
     override fun getName(): String = "github_readme"
     override fun getDescription(): String = "Fetches the README content of a GitHub repository."
     override fun getRequiredParams(): Map<String, String> = mapOf("repo" to "string")
@@ -71,6 +73,7 @@ class GitHubReadmeTool : BaseMcpTool() {
 }
 
 class GitHubFileFetchTool : BaseMcpTool() {
+    override fun getCategory(): String = "GitHub"
     override fun getName(): String = "github_file_fetch"
     override fun getDescription(): String = "Fetches a specific file from a GitHub repository."
     override fun getRequiredParams(): Map<String, String> = mapOf("repo" to "string", "path" to "string")
@@ -109,6 +112,7 @@ class GitHubFileFetchTool : BaseMcpTool() {
 }
 
 class GitHubSearchCodeTool : BaseMcpTool() {
+    override fun getCategory(): String = "GitHub"
     override fun getName(): String = "github_search_code"
     override fun getDescription(): String = "Searches code on GitHub using the search API."
     override fun getRequiredParams(): Map<String, String> = mapOf("query" to "string")

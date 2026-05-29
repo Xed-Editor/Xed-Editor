@@ -6,6 +6,7 @@ import com.rk.ai.bridge.McpToolResult
 import java.io.File
 
 class EditFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
     override fun getName(): String = "editFile"
     override fun getDescription(): String =
         "Surgically edits a file by finding and replacing exact text. " +
