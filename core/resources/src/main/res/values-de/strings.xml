@@ -652,4 +652,6 @@
     <string name="confirm_exit_dialog">Beenden bestätigen</string>
     <string name="sort_lines_ascending">Zeilen aufsteigend sortieren</string>
     <string name="sort_lines_descending">Zeilen absteigend sortieren</string>
+    <string name="updating">Wird aktualisiert…</string>
+    <string name="choose_runner">Runner auswählen</string>
 </resources>
