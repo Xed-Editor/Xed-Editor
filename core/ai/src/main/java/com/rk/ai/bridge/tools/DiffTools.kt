@@ -13,9 +13,10 @@ class OpenDiffTool : BaseMcpTool() {
         "filePath" to "Absolute path to the file",
         "newContent" to "Proposed new content to diff against"
     )
+    override fun getBlankRequiredParams(): Set<String> = setOf("newContent")
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = requireString(args, "filePath")
-        val newContent = requireString(args, "newContent")
+        val newContent = requireString(args, "newContent", allowBlank = true)
         val file = resolvePathOrThrow(context, filePath)
         val msg = showPatchAndApply(context.ideService, file, newContent, "Review Gemini file change", refreshAfterApply = true)
         return McpToolResult.success(msg)

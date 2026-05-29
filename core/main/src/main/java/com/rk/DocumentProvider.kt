@@ -143,6 +143,7 @@ class DocumentProvider : DocumentsProvider() {
         // results, so we can stop as soon as we find a sufficient number of matches.  Other
         // implementations might rank results and use other data about files, rather than the file
         // name, to produce a match.
+        val normalizedQuery = query.lowercase(Locale.getDefault())
         val pending = LinkedList<File>()
         pending.add(parent)
 
@@ -151,17 +152,17 @@ class DocumentProvider : DocumentsProvider() {
             val file = pending.removeFirst()
             // Avoid directories outside the $HOME directory linked with symlinks (to avoid e.g. search
             // through the whole SD card).
-            var isInsideHome: Boolean =
+            val isInsideHome: Boolean =
                 try {
-                    file.canonicalPath.startsWith(sandboxHomeDir().canonicalPath)
+                    isInsideRoot(file.canonicalFile, sandboxHomeDir().canonicalFile)
                 } catch (e: IOException) {
-                    true
+                    false
                 }
             if (isInsideHome) {
                 if (file.isDirectory) {
                     file.listFiles()?.let { Collections.addAll(pending, *it) }
                 } else {
-                    if (file.name.lowercase(Locale.getDefault()).contains(query)) {
+                    if (file.name.lowercase(Locale.getDefault()).contains(normalizedQuery)) {
                         includeFile(result, null, file)
                     }
                 }
@@ -172,7 +173,11 @@ class DocumentProvider : DocumentsProvider() {
     }
 
     override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
-        return documentId.startsWith(parentDocumentId)
+        return runCatching {
+            val parent = getFileForDocId(parentDocumentId).canonicalFile
+            val child = getFileForDocId(documentId).canonicalFile
+            isInsideRoot(child, parent)
+        }.getOrDefault(false)
     }
 
     /**
@@ -311,9 +316,17 @@ class DocumentProvider : DocumentsProvider() {
         /** Get the file given a document id (the reverse of [.getDocIdForFile]). */
         @Throws(FileNotFoundException::class)
         private fun getFileForDocId(docId: String): File {
-            val f = File(docId)
+            val root = sandboxHomeDir().canonicalFile
+            val f = File(docId).canonicalFile
             if (!f.exists()) throw FileNotFoundException(f.absolutePath + " not found")
+            if (!isInsideRoot(f, root)) throw FileNotFoundException(f.absolutePath + " outside document root")
             return f
+        }
+
+        private fun isInsideRoot(file: File, root: File): Boolean {
+            val filePath = file.absolutePath
+            val rootPath = root.absolutePath
+            return filePath == rootPath || filePath.startsWith(rootPath + File.separator)
         }
 
         private fun getMimeType(file: File): String {

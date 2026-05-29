@@ -32,7 +32,7 @@ object AiCompletionEngine {
 
     private data class ApiConfig(
         val url: String,
-        val apiKey: String,
+        val apiKey: String?,
         val model: String,
     )
 
@@ -42,7 +42,7 @@ object AiCompletionEngine {
         val customUrl = Settings.ai_completion_url.ifBlank { null }
         val customKey = Settings.ai_api_key.ifBlank { null }
 
-        if (customUrl != null && customKey != null) {
+        if (customUrl != null) {
             return ApiConfig(customUrl, customKey, "custom")
         }
 
@@ -61,7 +61,7 @@ object AiCompletionEngine {
                 val key = Settings.ai_api_key.ifBlank {
                     System.getenv("GEMINI_API_KEY") ?: System.getenv("GOOGLE_API_KEY") ?: return null
                 }
-                val model = "gemini-2.0-flash"
+                val model = "gemini-2.5-flash"
                 ApiConfig(
                     url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key",
                     apiKey = key,
@@ -72,7 +72,7 @@ object AiCompletionEngine {
                 val key = Settings.ai_api_key.ifBlank {
                     System.getenv("ANTIGRAVITY_API_KEY") ?: System.getenv("GEMINI_API_KEY") ?: return null
                 }
-                val model = "gemini-3.5-flash"
+                val model = "gemini-2.5-flash"
                 ApiConfig(
                     url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key",
                     apiKey = key,
@@ -86,7 +86,7 @@ object AiCompletionEngine {
                 ApiConfig(
                     url = Settings.ai_completion_url.ifBlank { "https://api.openai.com/v1/chat/completions" },
                     apiKey = key,
-                    model = "o4-mini",
+                    model = "gpt-4.1-mini",
                 )
             }
             else -> {
@@ -94,7 +94,7 @@ object AiCompletionEngine {
                 ApiConfig(
                     url = Settings.ai_completion_url.ifBlank { "https://api.openai.com/v1/chat/completions" },
                     apiKey = key,
-                    model = "gpt-4o",
+                    model = "gpt-4.1-mini",
                 )
             }
         }
@@ -161,7 +161,9 @@ object AiCompletionEngine {
                 .url(config.url)
                 .addHeader("Content-Type", "application/json")
                 .apply {
-                    if (!isGemini) addHeader("Authorization", "Bearer ${config.apiKey}")
+                    if (!isGemini && !config.apiKey.isNullOrBlank()) {
+                        addHeader("Authorization", "Bearer ${config.apiKey}")
+                    }
                 }
                 .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
                 .build()

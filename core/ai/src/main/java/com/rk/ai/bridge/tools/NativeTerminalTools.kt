@@ -23,7 +23,7 @@ class HeadTool : BaseMcpTool() {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(context, filePath)
-        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceAtMost(10000)
+        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceIn(1, 10000)
         val content = file.bufferedReader().use { reader ->
             val lines = mutableListOf<String>()
             var remaining = n
@@ -56,7 +56,7 @@ class TailTool : BaseMcpTool() {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = getPathParam(args) ?: throw ToolError.MissingParam("path/filePath/file")
         val file = resolvePathOrThrow(context, filePath)
-        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceAtMost(10000)
+        val n = (optionalInt(args, "lines") ?: optionalInt(args, "count") ?: 10).coerceIn(1, 10000)
         val content = file.bufferedReader().use { reader ->
             val ring = ArrayDeque<String>(n)
             var line = reader.readLine()

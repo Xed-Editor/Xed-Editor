@@ -34,11 +34,24 @@ data class McpToolResult(
     }
 
     fun toErrorJson(): JsonObject = JsonObject().apply {
+        addProperty("isError", true)
         add("content", JsonArray().apply {
             add(JsonObject().apply {
                 addProperty("type", "text")
-                addProperty("text", error)
-                addProperty("isError", true)
+                addProperty("text", error.ifBlank { output.ifBlank { "tool failed" } })
+                addProperty("durationMs", durationMs)
+                if (metadata.isNotEmpty()) {
+                    add("metadata", JsonObject().apply {
+                        metadata.forEach { (k, v) ->
+                            when (v) {
+                                is String -> addProperty(k, v)
+                                is Number -> addProperty(k, v)
+                                is Boolean -> addProperty(k, v)
+                                else -> addProperty(k, v.toString())
+                            }
+                        }
+                    })
+                }
             })
         })
     }

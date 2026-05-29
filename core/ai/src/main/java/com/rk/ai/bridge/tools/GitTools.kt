@@ -15,7 +15,7 @@ class GetGitStatusTool : BaseMcpTool() {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val path = optionalString(args, "path").ifBlank { context.ideService.getPrimaryWorkspacePath() }
         val result = context.ideService.getGitStatus(path)
-        return McpToolResult.success(result.toString())
+        return if (result.has("error")) McpToolResult.error(result.toString()) else McpToolResult.success(result.toString())
     }
 }
 
@@ -30,7 +30,7 @@ class GetGitDiffTool : BaseMcpTool() {
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val path = optionalString(args, "path").ifBlank { context.ideService.getPrimaryWorkspacePath() }
         val diff = context.ideService.getGitDiff(path)
-        return McpToolResult.success(diff)
+        return gitResult(diff)
     }
 }
 
@@ -52,7 +52,7 @@ class GitCommitTool : BaseMcpTool() {
         val message = requireString(args, "message")
         val all = optionalBoolean(args, "all")
         val result = context.ideService.gitCommit(path, message, all)
-        return McpToolResult.success(result)
+        return gitResult(result)
     }
 }
 
@@ -72,6 +72,15 @@ class GitCheckoutTool : BaseMcpTool() {
         val path = optionalString(args, "path").ifBlank { context.ideService.getPrimaryWorkspacePath() }
         val target = requireString(args, "target")
         val result = context.ideService.gitCheckout(path, target)
-        return McpToolResult.success(result)
+        return gitResult(result)
+    }
+}
+
+private fun gitResult(text: String): McpToolResult {
+    val normalized = text.trim().lowercase()
+    return if (normalized.startsWith("error:") || normalized == "not a git repository" || normalized == "workspacepath required") {
+        McpToolResult.error(text)
+    } else {
+        McpToolResult.success(text)
     }
 }

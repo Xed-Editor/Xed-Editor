@@ -49,7 +49,11 @@ class RunCommandTool : BaseMcpTool() {
             append("exit ${result.exitCode}")
             if (result.timedOut) append(" (timed out)")
         }
-        return McpToolResult.success(text)
+        return if (result.exitCode == 0 && !result.timedOut) {
+            McpToolResult.success(text)
+        } else {
+            McpToolResult.error(text)
+        }
     }
 }
 
@@ -108,8 +112,9 @@ class WriteToClipboardTool : BaseMcpTool() {
     override fun getName(): String = "writeToClipboard"
     override fun getDescription(): String = "Sets the device clipboard content."
     override fun getRequiredParams(): Map<String, String> = mapOf("text" to "string")
+    override fun getBlankRequiredParams(): Set<String> = setOf("text")
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult = withContext(kotlinx.coroutines.Dispatchers.Main) {
-        val text = requireString(args, "text")
+        val text = requireString(args, "text", allowBlank = true)
         val cm = application?.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
         cm?.setPrimaryClip(android.content.ClipData.newPlainText("Xed AI", text))
         McpToolResult.success("Copied to clipboard.")

@@ -67,7 +67,10 @@ fun InlineAgentBar(
                 ?: state.file?.getAbsolutePath()?.let { java.io.File(it).parent }
         } else null
         val sm = AiProvider.sessionManager ?: return "Error: AI module not available"
-        return sm.runHeadless(prompt, wd ?: "/storage/emulated/0")
+        val workingDir = wd ?: "/storage/emulated/0"
+        AiProvider.ideBridge?.ensureStarted(viewModel, workingDir)
+        AiProvider.ideBridge?.setWorkspacePath(workingDir)
+        return sm.runHeadless(prompt, workingDir, viewModel = viewModel)
     }
 
     AnimatedVisibility(

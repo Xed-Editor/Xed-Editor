@@ -170,7 +170,8 @@ class FileService(private val tabRepository: TabRepository) {
         withContext(Dispatchers.Main) {
             findTabByPath(file.absolutePath)?.let { tabRepository.tabManager.removeTab(it) }
         }
-        withContext(Dispatchers.IO) { file.delete() }
+        val deleted = withContext(Dispatchers.IO) { file.delete() }
+        if (!deleted) throw IllegalStateException("failed to delete: $filePath")
         return "deleted ${file.absolutePath}"
     }
 
@@ -182,10 +183,11 @@ class FileService(private val tabRepository: TabRepository) {
         withContext(Dispatchers.Main) {
             findTabByPath(source.absolutePath)?.let { tabRepository.tabManager.removeTab(it) }
         }
-        withContext(Dispatchers.IO) {
+        val renamed = withContext(Dispatchers.IO) {
             dest.parentFile?.mkdirs()
             source.renameTo(dest)
         }
+        if (!renamed) throw IllegalStateException("failed to rename: $sourcePath")
         refreshEditors(filePath = dest.absolutePath, force = true)
         return "renamed ${source.absolutePath} -> ${dest.absolutePath}"
     }

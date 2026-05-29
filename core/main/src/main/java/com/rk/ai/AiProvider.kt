@@ -41,7 +41,12 @@ object AiProvider {
         fun canReuseFor(requestedCwd: String): Boolean
         suspend fun startSession(activity: Activity, viewModel: MainViewModel, workingDir: String, extraArgs: List<String>)
         fun stopSession()
-        suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String
+        suspend fun runHeadless(
+            prompt: String,
+            workingDir: String,
+            timeoutSeconds: Long = 60,
+            viewModel: MainViewModel? = null,
+        ): String
     }
 
     interface CompletionEngineProvider {

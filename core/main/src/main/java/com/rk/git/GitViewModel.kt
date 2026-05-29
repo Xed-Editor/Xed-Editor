@@ -187,6 +187,7 @@ class GitViewModel : ViewModel() {
     fun checkout(branchName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
+            var success = false
             try {
                 Git.open(currentRoot.value).use { git ->
                     if (branchName.startsWith("$GIT_ORIGIN/")) {
@@ -205,14 +206,17 @@ class GitViewModel : ViewModel() {
                         git.checkout().setName(branchName).call()
                     }
                     withContext(Dispatchers.Main) { currentBranch = git.repository.branch }
+                    success = true
                 }
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    toast(strings.checkout_complete)
-                    syncChanges(currentRoot.value!!)
+                    if (success) {
+                        toast(strings.checkout_complete)
+                        currentRoot.value?.let { syncChanges(it) }
+                    }
                 }
             }
         }
@@ -514,6 +518,7 @@ class GitViewModel : ViewModel() {
     fun checkoutNew(branchName: String, branchBase: String) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { isLoading = true }
+            var success = false
             try {
                 Git.open(currentRoot.value).use { git ->
                     if (branchBase.startsWith("$GIT_ORIGIN/")) {
@@ -525,15 +530,20 @@ class GitViewModel : ViewModel() {
                             .setCreateBranch(true)
                             .call()
                     }
-                    toast(strings.checkout_complete)
+                    success = true
                 }
             } catch (e: Exception) {
                 toast(e.message)
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    currentBranch = Git.open(currentRoot.value).currentHead()
-                    syncChanges(currentRoot.value!!)
+                    if (success) {
+                        toast(strings.checkout_complete)
+                        currentRoot.value?.let { root ->
+                            currentBranch = Git.open(root).currentHead()
+                            syncChanges(root)
+                        }
+                    }
                 }
             }
         }

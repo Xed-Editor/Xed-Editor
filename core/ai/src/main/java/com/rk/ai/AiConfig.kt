@@ -46,8 +46,8 @@ object AiConfig {
     }
 
     object Paths {
-        const val linker32Bit = "/system/bin/linker64"
-        const val linker64Bit = "/system/bin/linker"
+        const val linker32Bit = "/system/bin/linker"
+        const val linker64Bit = "/system/bin/linker64"
         const val sandboxHomePath = "/home"
         const val binSh = "/system/bin/sh"
         const val binBash = "/bin/bash"

@@ -148,7 +148,9 @@ class FileWrapper(var file: File) : FileObject {
     override suspend fun renameTo(string: String): Boolean =
         withContext(Dispatchers.IO) {
             val newFile = File(file.parentFile, string)
-            return@withContext file.renameTo(newFile).also { this@FileWrapper.file = newFile }
+            val renamed = file.renameTo(newFile)
+            if (renamed) this@FileWrapper.file = newFile
+            return@withContext renamed
         }
 
     override suspend fun hasChild(name: String): Boolean =

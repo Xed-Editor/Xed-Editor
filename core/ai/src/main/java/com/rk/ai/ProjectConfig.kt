@@ -47,6 +47,7 @@ object ProjectConfigLoader {
     fun describeConfig(config: ProjectAiConfig): String = buildString {
         append("Project config: ")
         config.agent?.let { append("agent=$it ") }
+        config.extraArgs?.takeIf { it.isNotEmpty() }?.let { append("extraArgs=${it.joinToString(" ")} ") }
     }
 
     private fun findProjectRoot(workspacePath: String): File? {

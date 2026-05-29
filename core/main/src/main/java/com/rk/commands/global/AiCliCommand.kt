@@ -36,7 +36,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 }
             ?: "/storage/emulated/0"
         val bridge = AiProvider.ideBridge?.ensureStarted(commandContext.mainViewModel, workspaceDir) ?: return
-        val agent = AiProvider.sessionManager?.currentAgent ?: return
+        val agent = AiProvider.sessionManager?.resolveAgent(Settings.ai_agent) ?: return
         val launcher = localBinDir().child(agent.shellScriptName).absolutePath
         val agentArgs = agent.buildArgs(emptyList(), workspaceDir)
         val args = buildList {

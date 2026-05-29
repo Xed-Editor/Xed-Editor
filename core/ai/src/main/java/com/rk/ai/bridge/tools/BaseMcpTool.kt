@@ -30,9 +30,16 @@ abstract class BaseMcpTool : McpTool {
 
     override fun getTimeoutMs(): Long = 60_000L
 
-    protected fun requireString(args: JsonObject, name: String, maxLength: Int = 10_485_760): String {
+    protected open fun getBlankRequiredParams(): Set<String> = emptySet()
+
+    protected fun requireString(
+        args: JsonObject,
+        name: String,
+        maxLength: Int = 10_485_760,
+        allowBlank: Boolean = false,
+    ): String {
         val value = args.get(name)?.asString.orEmpty().take(maxLength)
-        if (value.isBlank()) throw ToolError.MissingParam(name)
+        if (!allowBlank && value.isBlank()) throw ToolError.MissingParam(name)
         return value
     }
 
@@ -125,7 +132,9 @@ abstract class BaseMcpTool : McpTool {
         requiredKeys().forEach { name ->
             val value = args.get(name)
             if (value == null || value.isJsonNull) throw ToolError.MissingParam(name)
-            if (value.isJsonPrimitive && value.asString.isBlank()) throw ToolError.MissingParam(name)
+            if (name !in getBlankRequiredParams() && value.isJsonPrimitive && value.asString.isBlank()) {
+                throw ToolError.MissingParam(name)
+            }
         }
     }
 }

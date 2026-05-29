@@ -100,6 +100,7 @@ object Settings {
     var ai_completion_url by CachedPreference("ai_completion_url", "")
     var ai_auto_apply by CachedPreference("ai_auto_apply", false)
     var ai_profiles_json by CachedPreference("ai_profiles_json", "")
+    var ai_agent_extra_args by CachedPreference("ai_agent_extra_args", "")
     var ai_project_config_enabled by CachedPreference("ai_project_config_enabled", true)
 
     // ─── File Tree ───────────────────────────────────────────────────

@@ -68,7 +68,6 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-
 xed_mcp_log() {
   if command_exists info; then
     info "$1"
@@ -114,7 +113,7 @@ configure_xed_mcp() {
       export GEMINI_CLI_IDE_SERVER_PORT="$port"
       export GEMINI_CLI_IDE_AUTH_TOKEN="$token"
       mkdir -p "$HOME/.gemini"
-      XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.gemini/settings.json" python3 - <<'PY_MCP' 2>/dev/null || return 0
+      if ! XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.gemini/settings.json" python3 - <<'PY_MCP' 2>/dev/null
 import json, os
 path = os.environ['XED_MCP_FILE']
 port = os.environ['XED_MCP_PORT']
@@ -138,10 +137,30 @@ if isinstance(cfg.get('mcp'), dict):
 with open(path, 'w') as f:
     json.dump(cfg, f, indent=2)
 PY_MCP
+      then
+        if [ ! -s "$HOME/.gemini/settings.json" ]; then
+          cat > "$HOME/.gemini/settings.json" <<GEMINI_MCP
+{
+  "general": { "preferredEditor": "vim" },
+  "ide": { "enabled": true, "hasSeenNudge": true },
+  "privacy": { "usageStatisticsEnabled": false },
+  "telemetry": { "enabled": false },
+  "mcpServers": {
+    "xed-ide": {
+      "url": "http://127.0.0.1:${port}/mcp",
+      "headers": { "Authorization": "Bearer ${token}" }
+    }
+  }
+}
+GEMINI_MCP
+        else
+          xed_mcp_warn "Python unavailable; could not merge Gemini MCP config"
+        fi
+      fi
       ;;
     opencode)
       mkdir -p "$HOME/.config/opencode"
-      XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.config/opencode/opencode.json" python3 - <<'PY_MCP' 2>/dev/null || return 0
+      if ! XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.config/opencode/opencode.json" python3 - <<'PY_MCP' 2>/dev/null
 import json, os
 path = os.environ['XED_MCP_FILE']
 port = os.environ['XED_MCP_PORT']
@@ -162,12 +181,30 @@ cfg.setdefault('mcp', {})['xed-ide'] = {
 with open(path, 'w') as f:
     json.dump(cfg, f, indent=2)
 PY_MCP
+      then
+        if [ ! -s "$HOME/.config/opencode/opencode.json" ]; then
+          cat > "$HOME/.config/opencode/opencode.json" <<OPENCODE_MCP
+{
+  "mcp": {
+    "xed-ide": {
+      "type": "remote",
+      "url": "http://127.0.0.1:${port}/mcp",
+      "enabled": true,
+      "headers": { "Authorization": "Bearer ${token}" }
+    }
+  }
+}
+OPENCODE_MCP
+        else
+          xed_mcp_warn "Python unavailable; could not merge OpenCode MCP config"
+        fi
+      fi
       ;;
     antigravity)
       export ANTIGRAVITY_IDE_SERVER_PORT="$port"
       export ANTIGRAVITY_IDE_AUTH_TOKEN="$token"
       mkdir -p "$HOME/.gemini/antigravity-cli" "$HOME/.gemini/config" "$HOME/.config/agy"
-      XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" python3 - <<'PY_MCP' 2>/dev/null || {
+      if ! XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" python3 - <<'PY_MCP' 2>/dev/null
 import json, os
 port = os.environ['XED_MCP_PORT']
 token = os.environ['XED_MCP_TOKEN']
@@ -198,6 +235,7 @@ for path in paths:
     except Exception:
         pass
 PY_MCP
+      then
         for path in \
           "$HOME/.gemini/antigravity-cli/mcp_config.json" \
           "$HOME/.gemini/config/mcp_config.json" \
@@ -219,13 +257,13 @@ PY_MCP
 }
 AGY_MCP
         done
-      }
+      fi
       ;;
     codex)
       export CODEX_IDE_SERVER_PORT="$port"
       export CODEX_IDE_AUTH_TOKEN="$token"
       mkdir -p "$HOME/.codex"
-      XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.codex/config.toml" python3 - <<'PY_MCP' 2>/dev/null || return 0
+      if ! XED_MCP_PORT="$port" XED_MCP_TOKEN="$token" XED_MCP_FILE="$HOME/.codex/config.toml" python3 - <<'PY_MCP' 2>/dev/null
 import os
 path = os.environ['XED_MCP_FILE']
 port = os.environ['XED_MCP_PORT']
@@ -264,6 +302,22 @@ if not replaced:
 with open(path, 'w') as f:
     f.write('\n'.join(out).rstrip() + '\n')
 PY_MCP
+      then
+        if [ -s "$HOME/.codex/config.toml" ]; then
+          awk '
+            $0 == "[mcp_servers.xed-ide]" { skip=1; next }
+            skip && $0 ~ /^\[/ { skip=0 }
+            !skip { print }
+          ' "$HOME/.codex/config.toml" > "$HOME/.codex/config.toml.tmp" && mv "$HOME/.codex/config.toml.tmp" "$HOME/.codex/config.toml"
+          printf '\n[mcp_servers.xed-ide]\nurl = "http://127.0.0.1:%s/mcp"\nhttp_headers = { Authorization = "Bearer %s" }\n' "$port" "$token" >> "$HOME/.codex/config.toml"
+        else
+          cat > "$HOME/.codex/config.toml" <<CODEX_MCP
+[mcp_servers.xed-ide]
+url = "http://127.0.0.1:${port}/mcp"
+http_headers = { Authorization = "Bearer ${token}" }
+CODEX_MCP
+        fi
+      fi
       ;;
     *)
       return 0

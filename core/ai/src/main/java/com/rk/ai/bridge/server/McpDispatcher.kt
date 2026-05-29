@@ -7,6 +7,7 @@ import com.google.gson.JsonObject
 import com.rk.ai.bridge.McpToolContext
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.McpToolResult
+import com.rk.ai.bridge.toJsonElement
 import com.rk.ai.bridge.tools.ToolError
 import com.rk.ai.service.IdeService
 import kotlinx.coroutines.CancellationException
@@ -22,7 +23,7 @@ import kotlinx.coroutines.withTimeout
 
 class McpDispatcher(
     private val toolRegistry: () -> McpToolRegistry,
-    private val ideService: IdeService,
+    private val ideService: () -> IdeService,
     private val serverScope: CoroutineScope,
 ) {
     @Volatile var sendNotification: (String, String, JsonObject) -> Unit = { _, _, _ -> }
@@ -67,7 +68,7 @@ class McpDispatcher(
         val timeoutMs = toolRegistry().getTimeoutMs(name)
         return try {
             val result = executeTool(sessionId, name, args, timeoutMs)
-            resultJson(id, result.toJson())
+            resultJson(id, result.toJsonElement())
         } catch (e: ToolError) {
             errorJson(id, e.code, e.message)
         } catch (e: TimeoutCancellationException) {
@@ -83,7 +84,7 @@ class McpDispatcher(
         val tool = toolRegistry().get(name) ?: return@coroutineScope McpToolResult.error("unknown tool: $name")
 
         val context = McpToolContext(
-            ideService = ideService,
+            ideService = ideService(),
             scope = this,
             timeoutMs = timeoutMs,
         )
@@ -106,7 +107,7 @@ class McpDispatcher(
         }
     }
 
-    fun resultJson(id: JsonElement?, result: JsonObject): String =
+    fun resultJson(id: JsonElement?, result: JsonElement): String =
         JsonObject().apply {
             addProperty("jsonrpc", "2.0")
             add("id", id ?: JsonNull.INSTANCE)

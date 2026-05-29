@@ -31,7 +31,7 @@ object UpdateChecker {
                 val lastUpdate = Settings.last_update_check_timestamp
                 val timeDifferenceInMillis =
                     if (lastUpdate > 0) {
-                        (lastUpdate - System.currentTimeMillis()) * 1000
+                        System.currentTimeMillis() - lastUpdate
                     } else {
                         Long.MAX_VALUE
                     }

@@ -142,6 +142,7 @@ fun SettingsEditorScreen(navController: NavController) {
                                     text = { Text(agent.displayName) },
                                     onClick = {
                                         Settings.ai_agent = agent.name
+                                        Settings.ai_agent_extra_args = ""
                                         com.rk.ai.AiProvider.sessionManager?.switchAgent(agent.name)
                                         showAgentMenu = false
                                     },

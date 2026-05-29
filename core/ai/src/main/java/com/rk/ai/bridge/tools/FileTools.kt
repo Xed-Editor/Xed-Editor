@@ -31,8 +31,8 @@ class ReadFileTool : BaseMcpTool() {
         val count = optionalInt(args, "lines") ?: optionalInt(args, "count")
 
         val content = if (startLine != null || endLine != null || count != null) {
-            val s = if (startLine != null) startLine else 1
-            val e = if (endLine != null) endLine else if (count != null) s + count - 1 else null
+            val s = (startLine ?: 1).coerceAtLeast(1)
+            val e = endLine ?: count?.let { s + it.coerceAtLeast(1) - 1 }
             readLineRange(file, s, e)
         } else {
             val text = context.ideService.getFileContent(file.absolutePath, null, null).orEmpty()
@@ -72,8 +72,8 @@ class CatTool : BaseMcpTool() {
         val count = optionalInt(args, "lines") ?: optionalInt(args, "count")
 
         val content = if (startLine != null || endLine != null || count != null) {
-            val s = if (startLine != null) startLine else 1
-            val e = if (endLine != null) endLine else if (count != null) s + count - 1 else null
+            val s = (startLine ?: 1).coerceAtLeast(1)
+            val e = endLine ?: count?.let { s + it.coerceAtLeast(1) - 1 }
             readLineRange(file, s, e)
         } else {
             val text = context.ideService.getFileContent(file.absolutePath, null, null).orEmpty()
@@ -128,9 +128,10 @@ class WriteFileTool : BaseMcpTool() {
         "filePath" to "Absolute path to the file to write",
         "content" to "The full new content of the file"
     )
+    override fun getBlankRequiredParams(): Set<String> = setOf("content")
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = requireString(args, "filePath")
-        val content = requireString(args, "content")
+        val content = requireString(args, "content", allowBlank = true)
         val file = resolvePathOrThrow(context, filePath)
         val msg = showPatchAndApply(context.ideService, file, content, "Review Gemini file update", refreshAfterApply = false)
         return McpToolResult.success(msg)
@@ -233,16 +234,75 @@ class DeleteFileTool : BaseMcpTool() {
 class RenameFileTool : BaseMcpTool() {
     override fun getCategory(): String = "File Operations"
     override fun getName(): String = "renameFile"
-    override fun getDescription(): String = "Moves or renames a file. Updates disk state immediately."
+    override fun getDescription(): String = "Moves or renames a file or directory. Updates disk state immediately."
     override fun getRequiredParams(): Map<String, String> = mapOf("sourcePath" to "string", "destPath" to "string")
     override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
-        "sourcePath" to "Current path of the file",
-        "destPath" to "New path for the file"
+        "sourcePath" to "Current path of the file or directory",
+        "destPath" to "New path for the file or directory"
     )
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val sourcePath = requireString(args, "sourcePath")
         val destPath = requireString(args, "destPath")
         val result = context.ideService.renameFile(sourcePath, destPath)
         return McpToolResult.success(result)
+    }
+}
+
+class MoveFileTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
+    override fun getName(): String = "moveFile"
+    override fun getDescription(): String = "Alias for renameFile. Moves a file or directory to a new workspace path."
+    override fun getRequiredParams(): Map<String, String> = mapOf("sourcePath" to "string", "destPath" to "string")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "sourcePath" to "Current path of the file or directory",
+        "destPath" to "New path for the file or directory"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val sourcePath = requireString(args, "sourcePath")
+        val destPath = requireString(args, "destPath")
+        val result = context.ideService.renameFile(sourcePath, destPath)
+        return McpToolResult.success(result)
+    }
+}
+
+class CreateDirectoryTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
+    override fun getName(): String = "createDirectory"
+    override fun getDescription(): String = "Creates a directory or nested directory structure inside the workspace."
+    override fun getRequiredParams(): Map<String, String> = mapOf("directoryPath" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("parents" to "boolean")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
+        "directoryPath" to "Workspace directory path to create"
+    )
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf(
+        "parents" to "Create parent directories as needed (default: true)"
+    )
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val directoryPath = requireString(args, "directoryPath")
+        val parents = optionalBoolean(args, "parents", true)
+        val dir = resolvePathOrThrow(context, directoryPath)
+        if (dir.exists() && !dir.isDirectory) throw ToolError.InvalidParam("directoryPath", "path exists and is not a directory: ${dir.absolutePath}")
+        val created = if (parents) dir.mkdirs() else dir.mkdir()
+        if (!created && !dir.isDirectory) throw ToolError.InvalidParam("directoryPath", "failed to create directory: ${dir.absolutePath}")
+        return McpToolResult.success("created directory ${dir.absolutePath}")
+    }
+}
+
+class MkdirTool : BaseMcpTool() {
+    override fun getCategory(): String = "File Operations"
+    override fun getName(): String = "mkdir"
+    override fun getDescription(): String = "Alias for createDirectory. Creates a directory or nested directory structure."
+    override fun getRequiredParams(): Map<String, String> = mapOf("path" to "string")
+    override fun getOptionalParams(): Map<String, String> = mapOf("parents" to "boolean")
+    override fun getRequiredParamDescriptions(): Map<String, String> = mapOf("path" to "Workspace directory path to create")
+    override fun getOptionalParamDescriptions(): Map<String, String> = mapOf("parents" to "Create parent directories as needed (default: true)")
+    override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
+        val path = requireString(args, "path")
+        val parents = optionalBoolean(args, "parents", true)
+        val dir = resolvePathOrThrow(context, path)
+        if (dir.exists() && !dir.isDirectory) throw ToolError.InvalidParam("path", "path exists and is not a directory: ${dir.absolutePath}")
+        val created = if (parents) dir.mkdirs() else dir.mkdir()
+        if (!created && !dir.isDirectory) throw ToolError.InvalidParam("path", "failed to create directory: ${dir.absolutePath}")
+        return McpToolResult.success("created directory ${dir.absolutePath}")
     }
 }

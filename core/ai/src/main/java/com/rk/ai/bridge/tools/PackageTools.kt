@@ -34,8 +34,7 @@ class NpmSearchTool : BaseMcpTool() {
         val url = "https://registry.npmjs.org/-/v1/search?text=${URLEncoder.encode(query, "UTF-8")}&size=$limit"
         val json = httpGet(url)
         val data = JsonParser.parseString(json).asJsonObject
-        val objects = data.getAsJsonObject("objects")?.getAsJsonArray("objects")
-            ?: data.getAsJsonArray("objects") ?: JsonArray()
+        val objects = data.getAsJsonArray("objects") ?: JsonArray()
 
         val text = buildString {
             appendLine("npm search results for: $query")
@@ -148,8 +147,7 @@ private fun httpGet(urlStr: String): String {
     conn.setRequestProperty("User-Agent", "Xed-Editor/2.0")
     conn.setRequestProperty("Accept", "application/json")
 
-    val reader = BufferedReader(InputStreamReader(
-        if (conn.responseCode in 200..299) conn.inputStream else conn.errorStream
-    ))
-    return reader.readText()
+    val responseCode = conn.responseCode
+    if (responseCode !in 200..299) throw ToolError.InvalidParam("url", "HTTP $responseCode")
+    return BufferedReader(InputStreamReader(conn.inputStream)).use { it.readText() }
 }

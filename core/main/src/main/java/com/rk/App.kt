@@ -85,13 +85,13 @@ class App : Application() {
 
             launch(AppDispatchers.IO) {
                 val editorFontPath = Settings.editor_font_path.ifEmpty { DEFAULT_EDITOR_FONT_PATH }
-                val isEditorAsset = if (editorFontPath.isNotEmpty()) Settings.is_editor_font_asset else true
+                val isEditorAsset = if (Settings.editor_font_path.isNotEmpty()) Settings.is_editor_font_asset else true
 
                 val appFontPath = Settings.app_font_path.ifEmpty { DEFAULT_APP_FONT_PATH }
-                val isAppAsset = if (editorFontPath.isNotEmpty()) Settings.is_app_font_asset else true
+                val isAppAsset = if (Settings.app_font_path.isNotEmpty()) Settings.is_app_font_asset else true
 
                 val terminalFontPath = Settings.terminal_font_path.ifEmpty { DEFAULT_TERMINAL_FONT_PATH }
-                val isTerminalAsset = if (terminalFontPath.isNotEmpty()) Settings.is_terminal_font_asset else true
+                val isTerminalAsset = if (Settings.terminal_font_path.isNotEmpty()) Settings.is_terminal_font_asset else true
 
                 FontCache.loadFont(this@App, editorFontPath, isEditorAsset)
                 FontCache.loadFont(this@App, appFontPath, isAppAsset)

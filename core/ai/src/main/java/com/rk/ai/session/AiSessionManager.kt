@@ -9,6 +9,7 @@ import com.rk.activities.main.MainViewModel
 import com.rk.ai.AiConfig
 import com.rk.ai.GeminiCli
 import com.rk.ai.IdeBridge
+import com.rk.exec.ShellUtils
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
 import com.rk.ai.agents.GeminiAgent
@@ -75,6 +76,11 @@ object AiSessionManager {
             currentAgent = resolveAgent()
             d("project config applied: ${com.rk.ai.ProjectConfigLoader.describeConfig(projectConfig)}")
         }
+        val effectiveExtraArgs = buildList {
+            addAll(parseExtraArgs(Settings.ai_agent_extra_args))
+            addAll(projectConfig?.extraArgs.orEmpty())
+            addAll(extraArgs)
+        }
 
         stopSession()
 
@@ -90,7 +96,7 @@ object AiSessionManager {
                     agent = currentAgent,
                     bridge = bridgeInfo,
                     workingDir = workingDir,
-                    extraArgs = extraArgs,
+                    extraArgs = effectiveExtraArgs,
                 )
                 session = newSession
                 cwd = workingDir
@@ -108,14 +114,95 @@ object AiSessionManager {
         ideService = null
     }
 
-    suspend fun runHeadless(prompt: String, workingDir: String, timeoutSeconds: Long = 60): String {
-        val result = GeminiCli.agent(
-            prompt = prompt,
-            workingDir = workingDir,
-            ideBridge = IdeBridge.getBridgeInfo(),
-            timeoutSeconds = timeoutSeconds,
+    suspend fun runHeadless(
+        prompt: String,
+        workingDir: String,
+        timeoutSeconds: Long = 60,
+        viewModel: MainViewModel? = null,
+    ): String {
+        currentAgent = resolveAgent()
+        val projectConfig = com.rk.ai.ProjectConfigLoader.loadForWorkspace(workingDir)
+        if (projectConfig != null) {
+            com.rk.ai.ProjectConfigLoader.applyConfig(projectConfig)
+            currentAgent = resolveAgent()
+        }
+
+        val bridge = if (viewModel != null) {
+            IdeBridge.ensureStarted(viewModel, workingDir)
+            IdeBridge.setWorkspacePath(workingDir)
+            IdeBridge.getBridgeInfo()
+        } else {
+            IdeBridge.getBridgeInfo()
+        }
+
+        val effectiveExtraArgs = buildList {
+            addAll(parseExtraArgs(Settings.ai_agent_extra_args))
+            addAll(projectConfig?.extraArgs.orEmpty())
+            add("--prompt-interactive")
+            add(prompt)
+        }
+        val result = runHeadlessAgent(currentAgent, workingDir, effectiveExtraArgs, bridge, timeoutSeconds)
+        val combinedOutput = if (result.output.isNotBlank()) result.output else result.error
+        return GeminiCli.stripCodeFences(combinedOutput)
+    }
+
+    private suspend fun runHeadlessAgent(
+        agent: AiAgent,
+        workingDir: String,
+        extraArgs: List<String>,
+        bridge: IdeBridge.Info?,
+        timeoutSeconds: Long,
+    ): ShellUtils.Result {
+        setupTerminalFiles()
+        val tmpDir = File(getTempDir(), "terminal/${agent.name}-headless").apply { mkdirs() }
+        val extraEnv = mutableMapOf<String, String>()
+        if (bridge != null) {
+            AgentEnvironmentBuilder.buildMinimalBridgeEnv(bridge, workingDir).forEach { entry ->
+                val split = entry.split("=", limit = 2)
+                if (split.size == 2) extraEnv[split[0]] = split[1]
+            }
+        }
+        extraEnv.putAll(agent.buildEnv(emptyMap()))
+        extraEnv["TMPDIR"] = tmpDir.absolutePath
+        extraEnv["TMP_DIR"] = tmpDir.absolutePath
+
+        val command = listOf("/bin/bash", localBinDir().child(agent.cliBinaryName).absolutePath) +
+            agent.buildArgs(extraArgs, workingDir)
+        return ShellUtils.runUbuntu(
+            workingDir,
+            *command.toTypedArray(),
+            extraEnv = extraEnv,
+            timeoutSeconds = timeoutSeconds.coerceIn(1, 600),
         )
-        return GeminiCli.stripCodeFences(result.output)
+    }
+
+    private fun parseExtraArgs(raw: String): List<String> {
+        if (raw.isBlank()) return emptyList()
+        val args = mutableListOf<String>()
+        val current = StringBuilder()
+        var quote: Char? = null
+        var escaped = false
+        raw.forEach { ch ->
+            when {
+                escaped -> {
+                    current.append(ch)
+                    escaped = false
+                }
+                ch == '\\' -> escaped = true
+                quote != null -> if (ch == quote) quote = null else current.append(ch)
+                ch == '\'' || ch == '"' -> quote = ch
+                ch.isWhitespace() -> {
+                    if (current.isNotEmpty()) {
+                        args.add(current.toString())
+                        current.clear()
+                    }
+                }
+                else -> current.append(ch)
+            }
+        }
+        if (escaped) current.append('\\')
+        if (current.isNotEmpty()) args.add(current.toString())
+        return args
     }
 
     private fun createAgentSession(

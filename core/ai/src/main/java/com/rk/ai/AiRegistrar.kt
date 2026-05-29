@@ -50,7 +50,8 @@ object AiRegistrar {
             prompt: String,
             workingDir: String,
             timeoutSeconds: Long,
-        ): String = AiSessionManager.runHeadless(prompt, workingDir, timeoutSeconds)
+            viewModel: com.rk.activities.main.MainViewModel?,
+        ): String = AiSessionManager.runHeadless(prompt, workingDir, timeoutSeconds, viewModel)
 
         private fun toAgentInfo(agent: AiAgent): AiProvider.AgentInfo =
             AiProvider.AgentInfo(

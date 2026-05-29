@@ -30,11 +30,12 @@ class EditFileTool : BaseMcpTool() {
         "dryRun" to "If true, reports whether the edit would succeed without applying it (default: false)",
         "partialMatch" to "If true, allows matching a unique suffix/prefix of oldString when exact match fails (default: false)"
     )
+    override fun getBlankRequiredParams(): Set<String> = setOf("newString")
 
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
         val filePath = requireString(args, "filePath")
         val oldString = requireString(args, "oldString")
-        val newString = requireString(args, "newString")
+        val newString = requireString(args, "newString", allowBlank = true)
         val dryRun = optionalBoolean(args, "dryRun")
         val partialMatch = optionalBoolean(args, "partialMatch")
 

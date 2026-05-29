@@ -40,8 +40,9 @@ class ReplaceSelectionTool : BaseMcpTool() {
     override fun getRequiredParamDescriptions(): Map<String, String> = mapOf(
         "newContent" to "Text to replace the selection with"
     )
+    override fun getBlankRequiredParams(): Set<String> = setOf("newContent")
     override suspend fun executeValidated(args: JsonObject, context: McpToolContext): McpToolResult {
-        val newContent = requireString(args, "newContent")
+        val newContent = requireString(args, "newContent", allowBlank = true)
         context.ideService.replaceSelection(newContent)
         return McpToolResult.success("Replacement opened in Xed for user review. Results will be sent via notifications.")
     }

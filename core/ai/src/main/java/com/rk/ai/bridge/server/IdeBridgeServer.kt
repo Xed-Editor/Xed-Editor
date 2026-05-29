@@ -39,7 +39,7 @@ class IdeBridgeServer(
     private val httpSessionTracker = HttpSessionTracker { connectedClients = it }
     private val mcpDispatcher = McpDispatcher(
         toolRegistry = { toolRegistry },
-        ideService = initialIdeService,
+        ideService = { ideService },
         serverScope = serverScope,
     )
     private val sseManager = SseManager(mcpDispatcher, { gson.toJson(currentIdeContext()) }, { httpSessionTracker.updateSseCount(it) }, serverScope)
@@ -92,13 +92,14 @@ class IdeBridgeServer(
             register(GetDiagnosticsTool()); register(FindDefinitionsTool()); register(FindReferencesTool())
             register(RenameSymbolTool()); register(FormatDocumentTool())
             register(GetGitStatusTool()); register(GetGitDiffTool()); register(GitCommitTool()); register(GitCheckoutTool())
-            register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool())
+            register(CreateFileTool()); register(DeleteFileTool()); register(RenameFileTool()); register(MoveFileTool())
+            register(CreateDirectoryTool()); register(MkdirTool())
             register(ApplyBatchEditsTool()); register(EditFileTool())
             register(GetTerminalOutputTool())
             register(GetProjectStructureTool()); register(GetProjectSummaryTool())
             register(GetSymbolUnderCursorTool()); register(GetProjectConfigTool())
             // New web tools
-            register(WebFetchTool()); register(WebSearchTool())
+            register(WebFetchTool()); register(WebSearchTool()); register(WebDownloadTool()); register(WebResearchTool())
             // New GitHub tools
             register(GitHubRepoInfoTool()); register(GitHubReadmeTool())
             register(GitHubSearchCodeTool()); register(GitHubFileFetchTool())

@@ -46,6 +46,7 @@ object AgentProfileManager {
 
     fun applyProfile(profile: AgentProfile) {
         Settings.ai_agent = profile.agentType
+        Settings.ai_agent_extra_args = profile.extraArgs
         com.rk.ai.session.AiSessionManager.switchAgent(profile.agentType)
     }
 
