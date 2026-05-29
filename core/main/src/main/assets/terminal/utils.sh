@@ -41,6 +41,13 @@ ask() {
   done
 }
 
+ensure_node() {
+  if ! command_exists node || ! command_exists npm; then
+    warn "Node.js/npm is required. Installing..."
+    install_nodejs
+  fi
+}
+
 install_nodejs() {
   info "Installing Node.js LTS..."
   apt install -y curl ca-certificates

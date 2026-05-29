@@ -50,7 +50,13 @@ fi
 # Antigravity is a Go native binary — no Node.js needed
 if ! command -v agy >/dev/null 2>&1; then
   info "Installing Antigravity CLI..."
-  curl -fsSL https://antigravity.google/cli/install.sh | bash -s -- --dir "$LOCAL/bin"
+  TMP_SCRIPT="$(mktemp)"
+  curl -fsSL https://antigravity.google/cli/install.sh > "$TMP_SCRIPT"
+  # Replace the 'install' subcommand (which crashes with TCMalloc OOM in sandboxed envs)
+  # with a no-op so the binary is just copied to the target dir
+  sed -i 's/"$BINARY_PATH" install.*|| true/true # install skipped/' "$TMP_SCRIPT"
+  bash "$TMP_SCRIPT" --dir "$LOCAL/bin" && chmod +x "$LOCAL/bin/agy" 2>/dev/null || true
+  rm -f "$TMP_SCRIPT"
 fi
 
 info "Starting Antigravity CLI in $(pwd)"
