@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +38,7 @@ import com.rk.file.createFileIfNot
 import com.rk.file.toFileObject
 import com.rk.filetree.FileTreeTab
 import com.rk.filetree.currentDrawerTab
+import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcon
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
@@ -54,6 +56,7 @@ var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
 var codeSearchDialog by mutableStateOf(false)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalToolbarActions(viewModel: MainViewModel) {
     val context = LocalContext.current

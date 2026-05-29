@@ -328,7 +328,12 @@ private fun StatusBar(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
-                                            if (a.cliBinaryName == "gemini") Icons.Outlined.Psychology else Icons.Outlined.AutoFixHigh,
+                                            when {
+                                                a.cliBinaryName == "gemini" -> Icons.Outlined.Psychology
+                                                a.name == "codex" -> Icons.Outlined.Terminal
+                                                a.name == "antigravity" -> Icons.AutoMirrored.Filled.Launch
+                                                else -> Icons.Outlined.AutoFixHigh
+                                            },
                                             contentDescription = null,
                                             modifier = Modifier.size(18.dp),
                                             tint = if (a == agent) colorScheme.primary else colorScheme.onSurfaceVariant,

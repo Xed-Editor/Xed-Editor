@@ -125,7 +125,7 @@ object DiscoveryFileWriter {
 
     private fun writeDiscoveryFiles(info: BridgeInfo, pid: Int, url: String, jsonText: String) {
         val tmpDir = getTempDir()
-        val agentSheetDirs = listOf("gemini", "opencode")
+        val agentSheetDirs = listOf("gemini", "opencode", "antigravity", "codex")
         val dirs = mutableListOf<File>().apply {
             AiConfig.Discovery.discoveryDirs.forEach { add(File(tmpDir, it)) }
             add(File(AiConfig.Discovery.tmpDiscoveryDir))

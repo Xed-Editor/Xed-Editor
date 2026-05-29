@@ -31,6 +31,8 @@ object AiConfig {
             "terminal/gemini-sheet/gemini/ide",
             "terminal/opencode-sheet/gemini/ide",
             "terminal/opencode-sheet/opencode/ide",
+            "terminal/antigravity-sheet/antigravity/ide",
+            "terminal/codex-sheet/codex/ide",
             "ide-bridge",
         )
 
@@ -55,6 +57,8 @@ object AiConfig {
     object Agents {
         const val geminiName = "gemini"
         const val opencodeName = "opencode"
+        const val antigravityName = "antigravity"
+        const val codexName = "codex"
     }
 
     object ProjectDetection {

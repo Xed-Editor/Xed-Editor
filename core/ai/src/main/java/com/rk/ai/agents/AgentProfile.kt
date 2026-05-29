@@ -52,5 +52,7 @@ object AgentProfileManager {
     private fun defaultProfiles(): List<AgentProfile> = listOf(
         AgentProfile(name = "Gemini", agentType = "gemini"),
         AgentProfile(name = "OpenCode", agentType = "opencode"),
+        AgentProfile(name = "Antigravity", agentType = "antigravity"),
+        AgentProfile(name = "Codex", agentType = "codex"),
     )
 }

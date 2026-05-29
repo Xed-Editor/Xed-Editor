@@ -1,6 +1,8 @@
 package com.rk.ai
 
 import com.rk.ai.agents.AiAgent
+import com.rk.ai.agents.AntigravityAgent
+import com.rk.ai.agents.CodexAgent
 import com.rk.ai.agents.GeminiAgent
 import com.rk.ai.agents.OpenCodeAgent
 import com.rk.ai.session.AiSessionManager
@@ -34,6 +36,8 @@ object ProjectConfigLoader {
             val agent = when (agentType.lowercase()) {
                 "gemini" -> GeminiAgent
                 "opencode" -> OpenCodeAgent
+                "antigravity" -> AntigravityAgent
+                "codex" -> CodexAgent
                 else -> return@let
             }
             AiSessionManager.switchAgent(agent.name)

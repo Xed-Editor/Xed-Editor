@@ -66,7 +66,7 @@ object DesignTokens {
         val scrimColor = Color.Black.copy(alpha = 0.32f)
         val elevation = 12.dp
         val elevationTablet = 20.dp
-        val contentPadding = large
+        val contentPadding = Spacing.large
     }
 }
 

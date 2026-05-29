@@ -68,6 +68,27 @@ object AiCompletionEngine {
                     model = model,
                 )
             }
+            "antigravity" -> {
+                val key = Settings.ai_api_key.ifBlank {
+                    System.getenv("ANTIGRAVITY_API_KEY") ?: System.getenv("GEMINI_API_KEY") ?: return null
+                }
+                val model = "gemini-3.5-flash"
+                ApiConfig(
+                    url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$key",
+                    apiKey = key,
+                    model = model,
+                )
+            }
+            "codex" -> {
+                val key = Settings.ai_api_key.ifBlank {
+                    System.getenv("OPENAI_API_KEY") ?: return null
+                }
+                ApiConfig(
+                    url = Settings.ai_completion_url.ifBlank { "https://api.openai.com/v1/chat/completions" },
+                    apiKey = key,
+                    model = "o4-mini",
+                )
+            }
             else -> {
                 val key = Settings.ai_api_key.ifBlank { return null }
                 ApiConfig(
