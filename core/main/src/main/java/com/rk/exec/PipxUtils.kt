@@ -1,5 +1,6 @@
 package com.rk.exec
 
+import io.github.z4kn4fein.semver.toVersionOrNull
 import org.json.JSONObject
 
 object PipxUtils {
@@ -45,7 +46,10 @@ object PipxUtils {
                 val obj = JSONObject(result.output)
                 val latest = obj.getString("latest")
                 val installed = obj.getString("installed_version")
-                installed != latest
+
+                val latestVersion = latest.toVersionOrNull(false) ?: return false
+                val installedVersion = installed.toVersionOrNull(false) ?: return false
+                installedVersion < latestVersion
             }
             .getOrDefault(false)
     }

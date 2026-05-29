@@ -5,6 +5,8 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.file.child
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.utils.errorDialog
 import java.io.File
 import java.util.zip.ZipFile
@@ -189,7 +191,8 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
                 val extension =
                     localExtensions[extensionId] ?: return@withContext Result.failure(Exception("Extension not found"))
 
-                loadedExtensions[extension]?.api?.onUninstalled()
+                runCatching { loadedExtensions[extension]?.api?.onUninstalled() }
+                    .onFailure { errorDialog(title = strings.ext_cleanup_failed.getString(), throwable = it) }
                 loadedExtensions[extension]?.scope?.cancel()
 
                 val extensionDir = File(extension.installPath)

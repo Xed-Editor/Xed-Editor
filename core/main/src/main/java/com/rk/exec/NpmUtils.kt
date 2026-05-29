@@ -1,5 +1,6 @@
 package com.rk.exec
 
+import io.github.z4kn4fein.semver.toVersionOrNull
 import org.json.JSONObject
 
 object NpmUtils {
@@ -26,8 +27,8 @@ object NpmUtils {
     }
 
     suspend fun hasUpdate(packageName: String): Boolean {
-        val currentVersion = getInstalledVersion(packageName) ?: return false
-        val latestVersion = getLatestVersion(packageName) ?: return false
-        return currentVersion != latestVersion
+        val currentVersion = getInstalledVersion(packageName)?.toVersionOrNull(false) ?: return false
+        val latestVersion = getLatestVersion(packageName)?.toVersionOrNull(false) ?: return false
+        return currentVersion < latestVersion
     }
 }

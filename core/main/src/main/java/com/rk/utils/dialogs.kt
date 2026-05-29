@@ -51,7 +51,11 @@ fun errorDialog(@StringRes msgRes: Int) {
     runOnUiThread { errorDialog(msg = msgRes.getString()) }
 }
 
-fun errorDialog(activity: Activity? = MainActivity.instance, throwable: Throwable) {
+fun errorDialog(
+    activity: Activity? = MainActivity.instance,
+    throwable: Throwable,
+    title: String = strings.error.getString(),
+) {
     runOnUiThread {
         if (throwable.message.toString().contains("Job was cancelled")) {
             Log.w("ERROR_DIALOG", throwable.message.toString())
@@ -65,7 +69,7 @@ fun errorDialog(activity: Activity? = MainActivity.instance, throwable: Throwabl
             }
         }
 
-        errorDialog(activity = activity, msg = message.toString())
+        errorDialog(activity = activity, title = title, msg = message.toString())
     }
 }
 
