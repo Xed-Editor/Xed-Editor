@@ -42,6 +42,7 @@ object DiscoveryFileWriter {
 
             writeOpenCodeConfig(info)
             writeGeminiConfig(info)
+            writeCodexConfig(info)
             writeAntigravityConfig(info)
             writeDiscoveryFiles(info, pid, url, jsonText)
         }
@@ -58,7 +59,16 @@ object DiscoveryFileWriter {
             
             val newObj = buildJsonObject {
                 existingObj.forEach { key, value ->
-                    if (key != "mcpServers" && key != "mcp") put(key, value)
+                    if (key != "mcp" && key != "mcpServers") put(key, value)
+                }
+
+                val existingMcpServers = existingObj["mcpServers"]?.jsonObject
+                if (existingMcpServers != null) {
+                    putJsonObject("mcpServers") {
+                        existingMcpServers.forEach { key, value ->
+                            if (key != "xed-ide") put(key, value)
+                        }
+                    }
                 }
                 
                 val existingMcp = existingObj["mcp"]?.jsonObject ?: buildJsonObject {}
@@ -121,6 +131,42 @@ object DiscoveryFileWriter {
                 }
             }
             settingsFile.writeText(jsonFormat.encodeToString(newObj))
+        }
+    }
+
+
+    private fun writeCodexConfig(info: BridgeInfo) {
+        runCatching {
+            val configDir = sandboxHomeDir().let { File(it, ".codex") }
+            configDir.mkdirs()
+            val configFile = File(configDir, "config.toml")
+            val section = "[mcp_servers.xed-ide]"
+            val replacement = listOf(
+                section,
+                "url = \"http://${info.host}:${info.port}/mcp\"",
+                "http_headers = { Authorization = \"Bearer ${info.token}\" }",
+            )
+            val lines = runCatching { configFile.readLines() }.getOrDefault(emptyList())
+            val out = mutableListOf<String>()
+            var index = 0
+            var replaced = false
+            while (index < lines.size) {
+                if (lines[index].trim() == section) {
+                    if (out.lastOrNull()?.isNotBlank() == true) out.add("")
+                    out.addAll(replacement)
+                    replaced = true
+                    index++
+                    while (index < lines.size && !lines[index].trimStart().startsWith("[")) index++
+                    continue
+                }
+                out.add(lines[index])
+                index++
+            }
+            if (!replaced) {
+                if (out.lastOrNull()?.isNotBlank() == true) out.add("")
+                out.addAll(replacement)
+            }
+            configFile.writeText(out.joinToString("\n").trimEnd() + "\n")
         }
     }
 

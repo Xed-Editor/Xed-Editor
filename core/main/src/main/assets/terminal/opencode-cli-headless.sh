@@ -20,67 +20,8 @@ export VISUAL=vim
 
 log() { printf '%s\n' "$*" >&2; }
 
-# Wire with Xed Editor IDE bridge via MCP (HTTP transport)
-if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
-  OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
-  mkdir -p "$OPENCODE_CONFIG_DIR"
-  CONFIG_FILE="$OPENCODE_CONFIG_DIR/opencode.json"
-  # Merge with existing config instead of overwriting
-  if [ -f "$CONFIG_FILE" ]; then
-    tmp=$(mktemp)
-    python3 -c "
-import json, sys
-with open('$CONFIG_FILE') as f:
-    cfg = json.load(f)
-# Remove legacy formats
-cfg.pop('mcpServers', None)
-ms = cfg.setdefault('mcp', {})
-ms['xed-ide'] = {
-    'type': 'remote',
-    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
-    'enabled': True,
-    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
-}
-with open('$CONFIG_FILE', 'w') as f:
-    json.dump(cfg, f, indent=2)
-" 2>/dev/null || {
-      # fallback: write new config
-      cat > "$CONFIG_FILE" << OC_CONFIG
-{
-  "mcp": {
-    "xed-ide": {
-      "type": "remote",
-      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer ${IDE_TOKEN}"
-      }
-    }
-  }
-}
-OC_CONFIG
-    }
-  else
-    cat > "$CONFIG_FILE" << OC_CONFIG
-{
-  "mcp": {
-    "xed-ide": {
-      "type": "remote",
-      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer ${IDE_TOKEN}"
-      }
-    }
-  }
-}
-OC_CONFIG
-  fi
-  log "IDE bridge MCP configured for OpenCode on port $IDE_PORT (HTTP transport)"
-  curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
-    log "Bridge health check passed" || \
-    log "Warning: bridge health check failed, MCP may be unavailable"
-fi
+# Configure the Xed Editor IDE bridge as an MCP server
+configure_xed_mcp opencode "$IDE_PORT" "$IDE_TOKEN"
 
 if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
   log "Node.js/npm is required. Installing Node.js LTS..."

@@ -37,77 +37,7 @@ ensure_gemini_cli() {
 }
 
 configure_xed_ide_integration() {
-  [ -n "$IDE_PORT" ] || return 0
-  [ -n "$IDE_WS" ] || return 0
-  BRIDGE_OK=$(curl -sf "http://127.0.0.1:${IDE_PORT}/health" 2>/dev/null || echo "")
-  if [ -z "$BRIDGE_OK" ]; then
-    warn "IDE bridge not reachable on port $IDE_PORT"
-  fi
-  mkdir -p "$HOME/.gemini"
-  SETTINGS_FILE="$HOME/.gemini/settings.json"
-  # Merge MCP config into Gemini settings using python3 (preferred) or node
-  if command_exists python3; then
-    python3 -c "
-import json
-try:
-    with open('$SETTINGS_FILE') as f:
-        s = json.load(f)
-except:
-    s = {}
-s.setdefault('general', {})['preferredEditor'] = 'vim'
-s.setdefault('ide', {})['enabled'] = True
-s.setdefault('ide', {})['hasSeenNudge'] = True
-s.setdefault('privacy', {})['usageStatisticsEnabled'] = False
-s.setdefault('telemetry', {})['enabled'] = False
-
-# Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
-ms = s.setdefault('mcpServers', {})
-ms['xed-ide'] = {
-    'url': 'http://127.0.0.1:${IDE_PORT}/mcp',
-    'headers': {'Authorization': 'Bearer ${IDE_TOKEN}'}
-}
-
-# Cleanup any accidental 'xed-ide' entry in the 'mcp' object (used for global settings)
-if 'mcp' in s: s['mcp'].pop('xed-ide', None)
-
-with open('$SETTINGS_FILE', 'w') as f:
-    json.dump(s, f, indent=2)
-" 2>/dev/null || fallback_to_node=true
-  fi
-  if [ "${fallback_to_node:-false}" = true ]; then
-    warn "Falling back to Node.js for Gemini settings merge"
-    export IDE_PORT IDE_TOKEN
-    node <<'NODE'
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const settingsFile = path.join(os.homedir(), '.gemini', 'settings.json');
-const idePort = process.env.IDE_PORT || '0';
-const ideToken = process.env.IDE_TOKEN || '';
-let s = {};
-try { s = JSON.parse(fs.readFileSync(settingsFile, 'utf8')); } catch (_) {}
-s.general = { ...(s.general || {}), preferredEditor: 'vim' };
-s.ide = { ...(s.ide || {}), enabled: true, hasSeenNudge: true };
-s.privacy = { ...(s.privacy || {}), usageStatisticsEnabled: false };
-s.telemetry = { ...(s.telemetry || {}), enabled: false };
-
-// Gemini CLI uses 'mcpServers' for server definitions, not 'mcp'
-s.mcpServers = s.mcpServers || {};
-s.mcpServers['xed-ide'] = {
-  url: 'http://127.0.0.1:' + idePort + '/mcp',
-  headers: { Authorization: 'Bearer ' + ideToken }
-};
-
-// Cleanup any accidental 'xed-ide' entry in the 'mcp' object
-if (s.mcp) { delete s.mcp['xed-ide']; }
-
-fs.writeFileSync(settingsFile, JSON.stringify(s, null, 2));
-NODE
-  fi
-  info "Xed Editor IDE bridge configured for Gemini on port $IDE_PORT"
-  if [ -n "$BRIDGE_OK" ]; then
-    info "Bridge health check passed"
-  fi
+  configure_xed_mcp gemini "$IDE_PORT" "$IDE_TOKEN"
 }
 
 ensure_node

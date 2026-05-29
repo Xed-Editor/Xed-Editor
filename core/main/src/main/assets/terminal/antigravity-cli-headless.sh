@@ -27,28 +27,8 @@ log() { printf '%s\n' "$*" >&2; }
 
 AGY_TERMUX_URL="https://github.com/wallentx/antigravity-cli-termux/releases/latest/download/antigravity-termux-standalone.tar.gz"
 
-# Wire with Xed Editor IDE bridge via MCP
-if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
-  mkdir -p "$HOME/.config/agy"
-  cat > "$HOME/.config/agy/mcp_config.json" << AGY_MCP
-{
-  "mcpServers": {
-    "xed-ide": {
-      "serverUrl": "http://127.0.0.1:${IDE_PORT}/mcp",
-      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
-      "type": "remote",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer ${IDE_TOKEN}"
-      }
-    }
-  }
-}
-AGY_MCP
-  curl -sf "http://127.0.0.1:${IDE_PORT}/health" >/dev/null 2>&1 && \
-    log "IDE bridge MCP configured for Antigravity on port $IDE_PORT" || \
-    log "Warning: bridge health check failed, MCP may be unavailable"
-fi
+# Configure the Xed Editor IDE bridge as an MCP server
+configure_xed_mcp antigravity "$IDE_PORT" "$IDE_TOKEN"
 
 # --- Install agy binary if not present ---
 # Note: agy.va39 is a standard Linux Go ELF (the actual Antigravity CLI).
