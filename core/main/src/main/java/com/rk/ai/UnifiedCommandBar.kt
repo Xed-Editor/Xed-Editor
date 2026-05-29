@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -58,6 +59,14 @@ fun UnifiedCommandBar(
     val colorScheme = MaterialTheme.colorScheme
     val availableAgents = AiProvider.sessionManager?.availableAgents() ?: emptyList()
 
+    val terminalSession = if (mode == BottomPanelMode.TERMINAL) {
+        val service = terminalViewModel.sessionBinder?.getService()
+        val currentId = service?.currentSession?.value
+        if (currentId != null) terminalViewModel.sessionBinder?.getSession(currentId)
+            ?: terminalViewModel.terminalView?.mTermSession
+        else terminalViewModel.terminalView?.mTermSession
+    } else null
+
     Column(modifier = Modifier.fillMaxWidth().background(colorScheme.surfaceContainerHighest)) {
         StatusBar(
             mode = mode,
@@ -82,10 +91,15 @@ fun UnifiedCommandBar(
             terminalViewModel = terminalViewModel,
         )
 
+        if (mode == BottomPanelMode.TERMINAL) {
+            DividerThin(colorScheme)
+            SessionChips(terminalViewModel = terminalViewModel)
+        }
+
         if (mode == BottomPanelMode.TERMINAL || mode == BottomPanelMode.AI) {
             DividerThin(colorScheme)
             AndroidView<VirtualKeysView>(
-                modifier = Modifier.fillMaxWidth().height(36.dp),
+                modifier = Modifier.fillMaxWidth().height(48.dp),
                 factory = { ctx ->
                     VirtualKeysView(ctx, null).apply {
                         setButtonTextColor(colorScheme.onSurface.toArgb())
@@ -105,7 +119,7 @@ fun UnifiedCommandBar(
                     val session = if (mode == BottomPanelMode.AI) {
                         AiProvider.sessionManager?.sessionState?.value as? TerminalSession
                     } else {
-                        terminalViewModel.terminalView?.mTermSession
+                        terminalSession
                     }
                     keys.setVirtualKeysViewClient(session?.let { VirtualKeysListener(it) })
                     keys.setButtonTextColor(colorScheme.onSurface.toArgb())
@@ -133,6 +147,123 @@ fun UnifiedCommandBar(
 }
 
 @Composable
+private fun SessionChips(
+    terminalViewModel: TerminalViewModel,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val scope = rememberCoroutineScope()
+    val service = terminalViewModel.sessionBinder?.getService()
+    val sessionList by remember { derivedStateOf { service?.sessionList?.toList() ?: emptyList() } }
+    val currentSessionId by remember { derivedStateOf { service?.currentSession?.value ?: "" } }
+
+    if (sessionList.isEmpty()) return
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorScheme.surfaceContainerHigh.copy(alpha = 0.5f))
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 4.dp, vertical = 3.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        sessionList.forEach { sessionId ->
+            val isActive = sessionId == currentSessionId
+            Surface(
+                onClick = {
+                    if (!isActive) {
+                        terminalViewModel.terminalView?.let { termView ->
+                            val activity = termView.context as? android.app.Activity
+                            if (activity != null) {
+                                scope.launch {
+                                    changeTerminalSession(sessionId, terminalViewModel, activity)
+                                }
+                            }
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(6.dp),
+                color = if (isActive) colorScheme.primaryContainer.copy(alpha = 0.7f)
+                        else colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                border = if (isActive) BorderStroke(0.5.dp, colorScheme.primary.copy(alpha = 0.3f)) else null,
+                modifier = Modifier.height(28.dp),
+            ) {
+                Row(
+                    modifier = Modifier.padding(start = 8.dp, end = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = sessionId,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
+                        ),
+                        color = if (isActive) colorScheme.onPrimaryContainer else colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    IconButton(
+                        onClick = {
+                            val binder = terminalViewModel.sessionBinder ?: return@IconButton
+                            val svc = binder.getService() ?: return@IconButton
+                            binder.terminateSession(sessionId)
+                            if (isActive) {
+                                val next = svc.sessionList.firstOrNull()
+                                if (next != null) {
+                                    terminalViewModel.terminalView?.let { termView ->
+                                        val activity = termView.context as? android.app.Activity
+                                        if (activity != null) {
+                                            scope.launch { changeTerminalSession(next, terminalViewModel, activity) }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.size(20.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Close $sessionId",
+                            modifier = Modifier.size(10.dp),
+                            tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.width(2.dp))
+        Surface(
+            onClick = {
+                terminalViewModel.terminalView?.let { tv ->
+                    val activity = tv.context as? android.app.Activity ?: return@let
+                    val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
+                    val sessionBinder = terminalViewModel.sessionBinder ?: return@let
+                    scope.launch(Dispatchers.IO) {
+                        sessionBinder.createSession(
+                            "main #${sessionList.size + 1}",
+                            client,
+                            activity,
+                        )
+                    }
+                }
+            },
+            shape = RoundedCornerShape(6.dp),
+            color = colorScheme.surfaceVariant.copy(alpha = 0.3f),
+            modifier = Modifier.size(28.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "New session",
+                    modifier = Modifier.size(14.dp),
+                    tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun DividerThin(colorScheme: androidx.compose.material3.ColorScheme) {
     HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.12f), thickness = 0.5.dp)
 }
@@ -154,7 +285,7 @@ private fun TerminalQuickActions(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ActionChip(
-            icon = { Icon(Icons.Outlined.ContentPaste, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Outlined.ContentPaste, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Paste",
             onClick = {
                 terminalViewModel.terminalView?.mTermSession?.let { session ->
@@ -168,7 +299,7 @@ private fun TerminalQuickActions(
         )
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Outlined.Delete, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Clear",
             onClick = {
                 terminalViewModel.terminalView?.mTermSession?.write("clear\n")
@@ -177,7 +308,7 @@ private fun TerminalQuickActions(
         )
 
         ActionChip(
-            icon = { Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "New",
             onClick = {
                 terminalViewModel.terminalView?.let { tv ->
@@ -205,7 +336,7 @@ private fun TerminalQuickActions(
         )
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Kill",
             onClick = {
                 terminalViewModel.terminalView?.mTermSession?.let { session ->
@@ -264,9 +395,9 @@ private fun StatusBar(
         label = "PulseAlpha",
     )
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp)) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(32.dp),
+            modifier = Modifier.fillMaxWidth().height(36.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box {
@@ -278,39 +409,39 @@ private fun StatusBar(
                         colorScheme.primaryContainer.copy(alpha = 0.6f)
                     else
                         colorScheme.secondaryContainer.copy(alpha = 0.6f),
-                    modifier = Modifier.height(26.dp),
+                    modifier = Modifier.height(30.dp),
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 8.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(10.dp)) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(12.dp)) {
                             if (isRunning) {
                                 Box(
                                     modifier = Modifier
-                                        .size(10.dp)
+                                        .size(12.dp)
                                         .clip(CircleShape)
                                         .background(statusColor.copy(alpha = pulseAlpha * 0.4f)),
                                 )
                             }
                             Box(
                                 modifier = Modifier
-                                    .size(5.dp)
+                                    .size(6.dp)
                                     .clip(CircleShape)
                                     .background(statusColor),
                             )
                         }
-                        Spacer(Modifier.width(4.dp))
+                        Spacer(Modifier.width(5.dp))
                         Text(
                             text = if (mode == BottomPanelMode.AI) (agent?.displayName ?: "AI") else "Terminal",
                             color = if (mode == BottomPanelMode.AI) colorScheme.onPrimaryContainer else colorScheme.onSecondaryContainer,
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                         )
                         if (mode == BottomPanelMode.AI) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Switch",
-                                modifier = Modifier.size(12.dp),
+                                modifier = Modifier.size(14.dp),
                                 tint = colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
                             )
                         }
@@ -365,7 +496,7 @@ private fun StatusBar(
                 }
             }
 
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(8.dp))
 
             Surface(
                 onClick = {
@@ -382,7 +513,7 @@ private fun StatusBar(
                     Icon(
                         Icons.Outlined.Code,
                         contentDescription = null,
-                        modifier = Modifier.size(10.dp),
+                        modifier = Modifier.size(12.dp),
                         tint = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     )
                     Spacer(Modifier.width(3.dp))
@@ -401,12 +532,12 @@ private fun StatusBar(
                 Surface(
                     shape = CircleShape,
                     color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(22.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Box(
                             modifier = Modifier
-                                .size(6.dp)
+                                .size(7.dp)
                                 .clip(CircleShape)
                                 .background(
                                     if (bridgeClients > 0) Color(0xFF4CAF50)
@@ -420,20 +551,20 @@ private fun StatusBar(
             Spacer(Modifier.weight(1f))
 
             if (mode == BottomPanelMode.AI && transcript.isNotBlank()) {
-                FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(26.dp)) {
+                FilledTonalIconButton(onClick = onToggleTranscript, modifier = Modifier.size(28.dp)) {
                     Icon(
                         if (showTranscript) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                         contentDescription = if (showTranscript) "Hide transcript" else "Show transcript",
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(16.dp),
                         tint = colorScheme.onSurfaceVariant,
                     )
                 }
                 Spacer(Modifier.width(4.dp))
-                FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(26.dp)) {
+                FilledTonalIconButton(onClick = onClearTranscript, modifier = Modifier.size(28.dp)) {
                     Icon(
                         Icons.Outlined.Delete,
                         contentDescription = "Clear transcript",
-                        modifier = Modifier.size(12.dp),
+                        modifier = Modifier.size(14.dp),
                         tint = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     )
                 }
@@ -491,15 +622,15 @@ private fun QuickActions(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 5.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (!isRunning) {
             Button(
                 onClick = { onAction("/restart") },
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                modifier = Modifier.height(28.dp),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+                modifier = Modifier.height(32.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.primary,
@@ -509,19 +640,19 @@ private fun QuickActions(
                 Icon(
                     Icons.Outlined.PlayArrow,
                     contentDescription = null,
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     "Start",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                 )
             }
         } else {
             Button(
                 onClick = { onAction("/stop") },
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                modifier = Modifier.height(28.dp),
+                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+                modifier = Modifier.height(32.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.errorContainer,
@@ -531,39 +662,39 @@ private fun QuickActions(
                 Icon(
                     Icons.Outlined.Stop,
                     contentDescription = null,
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(16.dp),
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     "Stop",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                 )
             }
         }
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.AutoFixHigh, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Outlined.AutoFixHigh, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Fix",
             onClick = { onAction(prompt("Fix bugs and issues")) },
             color = colorScheme.tertiaryContainer,
         )
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.Description, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Outlined.Description, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Explain",
             onClick = { onAction(prompt("Explain the code")) },
             color = colorScheme.secondaryContainer,
         )
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.Refresh, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Outlined.Refresh, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Refactor",
             onClick = { onAction(prompt("Refactor and improve code quality")) },
             color = colorScheme.secondaryContainer,
         )
 
         ActionChip(
-            icon = { Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(13.dp)) },
+            icon = { Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(15.dp)) },
             label = "Review",
             onClick = { onAction(prompt("Review code for improvements and issues")) },
             color = colorScheme.secondaryContainer,
@@ -571,7 +702,7 @@ private fun QuickActions(
 
         if (currentFile.isNotBlank()) {
             ActionChip(
-                icon = { Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(13.dp)) },
+                icon = { Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(15.dp)) },
                 label = "Add test",
                 onClick = { onAction(prompt("Write unit tests")) },
                 color = colorScheme.tertiaryContainer,
@@ -593,15 +724,15 @@ private fun ActionChip(
         onClick = onClick,
         shape = RoundedCornerShape(6.dp),
         color = color.copy(alpha = 0.5f),
-        modifier = modifier.height(26.dp),
+        modifier = modifier.height(32.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier.padding(horizontal = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
             icon()
-            Spacer(Modifier.width(3.dp))
+            Spacer(Modifier.width(4.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,

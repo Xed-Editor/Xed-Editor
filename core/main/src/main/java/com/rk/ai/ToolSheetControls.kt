@@ -1,15 +1,14 @@
 package com.rk.ai
 
-import android.app.Activity
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -17,9 +16,6 @@ import com.rk.activities.main.BottomPanelMode
 import com.rk.icons.XedIcon
 import com.rk.resources.drawables
 import com.rk.terminal.TerminalViewModel
-import com.rk.terminal.changeTerminalSession
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun ToolSheetControls(
@@ -103,83 +99,12 @@ fun ToolSheetControls(
         }
 
         BottomPanelMode.TERMINAL -> {
-            var showSessionMenu by remember { mutableStateOf(false) }
-            val scope = rememberCoroutineScope()
             val ctx = LocalContext.current
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box {
-                    FilledTonalIconButton(
-                        onClick = { showSessionMenu = true },
-                        modifier = Modifier.size(32.dp),
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        )
-                    ) {
-                        Icon(
-                            Icons.Default.Menu,
-                            contentDescription = "Sessions",
-                            tint = colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    val service = terminalViewModel.sessionBinder?.getService()
-                    DropdownMenu(
-                        expanded = showSessionMenu,
-                        onDismissRequest = { showSessionMenu = false }
-                    ) {
-                        service?.sessionList?.forEach { sessionId ->
-                            DropdownMenuItem(
-                                text = { Text(sessionId, style = MaterialTheme.typography.bodySmall) },
-                                onClick = {
-                                    showSessionMenu = false
-                                    terminalViewModel.terminalView?.let { termView ->
-                                        val activity = termView.context as? Activity
-                                        if (activity != null) {
-                                            scope.launch {
-                                                changeTerminalSession(sessionId, terminalViewModel, activity)
-                                            }
-                                        }
-                                    }
-                                },
-                                leadingIcon = if (sessionId == service.currentSession.value) {
-                                    {
-                                        Icon(
-                                            Icons.Default.Check,
-                                            null,
-                                            modifier = Modifier.size(16.dp),
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                } else null
-                            )
-                        }
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                        DropdownMenuItem(
-                            text = { Text("New Session", style = MaterialTheme.typography.bodySmall) },
-                            onClick = {
-                                showSessionMenu = false
-                                terminalViewModel.terminalView?.let { tv ->
-                                    val activity = tv.context as? Activity ?: return@let
-                                    val client = com.rk.terminal.TerminalBackEnd(terminalViewModel)
-                                    val sessionBinder = terminalViewModel.sessionBinder ?: return@let
-                                    scope.launch(Dispatchers.IO) {
-                                        sessionBinder.createSession(
-                                            "main #${service?.sessionList?.size?.plus(1) ?: 1}",
-                                            client,
-                                            activity,
-                                        )
-                                    }
-                                }
-                            },
-                            leadingIcon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(16.dp)) }
-                        )
-                    }
-                }
-                
                 FilledTonalIconButton(
                     onClick = {
                         android.content.Intent(ctx, com.rk.activities.settings.SettingsActivity::class.java).apply {
