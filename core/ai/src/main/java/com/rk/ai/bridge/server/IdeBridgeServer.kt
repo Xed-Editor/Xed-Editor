@@ -109,6 +109,7 @@ class IdeBridgeServer(
 
     override fun serve(session: IHTTPSession): Response {
         d("serve ${session.method} ${session.uri}")
+        if (session.method == Method.OPTIONS) return options()
         val rawPostBody = if (session.method == Method.POST) {
             readRequestBodyUtf8(session).getOrElse {
                 return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, it.message ?: "invalid request"))
@@ -143,14 +144,26 @@ class IdeBridgeServer(
         coroutineScope { toolConcurrencyLimit.withPermit { block() } }
 
     private suspend fun handleMcp(session: IHTTPSession, rawPostBody: String?): Response {
-        val method = if (session.method == Method.GET) "initialize" else parseJsonRequest(rawPostBody)?.get("method")?.asString.orEmpty()
         val requestedSessionId = session.headers[MCP_SESSION_ID_HEADER]?.takeIf { it.isNotBlank() }
-        val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
 
-        if (session.method == Method.GET) return sseManager.createMcpStream(sessionId)
+        if (session.method == Method.GET) {
+            val sessionId = requestedSessionId ?: httpSessionTracker.createSession()
+            httpSessionTracker.touchSession(sessionId)
+            return sseManager.createMcpStream(sessionId).apply { addHeader(MCP_SESSION_ID_HEADER, sessionId) }
+        }
+        if (session.method == Method.DELETE) {
+            requestedSessionId?.let {
+                httpSessionTracker.removeSession(it)
+                sseManager.closeSession(it)
+            }
+            return accepted()
+        }
         if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
         
         val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
+        val method = request.get("method")?.asString.orEmpty()
+        val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
+        httpSessionTracker.touchSession(sessionId)
         val id = request.get("id") ?: JsonNull.INSTANCE
         if (isNotification(request, method)) {
             handleNotification(sessionId, method)
@@ -171,6 +184,7 @@ class IdeBridgeServer(
         val method = request.get("method")?.asString.orEmpty()
         val requestedSessionId = session.parameters["sessionId"]?.firstOrNull() ?: session.headers[MCP_SESSION_ID_HEADER]
         val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
+        httpSessionTracker.touchSession(sessionId)
         val id = request.get("id") ?: JsonNull.INSTANCE
         if (isNotification(request, method)) {
             handleNotification(sessionId, method)
@@ -229,7 +243,7 @@ class IdeBridgeServer(
     }
 
     private fun bridgeInfoJson(): String = gson.toJson(JsonObject().apply {
-        addProperty("name", "xed-ide-bridge"); addProperty("version", "2.0.0"); addProperty("protocol", "mcp")
+        addProperty("name", "xed-ide-bridge"); addProperty("version", "2.1.0"); addProperty("protocol", "mcp")
         addProperty("tools", toolRegistry.listSchemas().size()); addProperty("clients", connectedClients)
         addProperty("sseClients", httpSessionTracker.sseSessionCount)
     })
@@ -281,14 +295,22 @@ class IdeBridgeServer(
     }
 
     private fun json(status: Response.Status, body: String): Response =
-        NanoHTTPD.newFixedLengthResponse(status, "application/json; charset=utf-8", body).apply {
-            addHeader("Access-Control-Allow-Origin", "*"); addHeader("Cache-Control", "no-store")
-        }
+        NanoHTTPD.newFixedLengthResponse(status, "application/json; charset=utf-8", body).apply { addCommonHeaders() }
 
     private fun accepted(): Response =
-        NanoHTTPD.newFixedLengthResponse(Response.Status.ACCEPTED, "text/plain; charset=utf-8", "").apply {
-            addHeader("Access-Control-Allow-Origin", "*"); addHeader("Cache-Control", "no-store")
-        }
+        NanoHTTPD.newFixedLengthResponse(Response.Status.ACCEPTED, "text/plain; charset=utf-8", "").apply { addCommonHeaders() }
+
+    private fun options(): Response =
+        NanoHTTPD.newFixedLengthResponse(Response.Status.OK, "text/plain; charset=utf-8", "").apply { addCommonHeaders() }
+
+    private fun Response.addCommonHeaders() {
+        addHeader("Access-Control-Allow-Origin", "*")
+        addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, MCP-Session-Id, mcp-session-id")
+        addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+        addHeader("Access-Control-Expose-Headers", "MCP-Session-Id, mcp-session-id, MCP-Protocol-Version")
+        addHeader("MCP-Protocol-Version", "2025-03-26")
+        addHeader("Cache-Control", "no-store")
+    }
 
     private fun d(msg: String) { if (BuildConfig.DEBUG) Log.d("IdeBridgeServer", msg) }
 }

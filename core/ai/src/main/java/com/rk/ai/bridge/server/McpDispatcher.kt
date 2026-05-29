@@ -49,13 +49,12 @@ class McpDispatcher(
         addProperty("protocolVersion", negotiatedProtocol)
         add("capabilities", JsonObject().apply {
             add("tools", JsonObject())
-            add("streaming", JsonObject())
         })
         add("serverInfo", JsonObject().apply {
             addProperty("name", "xed-ide-bridge")
-            addProperty("version", "2.0.0")
-            addProperty("instructions", "Call the 'getGuidelines' tool to learn about high-performance workflow patterns for this IDE.")
+            addProperty("version", "2.1.0")
         })
+        addProperty("instructions", "Call the 'getGuidelines' tool to learn about high-performance workflow patterns for this IDE.")
     })
 
     private fun toolsListResult(id: JsonElement): String =

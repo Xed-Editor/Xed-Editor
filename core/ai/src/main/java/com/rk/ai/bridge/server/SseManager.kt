@@ -47,8 +47,7 @@ class SseManager(
 
     fun createMcpStream(requestedSessionId: String): NanoHTTPD.Response {
         val sessionId = requestedSessionId.takeIf { it.isNotBlank() } ?: "default"
-        val (response, writer) = createStream(sessionId)
-        writeInitialEvents(writer)
+        val (response, _) = createStream(sessionId)
         startKeepalive(sessionId)
         return response
     }
@@ -79,6 +78,9 @@ class SseManager(
             addHeader("mcp-session-id", sessionId)
             addHeader("Cache-Control", "no-store")
             addHeader("Access-Control-Allow-Origin", "*")
+            addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept, MCP-Session-Id, mcp-session-id")
+            addHeader("Access-Control-Expose-Headers", "MCP-Session-Id, mcp-session-id, MCP-Protocol-Version")
+            addHeader("MCP-Protocol-Version", "2025-03-26")
             addHeader("Connection", "keep-alive")
         }
         return response to writer
@@ -86,7 +88,6 @@ class SseManager(
 
     private fun writeInitialEvents(writer: PrintWriter) {
         writer.print("event: message\ndata: ${mcpDispatcher.notificationJson("ide/contextUpdate", JsonParser.parseString(ideContextJson()).asJsonObject)}\n\n")
-        writer.print("event: message\ndata: ${mcpDispatcher.notificationJson("initialized", JsonObject())}\n\n")
         writer.flush()
     }
 
