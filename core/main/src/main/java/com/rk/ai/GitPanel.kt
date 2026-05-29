@@ -3,11 +3,9 @@ package com.rk.ai
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -119,9 +117,9 @@ fun GitPanel(
 
             if (gitChanges.isNotEmpty()) {
                 LazyColumn(
-                    modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
                     state = rememberLazyListState(),
-                    contentPadding = PaddingValues(top = 2.dp),
+                    contentPadding = PaddingValues(top = 4.dp, bottom = 4.dp),
                 ) {
                     if (conflicts.isNotEmpty()) {
                         item {
@@ -256,21 +254,27 @@ private fun GitBranchHeader(
     onRefresh: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 2.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(modifier = Modifier.weight(1f)) {
-            TextButton(onClick = onToggleBranchesMenu, enabled = !gitViewModel.isLoading) {
+            TextButton(
+                onClick = onToggleBranchesMenu,
+                enabled = !gitViewModel.isLoading,
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                modifier = Modifier.fillMaxWidth().height(36.dp),
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(painterResource(drawables.branch), contentDescription = null)
-                    Spacer(Modifier.size(6.dp))
+                    Icon(painterResource(drawables.branch), contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
                     Text(
                         gitViewModel.currentBranch,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
                     )
-                    Spacer(Modifier.size(4.dp))
-                    Icon(painterResource(drawables.chevron_down), contentDescription = null)
+                    Spacer(Modifier.width(4.dp))
+                    Icon(painterResource(drawables.chevron_down), contentDescription = null, modifier = Modifier.size(18.dp))
                 }
             }
 
@@ -289,20 +293,35 @@ private fun GitBranchHeader(
             }
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onPull, enabled = !gitViewModel.isLoading) {
-                Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            CompactGitIconButton(onClick = onPull, enabled = !gitViewModel.isLoading) {
+                Icon(painterResource(drawables.pull), contentDescription = stringResource(strings.pull), modifier = Modifier.size(18.dp))
             }
-            IconButton(onClick = onFetch, enabled = !gitViewModel.isLoading) {
-                Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch))
+            CompactGitIconButton(onClick = onFetch, enabled = !gitViewModel.isLoading) {
+                Icon(painterResource(drawables.fetch), contentDescription = stringResource(strings.fetch), modifier = Modifier.size(18.dp))
             }
-            IconButton(onClick = onPush, enabled = !gitViewModel.isLoading) {
-                Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push))
+            CompactGitIconButton(onClick = onPush, enabled = !gitViewModel.isLoading) {
+                Icon(painterResource(drawables.push), contentDescription = stringResource(strings.push), modifier = Modifier.size(18.dp))
             }
-            IconButton(onClick = onRefresh, enabled = !gitViewModel.isLoading) {
-                Icon(Icons.Outlined.Refresh, contentDescription = "Refresh")
+            CompactGitIconButton(onClick = onRefresh, enabled = !gitViewModel.isLoading) {
+                Icon(Icons.Outlined.Refresh, contentDescription = "Refresh", modifier = Modifier.size(18.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun CompactGitIconButton(
+    onClick: () -> Unit,
+    enabled: Boolean,
+    content: @Composable () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.size(36.dp),
+    ) {
+        content()
     }
 }
 

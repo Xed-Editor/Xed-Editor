@@ -3,6 +3,7 @@ package com.rk.tabs.editor
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -119,15 +120,14 @@ fun ToolSheetContainer(
     val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val imeHeightDp = with(density) { WindowInsets.ime.getBottom(density).toDp() }
-    val navBarHeightDp = with(density) { WindowInsets.navigationBars.getBottom(density).toDp() }
     val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
     val isTablet = screenWidthDp >= 600.dp
 
-    val availableHeight = screenHeightDp - imeHeightDp - navBarHeightDp - statusBarHeightDp
-    val maxHeight = (availableHeight * 0.92f).coerceAtLeast(300.dp)
-    val minHeight = 200.dp.coerceAtMost(maxHeight)
-    val initialHeight = (availableHeight * 0.55f).coerceIn(minHeight, maxHeight)
+    val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(320.dp)
+    val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(320.dp)
+    val minHeight = 220.dp.coerceAtMost(maxHeight)
+    val initialHeight = (availableHeight * if (isTablet) 0.62f else 0.58f).coerceIn(minHeight, maxHeight)
 
     val state = rememberToolSheetState(
         minHeight = minHeight,
@@ -170,15 +170,14 @@ fun ToolSheetModalContainer(
     val screenHeightDp = LocalConfiguration.current.screenHeightDp.dp
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     val imeHeightDp = with(density) { WindowInsets.ime.getBottom(density).toDp() }
-    val navBarHeightDp = with(density) { WindowInsets.navigationBars.getBottom(density).toDp() }
     val statusBarHeightDp = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
     val isTablet = screenWidthDp >= 600.dp
 
-    val availableHeight = screenHeightDp - imeHeightDp - navBarHeightDp - statusBarHeightDp
-    val maxHeight = (availableHeight * 0.92f).coerceAtLeast(300.dp)
-    val minHeight = 200.dp.coerceAtMost(maxHeight)
-    val initialHeight = (availableHeight * 0.55f).coerceIn(minHeight, maxHeight)
+    val availableHeight = (screenHeightDp - imeHeightDp - statusBarHeightDp).coerceAtLeast(320.dp)
+    val maxHeight = (availableHeight * if (isTablet) 0.88f else 0.94f).coerceAtLeast(320.dp)
+    val minHeight = 220.dp.coerceAtMost(maxHeight)
+    val initialHeight = (availableHeight * if (isTablet) 0.62f else 0.58f).coerceIn(minHeight, maxHeight)
 
     val state = rememberToolSheetState(
         minHeight = minHeight,
@@ -312,7 +311,16 @@ private fun ToolSheetContent(
                     )
                     .background(colorScheme.surfaceContainerHigh.copy(alpha = 0.5f))
             ) {
-                XedDragHandle(isDragging = isDragging)
+                XedDragHandle(
+                    isDragging = isDragging,
+                    modifier = Modifier.clickable {
+                        coroutineScope.launch {
+                            val midPx = (state.minHeightPx + state.maxHeightPx) / 2f
+                            val target = if (state.heightPx < midPx) state.maxHeightPx else midPx
+                            state.animateTo(target)
+                        }
+                    },
+                )
 
                 Row(
                     modifier = Modifier

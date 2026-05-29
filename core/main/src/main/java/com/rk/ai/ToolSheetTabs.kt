@@ -5,7 +5,9 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Code
@@ -16,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -57,9 +60,11 @@ fun ToolSheetTabBar(
     modifier: Modifier = Modifier,
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val compact = LocalConfiguration.current.screenWidthDp < 390
 
     Row(
         modifier = modifier
+            .horizontalScroll(rememberScrollState())
             .background(colorScheme.surfaceContainerLow, RoundedCornerShape(10.dp))
             .padding(3.dp),
         horizontalArrangement = Arrangement.spacedBy(3.dp),
@@ -89,10 +94,10 @@ fun ToolSheetTabBar(
                 shape = RoundedCornerShape(6.dp),
                 color = containerColor,
                 border = borderStroke,
-                modifier = Modifier.height(30.dp)
+                modifier = Modifier.height(32.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 10.dp),
+                    modifier = Modifier.padding(horizontal = if (compact) 8.dp else 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -117,15 +122,17 @@ fun ToolSheetTabBar(
                         Icon(tab.icon, contentDescription = null, modifier = Modifier.size(14.dp), tint = contentColor)
                     }
                     
-                    Spacer(Modifier.width(4.dp))
-                    
-                    Text(
-                        text = tab.label,
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
-                        ),
-                        color = contentColor
-                    )
+                    if (!compact || isSelected) {
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = tab.label,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
+                            ),
+                            color = contentColor,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
         }

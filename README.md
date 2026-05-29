@@ -389,8 +389,7 @@ Download the latest APK from:
 git clone --recurse-submodules https://github.com/algospider/Xed-Editor.git
 cd Xed-Editor
 
-# SoraX is auto-cloned by Gradle via initSoraX()
-# Or manually:
+# Ensure SoraX and its nested submodules are present before running Gradle
 git submodule update --init --recursive
 ```
 

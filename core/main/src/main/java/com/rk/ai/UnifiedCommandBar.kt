@@ -508,6 +508,7 @@ private fun StatusBar(
                 },
                 shape = RoundedCornerShape(6.dp),
                 color = colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.widthIn(max = 120.dp),
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
@@ -540,7 +541,7 @@ private fun StatusBar(
                         bridgeClients > 0 -> colorScheme.tertiaryContainer.copy(alpha = 0.75f)
                         else -> colorScheme.surfaceVariant.copy(alpha = 0.75f)
                     },
-                    modifier = Modifier.height(24.dp),
+                    modifier = Modifier.height(24.dp).widthIn(max = 116.dp),
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 6.dp),
@@ -774,6 +775,8 @@ private fun ActionChip(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
                 color = labelColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
