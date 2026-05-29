@@ -103,21 +103,14 @@ fun TerminalPanel(
 
     Column(modifier = modifier.fillMaxSize()) {
         if (terminalViewModel.sessionBinder?.getService() != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .background(MaterialTheme.colorScheme.surface),
-            ) {
-                TerminalView(
-                    isDarkMode,
-                    currentTheme,
-                    surfaceColor,
-                    onSurfaceColor,
-                    terminalViewModel,
-                    initialCwd,
-                )
-            }
+            TerminalView(
+                isDarkMode,
+                currentTheme,
+                surfaceColor,
+                onSurfaceColor,
+                terminalViewModel,
+                initialCwd,
+            )
         } else {
             Box(
                 modifier = Modifier
@@ -171,7 +164,7 @@ fun TerminalPanel(
 }
 
 @Composable
-private fun TerminalView(
+private fun ColumnScope.TerminalView(
     isDarkMode: Boolean,
     currentTheme: ThemeHolder,
     surfaceColor: Int,
