@@ -152,6 +152,10 @@ class IdeBridgeServer(
         
         val request = parseJsonRequest(rawPostBody) ?: return json(Response.Status.BAD_REQUEST, errorJson(null, -32700, "parse error"))
         val id = request.get("id") ?: JsonNull.INSTANCE
+        if (isNotification(request, method)) {
+            handleNotification(sessionId, method)
+            return accepted().apply { addHeader(MCP_SESSION_ID_HEADER, sessionId) }
+        }
         
         val result = withConcurrencyLimit {
             mcpDispatcher.dispatch(sessionId, id, method, request)
@@ -168,6 +172,10 @@ class IdeBridgeServer(
         val requestedSessionId = session.parameters["sessionId"]?.firstOrNull() ?: session.headers[MCP_SESSION_ID_HEADER]
         val sessionId = resolveMcpSessionId(method, requestedSessionId) ?: "default"
         val id = request.get("id") ?: JsonNull.INSTANCE
+        if (isNotification(request, method)) {
+            handleNotification(sessionId, method)
+            return accepted().apply { addHeader(MCP_SESSION_ID_HEADER, sessionId) }
+        }
         val responseBody = withConcurrencyLimit {
             mcpDispatcher.dispatch(sessionId, id, method, request)
         }
@@ -184,6 +192,18 @@ class IdeBridgeServer(
         }
         return null
     }
+
+    private fun isNotification(request: JsonObject, method: String): Boolean =
+        !request.has("id") || request.get("id").isJsonNull || method.startsWith("notifications/")
+
+    private fun handleNotification(sessionId: String, method: String) {
+        when (method) {
+            "notifications/initialized", "initialized" -> Unit
+            "notifications/cancelled", "notifications/progress", "notifications/roots/list_changed" -> Unit
+            else -> d("ignored MCP notification: $method for session $sessionId")
+        }
+    }
+
 
     private suspend fun handleExternalEditor(session: IHTTPSession, rawPostBody: String?): Response {
         if (session.method != Method.POST) return json(Response.Status.METHOD_NOT_ALLOWED, errorJson(null, -32601, "method_not_allowed"))
@@ -262,6 +282,11 @@ class IdeBridgeServer(
 
     private fun json(status: Response.Status, body: String): Response =
         NanoHTTPD.newFixedLengthResponse(status, "application/json; charset=utf-8", body).apply {
+            addHeader("Access-Control-Allow-Origin", "*"); addHeader("Cache-Control", "no-store")
+        }
+
+    private fun accepted(): Response =
+        NanoHTTPD.newFixedLengthResponse(Response.Status.ACCEPTED, "text/plain; charset=utf-8", "").apply {
             addHeader("Access-Control-Allow-Origin", "*"); addHeader("Cache-Control", "no-store")
         }
 
