@@ -9,10 +9,6 @@ object CodexAgent : AiAgent {
     override fun buildArgs(extraArgs: List<String>, workingDir: String): List<String> =
         buildList {
             add("exec")
-            add("--ask-for-approval")
-            add("never")
-            add("--json")
-            add("--skip-git-repo-check")
             if (extraArgs.isNotEmpty()) {
                 addAll(extraArgs)
             }
