@@ -23,14 +23,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,21 +43,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rk.ai.InlineAgentBar
 import com.rk.ai.UnifiedToolSheet
 import com.rk.commands.CommandPalette
 import com.rk.commands.CommandProvider
-import com.rk.components.compose.utils.addIf
 import com.rk.editor.preloadSelectionColor
 import com.rk.filetree.FileAction
 import com.rk.filetree.FileActionContext
@@ -78,9 +71,7 @@ import com.rk.tabs.base.Tab
 import com.rk.tabs.editor.EditorTab
 import com.rk.theme.DesignTokens
 import com.rk.utils.dialog
-import com.rk.utils.drawErrorUnderline
 import com.rk.utils.getGitColor
-import com.rk.utils.getUnderlineColor
 import kotlinx.coroutines.launch
 
 private val TAB_HEIGHT = 36.dp
@@ -115,8 +106,15 @@ fun MainContent(
     Box(Modifier.fillMaxSize().padding(innerPadding)) {
         Column(Modifier.fillMaxSize()) {
             if (mainViewModel.tabs.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    TextButton(onClick = { scope.launch { drawerState.open() } }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp),
+                ) {
+                    TextButton(
+                        onClick = { scope.launch { drawerState.open() } },
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                    ) {
                         Text(
                             text = stringResource(strings.click_open),
                             style = MaterialTheme.typography.bodyLarge
@@ -152,7 +150,7 @@ fun MainContent(
                     modifier = Modifier.fillMaxSize().clipToBounds(),
                     beyondViewportPageCount = mainViewModel.tabs.size,
                     userScrollEnabled = false,
-                    key = { mainViewModel.tabs.getOrNull(it).hashCode() },
+                    key = { it },
                 ) { page ->
                     if (page < mainViewModel.tabs.size) {
                         mainViewModel.tabs[page].Content()
@@ -228,8 +226,6 @@ private fun CompactTabItem(
     val gitColor = getGitColor(tabState.file)
     val activeColor = gitColor ?: MaterialTheme.colorScheme.primary
     val inactiveColor = gitColor ?: MaterialTheme.colorScheme.onSurfaceVariant
-
-    val underlineColor = getUnderlineColor(context, fileTreeViewModel, tabState.file)
 
     Box(
         modifier = Modifier

@@ -57,22 +57,6 @@ fun XedTopBar(
                     .fillMaxWidth()
                     .statusBarsPadding(),
             ) {
-                // Slim drag strip at the very top — only this consumes pointer events
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(DRAG_STRIP_HEIGHT)
-                        .align(Alignment.TopCenter)
-                        .pointerInput(Unit) {
-                            detectVerticalDragGestures(
-                                onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
-                                onDragEnd = { onDragEnd() },
-                                onDragCancel = { onDragEnd() },
-                            )
-                        },
-                )
-
-                // Toolbar content — no pointerInput, so buttons are clickable
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -116,6 +100,20 @@ fun XedTopBar(
                         }
                     }
                 }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(DRAG_STRIP_HEIGHT)
+                        .align(Alignment.TopCenter)
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onVerticalDrag = { _, dragAmount -> onDrag(dragAmount) },
+                                onDragEnd = { onDragEnd() },
+                                onDragCancel = { onDragEnd() },
+                            )
+                        },
+                )
             }
         }
     }
