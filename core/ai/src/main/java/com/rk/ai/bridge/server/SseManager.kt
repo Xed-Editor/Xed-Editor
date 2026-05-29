@@ -107,6 +107,14 @@ class SseManager(
         }
     }
 
+
+    fun closeSession(sessionId: String) {
+        val writer = synchronized(sseLock) {
+            sseClients.remove(sessionId).also { onClientsChanged(sseClients.size) }
+        }
+        runCatching { writer?.close() }
+    }
+
     fun pushToSession(sessionId: String, responseBody: String): Boolean {
         val writer = synchronized(sseLock) { sseClients[sessionId] } ?: return false
         synchronized(writer) {

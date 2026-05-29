@@ -152,9 +152,10 @@ class IdeBridgeServer(
             return sseManager.createMcpStream(sessionId).apply { addHeader(MCP_SESSION_ID_HEADER, sessionId) }
         }
         if (session.method == Method.DELETE) {
-            requestedSessionId?.let {
-                httpSessionTracker.removeSession(it)
-                sseManager.closeSession(it)
+            val sessionId = requestedSessionId
+            if (sessionId != null) {
+                httpSessionTracker.removeSession(sessionId)
+                sseManager.closeSession(sessionId)
             }
             return accepted()
         }
