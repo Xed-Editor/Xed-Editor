@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +38,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -197,15 +196,13 @@ private fun EditorTabBar(
                 .fillMaxWidth()
                 .height(TAB_HEIGHT),
         ) {
-            items(mainViewModel.tabs, key = { it }) { tabState ->
-                key(tabState) {
-                    CompactTabItem(
-                        mainViewModel = mainViewModel,
-                        fileTreeViewModel = fileTreeViewModel,
-                        tabState = tabState,
-                        index = mainViewModel.tabs.indexOf(tabState),
-                    )
-                }
+            itemsIndexed(mainViewModel.tabs, key = { index, _ -> index }) { index, tabState ->
+                CompactTabItem(
+                    mainViewModel = mainViewModel,
+                    fileTreeViewModel = fileTreeViewModel,
+                    tabState = tabState,
+                    index = index,
+                )
             }
         }
     }
