@@ -8,7 +8,10 @@ import com.rk.file.copyToTempDir
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.isMainThread
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -63,7 +66,8 @@ fun LocalExtension.load(application: Application) = run {
         }
 
     if (ExtensionAPI::class.java.isAssignableFrom(mainClassInstance)) {
-        val extContext = ExtensionContext(extension = this, hostContext = application)
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineName("Extension: $id"))
+        val extContext = ExtensionContext(extension = this, appContext = application, scope = scope)
         val instance =
             mainClassInstance.getDeclaredConstructor(ExtensionContext::class.java).newInstance(extContext)
                 as? ExtensionAPI
@@ -98,7 +102,7 @@ fun LocalExtension.load(application: Application) = run {
             )
         }
 
-        App.extensionManager.loadedExtensions[this] = instance
+        App.extensionManager.loadedExtensions[this] = LoadedExtension(instance, scope)
         Result.success(instance)
     } else {
         Result.failure(
