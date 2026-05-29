@@ -8,6 +8,11 @@ IDE_PORT="${ANTIGRAVITY_IDE_SERVER_PORT:-${IDE_SERVER_PORT:-}}"
 IDE_TOKEN="${ANTIGRAVITY_IDE_AUTH_TOKEN:-${IDE_AUTH_TOKEN:-}}"
 IDE_WS="${ANTIGRAVITY_IDE_WORKSPACE_PATH:-${IDE_WORKSPACE_PATH:-}}"
 
+if [ -n "$IDE_TOKEN" ]; then
+  export ANTIGRAVITY_IDE_AUTH_TOKEN="$IDE_TOKEN"
+  export IDE_AUTH_TOKEN="$IDE_TOKEN"
+fi
+
 workspace_dir="${IDE_WS%%:*}"
 target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
 cd "$target_dir" 2>/dev/null || cd "$workspace_dir" 2>/dev/null || cd "$HOME"
@@ -30,6 +35,9 @@ if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
   "mcpServers": {
     "xed-ide": {
       "serverUrl": "http://127.0.0.1:${IDE_PORT}/mcp",
+      "url": "http://127.0.0.1:${IDE_PORT}/mcp",
+      "type": "remote",
+      "enabled": true,
       "headers": {
         "Authorization": "Bearer ${IDE_TOKEN}"
       }

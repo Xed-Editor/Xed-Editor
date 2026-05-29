@@ -8,6 +8,10 @@ IDE_PORT="${CODEX_IDE_SERVER_PORT:-${IDE_SERVER_PORT:-}}"
 IDE_TOKEN="${CODEX_IDE_AUTH_TOKEN:-${IDE_AUTH_TOKEN:-}}"
 IDE_WS="${CODEX_IDE_WORKSPACE_PATH:-${IDE_WORKSPACE_PATH:-}}"
 
+if [ -n "$IDE_TOKEN" ]; then
+  export IDE_AUTH_TOKEN="$IDE_TOKEN"
+fi
+
 workspace_dir="${IDE_WS%%:*}"
 target_dir="${WKDIR:-${workspace_dir:-$HOME}}"
 cd "$target_dir" 2>/dev/null || cd "$workspace_dir" 2>/dev/null || cd "$HOME"
@@ -33,6 +37,7 @@ fi
 
 # Register the Xed-Editor IDE bridge as an MCP server for Codex
 if [ -n "$IDE_PORT" ] && [ -n "$IDE_TOKEN" ]; then
+  codex mcp remove xed-ide >/dev/null 2>&1 || true
   codex mcp add xed-ide \
     --url "http://127.0.0.1:${IDE_PORT}/mcp" \
     --bearer-token-env-var IDE_AUTH_TOKEN \

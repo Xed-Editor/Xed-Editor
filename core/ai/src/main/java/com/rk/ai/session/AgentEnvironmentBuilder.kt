@@ -81,6 +81,10 @@ object AgentEnvironmentBuilder {
             "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
             "GEMINI_CLI_IDE_PID=${Process.myPid()}",
             "GEMINI_CLI_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+            "ANTIGRAVITY_IDE_SERVER_PORT=${bridge.port}",
+            "ANTIGRAVITY_IDE_AUTH_TOKEN=${bridge.token}",
+            "ANTIGRAVITY_IDE_PID=${Process.myPid()}",
+            "ANTIGRAVITY_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
             "IDE_SERVER_PORT=${bridge.port}",
             "IDE_AUTH_TOKEN=${bridge.token}",
             "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
@@ -118,6 +122,9 @@ object AgentEnvironmentBuilder {
         appendLine("export XED_IDE_AUTH_TOKEN=${bridge.token}")
         appendLine("export IDE_SERVER_PORT=${bridge.port}")
         appendLine("export IDE_AUTH_TOKEN=${bridge.token}")
+        appendLine("export ANTIGRAVITY_IDE_SERVER_PORT=${bridge.port}")
+        appendLine("export ANTIGRAVITY_IDE_AUTH_TOKEN=${bridge.token}")
+        appendLine("export ANTIGRAVITY_IDE_PID=${Process.myPid()}")
         appendLine("export MCP_PORT=${bridge.port}")
         appendLine("export MCP_AUTH_TOKEN=${bridge.token}")
     }
@@ -135,6 +142,10 @@ object AgentEnvironmentBuilder {
         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",
         "GEMINI_CLI_IDE_PID=${Process.myPid()}",
         "GEMINI_CLI_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
+            "ANTIGRAVITY_IDE_SERVER_PORT=${bridge.port}",
+            "ANTIGRAVITY_IDE_AUTH_TOKEN=${bridge.token}",
+            "ANTIGRAVITY_IDE_PID=${Process.myPid()}",
+            "ANTIGRAVITY_IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",
         "IDE_SERVER_PORT=${bridge.port}",
         "IDE_AUTH_TOKEN=${bridge.token}",
         "IDE_WORKSPACE_PATH=${com.rk.ai.ideWorkspacePath(workingDir)}",

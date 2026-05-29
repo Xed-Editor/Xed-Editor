@@ -42,6 +42,7 @@ object DiscoveryFileWriter {
 
             writeOpenCodeConfig(info)
             writeGeminiConfig(info)
+            writeAntigravityConfig(info)
             writeDiscoveryFiles(info, pid, url, jsonText)
         }
     }
@@ -120,6 +121,40 @@ object DiscoveryFileWriter {
                 }
             }
             settingsFile.writeText(jsonFormat.encodeToString(newObj))
+        }
+    }
+
+    private fun writeAntigravityConfig(info: BridgeInfo) {
+        runCatching {
+            val configDir = sandboxHomeDir().let { File(it, ".config/agy") }
+            configDir.mkdirs()
+            val configFile = File(configDir, "mcp_config.json")
+
+            val existingElement = runCatching { jsonFormat.parseToJsonElement(configFile.readText()) }.getOrNull()
+            val existingObj = existingElement?.jsonObject ?: buildJsonObject {}
+
+            val newObj = buildJsonObject {
+                existingObj.forEach { key, value ->
+                    if (key != "mcpServers") put(key, value)
+                }
+
+                val existingMcpServers = existingObj["mcpServers"]?.jsonObject ?: buildJsonObject {}
+                putJsonObject("mcpServers") {
+                    existingMcpServers.forEach { key, value ->
+                        if (key != "xed-ide") put(key, value)
+                    }
+                    putJsonObject("xed-ide") {
+                        put("serverUrl", "http://${info.host}:${info.port}/mcp")
+                        put("url", "http://${info.host}:${info.port}/mcp")
+                        put("type", "remote")
+                        put("enabled", true)
+                        putJsonObject("headers") {
+                            put("Authorization", "Bearer ${info.token}")
+                        }
+                    }
+                }
+            }
+            configFile.writeText(jsonFormat.encodeToString(newObj))
         }
     }
 
