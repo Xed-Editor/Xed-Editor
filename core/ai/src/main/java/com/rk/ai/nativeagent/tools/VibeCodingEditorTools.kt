@@ -9,7 +9,11 @@ import java.io.File
 
 class VibeCodingEditorTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(getOpenFiles, getActiveFile, getSelection, openFile)
+    val all: List<Tool> = listOf(
+        getOpenFiles, getActiveFile, getSelection,
+        openFile, replaceSelection, insertAtCursor,
+        saveOpenFiles, refreshOpenEditors, refreshFile,
+    )
 
     private val getOpenFiles = Tool(
         name = "getOpenFiles",
@@ -64,6 +68,78 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
             } else {
                 listOf(UIMessagePart.Text("Missing filePath"))
             }
+        },
+    )
+
+    private val replaceSelection = Tool(
+        name = "replaceSelection",
+        description = "Replaces the user's current selection with new text. Opens a review tab for the user.",
+        parameters = {
+            InputSchema.Obj(
+                properties = JsonObject().apply {
+                    addProperty("newContent", "Text to replace the selection with")
+                },
+                required = listOf("newContent"),
+            )
+        },
+        execute = { args ->
+            val newContent = args.asJsonObject["newContent"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing newContent"))
+            ideService.replaceSelection(newContent)
+            listOf(UIMessagePart.Text("Selection replaced"))
+        },
+    )
+
+    private val insertAtCursor = Tool(
+        name = "insertAtCursor",
+        description = "Inserts text at the user's current cursor position. Opens a review tab for the user.",
+        parameters = {
+            InputSchema.Obj(
+                properties = JsonObject().apply {
+                    addProperty("newContent", "Text to insert at the cursor")
+                },
+                required = listOf("newContent"),
+            )
+        },
+        execute = { args ->
+            val newContent = args.asJsonObject["newContent"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing newContent"))
+            ideService.insertAtCursor(newContent)
+            listOf(UIMessagePart.Text("Inserted at cursor"))
+        },
+    )
+
+    private val saveOpenFiles = Tool(
+        name = "saveOpenFiles",
+        description = "Saves all unsaved changes in all open editor tabs. Recommended before running external commands.",
+        execute = { _ ->
+            val result = ideService.saveAllFiles()
+            listOf(UIMessagePart.Text(result.ifEmpty { "All files saved" }))
+        },
+    )
+
+    private val refreshOpenEditors = Tool(
+        name = "refreshOpenEditors",
+        description = "Refreshes all non-dirty open editor tabs from disk.",
+        execute = { _ ->
+            ideService.refreshEditors(null, false)
+            listOf(UIMessagePart.Text("Open editors refreshed"))
+        },
+    )
+
+    private val refreshFile = Tool(
+        name = "refreshFile",
+        description = "Refreshes a specific editor tab from disk.",
+        parameters = {
+            InputSchema.Obj(
+                properties = JsonObject().apply {
+                    addProperty("filePath", "Absolute path of the file to refresh")
+                },
+                required = listOf("filePath"),
+            )
+        },
+        execute = { args ->
+            val filePath = args.asJsonObject["filePath"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing filePath"))
+            ideService.refreshEditors(filePath, false)
+            listOf(UIMessagePart.Text("Refreshed $filePath"))
         },
     )
 }

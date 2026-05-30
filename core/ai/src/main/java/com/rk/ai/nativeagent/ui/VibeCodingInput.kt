@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 fun VibeCodingInput(
     isProcessing: Boolean,
     onSend: (String) -> Unit,
+    onStop: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     var text by remember { mutableStateOf("") }
@@ -54,7 +55,7 @@ fun VibeCodingInput(
             FilledIconButton(
                 onClick = {
                     if (isProcessing) {
-                        // stop not implemented yet
+                        onStop?.invoke()
                     } else if (text.isNotBlank()) {
                         onSend(text.trim())
                         text = ""

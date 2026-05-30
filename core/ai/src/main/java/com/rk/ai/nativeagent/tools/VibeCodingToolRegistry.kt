@@ -1,9 +1,13 @@
 package com.rk.ai.nativeagent.tools
 
+import android.content.Context
 import com.rk.ai.models.Tool
 import com.rk.ai.service.IdeService
 
-class VibeCodingToolRegistry(private val ideService: IdeService) {
+class VibeCodingToolRegistry(
+    private val ideService: IdeService,
+    private val context: Context? = null,
+) {
 
     private val fileTools by lazy { VibeCodingFileTools(ideService) }
     private val editorTools by lazy { VibeCodingEditorTools(ideService) }
@@ -12,7 +16,11 @@ class VibeCodingToolRegistry(private val ideService: IdeService) {
     private val gitTools by lazy { VibeCodingGitTools(ideService) }
     private val terminalTools by lazy { VibeCodingTerminalTools(ideService) }
     private val projectTools by lazy { VibeCodingProjectTools(ideService) }
-    private val systemTools by lazy { VibeCodingSystemTools(ideService) }
+    private val systemTools by lazy { VibeCodingSystemTools(ideService, context) }
+    private val diffTools by lazy { VibeCodingDiffTools(ideService) }
+    private val webTools by lazy { VibeCodingWebTools(ideService) }
+    private val githubTools by lazy { VibeCodingGitHubTools(ideService) }
+    private val packageTools by lazy { VibeCodingPackageTools(ideService) }
 
     val allTools: List<Tool> by lazy {
         fileTools.all +
@@ -22,6 +30,10 @@ class VibeCodingToolRegistry(private val ideService: IdeService) {
             gitTools.all +
             terminalTools.all +
             projectTools.all +
-            systemTools.all
+            systemTools.all +
+            diffTools.all +
+            webTools.all +
+            githubTools.all +
+            packageTools.all
     }
 }

@@ -122,6 +122,7 @@ fun VibeCodingPanel(
         VibeCodingInput(
             isProcessing = state.isProcessing,
             onSend = { engine.sendMessage(it) },
+            onStop = { engine.stopGeneration() },
         )
     }
 

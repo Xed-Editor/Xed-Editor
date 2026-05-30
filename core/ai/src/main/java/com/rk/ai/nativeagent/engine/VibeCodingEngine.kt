@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import com.rk.ai.agent.AILoggingManager
 import com.rk.ai.agent.GenerationHandler
-import com.rk.ai.models.AssistantMemory
-import com.rk.ai.models.InputMessageTransformer
-import com.rk.ai.models.OutputMessageTransformer
+import com.rk.ai.agent.transformers.InputMessageTransformer
+import com.rk.ai.agent.transformers.TransformerContext
 import com.rk.ai.models.UIMessage
+import com.rk.ai.nativeagent.tools.VibeCodingSystemTools
 import com.rk.ai.nativeagent.tools.VibeCodingToolRegistry
 import com.rk.ai.persistence.db.AppDatabase
 import com.rk.ai.persistence.repo.ConversationRepository
@@ -18,6 +18,7 @@ import com.rk.ai.providers.ProviderManager
 import com.rk.ai.service.IdeService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -63,7 +64,21 @@ class VibeCodingEngine(
         aiLoggingManager = loggingManager,
     )
 
-    val toolRegistry = VibeCodingToolRegistry(ideService)
+    val toolRegistry = VibeCodingToolRegistry(ideService, context)
+
+    private var currentJob: Job? = null
+    private var systemPromptInjected = false
+
+    private val systemPromptTransformer = object : InputMessageTransformer {
+        override suspend fun transform(ctx: TransformerContext, messages: List<UIMessage>): List<UIMessage> {
+            if (!systemPromptInjected && messages.isNotEmpty()) {
+                systemPromptInjected = true
+                val systemMsg = UIMessage.system(VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)
+                return listOf(systemMsg) + messages
+            }
+            return messages
+        }
+    }
 
     private val _state = MutableStateFlow(VibeCodingState())
     val state: StateFlow<VibeCodingState> = _state.asStateFlow()
@@ -75,7 +90,8 @@ class VibeCodingEngine(
         get() = _state.value.isProcessing
 
     fun sendMessage(text: String) {
-        engineScope.launch(Dispatchers.IO) {
+        currentJob?.cancel()
+        currentJob = engineScope.launch(Dispatchers.IO) {
             _state.value = _state.value.copy(isProcessing = true, error = null)
             val userMsg = UIMessage.user(text.trim())
             _state.value = _state.value.copy(messages = _state.value.messages + userMsg)
@@ -99,7 +115,7 @@ class VibeCodingEngine(
                     messages = _state.value.messages,
                     assistant = assistant,
                     tools = toolRegistry.allTools,
-                    inputTransformers = emptyList(),
+                    inputTransformers = listOf(systemPromptTransformer),
                     outputTransformers = emptyList(),
                 )
 
@@ -122,8 +138,15 @@ class VibeCodingEngine(
         }
     }
 
+    fun stopGeneration() {
+        currentJob?.cancel()
+        currentJob = null
+        _state.value = _state.value.copy(isProcessing = false)
+    }
+
     fun clearConversation() {
         _state.value = VibeCodingState()
+        systemPromptInjected = false
     }
 
     fun clearError() {

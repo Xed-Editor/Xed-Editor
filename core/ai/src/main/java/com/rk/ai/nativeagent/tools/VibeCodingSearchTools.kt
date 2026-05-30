@@ -8,7 +8,7 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingSearchTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(searchCode, grepSearch, findFiles)
+    val all: List<Tool> = listOf(searchCode, grepSearch, searchSymbols, findFiles)
 
     private val searchCode = Tool(
         name = "searchCode",
@@ -17,7 +17,7 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
             InputSchema.Obj(
                 properties = JsonObject().apply {
                     addProperty("query", "Text or regex to search for")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results") })
+                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 50)") })
                     add("isRegex", JsonObject().apply { addProperty("type", "boolean"); addProperty("description", "Use regex if true") })
                     addProperty("path", "Directory to scope search to (optional)")
                 },
@@ -68,14 +68,42 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         },
     )
 
+    private val searchSymbols = Tool(
+        name = "searchSymbols",
+        description = "PREFERRED for code declarations — searches classes, functions, variables. Faster and more precise than grep.",
+        parameters = {
+            InputSchema.Obj(
+                properties = JsonObject().apply {
+                    addProperty("query", "Symbol name to search for")
+                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 50)") })
+                    addProperty("path", "Directory to scope search to (optional)")
+                },
+                required = listOf("query"),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val query = obj["query"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing query"))
+            val limit = obj["limit"]?.asJsonPrimitive?.asInt ?: 50
+            val path = obj["path"]?.asJsonPrimitive?.asString
+            val results = ideService.searchSymbols(query, limit, path)
+            if (results.size() > 0) {
+                val text = results.joinToString("\n") { "${it.asJsonObject["path"]?.asString ?: "?"}:${it.asJsonObject["line"]?.asInt ?: 0}" }
+                listOf(UIMessagePart.Text(text))
+            } else {
+                listOf(UIMessagePart.Text("No symbols found for: $query"))
+            }
+        },
+    )
+
     private val findFiles = Tool(
         name = "findFiles",
-        description = "Find files by name patterns using glob matching.",
+        description = "Finds files by name patterns using glob matching.",
         parameters = {
             InputSchema.Obj(
                 properties = JsonObject().apply {
                     addProperty("pattern", "File name or glob pattern (e.g. *.kt, **/*.java)")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results") })
+                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 100)") })
                     addProperty("path", "Directory to search in (optional)")
                 },
                 required = listOf("pattern"),
