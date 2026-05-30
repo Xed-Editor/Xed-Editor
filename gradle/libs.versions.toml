@@ -185,7 +185,7 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 
 
 # MCP Kotlin SDK
-modelcontextprotocol-kotlin-sdk = { module = "io.modelcontextprotocol:kotlin-sdk", version = "0.5.0" }
+modelcontextprotocol-kotlin-sdk = { module = "io.modelcontextprotocol:kotlin-sdk", version = "0.12.0" }
 
 # Apache Commons Text
 commons-text = { module = "org.apache.commons:commons-text", version = "1.13.0" }
