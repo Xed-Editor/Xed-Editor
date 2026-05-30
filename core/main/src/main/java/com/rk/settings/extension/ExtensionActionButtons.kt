@@ -22,8 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.extension.Extension
-import com.rk.extension.UpdatableExtension
 import com.rk.icons.Download
 import com.rk.icons.XedIcons
 import com.rk.resources.drawables
@@ -41,12 +39,11 @@ enum class InstallState {
 
 @Composable
 fun SmallExtensionActionButton(
-    extension: Extension,
     installState: InstallState,
     scope: CoroutineScope,
-    onInstallClick: suspend (Extension) -> Unit,
-    onUninstallClick: suspend (Extension) -> Unit,
-    onUpdateClick: suspend (UpdatableExtension) -> Unit,
+    onInstallClick: suspend () -> Unit,
+    onUninstallClick: suspend () -> Unit,
+    onUpdateClick: suspend () -> Unit,
     modifier: Modifier = Modifier,
     outdatedWarning: Boolean = false,
 ) {
@@ -62,7 +59,7 @@ fun SmallExtensionActionButton(
 
     when (installState) {
         InstallState.Idle -> {
-            IconButton(modifier = modifier, onClick = { scope.launch { onInstallClick(extension) } }) {
+            IconButton(modifier = modifier, onClick = { scope.launch { onInstallClick() } }) {
                 Icon(XedIcons.Download, contentDescription = null)
             }
         }
@@ -76,7 +73,7 @@ fun SmallExtensionActionButton(
         InstallState.Installed -> {
             IconButton(
                 modifier = modifier,
-                onClick = { scope.launch { onUninstallClick(extension) } },
+                onClick = { scope.launch { onUninstallClick() } },
                 colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.error),
             ) {
                 Icon(Icons.Outlined.Delete, contentDescription = stringResource(strings.delete))
@@ -84,10 +81,9 @@ fun SmallExtensionActionButton(
         }
 
         InstallState.Updatable -> {
-            val updatableExtension = extension as UpdatableExtension
             IconButton(
                 modifier = modifier,
-                onClick = { scope.launch { onUpdateClick(updatableExtension) } },
+                onClick = { scope.launch { onUpdateClick() } },
                 colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.primary),
             ) {
                 Icon(painterResource(drawables.update), contentDescription = stringResource(strings.update))
@@ -104,18 +100,17 @@ fun SmallExtensionActionButton(
 
 @Composable
 fun ExtensionActionButtons(
-    extension: Extension,
     installState: InstallState,
     scope: CoroutineScope,
-    onInstallClick: suspend (Extension) -> Unit,
-    onUninstallClick: suspend (Extension) -> Unit,
-    onUpdateClick: suspend (UpdatableExtension) -> Unit,
+    onInstallClick: suspend () -> Unit,
+    onUninstallClick: suspend () -> Unit,
+    onUpdateClick: suspend () -> Unit,
     modifier: Modifier = Modifier,
     outdatedWarning: Boolean = false,
 ) {
     when (installState) {
         InstallState.Idle -> {
-            InstallButton(scope, onInstallClick, extension, modifier, outdatedWarning)
+            InstallButton(scope, onInstallClick, modifier, outdatedWarning)
         }
 
         InstallState.Installing -> {
@@ -123,13 +118,13 @@ fun ExtensionActionButtons(
         }
 
         InstallState.Installed -> {
-            UninstallButton(scope, onUninstallClick, extension, modifier)
+            UninstallButton(scope, onUninstallClick, modifier)
         }
 
         InstallState.Updatable -> {
             Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                UpdateButton(extension, scope, onUpdateClick, Modifier.weight(1f), outdatedWarning)
-                UninstallButton(scope, onUninstallClick, extension, Modifier.weight(1f))
+                UpdateButton(scope, onUpdateClick, Modifier.weight(1f), outdatedWarning)
+                UninstallButton(scope, onUninstallClick, Modifier.weight(1f))
             }
         }
 
@@ -142,12 +137,11 @@ fun ExtensionActionButtons(
 @Composable
 private fun InstallButton(
     scope: CoroutineScope,
-    onInstallClick: suspend (Extension) -> Unit,
-    extension: Extension,
+    onInstallClick: suspend () -> Unit,
     modifier: Modifier = Modifier,
     outdatedWarning: Boolean = false,
 ) {
-    Button(modifier = modifier, enabled = !outdatedWarning, onClick = { scope.launch { onInstallClick(extension) } }) {
+    Button(modifier = modifier, enabled = !outdatedWarning, onClick = { scope.launch { onInstallClick() } }) {
         Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
         Spacer(Modifier.width(6.dp))
         Text(stringResource(strings.install))
@@ -170,13 +164,12 @@ private fun InstallingButton(modifier: Modifier = Modifier) {
 @Composable
 private fun UninstallButton(
     scope: CoroutineScope,
-    onUninstallClick: suspend (Extension) -> Unit,
-    extension: Extension,
+    onUninstallClick: suspend () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Button(
         modifier = modifier,
-        onClick = { scope.launch { onUninstallClick(extension) } },
+        onClick = { scope.launch { onUninstallClick() } },
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.error,
@@ -191,17 +184,15 @@ private fun UninstallButton(
 
 @Composable
 private fun UpdateButton(
-    extension: Extension,
     scope: CoroutineScope,
-    onUpdateClick: suspend (UpdatableExtension) -> Unit,
+    onUpdateClick: suspend () -> Unit,
     modifier: Modifier = Modifier,
     outdatedWarning: Boolean = false,
 ) {
-    val updatableExtension = extension as UpdatableExtension
     Button(
         modifier = modifier,
         enabled = !outdatedWarning,
-        onClick = { scope.launch { onUpdateClick(updatableExtension) } },
+        onClick = { scope.launch { onUpdateClick() } },
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondary,

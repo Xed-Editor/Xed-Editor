@@ -230,13 +230,14 @@ fun ExtensionScreen(navController: NavController) {
                             extension = extension,
                             installState = installState,
                             onInstallClick = {
-                                runExtensionInstallAction(it, { installState = it }, scope, context, activity)
+                                runExtensionInstallAction(extension, { installState = it }, scope, context, activity)
                             },
                             onUninstallClick = {
-                                runExtensionUninstallAction(it, { installState = it }, scope, activity)
+                                runExtensionUninstallAction(extension, { installState = it }, scope, activity)
                             },
                             onUpdateClick = {
-                                runExtensionUpdateAction(it, { installState = it }, scope, context, activity)
+                                if (extension !is UpdatableExtension) return@ExtensionCard
+                                runExtensionUpdateAction(extension, { installState = it }, scope, context, activity)
                             },
                             onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
                         )
