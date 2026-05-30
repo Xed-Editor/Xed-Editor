@@ -22,8 +22,6 @@ val Context.activity: Activity?
         else -> null
     }
 
-fun Context.getActivity(): Activity? = activity
-
 fun Context.exportImage(activity: Activity, bitmap: Bitmap) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val values = android.content.ContentValues().apply {
