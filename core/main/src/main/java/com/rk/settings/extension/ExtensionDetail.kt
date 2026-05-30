@@ -16,6 +16,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -44,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -117,7 +119,7 @@ fun ExtensionDetail(extension: Extension?, navController: NavController) {
                 )
             }
 
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 AboutSection(extension, refreshKey, installState, { installState = it }, scope)
             }
             TabSection(extension, scope, refreshKey, onLoaded = { isRefreshing = false })
@@ -140,7 +142,7 @@ private fun AboutSection(
     val context = LocalContext.current
     val activity = LocalActivity.current as? AppCompatActivity
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         AsyncImage(
             model =
                 ImageRequest.Builder(LocalContext.current)
@@ -151,14 +153,14 @@ private fun AboutSection(
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .build(),
-            modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
+            modifier = Modifier.size(70.dp).clip(RoundedCornerShape(8.dp)),
             contentDescription = null,
         )
 
-        Column(modifier = Modifier.weight(1f)) {
+        Column {
             Text(
                 text = extension.name,
-                style = Typography.titleLarge,
+                style = Typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -177,11 +179,16 @@ private fun AboutSection(
                         ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                    ExtensionAuthorIcon(extension.author, Modifier.size(24.dp).padding(end = 4.dp))
                     Text(
                         text = "${extension.author}",
-                        style = Typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = Typography.labelLarge,
+                        color =
+                            if (extension.author.github != null) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -189,7 +196,7 @@ private fun AboutSection(
 
                 Text(
                     text = " • v${extension.version}",
-                    style = Typography.labelMedium,
+                    style = Typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -199,7 +206,7 @@ private fun AboutSection(
                 if (isUpdatable) {
                     Text(
                         text = " → v${extension.newVersion}",
-                        style = Typography.labelMedium,
+                        style = Typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -207,15 +214,6 @@ private fun AboutSection(
                 }
             }
         }
-
-        ExtensionActionButton(
-            extension = extension,
-            installState = installState,
-            scope = scope,
-            onInstallClick = { runExtensionInstallAction(it, updateInstallState, scope, context, activity) },
-            onUninstallClick = { runExtensionUninstallAction(it, updateInstallState, activity) },
-            onUpdateClick = { runExtensionUpdateAction(it, updateInstallState, scope, context, activity) },
-        )
     }
 
     var size by remember { mutableStateOf("---") }
@@ -233,7 +231,7 @@ private fun AboutSection(
         stats.downloadCount?.let { downloadCount = formatNumberCompact(it) }
     }
 
-    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         ExtensionStats(Modifier.weight(1f), stringResource(strings.downloads).uppercase(), downloadCount)
         ExtensionStats(
             Modifier.weight(1f),
@@ -242,6 +240,40 @@ private fun AboutSection(
             if (showStar) Icons.Default.Star else null,
         )
         ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
+    }
+
+    val minAppVersion = extension.minAppVersion
+    val maxAppVersion = extension.maxAppVersion
+
+    val pm = context.packageManager
+    val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
+
+    val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
+    val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
+
+    ExtensionActionButtons(
+        outdatedWarning = outdatedClient || outdatedExtension,
+        modifier = Modifier.fillMaxWidth(),
+        extension = extension,
+        installState = installState,
+        scope = scope,
+        onInstallClick = { runExtensionInstallAction(it, updateInstallState, scope, context, activity) },
+        onUninstallClick = { runExtensionUninstallAction(it, updateInstallState, scope, activity) },
+        onUpdateClick = { runExtensionUpdateAction(it, updateInstallState, scope, context, activity) },
+    )
+
+    if (outdatedClient || outdatedExtension) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Rounded.Warning,
+                contentDescription = stringResource(strings.warning),
+                tint = MaterialTheme.colorScheme.error,
+            )
+            Text(
+                stringResource(if (outdatedClient) strings.outdated_client else strings.outdated_extension),
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
     }
 }
 

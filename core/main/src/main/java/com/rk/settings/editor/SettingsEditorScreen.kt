@@ -26,7 +26,7 @@ import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
 import com.rk.components.EditorSettingsToggle
 import com.rk.components.NextScreenCard
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.SingleInputDialog
 import com.rk.components.ValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -251,7 +251,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.complete_on_enter = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),
                 default = Settings.textmate_suggestions,

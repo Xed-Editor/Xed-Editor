@@ -25,7 +25,7 @@ import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.BasicToggle
 import com.rk.components.NextScreenCard
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.file.toFileObject
@@ -77,7 +77,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
         val gson = remember { GsonBuilder().setPrettyPrinting().create() }
 
         PreferenceGroup {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.lang),
                 description = stringResource(strings.lang_desc),
                 showSwitch = false,
@@ -92,28 +92,28 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 sideEffect = { navController.navigate(SettingsRoutes.LanguageScreen.route) },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.check_for_updates),
                 description = stringResource(strings.check_for_updates_desc),
                 default = Settings.check_for_update,
                 sideEffect = { Settings.check_for_update = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.fullscreen),
                 description = stringResource(strings.fullscreen_desc),
                 default = Settings.fullscreen,
                 sideEffect = { Settings.fullscreen = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.smart_toolbar),
                 description = stringResource(strings.smart_toolbar_desc),
                 default = Settings.smart_toolbar,
                 sideEffect = { Settings.smart_toolbar = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.confirm_exit_dialog),
                 description = stringResource(strings.confirm_exit_dialog_desc),
                 default = Settings.confirm_exit,
@@ -121,7 +121,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
             )
 
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                SettingsToggle(
+                SettingsItem(
                     label = stringResource(strings.manage_storage),
                     description = stringResource(strings.manage_storage_desc),
                     showSwitch = false,
@@ -177,7 +177,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 enabled = InbuiltFeatures.debugMode.supported,
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(InbuiltFeatures.terminal.nameRes),
                 default = InbuiltFeatures.terminal.state.value,
                 sideEffect = { InbuiltFeatures.terminal.setEnable(it) },
@@ -191,7 +191,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 isEnabled = InbuiltFeatures.terminal.supported,
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(InbuiltFeatures.extensions.nameRes),
                 default = InbuiltFeatures.extensions.state.value,
                 sideEffect = { InbuiltFeatures.extensions.setEnable(it) },
@@ -205,7 +205,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                 isEnabled = InbuiltFeatures.extensions.supported,
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(InbuiltFeatures.git.nameRes),
                 default = InbuiltFeatures.git.state.value,
                 sideEffect = { InbuiltFeatures.git.setEnable(it) },
@@ -221,7 +221,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
         }
 
         PreferenceGroup(heading = stringResource(strings.backup)) {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.backup),
                 description = stringResource(id = strings.settings_backup_desc),
                 showSwitch = false,
@@ -244,7 +244,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                     }
                 },
             )
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.restore),
                 description = stringResource(id = strings.settings_restore_desc),
                 showSwitch = false,

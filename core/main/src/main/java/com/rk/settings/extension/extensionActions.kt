@@ -31,16 +31,28 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.MissingFieldException
 
-suspend fun runExtensionUninstallAction(
+fun runExtensionUninstallAction(
     extension: Extension,
     updateInstallState: (InstallState) -> Unit,
+    scope: CoroutineScope,
     activity: AppCompatActivity?,
 ) {
-    extensionManager.uninstallExtension(extension.id).onFailure {
-        errorDialog(activity, it)
-        return
-    }
-    updateInstallState(InstallState.Idle)
+    dialogRes(
+        activity = activity,
+        title = strings.uninstall_ext_dialog.getString(),
+        msg = strings.uninstall_ext_dialog_desc.getFilledString(extension.name),
+        okRes = strings.uninstall,
+        onOk = {
+            scope.launch(Dispatchers.Default) {
+                extensionManager.uninstallExtension(extension.id).onFailure {
+                    errorDialog(activity, it)
+                    return@launch
+                }
+                updateInstallState(InstallState.Idle)
+            }
+        },
+        onCancel = {},
+    )
 }
 
 suspend fun runExtensionInstallAction(
@@ -179,10 +191,6 @@ private fun handleInstallResult(
     onSuccess: (LocalExtension) -> Unit = {},
 ) =
     when (result) {
-        is InstallResult.AlreadyInstalled -> {
-            //            errorDialog("Extension already installed", activity)
-        }
-
         is InstallResult.Error -> {
             when (result.error) {
                 ExtensionError.OUTDATED_CLIENT ->

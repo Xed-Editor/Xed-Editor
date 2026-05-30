@@ -27,7 +27,7 @@ import androidx.core.os.LocaleListCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rk.components.InfoBlock
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
@@ -104,7 +104,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
 
             if (locales != null) {
                 locales.forEach { localeInfo ->
-                    SettingsToggle(
+                    SettingsItem(
                         modifier = Modifier,
                         label = localeInfo.displayName,
                         default = false,
@@ -120,7 +120,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
                     )
                 }
             } else {
-                SettingsToggle(
+                SettingsItem(
                     modifier = Modifier,
                     label = stringResource(strings.loading),
                     default = false,

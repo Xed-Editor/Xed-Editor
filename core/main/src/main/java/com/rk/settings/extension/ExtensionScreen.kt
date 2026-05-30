@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -209,31 +208,40 @@ fun ExtensionScreen(navController: NavController) {
         }
 
         if (sortedExtension.isNotEmpty() || isIndexing || isFetching) {
-            items(sortedExtension, key = { it.id }) { extension ->
-                var installState by
-                    remember(extension) {
-                        mutableStateOf(
-                            if (extensionManager.isInstalled(extension.id)) {
-                                if (extension is UpdatableExtension && extension.isUpdatable()) {
-                                    InstallState.Updatable
-                                } else {
-                                    InstallState.Installed
-                                }
-                            } else {
-                                InstallState.Idle
+            item {
+                PreferenceGroup {
+                    sortedExtension.forEach { extension ->
+                        var installState by
+                            remember(extension) {
+                                mutableStateOf(
+                                    if (extensionManager.isInstalled(extension.id)) {
+                                        if (extension is UpdatableExtension && extension.isUpdatable()) {
+                                            InstallState.Updatable
+                                        } else {
+                                            InstallState.Installed
+                                        }
+                                    } else {
+                                        InstallState.Idle
+                                    }
+                                )
                             }
+
+                        ExtensionCard(
+                            extension = extension,
+                            installState = installState,
+                            onInstallClick = {
+                                runExtensionInstallAction(it, { installState = it }, scope, context, activity)
+                            },
+                            onUninstallClick = {
+                                runExtensionUninstallAction(it, { installState = it }, scope, activity)
+                            },
+                            onUpdateClick = {
+                                runExtensionUpdateAction(it, { installState = it }, scope, context, activity)
+                            },
+                            onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
                         )
                     }
-
-                ExtensionCard(
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
-                    extension = extension,
-                    installState = installState,
-                    onInstallClick = { runExtensionInstallAction(it, { installState = it }, scope, context, activity) },
-                    onUninstallClick = { runExtensionUninstallAction(it, { installState = it }, activity) },
-                    onUpdateClick = { runExtensionUpdateAction(it, { installState = it }, scope, context, activity) },
-                    onClick = { navController.navigate("${SettingsRoutes.ExtensionDetail.route}/${it.id}") },
-                )
+                }
             }
 
             if (isIndexing || isFetching) {

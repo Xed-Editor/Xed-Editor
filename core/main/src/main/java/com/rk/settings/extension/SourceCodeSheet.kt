@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.extension.Extension
 import com.rk.resources.drawables
@@ -81,7 +81,7 @@ fun SourceCodeSheet(extension: Extension, onDismissRequest: () -> Unit) {
             Text(sheetDescription, modifier = Modifier.padding(horizontal = 16.dp))
 
             PreferenceGroup {
-                SettingsToggle(
+                SettingsItem(
                     label = stringResource(sourceCodeProvider.viewStringRes),
                     description = extension.repository,
                     isEnabled = true,

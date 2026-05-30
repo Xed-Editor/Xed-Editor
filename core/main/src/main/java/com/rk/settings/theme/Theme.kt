@@ -35,7 +35,7 @@ import com.rk.App.Companion.iconPackManager
 import com.rk.DefaultScope
 import com.rk.activities.settings.SettingsActivity
 import com.rk.components.BottomSheetContent
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -68,7 +68,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
 
     PreferenceLayout(label = stringResource(strings.themes)) {
         PreferenceGroup(heading = stringResource(strings.theme_settings)) {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.theme_mode),
                 description = stringResource(id = strings.theme_mode_desc),
                 showSwitch = false,
@@ -76,7 +76,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                 sideEffect = { showDayNightBottomSheet.value = true },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.oled),
                 description = stringResource(id = strings.oled_desc),
                 default = Settings.amoled,
@@ -88,7 +88,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                 },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.monet),
                 description = stringResource(id = strings.monet_desc),
                 default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet,
@@ -104,7 +104,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
 
         PreferenceGroup(heading = stringResource(strings.themes)) {
             themes.forEach { theme ->
-                SettingsToggle(
+                SettingsItem(
                     isEnabled = !dynamicTheme.value,
                     label = theme.name,
                     description = null,
@@ -144,7 +144,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.add_theme),
                 description = null,
                 showSwitch = false,
@@ -161,7 +161,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
         }
 
         PreferenceGroup(heading = stringResource(strings.icon_packs)) {
-            SettingsToggle(
+            SettingsItem(
                 label = "Simple Icons (${stringResource(strings.default_option)})",
                 description = null,
                 showSwitch = false,
@@ -182,7 +182,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
             iconPackManager.iconPacks.forEach { (id, iconPack) ->
                 val iconPackManifest = iconPack.manifest
 
-                SettingsToggle(
+                SettingsItem(
                     label = iconPackManifest.name,
                     description = null,
                     showSwitch = false,
@@ -215,7 +215,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.add_icon_pack),
                 description = null,
                 showSwitch = false,

@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -147,7 +147,7 @@ fun AboutScreen() {
                 description = { Text(text = stars.value, style = MaterialTheme.typography.titleSmall) },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.github),
                 description = stringResource(id = strings.github_desc),
                 isEnabled = true,
@@ -167,7 +167,7 @@ fun AboutScreen() {
                 },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.telegram),
                 description = stringResource(id = strings.telegram_desc),
                 isEnabled = true,
@@ -187,7 +187,7 @@ fun AboutScreen() {
                 },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(id = strings.discord),
                 description = stringResource(id = strings.telegram_desc),
                 isEnabled = true,

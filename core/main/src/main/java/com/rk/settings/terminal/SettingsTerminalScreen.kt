@@ -27,7 +27,7 @@ import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
 import com.rk.components.NextScreenCard
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.ValueSlider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -103,7 +103,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 route = SettingsRoutes.TerminalFontScreen,
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.cursor_style),
                 description = stringResource(strings.cursor_style_desc),
                 default = false,
@@ -198,7 +198,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                     }
                 }
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.backup),
                 description = stringResource(strings.terminal_backup),
                 showSwitch = false,
@@ -277,7 +277,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.restore),
                 description = stringResource(strings.restore_terminal),
                 showSwitch = false,
@@ -285,7 +285,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 sideEffect = { restore.launch("application/gzip") },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.uninstall),
                 default = false,
                 description = stringResource(strings.uninstall_terminal),
@@ -317,7 +317,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
 
         PreferenceGroup(heading = stringResource(strings.advanced)) {
             if (InbuiltFeatures.debugMode.state.value) {
-                SettingsToggle(
+                SettingsItem(
                     label = stringResource(strings.failsafe_mode),
                     description = stringResource(strings.failsafe_mode_desc),
                     default = !Settings.sandbox,
@@ -327,7 +327,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
 
             var seccomp by remember { mutableStateOf(Settings.seccomp) }
 
-            SettingsToggle(
+            SettingsItem(
                 label = "SECCOMP",
                 default = seccomp,
                 description = stringResource(strings.seccomp_desc),
@@ -359,14 +359,14 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 toast(strings.restart_required)
             }
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.terminate_all_sessions),
                 description = stringResource(strings.terminate_all_sessions_desc),
                 default = Settings.terminate_sessions_on_exit,
                 sideEffect = { Settings.terminate_sessions_on_exit = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.project_as_wk),
                 description = stringResource(strings.project_as_wk_desc),
                 default = Settings.project_as_pwd,

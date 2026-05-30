@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.rk.activities.settings.SettingsRoutes
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.getString
@@ -52,7 +52,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
 
     PreferenceLayout(label = stringResource(strings.debug_options)) {
         PreferenceGroup {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.force_crash),
                 description = stringResource(strings.force_crash_desc),
                 showSwitch = false,
@@ -68,14 +68,14 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.memory_usage),
                 description = memoryUsage.value,
                 showSwitch = false,
                 default = false,
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.strict_mode),
                 description = stringResource(strings.strict_mode_desc),
                 showSwitch = true,
@@ -83,14 +83,14 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 sideEffect = { Settings.strict_mode = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.anr_watchdog),
                 description = stringResource(strings.anr_watchdog_desc),
                 default = Settings.anr_watchdog,
                 sideEffect = { Settings.anr_watchdog = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.verbose_errors),
                 description = stringResource(strings.verbose_errors_desc),
                 showSwitch = true,
@@ -98,7 +98,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 sideEffect = { Settings.verbose_error = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.desktop_mode),
                 description = stringResource(strings.desktop_mode_desc),
                 showSwitch = true,
@@ -106,7 +106,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 sideEffect = { Settings.desktop_mode = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.theme_flipper),
                 description = stringResource(strings.theme_flipper_desc),
                 showSwitch = true,
@@ -119,7 +119,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.reset_consent),
                 description = stringResource(strings.reset_consent_desc),
                 showSwitch = false,
@@ -130,7 +130,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.view_logs),
                 description = stringResource(strings.view_app_logs),
                 default = false,

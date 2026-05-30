@@ -30,7 +30,7 @@ fun EditorSettingsToggle(
     isSwitchLocked: Boolean = false,
     state: MutableState<Boolean> = remember { mutableStateOf(default) },
 ) {
-    SettingsToggle(
+    SettingsItem(
         modifier = modifier,
         label = label,
         state = state,

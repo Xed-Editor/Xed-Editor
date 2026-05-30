@@ -28,6 +28,10 @@ sealed interface Extension {
     val readmeUrl: String
     val changelogUrl: String
 
+    val minAppVersion: Int?
+
+    val maxAppVersion: Int?
+
     suspend fun getStats(): ExtensionStats
 
     suspend fun getReviews(): List<Review>
@@ -78,6 +82,12 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
 
     override val changelogUrl
         get() = ExtensionRegistry.getChangelogUrl(manifest.id)
+
+    override val minAppVersion
+        get() = manifest.minAppVersion
+
+    override val maxAppVersion
+        get() = manifest.maxAppVersion
 
     override suspend fun getStats() = ExtensionRegistry.getStats(manifest.id)
 
@@ -141,6 +151,12 @@ data class LocalExtension(
 
     override val changelogUrl
         get() = "$installPath/CHANGELOG.md"
+
+    override val minAppVersion
+        get() = manifest.minAppVersion
+
+    override val maxAppVersion
+        get() = manifest.maxAppVersion
 
     override suspend fun getStats(): ExtensionStats {
         return ExtensionStats(null, null, calcSize())
@@ -209,6 +225,12 @@ data class UpdatableExtension(val installed: LocalExtension, val store: StoreExt
 
     override val changelogUrl
         get() = if (isUpdatable()) store.changelogUrl else installed.changelogUrl
+
+    override val minAppVersion
+        get() = store.minAppVersion
+
+    override val maxAppVersion
+        get() = store.maxAppVersion
 
     override suspend fun getStats() = store.getStats()
 

@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.settings.SettingsRoutes
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.drawables
@@ -62,7 +62,7 @@ fun Support(modifier: Modifier = Modifier) {
         val context = LocalContext.current
 
         PreferenceGroup {
-            SettingsToggle(
+            SettingsItem(
                 label = "GitHub Sponsors",
                 description = stringResource(strings.sponsor_desc),
                 isEnabled = true,
@@ -89,7 +89,7 @@ fun Support(modifier: Modifier = Modifier) {
                     Settings.donated = true
                 },
             )
-            SettingsToggle(
+            SettingsItem(
                 label = "Buy Me a Coffee",
                 description = stringResource(strings.coffee_desc),
                 isEnabled = true,
@@ -118,7 +118,7 @@ fun Support(modifier: Modifier = Modifier) {
             )
             val upiAvailable = remember { isUPISupported(context) }
             if (upiAvailable) {
-                SettingsToggle(
+                SettingsItem(
                     label = "UPI",
                     description = stringResource(strings.upi_desc),
                     isEnabled = true,

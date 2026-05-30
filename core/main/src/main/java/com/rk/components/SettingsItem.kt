@@ -43,7 +43,7 @@ fun BasicToggle(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SettingsToggle(
+fun SettingsItem(
     modifier: Modifier = Modifier,
     label: String,
     default: Boolean,

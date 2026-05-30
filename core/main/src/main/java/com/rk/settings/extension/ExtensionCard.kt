@@ -1,19 +1,14 @@
 package com.rk.settings.extension
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -23,9 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.PackageInfoCompat
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Extension
 import com.rk.extension.UpdatableExtension
 import com.rk.resources.drawables
@@ -43,18 +40,20 @@ fun ExtensionCard(
     onClick: (Extension) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
-    val cardColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+    val context = LocalContext.current
 
-    Card(
-        modifier =
-            modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).combinedClickable(onClick = { onClick(extension) }),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor, contentColor = contentColorFor(cardColor)),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+    val minAppVersion = extension.minAppVersion
+    val maxAppVersion = extension.maxAppVersion
+
+    val pm = context.packageManager
+    val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
+
+    val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
+    val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
+
+    PreferenceTemplate(
+        modifier = modifier.fillMaxWidth().clickable(onClick = { onClick(extension) }),
+        startWidget = {
             AsyncImage(
                 model =
                     ImageRequest.Builder(LocalContext.current)
@@ -65,43 +64,46 @@ fun ExtensionCard(
                         .diskCachePolicy(CachePolicy.ENABLED)
                         .memoryCachePolicy(CachePolicy.ENABLED)
                         .build(),
-                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)).padding(end = 16.dp),
+                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)),
                 contentDescription = null,
             )
-
-            Column(modifier = Modifier.weight(1f)) {
+        },
+        title = {
+            Text(text = extension.name, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
+        description = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ExtensionAuthorIcon(extension.author, Modifier.size(20.dp).padding(end = 4.dp))
                 Text(
-                    text = extension.name,
-                    style = Typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    text = "${extension.author} • v${extension.version}",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    style = Typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    ExtensionAuthorIcon(extension.author, Modifier.size(16.dp).padding(end = 4.dp))
+                val isUpdatable = extension is UpdatableExtension && extension.isUpdatable()
+                if (isUpdatable) {
                     Text(
-                        text = "${extension.author} • v${extension.version}",
+                        text = " → v${extension.newVersion}",
+                        style = Typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = Typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-
-                    val isUpdatable = extension is UpdatableExtension && extension.isUpdatable()
-                    if (isUpdatable) {
-                        Text(
-                            text = " → v${extension.newVersion}",
-                            style = Typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
                 }
             }
-
-            ExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick, onUpdateClick)
-        }
-    }
+        },
+        endWidget = {
+            SmallExtensionActionButton(
+                extension = extension,
+                installState = installState,
+                scope = scope,
+                onInstallClick = onInstallClick,
+                onUninstallClick = onUninstallClick,
+                onUpdateClick = onUpdateClick,
+                outdatedWarning = outdatedClient || outdatedExtension,
+            )
+        },
+    )
 }
