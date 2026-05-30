@@ -45,7 +45,6 @@ import java.io.File
 import kotlin.io.encoding.Base64
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.uuid.ExperimentalUuidApi
 
 class OpenAIProvider(
     private val client: OkHttpClient,

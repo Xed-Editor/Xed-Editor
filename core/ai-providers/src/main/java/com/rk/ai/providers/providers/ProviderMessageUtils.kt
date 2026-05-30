@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.providers.providers
 
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.models.UIMessagePart
 
 /**

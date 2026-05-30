@@ -1,7 +1,7 @@
 @file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.providers
 
-import androidx.compose.runtime.Composable
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -33,8 +33,8 @@ sealed class ProviderSetting {
     abstract val balanceOption: BalanceOption
 
     abstract val builtIn: Boolean
-    abstract val description: @Composable() () -> Unit
-    abstract val shortDescription: @Composable() () -> Unit
+    abstract val description: () -> Unit
+    abstract val shortDescription: () -> Unit
 
     abstract fun addModel(model: Model): ProviderSetting
     abstract fun editModel(model: Model): ProviderSetting
@@ -47,8 +47,8 @@ sealed class ProviderSetting {
         models: List<Model> = this.models,
         balanceOption: BalanceOption = this.balanceOption,
         builtIn: Boolean = this.builtIn,
-        description: @Composable (() -> Unit) = this.description,
-        shortDescription: @Composable (() -> Unit) = this.shortDescription,
+        description: () -> Unit) = this.description,
+        shortDescription: () -> Unit) = this.shortDescription,
     ): ProviderSetting
 
     @Serializable
@@ -60,8 +60,8 @@ sealed class ProviderSetting {
         override var models: List<Model> = emptyList(),
         override val balanceOption: BalanceOption = BalanceOption(),
         @Transient override val builtIn: Boolean = false,
-        @Transient override val description: @Composable (() -> Unit) = {},
-        @Transient override val shortDescription: @Composable (() -> Unit) = {},
+        @Transient override val description: () -> Unit) = {},
+        @Transient override val shortDescription: () -> Unit) = {},
         var apiKey: String = "",
         var baseUrl: String = "https://api.openai.com/v1",
         var chatCompletionsPath: String = "/chat/completions",
@@ -97,8 +97,8 @@ sealed class ProviderSetting {
             models: List<Model>,
             balanceOption: BalanceOption,
             builtIn: Boolean,
-            description: @Composable (() -> Unit),
-            shortDescription: @Composable (() -> Unit),
+            description: () -> Unit),
+            shortDescription: () -> Unit),
         ): ProviderSetting {
             return this.copy(
                 id = id,
@@ -122,8 +122,8 @@ sealed class ProviderSetting {
         override var models: List<Model> = emptyList(),
         override val balanceOption: BalanceOption = BalanceOption(),
         @Transient override val builtIn: Boolean = false,
-        @Transient override val description: @Composable (() -> Unit) = {},
-        @Transient override val shortDescription: @Composable (() -> Unit) = {},
+        @Transient override val description: () -> Unit) = {},
+        @Transient override val shortDescription: () -> Unit) = {},
         var apiKey: String = "",
         var baseUrl: String = "https://generativelanguage.googleapis.com/v1beta",
         var vertexAI: Boolean = false,
@@ -162,8 +162,8 @@ sealed class ProviderSetting {
             models: List<Model>,
             balanceOption: BalanceOption,
             builtIn: Boolean,
-            description: @Composable (() -> Unit),
-            shortDescription: @Composable (() -> Unit),
+            description: () -> Unit),
+            shortDescription: () -> Unit),
         ): ProviderSetting {
             return this.copy(
                 id = id,
@@ -187,8 +187,8 @@ sealed class ProviderSetting {
         override var models: List<Model> = emptyList(),
         override val balanceOption: BalanceOption = BalanceOption(),
         @Transient override val builtIn: Boolean = false,
-        @Transient override val description: @Composable (() -> Unit) = {},
-        @Transient override val shortDescription: @Composable (() -> Unit) = {},
+        @Transient override val description: () -> Unit) = {},
+        @Transient override val shortDescription: () -> Unit) = {},
         var apiKey: String = "",
         var baseUrl: String = "https://api.anthropic.com/v1",
         var promptCaching: Boolean = false,
@@ -223,8 +223,8 @@ sealed class ProviderSetting {
             models: List<Model>,
             balanceOption: BalanceOption,
             builtIn: Boolean,
-            description: @Composable (() -> Unit),
-            shortDescription: @Composable (() -> Unit),
+            description: () -> Unit),
+            shortDescription: () -> Unit),
         ): ProviderSetting {
             return this.copy(
                 id = id,
