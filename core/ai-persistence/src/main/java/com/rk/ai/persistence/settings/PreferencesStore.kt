@@ -108,7 +108,7 @@ class SettingsStore(
                     runCatching { Uuid.parse(it) }.getOrNull()
                 } ?: Uuid.random(),
                 translatePrompt = preferences[TRANSLATE_PROMPT] ?: "Translate the following text to {target_lang}:\n\n{source_text}",
-                translateThinkingBudget = preferences[TRANSLATE_THINKING_BUDGET],
+                translateThinkingBudget = preferences[TRANSLATE_THINKING_BUDGET] ?: 0,
             )
         }
         .map {
