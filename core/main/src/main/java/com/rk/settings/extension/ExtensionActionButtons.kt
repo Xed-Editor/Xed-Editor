@@ -3,10 +3,12 @@ package com.rk.settings.extension
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,7 +48,18 @@ fun SmallExtensionActionButton(
     onUninstallClick: suspend (Extension) -> Unit,
     onUpdateClick: suspend (UpdatableExtension) -> Unit,
     modifier: Modifier = Modifier,
+    outdatedWarning: Boolean = false,
 ) {
+    if (outdatedWarning) {
+        Icon(
+            imageVector = Icons.Rounded.Warning,
+            contentDescription = stringResource(strings.warning),
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(12.dp),
+        )
+        return
+    }
+
     when (installState) {
         InstallState.Idle -> {
             IconButton(modifier = modifier, onClick = { scope.launch { onInstallClick(extension) } }) {
@@ -98,10 +111,11 @@ fun ExtensionActionButtons(
     onUninstallClick: suspend (Extension) -> Unit,
     onUpdateClick: suspend (UpdatableExtension) -> Unit,
     modifier: Modifier = Modifier,
+    outdatedWarning: Boolean = false,
 ) {
     when (installState) {
         InstallState.Idle -> {
-            InstallButton(scope, onInstallClick, extension, modifier)
+            InstallButton(scope, onInstallClick, extension, modifier, outdatedWarning)
         }
 
         InstallState.Installing -> {
@@ -114,7 +128,7 @@ fun ExtensionActionButtons(
 
         InstallState.Updatable -> {
             Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                UpdateButton(extension, scope, onUpdateClick, Modifier.weight(1f))
+                UpdateButton(extension, scope, onUpdateClick, Modifier.weight(1f), outdatedWarning)
                 UninstallButton(scope, onUninstallClick, extension, Modifier.weight(1f))
             }
         }
@@ -131,8 +145,9 @@ private fun InstallButton(
     onInstallClick: suspend (Extension) -> Unit,
     extension: Extension,
     modifier: Modifier = Modifier,
+    outdatedWarning: Boolean = false,
 ) {
-    Button(modifier = modifier, onClick = { scope.launch { onInstallClick(extension) } }) {
+    Button(modifier = modifier, enabled = !outdatedWarning, onClick = { scope.launch { onInstallClick(extension) } }) {
         Icon(XedIcons.Download, contentDescription = null, Modifier.size(18.dp))
         Spacer(Modifier.width(6.dp))
         Text(stringResource(strings.install))
@@ -180,10 +195,12 @@ private fun UpdateButton(
     scope: CoroutineScope,
     onUpdateClick: suspend (UpdatableExtension) -> Unit,
     modifier: Modifier = Modifier,
+    outdatedWarning: Boolean = false,
 ) {
     val updatableExtension = extension as UpdatableExtension
     Button(
         modifier = modifier,
+        enabled = !outdatedWarning,
         onClick = { scope.launch { onUpdateClick(updatableExtension) } },
         colors =
             ButtonDefaults.buttonColors(

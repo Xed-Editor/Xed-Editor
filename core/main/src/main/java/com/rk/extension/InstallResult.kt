@@ -5,8 +5,6 @@ sealed interface InstallResult {
 
     data class ValidationFailed(val error: Throwable?) : InstallResult
 
-    class AlreadyInstalled : InstallResult
-
     data class Error(val error: ExtensionError) : InstallResult
 }
 

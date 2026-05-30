@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.PackageInfoCompat
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -39,6 +40,16 @@ fun ExtensionCard(
     onClick: (Extension) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val minAppVersion = extension.minAppVersion
+    val maxAppVersion = extension.maxAppVersion
+
+    val pm = context.packageManager
+    val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
+
+    val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
+    val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
 
     PreferenceTemplate(
         modifier = modifier.fillMaxWidth().clickable(onClick = { onClick(extension) }),
@@ -84,7 +95,15 @@ fun ExtensionCard(
             }
         },
         endWidget = {
-            SmallExtensionActionButton(extension, installState, scope, onInstallClick, onUninstallClick, onUpdateClick)
+            SmallExtensionActionButton(
+                extension = extension,
+                installState = installState,
+                scope = scope,
+                onInstallClick = onInstallClick,
+                onUninstallClick = onUninstallClick,
+                onUpdateClick = onUpdateClick,
+                outdatedWarning = outdatedClient || outdatedExtension,
+            )
         },
     )
 }

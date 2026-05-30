@@ -211,7 +211,6 @@ fun ExtensionScreen(navController: NavController) {
             item {
                 PreferenceGroup {
                     sortedExtension.forEach { extension ->
-                        //                    items(sortedExtension, key = { it.id }) { extension ->
                         var installState by
                             remember(extension) {
                                 mutableStateOf(
@@ -233,7 +232,9 @@ fun ExtensionScreen(navController: NavController) {
                             onInstallClick = {
                                 runExtensionInstallAction(it, { installState = it }, scope, context, activity)
                             },
-                            onUninstallClick = { runExtensionUninstallAction(it, { installState = it }, activity) },
+                            onUninstallClick = {
+                                runExtensionUninstallAction(it, { installState = it }, scope, activity)
+                            },
                             onUpdateClick = {
                                 runExtensionUpdateAction(it, { installState = it }, scope, context, activity)
                             },

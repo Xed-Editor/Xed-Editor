@@ -16,6 +16,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -44,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -240,15 +242,39 @@ private fun AboutSection(
         ExtensionStats(Modifier.weight(1f), stringResource(strings.size).uppercase(), size)
     }
 
+    val minAppVersion = extension.minAppVersion
+    val maxAppVersion = extension.maxAppVersion
+
+    val pm = context.packageManager
+    val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
+
+    val outdatedClient = minAppVersion != null && xedVersionCode < minAppVersion
+    val outdatedExtension = maxAppVersion != null && xedVersionCode > maxAppVersion
+
     ExtensionActionButtons(
+        outdatedWarning = outdatedClient || outdatedExtension,
         modifier = Modifier.fillMaxWidth(),
         extension = extension,
         installState = installState,
         scope = scope,
         onInstallClick = { runExtensionInstallAction(it, updateInstallState, scope, context, activity) },
-        onUninstallClick = { runExtensionUninstallAction(it, updateInstallState, activity) },
+        onUninstallClick = { runExtensionUninstallAction(it, updateInstallState, scope, activity) },
         onUpdateClick = { runExtensionUpdateAction(it, updateInstallState, scope, context, activity) },
     )
+
+    if (outdatedClient || outdatedExtension) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Rounded.Warning,
+                contentDescription = stringResource(strings.warning),
+                tint = MaterialTheme.colorScheme.error,
+            )
+            Text(
+                stringResource(if (outdatedClient) strings.outdated_client else strings.outdated_extension),
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
+    }
 }
 
 @Composable
