@@ -1,4 +1,4 @@
-package com.rk.ai.streaming
+package com.rk.ai.models
 
 import android.media.ExifInterface
 import android.graphics.Bitmap
@@ -7,7 +7,6 @@ import android.graphics.Matrix
 import android.util.Base64
 import android.util.Base64OutputStream
 import androidx.core.net.toUri
-import com.rk.ai.models.UIMessagePart
 import java.io.ByteArrayOutputStream
 import java.io.File
 

@@ -36,7 +36,7 @@ import com.rk.ai.models.UIMessageChoice
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.streaming.KeyRoulette
 import com.rk.ai.streaming.configureReferHeaders
-import com.rk.ai.streaming.encodeBase64
+import com.rk.ai.models.encodeBase64
 import com.rk.ai.streaming.json
 import com.rk.ai.streaming.mergeCustomBody
 import com.rk.ai.streaming.parseErrorDetail
