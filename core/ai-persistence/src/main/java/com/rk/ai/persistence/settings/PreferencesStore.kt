@@ -250,7 +250,7 @@ data class Settings(
     val quickMessages: List<com.rk.ai.models.QuickMessage> = emptyList(),
     val translateModeId: Uuid = Uuid.random(),
     val translatePrompt: String = "Translate the following text to {target_lang}:\n\n{source_text}",
-    val translateThinkingBudget: Int? = null,
+    val translateThinkingBudget: Int = 0,
 ) {
     companion object {
         fun dummy() = Settings(init = true)
