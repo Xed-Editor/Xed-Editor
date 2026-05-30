@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package com.rk.ai.agent.transformers
 
 import android.content.Context

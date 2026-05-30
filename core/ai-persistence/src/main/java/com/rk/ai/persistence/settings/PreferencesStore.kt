@@ -251,6 +251,8 @@ data class Settings(
     val translateModeId: Uuid = Uuid.random(),
     val translatePrompt: String = "Translate the following text to {target_lang}:\n\n{source_text}",
     val translateThinkingBudget: Int = 0,
+    val ocrModelId: Uuid = Uuid.random(),
+    val ocrPrompt: String = "Describe the image in detail.",
 ) {
     companion object {
         fun dummy() = Settings(init = true)

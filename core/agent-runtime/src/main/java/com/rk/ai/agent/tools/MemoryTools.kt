@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package com.rk.ai.agent.tools
 
 import kotlinx.serialization.json.Json
