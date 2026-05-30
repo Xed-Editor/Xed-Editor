@@ -171,6 +171,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 
 # Room
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
 
 # Paging
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version = "3.3.6" }
