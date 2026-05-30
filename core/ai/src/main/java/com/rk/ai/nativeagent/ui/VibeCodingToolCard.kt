@@ -16,7 +16,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.models.UIMessagePart
+
+private const val MAX_PREVIEW_CHARS = 500
+
+private fun String.truncatePreview(): String =
+    if (length > MAX_PREVIEW_CHARS) take(MAX_PREVIEW_CHARS) + "…" else this
 
 @Composable
 fun VibeCodingToolCard(
@@ -27,19 +33,19 @@ fun VibeCodingToolCard(
     var expanded by remember { mutableStateOf(false) }
 
     val statusColor = when (part.approvalState) {
-        is com.rk.ai.models.ToolApprovalState.Auto,
-        is com.rk.ai.models.ToolApprovalState.Approved -> colorScheme.primary
-        is com.rk.ai.models.ToolApprovalState.Pending -> colorScheme.tertiary
-        is com.rk.ai.models.ToolApprovalState.Denied -> colorScheme.error
-        is com.rk.ai.models.ToolApprovalState.Answered -> colorScheme.secondary
+        is ToolApprovalState.Auto,
+        is ToolApprovalState.Approved -> colorScheme.primary
+        is ToolApprovalState.Pending -> colorScheme.tertiary
+        is ToolApprovalState.Denied -> colorScheme.error
+        is ToolApprovalState.Answered -> colorScheme.secondary
     }
 
     val statusLabel = when (part.approvalState) {
-        is com.rk.ai.models.ToolApprovalState.Auto -> "auto"
-        is com.rk.ai.models.ToolApprovalState.Pending -> "pending"
-        is com.rk.ai.models.ToolApprovalState.Approved -> "approved"
-        is com.rk.ai.models.ToolApprovalState.Denied -> "denied"
-        is com.rk.ai.models.ToolApprovalState.Answered -> "answered"
+        is ToolApprovalState.Auto -> "auto"
+        is ToolApprovalState.Pending -> "pending"
+        is ToolApprovalState.Approved -> "approved"
+        is ToolApprovalState.Denied -> "denied"
+        is ToolApprovalState.Answered -> "answered"
     }
 
     Surface(
@@ -56,6 +62,7 @@ fun VibeCodingToolCard(
                 .clickable { expanded = !expanded }
                 .padding(8.dp),
         ) {
+            // Header row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -90,62 +97,30 @@ fun VibeCodingToolCard(
                 }
             }
 
+            // Expandable input/output detail
             AnimatedVisibility(
                 visible = expanded,
                 enter = expandVertically(),
                 exit = shrinkVertically(),
             ) {
                 Column(modifier = Modifier.padding(top = 6.dp)) {
-                    Text(
-                        text = "Input:",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = part.input.toString().let { if (it.length > 500) it.take(500) + "..." else it },
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 11.sp,
-                        ),
-                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(colorScheme.surface.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
-                            .padding(6.dp),
-                    )
+                    CodePreviewLabel("Input:")
+                    CodePreviewText(part.input.toString().truncatePreview(), colorScheme)
 
                     if (part.output.isNotEmpty()) {
                         Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = "Output:",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = colorScheme.onSurfaceVariant,
-                        )
+                        CodePreviewLabel("Output:")
                         part.output.forEach { outputPart ->
                             when (outputPart) {
-                                is com.rk.ai.models.UIMessagePart.Text -> {
-                                    Text(
-                                        text = outputPart.text.let { if (it.length > 500) it.take(500) + "..." else it },
-                                        style = MaterialTheme.typography.bodySmall.copy(
-                                            fontFamily = FontFamily.Monospace,
-                                            fontSize = 11.sp,
-                                        ),
-                                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(colorScheme.surface.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
-                                            .padding(6.dp),
-                                    )
-                                }
-                                else -> {
-                                    Text(
-                                        text = "[${outputPart::class.simpleName}]",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                    )
-                                }
+                                is UIMessagePart.Text -> CodePreviewText(
+                                    text = outputPart.text.truncatePreview(),
+                                    colorScheme = colorScheme,
+                                )
+                                else -> Text(
+                                    text = "[${outputPart::class.simpleName}]",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                )
                             }
                         }
                     }
@@ -153,4 +128,30 @@ fun VibeCodingToolCard(
             }
         }
     }
+}
+
+@Composable
+private fun CodePreviewLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
+private fun CodePreviewText(text: String, colorScheme: ColorScheme) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall.copy(
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+        ),
+        color = colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorScheme.surface.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+            .padding(6.dp),
+    )
 }

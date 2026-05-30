@@ -89,10 +89,8 @@ fun UnifiedToolSheet(
     val transcript = viewModel.agentTranscript
 
     fun appendLog(text: String) {
-        viewModel.agentTranscript =
-            listOf(viewModel.agentTranscript, text)
-                .filter { it.isNotBlank() }
-                .joinToString("\n\n")
+        val current = viewModel.agentTranscript
+        viewModel.agentTranscript = if (current.isBlank()) text else "$current\n\n$text"
     }
 
     val logic = remember(activity, viewModel, scope) {

@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
@@ -39,12 +40,11 @@ fun VibeCodingPanel(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val settings by engine.settingsStore.settingsFlow.collectAsState()
-                    val modelName = settings.providers
-                        .flatMap { it.models }
-                        .firstOrNull { it.id == settings.chatModelId }
-                        ?.displayName
-                        ?.ifEmpty { settings.providers.flatMap { it.models }.firstOrNull { it.id == settings.chatModelId }?.modelId }
-                        ?: "No model"
+                    val modelName = remember(settings.chatModelId, settings.providers) {
+                        val model = settings.providers.flatMap { it.models }
+                            .firstOrNull { it.id == settings.chatModelId }
+                        model?.displayName?.ifEmpty { model.modelId } ?: "No model"
+                    }
 
                     Text(
                         text = modelName,
@@ -110,7 +110,7 @@ fun VibeCodingPanel(
                         modifier = Modifier.size(20.dp),
                     ) {
                         Icon(
-                            Icons.Outlined.Delete,
+                            Icons.Outlined.Close,
                             contentDescription = "Dismiss",
                             modifier = Modifier.size(14.dp),
                         )

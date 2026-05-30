@@ -52,7 +52,8 @@ object AiSessionManager {
     }
 
     fun canReuseFor(requestedCwd: String): Boolean {
-        if (session == null || !session!!.isRunning) return false
+        val s = session
+        if (s == null || !s.isRunning) return false
         val existingCwd = cwd ?: return false
         if (requestedCwd == existingCwd) return true
         if (existingCwd in AiConfig.commonReuseRoots) return true
@@ -87,7 +88,8 @@ object AiSessionManager {
         return withContext(Dispatchers.IO) {
             IdeBridge.ensureStarted(viewModel)
             IdeBridge.setWorkspacePath(workingDir)
-            val bridgeInfo = IdeBridge.getBridgeInfo()!!
+            val bridgeInfo = IdeBridge.getBridgeInfo()
+                ?: error("IDE bridge not available after ensureStarted() — bridge may have failed to initialize")
 
             withContext(Dispatchers.Main) {
                 ideService = IdeServiceImpl(viewModel)

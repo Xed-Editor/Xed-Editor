@@ -11,7 +11,7 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingSystemTools(
     private val ideService: IdeService,
-    private val context: Context? = null,
+    private val context: Context,
 ) {
 
     val all: List<Tool> = listOf(
@@ -50,9 +50,10 @@ class VibeCodingSystemTools(
             )
         },
         execute = { args ->
-            val message = args.asJsonObject["message"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text(""))
+            val message = args.asJsonObject["message"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'message'"))
             ideService.showMessage(message)
-            listOf(UIMessagePart.Text(""))
+            listOf(UIMessagePart.Text("Message displayed: \"$message\""))
         },
     )
 
@@ -87,9 +88,11 @@ class VibeCodingSystemTools(
             )
         },
         execute = { args ->
-            val text = args.asJsonObject["text"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text(""))
+            val text = args.asJsonObject["text"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'text'"))
             val cm = context?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-            cm?.setPrimaryClip(ClipData.newPlainText("VibeCoding", text))
+                ?: return@Tool listOf(UIMessagePart.Text("Error: clipboard unavailable (no UI context)"))
+            cm.setPrimaryClip(ClipData.newPlainText("VibeCoding", text))
             listOf(UIMessagePart.Text("Copied to clipboard"))
         },
     )

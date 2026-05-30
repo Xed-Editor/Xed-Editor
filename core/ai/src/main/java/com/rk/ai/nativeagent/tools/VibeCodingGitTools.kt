@@ -10,6 +10,9 @@ class VibeCodingGitTools(private val ideService: IdeService) {
 
     val all: List<Tool> = listOf(getGitStatus, getGitDiff, gitCommit, gitCheckout)
 
+    private fun com.google.gson.JsonElement.workspaceOrPrimary(): String =
+        asJsonObject["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
+
     private val getGitStatus = Tool(
         name = "getGitStatus",
         description = "Returns the git status (staged, modified, untracked files) for the workspace.",
@@ -22,7 +25,7 @@ class VibeCodingGitTools(private val ideService: IdeService) {
             )
         },
         execute = { args ->
-            val workspace = args.asJsonObject["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
+            val workspace = args.workspaceOrPrimary()
             val status = ideService.getGitStatus(workspace)
             val text = buildString {
                 status.keySet().forEach { key ->
@@ -49,7 +52,7 @@ class VibeCodingGitTools(private val ideService: IdeService) {
             )
         },
         execute = { args ->
-            val workspace = args.asJsonObject["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
+            val workspace = args.workspaceOrPrimary()
             val diff = ideService.getGitDiff(workspace)
             listOf(UIMessagePart.Text(diff.ifEmpty { "No unstaged changes" }))
         },
@@ -72,7 +75,7 @@ class VibeCodingGitTools(private val ideService: IdeService) {
             val obj = args.asJsonObject
             val message = obj["message"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing message"))
             val all = obj["all"]?.asJsonPrimitive?.asBoolean ?: false
-            val workspace = obj["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
+            val workspace = args.workspaceOrPrimary()
             val result = ideService.gitCommit(workspace, message, all)
             listOf(UIMessagePart.Text(result))
         },
@@ -93,7 +96,7 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         execute = { args ->
             val obj = args.asJsonObject
             val target = obj["target"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing target"))
-            val workspace = obj["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
+            val workspace = args.workspaceOrPrimary()
             val result = ideService.gitCheckout(workspace, target)
             listOf(UIMessagePart.Text(result))
         },

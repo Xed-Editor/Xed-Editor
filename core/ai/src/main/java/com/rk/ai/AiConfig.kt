@@ -15,19 +15,18 @@ object AiConfig {
     )
 
     object Discovery {
-        val openCodeConfigFile = "opencode.json"
-        val openCodeMcpFile = "mcp.json"
-        val geminiSettingsFile = "settings.json"
-        val xedIdeDir = ".xed"
-        val openCodeDir = ".opencode"
-        val xedBridgeEnvFile = "xed-bridge.env"
-        val ideEnvFile = "ide.env"
-        val xedBridgeEnvHomeFile = ".xed-bridge.env"
-        val launcherScriptFile = "launcher.sh"
+        const val openCodeConfigFile = "opencode.json"
+        const val openCodeMcpFile = "mcp.json"
+        const val geminiSettingsFile = "settings.json"
+        const val xedIdeDir = ".xed"
+        const val openCodeDir = ".opencode"
+        const val xedBridgeEnvFile = "xed-bridge.env"
+        const val ideEnvFile = "ide.env"
+        const val xedBridgeEnvHomeFile = ".xed-bridge.env"
+        const val launcherScriptFile = "launcher.sh"
 
         val discoveryDirs = listOf(
             "gemini/ide",
-            "terminal/gemini-sheet/gemini/ide",
             "terminal/gemini-sheet/gemini/ide",
             "terminal/opencode-sheet/gemini/ide",
             "terminal/opencode-sheet/opencode/ide",
@@ -36,13 +35,13 @@ object AiConfig {
             "ide-bridge",
         )
 
-        val tmpDiscoveryDir = "/tmp/xed-ide"
+        const val tmpDiscoveryDir = "/tmp/xed-ide"
     }
 
     object Debug {
-        val defaultDebugEnvValue = "true"
-        val defaultDebugLogFile = "/home/.gemini/xed-debug.log"
-        val defaultContextTraceDir = "/home/.gemini/xed-traces"
+        const val defaultDebugEnvValue = "true"
+        const val defaultDebugLogFile = "/home/.gemini/xed-debug.log"
+        const val defaultContextTraceDir = "/home/.gemini/xed-traces"
     }
 
     object Paths {

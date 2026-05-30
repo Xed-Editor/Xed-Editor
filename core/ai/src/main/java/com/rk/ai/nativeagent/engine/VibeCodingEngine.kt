@@ -6,13 +6,13 @@ import com.rk.ai.agent.AILoggingManager
 import com.rk.ai.agent.GenerationHandler
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.TransformerContext
+import com.rk.ai.core.AppScope
 import com.rk.ai.models.UIMessage
 import com.rk.ai.nativeagent.tools.VibeCodingSystemTools
 import com.rk.ai.nativeagent.tools.VibeCodingToolRegistry
 import com.rk.ai.persistence.db.AppDatabase
 import com.rk.ai.persistence.repo.ConversationRepository
 import com.rk.ai.persistence.repo.MemoryRepository
-import com.rk.ai.core.AppScope
 import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.providers.ProviderManager
 import com.rk.ai.service.IdeService
@@ -28,32 +28,43 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
-class VibeCodingEngine(
-    private val context: Context,
-    private val ideService: IdeService,
-    scope: CoroutineScope? = null,
-) {
-    private val engineScope: CoroutineScope = scope ?: CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val appScope = AppScope()
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+private val defaultJson = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
-    private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(5, TimeUnit.MINUTES)
-        .build()
+private fun buildOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    .connectTimeout(30, TimeUnit.SECONDS)
+    .readTimeout(5, TimeUnit.MINUTES)
+    .build()
 
-    val providerManager = ProviderManager(okHttpClient, context)
-    val settingsStore = SettingsStore(context, appScope)
-
-    private val database = Room.databaseBuilder(
+private fun buildDatabase(context: Context): AppDatabase =
+    Room.databaseBuilder(
         context.applicationContext,
         AppDatabase::class.java,
         "vibecoding_db",
     ).fallbackToDestructiveMigration().build()
 
+/**
+ * Core orchestrator for the native in-process VibeCoding AI agent.
+ *
+ * Owns the generation loop, tool registry, settings store and all coroutine scopes.
+ * Create one instance per UI session and call [stopGeneration] when done.
+ */
+class VibeCodingEngine(
+    private val context: Context,
+    private val ideService: IdeService,
+    scope: CoroutineScope? = null,
+    json: Json = defaultJson,
+    okHttpClient: OkHttpClient = buildOkHttpClient(),
+) {
+    private val engineScope: CoroutineScope =
+        scope ?: CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val appScope = AppScope()
+
+    private val database = buildDatabase(context)
     private val memoryRepo = MemoryRepository(database.memoryDao())
     private val conversationRepo = ConversationRepository(database.conversationDao())
-    private val loggingManager = AILoggingManager()
+
+    val providerManager = ProviderManager(okHttpClient, context)
+    val settingsStore = SettingsStore(context, appScope)
 
     val generationHandler = GenerationHandler(
         context = context,
@@ -61,45 +72,51 @@ class VibeCodingEngine(
         json = json,
         memoryRepo = memoryRepo,
         conversationRepo = conversationRepo,
-        aiLoggingManager = loggingManager,
+        aiLoggingManager = AILoggingManager(),
     )
 
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
 
     private var currentJob: Job? = null
-    private var systemPromptInjected = false
 
-    private val systemPromptTransformer = object : InputMessageTransformer {
-        override suspend fun transform(ctx: TransformerContext, messages: List<UIMessage>): List<UIMessage> {
-            if (!systemPromptInjected && messages.isNotEmpty()) {
-                systemPromptInjected = true
-                val systemMsg = UIMessage.system(VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)
-                return listOf(systemMsg) + messages
-            }
-            return messages
+    /**
+     * One-shot transformer that prepends the VibeCoding system instructions
+     * on the first turn of each conversation.
+     */
+    private inner class SystemPromptTransformer : InputMessageTransformer {
+        private var injected = false
+
+        override suspend fun transform(
+            ctx: TransformerContext,
+            messages: List<UIMessage>,
+        ): List<UIMessage> {
+            if (injected || messages.isEmpty()) return messages
+            injected = true
+            return listOf(UIMessage.system(VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)) + messages
         }
+
+        fun reset() { injected = false }
     }
+
+    private val systemPromptTransformer = SystemPromptTransformer()
 
     private val _state = MutableStateFlow(VibeCodingState())
     val state: StateFlow<VibeCodingState> = _state.asStateFlow()
 
-    val messages: List<UIMessage>
-        get() = _state.value.messages
-
-    val isProcessing: Boolean
-        get() = _state.value.isProcessing
+    val messages: List<UIMessage> get() = _state.value.messages
+    val isProcessing: Boolean get() = _state.value.isProcessing
 
     fun sendMessage(text: String) {
         currentJob?.cancel()
         currentJob = engineScope.launch(Dispatchers.IO) {
+            val trimmed = text.trim()
             _state.value = _state.value.copy(isProcessing = true, error = null)
-            val userMsg = UIMessage.user(text.trim())
-            _state.value = _state.value.copy(messages = _state.value.messages + userMsg)
+            _state.value = _state.value.copy(
+                messages = _state.value.messages + UIMessage.user(trimmed),
+            )
 
             val settings = settingsStore.settingsFlow.value
-            val assistant = settings.getCurrentAssistant()
-            val modelId = settings.chatModelId
-            val model = settings.findModelById(modelId)
+            val model = settings.findModelById(settings.chatModelId)
             if (model == null) {
                 _state.value = _state.value.copy(
                     isProcessing = false,
@@ -108,25 +125,22 @@ class VibeCodingEngine(
                 return@launch
             }
 
-            try {
-                val flow = generationHandler.generateText(
+            runCatching {
+                generationHandler.generateText(
                     settings = settings,
                     model = model,
                     messages = _state.value.messages,
-                    assistant = assistant,
+                    assistant = settings.getCurrentAssistant(),
                     tools = toolRegistry.allTools,
                     inputTransformers = listOf(systemPromptTransformer),
                     outputTransformers = emptyList(),
-                )
-
-                flow.collect { chunk ->
+                ).collect { chunk ->
                     when (chunk) {
-                        is GenerationHandler.GenerationChunk.Messages -> {
+                        is GenerationHandler.GenerationChunk.Messages ->
                             _state.value = _state.value.copy(messages = chunk.messages)
-                        }
                     }
                 }
-            } catch (e: Exception) {
+            }.onFailure { e ->
                 _state.value = _state.value.copy(
                     isProcessing = false,
                     error = e.message ?: "Generation failed",
@@ -146,7 +160,7 @@ class VibeCodingEngine(
 
     fun clearConversation() {
         _state.value = VibeCodingState()
-        systemPromptInjected = false
+        systemPromptTransformer.reset()
     }
 
     fun clearError() {

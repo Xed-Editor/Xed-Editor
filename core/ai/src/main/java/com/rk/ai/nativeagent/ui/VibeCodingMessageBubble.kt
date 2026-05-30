@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rk.ai.models.MessageRole
+import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
 
@@ -47,57 +47,42 @@ fun VibeCodingMessageBubble(
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 message.parts.forEach { part ->
-                    when (part) {
-                        is UIMessagePart.Text -> {
-                            Text(
-                                text = part.text,
-                                color = if (isUser) colorScheme.onPrimaryContainer else colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    lineHeight = 22.sp,
-                                ),
-                            )
-                        }
-
-                        is UIMessagePart.Reasoning -> {
-                            ReasoningBlock(part)
-                        }
-
-                        is UIMessagePart.Tool -> {
-                            VibeCodingToolCard(part)
-                        }
-
-                        is UIMessagePart.Image -> {
-                            Text(
-                                text = "[Image: ${part.url.take(60)}]",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colorScheme.primary,
-                                fontStyle = FontStyle.Italic,
-                            )
-                        }
-
-                        is UIMessagePart.Document -> {
-                            Text(
-                                text = "[Document: ${part.fileName}]",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colorScheme.primary,
-                                fontStyle = FontStyle.Italic,
-                            )
-                        }
-
-                        else -> {
-                            Text(
-                                text = "[${part::class.simpleName}]",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colorScheme.onSurfaceVariant,
-                                fontStyle = FontStyle.Italic,
-                            )
-                        }
-                    }
+                    MessagePartContent(part = part, isUser = isUser)
                     Spacer(Modifier.height(4.dp))
                 }
             }
         }
     }
+}
+
+@Composable
+private fun MessagePartContent(part: UIMessagePart, isUser: Boolean) {
+    val colorScheme = MaterialTheme.colorScheme
+    when (part) {
+        is UIMessagePart.Text -> Text(
+            text = part.text,
+            color = if (isUser) colorScheme.onPrimaryContainer else colorScheme.onSurface,
+            style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
+        )
+        is UIMessagePart.Reasoning -> ReasoningBlock(part)
+        is UIMessagePart.Tool -> VibeCodingToolCard(part)
+        is UIMessagePart.Image -> AttachmentLabel("[Image: ${part.url.take(60)}]")
+        is UIMessagePart.Document -> AttachmentLabel("[Document: ${part.fileName}]")
+        else -> AttachmentLabel("[${part::class.simpleName}]", muted = true)
+    }
+}
+
+@Composable
+private fun AttachmentLabel(text: String, muted: Boolean = false) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        color = if (muted)
+            MaterialTheme.colorScheme.onSurfaceVariant
+        else
+            MaterialTheme.colorScheme.primary,
+        fontStyle = if (muted) FontStyle.Normal else FontStyle.Italic,
+    )
 }
 
 @Composable
@@ -113,14 +98,12 @@ private fun ReasoningBlock(part: UIMessagePart.Reasoning) {
             .clickable { expanded = !expanded }
             .padding(8.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = if (expanded) "▼ Thinking" else "▶ Thinking",
-                style = MaterialTheme.typography.labelSmall,
-                color = colorScheme.onTertiaryContainer,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
+        Text(
+            text = if (expanded) "▼ Thinking" else "▶ Thinking",
+            style = MaterialTheme.typography.labelSmall,
+            color = colorScheme.onTertiaryContainer,
+            fontWeight = FontWeight.SemiBold,
+        )
         AnimatedVisibility(
             visible = expanded,
             enter = expandVertically(),

@@ -6,7 +6,7 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingToolRegistry(
     private val ideService: IdeService,
-    private val context: Context? = null,
+    private val context: Context,
 ) {
 
     private val fileTools by lazy { VibeCodingFileTools(ideService) }

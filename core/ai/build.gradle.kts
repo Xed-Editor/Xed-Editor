@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:main"))
+
 
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)

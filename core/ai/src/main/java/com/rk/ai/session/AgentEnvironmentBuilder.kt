@@ -47,7 +47,7 @@ object AgentEnvironmentBuilder {
             "VISUAL=vim",
             "LANG=C.UTF-8",
             "LOCAL=${localDir().absolutePath}",
-            "PRIVATE_DIR=${activity.filesDir.parentFile!!.absolutePath}",
+            "PRIVATE_DIR=${activity.filesDir.parentFile?.absolutePath ?: activity.filesDir.absolutePath}",
             "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
             "EXT_HOME=${sandboxHomeDir()}",
             "HOME=${if (Settings.sandbox) "/home" else sandboxHomeDir().absolutePath}",
@@ -109,9 +109,10 @@ object AgentEnvironmentBuilder {
     }
 
     fun buildDebugEnv(extraVars: Map<String, String> = emptyMap()): Map<String, String> {
+        val debugValue = System.getenv("XED_GEMINI_DEBUG") ?: AiConfig.Debug.defaultDebugEnvValue
         val env = mutableMapOf(
-            "DEBUG" to (System.getenv("XED_GEMINI_DEBUG") ?: AiConfig.Debug.defaultDebugEnvValue),
-            "DEBUG_MODE" to (System.getenv("XED_GEMINI_DEBUG") ?: AiConfig.Debug.defaultDebugEnvValue),
+            "DEBUG" to debugValue,
+            "DEBUG_MODE" to debugValue,
             "GEMINI_DEBUG_LOG_FILE" to (System.getenv("XED_GEMINI_DEBUG_LOG_FILE") ?: AiConfig.Debug.defaultDebugLogFile),
             "GEMINI_CONTEXT_TRACE_DIR" to (System.getenv("XED_GEMINI_CONTEXT_TRACE_DIR") ?: AiConfig.Debug.defaultContextTraceDir),
         )

@@ -44,8 +44,9 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
                 required = emptyList<String>(),
             )
         },
-        execute = { _ ->
-            val path = ideService.getPrimaryWorkspacePath()
+        execute = { args ->
+            val path = args.asJsonObject["path"]?.asJsonPrimitive?.asString
+                ?: ideService.getPrimaryWorkspacePath()
             val config = ideService.getProjectConfig(path)
             val structure = ideService.getProjectStructure(path, 2, 100)
             val text = buildString {

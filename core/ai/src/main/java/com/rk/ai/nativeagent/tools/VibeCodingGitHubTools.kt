@@ -13,10 +13,64 @@ import java.net.HttpURLConnection
 import java.net.URI
 
 private const val GITHUB_API = "https://api.github.com"
+private const val GITHUB_API_TIMEOUT_MS = 20_000
+private val REPO_FORMAT = Regex("^[\\w.-]+/[\\w.-]+\$")
 
 class VibeCodingGitHubTools(private val ideService: IdeService) {
 
     val all: List<Tool> = listOf(githubRepoInfo, githubReadme, githubFileFetch, githubSearchCode)
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    private fun validateRepo(repo: String): UIMessagePart.Text? =
+        if (!repo.matches(REPO_FORMAT))
+            UIMessagePart.Text("Repo must be in 'owner/repo' format (e.g. 'torvalds/linux')")
+        else null
+
+    /**
+     * Decodes the Base64-encoded file content returned by the GitHub Contents API.
+     * Returns null if the field is absent.
+     */
+    private fun JsonObject.decodeBase64Content(): String? {
+        val raw = get("content")?.asString?.replace("\n", "") ?: return null
+        return java.util.Base64.getDecoder().decode(raw).toString(Charsets.UTF_8)
+    }
+
+    /**
+     * Performs a GET request against the GitHub API and returns the response body as a String.
+     * Handles rate-limiting (403) and not-found (404) explicitly.
+     * Closes the connection in all code paths.
+     */
+    private fun githubApiGet(urlStr: String): String {
+        val conn = URI(urlStr).toURL().openConnection() as HttpURLConnection
+        try {
+            conn.connectTimeout = GITHUB_API_TIMEOUT_MS
+            conn.readTimeout = GITHUB_API_TIMEOUT_MS
+            conn.setRequestProperty("User-Agent", "Xed-Editor/2.0")
+            conn.setRequestProperty("Accept", "application/vnd.github.v3+json")
+
+            val responseCode = conn.responseCode
+            if (responseCode == 403) {
+                val resetTime = conn.getHeaderField("X-RateLimit-Reset")?.toLongOrNull()
+                val msg = if (resetTime != null) {
+                    val waitSec = (resetTime * 1000 - System.currentTimeMillis()) / 1000
+                    "GitHub API rate limited. Resets in ${waitSec}s"
+                } else "GitHub API rate limited"
+                throw RuntimeException(msg)
+            }
+            if (responseCode == 404) throw RuntimeException("Not found (404)")
+
+            return BufferedReader(
+                InputStreamReader(
+                    if (responseCode in 200..299) conn.inputStream else conn.errorStream,
+                )
+            ).use { it.readText() }
+        } finally {
+            conn.disconnect()
+        }
+    }
+
+    // ── Tool definitions ───────────────────────────────────────────────────
 
     private val githubRepoInfo = Tool(
         name = "github_repo_info",
@@ -24,17 +78,17 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = JsonObject().apply {
-                    addProperty("repo", "Repository in format 'owner/repo' (e.g. 'anomalyco/opencode')")
+                    addProperty("repo", "Repository in format 'owner/repo' (e.g. 'torvalds/linux')")
                 },
                 required = listOf("repo"),
             )
         },
         execute = { args ->
-            val repo = args.asJsonObject["repo"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing repo"))
-            if (!repo.matches(Regex("^[\\w.-]+/[\\w.-]+$"))) return@Tool listOf(UIMessagePart.Text("Repo must be in 'owner/repo' format"))
+            val repo = args.asJsonObject["repo"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Missing repo"))
+            validateRepo(repo)?.let { return@Tool listOf(it) }
 
-            val json = githubApiGet("$GITHUB_API/repos/$repo")
-            val data = JsonParser.parseString(json).asJsonObject
+            val data = JsonParser.parseString(githubApiGet("$GITHUB_API/repos/$repo")).asJsonObject
 
             val text = buildString {
                 appendLine("Repository: ${data.get("full_name")?.asString ?: repo}")
@@ -50,7 +104,7 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
                 val pushedAt = data.get("pushed_at")?.asString ?: ""
                 if (pushedAt.isNotBlank()) appendLine("Last Push: $pushedAt")
             }
-            listOf(UIMessagePart.Text(text.toString()))
+            listOf(UIMessagePart.Text(text))
         },
     )
 
@@ -66,13 +120,13 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
             )
         },
         execute = { args ->
-            val repo = args.asJsonObject["repo"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing repo"))
-            if (!repo.matches(Regex("^[\\w.-]+/[\\w.-]+$"))) return@Tool listOf(UIMessagePart.Text("Repo must be in 'owner/repo' format"))
+            val repo = args.asJsonObject["repo"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Missing repo"))
+            validateRepo(repo)?.let { return@Tool listOf(it) }
 
-            val json = githubApiGet("$GITHUB_API/repos/$repo/readme")
-            val data = JsonParser.parseString(json).asJsonObject
-            val content = data.get("content")?.asString?.replace("\n", "") ?: return@Tool listOf(UIMessagePart.Text("No README content found"))
-            val decoded = java.util.Base64.getDecoder().decode(content).toString(Charsets.UTF_8)
+            val data = JsonParser.parseString(githubApiGet("$GITHUB_API/repos/$repo/readme")).asJsonObject
+            val decoded = data.decodeBase64Content()
+                ?: return@Tool listOf(UIMessagePart.Text("No README content found"))
             listOf(UIMessagePart.Text(decoded))
         },
     )
@@ -94,17 +148,16 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
             val obj = args.asJsonObject
             val repo = obj["repo"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing repo"))
             val filePath = obj["path"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing path"))
-            val branch = obj["branch"]?.asJsonPrimitive?.asString ?: ""
+            val branch = obj["branch"]?.asJsonPrimitive?.asString.orEmpty()
 
             val url = buildString {
                 append("$GITHUB_API/repos/$repo/contents/$filePath")
                 if (branch.isNotBlank()) append("?ref=$branch")
             }
 
-            val json = githubApiGet(url)
-            val data = JsonParser.parseString(json).asJsonObject
-            val content = data.get("content")?.asString?.replace("\n", "") ?: return@Tool listOf(UIMessagePart.Text("Not a file or no content"))
-            val decoded = java.util.Base64.getDecoder().decode(content).toString(Charsets.UTF_8)
+            val data = JsonParser.parseString(githubApiGet(url)).asJsonObject
+            val decoded = data.decodeBase64Content()
+                ?: return@Tool listOf(UIMessagePart.Text("Not a file or no content"))
             listOf(UIMessagePart.Text(decoded))
         },
     )
@@ -126,12 +179,11 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
             val obj = args.asJsonObject
             val query = obj["query"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing query"))
             val limit = (obj["limit"]?.asJsonPrimitive?.asInt ?: 10).coerceIn(1, 50)
-            val repo = obj["repo"]?.asJsonPrimitive?.asString ?: ""
+            val repo = obj["repo"]?.asJsonPrimitive?.asString.orEmpty()
 
             val q = if (repo.isNotBlank()) "$query+repo:$repo" else query
             val url = "$GITHUB_API/search/code?q=${java.net.URLEncoder.encode(q, "UTF-8")}&per_page=$limit"
-            val json = githubApiGet(url)
-            val data = JsonParser.parseString(json).asJsonObject
+            val data = JsonParser.parseString(githubApiGet(url)).asJsonObject
             val items = data.getAsJsonArray("items") ?: JsonArray()
 
             val text = buildString {
@@ -146,32 +198,7 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
                     appendLine()
                 }
             }
-            listOf(UIMessagePart.Text(text.toString()))
+            listOf(UIMessagePart.Text(text))
         },
     )
-
-    private fun githubApiGet(urlStr: String): String {
-        val url = URI(urlStr).toURL()
-        val conn = url.openConnection() as HttpURLConnection
-        conn.connectTimeout = 20_000
-        conn.readTimeout = 20_000
-        conn.setRequestProperty("User-Agent", "Xed-Editor/2.0")
-        conn.setRequestProperty("Accept", "application/vnd.github.v3+json")
-
-        val responseCode = conn.responseCode
-        if (responseCode == 403) {
-            val resetTime = conn.getHeaderField("X-RateLimit-Reset")?.toLongOrNull()
-            val msg = if (resetTime != null) {
-                val wait = resetTime * 1000 - System.currentTimeMillis()
-                "GitHub API rate limited. Resets in ${wait / 1000}s"
-            } else "GitHub API rate limited"
-            throw RuntimeException(msg)
-        }
-        if (responseCode == 404) throw RuntimeException("Not found (404)")
-
-        val reader = BufferedReader(InputStreamReader(
-            if (responseCode in 200..299) conn.inputStream else conn.errorStream
-        ))
-        return reader.readText()
-    }
 }

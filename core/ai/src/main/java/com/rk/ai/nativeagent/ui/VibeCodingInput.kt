@@ -47,7 +47,6 @@ fun VibeCodingInput(
                     focusedContainerColor = colorScheme.surfaceContainerHighest.copy(alpha = 0.7f),
                 ),
                 enabled = !isProcessing,
-                maxLines = 1,
             )
 
             Spacer(Modifier.width(6.dp))

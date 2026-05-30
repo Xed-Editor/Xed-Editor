@@ -199,37 +199,41 @@ class VibeCodingWebTools(private val ideService: IdeService) {
     private fun fetchUrl(url: URL, timeoutSec: Long, maxBytes: Int, redirects: Int = 0): FetchResponse {
         if (redirects > 5) throw RuntimeException("Too many redirects")
         val conn = url.openConnection() as HttpURLConnection
-        conn.connectTimeout = (timeoutSec * 1000).toInt()
-        conn.readTimeout = (timeoutSec * 1000).toInt()
-        conn.instanceFollowRedirects = false
-        conn.setRequestProperty("User-Agent", "Xed-Editor/2.1 (+VibeCoding Agent)")
-        conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml,text/plain,application/json,*/*;q=0.8")
+        try {
+            conn.connectTimeout = (timeoutSec * 1000).toInt()
+            conn.readTimeout = (timeoutSec * 1000).toInt()
+            conn.instanceFollowRedirects = false
+            conn.setRequestProperty("User-Agent", "Xed-Editor/2.1 (+VibeCoding Agent)")
+            conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml,text/plain,application/json,*/*;q=0.8")
 
-        val responseCode = conn.responseCode
-        if (responseCode in 300..399) {
-            val redirectUrl = conn.getHeaderField("Location") ?: throw RuntimeException("Redirect with no Location header")
-            val resolved = url.toURI().resolve(redirectUrl).toString()
-            val safeRedirect = validateUrl(resolved) ?: throw RuntimeException("Unsafe redirect: $resolved")
-            return fetchUrl(safeRedirect, timeoutSec, maxBytes, redirects + 1)
-        }
-        if (responseCode !in 200..299) throw RuntimeException("HTTP $responseCode")
-
-        conn.inputStream.use { input ->
-            val out = ByteArrayOutputStream()
-            val buffer = ByteArray(8192)
-            var total = 0
-            while (true) {
-                val read = input.read(buffer)
-                if (read == -1) break
-                total += read
-                if (total > maxBytes) throw RuntimeException("Response exceeded $maxBytes bytes")
-                out.write(buffer, 0, read)
+            val responseCode = conn.responseCode
+            if (responseCode in 300..399) {
+                val redirectUrl = conn.getHeaderField("Location") ?: throw RuntimeException("Redirect with no Location header")
+                val resolved = url.toURI().resolve(redirectUrl).toString()
+                val safeRedirect = validateUrl(resolved) ?: throw RuntimeException("Unsafe redirect: $resolved")
+                return fetchUrl(safeRedirect, timeoutSec, maxBytes, redirects + 1)
             }
-            return FetchResponse(
-                finalUrl = conn.url.toString(),
-                contentType = conn.contentType.orEmpty(),
-                bytes = out.toByteArray(),
-            )
+            if (responseCode !in 200..299) throw RuntimeException("HTTP $responseCode")
+
+            conn.inputStream.use { input ->
+                val out = ByteArrayOutputStream()
+                val buffer = ByteArray(8192)
+                var total = 0
+                while (true) {
+                    val read = input.read(buffer)
+                    if (read == -1) break
+                    total += read
+                    if (total > maxBytes) throw RuntimeException("Response exceeded $maxBytes bytes")
+                    out.write(buffer, 0, read)
+                }
+                return FetchResponse(
+                    finalUrl = conn.url.toString(),
+                    contentType = conn.contentType.orEmpty(),
+                    bytes = out.toByteArray(),
+                )
+            }
+        } finally {
+            conn.disconnect()
         }
     }
 
@@ -289,7 +293,10 @@ class VibeCodingWebTools(private val ideService: IdeService) {
 
     private fun looksLikeHtml(contentType: String, text: String): Boolean {
         val type = contentType.lowercase()
-        return type.contains("html") || text.trimStart().startsWith("<!doctype", ignoreCase = true) || text.trimStart().startsWith("<html", ignoreCase = true)
+        val trimmed = text.trimStart()
+        return type.contains("html") ||
+            trimmed.startsWith("<!doctype", ignoreCase = true) ||
+            trimmed.startsWith("<html", ignoreCase = true)
     }
 
     private fun stripHtml(html: String): String {

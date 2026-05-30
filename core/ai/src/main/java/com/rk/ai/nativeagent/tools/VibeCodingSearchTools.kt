@@ -8,7 +8,7 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingSearchTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(searchCode, grepSearch, searchSymbols, findFiles)
+    val all: List<Tool> = listOf(searchCode, grepSearch, searchSymbols)
 
     private val searchCode = Tool(
         name = "searchCode",
