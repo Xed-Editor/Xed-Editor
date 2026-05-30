@@ -48,5 +48,21 @@
     <string name="replace_all">সব প্রতিস্থাপন করুন</string>
     <string name="download">ডাউনলোড</string>
     <string name="apply">প্রয়োগ করুন</string>
-    <string name="open_in_terminal">একটি টার্মিনাল খুলুন</string>
+    <string name="open_in_terminal">টার্মিনালে খুলুন</string>
+    <string name="ask_deletion_many">আপনি কি নিশ্চিতভাবে %d ফাইলগুলি সম্পূর্ণরূপে মুছে ফেলতে চান?</string>
+    <string name="file_open_denied">এই ফাইলটি অন্য অ্যাপ দিয়ে খুলার অনুমতি নেই</string>
+    <string name="close_current_project">আপনি কি নিশ্চিতভাবে %s প্রজেক্টটি বন্ধ করতে চান?</string>
+    <string name="file_name">ফাইলের নাম</string>
+    <string name="path">পথ</string>
+    <string name="open">খুলুন</string>
+    <string name="permission_denied">অনুমতি অগ্রাহ্য করা হলো</string>
+    <string name="ok">ঠিক আছে</string>
+    <string name="branch">শাখা</string>
+    <string name="private_files">গোপন ফাইল সমূহ</string>
+    <string name="internal_storage">অভ্যন্তরীণ স্টোরেজ</string>
+    <string name="add">যোগ করুন</string>
+    <string name="themes">থিম সমূহ</string>
+    <string name="editor">সম্পাদক</string>
+    <string name="show_line_number">লাইনের সংখ্যা দেখুন</string>
+    <string name="pin_line_number">লাইন নম্বর পিন করুন</string>
 </resources>
