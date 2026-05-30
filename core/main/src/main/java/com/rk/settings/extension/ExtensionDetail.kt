@@ -254,12 +254,14 @@ private fun AboutSection(
     ExtensionActionButtons(
         outdatedWarning = outdatedClient || outdatedExtension,
         modifier = Modifier.fillMaxWidth(),
-        extension = extension,
         installState = installState,
         scope = scope,
-        onInstallClick = { runExtensionInstallAction(it, updateInstallState, scope, context, activity) },
-        onUninstallClick = { runExtensionUninstallAction(it, updateInstallState, scope, activity) },
-        onUpdateClick = { runExtensionUpdateAction(it, updateInstallState, scope, context, activity) },
+        onInstallClick = { runExtensionInstallAction(extension, updateInstallState, scope, context, activity) },
+        onUninstallClick = { runExtensionUninstallAction(extension, updateInstallState, scope, activity) },
+        onUpdateClick = {
+            if (extension !is UpdatableExtension) return@ExtensionActionButtons
+            runExtensionUpdateAction(extension, updateInstallState, scope, context, activity)
+        },
     )
 
     if (outdatedClient || outdatedExtension) {

@@ -34,9 +34,9 @@ fun ExtensionCard(
     extension: Extension,
     modifier: Modifier = Modifier,
     installState: InstallState = InstallState.Idle,
-    onInstallClick: suspend (Extension) -> Unit,
-    onUninstallClick: suspend (Extension) -> Unit,
-    onUpdateClick: suspend (UpdatableExtension) -> Unit,
+    onInstallClick: suspend () -> Unit,
+    onUninstallClick: suspend () -> Unit,
+    onUpdateClick: suspend () -> Unit,
     onClick: (Extension) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
@@ -96,7 +96,6 @@ fun ExtensionCard(
         },
         endWidget = {
             SmallExtensionActionButton(
-                extension = extension,
                 installState = installState,
                 scope = scope,
                 onInstallClick = onInstallClick,
