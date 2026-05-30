@@ -1,0 +1,69 @@
+package com.rk.ai.nativeagent.tools
+
+import com.google.gson.JsonObject
+import com.rk.ai.models.InputSchema
+import com.rk.ai.models.Tool
+import com.rk.ai.models.UIMessagePart
+import com.rk.ai.service.IdeService
+import java.io.File
+
+class VibeCodingEditorTools(private val ideService: IdeService) {
+
+    val all: List<Tool> = listOf(getOpenFiles, getActiveFile, getSelection, openFile)
+
+    private val getOpenFiles = Tool(
+        name = "getOpenFiles",
+        description = "Lists all files currently open in editor tabs.",
+        execute = { _ ->
+            val files = ideService.getOpenFiles()
+            val text = files.joinToString("\n") { it["path"]?.asString ?: it.toString() }
+            listOf(UIMessagePart.Text(text.ifEmpty { "No files open" }))
+        },
+    )
+
+    private val getActiveFile = Tool(
+        name = "getActiveFile",
+        description = "Returns the path and full content of the file currently visible in the active editor tab. Content is truncated at 500KB.",
+        execute = { _ ->
+            val json = ideService.getActiveFile()
+            if (json != null) {
+                val path = json["path"]?.asString ?: "unknown"
+                val content = json["content"]?.asString ?: ""
+                listOf(UIMessagePart.Text("File: $path\n\n$content"))
+            } else {
+                listOf(UIMessagePart.Text("No active file open"))
+            }
+        },
+    )
+
+    private val getSelection = Tool(
+        name = "getSelection",
+        description = "Returns the text currently selected by the user in the active editor.",
+        execute = { _ ->
+            val selection = ideService.getSelection()
+            listOf(UIMessagePart.Text(selection.ifEmpty { "No text selected" }))
+        },
+    )
+
+    private val openFile = Tool(
+        name = "openFile",
+        description = "Opens a file in an editor tab.",
+        parameters = {
+            InputSchema.Obj(
+                properties = JsonObject().apply {
+                    addProperty("filePath", "Absolute path to the file to open")
+                },
+                required = listOf("filePath"),
+            )
+        },
+        execute = { args ->
+            val filePath = args.asJsonObject["filePath"]?.asJsonPrimitive?.asString
+            if (filePath != null) {
+                ideService.openFile(File(filePath))
+                listOf(UIMessagePart.Text("Opened $filePath"))
+            } else {
+                listOf(UIMessagePart.Text("Missing filePath"))
+            }
+        },
+    )
+}

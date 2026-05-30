@@ -128,6 +128,7 @@ fun ToolSheetControls(
             }
         }
 
+        BottomPanelMode.VIBE_CODING -> {}
         BottomPanelMode.GIT -> {}
     }
 }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.ktfmt)
 }
 
@@ -53,4 +54,13 @@ dependencies {
     implementation(project(":core:terminal-emulator"))
     implementation(project(":core:resources"))
     implementation(project(":core:extension"))
+
+    // VibeCoding Native Agent - Rikka AI Core
+    implementation(project(":core:agent-runtime"))
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.paging.runtime)
+    ksp(libs.androidx.room.compiler)
 }

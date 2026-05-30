@@ -24,6 +24,9 @@ import com.rk.activities.main.BottomPanelMode
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.gitViewModel
+import com.rk.ai.nativeagent.engine.VibeCodingEngine
+import com.rk.ai.nativeagent.ui.VibeCodingPanel
+import com.rk.ai.service.IdeServiceImpl
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeTab
@@ -147,6 +150,13 @@ fun UnifiedToolSheet(
         }
     }
 
+    val vibecodingEngine = remember(activity) {
+        activity?.let {
+            val ideService = IdeServiceImpl(viewModel)
+            VibeCodingEngine(context = it, ideService = ideService)
+        }
+    }
+
     ToolSheetContainer(
         onDismissRequest = onDismissRequest,
         cwd = cwd.value,
@@ -187,21 +197,23 @@ fun UnifiedToolSheet(
                 terminalViewModel = terminalViewModel,
             )
         },
-        bottomBar = {
-            UnifiedCommandBar(
-                mode = viewModel.bottomPanelMode,
-                isAiRunning = isAiRunning,
-                cwd = cwd.value,
-                agent = currentAgent,
-                transcript = transcript,
-                showTranscript = showTranscript,
-                onToggleTranscript = { showTranscript = !showTranscript },
-                onClearTranscript = { viewModel.agentTranscript = "" },
-                onAction = { logic.handleInput(it) },
-                terminalViewModel = terminalViewModel,
-                hasSelection = selectedText.isNotBlank(),
-                currentFile = cwd.value.split("/").lastOrNull() ?: ""
-            )
+        bottomBar = if (viewModel.bottomPanelMode == BottomPanelMode.VIBE_CODING) null else {
+            {
+                UnifiedCommandBar(
+                    mode = viewModel.bottomPanelMode,
+                    isAiRunning = isAiRunning,
+                    cwd = cwd.value,
+                    agent = currentAgent,
+                    transcript = transcript,
+                    showTranscript = showTranscript,
+                    onToggleTranscript = { showTranscript = !showTranscript },
+                    onClearTranscript = { viewModel.agentTranscript = "" },
+                    onAction = { logic.handleInput(it) },
+                    terminalViewModel = terminalViewModel,
+                    hasSelection = selectedText.isNotBlank(),
+                    currentFile = cwd.value.split("/").lastOrNull() ?: ""
+                )
+            }
         },
     ) {
         when (viewModel.bottomPanelMode) {
@@ -214,6 +226,22 @@ fun UnifiedToolSheet(
                         agentName = currentAgent?.displayName ?: "AI",
                         onStart = { logic.startAgent(cwd.value, forceRestart = true) },
                     )
+                }
+            }
+            BottomPanelMode.VIBE_CODING -> {
+                if (vibecodingEngine != null) {
+                    VibeCodingPanel(engine = vibecodingEngine)
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            "VibeCoding unavailable",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
             BottomPanelMode.TERMINAL -> {
