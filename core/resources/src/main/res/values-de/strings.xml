@@ -654,4 +654,7 @@
     <string name="sort_lines_descending">Zeilen absteigend sortieren</string>
     <string name="updating">Wird aktualisiert…</string>
     <string name="choose_runner">Runner auswählen</string>
+    <string name="ext_cleanup_failed">Bereinigung der Erweiterung fehlgeschlagen</string>
+    <string name="uninstall_ext_dialog">Erweiterung deinstallieren?</string>
+    <string name="uninstall_ext_dialog_desc">Bist du sicher, dass du die Erweiterung \'%s\' deinstallieren möchtest?</string>
 </resources>
