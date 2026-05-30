@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="placeholder_current_date">Current date</string>
+    <string name="placeholder_current_time">Current time</string>
+    <string name="placeholder_current_datetime">Current date and time</string>
+    <string name="placeholder_model_id">Model ID</string>
+    <string name="placeholder_model_name">Model name</string>
+    <string name="placeholder_locale">Locale</string>
+    <string name="placeholder_timezone">Timezone</string>
+    <string name="placeholder_system_version">System version</string>
+    <string name="placeholder_device_info">Device info</string>
+    <string name="placeholder_battery_level">Battery level</string>
+    <string name="placeholder_nickname">User nickname</string>
+    <string name="placeholder_char">Character name</string>
+    <string name="placeholder_user">Username</string>
+</resources>
