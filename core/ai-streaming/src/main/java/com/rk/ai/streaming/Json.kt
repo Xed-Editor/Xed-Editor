@@ -32,6 +32,15 @@ fun String.applyPlaceholders(vararg placeholders: Pair<String, String>): String 
     return result
 }
 
+fun <T> List<T>.checkDifferent(
+    other: List<T>,
+    eq: (T, T) -> Boolean = { a, b -> a == b }
+): Pair<List<T>, List<T>> {
+    val toAdd = other.filter { o -> none { eq(o, it) } }
+    val toRemove = filter { c -> other.none { eq(c, it) } }
+    return toAdd to toRemove
+}
+
 fun <T> Flow<T>.toMutableStateFlow(
     scope: CoroutineScope,
     initialValue: T,

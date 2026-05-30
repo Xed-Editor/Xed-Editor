@@ -1,4 +1,4 @@
-package com.rk.ai.mcp
+package com.rk.ai.models
 
 sealed class McpStatus {
     data object Idle : McpStatus()

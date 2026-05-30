@@ -27,7 +27,6 @@ dependencies {
     api(project(":core:ai-models"))
     api(project(":core:ai-streaming"))
     api(project(":core:ai-providers"))
-    api(project(":core:ai-mcp-client"))
     api(project(":core:agent-tools-search"))
 
     api(libs.kotlinx.serialization.json)

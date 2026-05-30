@@ -5,7 +5,6 @@ import androidx.core.net.toUri
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.sse.SSE
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.StringValues
 import io.modelcontextprotocol.kotlin.sdk.client.Client
@@ -36,8 +35,11 @@ import com.rk.ai.models.UIMessagePart
 import com.rk.ai.core.AppScope
 import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.persistence.settings.getCurrentAssistant
-import com.rk.ai.agent.files.FilesManager
-import com.rk.ai.agent.files.saveUploadFromBytes
+import com.rk.ai.mcp.FileManager
+import com.rk.ai.models.McpCommonOptions
+import com.rk.ai.models.McpServerConfig
+import com.rk.ai.models.McpStatus
+import com.rk.ai.models.McpTool
 import com.rk.ai.streaming.JsonInstant
 import com.rk.ai.streaming.checkDifferent
 import okhttp3.OkHttpClient
@@ -54,7 +56,7 @@ private const val MAX_RECONNECT_DELAY_MS = 30000L
 class McpManager(
     private val settingsStore: SettingsStore,
     private val appScope: AppScope,
-    private val filesManager: FilesManager,
+    private val fileManager: FileManager,
 ) {
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(20, TimeUnit.SECONDS)
@@ -74,7 +76,6 @@ class McpManager(
                 isLenient = true
             })
         }
-        install(SSE)
     }
 
     private val clients: MutableMap<McpServerConfig, Client> = mutableMapOf()
@@ -161,12 +162,12 @@ class McpManager(
         val bytes = Base64.decode(image.data)
         val ext = android.webkit.MimeTypeMap.getSingleton()
             .getExtensionFromMimeType(image.mimeType) ?: "bin"
-        val entity = filesManager.saveUploadFromBytes(
+        val entityId = fileManager.saveUploadFromBytes(
             bytes = bytes,
             displayName = "mcp_image.$ext",
             mimeType = image.mimeType,
         )
-        val uri = filesManager.getFile(entity).toUri()
+        val uri = fileManager.getFile(entityId).toUri()
         Log.i(TAG, "convertImageContentToFilePart: saved mcp image to $uri")
         return UIMessagePart.Image(url = uri.toString())
     }

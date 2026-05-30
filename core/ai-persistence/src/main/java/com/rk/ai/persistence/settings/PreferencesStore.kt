@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
 import com.rk.ai.core.AppScope
-import com.rk.ai.mcp.McpServerConfig
+import com.rk.ai.models.McpServerConfig
 import com.rk.ai.models.Assistant
 import com.rk.ai.models.Tag
 import com.rk.ai.providers.Model

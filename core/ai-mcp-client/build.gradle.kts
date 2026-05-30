@@ -25,6 +25,8 @@ dependencies {
     api(project(":core:ai-core"))
     api(project(":core:ai-streaming"))
     api(project(":core:ai-models"))
+    api(project(":core:ai-persistence"))
+
 
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.coroutines)
@@ -34,6 +36,6 @@ dependencies {
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.client.sse)
+
     implementation(libs.modelcontextprotocol.kotlin.sdk)
 }

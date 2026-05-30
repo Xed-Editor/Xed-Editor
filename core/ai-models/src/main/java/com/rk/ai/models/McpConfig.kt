@@ -1,4 +1,4 @@
-package com.rk.ai.mcp
+package com.rk.ai.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
