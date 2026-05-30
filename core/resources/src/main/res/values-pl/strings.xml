@@ -662,4 +662,7 @@
     <string name="sort_lines_descending">Sortuj linijki malejąco</string>
     <string name="updating">Aktualizacja…</string>
     <string name="choose_runner">Wybierz program uruchamiający</string>
+    <string name="ext_cleanup_failed">Niepowodzenie czyszczenia rozszerzenia</string>
+    <string name="uninstall_ext_dialog">Odinstalować rozszerzenie?</string>
+    <string name="uninstall_ext_dialog_desc">Czy napewno chcesz odinstalować rozszerzenie \'%s\'?</string>
 </resources>
