@@ -167,7 +167,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version 
 jsoup = { module = "org.jsoup:jsoup", version = "1.18.3" }
 
 # DataStore
-androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version = "1.1.5" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.2.1" }
 
 # Room
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
