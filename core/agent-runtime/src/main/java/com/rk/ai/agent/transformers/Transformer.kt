@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.transformers
 
 import android.content.Context
@@ -7,6 +8,7 @@ import com.rk.ai.models.UIMessage
 import com.rk.ai.persistence.settings.Settings
 import com.rk.ai.models.Assistant
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 class TransformerContext(
     val context: Context,

@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.persistence.db.migrations
 
 import android.database.sqlite.SQLiteBlobTooBigException
@@ -11,6 +12,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import com.rk.ai.persistence.db.DatabaseMigrationTracker
 import com.rk.ai.streaming.JsonInstant
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "Migration_11_12"
 

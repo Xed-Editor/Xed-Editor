@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.providers.providers
 
 import android.content.Context
@@ -68,6 +69,7 @@ import okhttp3.sse.EventSources
 import org.apache.commons.text.StringEscapeUtils
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "GoogleProvider"
 

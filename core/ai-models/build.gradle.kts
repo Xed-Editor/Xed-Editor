@@ -27,4 +27,6 @@ dependencies {
 
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.coroutines)
+    api(libs.kotlinx.datetime)
+    api(libs.androidx.core.ktx)
 }

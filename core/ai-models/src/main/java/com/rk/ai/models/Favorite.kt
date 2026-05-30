@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.models
 
 import kotlinx.serialization.SerialName
@@ -6,6 +7,7 @@ import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @Serializable
 enum class FavoriteType(val value: String) {

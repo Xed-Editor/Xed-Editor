@@ -1,11 +1,7 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
 import android.util.Log
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -15,6 +11,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.tools.search.SearchResult.SearchResultItem
 import com.rk.ai.tools.search.SearchService.Companion.httpClient
 import com.rk.ai.tools.search.SearchService.Companion.json
@@ -27,17 +24,7 @@ private const val TAG = "LinkUpService"
 object LinkUpService : SearchService<SearchServiceOptions.LinkUpOptions> {
     override val name: String = "LinkUp"
 
-    @Composable
-    override fun Description() {
-        val urlHandler = LocalUriHandler.current
-        TextButton(
-            onClick = {
-                urlHandler.openUri("https://www.linkup.so/")
-            }
-        ) {
-            Text(stringResource(R.string.click_to_get_api_key))
-        }
-    }
+    override fun Description(): String = "Search using LinkUp"
 
     override fun parameters(options: SearchServiceOptions.LinkUpOptions): InputSchema? =
         InputSchema.Obj(

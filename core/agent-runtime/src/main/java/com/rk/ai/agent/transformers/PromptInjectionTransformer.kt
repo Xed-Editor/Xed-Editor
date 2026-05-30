@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.transformers
 
 import com.rk.ai.core.MessageRole
@@ -10,6 +11,7 @@ import com.rk.ai.models.Lorebook
 import com.rk.ai.models.extractContextForMatching
 import com.rk.ai.models.isTriggered
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 /**
  * 提示词注入转换器

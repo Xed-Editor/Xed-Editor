@@ -24,9 +24,12 @@ android {
 dependencies {
     api(project(":core:ai-core"))
     api(project(":core:ai-streaming"))
+    api(project(":core:ai-models"))
 
     api(libs.okhttp)
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.coroutines)
+    api(libs.kotlinx.datetime)
     api(libs.gson)
+    api(libs.jsoup)
 }

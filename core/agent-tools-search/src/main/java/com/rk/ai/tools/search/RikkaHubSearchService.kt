@@ -1,7 +1,7 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
 import android.util.Log
-import androidx.compose.runtime.Composable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -11,6 +11,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.tools.search.SearchResult.SearchResultItem
 import com.rk.ai.tools.search.SearchService.Companion.httpClient
 import com.rk.ai.tools.search.SearchService.Companion.json
@@ -22,9 +23,7 @@ private const val TAG = "RikkaHubSearchService"
 object RikkaHubSearchService : SearchService<SearchServiceOptions.RikkaHubOptions> {
     override val name: String = "RikkaHub"
 
-    @Composable
-    override fun Description() {
-    }
+    override fun Description(): String = "Search using RikkaHub"
 
     override fun parameters(options: SearchServiceOptions.RikkaHubOptions): InputSchema? =
         InputSchema.Obj(

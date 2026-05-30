@@ -1,9 +1,7 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
 import android.util.Log
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -13,6 +11,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.tools.search.SearchResult.SearchResultItem
 import com.rk.ai.tools.search.SearchService.Companion.httpClient
 import com.rk.ai.tools.search.SearchService.Companion.json
@@ -26,11 +25,7 @@ private const val TAG = "SearXNGService"
 object SearXNGService : SearchService<SearchServiceOptions.SearXNGOptions> {
     override val name: String = "SearXNG"
 
-    @Composable
-    override fun Description() {
-        Text(stringResource(R.string.searxng_desc_1))
-        Text(stringResource(R.string.searxng_desc_2))
-    }
+    override fun Description(): String = "Search using SearXNG"
 
     override fun parameters(options: SearchServiceOptions.SearXNGOptions): InputSchema? =
         InputSchema.Obj(
@@ -57,7 +52,6 @@ object SearXNGService : SearchService<SearchServiceOptions.SearXNGOptions> {
 
             val query = params["query"]?.jsonPrimitive?.content ?: error("query is required")
 
-            // 构建查询URL
             val baseUrl = serviceOptions.url.trimEnd('/')
             val encodedQuery = URLEncoder.encode(query, "UTF-8")
             val url = "$baseUrl/search?q=$encodedQuery&format=json"
@@ -73,12 +67,10 @@ object SearXNGService : SearchService<SearchServiceOptions.SearXNGOptions> {
                 }
                 .build()
 
-            // 发送请求
             val request = Request.Builder()
                 .url(url)
                 .get()
                 .apply {
-                    // 添加HTTP Basic Auth支持
                     if (serviceOptions.username.isNotBlank() && serviceOptions.password.isNotBlank()) {
                         header("Authorization", Credentials.basic(serviceOptions.username, serviceOptions.password))
                     }
@@ -98,7 +90,6 @@ object SearXNGService : SearchService<SearchServiceOptions.SearXNGOptions> {
                     error("Failed to decode SearXNG response: ${it.message}")
                 }.getOrThrow()
 
-                // 转换为标准格式，取前 N 个结果
                 val items = searchResponse.results
                     .take(commonOptions.resultSize)
                     .map { result ->

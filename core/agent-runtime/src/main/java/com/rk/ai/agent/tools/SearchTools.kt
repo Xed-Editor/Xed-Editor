@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.tools
 
 import kotlinx.serialization.json.JsonArray
@@ -15,6 +16,7 @@ import com.rk.ai.tools.search.SearchService
 import com.rk.ai.tools.search.SearchServiceOptions
 import java.time.LocalDate
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 fun createSearchTools(settings: Settings): Set<Tool> {
     return buildSet {

@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent
 
 import android.content.Context
@@ -48,6 +49,7 @@ import com.rk.ai.streaming.applyPlaceholders
 import java.util.Locale
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "GenerationHandler"
 

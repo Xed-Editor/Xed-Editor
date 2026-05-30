@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.models
 
 import android.net.Uri
@@ -10,6 +11,7 @@ import com.rk.ai.models.UIMessagePart
 import com.rk.ai.streaming.InstantSerializer
 import java.time.Instant
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @Serializable
 data class Conversation(

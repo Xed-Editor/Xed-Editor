@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.persistence.repo
 
 import android.database.sqlite.SQLiteBlobTooBigException
@@ -24,6 +25,7 @@ import com.rk.ai.models.MessageNode
 import com.rk.ai.streaming.JsonInstant
 import java.time.Instant
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 class ConversationRepository(
     private val conversationDAO: ConversationDAO,

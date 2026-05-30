@@ -1,10 +1,6 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withLink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -15,6 +11,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.tools.search.SearchResult.SearchResultItem
 import com.rk.ai.tools.search.SearchService.Companion.httpClient
 import com.rk.ai.tools.search.SearchService.Companion.json
@@ -25,15 +22,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 object MetasoSearchService : SearchService<SearchServiceOptions.MetasoOptions> {
     override val name: String = "Metaso"
 
-    @Composable
-    override fun Description() {
-        Text(buildAnnotatedString {
-            append("秘塔搜索: ")
-            withLink(LinkAnnotation.Url("https://metaso.cn/")) {
-                append("https://metaso.cn/")
-            }
-        })
-    }
+    override fun Description(): String = "Search using Metaso"
 
     override fun parameters(options: SearchServiceOptions.MetasoOptions): InputSchema? =
         InputSchema.Obj(

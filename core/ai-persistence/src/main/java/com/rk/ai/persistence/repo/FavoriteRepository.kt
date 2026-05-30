@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.persistence.repo
 
 import kotlinx.coroutines.flow.Flow
@@ -8,6 +9,7 @@ import com.rk.ai.persistence.db.entity.FavoriteEntity
 import com.rk.ai.models.FavoriteType
 import com.rk.ai.models.NodeFavoriteTarget
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 class FavoriteRepository(
     private val dao: FavoriteDAO,

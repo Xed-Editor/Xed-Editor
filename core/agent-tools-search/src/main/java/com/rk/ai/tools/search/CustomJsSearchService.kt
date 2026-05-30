@@ -1,10 +1,16 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
+import kotlin.uuid.ExperimentalUuidApi
 
 object CustomJsSearchService : SearchService<SearchServiceOptions.CustomJsOptions> {
     override val name: String = "Custom JS"
+
+    override fun Description(): String = "Search using Custom JS"
 
     override fun parameters(options: SearchServiceOptions.CustomJsOptions): InputSchema? =
         InputSchema.Obj(

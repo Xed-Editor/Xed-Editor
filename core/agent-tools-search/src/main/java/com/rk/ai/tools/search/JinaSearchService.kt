@@ -1,10 +1,6 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -13,6 +9,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.tools.search.SearchResult.SearchResultItem
 import com.rk.ai.tools.search.SearchService.Companion.httpClient
 import com.rk.ai.tools.search.SearchService.Companion.json
@@ -25,17 +22,7 @@ object JinaSearchService : SearchService<SearchServiceOptions.JinaOptions> {
 
     override val name: String = "Jina"
 
-    @Composable
-    override fun Description() {
-        val urlHandler = LocalUriHandler.current
-        TextButton(
-            onClick = {
-                urlHandler.openUri("https://jina.ai/")
-            }
-        ) {
-            Text(stringResource(R.string.click_to_get_api_key))
-        }
-    }
+    override fun Description(): String = "Search using Jina"
 
     override fun parameters(options: SearchServiceOptions.JinaOptions): InputSchema? =
         InputSchema.Obj(

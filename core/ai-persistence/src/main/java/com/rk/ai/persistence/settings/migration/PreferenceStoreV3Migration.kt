@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.persistence.settings.migration
 
 import androidx.datastore.core.DataMigration
@@ -10,6 +11,7 @@ import kotlinx.serialization.json.jsonArray
 import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.streaming.JsonInstant
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 class PreferenceStoreV3Migration : DataMigration<Preferences> {
     override suspend fun shouldMigrate(currentData: Preferences): Boolean {

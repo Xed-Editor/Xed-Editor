@@ -1,18 +1,20 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.models
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import com.rk.ai.core.MessageRole
 import com.rk.ai.core.TokenUsage
-import kotlin.uuid.Uuid
 import com.rk.ai.streaming.json
-import kotlin.time.Clock
-import kotlin.time.Instant
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 // 公共消息抽象, 具体的Provider实现会转换为API接口需要的DTO
@@ -392,8 +394,8 @@ sealed class UIMessagePart {
     @SerialName("reasoning")
     data class Reasoning(
         val reasoning: String,
-        val createdAt: Instant = Clock.System.now(),
-        val finishedAt: Instant? = Clock.System.now(),
+        @Contextual val createdAt: Instant = Clock.System.now(),
+        @Contextual val finishedAt: Instant? = Clock.System.now(),
         override var metadata: JsonObject? = null
     ) : UIMessagePart()
 

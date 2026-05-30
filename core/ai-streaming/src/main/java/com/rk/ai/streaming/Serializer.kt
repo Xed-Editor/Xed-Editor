@@ -31,6 +31,8 @@ val JsonInstant = kotlinx.serialization.json.Json {
     explicitNulls = false
 }
 
+val json = JsonInstant
+
 val JsonInstantPretty = kotlinx.serialization.json.Json {
     prettyPrint = true
     ignoreUnknownKeys = true

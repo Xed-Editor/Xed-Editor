@@ -1,10 +1,6 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
@@ -18,6 +14,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.tools.search.SearchResult.SearchResultItem
 import com.rk.ai.tools.search.SearchService.Companion.httpClient
 import com.rk.ai.tools.search.SearchService.Companion.json
@@ -30,17 +27,7 @@ private const val TAG = "TavilySearchService"
 object TavilySearchService : SearchService<SearchServiceOptions.TavilyOptions> {
     override val name: String = "Tavily"
 
-    @Composable
-    override fun Description() {
-        val urlHandler = LocalUriHandler.current
-        TextButton(
-            onClick = {
-                urlHandler.openUri("https://app.tavily.com/home")
-            }
-        ) {
-            Text(stringResource(R.string.click_to_get_api_key))
-        }
-    }
+    override fun Description(): String = "Search using Tavily"
 
     override fun parameters(options: SearchServiceOptions.TavilyOptions): InputSchema? =
         InputSchema.Obj(
@@ -82,7 +69,6 @@ object TavilySearchService : SearchService<SearchServiceOptions.TavilyOptions> {
             val query = params["query"]?.jsonPrimitive?.content ?: error("query is required")
             val topic = params["topic"]?.jsonPrimitive?.contentOrNull ?: "general"
 
-            // Validate topic
             if (topic !in listOf("general", "news", "finance")) {
                 error("topic must be one of `general`, `news`, `finance`")
             }

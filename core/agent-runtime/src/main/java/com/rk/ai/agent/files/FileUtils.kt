@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.files
 
 import android.content.Context
@@ -11,6 +12,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 object FileUtils {
     private const val TAG = "FileUtils"

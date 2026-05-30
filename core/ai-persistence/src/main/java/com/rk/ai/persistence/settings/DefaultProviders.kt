@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.persistence.settings
 
 import com.rk.ai.providers.BalanceOption
@@ -6,6 +7,7 @@ import com.rk.ai.providers.Model
 import com.rk.ai.providers.ModelAbility
 import com.rk.ai.providers.ProviderSetting
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 internal val DEFAULT_AUTO_MODEL_ID = Uuid.parse("b7055fb4-39f9-4042-a88a-0d80ed76cf08")
 

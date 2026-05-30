@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.providers
 
 import androidx.compose.runtime.Composable
@@ -5,6 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @Serializable
 data class BalanceOption(

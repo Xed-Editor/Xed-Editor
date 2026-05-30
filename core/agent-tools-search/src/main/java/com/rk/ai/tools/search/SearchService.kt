@@ -1,7 +1,7 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.tools.search
 
 import android.content.Context
-import androidx.compose.runtime.Composable
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.streaming.KeyRoulette
+import kotlin.uuid.ExperimentalUuidApi
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -26,8 +27,7 @@ interface SearchService<T : SearchServiceOptions> {
 
     fun scrapingParameters(options: T): InputSchema?
 
-    @Composable
-    fun Description()
+    fun Description(): String
 
     suspend fun search(
         params: JsonObject,

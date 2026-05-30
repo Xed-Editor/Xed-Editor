@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.models
 
 import kotlinx.serialization.SerialName
@@ -9,6 +10,7 @@ import com.rk.ai.models.UIMessage
 import com.rk.ai.core.ReasoningLevel
 import com.rk.ai.models.LocalToolOption
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 @Serializable
 data class Assistant(

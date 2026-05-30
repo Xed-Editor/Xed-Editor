@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.persistence.settings
 
 import android.content.Context
@@ -25,6 +26,7 @@ import com.rk.ai.streaming.toMutableStateFlow
 import com.rk.ai.tools.search.SearchCommonOptions
 import com.rk.ai.tools.search.SearchServiceOptions
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "PreferencesStore"
 

@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.mcp
 
 import android.util.Log
@@ -47,6 +48,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.io.encoding.Base64
 import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
+import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "McpManager"
 private const val MAX_RECONNECT_ATTEMPTS = 5
