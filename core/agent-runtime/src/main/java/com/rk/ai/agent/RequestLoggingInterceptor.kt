@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent
 
 import com.rk.ai.streaming.LogEntry
@@ -5,6 +6,7 @@ import com.rk.ai.streaming.Logging
 import okhttp3.Interceptor
 import okhttp3.Response
 import okio.Buffer
+import kotlin.uuid.ExperimentalUuidApi
 
 class RequestLoggingInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {

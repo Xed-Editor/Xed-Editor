@@ -1,6 +1,8 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.tools
 
 import android.content.Context
+import kotlin.uuid.ExperimentalUuidApi
 import android.content.ClipboardManager
 import android.content.ClipData
 import kotlinx.serialization.json.JsonNull

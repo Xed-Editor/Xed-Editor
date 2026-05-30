@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent
 
 import kotlinx.serialization.json.buildJsonArray
@@ -8,6 +9,7 @@ import com.rk.ai.models.AssistantMemory
 import com.rk.ai.persistence.repo.ConversationRepository
 import com.rk.ai.streaming.JsonInstantPretty
 import com.rk.ai.streaming.toLocalDate
+import kotlin.uuid.ExperimentalUuidApi
 
 internal fun buildMemoryPrompt(memories: List<AssistantMemory>) =
     buildString {

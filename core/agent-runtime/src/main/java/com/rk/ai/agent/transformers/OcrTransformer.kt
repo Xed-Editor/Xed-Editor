@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.transformers
 
 import android.content.Context
@@ -18,19 +19,26 @@ import com.rk.ai.core.cache.SingleFileCacheStore
 import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.persistence.settings.findModelById
 import com.rk.ai.persistence.settings.findProvider
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import java.io.File
 import kotlin.time.Duration.Companion.days
+import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "OcrTransformer"
 
-object OcrTransformer : InputMessageTransformer, KoinComponent {
+object OcrTransformer : InputMessageTransformer {
+    var settingsStore: SettingsStore? = null
+    var providerManager: ProviderManager? = null
+    private var appContext: Context? = null
+
+    fun init(context: Context) {
+        appContext = context
+    }
+
     private val cache by lazy {
-        val context = get<Context>()
+        val ctx = appContext ?: return@lazy null
         val json = Json { allowStructuredMapKeys = true }
         val store = SingleFileCacheStore(
-            file = File(context.cacheDir, "ocr_cache.json"),
+            file = File(ctx.cacheDir, "ocr_cache.json"),
             keySerializer = String.serializer(),
             valueSerializer = String.serializer(),
             json = json
@@ -65,9 +73,8 @@ object OcrTransformer : InputMessageTransformer, KoinComponent {
                         parts = message.parts.map { part ->
                             when {
                                 part is UIMessagePart.Image && part.url.startsWith("file:") -> {
-                                    UIMessagePart.Text(performOcr(part))
+                                    UIMessagePart.Text(performOcr(part, ctx))
                                 }
-
                                 else -> part
                             }
                         }
@@ -79,17 +86,19 @@ object OcrTransformer : InputMessageTransformer, KoinComponent {
         }
     }
 
-    suspend fun performOcr(part: UIMessagePart.Image): String = runCatching {
-        // Check cache first
-        cache.get(part.url)?.let { cachedResult ->
+    suspend fun performOcr(part: UIMessagePart.Image, ctx: TransformerContext): String = runCatching {
+        cache?.get(part.url)?.let { cachedResult ->
             Log.i(TAG, "performOcr: Using cached result for ${part.url}")
             return cachedResult
         }
 
-        val settings = get<SettingsStore>().settingsFlow.value
+        val ss = settingsStore ?: return "[Image]"
+        val pm = providerManager ?: return "[Image]"
+
+        val settings = ss.settingsFlow.value
         val model = settings.findModelById(settings.ocrModelId) ?: return "[Image]"
         val providerSetting = model.findProvider(settings.providers) ?: return "[Image]"
-        val provider = get<ProviderManager>().getProviderByType(providerSetting)
+        val provider = pm.getProviderByType(providerSetting)
         val result = provider.generateText(
             providerSetting = providerSetting,
             messages = listOf(
@@ -112,8 +121,7 @@ object OcrTransformer : InputMessageTransformer, KoinComponent {
             * The image_file_ocr tag contains a description of an image that the user uploaded to you, not the user's prompt.
         """.trimIndent()
 
-        // Cache the result
-        cache.put(part.url, ocrResult)
+        cache?.put(part.url, ocrResult)
         return ocrResult
     }.getOrElse {
         "[ERROR, OCR failed: $it]"

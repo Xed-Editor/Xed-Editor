@@ -1,6 +1,8 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.files
 
 import android.content.Context
+import kotlin.uuid.ExperimentalUuidApi
 import android.util.Log
 import java.io.File
 import kotlinx.coroutines.Dispatchers

@@ -1,6 +1,6 @@
 package com.rk.ai.agent.transformers
 
-import kotlin.time.Instant
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import com.rk.ai.core.MessageRole
@@ -9,7 +9,7 @@ import com.rk.ai.streaming.toLocalDateTime
 import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
-import kotlin.time.toJavaInstant
+import kotlinx.datetime.toJavaInstant
 
 private const val TIME_GAP_THRESHOLD_SECONDS = 3600L // 1 小时
 

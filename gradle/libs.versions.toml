@@ -190,6 +190,9 @@ modelcontextprotocol-kotlin-sdk = { module = "io.modelcontextprotocol:kotlin-sdk
 # Apache Commons Text
 commons-text = { module = "org.apache.commons:commons-text", version = "1.13.0" }
 
+# Pebble Template
+pebble = { module = "io.pebbletemplates:pebble", version = "4.1.1" }
+
 # Misc
 material = { module = "com.google.android.material:material", version.ref = "material" }
 photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photoview" }

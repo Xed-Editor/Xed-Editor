@@ -41,4 +41,6 @@ dependencies {
 
     implementation(libs.androidx.compose.ui)
     implementation(platform(libs.androidx.compose.bom))
+
+    implementation(libs.pebble)
 }

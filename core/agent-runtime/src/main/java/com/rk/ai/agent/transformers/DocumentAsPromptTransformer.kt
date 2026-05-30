@@ -1,6 +1,8 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.transformers
 
 import androidx.core.net.toFile
+import kotlin.uuid.ExperimentalUuidApi
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

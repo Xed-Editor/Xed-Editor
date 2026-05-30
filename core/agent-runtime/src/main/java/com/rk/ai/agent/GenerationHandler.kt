@@ -19,7 +19,7 @@ import com.rk.ai.core.MessageRole
 import com.rk.ai.core.ReasoningLevel
 import com.rk.ai.models.Tool
 import com.rk.ai.core.merge
-import com.rk.ai.providers.CustomBody
+import com.rk.ai.models.CustomBody
 import com.rk.ai.providers.Model
 import com.rk.ai.providers.Provider
 import com.rk.ai.providers.ProviderManager
@@ -47,7 +47,7 @@ import com.rk.ai.persistence.repo.ConversationRepository
 import com.rk.ai.persistence.repo.MemoryRepository
 import com.rk.ai.streaming.applyPlaceholders
 import java.util.Locale
-import kotlin.time.Clock
+import kotlinx.datetime.Clock
 import kotlin.uuid.Uuid
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -377,7 +377,7 @@ class GenerationHandler(
                 // 工具prompt
                 tools.forEach { tool ->
                     appendLine()
-                    append(tool.systemPrompt(model, messages))
+                    append(tool.systemPrompt(model.id, messages))
                 }
             }
             if (system.isNotBlank()) add(UIMessage.system(prompt = system))

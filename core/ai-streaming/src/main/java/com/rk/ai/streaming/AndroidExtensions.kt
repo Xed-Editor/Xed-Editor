@@ -10,10 +10,14 @@ import android.provider.MediaStore
 import java.io.File
 import java.io.FileOutputStream
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import java.time.format.FormatStyle
+import java.time.format.TextStyle
+import java.time.temporal.ChronoField
 import java.util.Locale
 
 val Context.activity: Activity?
@@ -84,4 +88,31 @@ fun Instant.toLocalDateTime(): String {
 fun Instant.toLocalString(): String {
     return ZonedDateTime.ofInstant(this, ZoneId.systemDefault())
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+}
+
+fun LocalDate.toLocalString(includeYear: Boolean): String {
+    val locale = Locale.getDefault()
+    val formatter = if (includeYear) {
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+    } else {
+        if (isMonthFirstLocale(locale)) {
+            DateTimeFormatterBuilder()
+                .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
+                .appendLiteral(' ')
+                .appendValue(ChronoField.DAY_OF_MONTH)
+                .toFormatter(locale)
+        } else {
+            DateTimeFormatterBuilder()
+                .appendValue(ChronoField.DAY_OF_MONTH)
+                .appendLiteral(' ')
+                .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
+                .toFormatter(locale)
+        }
+    }
+    return formatter.format(this)
+}
+
+private fun isMonthFirstLocale(locale: Locale): Boolean {
+    val monthFirstCountries = setOf("US", "PH", "CA", "CN")
+    return monthFirstCountries.contains(locale.country)
 }

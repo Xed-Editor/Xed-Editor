@@ -5,7 +5,7 @@ import kotlinx.datetime.toInstant
 import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
-import kotlin.time.Clock
+import kotlinx.datetime.Clock
 
 private val THINKING_REGEX = Regex("<think>([\\s\\S]*?)(?:</think>|$)", RegexOption.DOT_MATCHES_ALL)
 private val CLOSING_TAG_REGEX = Regex("</think>")

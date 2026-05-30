@@ -1,6 +1,8 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.files
 
 import android.content.Context
+import kotlin.uuid.ExperimentalUuidApi
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
@@ -22,7 +24,7 @@ import com.rk.ai.persistence.db.entity.ManagedFileEntity
 import com.rk.ai.persistence.repo.FilesRepository
 import com.rk.ai.streaming.exportImage
 import com.rk.ai.streaming.exportImageFile
-import com.rk.ai.streaming.getActivity
+import com.rk.ai.streaming.activity
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -284,7 +286,7 @@ class FilesManager(
 
     @OptIn(ExperimentalEncodingApi::class)
     suspend fun saveMessageImage(activityContext: Context, image: String) = withContext(Dispatchers.IO) {
-        val activity = requireNotNull(activityContext.getActivity()) { "Activity not found" }
+        val activity = requireNotNull(activityContext.activity) { "Activity not found" }
         when {
             image.startsWith("data:image") -> {
                 val byteArray = Base64.decode(image.substringAfter("base64,").toByteArray())

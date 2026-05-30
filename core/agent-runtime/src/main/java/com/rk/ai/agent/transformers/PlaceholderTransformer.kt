@@ -3,13 +3,9 @@ package com.rk.ai.agent.transformers
 import android.content.Context
 import android.os.BatteryManager
 import android.os.Build
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import com.rk.ai.providers.Model
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
-import com.rk.ai.agent.R
 import com.rk.ai.persistence.settings.Settings
 import com.rk.ai.models.Assistant
 import java.time.LocalDate
@@ -17,6 +13,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.time.temporal.Temporal
 import java.util.Locale
 import java.util.TimeZone
 
@@ -32,7 +29,7 @@ interface PlaceholderProvider {
 }
 
 data class PlaceholderInfo(
-    val displayName: @Composable () -> Unit,
+    val displayName: String,
     val resolver: (PlaceholderCtx) -> String
 )
 
@@ -41,7 +38,7 @@ class PlaceholderBuilder {
 
     fun placeholder(
         key: String,
-        displayName: @Composable () -> Unit,
+        displayName: String,
         resolver: (PlaceholderCtx) -> String
     ) {
         placeholders[key] = PlaceholderInfo(displayName, resolver)
@@ -56,73 +53,58 @@ fun buildPlaceholders(block: PlaceholderBuilder.() -> Unit): Map<String, Placeho
 
 object DefaultPlaceholderProvider : PlaceholderProvider {
     override val placeholders: Map<String, PlaceholderInfo> = buildPlaceholders {
-        placeholder("cur_date", { Text(stringResource(R.string.placeholder_current_date)) }) {
-            LocalDate.now().toDateString()
+        placeholder("cur_date", "Current Date") {
+            LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()))
         }
 
-        placeholder("cur_time", { Text(stringResource(R.string.placeholder_current_time)) }) {
-            LocalTime.now().toTimeString()
+        placeholder("cur_time", "Current Time") {
+            LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault()))
         }
 
-        placeholder("cur_datetime", { Text(stringResource(R.string.placeholder_current_datetime)) }) {
-            LocalDateTime.now().toDateTimeString()
+        placeholder("cur_datetime", "Current DateTime") {
+            LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault()))
         }
 
-        placeholder("model_id", { Text(stringResource(R.string.placeholder_model_id)) }) {
+        placeholder("model_id", "Model ID") {
             it.model.modelId
         }
 
-        placeholder("model_name", { Text(stringResource(R.string.placeholder_model_name)) }) {
+        placeholder("model_name", "Model Name") {
             it.model.displayName
         }
 
-        placeholder("locale", { Text(stringResource(R.string.placeholder_locale)) }) {
+        placeholder("locale", "Locale") {
             Locale.getDefault().displayName
         }
 
-        placeholder("timezone", { Text(stringResource(R.string.placeholder_timezone)) }) {
+        placeholder("timezone", "Timezone") {
             TimeZone.getDefault().displayName
         }
 
-        placeholder("system_version", { Text(stringResource(R.string.placeholder_system_version)) }) {
+        placeholder("system_version", "System Version") {
             "Android SDK v${Build.VERSION.SDK_INT} (${Build.VERSION.RELEASE})"
         }
 
-        placeholder("device_info", { Text(stringResource(R.string.placeholder_device_info)) }) {
+        placeholder("device_info", "Device Info") {
             "${Build.BRAND} ${Build.MODEL}"
         }
 
-        placeholder("battery_level", { Text(stringResource(R.string.placeholder_battery_level)) }) {
+        placeholder("battery_level", "Battery Level") {
             it.context.batteryLevel().toString()
         }
 
-        placeholder("nickname", { Text(stringResource(R.string.placeholder_nickname)) }) {
+        placeholder("nickname", "Nickname") {
             "user"
         }
 
-        placeholder("char", { Text(stringResource(R.string.placeholder_char)) }) {
+        placeholder("char", "Character") {
             it.assistant.name.ifBlank { "assistant" }
         }
 
-        placeholder("user", { Text(stringResource(R.string.placeholder_user)) }) {
+        placeholder("user", "User") {
             "user"
         }
     }
-
-    private fun Temporal.toDateString() = DateTimeFormatter
-        .ofLocalizedDate(FormatStyle.MEDIUM)
-        .withLocale(Locale.getDefault())
-        .format(this)
-
-    private fun Temporal.toTimeString() = DateTimeFormatter
-        .ofLocalizedTime(FormatStyle.MEDIUM)
-        .withLocale(Locale.getDefault())
-        .format(this)
-
-    private fun Temporal.toDateTimeString() = DateTimeFormatter
-        .ofLocalizedDateTime(FormatStyle.MEDIUM)
-        .withLocale(Locale.getDefault())
-        .format(this)
 
     private fun Context.batteryLevel(): Int {
         val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
