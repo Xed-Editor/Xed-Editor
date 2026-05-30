@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import com.rk.ai.core.InputSchema
+import com.rk.ai.models.InputSchema
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.core.AppScope
 import com.rk.ai.persistence.settings.SettingsStore

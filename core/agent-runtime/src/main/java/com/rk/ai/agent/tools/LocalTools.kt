@@ -11,8 +11,8 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-import com.rk.ai.core.InputSchema
-import com.rk.ai.core.Tool
+import com.rk.ai.models.InputSchema
+import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.models.LocalToolOption
 import com.rk.ai.agent.AppEvent

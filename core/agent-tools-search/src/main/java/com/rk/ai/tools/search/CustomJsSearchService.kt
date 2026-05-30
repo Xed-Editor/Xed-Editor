@@ -1,7 +1,7 @@
 package com.rk.ai.tools.search
 
 import kotlinx.serialization.json.JsonObject
-import com.rk.ai.core.InputSchema
+import com.rk.ai.models.InputSchema
 
 object CustomJsSearchService : SearchService<SearchServiceOptions.CustomJsOptions> {
     override val name: String = "Custom JS"

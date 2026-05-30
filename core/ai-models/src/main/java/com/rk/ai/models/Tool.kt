@@ -1,12 +1,9 @@
-package com.rk.ai.core
+package com.rk.ai.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
-import com.rk.ai.providers.Model
-import com.rk.ai.models.UIMessage
-import com.rk.ai.models.UIMessagePart
 
 @Serializable
 data class Tool(

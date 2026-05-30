@@ -3,7 +3,7 @@ package com.rk.ai.providers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import com.rk.ai.core.ReasoningLevel
-import com.rk.ai.core.Tool
+import com.rk.ai.models.Tool
 import com.rk.ai.models.CustomBody
 import com.rk.ai.models.CustomHeader
 import com.rk.ai.models.ImageAspectRatio

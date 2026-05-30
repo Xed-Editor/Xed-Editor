@@ -16,7 +16,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import com.rk.ai.core.MessageRole
 import com.rk.ai.core.ReasoningLevel
-import com.rk.ai.core.Tool
+import com.rk.ai.models.Tool
 import com.rk.ai.core.merge
 import com.rk.ai.providers.CustomBody
 import com.rk.ai.providers.Model

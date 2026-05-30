@@ -2,7 +2,7 @@ package com.rk.ai.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import com.rk.ai.core.InputSchema
+import com.rk.ai.models.InputSchema
 import kotlin.uuid.Uuid
 
 @Serializable
