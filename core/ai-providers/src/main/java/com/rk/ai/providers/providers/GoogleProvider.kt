@@ -50,10 +50,10 @@ import com.rk.ai.streaming.KeyRoulette
 import com.rk.ai.streaming.configureReferHeaders
 import com.rk.ai.models.encodeBase64
 import com.rk.ai.streaming.json
-import com.rk.ai.streaming.mergeCustomBody
-import com.rk.ai.streaming.removeElements
+import com.rk.ai.providers.mergeCustomBody
+import com.rk.ai.providers.removeElements
 import com.rk.ai.streaming.stringSafe
-import com.rk.ai.streaming.toHeaders
+import com.rk.ai.providers.toHeaders
 import com.rk.ai.streaming.await
 import com.rk.ai.streaming.jsonPrimitiveOrNull
 import okhttp3.HttpUrl
@@ -67,7 +67,8 @@ import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
 import org.apache.commons.text.StringEscapeUtils
-import kotlin.time.Clock
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.uuid.Uuid
 import kotlin.uuid.ExperimentalUuidApi
 

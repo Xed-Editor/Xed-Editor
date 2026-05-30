@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.providers.providers
 
 import android.content.Context
@@ -30,8 +31,8 @@ import com.rk.ai.models.MessageChunk
 import com.rk.ai.models.UIMessage
 import com.rk.ai.streaming.KeyRoulette
 import com.rk.ai.streaming.json
-import com.rk.ai.streaming.mergeCustomBody
-import com.rk.ai.streaming.toHeaders
+import com.rk.ai.providers.mergeCustomBody
+import com.rk.ai.providers.toHeaders
 import com.rk.ai.streaming.await
 import com.rk.ai.streaming.getByKey
 import okhttp3.MultipartBody
@@ -42,7 +43,9 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import kotlin.io.encoding.Base64
+import kotlin.uuid.ExperimentalUuidApi
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.uuid.ExperimentalUuidApi
 
 class OpenAIProvider(
     private val client: OkHttpClient,

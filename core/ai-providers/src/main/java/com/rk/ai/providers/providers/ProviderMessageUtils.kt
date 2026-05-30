@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.providers.providers
 
 import com.rk.ai.models.UIMessagePart

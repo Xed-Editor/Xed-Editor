@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.providers.providers
 
 import android.content.Context
@@ -41,10 +42,10 @@ import com.rk.ai.streaming.KeyRoulette
 import com.rk.ai.streaming.configureReferHeaders
 import com.rk.ai.models.encodeBase64
 import com.rk.ai.streaming.json
-import com.rk.ai.streaming.mergeCustomBody
+import com.rk.ai.providers.mergeCustomBody
 import com.rk.ai.streaming.parseErrorDetail
 import com.rk.ai.streaming.stringSafe
-import com.rk.ai.streaming.toHeaders
+import com.rk.ai.providers.toHeaders
 import com.rk.ai.streaming.await
 import com.rk.ai.streaming.jsonPrimitiveOrNull
 import okhttp3.MediaType.Companion.toMediaType
@@ -55,7 +56,9 @@ import okhttp3.Response
 import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
-import kotlin.time.Clock
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "ClaudeProvider"
 private const val ANTHROPIC_VERSION = "2023-06-01"

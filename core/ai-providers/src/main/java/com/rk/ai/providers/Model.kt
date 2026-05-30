@@ -3,6 +3,8 @@ package com.rk.ai.providers
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import com.rk.ai.models.CustomBody
+import com.rk.ai.models.CustomHeader
 import kotlin.uuid.Uuid
 import kotlin.uuid.ExperimentalUuidApi
 

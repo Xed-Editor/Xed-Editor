@@ -35,7 +35,5 @@ dependencies {
     api(libs.okhttp.sse)
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.coroutines)
-
-    implementation(libs.androidx.compose.ui)
-    implementation(platform(libs.androidx.compose.bom))
+    api(libs.commons.text)
 }
