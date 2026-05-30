@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material3.*
@@ -38,6 +39,11 @@ val toolSheetTabs = listOf(
         mode = BottomPanelMode.AI,
         icon = Icons.Outlined.Psychology,
         label = "AI Agent",
+    ),
+    ToolSheetTab(
+        mode = BottomPanelMode.CHAT,
+        icon = Icons.Outlined.Chat,
+        label = "Chat",
     ),
     ToolSheetTab(
         mode = BottomPanelMode.TERMINAL,

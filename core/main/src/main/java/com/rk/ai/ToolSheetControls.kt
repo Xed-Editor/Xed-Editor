@@ -128,6 +128,8 @@ fun ToolSheetControls(
             }
         }
 
+        BottomPanelMode.CHAT -> {}
+
         BottomPanelMode.GIT -> {}
     }
 }
