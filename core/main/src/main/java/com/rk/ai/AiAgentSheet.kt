@@ -257,18 +257,6 @@ fun UnifiedToolSheet(
                     }
                 }
             }
-            BottomPanelMode.CHAT -> {
-                AiChatPanel(
-                    onOpenSettings = {
-                        context.startActivity(
-                            android.content.Intent(
-                                context,
-                                com.rk.activities.settings.SettingsActivity::class.java
-                            )
-                        )
-                    },
-                )
-            }
         }
     }
 }

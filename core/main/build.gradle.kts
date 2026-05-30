@@ -124,13 +124,6 @@ dependencies {
     implementation(project(":core:extension"))
     implementation(project(":core:terminal-view"))
     implementation(project(":core:terminal-emulator"))
-    implementation(project(":core:ai-core"))
-    implementation(project(":core:ai-streaming"))
-    implementation(project(":core:ai-models"))
-    implementation(project(":core:ai-providers"))
-    implementation(project(":core:ai-persistence"))
-    implementation(project(":core:agent-runtime"))
-
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))

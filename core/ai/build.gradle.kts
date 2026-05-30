@@ -28,12 +28,6 @@ android {
 
 dependencies {
     implementation(project(":core:main"))
-    implementation(project(":core:ai-core"))
-    implementation(project(":core:ai-models"))
-    implementation(project(":core:ai-providers"))
-    implementation(project(":core:ai-persistence"))
-    implementation(project(":core:ai-mcp-client"))
-    implementation(project(":core:agent-runtime"))
 
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
@@ -59,6 +53,4 @@ dependencies {
     implementation(project(":core:terminal-emulator"))
     implementation(project(":core:resources"))
     implementation(project(":core:extension"))
-
-    testImplementation(libs.junit)
 }
