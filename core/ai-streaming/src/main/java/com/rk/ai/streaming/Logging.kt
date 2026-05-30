@@ -1,10 +1,10 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.streaming
 
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-
-@OptIn(ExperimentalUuidApi::class)
 
 private const val MAX_RECENT_LOGS = 100
 
