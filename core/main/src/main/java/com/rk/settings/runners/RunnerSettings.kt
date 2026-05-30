@@ -38,7 +38,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.rk.activities.main.MainActivity
 import com.rk.components.InfoBlock
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.file.FileWrapper
@@ -139,7 +139,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
 
         PreferenceGroup(heading = stringResource(strings.built_in)) {
             RunnerManager.builtinRunners.forEach { runner ->
-                SettingsToggle(
+                SettingsItem(
                     label = runner.label,
                     description = runner.description,
                     default = runner.isEnabled(),
@@ -152,7 +152,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
         if (RunnerManager.extensionRunners.isNotEmpty()) {
             PreferenceGroup(heading = stringResource(strings.ext)) {
                 RunnerManager.extensionRunners.forEach { runner ->
-                    SettingsToggle(
+                    SettingsItem(
                         label = runner.label,
                         description = runner.description,
                         startWidget = {
@@ -173,7 +173,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
         PreferenceGroup(heading = stringResource(strings.external)) {
             val scope = rememberCoroutineScope()
             if (isLoading) {
-                SettingsToggle(
+                SettingsItem(
                     modifier = Modifier,
                     label = stringResource(strings.loading),
                     default = false,
@@ -183,7 +183,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                 )
             } else {
                 if (ShellBasedRunners.runners.isEmpty()) {
-                    SettingsToggle(
+                    SettingsItem(
                         modifier = Modifier,
                         label = stringResource(strings.no_runners),
                         default = false,
@@ -193,7 +193,7 @@ fun RunnerSettings(modifier: Modifier = Modifier, navController: NavController) 
                     )
                 } else {
                     ShellBasedRunners.runners.forEach { runner ->
-                        SettingsToggle(
+                        SettingsItem(
                             modifier = Modifier,
                             label = runner.label,
                             description = null,

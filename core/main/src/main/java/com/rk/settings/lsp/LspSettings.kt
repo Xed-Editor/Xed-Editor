@@ -48,7 +48,7 @@ import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavController
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.components.InfoBlock
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.icons.Icon
@@ -112,7 +112,7 @@ fun LspSettings(navController: NavController) {
             LspRegistry.externalServers.forEachIndexed { index, server ->
                 key(server.id) {
                     val icon = server.icon ?: Icon.ResourceIcon(drawables.unknown_document)
-                    SettingsToggle(
+                    SettingsItem(
                         label = server.languageName,
                         default = true,
                         description = server.serverName,
@@ -210,7 +210,7 @@ private fun LspServerItem(
     refreshKey: Int,
 ) {
     val icon = server.icon ?: Icon.ResourceIcon(drawables.unknown_document)
-    SettingsToggle(
+    SettingsItem(
         label = server.languageName,
         default = Preference.getBoolean("lsp_${server.id}", true),
         description = server.serverName,

@@ -165,7 +165,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val targetDir = context.extensionDir.resolve(extensionInfo.id)
 
             if (targetDir.exists()) {
-                uninstallExtension(extensionInfo.id)
+                uninstallExtension(extensionInfo.id, update = true)
             }
 
             val pm = context.packageManager
@@ -185,13 +185,20 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             InstallResult.Success(extension)
         }
 
-    suspend fun uninstallExtension(extensionId: ExtensionId) =
+    suspend fun uninstallExtension(extensionId: ExtensionId, update: Boolean = false) =
         withContext(Dispatchers.IO) {
             try {
                 val extension =
                     localExtensions[extensionId] ?: return@withContext Result.failure(Exception("Extension not found"))
 
-                runCatching { loadedExtensions[extension]?.api?.onUninstalled() }
+                val loadedExtension = loadedExtensions[extension]
+                runCatching {
+                        if (update) {
+                            loadedExtension?.api?.onUpdated()
+                        } else {
+                            loadedExtension?.api?.onUninstalled()
+                        }
+                    }
                     .onFailure { errorDialog(title = strings.ext_cleanup_failed.getString(), throwable = it) }
                 loadedExtensions[extension]?.scope?.cancel()
 

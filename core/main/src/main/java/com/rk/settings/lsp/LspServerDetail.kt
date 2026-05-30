@@ -44,7 +44,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.navigation.NavHostController
 import com.rk.activities.settings.snackbarHostStateRef
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceGroupHeading
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -132,7 +132,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
 
     @Composable
     fun LspFeatureToggle(label: String, description: String? = null, preferenceId: String, server: LspServer) {
-        SettingsToggle(
+        SettingsItem(
             label = label,
             description = description,
             default = Preference.getBoolean(preferenceId, true),
@@ -222,7 +222,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
                     shape = MaterialTheme.shapes.large,
                     tonalElevation = 1.dp,
                 ) {
-                    SettingsToggle(
+                    SettingsItem(
                         modifier = Modifier,
                         label = stringResource(strings.no_instances),
                         default = false,

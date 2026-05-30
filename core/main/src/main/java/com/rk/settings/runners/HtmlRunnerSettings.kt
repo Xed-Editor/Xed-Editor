@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.SingleInputDialog
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -26,21 +26,21 @@ fun HtmlRunnerSettings(modifier: Modifier = Modifier) {
 
     PreferenceLayout(label = stringResource(strings.html_preview)) {
         PreferenceGroup {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.launch_in_browser),
                 description = stringResource(strings.launch_in_browser_desc),
                 default = Settings.launch_in_browser,
                 sideEffect = { Settings.launch_in_browser = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.inject_eruda),
                 description = stringResource(strings.inject_eruda_desc),
                 default = Settings.inject_eruda,
                 sideEffect = { Settings.inject_eruda = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.server_port),
                 description = stringResource(strings.server_port_desc),
                 default = false,

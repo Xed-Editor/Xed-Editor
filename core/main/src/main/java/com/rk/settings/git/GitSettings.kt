@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.rk.components.DoubleInputDialog
-import com.rk.components.SettingsToggle
+import com.rk.components.SettingsItem
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.resources.strings
@@ -25,7 +25,7 @@ fun GitSettings() {
         var email by remember { mutableStateOf(Settings.git_email) }
 
         PreferenceGroup(heading = stringResource(strings.general)) {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.git_colorize_files),
                 description = stringResource(strings.git_colorize_files_desc),
                 default = Settings.git_colorize_names,
@@ -34,7 +34,7 @@ fun GitSettings() {
         }
 
         PreferenceGroup(heading = stringResource(strings.account)) {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.credentials),
                 description = stringResource(strings.credentials_desc),
                 showSwitch = false,
@@ -42,7 +42,7 @@ fun GitSettings() {
                 sideEffect = { showCredentialsDialog = true },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.user_data),
                 description = stringResource(strings.user_data_desc),
                 showSwitch = false,
@@ -52,14 +52,14 @@ fun GitSettings() {
         }
 
         PreferenceGroup(heading = stringResource(strings.repository)) {
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.submodules),
                 description = stringResource(strings.submodules_desc),
                 default = Settings.git_submodules,
                 sideEffect = { Settings.git_submodules = it },
             )
 
-            SettingsToggle(
+            SettingsItem(
                 label = stringResource(strings.recursive_submodules),
                 description = stringResource(strings.recursive_submodules_desc),
                 default = Settings.git_recursive_submodules,
