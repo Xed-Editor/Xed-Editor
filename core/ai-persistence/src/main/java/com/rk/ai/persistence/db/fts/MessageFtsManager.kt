@@ -1,8 +1,10 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.persistence.db.fts
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.uuid.ExperimentalUuidApi
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.persistence.db.AppDatabase
