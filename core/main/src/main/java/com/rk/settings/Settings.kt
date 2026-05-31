@@ -104,6 +104,7 @@ object Settings {
     var show_minimap by CachedPreference("show_minimap", false)
     var auto_closing_bracket by CachedPreference("auto_closing_bracket", true)
     var confirm_exit by CachedPreference("confirm_exit", true)
+    var terminal_clipboard_keybindings by CachedPreference("terminal_clipboard_keybindings", true)
 
     // Int settings
     var tab_size by CachedPreference("tab_size", 4)
