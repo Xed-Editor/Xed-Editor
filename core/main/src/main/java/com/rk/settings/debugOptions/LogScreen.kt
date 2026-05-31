@@ -5,20 +5,14 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,11 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -42,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import com.rk.activities.settings.SettingsActivity
-import com.rk.components.StyledTextField
 import com.rk.crashhandler.CrashHandler.logErrorOrExit
 import com.rk.editor.Editor
 import com.rk.file.BuiltinFileType
@@ -61,19 +51,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LogScreen(
-    logText: String,
-    issueTitle: String,
-    copyLabel: String,
-    logLevel: LogLevel,
-    onLogLevelChange: (LogLevel) -> Unit,
-    actionButtons: @Composable (() -> Unit)? = null,
-) {
+fun LogScreen(logText: String, issueTitle: String, copyLabel: String, toolbarButtons: @Composable RowScope.() -> Unit) {
     val scope = rememberCoroutineScope()
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     val editorState = remember { CodeEditorState() }
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
 
     XedTheme {
         Scaffold(
@@ -119,43 +101,7 @@ fun LogScreen(
                                 )
                             }
 
-                            ExposedDropdownMenuBox(
-                                expanded = dropdownMenuExpanded,
-                                onExpandedChange = { dropdownMenuExpanded = !dropdownMenuExpanded },
-                                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                            ) {
-                                StyledTextField(
-                                    value = logLevel.label,
-                                    onValueChange = {},
-                                    shape = RoundedCornerShape(8.dp),
-                                    maxLines = 1,
-                                    readOnly = true,
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownMenuExpanded)
-                                    },
-                                    modifier =
-                                        Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                                            .fillMaxWidth()
-                                            .height(42.dp),
-                                )
-
-                                ExposedDropdownMenu(
-                                    expanded = dropdownMenuExpanded,
-                                    onDismissRequest = { dropdownMenuExpanded = false },
-                                ) {
-                                    LogLevel.entries.forEach { level ->
-                                        DropdownMenuItem(
-                                            text = { Text(text = level.label) },
-                                            onClick = {
-                                                onLogLevelChange(level)
-                                                dropdownMenuExpanded = false
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-
-                            actionButtons?.invoke()
+                            toolbarButtons()
                         }
 
                         HorizontalDivider()

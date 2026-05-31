@@ -262,18 +262,24 @@ class LspConnector(
                 get() =
                     object : EventHandler.EventListener {
                         override fun onEventException(eventListener: AsyncEventListener, exception: Exception) {
-                            instance.addLog(LspLogEntry(MessageType.Error, "Event ${eventListener.eventName} failed"))
+                            instance.addLog(
+                                LspLogEntry(
+                                    MessageSource.Client,
+                                    MessageType.Error,
+                                    "Event ${eventListener.eventName} failed",
+                                )
+                            )
                             exception.localizedMessage?.let { message ->
-                                instance.addLog(LspLogEntry(MessageType.Error, message))
+                                instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Error, message))
                             }
                         }
 
                         override fun onHandlerException(exception: Exception) {
                             exception.cause?.localizedMessage?.let { message ->
-                                instance.addLog(LspLogEntry(MessageType.Error, message))
+                                instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Error, message))
                             }
                             exception.localizedMessage?.let { message ->
-                                instance.addLog(LspLogEntry(MessageType.Error, message))
+                                instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Error, message))
                             }
                         }
 
@@ -322,7 +328,7 @@ class LspConnector(
                                     is ServerStatus.STOPPED ->
                                         "Disconnected from LSP server (reason: ${newStatus.reason})\n"
                                 }
-                            instance.addLog(LspLogEntry(MessageType.Info, statusMessage))
+                            instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Info, statusMessage))
 
                             if (
                                 oldStatus is ServerStatus.STOPPED &&
