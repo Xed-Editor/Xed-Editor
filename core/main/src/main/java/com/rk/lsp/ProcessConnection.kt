@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.eclipse.lsp4j.MessageType
 
 class ProcessConnection(private val cmd: Array<String>, instance: LspServerInstance) :
     BaseLspConnectionProvider(instance) {
@@ -37,19 +36,19 @@ class ProcessConnection(private val cmd: Array<String>, instance: LspServerInsta
         loggingInput =
             LoggingInputStream(process!!.inputStream) { json ->
                 Log.d("ProcessConnection", "[stdout] $json")
-                instance.addLog(LspLogEntry(MessageType.Log, "→ $json"))
+                instance.addLog(LspLogEntry(MessageSource.RPC, null, "→ $json"))
             }
         loggingOutput =
             LoggingOutputStream(process!!.outputStream) { json ->
                 Log.d("ProcessConnection", "[stdin] $json")
-                instance.addLog(LspLogEntry(MessageType.Log, "← $json"))
+                instance.addLog(LspLogEntry(MessageSource.RPC, null, "← $json"))
             }
 
         scope!!.launch {
             runCatching {
                 process!!.errorStream.bufferedReader().forEachLine { line ->
                     Log.e("ProcessConnection", "[stderr] $line")
-                    instance.addLog(LspLogEntry(MessageType.Error, line))
+                    instance.addLog(LspLogEntry(MessageSource.Runtime, null, line))
                 }
             }
         }

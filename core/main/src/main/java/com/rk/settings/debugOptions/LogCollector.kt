@@ -4,11 +4,11 @@ import androidx.compose.runtime.mutableStateListOf
 import com.rk.resources.getString
 import com.rk.resources.strings
 
-enum class LogLevel(val label: String) {
-    DEBUG(strings.debug.getString()),
-    INFO(strings.info.getString()),
-    WARN(strings.warning.getString()),
-    ERROR(strings.error.getString()),
+enum class LogLevel(val label: String, val value: Int) {
+    ERROR(strings.error.getString(), 1),
+    WARN(strings.warning.getString(), 2),
+    INFO(strings.info.getString(), 3),
+    DEBUG(strings.debug.getString(), 5),
 }
 
 data class LogEntry(val level: LogLevel, val message: String, val timestamp: Long = System.currentTimeMillis())

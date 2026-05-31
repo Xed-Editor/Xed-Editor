@@ -35,12 +35,12 @@ class SocketConnection(private val port: Int, private val host: String? = null, 
         loggingInput =
             LoggingInputStream(socket!!.getInputStream()) { json ->
                 Log.d("SocketConnection", "[stdout] $json")
-                instance.addLog(LspLogEntry(MessageType.Log, "→ $json"))
+                instance.addLog(LspLogEntry(MessageSource.RPC, MessageType.Log, "→ $json"))
             }
         loggingOutput =
             LoggingOutputStream(socket!!.getOutputStream()) { json ->
                 Log.d("SocketConnection", "[stdin] $json")
-                instance.addLog(LspLogEntry(MessageType.Log, "← $json"))
+                instance.addLog(LspLogEntry(MessageSource.RPC, MessageType.Log, "← $json"))
             }
     }
 
