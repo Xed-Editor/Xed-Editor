@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
@@ -82,6 +84,14 @@ fun CodeSearchDialog(
     val context = LocalContext.current
     val viewportHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
 
+    val textFieldSearchState = rememberTextFieldState(searchViewModel.codeSearchQuery)
+    LaunchedEffect(textFieldSearchState.text) { searchViewModel.codeSearchQuery = textFieldSearchState.text.toString() }
+
+    val textFieldReplaceState = rememberTextFieldState(searchViewModel.codeReplaceQuery)
+    LaunchedEffect(textFieldReplaceState.text) {
+        searchViewModel.codeReplaceQuery = textFieldReplaceState.text.toString()
+    }
+
     LaunchedEffect(
         searchViewModel.isIndexing(projectFile),
         searchViewModel.codeSearchQuery,
@@ -97,7 +107,8 @@ fun CodeSearchDialog(
 
     fun replace(codeItem: CodeItem) {
         searchViewModel.viewModelScope.launch {
-            searchViewModel.replaceIn(mainViewModel, codeItem)
+            searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
+            searchViewModel.syncIndex(projectFile)
             searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
         }
     }
@@ -108,8 +119,9 @@ fun CodeSearchDialog(
 
         searchViewModel.viewModelScope.launch {
             for (codeItem in itemsBackwards) {
-                searchViewModel.replaceIn(mainViewModel, codeItem)
+                searchViewModel.replaceIn(context, mainViewModel, projectFile, codeItem)
             }
+            searchViewModel.syncIndex(projectFile)
             searchViewModel.launchCodeSearch(context, mainViewModel, projectFile)
         }
     }
@@ -117,9 +129,8 @@ fun CodeSearchDialog(
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
         Column(modifier = Modifier.animateContentSize().height(viewportHeight * 0.8f)) {
             TextField(
-                value = searchViewModel.codeSearchQuery,
-                onValueChange = { searchViewModel.codeSearchQuery = it },
-                maxLines = 1,
+                state = textFieldSearchState,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 leadingIcon = {
                     IconButton(modifier = Modifier, onClick = { searchViewModel.toggleReplaceShown() }) {
                         Icon(
@@ -190,9 +201,8 @@ fun CodeSearchDialog(
 
             if (searchViewModel.isReplaceShown) {
                 TextField(
-                    value = searchViewModel.codeReplaceQuery,
-                    onValueChange = { searchViewModel.codeReplaceQuery = it },
-                    maxLines = 1,
+                    state = textFieldReplaceState,
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     placeholder = { Text(text = stringResource(strings.replace)) },

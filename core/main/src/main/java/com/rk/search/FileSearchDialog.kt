@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,6 +61,9 @@ fun FileSearchDialog(
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
 
+    val textFieldState = rememberTextFieldState(searchViewModel.fileSearchQuery)
+    LaunchedEffect(textFieldState.text) { searchViewModel.fileSearchQuery = textFieldState.text.toString() }
+
     LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.fileSearchQuery) {
         searchViewModel.launchFileSearch(context, projectFile)
     }
@@ -67,9 +72,8 @@ fun FileSearchDialog(
     XedDialog(onDismissRequest = onFinish, modifier = Modifier.imePadding()) {
         Column(modifier = Modifier.animateContentSize().height(viewportHeight * 0.8f)) {
             TextField(
-                value = searchViewModel.fileSearchQuery,
-                onValueChange = { searchViewModel.fileSearchQuery = it },
-                maxLines = 1,
+                state = textFieldState,
+                lineLimits = TextFieldLineLimits.SingleLine,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                 placeholder = { Text(text = stringResource(strings.enter_name)) },

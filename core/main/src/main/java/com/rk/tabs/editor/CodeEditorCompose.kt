@@ -42,7 +42,7 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.utils.info
+import com.rk.utils.logInfo
 import com.rk.utils.logWarn
 import com.rk.utils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -79,10 +79,10 @@ fun EditorTab.CodeEditor(
         AndroidView(
             modifier = Modifier.weight(1f),
             onRelease = { it.release() },
-            update = { info("Editor view update") },
+            update = { logInfo("Editor view update") },
             factory = { ctx ->
                 Editor(ctx).apply {
-                    info("New Editor instance")
+                    logInfo("New Editor instance")
 
                     editable = editorState.editable
                     val isTxtFile = file.getName().endsWith(".txt")
@@ -288,9 +288,9 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
                 servers = servers,
             )
 
-        info("Trying to connect language servers...")
+        logInfo("Trying to connect language servers...")
         lspConnector?.connect(wrapperLanguage)
-        info("isConnected : ${lspConnector?.isConnected() ?: false}")
+        logInfo("isConnected : ${lspConnector?.isConnected() ?: false}")
     }
 }
 
@@ -344,14 +344,14 @@ private suspend fun EditorTab.findActiveLspServers(servers: List<LspServer>, con
         }
 
         if (InbuiltFeatures.terminal.state.value && !server.isInstalled(context) && file is FileWrapper) {
-            info("Server ${server.id} is not installed")
+            logInfo("Server ${server.id} is not installed")
             promptLspInstall(context, server)
             return@forEach
         }
 
         scope.launch(Dispatchers.IO) {
             if (server.isUpdatable(context)) {
-                info("Server ${server.id} is updatable")
+                logInfo("Server ${server.id} is updatable")
                 promptLspUpdate(context, server)
             }
         }
