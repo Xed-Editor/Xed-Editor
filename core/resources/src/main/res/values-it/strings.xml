@@ -390,7 +390,7 @@
     <string name="ctrl">Ctrl</string>
     <string name="alt">Alt</string>
     <string name="shift">Maiusc</string>
-    <string name="keybinds_info">Xed-Editor supporta le scorciatoie da tastiera hardware per aiutarti a lavorare più velocemente ed efficientemente. È già disponibile un\'ampia serie di scorciatoie predefinite e puoi configurarle di seguito a tuo piacimento.</string>
+    <string name="keybinds_info">Xed-Editor supporta le scorciatoie da tastiera fisica per aiutarti a lavorare più velocemente ed efficientemente. È già disponibile un\'ampia serie di scorciatoie predefinite e puoi configurarle di seguito a tuo piacimento.</string>
     <string name="reset_all">Reimposta tutto</string>
     <string name="search_keybinds">Cerca comandi o scorciatoie da tastiera</string>
     <string name="transform_lowercase">Trasforma in minuscolo</string>
@@ -659,4 +659,7 @@
     <string name="ext_cleanup_failed">Pulizia dell\'estensione non riuscita</string>
     <string name="uninstall_ext_dialog">Disinstallare l\'estensione?</string>
     <string name="uninstall_ext_dialog_desc">Sei sicuro di voler disinstallare l\'estensione \'%s\'?</string>
+    <string name="invalid_terminal_extra_keys">Formato non valido per i tasti extra nel terminale. Verranno caricati i tasti predefiniti.</string>
+    <string name="clipboard_keybindings">Scorciatoie da tastiera per gli appunti</string>
+    <string name="clipboard_keybindings_desc">Abilita le scorciatoie da tastiera per copia e incolla per le tastiere fisiche.</string>
 </resources>
