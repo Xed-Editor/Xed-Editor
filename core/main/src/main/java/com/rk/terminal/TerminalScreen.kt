@@ -77,6 +77,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.editor.DEFAULT_TERMINAL_FONT_PATH
 import com.rk.settings.editor.TerminalFontScreen
+import com.rk.settings.terminal.DEFAULT_TERMINAL_EXTRA_KEYS
 import com.rk.settings.terminal.SettingsTerminalScreen
 import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.terminal.virtualkeys.VirtualKeysConstants
@@ -86,6 +87,7 @@ import com.rk.terminal.virtualkeys.VirtualKeysView
 import com.rk.theme.LocalThemeHolder
 import com.rk.theme.ThemeHolder
 import com.rk.utils.dpToPx
+import com.rk.utils.toast
 import com.termux.terminal.TerminalColors
 import com.termux.terminal.TextStyle
 import com.termux.view.TerminalView
@@ -170,13 +172,25 @@ fun TerminalScreenInternal(modifier: Modifier = Modifier, terminalActivity: Term
 
                                                 buttonTextColor = onSurfaceColor
 
-                                                reload(
-                                                    VirtualKeysInfo(
-                                                        Settings.terminal_extra_keys,
-                                                        "",
-                                                        VirtualKeysConstants.CONTROL_CHARS_ALIASES,
-                                                    )
-                                                )
+                                                runCatching {
+                                                        reload(
+                                                            VirtualKeysInfo(
+                                                                Settings.terminal_extra_keys,
+                                                                "",
+                                                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                                                            )
+                                                        )
+                                                    }
+                                                    .onFailure {
+                                                        toast(strings.invalid_terminal_extra_keys)
+                                                        reload(
+                                                            VirtualKeysInfo(
+                                                                DEFAULT_TERMINAL_EXTRA_KEYS,
+                                                                "",
+                                                                VirtualKeysConstants.CONTROL_CHARS_ALIASES,
+                                                            )
+                                                        )
+                                                    }
                                             }
                                         },
                                         modifier = Modifier.fillMaxWidth().height(75.dp),
