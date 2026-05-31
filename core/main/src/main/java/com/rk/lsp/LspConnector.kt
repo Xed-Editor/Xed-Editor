@@ -15,7 +15,7 @@ import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
-import com.rk.utils.info
+import com.rk.utils.logInfo
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.languageserver.LspFeature
 import io.github.rosemoe.sora.lsp.client.languageserver.ServerStatus
@@ -130,7 +130,7 @@ class LspConnector(
     suspend fun connect(wrapperLanguage: TextMateLanguage?) =
         withContext(Dispatchers.IO) {
             if (isConnected()) {
-                info("LSP servers already connected skipping...")
+                logInfo("LSP servers already connected skipping...")
                 return@withContext
             }
 
@@ -279,7 +279,7 @@ class LspConnector(
 
                         override fun onLogMessage(messageParams: MessageParams?) {
                             if (messageParams == null) return
-                            info(messageParams.message)
+                            logInfo(messageParams.message)
                             instance.addLog(messageParams)
                         }
 
@@ -294,7 +294,7 @@ class LspConnector(
                                 MessageType.Info ->
                                     dialogRes(title = strings.info.getString(), msg = messageParams.message)
 
-                                MessageType.Log -> info(messageParams.message)
+                                MessageType.Log -> logInfo(messageParams.message)
                                 MessageType.Debug -> {}
                             }
                         }

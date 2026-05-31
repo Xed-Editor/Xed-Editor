@@ -87,9 +87,14 @@ abstract class IndexDatabase : RoomDatabase() {
         }
 
         fun removeDatabase(context: Context, projectRoot: FileObject) {
+            closeInstance(projectRoot)
+            context.deleteDatabase("index_database_${projectRoot.hashCode()}")
+        }
+
+        /** Close and remove the in-memory instance for [projectRoot] without deleting the file. */
+        fun closeInstance(projectRoot: FileObject) {
             INSTANCES[projectRoot]?.close()
             INSTANCES.remove(projectRoot)
-            context.deleteDatabase("index_database_${projectRoot.hashCode()}")
         }
 
         suspend fun findDatabasesFor(file: FileObject): List<IndexDatabase> {
