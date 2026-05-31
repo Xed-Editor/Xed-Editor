@@ -658,4 +658,8 @@
     <string name="sort_lines_descending">Trier les lignes (descendant)</string>
     <string name="updating">Mise à jour…</string>
     <string name="choose_runner">Choisir un lanceur</string>
+    <string name="ext_cleanup_failed">Échec de l\'extension de nettoyage</string>
+    <string name="uninstall_ext_dialog">Désinstaller l\'extension ?</string>
+    <string name="uninstall_ext_dialog_desc">Êtes-vous sûr de vouloir désinstaller l\'extension \'%s\' ?</string>
+    <string name="invalid_terminal_extra_keys">Format invalide pour les touches additionnelles du terminal. Les touches par défaut seront chargées.</string>
 </resources>
