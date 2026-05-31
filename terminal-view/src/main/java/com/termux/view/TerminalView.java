@@ -770,7 +770,29 @@ public final class TerminalView extends View {
         if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
             mClient.logInfo(LOG_TAG, "onKeyDown(keyCode=" + keyCode + ", isSystem()=" + event.isSystem() + ", event=" + event + ")");
         if (mEmulator == null) return true;
-        if (isSelectingText()) {
+
+        // Xed-Editor addition
+        if (mClient.shouldSupportClipboardKeybindings()) {
+            final boolean controlDown = event.isCtrlPressed();
+
+            // Copy
+            if (controlDown && keyCode == KeyEvent.KEYCODE_C && isSelectingText()) {
+                String selectedText = getSelectedText();
+                if (selectedText != null) {
+                    mTermSession.onCopyTextToClipboard(selectedText);
+                    stopTextSelectionMode();
+                }
+                return true;
+            }
+
+            // Paste
+            if (controlDown && keyCode == KeyEvent.KEYCODE_V) {
+                mTermSession.onPasteTextFromClipboard();
+                return true;
+            }
+        }
+
+        if (isSelectingText() && !mClient.shouldSupportClipboardKeybindings()) {
             stopTextSelectionMode();
         }
 

@@ -29,8 +29,9 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
 
     override fun onPasteTextFromClipboard(session: TerminalSession?) {
         val clip = ClipboardUtils.getText().toString()
-        if (clip.trim { it <= ' ' }.isNotEmpty() && terminalView.get()?.mEmulator != null) {
-            terminalView.get()?.mEmulator?.paste(clip)
+        val emulator = terminalView.get()?.mEmulator ?: return
+        if (clip.isNotBlank()) {
+            emulator.paste(clip)
         }
     }
 
@@ -101,6 +102,10 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
         return true
     }
 
+    override fun shouldSupportClipboardKeybindings(): Boolean {
+        return Settings.terminal_clipboard_keybindings
+    }
+
     override fun isTerminalViewSelected(): Boolean {
         return true
     }
@@ -110,13 +115,12 @@ class TerminalBackEnd : TerminalViewClient, TerminalSessionClient {
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
             val activity = Terminal.instance ?: return false
-            activity.sessionBinder
-                ?.get()
-                ?.terminateSession(activity.sessionBinder?.get()!!.getService().currentSession.value)
-            if (activity.sessionBinder?.get()!!.getService().sessionList.isEmpty()) {
+            val sessionBinder = activity.sessionBinder?.get() ?: return false
+            sessionBinder.terminateSession(sessionBinder.getService().currentSession.value)
+            if (sessionBinder.getService().sessionList.isEmpty()) {
                 activity.finish()
             } else {
-                activity.changeSession(activity.sessionBinder?.get()!!.getService().sessionList.first())
+                activity.changeSession(sessionBinder.getService().sessionList.first())
             }
             return true
         }

@@ -347,6 +347,13 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 route = SettingsRoutes.TerminalExtraKeys,
             )
 
+            SettingsItem(
+                label = stringResource(strings.clipboard_keybindings),
+                description = stringResource(strings.clipboard_keybindings_desc),
+                default = Settings.terminal_clipboard_keybindings,
+                sideEffect = { Settings.terminal_clipboard_keybindings = it },
+            )
+
             ValueSlider(
                 label = stringResource(strings.scrollback_buffer),
                 description = stringResource(strings.scrollback_buffer_desc),
@@ -371,7 +378,6 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                 description = stringResource(strings.project_as_wk_desc),
                 default = Settings.project_as_pwd,
                 sideEffect = { Settings.project_as_pwd = it },
-                showSwitch = true,
             )
 
             var exposeHomeDirState by remember { mutableStateOf(Settings.expose_home_dir) }
