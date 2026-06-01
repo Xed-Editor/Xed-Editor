@@ -19,7 +19,7 @@ data class Tool(
     val systemPrompt: (modelId: Uuid, messages: List<UIMessage>) -> String = { _, _ -> "" },
     val needsApproval: Boolean = false,
     @Transient
-    val execute: suspend (JsonElement) -> List<UIMessagePart>
+    val execute: suspend (JsonElement) -> List<UIMessagePart> = { error("execute not provided") }
 )
 
 @Serializable
