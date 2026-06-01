@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
