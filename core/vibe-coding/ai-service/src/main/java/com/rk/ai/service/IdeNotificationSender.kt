@@ -1,4 +1,4 @@
-package com.rk.ai.bridge
+package com.rk.ai.service
 
 import com.google.gson.JsonObject
 

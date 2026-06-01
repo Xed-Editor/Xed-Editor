@@ -2,7 +2,7 @@ package com.rk.ai.bridge.server
 
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.rk.ai.bridge.IdeNotificationSender
+import com.rk.ai.service.IdeNotificationSender
 import fi.iki.elonen.NanoHTTPD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay

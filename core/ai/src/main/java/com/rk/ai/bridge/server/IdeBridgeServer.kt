@@ -8,7 +8,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.rk.ai.bridge.McpToolRegistry
 import com.rk.ai.bridge.tools.*
-import com.rk.ai.bridge.IdeNotificationSender
+import com.rk.ai.service.IdeNotificationSender
 import com.rk.ai.service.IdeService
 import com.rk.xededitor.BuildConfig
 import fi.iki.elonen.NanoHTTPD

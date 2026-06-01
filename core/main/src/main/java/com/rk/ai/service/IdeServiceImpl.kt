@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.rk.activities.main.MainViewModel
-import com.rk.ai.bridge.IdeNotificationSender
+import com.rk.ai.service.IdeNotificationSender
 import com.rk.file.FileWrapper
 import java.io.File
 import kotlinx.coroutines.launch

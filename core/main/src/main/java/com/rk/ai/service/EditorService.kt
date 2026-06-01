@@ -4,7 +4,7 @@ import android.os.Looper
 import androidx.compose.runtime.snapshotFlow
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.rk.ai.bridge.IdeNotificationSender
+import com.rk.ai.service.IdeNotificationSender
 import com.rk.file.FileWrapper
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
