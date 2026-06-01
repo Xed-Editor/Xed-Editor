@@ -1,9 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -43,8 +48,8 @@ class VibeCodingSystemTools(
         description = "Displays a short toast notification message to the user.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("message", "Message text to display")
+                properties = buildJsonObject {
+                    put("message", "Message text to display")
                 },
                 required = listOf("message"),
             )
@@ -81,8 +86,8 @@ class VibeCodingSystemTools(
         description = "Sets the device clipboard content.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("text", "Text to copy to clipboard")
+                properties = buildJsonObject {
+                    put("text", "Text to copy to clipboard")
                 },
                 required = listOf("text"),
             )

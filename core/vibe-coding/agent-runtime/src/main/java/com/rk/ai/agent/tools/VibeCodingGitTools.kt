@@ -1,6 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -18,8 +24,8 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         description = "Returns the git status (staged, modified, untracked files) for the workspace.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("workspacePath", "Path to the git repository (optional, uses primary workspace if not set)")
+                properties = buildJsonObject {
+                    put("workspacePath", "Path to the git repository (optional, uses primary workspace if not set)")
                 },
                 required = emptyList<String>(),
             )
@@ -45,8 +51,8 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         description = "Returns the unstaged diff for the repository.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("workspacePath", "Path to the git repository (optional)")
+                properties = buildJsonObject {
+                    put("workspacePath", "Path to the git repository (optional)")
                 },
                 required = emptyList<String>(),
             )
@@ -63,10 +69,10 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         description = "Commits staged changes to the repository. If 'all' is true, it auto-stages all modified and deleted files.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("message", "Commit message")
-                    add("all", JsonObject().apply { addProperty("type", "boolean"); addProperty("description", "Auto-stage all modified/deleted files") })
-                    addProperty("workspacePath", "Path to the git repository (optional)")
+                properties = buildJsonObject {
+                    put("message", "Commit message")
+                    putJsonObject("all") { put("type", "boolean"); put("description", "Auto-stage all modified/deleted files") }
+                    put("workspacePath", "Path to the git repository (optional)")
                 },
                 required = listOf("message"),
             )
@@ -86,9 +92,9 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         description = "Switches branches or restores working tree files.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("target", "Branch name or commit hash to switch to")
-                    addProperty("workspacePath", "Path to the git repository (optional)")
+                properties = buildJsonObject {
+                    put("target", "Branch name or commit hash to switch to")
+                    put("workspacePath", "Path to the git repository (optional)")
                 },
                 required = listOf("target"),
             )

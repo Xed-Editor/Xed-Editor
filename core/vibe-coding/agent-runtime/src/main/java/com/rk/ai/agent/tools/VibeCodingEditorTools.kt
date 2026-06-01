@@ -1,6 +1,11 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -54,8 +59,8 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         description = "Opens a file in an editor tab.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("filePath", "Absolute path to the file to open")
+                properties = buildJsonObject {
+                    put("filePath", "Absolute path to the file to open")
                 },
                 required = listOf("filePath"),
             )
@@ -76,8 +81,8 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         description = "Replaces the user's current selection with new text. Opens a review tab for the user.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("newContent", "Text to replace the selection with")
+                properties = buildJsonObject {
+                    put("newContent", "Text to replace the selection with")
                 },
                 required = listOf("newContent"),
             )
@@ -94,8 +99,8 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         description = "Inserts text at the user's current cursor position. Opens a review tab for the user.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("newContent", "Text to insert at the cursor")
+                properties = buildJsonObject {
+                    put("newContent", "Text to insert at the cursor")
                 },
                 required = listOf("newContent"),
             )
@@ -130,8 +135,8 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         description = "Refreshes a specific editor tab from disk.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("filePath", "Absolute path of the file to refresh")
+                properties = buildJsonObject {
+                    put("filePath", "Absolute path of the file to refresh")
                 },
                 required = listOf("filePath"),
             )

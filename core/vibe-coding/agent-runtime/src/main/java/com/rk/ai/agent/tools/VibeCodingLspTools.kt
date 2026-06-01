@@ -1,6 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -15,8 +21,8 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         description = "Returns LSP diagnostics (errors, warnings, hints) for a file.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("filePath", "Absolute path to the file")
+                properties = buildJsonObject {
+                    put("filePath", "Absolute path to the file")
                 },
                 required = listOf("filePath"),
             )
@@ -45,10 +51,10 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         description = "Finds the definition of a symbol at the given cursor position in a file.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("filePath", "Absolute path to the file")
-                    add("line", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Line number (1-indexed)") })
-                    add("column", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Column number (1-indexed)") })
+                properties = buildJsonObject {
+                    put("filePath", "Absolute path to the file")
+                    putJsonObject("line") { put("type", "integer"); put("description", "Line number (1-indexed)") }
+                    putJsonObject("column") { put("type", "integer"); put("description", "Column number (1-indexed)") }
                 },
                 required = listOf("filePath", "line", "column"),
             )
@@ -73,10 +79,10 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         description = "Finds all references to a symbol at the given cursor position.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("filePath", "Absolute path to the file")
-                    add("line", JsonObject().apply { addProperty("type", "integer") })
-                    add("column", JsonObject().apply { addProperty("type", "integer") })
+                properties = buildJsonObject {
+                    put("filePath", "Absolute path to the file")
+                    putJsonObject("line") { put("type", "integer") }
+                    putJsonObject("column") { put("type", "integer") }
                 },
                 required = listOf("filePath", "line", "column"),
             )
@@ -101,8 +107,8 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         description = "Formats a document using the LSP formatter.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("filePath", "Absolute path to the file to format")
+                properties = buildJsonObject {
+                    put("filePath", "Absolute path to the file to format")
                 },
                 required = listOf("filePath"),
             )

@@ -1,8 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -22,9 +28,9 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
         description = "Searches npm registry for packages.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Package name or search term")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 10)") })
+                properties = buildJsonObject {
+                    put("query", "Package name or search term")
+                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
                 },
                 required = listOf("query"),
             )
@@ -64,9 +70,9 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
         description = "Searches PyPI (Python Package Index) for packages.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Package name or search term")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 10)") })
+                properties = buildJsonObject {
+                    put("query", "Package name or search term")
+                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
                 },
                 required = listOf("query"),
             )
@@ -97,9 +103,9 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
         description = "Searches Maven Central for artifacts.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Search term (groupId:artifactId or name)")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 10)") })
+                properties = buildJsonObject {
+                    put("query", "Search term (groupId:artifactId or name)")
+                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
                 },
                 required = listOf("query"),
             )

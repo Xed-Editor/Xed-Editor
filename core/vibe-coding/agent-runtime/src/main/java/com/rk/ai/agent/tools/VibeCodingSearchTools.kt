@@ -1,6 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -15,11 +21,11 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         description = "Search for text in the project. Supports plain text and regex. Returns file paths with line numbers.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Text or regex to search for")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 50)") })
-                    add("isRegex", JsonObject().apply { addProperty("type", "boolean"); addProperty("description", "Use regex if true") })
-                    addProperty("path", "Directory to scope search to (optional)")
+                properties = buildJsonObject {
+                    put("query", "Text or regex to search for")
+                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 50)") }
+                    putJsonObject("isRegex") { put("type", "boolean"); put("description", "Use regex if true") }
+                    put("path", "Directory to scope search to (optional)")
                 },
                 required = listOf("query"),
             )
@@ -45,10 +51,10 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         description = "Alias for searchCode with regex support. Searches file contents project-wide.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("pattern", "Regex pattern to search for")
-                    add("limit", JsonObject().apply { addProperty("type", "integer") })
-                    addProperty("path", "Directory to scope search to (optional)")
+                properties = buildJsonObject {
+                    put("pattern", "Regex pattern to search for")
+                    putJsonObject("limit") { put("type", "integer") }
+                    put("path", "Directory to scope search to (optional)")
                 },
                 required = listOf("pattern"),
             )
@@ -73,10 +79,10 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         description = "PREFERRED for code declarations — searches classes, functions, variables. Faster and more precise than grep.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Symbol name to search for")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 50)") })
-                    addProperty("path", "Directory to scope search to (optional)")
+                properties = buildJsonObject {
+                    put("query", "Symbol name to search for")
+                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 50)") }
+                    put("path", "Directory to scope search to (optional)")
                 },
                 required = listOf("query"),
             )
@@ -101,10 +107,10 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         description = "Finds files by name patterns using glob matching.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("pattern", "File name or glob pattern (e.g. *.kt, **/*.java)")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 100)") })
-                    addProperty("path", "Directory to search in (optional)")
+                properties = buildJsonObject {
+                    put("pattern", "File name or glob pattern (e.g. *.kt, **/*.java)")
+                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 100)") }
+                    put("path", "Directory to search in (optional)")
                 },
                 required = listOf("pattern"),
             )

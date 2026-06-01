@@ -1,6 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -15,9 +21,9 @@ class VibeCodingTerminalTools(private val ideService: IdeService) {
         description = "Runs a shell command in the terminal environment. Prefer native IDE tools for file/editor operations, use this only for building, running, testing, or package installs.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("command", "Shell command to execute")
-                    add("timeoutSeconds", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Timeout in seconds (default: 120)") })
+                properties = buildJsonObject {
+                    put("command", "Shell command to execute")
+                    putJsonObject("timeoutSeconds") { put("type", "integer"); put("description", "Timeout in seconds (default: 120)") }
                 },
                 required = listOf("command"),
             )
@@ -42,8 +48,8 @@ class VibeCodingTerminalTools(private val ideService: IdeService) {
         description = "Gets recent terminal transcript output.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    add("lines", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Number of recent lines to retrieve") })
+                properties = buildJsonObject {
+                    putJsonObject("lines") { put("type", "integer"); put("description", "Number of recent lines to retrieve") }
                 },
                 required = emptyList<String>(),
             )

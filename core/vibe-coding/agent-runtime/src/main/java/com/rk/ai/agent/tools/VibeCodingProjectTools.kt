@@ -1,6 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -15,10 +21,10 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         description = "Returns a hierarchical directory tree of the project.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("path", "Directory path to explore")
-                    add("maxDepth", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum depth (default: 3)") })
-                    add("maxItems", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum items to return (default: 200)") })
+                properties = buildJsonObject {
+                    put("path", "Directory path to explore")
+                    putJsonObject("maxDepth") { put("type", "integer"); put("description", "Maximum depth (default: 3)") }
+                    putJsonObject("maxItems") { put("type", "integer"); put("description", "Maximum items to return (default: 200)") }
                 },
                 required = emptyList<String>(),
             )
@@ -38,8 +44,8 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         description = "Returns a high-level overview of the project including README, build files, config, open tabs, and git status.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("path", "Project path (default: workspace root)")
+                properties = buildJsonObject {
+                    put("path", "Project path (default: workspace root)")
                 },
                 required = emptyList<String>(),
             )
@@ -69,8 +75,8 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         description = "Detects project configuration including build system, language, and frameworks.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("workspacePath", "Project path (default: workspace root)")
+                properties = buildJsonObject {
+                    put("workspacePath", "Project path (default: workspace root)")
                 },
                 required = emptyList<String>(),
             )

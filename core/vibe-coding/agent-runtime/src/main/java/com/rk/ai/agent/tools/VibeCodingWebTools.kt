@@ -1,6 +1,12 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -26,11 +32,11 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         description = "Fetches and extracts readable content from a URL. Supports text, HTML, JSON, XML, and markdown output.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("url", "The URL to fetch content from")
-                    addProperty("format", "Response format: 'text', 'markdown', 'html', or 'raw' (default: text)")
-                    add("timeout", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Timeout in seconds (default: 30)") })
-                    add("maxBytes", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum response bytes (default: 5MB)") })
+                properties = buildJsonObject {
+                    put("url", "The URL to fetch content from")
+                    put("format", "Response format: 'text', 'markdown', 'html', or 'raw' (default: text)")
+                    putJsonObject("timeout") { put("type", "integer"); put("description", "Timeout in seconds (default: 30)") }
+                    putJsonObject("maxBytes") { put("type", "integer"); put("description", "Maximum response bytes (default: 5MB)") }
                 },
                 required = listOf("url"),
             )
@@ -66,9 +72,9 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         description = "Searches the web using DuckDuckGo and returns titles, URLs, and snippets.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Search query")
-                    add("numResults", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Number of results (default: 8, max: 20)") })
+                properties = buildJsonObject {
+                    put("query", "Search query")
+                    putJsonObject("numResults") { put("type", "integer"); put("description", "Number of results (default: 8, max: 20)") }
                 },
                 required = listOf("query"),
             )
@@ -89,12 +95,12 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         description = "Downloads a URL to a workspace file. Creates parent directories automatically and preserves binary content.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("url", "URL to download")
-                    addProperty("outputPath", "Workspace file path or existing directory where the download should be saved")
-                    add("timeout", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Timeout in seconds (default: 60)") })
-                    add("maxBytes", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum bytes to download (default: 100MB)") })
-                    add("overwrite", JsonObject().apply { addProperty("type", "boolean"); addProperty("description", "Overwrite if file exists (default: false)") })
+                properties = buildJsonObject {
+                    put("url", "URL to download")
+                    put("outputPath", "Workspace file path or existing directory where the download should be saved")
+                    putJsonObject("timeout") { put("type", "integer"); put("description", "Timeout in seconds (default: 60)") }
+                    putJsonObject("maxBytes") { put("type", "integer"); put("description", "Maximum bytes to download (default: 100MB)") }
+                    putJsonObject("overwrite") { put("type", "boolean"); put("description", "Overwrite if file exists (default: false)") }
                 },
                 required = listOf("url", "outputPath"),
             )
@@ -129,12 +135,12 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         description = "Searches the web and fetches top result pages for research. Returns sources plus readable excerpts.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Research query")
-                    add("numResults", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Number of results to inspect (default: 5, max: 10)") })
-                    add("fetchPages", JsonObject().apply { addProperty("type", "boolean"); addProperty("description", "Fetch readable excerpts from result pages (default: true)") })
-                    add("pageChars", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Characters per fetched page (default: 4000)") })
-                    add("timeout", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Timeout per page in seconds (default: 20)") })
+                properties = buildJsonObject {
+                    put("query", "Research query")
+                    putJsonObject("numResults") { put("type", "integer"); put("description", "Number of results to inspect (default: 5, max: 10)") }
+                    putJsonObject("fetchPages") { put("type", "boolean"); put("description", "Fetch readable excerpts from result pages (default: true)") }
+                    putJsonObject("pageChars") { put("type", "integer"); put("description", "Characters per fetched page (default: 4000)") }
+                    putJsonObject("timeout") { put("type", "integer"); put("description", "Timeout per page in seconds (default: 20)") }
                 },
                 required = listOf("query"),
             )

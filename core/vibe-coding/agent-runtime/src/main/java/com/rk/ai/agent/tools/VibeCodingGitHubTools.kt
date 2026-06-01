@@ -1,8 +1,14 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.agent.tools
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import kotlin.uuid.ExperimentalUuidApi
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
@@ -77,8 +83,8 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         description = "Gets information about a GitHub repository (stars, forks, description, etc.).",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("repo", "Repository in format 'owner/repo' (e.g. 'torvalds/linux')")
+                properties = buildJsonObject {
+                    put("repo", "Repository in format 'owner/repo' (e.g. 'torvalds/linux')")
                 },
                 required = listOf("repo"),
             )
@@ -113,8 +119,8 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         description = "Fetches the README content of a GitHub repository.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("repo", "Repository in format 'owner/repo'")
+                properties = buildJsonObject {
+                    put("repo", "Repository in format 'owner/repo'")
                 },
                 required = listOf("repo"),
             )
@@ -136,10 +142,10 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         description = "Fetches a specific file from a GitHub repository.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("repo", "Repository in format 'owner/repo'")
-                    addProperty("path", "File path within the repository")
-                    addProperty("branch", "Branch name (default: repository default branch)")
+                properties = buildJsonObject {
+                    put("repo", "Repository in format 'owner/repo'")
+                    put("path", "File path within the repository")
+                    put("branch", "Branch name (default: repository default branch)")
                 },
                 required = listOf("repo", "path"),
             )
@@ -167,10 +173,10 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         description = "Searches code on GitHub using the search API.",
         parameters = {
             InputSchema.Obj(
-                properties = JsonObject().apply {
-                    addProperty("query", "Search query")
-                    add("limit", JsonObject().apply { addProperty("type", "integer"); addProperty("description", "Maximum results (default: 10)") })
-                    addProperty("repo", "Limit search to a specific repository (owner/repo)")
+                properties = buildJsonObject {
+                    put("query", "Search query")
+                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
+                    put("repo", "Limit search to a specific repository (owner/repo)")
                 },
                 required = listOf("query"),
             )
