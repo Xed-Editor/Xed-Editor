@@ -373,7 +373,7 @@
     <string name="alt">Alt</string>
     <string name="shift">Shift</string>
     <string name="reset_all">Resetuj wszystkie</string>
-    <string name="search_keybinds">Szukaj komend lub skrótów klawiszowych</string>
+    <string name="search_keybinds">Szukaj komend lub przypisań klawiszy</string>
     <string name="transform_lowercase">Zamień na małe litery</string>
     <string name="transform_uppercase">Zamień na duże litery</string>
     <string name="keybindings_conflict_error">Przypisanie klawisza konfliktuje z innym skrótem klawiszowym.</string>
@@ -385,7 +385,7 @@
     <string name="keybindings_desc">Konfiguruj przypisania klawiszy</string>
     <string name="none_set">Nie ustawiono</string>
     <string name="press_key">Naciśnij kombinacje klawiszy (musi zawierać Ctrl lub Alt)</string>
-    <string name="keybinds_info">Aplikacja wspiera skróty klawiszowe klawiatury fizycznej, aby pracować szybciej i efektywniej. Rozbudowany zestaw domyślnych skrótów jest dostępny od ręki oraz możesz go dostosować do upodobań poniżej.</string>
+    <string name="keybinds_info">Aplikacja wspiera skróty klawiszowe klawiatury fizycznej, aby pracować szybciej i efektywniej. Rozbudowany zestaw domyślnych przypisań klawiszy jest dostępny od ręki oraz możesz go dostosować do upodobań poniżej.</string>
     <string name="extra_key_bg">Tło dodatkowych klawiszy</string>
     <string name="extra_key_bg_desc">Pokaż tło dodatkowych klawiszy</string>
     <string name="actions">Czynności</string>
@@ -666,4 +666,6 @@
     <string name="uninstall_ext_dialog">Odinstalować rozszerzenie?</string>
     <string name="uninstall_ext_dialog_desc">Czy napewno chcesz odinstalować rozszerzenie \'%s\'?</string>
     <string name="invalid_terminal_extra_keys">Nieprawidłowy format dodatkowych klawiszy terminalu. Domyślne klawisze zostaną zastosowane.</string>
+    <string name="clipboard_keybindings">Przypisania klawiszy schowka</string>
+    <string name="clipboard_keybindings_desc">Włącz przypisania klawiszy kopiowania oraz wklejania klawiatury fizycznej.</string>
 </resources>
