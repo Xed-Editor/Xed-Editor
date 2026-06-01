@@ -53,6 +53,7 @@ dependencies {
     implementation(project(":core:terminal-view"))
     implementation(project(":core:terminal-emulator"))
     implementation(project(":core:resources"))
+    implementation(project(":core:main"))
     implementation(project(":core:extension"))
     implementation(project(":core:vibe-coding:ai-service"))
 }
