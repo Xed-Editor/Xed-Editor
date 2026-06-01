@@ -657,4 +657,7 @@
     <string name="ext_cleanup_failed">Bereinigung der Erweiterung fehlgeschlagen</string>
     <string name="uninstall_ext_dialog">Erweiterung deinstallieren?</string>
     <string name="uninstall_ext_dialog_desc">Bist du sicher, dass du die Erweiterung \'%s\' deinstallieren möchtest?</string>
+    <string name="invalid_terminal_extra_keys">Ungültiges Format für die Terminal-Zusatztasten. Standardtasten werden geladen.</string>
+    <string name="clipboard_keybindings">Tastenkombinationen für die Zwischenablage</string>
+    <string name="clipboard_keybindings_desc">Tastenkombinationen zum Kopieren und Einfügen für Hardware-Tastaturen aktivieren.</string>
 </resources>
