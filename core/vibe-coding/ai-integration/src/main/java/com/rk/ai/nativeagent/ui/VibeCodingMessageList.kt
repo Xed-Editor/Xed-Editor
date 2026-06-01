@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.nativeagent.ui
 
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rk.ai.models.UIMessage
+import kotlin.uuid.ExperimentalUuidApi
 
 @Composable
 fun VibeCodingMessageList(

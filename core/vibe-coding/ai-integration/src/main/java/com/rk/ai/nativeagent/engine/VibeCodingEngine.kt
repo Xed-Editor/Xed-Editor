@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.nativeagent.engine
 
 import android.content.Context
@@ -11,9 +12,12 @@ import com.rk.ai.models.UIMessage
 import com.rk.ai.agent.tools.VibeCodingSystemTools
 import com.rk.ai.agent.tools.VibeCodingToolRegistry
 import com.rk.ai.persistence.db.AppDatabase
+import com.rk.ai.persistence.db.fts.MessageFtsManager
 import com.rk.ai.persistence.repo.ConversationRepository
 import com.rk.ai.persistence.repo.MemoryRepository
 import com.rk.ai.persistence.settings.SettingsStore
+import com.rk.ai.persistence.settings.findModelById
+import com.rk.ai.persistence.settings.getCurrentAssistant
 import com.rk.ai.providers.ProviderManager
 import com.rk.ai.service.IdeService
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
+import kotlin.uuid.ExperimentalUuidApi
 
 private val defaultJson = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
@@ -42,12 +47,6 @@ private fun buildDatabase(context: Context): AppDatabase =
         "vibecoding_db",
     ).fallbackToDestructiveMigration().build()
 
-/**
- * Core orchestrator for the native in-process VibeCoding AI agent.
- *
- * Owns the generation loop, tool registry, settings store and all coroutine scopes.
- * Create one instance per UI session and call [stopGeneration] when done.
- */
 class VibeCodingEngine(
     private val context: Context,
     private val ideService: IdeService,
@@ -61,7 +60,13 @@ class VibeCodingEngine(
 
     private val database = buildDatabase(context)
     private val memoryRepo = MemoryRepository(database.memoryDao())
-    private val conversationRepo = ConversationRepository(database.conversationDao())
+    private val conversationRepo = ConversationRepository(
+        conversationDAO = database.conversationDao(),
+        messageNodeDAO = database.messageNodeDao(),
+        favoriteDAO = database.favoriteDao(),
+        database = database,
+        messageFtsManager = MessageFtsManager(database),
+    )
 
     val providerManager = ProviderManager(okHttpClient, context)
     val settingsStore = SettingsStore(context, appScope)
@@ -79,10 +84,6 @@ class VibeCodingEngine(
 
     private var currentJob: Job? = null
 
-    /**
-     * One-shot transformer that prepends the VibeCoding system instructions
-     * on the first turn of each conversation.
-     */
     private inner class SystemPromptTransformer : InputMessageTransformer {
         private var injected = false
 
@@ -138,6 +139,7 @@ class VibeCodingEngine(
                     when (chunk) {
                         is GenerationHandler.GenerationChunk.Messages ->
                             _state.value = _state.value.copy(messages = chunk.messages)
+                        else -> {}
                     }
                 }
             }.onFailure { e ->
