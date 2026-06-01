@@ -92,7 +92,7 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         description = "Gets the symbol (function, class, variable) at the current cursor position in the active editor.",
         execute = { _ ->
             val symbol = ideService.getSymbolUnderCursor()
-            if (symbol != null && symbol.keySet().size() > 0) {
+            if (symbol != null && symbol.keySet().size > 0) {
                 val text = symbol.keySet().joinToString("\n") { "$it: ${symbol[it]}" }
                 listOf(UIMessagePart.Text(text))
             } else {
