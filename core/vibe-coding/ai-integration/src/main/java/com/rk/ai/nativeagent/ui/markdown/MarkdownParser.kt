@@ -9,7 +9,7 @@ sealed interface MarkdownBlock {
     data class OrderedList(val items: List<List<InlineStyle>>, val start: Int = 1) : MarkdownBlock
     data class BlockQuote(val text: String, val inlineStyles: List<InlineStyle> = emptyList()) : MarkdownBlock
     data class Table(val headers: List<String>, val rows: List<List<String>>) : MarkdownBlock
-    data class HorizontalRule : MarkdownBlock
+    data object HorizontalRule : MarkdownBlock
     data class Image(val alt: String, val url: String) : MarkdownBlock
     data class Link(val text: String, val url: String) : MarkdownBlock
 }

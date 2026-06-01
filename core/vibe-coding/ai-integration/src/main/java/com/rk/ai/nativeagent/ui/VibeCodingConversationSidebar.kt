@@ -1,6 +1,7 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.rk.ai.nativeagent.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,28 +14,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.rk.ai.models.Conversation
 import com.rk.ai.persistence.repo.ConversationRepository
-import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Composable
 fun VibeCodingConversationSidebar(
     conversationRepo: ConversationRepository,
-    currentConversationId: String?,
+    currentConversationId: Uuid?,
     onSelectConversation: (Conversation) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
     var conversations by remember { mutableStateOf<List<Conversation>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") }
-    var isSearching by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         conversations = conversationRepo.getRecentConversations(
-            assistantId = java.util.Uuid.randomUUID().toString(),
+            assistantId = Uuid.random(),
             limit = 50,
         )
     }
@@ -45,7 +44,6 @@ fun VibeCodingConversationSidebar(
         tonalElevation = 2.dp,
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -66,11 +64,10 @@ fun VibeCodingConversationSidebar(
 
             Spacer(Modifier.height(8.dp))
 
-            // Search
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search conversations...", style = MaterialTheme.typography.bodySmall) },
+                placeholder = { Text("Search...", style = MaterialTheme.typography.bodySmall) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.bodySmall,
@@ -78,7 +75,6 @@ fun VibeCodingConversationSidebar(
 
             Spacer(Modifier.height(8.dp))
 
-            // List
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -104,7 +100,7 @@ fun VibeCodingConversationSidebar(
                 }
 
                 items(filtered, key = { it.id.toString() }) { conv ->
-                    val isSelected = conv.id.toString() == currentConversationId
+                    val isSelected = conv.id == currentConversationId
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()

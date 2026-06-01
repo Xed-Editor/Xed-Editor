@@ -26,6 +26,503 @@ object SyntaxHighlighter {
     private val YAML_KEY = SpanStyle(color = Color(0xFF6C9EF8))
     private val YAML_VALUE = SpanStyle(color = Color(0xFFA9B7C6))
 
+    fun highlight(code: String, language: String?): AnnotatedString = buildAnnotatedString {
+        when {
+            language in listOf("kotlin", "kts", "kt") -> highlightLanguage(this, code, kotlinKeywords, true)
+            language in listOf("java") -> highlightLanguage(this, code, javaKeywords, true)
+            language in listOf("python", "py") -> highlightLanguage(this, code, pythonKeywords, false)
+            language in listOf("javascript", "js", "typescript", "ts", "jsx", "tsx") ->
+                highlightLanguage(this, code, jsKeywords, false)
+            language in listOf("go") -> highlightLanguage(this, code, goKeywords, false)
+            language in listOf("rust", "rs") -> highlightLanguage(this, code, rustKeywords, false)
+            language in listOf("shell", "bash", "sh", "zsh") -> highlightLanguage(this, code, shellKeywords, false)
+            language in listOf("sql") -> highlightSql(this, code)
+            language in listOf("xml", "html", "svg") -> highlightXml(this, code)
+            language in listOf("json") -> highlightJson(this, code)
+            language in listOf("css") -> highlightCss(this, code)
+            language in listOf("yaml", "yml") -> highlightYaml(this, code)
+            language in listOf("gradle", "groovy") -> highlightLanguage(this, code, gradleKeywords, false)
+            language in listOf("properties", "conf") -> highlightProperties(this, code)
+            language in listOf("diff", "patch") -> highlightDiff(this, code)
+            else -> highlightFallback(this, code)
+        }
+    }
+
+    private fun highlightLanguage(
+        builder: AnnotatedString.Builder, code: String, keywords: Set<String>, hasAnnotations: Boolean,
+    ) {
+        val lines = code.split("\n")
+        for ((lineIndex, line) in lines.withIndex()) {
+            if (lineIndex > 0) builder.append("\n")
+            var i = 0
+            while (i < line.length) {
+                when {
+                    line.startsWith("//", i) -> {
+                        builder.withStyle(COMMENT) { append(line.substring(i)) }
+                        i = line.length
+                    }
+                    line.startsWith("/*", i) -> {
+                        val end = line.indexOf("*/", i + 2)
+                        if (end >= 0) {
+                            builder.withStyle(COMMENT) { append(line.substring(i, end + 2)) }
+                            i = end + 2
+                        } else {
+                            builder.withStyle(COMMENT) { append(line.substring(i)) }
+                            i = line.length
+                        }
+                    }
+                    line[i] == '"' -> {
+                        val end = findEndOfString(line, i, '"')
+                        builder.withStyle(STRING) { append(line.substring(i, end)) }
+                        i = end
+                    }
+                    line[i] == '\'' -> {
+                        val end = findEndOfString(line, i, '\'')
+                        builder.withStyle(STRING) { append(line.substring(i, end)) }
+                        i = end
+                    }
+                    line[i] == '`' -> {
+                        val end = line.indexOf('`', i + 1)
+                        val endIdx = if (end >= 0) end + 1 else line.length
+                        builder.withStyle(STRING) { append(line.substring(i, endIdx)) }
+                        i = endIdx
+                    }
+                    line[i] == '@' && hasAnnotations -> {
+                        val end = findWordEnd(line, i + 1)
+                        builder.withStyle(ANNOTATION) { append(line.substring(i, end)) }
+                        i = end
+                    }
+                    line[i].isDigit() && (i == 0 || !line[i - 1].isLetterOrDigit()) -> {
+                        val end = findNumberEnd(line, i)
+                        builder.withStyle(NUMBER) { append(line.substring(i, end)) }
+                        i = end
+                    }
+                    line[i].isLetter() || line[i] == '_' || line[i] == '$' -> {
+                        val end = findWordEnd(line, i)
+                        val word = line.substring(i, end)
+                        if (word in keywords) {
+                            builder.withStyle(KEYWORD) { append(word) }
+                        } else if (word.firstOrNull()?.isUpperCase() == true) {
+                            builder.withStyle(TYPE) { append(word) }
+                        } else if (end < line.length && line[end] == '(') {
+                            builder.withStyle(FUNCTION) { append(word) }
+                        } else {
+                            builder.withStyle(DEFAULT) { append(word) }
+                        }
+                        i = end
+                    }
+                    else -> {
+                        builder.withStyle(DEFAULT) { append(line[i]) }
+                        i++
+                    }
+                }
+            }
+        }
+    }
+
+    private fun highlightSql(builder: AnnotatedString.Builder, code: String) {
+        val lines = code.split("\n")
+        for ((lineIndex, line) in lines.withIndex()) {
+            if (lineIndex > 0) builder.append("\n")
+            var i = 0
+            while (i < line.length) {
+                when {
+                    line.startsWith("--", i) -> {
+                        builder.withStyle(COMMENT) { append(line.substring(i)) }
+                        i = line.length
+                    }
+                    line[i] == '\'' || line[i] == '"' -> {
+                        val end = findEndOfString(line, i, line[i])
+                        builder.withStyle(STRING) { append(line.substring(i, end)) }
+                        i = end
+                    }
+                    line[i].isLetter() || line[i] == '_' -> {
+                        val end = findWordEnd(line, i)
+                        val word = line.substring(i, end)
+                        if (word.uppercase() in sqlKeywords) {
+                            builder.withStyle(KEYWORD) { append(word) }
+                        } else {
+                            builder.withStyle(DEFAULT) { append(word) }
+                        }
+                        i = end
+                    }
+                    line[i].isDigit() -> {
+                        val end = findNumberEnd(line, i)
+                        builder.withStyle(NUMBER) { append(line.substring(i, end)) }
+                        i = end
+                    }
+                    else -> {
+                        builder.withStyle(DEFAULT) { append(line[i]) }
+                        i++
+                    }
+                }
+            }
+        }
+    }
+
+    private fun highlightXml(builder: AnnotatedString.Builder, code: String) {
+        var i = 0
+        while (i < code.length) {
+            when {
+                code.startsWith("<!--", i) -> {
+                    val end = code.indexOf("-->", i + 4)
+                    val endIdx = if (end >= 0) end + 3 else code.length
+                    builder.withStyle(COMMENT) { append(code.substring(i, endIdx)) }
+                    i = endIdx
+                }
+                code[i] == '<' -> {
+                    val tagEnd = code.indexOf('>', i + 1)
+                    if (tagEnd >= 0) {
+                        val tag = code.substring(i + 1, tagEnd).trimStart()
+                        if (tag.startsWith("/")) {
+                            builder.withStyle(XML_TAG) { append("</") }
+                            val nameEnd = findWordEnd(tag, 1)
+                            builder.withStyle(XML_TAG) { append(tag.substring(1, nameEnd)) }
+                            builder.withStyle(XML_TAG) { append(">") }
+                            i = tagEnd + 1
+                        } else if (tag.endsWith("/")) {
+                            val cleaned = tag.removeSuffix("/").trimEnd()
+                            val spaceIdx = cleaned.indexOf(' ')
+                            if (spaceIdx >= 0) {
+                                val tagName = cleaned.substring(0, spaceIdx)
+                                builder.withStyle(XML_TAG) { append("<$tagName") }
+                                i = i + 1 + tagName.length + 1
+                                val attrPart = cleaned.substring(spaceIdx + 1)
+                                appendXmlAttributes(builder, attrPart)
+                                builder.withStyle(XML_TAG) { append("/>") }
+                                i = tagEnd + 1
+                            } else {
+                                builder.withStyle(XML_TAG) { append(code.substring(i, tagEnd + 1)) }
+                                i = tagEnd + 1
+                            }
+                        } else {
+                            val spaceIdx = tag.indexOf(' ')
+                            if (spaceIdx >= 0 && !tag.startsWith("?")) {
+                                val tagName = tag.substring(0, spaceIdx)
+                                builder.withStyle(XML_TAG) { append("<$tagName") }
+                                i = i + 1 + tagName.length + 1
+                                val attrPart = tag.substring(spaceIdx + 1)
+                                appendXmlAttributes(builder, attrPart)
+                                builder.withStyle(XML_TAG) { append(">") }
+                                i = tagEnd + 1
+                            } else {
+                                builder.withStyle(XML_TAG) { append(code.substring(i, tagEnd + 1)) }
+                                i = tagEnd + 1
+                            }
+                        }
+                    } else {
+                        builder.withStyle(DEFAULT) { append(code[i]) }
+                        i++
+                    }
+                }
+                code[i].isLetter() && i > 0 && code[i - 1] == '>' -> {
+                    val textEnd = code.indexOf('<', i)
+                    if (textEnd >= 0) {
+                        builder.withStyle(DEFAULT) { append(code.substring(i, textEnd)) }
+                        i = textEnd
+                    } else {
+                        builder.withStyle(DEFAULT) { append(code.substring(i)) }
+                        i = code.length
+                    }
+                }
+                else -> {
+                    builder.withStyle(DEFAULT) { append(code[i]) }
+                    i++
+                }
+            }
+        }
+    }
+
+    private fun appendXmlAttributes(builder: AnnotatedString.Builder, attrText: String) {
+        var j = 0
+        while (j < attrText.length) {
+            when {
+                attrText[j] == ' ' || attrText[j] == '\t' || attrText[j] == '\n' -> {
+                    builder.append(attrText[j]); j++
+                }
+                attrText[j].isLetter() || attrText[j] == '_' || attrText[j] == ':' -> {
+                    val end = findWordEnd(attrText, j)
+                    builder.withStyle(XML_ATTR) { append(attrText.substring(j, end)) }
+                    j = end
+                }
+                attrText[j] == '=' -> {
+                    builder.append(attrText[j]); j++
+                }
+                attrText[j] == '"' || attrText[j] == '\'' -> {
+                    val end = findEndOfString(attrText, j, attrText[j])
+                    builder.withStyle(XML_VALUE) { append(attrText.substring(j, end)) }
+                    j = end
+                }
+                else -> {
+                    builder.append(attrText[j]); j++
+                }
+            }
+        }
+    }
+
+    private fun highlightJson(builder: AnnotatedString.Builder, code: String) {
+        var i = 0
+        while (i < code.length) {
+            when {
+                code.startsWith("//", i) -> {
+                    val end = code.indexOf('\n', i)
+                    val endIdx = if (end >= 0) end else code.length
+                    builder.withStyle(COMMENT) { append(code.substring(i, endIdx)) }
+                    i = endIdx
+                }
+                code[i] == '"' -> {
+                    val end = findEndOfString(code, i, '"')
+                    val content = code.substring(i, end)
+                    val afterIdx = end
+                    var k = afterIdx
+                    while (k < code.length && (code[k] == ' ' || code[k] == '\t')) k++
+                    if (k < code.length && code[k] == ':') {
+                        builder.withStyle(YAML_KEY) { append(content) }
+                    } else {
+                        builder.withStyle(STRING) { append(content) }
+                    }
+                    i = end
+                }
+                code[i].isDigit() || code[i] == '-' -> {
+                    val end = findNumberEnd(code, i)
+                    builder.withStyle(NUMBER) { append(code.substring(i, end)) }
+                    i = end
+                }
+                code.startsWith("true", i) || code.startsWith("false", i) ||
+                    code.startsWith("null", i) -> {
+                    val end = findWordEnd(code, i)
+                    builder.withStyle(KEYWORD) { append(code.substring(i, end)) }
+                    i = end
+                }
+                else -> {
+                    builder.append(code[i])
+                    i++
+                }
+            }
+        }
+    }
+
+    private fun highlightCss(builder: AnnotatedString.Builder, code: String) {
+        var i = 0
+        while (i < code.length) {
+            when {
+                code.startsWith("/*", i) -> {
+                    val end = code.indexOf("*/", i + 2)
+                    val endIdx = if (end >= 0) end + 2 else code.length
+                    builder.withStyle(COMMENT) { append(code.substring(i, endIdx)) }
+                    i = endIdx
+                }
+                code.startsWith("//", i) -> {
+                    val end = code.indexOf('\n', i)
+                    val endIdx = if (end >= 0) end else code.length
+                    builder.withStyle(COMMENT) { append(code.substring(i, endIdx)) }
+                    i = endIdx
+                }
+                code[i] == '.' || code[i] == '#' || code[i] == '*' -> {
+                    val end = findWordEnd(code, i)
+                    builder.withStyle(TYPE) { append(code.substring(i, end)) }
+                    i = end
+                }
+                code[i].isLetter() || code[i] == '-' -> {
+                    val end = findWordEnd(code, i, true)
+                    var k = end
+                    while (k < code.length && code[k] == ' ') k++
+                    if (k < code.length && code[k] == ':') {
+                        builder.withStyle(PROPERTY) { append(code.substring(i, end)) }
+                    } else {
+                        builder.withStyle(DEFAULT) { append(code.substring(i, end)) }
+                    }
+                    i = end
+                }
+                code[i] == '"' || code[i] == '\'' -> {
+                    val end = findEndOfString(code, i, code[i])
+                    builder.withStyle(STRING) { append(code.substring(i, end)) }
+                    i = end
+                }
+                code[i].isDigit() -> {
+                    val end = findNumberEnd(code, i)
+                    builder.withStyle(NUMBER) { append(code.substring(i, end)) }
+                    i = end
+                }
+                else -> {
+                    builder.append(code[i])
+                    i++
+                }
+            }
+        }
+    }
+
+    private fun highlightYaml(builder: AnnotatedString.Builder, code: String) {
+        val lines = code.split("\n")
+        for ((lineIndex, line) in lines.withIndex()) {
+            if (lineIndex > 0) builder.append("\n")
+            if (line.isBlank()) continue
+            if (line.trimStart().startsWith("#")) {
+                builder.withStyle(COMMENT) { append(line) }
+                continue
+            }
+            val colonIdx = line.indexOf(':')
+            if (colonIdx >= 0) {
+                val key = line.substring(0, colonIdx)
+                val value = line.substring(colonIdx)
+                builder.withStyle(YAML_KEY) { append(key) }
+                if (value == ":") { builder.append(":"); continue }
+                val trimmedValue = value.substring(1)
+                val leadingSpaces = value.length - 1 - trimmedValue.length
+                builder.append(":")
+                if (leadingSpaces > 0) builder.append(" ".repeat(leadingSpaces))
+                when {
+                    trimmedValue.startsWith("\"") || trimmedValue.startsWith("'") -> {
+                        builder.withStyle(STRING) { append(trimmedValue) }
+                    }
+                    trimmedValue.trim() == "true" || trimmedValue.trim() == "false" ||
+                        trimmedValue.trim() == "null" -> {
+                        builder.withStyle(KEYWORD) { append(trimmedValue) }
+                    }
+                    trimmedValue.trim().isNotEmpty() &&
+                        (trimmedValue.trim()[0].isDigit() || trimmedValue.trim() == "-") -> {
+                        builder.withStyle(NUMBER) { append(trimmedValue) }
+                    }
+                    else -> builder.withStyle(YAML_VALUE) { append(trimmedValue) }
+                }
+            } else {
+                builder.withStyle(DEFAULT) { append(line) }
+            }
+        }
+    }
+
+    private fun highlightProperties(builder: AnnotatedString.Builder, code: String) {
+        val lines = code.split("\n")
+        for ((lineIndex, line) in lines.withIndex()) {
+            if (lineIndex > 0) builder.append("\n")
+            if (line.isBlank()) continue
+            if (line.trimStart().startsWith("#") || line.trimStart().startsWith("!")) {
+                builder.withStyle(COMMENT) { append(line) }
+                continue
+            }
+            val eqIdx = line.indexOf('=')
+            val colonIdx = line.indexOf(':')
+            val sepIdx = when {
+                eqIdx >= 0 && colonIdx >= 0 -> minOf(eqIdx, colonIdx)
+                eqIdx >= 0 -> eqIdx; colonIdx >= 0 -> colonIdx; else -> -1
+            }
+            if (sepIdx >= 0) {
+                builder.withStyle(YAML_KEY) { append(line.substring(0, sepIdx)) }
+                builder.append(line[sepIdx])
+                builder.withStyle(STRING) { append(line.substring(sepIdx + 1)) }
+            } else {
+                builder.withStyle(DEFAULT) { append(line) }
+            }
+        }
+    }
+
+    private fun highlightDiff(builder: AnnotatedString.Builder, code: String) {
+        val lines = code.split("\n")
+        for ((lineIndex, line) in lines.withIndex()) {
+            if (lineIndex > 0) builder.append("\n")
+            when {
+                line.startsWith("+++") || line.startsWith("---") ->
+                    builder.withStyle(TYPE) { append(line) }
+                line.startsWith("@@") ->
+                    builder.withStyle(KEYWORD) { append(line) }
+                line.startsWith("+") ->
+                    builder.withStyle(STRING) { append(line) }
+                line.startsWith("-") ->
+                    builder.withStyle(ANNOTATION) { append(line) }
+                else ->
+                    builder.withStyle(DEFAULT) { append(line) }
+            }
+        }
+    }
+
+    private fun highlightFallback(builder: AnnotatedString.Builder, code: String) {
+        var i = 0
+        while (i < code.length) {
+            when {
+                code.startsWith("//", i) -> {
+                    val end = code.indexOf('\n', i)
+                    val endIdx = if (end >= 0) end else code.length
+                    builder.withStyle(COMMENT) { append(code.substring(i, endIdx)) }
+                    i = endIdx
+                }
+                code.startsWith("/*", i) -> {
+                    val end = code.indexOf("*/", i + 2)
+                    val endIdx = if (end >= 0) end + 2 else code.length
+                    builder.withStyle(COMMENT) { append(code.substring(i, endIdx)) }
+                    i = endIdx
+                }
+                code[i] == '"' -> {
+                    val end = findEndOfString(code, i, '"')
+                    builder.withStyle(STRING) { append(code.substring(i, end)) }
+                    i = end
+                }
+                code[i] == '\'' -> {
+                    val end = findEndOfString(code, i, '\'')
+                    builder.withStyle(STRING) { append(code.substring(i, end)) }
+                    i = end
+                }
+                code[i].isDigit() -> {
+                    val end = findNumberEnd(code, i)
+                    builder.withStyle(NUMBER) { append(code.substring(i, end)) }
+                    i = end
+                }
+                else -> {
+                    builder.append(code[i])
+                    i++
+                }
+            }
+        }
+    }
+
+    private fun findWordEnd(text: String, start: Int, includeHyphen: Boolean = false): Int {
+        var i = start
+        while (i < text.length && (text[i].isLetterOrDigit() || text[i] == '_' ||
+                text[i] == '$' || text[i] == '-' || text[i] == '.')
+        ) {
+            if (text[i] == '-' && !includeHyphen) break
+            if (text[i] == '.' && (i + 1 >= text.length || !text[i + 1].isLetterOrDigit())) break
+            i++
+        }
+        return i
+    }
+
+    private fun findNumberEnd(text: String, start: Int): Int {
+        var i = start
+        var hasDot = false
+        var hasHex = false
+        if (i < text.length && text[i] == '-') i++
+        if (i + 1 < text.length && text[i] == '0' && (text[i + 1] == 'x' || text[i + 1] == 'X')) {
+            hasHex = true; i += 2
+        }
+        while (i < text.length) {
+            when {
+                text[i] in '0'..'9' -> i++
+                text[i] == '.' && !hasDot && !hasHex -> { hasDot = true; i++ }
+                text[i] == 'f' || text[i] == 'F' || text[i] == 'L' || text[i] == 'l' ||
+                    text[i] == 'D' || text[i] == 'd' -> { i++; break }
+                text[i] in 'a'..'f' || text[i] in 'A'..'F' -> if (hasHex) i++ else break
+                text[i] == '_' -> i++
+                else -> break
+            }
+        }
+        return i
+    }
+
+    private fun findEndOfString(text: String, start: Int, quote: Char): Int {
+        var i = start + 1
+        while (i < text.length) {
+            when {
+                text[i] == '\\' -> i += 2
+                text[i] == quote -> return i + 1
+                else -> i++
+            }
+        }
+        return text.length
+    }
+
+    fun getBackgroundColor(): Color = Color(0xFF1E1E1E)
+    fun getDefaultLineColor(): Color = Color(0xFFA9B7C6)
+
     private val kotlinKeywords = setOf(
         "val", "var", "fun", "class", "object", "interface", "enum", "sealed",
         "data", "abstract", "open", "override", "private", "protected", "public",
@@ -36,7 +533,6 @@ object SyntaxHighlighter {
         "get", "set", "field", "value", "suspend", "inline", "infix", "tailrec",
         "operator", "vararg", "reified", "crossinline", "noinline",
         "actual", "expect", "typealias", "annotation", "inner",
-        "sealed", "value class", "data class",
     )
 
     private val javaKeywords = setOf(
@@ -113,496 +609,4 @@ object SyntaxHighlighter {
         "lintOptions", "packagingOptions", "signingConfigs",
         "flavorDimensions", "productFlavors",
     )
-
-    fun highlight(code: String, language: String?): AnnotatedString = buildAnnotatedString {
-        when {
-            language in listOf("kotlin", "kts", "kt") -> applyLanguage(code, kotlinKeywords, true)
-            language in listOf("java") -> applyLanguage(code, javaKeywords, true)
-            language in listOf("python", "py") -> applyLanguage(code, pythonKeywords, false)
-            language in listOf("javascript", "js", "typescript", "ts", "jsx", "tsx") ->
-                applyLanguage(code, jsKeywords, false)
-            language in listOf("go") -> applyLanguage(code, goKeywords, false)
-            language in listOf("rust", "rs") -> applyLanguage(code, rustKeywords, false)
-            language in listOf("shell", "bash", "sh", "zsh") -> applyLanguage(code, shellKeywords, false)
-            language in listOf("sql") -> applySql(code)
-            language in listOf("xml", "html", "svg") -> applyXml(code)
-            language in listOf("json") -> applyJson(code)
-            language in listOf("css") -> applyCss(code)
-            language in listOf("yaml", "yml") -> applyYaml(code)
-            language in listOf("gradle", "groovy") -> applyLanguage(code, gradleKeywords, false)
-            language in listOf("properties", "conf") -> applyProperties(code)
-            language in listOf("diff", "patch") -> applyDiff(code)
-            else -> applyFallback(code)
-        }
-    }
-
-    private fun AnnotatedString.Builder.applyLanguage(
-        code: String, keywords: Set<String>, hasAnnotations: Boolean,
-    ) {
-        val lines = code.split("\n")
-        for ((lineIndex, line) in lines.withIndex()) {
-            if (lineIndex > 0) append("\n")
-            var i = 0
-            while (i < line.length) {
-                when {
-                    // Single-line comment
-                    line.startsWith("//", i) -> {
-                        withStyle(COMMENT) { append(line.substring(i)) }
-                        i = line.length
-                    }
-                    // Block comment start
-                    line.startsWith("/*", i) -> {
-                        val end = line.indexOf("*/", i + 2)
-                        if (end >= 0) {
-                            withStyle(COMMENT) { append(line.substring(i, end + 2)) }
-                            i = end + 2
-                        } else {
-                            withStyle(COMMENT) { append(line.substring(i)) }
-                            i = line.length
-                        }
-                    }
-                    // String (double quote)
-                    line[i] == '"' -> {
-                        val end = findEndOfString(line, i, '"')
-                        withStyle(STRING) { append(line.substring(i, end)) }
-                        i = end
-                    }
-                    // String (single quote)
-                    line[i] == '\'' -> {
-                        val end = findEndOfString(line, i, '\'')
-                        withStyle(STRING) { append(line.substring(i, end)) }
-                        i = end
-                    }
-                    // Template string
-                    line[i] == '`' -> {
-                        val end = line.indexOf('`', i + 1)
-                        val endIdx = if (end >= 0) end + 1 else line.length
-                        withStyle(STRING) { append(line.substring(i, endIdx)) }
-                        i = endIdx
-                    }
-                    // Annotations (@Annotation)
-                    line[i] == '@' && hasAnnotations -> {
-                        val end = findWordEnd(line, i + 1)
-                        withStyle(ANNOTATION) { append(line.substring(i, end)) }
-                        i = end
-                    }
-                    // Numbers
-                    line[i].isDigit() && (i == 0 || !line[i - 1].isLetterOrDigit()) -> {
-                        val end = findNumberEnd(line, i)
-                        withStyle(NUMBER) { append(line.substring(i, end)) }
-                        i = end
-                    }
-                    // Identifiers / Keywords
-                    line[i].isLetter() || line[i] == '_' || line[i] == '$' -> {
-                        val end = findWordEnd(line, i)
-                        val word = line.substring(i, end)
-                        if (word in keywords) {
-                            withStyle(KEYWORD) { append(word) }
-                        } else if (word.firstOrNull()?.isUpperCase() == true ||
-                            word.startsWith("I") && word.length == 1
-                        ) {
-                            withStyle(TYPE) { append(word) }
-                        } else {
-                            withStyle(FUNCTION) {
-                                if (end < line.length && line[end] == '(') append(word)
-                                else { withStyle(DEFAULT) { append(word) } }
-                            }
-                        }
-                        i = end
-                    }
-                    else -> {
-                        withStyle(DEFAULT) { append(line[i]) }
-                        i++
-                    }
-                }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.applySql(code: String) {
-        val lines = code.split("\n")
-        for ((lineIndex, line) in lines.withIndex()) {
-            if (lineIndex > 0) append("\n")
-            var i = 0
-            while (i < line.length) {
-                when {
-                    line.startsWith("--", i) -> {
-                        withStyle(COMMENT) { append(line.substring(i)) }
-                        i = line.length
-                    }
-                    line[i] == '\'' || line[i] == '"' -> {
-                        val end = findEndOfString(line, i, line[i])
-                        withStyle(STRING) { append(line.substring(i, end)) }
-                        i = end
-                    }
-                    line[i].isLetter() || line[i] == '_' -> {
-                        val end = findWordEnd(line, i)
-                        val word = line.substring(i, end)
-                        if (word.uppercase() in sqlKeywords) {
-                            withStyle(KEYWORD) { append(word) }
-                        } else {
-                            withStyle(DEFAULT) { append(word) }
-                        }
-                        i = end
-                    }
-                    line[i].isDigit() -> {
-                        val end = findNumberEnd(line, i)
-                        withStyle(NUMBER) { append(line.substring(i, end)) }
-                        i = end
-                    }
-                    else -> {
-                        withStyle(DEFAULT) { append(line[i]) }
-                        i++
-                    }
-                }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.applyXml(code: String) {
-        var i = 0
-        while (i < code.length) {
-            when {
-                code.startsWith("<!--", i) -> {
-                    val end = code.indexOf("-->", i + 4)
-                    val endIdx = if (end >= 0) end + 3 else code.length
-                    withStyle(COMMENT) { append(code.substring(i, endIdx)) }
-                    i = endIdx
-                }
-                code[i] == '<' -> {
-                    val tagEnd = code.indexOf('>', i + 1)
-                    if (tagEnd >= 0) {
-                        val tag = code.substring(i + 1, tagEnd).trimStart()
-                        if (tag.startsWith("/")) {
-                            withStyle(XML_TAG) { append("</") }
-                            val nameEnd = findWordEnd(tag, 1)
-                            withStyle(XML_TAG) { append(tag.substring(1, nameEnd)) }
-                            withStyle(XML_TAG) { append(">") }
-                            i = tagEnd + 1
-                        } else if (tag.endsWith("/")) {
-                            val cleaned = tag.removeSuffix("/").trimEnd()
-                            val spaceIdx = cleaned.indexOf(' ')
-                            if (spaceIdx >= 0) {
-                                val tagName = cleaned.substring(0, spaceIdx)
-                                withStyle(XML_TAG) { append("<$tagName") }
-                                i = i + 1 + tagName.length + 1
-                                val attrPart = cleaned.substring(spaceIdx + 1)
-                                appendAttributes(attrPart)
-                                withStyle(XML_TAG) { append("/>") }
-                                i = tagEnd + 1
-                            } else {
-                                withStyle(XML_TAG) { append(code.substring(i, tagEnd + 1)) }
-                                i = tagEnd + 1
-                            }
-                        } else {
-                            val spaceIdx = tag.indexOf(' ')
-                            if (spaceIdx >= 0 && !tag.startsWith("?")) {
-                                val tagName = tag.substring(0, spaceIdx)
-                                withStyle(XML_TAG) { append("<$tagName") }
-                                i = i + 1 + tagName.length + 1
-                                val attrPart = tag.substring(spaceIdx + 1)
-                                appendAttributes(attrPart)
-                                withStyle(XML_TAG) { append(">") }
-                                i = tagEnd + 1
-                            } else {
-                                withStyle(XML_TAG) { append(code.substring(i, tagEnd + 1)) }
-                                i = tagEnd + 1
-                            }
-                        }
-                    } else {
-                        withStyle(DEFAULT) { append(code[i]) }
-                        i++
-                    }
-                }
-                code[i].isLetter() && i > 0 && code[i - 1] == '>' -> {
-                    val textEnd = code.indexOf('<', i)
-                    if (textEnd >= 0) {
-                        withStyle(DEFAULT) { append(code.substring(i, textEnd)) }
-                        i = textEnd
-                    } else {
-                        withStyle(DEFAULT) { append(code.substring(i)) }
-                        i = code.length
-                    }
-                }
-                else -> {
-                    withStyle(DEFAULT) { append(code[i]) }
-                    i++
-                }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.appendAttributes(attrText: String) {
-        var j = 0
-        while (j < attrText.length) {
-            when {
-                attrText[j] == ' ' || attrText[j] == '\t' || attrText[j] == '\n' -> {
-                    append(attrText[j]); j++
-                }
-                attrText[j].isLetter() || attrText[j] == '_' || attrText[j] == ':' -> {
-                    val end = findWordEnd(attrText, j)
-                    val name = attrText.substring(j, end)
-                    withStyle(XML_ATTR) { append(name) }
-                    j = end
-                }
-                attrText[j] == '=' -> {
-                    append(attrText[j]); j++
-                }
-                attrText[j] == '"' || attrText[j] == '\'' -> {
-                    val end = findEndOfString(attrText, j, attrText[j])
-                    withStyle(XML_VALUE) { append(attrText.substring(j, end)) }
-                    j = end
-                }
-                else -> { append(attrText[j]); j++ }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.applyJson(code: String) {
-        var i = 0
-        while (i < code.length) {
-            when {
-                code.startsWith("//", i) -> {
-                    val end = code.indexOf('\n', i); val endIdx = if (end >= 0) end else code.length
-                    withStyle(COMMENT) { append(code.substring(i, endIdx)) }; i = endIdx
-                }
-                code[i] == '"' -> {
-                    val end = findEndOfString(code, i, '"')
-                    val content = code.substring(i, end)
-                    val before = if (i > 0) code[i - 1] else ' '
-                    if (before == ':' || before == ' ') {
-                        // Check if it's a key (followed by ':')
-                        val afterIdx = end
-                        var k = afterIdx
-                        while (k < code.length && (code[k] == ' ' || code[k] == '\t')) k++
-                        if (k < code.length && code[k] == ':') {
-                            withStyle(YAML_KEY) { append(content) }; i = end; continue
-                        }
-                    }
-                    withStyle(STRING) { append(content) }; i = end
-                }
-                code[i].isDigit() || code[i] == '-' -> {
-                    if (code[i] == '-' || code[i].isDigit()) {
-                        val end = findNumberEnd(code, i)
-                        withStyle(NUMBER) { append(code.substring(i, end)) }; i = end
-                    } else { append(code[i]); i++ }
-                }
-                code.startsWith("true", i) || code.startsWith("false", i) ||
-                    code.startsWith("null", i) -> {
-                    val end = findWordEnd(code, i)
-                    withStyle(KEYWORD) { append(code.substring(i, end)) }; i = end
-                }
-                else -> { append(code[i]); i++ }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.applyCss(code: String) {
-        var i = 0
-        while (i < code.length) {
-            when {
-                code.startsWith("/*", i) -> {
-                    val end = code.indexOf("*/", i + 2)
-                    val endIdx = if (end >= 0) end + 2 else code.length
-                    withStyle(COMMENT) { append(code.substring(i, endIdx)) }; i = endIdx
-                }
-                code.startsWith("//", i) -> {
-                    val end = code.indexOf('\n', i); val endIdx = if (end >= 0) end else code.length
-                    withStyle(COMMENT) { append(code.substring(i, endIdx)) }; i = endIdx
-                }
-                code[i] == '.' || code[i] == '#' || code[i] == '*' -> {
-                    val end = findWordEnd(code, i)
-                    withStyle(TYPE) { append(code.substring(i, end)) }; i = end
-                }
-                code[i].isLetter() || code[i] == '-' -> {
-                    val end = findWordEnd(code, i, true)
-                    val wordEnd = end
-                    var k = end
-                    while (k < code.length && code[k] == ' ') k++
-                    if (k < code.length && code[k] == ':') {
-                        withStyle(PROPERTY) { append(code.substring(i, wordEnd)) }; i = wordEnd
-                    } else {
-                        withStyle(DEFAULT) { append(code.substring(i, wordEnd)) }; i = wordEnd
-                    }
-                }
-                code[i] == '"' || code[i] == '\'' -> {
-                    val end = findEndOfString(code, i, code[i])
-                    withStyle(STRING) { append(code.substring(i, end)) }; i = end
-                }
-                code[i].isDigit() -> {
-                    val end = findNumberEnd(code, i)
-                    withStyle(NUMBER) { append(code.substring(i, end)) }; i = end
-                }
-                else -> { append(code[i]); i++ }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.applyYaml(code: String) {
-        val lines = code.split("\n")
-        for ((lineIndex, line) in lines.withIndex()) {
-            if (lineIndex > 0) append("\n")
-            if (line.isBlank()) continue
-            if (line.trimStart().startsWith("#")) {
-                withStyle(COMMENT) { append(line) }; continue
-            }
-            val colonIdx = line.indexOf(':')
-            if (colonIdx >= 0) {
-                val key = line.substring(0, colonIdx)
-                val value = line.substring(colonIdx)
-                withStyle(YAML_KEY) { append(key) }
-                if (value == ":") { append(":"); continue }
-                val valueStr = value.substring(1).trimStart()
-                val trimmedValue = value.substring(1)
-                val leadingSpaces = value.length - 1 - trimmedValue.length
-                append(":")
-                if (leadingSpaces > 0) append(" ".repeat(leadingSpaces))
-                when {
-                    valueStr.startsWith("\"") || valueStr.startsWith("'") -> {
-                        withStyle(STRING) { append(trimmedValue) }
-                    }
-                    valueStr == "true" || valueStr == "false" || valueStr == "null" -> {
-                        withStyle(KEYWORD) { append(trimmedValue) }
-                    }
-                    valueStr.isNotEmpty() && (
-                        valueStr[0].isDigit() || valueStr == "-" || valueStr == "+"
-                    ) -> {
-                        withStyle(NUMBER) { append(trimmedValue) }
-                    }
-                    else -> withStyle(YAML_VALUE) { append(trimmedValue) }
-                }
-            } else {
-                withStyle(DEFAULT) { append(line) }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.applyProperties(code: String) {
-        val lines = code.split("\n")
-        for ((lineIndex, line) in lines.withIndex()) {
-            if (lineIndex > 0) append("\n")
-            if (line.isBlank()) continue
-            if (line.trimStart().startsWith("#") || line.trimStart().startsWith("!")) {
-                withStyle(COMMENT) { append(line) }; continue
-            }
-            val eqIdx = line.indexOf('=')
-            val colonIdx = line.indexOf(':')
-            val sepIdx = when {
-                eqIdx >= 0 && colonIdx >= 0 -> minOf(eqIdx, colonIdx)
-                eqIdx >= 0 -> eqIdx; colonIdx >= 0 -> colonIdx; else -> -1
-            }
-            if (sepIdx >= 0) {
-                withStyle(YAML_KEY) { append(line.substring(0, sepIdx)) }
-                append(line[sepIdx])
-                withStyle(STRING) { append(line.substring(sepIdx + 1)) }
-            } else {
-                withStyle(DEFAULT) { append(line) }
-            }
-        }
-    }
-
-    private fun AnnotatedString.Builder.applyDiff(code: String) {
-        val lines = code.split("\n")
-        for ((lineIndex, line) in lines.withIndex()) {
-            if (lineIndex > 0) append("\n")
-            when {
-                line.startsWith("+++") || line.startsWith("---") -> {
-                    withStyle(TYPE) { append(line) }
-                }
-                line.startsWith("@@") -> {
-                    withStyle(KEYWORD) { append(line) }
-                }
-                line.startsWith("+") -> {
-                    withStyle(STRING) { append(line) }
-                }
-                line.startsWith("-") -> {
-                    withStyle(ANNOTATION) { append(line) }
-                }
-                else -> {
-                    withStyle(DEFAULT) { append(line) }
-                }
-            }
-        }
-    }
-
-    private fun applyFallback(code: String): AnnotatedString = buildAnnotatedString {
-        var i = 0
-        while (i < code.length) {
-            when {
-                code.startsWith("//", i) -> {
-                    val end = code.indexOf('\n', i); val endIdx = if (end >= 0) end else code.length
-                    withStyle(COMMENT) { append(code.substring(i, endIdx)) }; i = endIdx
-                }
-                code.startsWith("/*", i) -> {
-                    val end = code.indexOf("*/", i + 2)
-                    val endIdx = if (end >= 0) end + 2 else code.length
-                    withStyle(COMMENT) { append(code.substring(i, endIdx)) }; i = endIdx
-                }
-                code[i] == '"' -> {
-                    val end = findEndOfString(code, i, '"')
-                    withStyle(STRING) { append(code.substring(i, end)) }; i = end
-                }
-                code[i] == '\'' -> {
-                    val end = findEndOfString(code, i, '\'')
-                    withStyle(STRING) { append(code.substring(i, end)) }; i = end
-                }
-                code[i].isDigit() -> {
-                    val end = findNumberEnd(code, i)
-                    withStyle(NUMBER) { append(code.substring(i, end)) }; i = end
-                }
-                else -> { append(code[i]); i++ }
-            }
-        }
-    }
-
-    private fun findWordEnd(text: String, start: Int, includeHyphen: Boolean = false): Int {
-        var i = start
-        while (i < text.length && (text[i].isLetterOrDigit() || text[i] == '_' ||
-                text[i] == '$' || text[i] == '-' || text[i] == '.' && i > start)
-        ) {
-            if (text[i] == '-' && !includeHyphen) break
-            if (text[i] == '.' && i > start && (
-                    i + 1 >= text.length || !text[i + 1].isLetterOrDigit())
-            ) break
-            i++
-        }
-        return i
-    }
-
-    private fun findNumberEnd(text: String, start: Int): Int {
-        var i = start
-        var hasDot = false
-        var hasHex = false
-        if (i < text.length && text[i] == '-') i++
-        if (i + 1 < text.length && text[i] == '0' && (text[i + 1] == 'x' || text[i + 1] == 'X')) {
-            hasHex = true; i += 2
-        }
-        while (i < text.length) {
-            when {
-                text[i] in '0'..'9' -> i++
-                text[i] == '.' && !hasDot && !hasHex -> { hasDot = true; i++ }
-                text[i] == 'f' || text[i] == 'F' || text[i] == 'L' || text[i] == 'l' ||
-                    text[i] == 'D' || text[i] == 'd' -> { i++; break }
-                text[i] in 'a'..'f' || text[i] in 'A'..'F' -> if (hasHex) i++ else break
-                text[i] == '_' -> i++
-                else -> break
-            }
-        }
-        return i
-    }
-
-    private fun findEndOfString(text: String, start: Int, quote: Char): Int {
-        var i = start + 1
-        while (i < text.length) {
-            when {
-                text[i] == '\\' -> i += 2
-                text[i] == quote -> return i + 1
-                else -> i++
-            }
-        }
-        return text.length
-    }
-
-    fun getBackgroundColor(): Color = Color(0xFF1E1E1E)
-    fun getDefaultLineColor(): Color = Color(0xFFA9B7C6)
 }
