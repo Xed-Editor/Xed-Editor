@@ -4,6 +4,7 @@ package com.rk.ai.nativeagent.engine
 import android.content.Context
 import androidx.room.Room
 import com.rk.ai.agent.AILoggingManager
+import com.rk.ai.agent.GenerationChunk
 import com.rk.ai.agent.GenerationHandler
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.TransformerContext
@@ -137,7 +138,7 @@ class VibeCodingEngine(
                     outputTransformers = emptyList(),
                 ).collect { chunk ->
                     when (chunk) {
-                        is GenerationHandler.GenerationChunk.Messages ->
+                        is GenerationChunk.Messages ->
                             _state.value = _state.value.copy(messages = chunk.messages)
                         else -> {}
                     }
