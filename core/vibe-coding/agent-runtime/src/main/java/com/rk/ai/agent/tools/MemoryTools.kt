@@ -2,14 +2,9 @@
 package com.rk.ai.agent.tools
 
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
@@ -72,22 +67,22 @@ fun buildMemoryTools(
             )
         },
         execute = {
-            val params = it.jsonObject
-            val action = params["action"]?.jsonPrimitive?.contentOrNull ?: error("action is required")
+            val params = it.asJsonObject
+            val action = params["action"]?.asJsonPrimitive?.asString ?: error("action is required")
             val payload = when (action) {
                 "create" -> {
-                    val content = params["content"]?.jsonPrimitive?.contentOrNull ?: error("content is required")
+                    val content = params["content"]?.asJsonPrimitive?.asString ?: error("content is required")
                     json.encodeToJsonElement(AssistantMemory.serializer(), onCreation(content))
                 }
 
                 "edit" -> {
-                    val id = params["id"]?.jsonPrimitive?.intOrNull ?: error("id is required")
-                    val content = params["content"]?.jsonPrimitive?.contentOrNull ?: error("content is required")
+                    val id = params["id"]?.asJsonPrimitive?.asInt ?: error("id is required")
+                    val content = params["content"]?.asJsonPrimitive?.asString ?: error("content is required")
                     json.encodeToJsonElement(AssistantMemory.serializer(), onUpdate(id, content))
                 }
 
                 "delete" -> {
-                    val id = params["id"]?.jsonPrimitive?.intOrNull ?: error("id is required")
+                    val id = params["id"]?.asJsonPrimitive?.asInt ?: error("id is required")
                     onDelete(id)
                     buildJsonObject {
                         put("success", true)

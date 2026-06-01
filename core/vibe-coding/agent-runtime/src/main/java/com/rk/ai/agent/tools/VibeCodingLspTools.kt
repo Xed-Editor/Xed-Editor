@@ -14,8 +14,6 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingLspTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(getDiagnostics, findDefinitions, findReferences, formatDocument)
-
     private val getDiagnostics = Tool(
         name = "getDiagnostics",
         description = "Returns LSP diagnostics (errors, warnings, hints) for a file.",
@@ -119,4 +117,6 @@ class VibeCodingLspTools(private val ideService: IdeService) {
             listOf(UIMessagePart.Text("Formatted $filePath"))
         },
     )
+
+    val all: List<Tool> = listOf(getDiagnostics, findDefinitions, findReferences, formatDocument)
 }

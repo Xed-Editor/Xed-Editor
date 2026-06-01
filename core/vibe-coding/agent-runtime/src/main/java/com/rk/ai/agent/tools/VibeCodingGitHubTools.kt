@@ -24,8 +24,6 @@ private val REPO_FORMAT = Regex("^[\\w.-]+/[\\w.-]+\$")
 
 class VibeCodingGitHubTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(githubRepoInfo, githubReadme, githubFileFetch, githubSearchCode)
-
     // ── Helpers ────────────────────────────────────────────────────────────
 
     private fun validateRepo(repo: String): UIMessagePart.Text? =
@@ -207,4 +205,6 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
             listOf(UIMessagePart.Text(text))
         },
     )
+
+    val all: List<Tool> = listOf(githubRepoInfo, githubReadme, githubFileFetch, githubSearchCode)
 }

@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.tools
 
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -54,7 +55,7 @@ fun createSearchTools(settings: Settings): Set<Tool> {
                         defaultValue = { SearchServiceOptions.DEFAULT })
                     val service = SearchService.getService(options)
                     val result = service.search(
-                        params = it.jsonObject,
+                        params = Json.parseToJsonElement(it.toString()).jsonObject,
                         commonOptions = settings.searchCommonOptions,
                         serviceOptions = options,
                     )
@@ -101,7 +102,7 @@ fun createSearchTools(settings: Settings): Set<Tool> {
                             defaultValue = { SearchServiceOptions.DEFAULT })
                         val service = SearchService.getService(options)
                         val result = service.scrape(
-                            params = it.jsonObject,
+                            params = Json.parseToJsonElement(it.toString()).jsonObject,
                             commonOptions = settings.searchCommonOptions,
                             serviceOptions = options,
                         )

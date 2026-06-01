@@ -19,11 +19,6 @@ class VibeCodingSystemTools(
     private val context: Context,
 ) {
 
-    val all: List<Tool> = listOf(
-        getIdeInfo, showMessage, getEnvironment,
-        getClipboard, writeToClipboard, getGuidelines,
-    )
-
     fun getGuidelinesText(): String = SYSTEM_INSTRUCTIONS
 
     private val getIdeInfo = Tool(
@@ -108,6 +103,11 @@ class VibeCodingSystemTools(
         execute = { _ ->
             listOf(UIMessagePart.Text(SYSTEM_INSTRUCTIONS))
         },
+    )
+
+    val all: List<Tool> = listOf(
+        getIdeInfo, showMessage, getEnvironment,
+        getClipboard, writeToClipboard, getGuidelines,
     )
 
     companion object {

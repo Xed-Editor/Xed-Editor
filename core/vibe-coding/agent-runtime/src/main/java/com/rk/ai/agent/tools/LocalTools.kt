@@ -5,13 +5,8 @@ import android.content.Context
 import kotlin.uuid.ExperimentalUuidApi
 import android.content.ClipboardManager
 import android.content.ClipData
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
@@ -114,8 +109,8 @@ class LocalTools(private val context: Context, private val eventBus: AppEventBus
                 )
             },
             execute = {
-                val params = it.jsonObject
-                val action = params["action"]?.jsonPrimitive?.contentOrNull ?: error("action is required")
+                val params = it.asJsonObject
+                val action = params["action"]?.asJsonPrimitive?.asString ?: error("action is required")
                 when (action) {
                     "read" -> {
                         val payload = buildJsonObject {
@@ -125,7 +120,7 @@ class LocalTools(private val context: Context, private val eventBus: AppEventBus
                     }
 
                     "write" -> {
-                        val text = params["text"]?.jsonPrimitive?.contentOrNull ?: error("text is required")
+                        val text = params["text"]?.asJsonPrimitive?.asString ?: error("text is required")
                         context.writeClipboardText(text)
                         val payload = buildJsonObject {
                             put("success", true)
@@ -161,7 +156,7 @@ class LocalTools(private val context: Context, private val eventBus: AppEventBus
                 )
             },
             execute = {
-                val text = it.jsonObject["text"]?.jsonPrimitive?.contentOrNull
+                val text = it.asJsonObject["text"]?.asJsonPrimitive?.asString
                     ?: error("text is required")
                 eventBus.emit(AppEvent.Speak(text))
                 val payload = buildJsonObject {

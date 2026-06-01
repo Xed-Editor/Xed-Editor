@@ -14,8 +14,6 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingProjectTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(getProjectStructure, getProjectSummary, getProjectConfig, getSymbolUnderCursor)
-
     private val getProjectStructure = Tool(
         name = "getProjectStructure",
         description = "Returns a hierarchical directory tree of the project.",
@@ -102,4 +100,6 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
             }
         },
     )
+
+    val all: List<Tool> = listOf(getProjectStructure, getProjectSummary, getProjectConfig, getSymbolUnderCursor)
 }

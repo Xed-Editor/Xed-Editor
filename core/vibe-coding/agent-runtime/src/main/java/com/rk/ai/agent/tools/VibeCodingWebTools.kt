@@ -25,8 +25,6 @@ import java.nio.charset.Charset
 
 class VibeCodingWebTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(webFetch, webSearch, webDownload, webResearch)
-
     private val webFetch = Tool(
         name = "web_fetch",
         description = "Fetches and extracts readable content from a URL. Supports text, HTML, JSON, XML, and markdown output.",
@@ -199,6 +197,8 @@ class VibeCodingWebTools(private val ideService: IdeService) {
             return path.takeIf { it.isNotBlank() && !it.contains('.') }?.let { "download.bin" } ?: path.takeIf { it.isNotBlank() } ?: "download.bin"
         }
     }
+
+    val all: List<Tool> = listOf(webFetch, webSearch, webDownload, webResearch)
 
     private data class SearchResult(val rank: Int, val title: String, val url: String, val snippet: String)
 

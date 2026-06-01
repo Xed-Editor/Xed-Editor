@@ -14,8 +14,6 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingGitTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(getGitStatus, getGitDiff, gitCommit, gitCheckout)
-
     private fun com.google.gson.JsonElement.workspaceOrPrimary(): String =
         asJsonObject["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
 
@@ -107,4 +105,6 @@ class VibeCodingGitTools(private val ideService: IdeService) {
             listOf(UIMessagePart.Text(result))
         },
     )
+
+    val all: List<Tool> = listOf(getGitStatus, getGitDiff, gitCommit, gitCheckout)
 }

@@ -14,8 +14,6 @@ import com.rk.ai.service.IdeService
 
 class VibeCodingTerminalTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(runCommand, getTerminalOutput)
-
     private val runCommand = Tool(
         name = "runCommand",
         description = "Runs a shell command in the terminal environment. Prefer native IDE tools for file/editor operations, use this only for building, running, testing, or package installs.",
@@ -60,4 +58,6 @@ class VibeCodingTerminalTools(private val ideService: IdeService) {
             listOf(UIMessagePart.Text(output.ifEmpty { "No terminal output available" }))
         },
     )
+
+    val all: List<Tool> = listOf(runCommand, getTerminalOutput)
 }

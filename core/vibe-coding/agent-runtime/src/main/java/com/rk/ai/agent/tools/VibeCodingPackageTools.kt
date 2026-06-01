@@ -21,8 +21,6 @@ import java.net.URLEncoder
 
 class VibeCodingPackageTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(npmSearch, pipSearch, mavenSearch)
-
     private val npmSearch = Tool(
         name = "npm_search",
         description = "Searches npm registry for packages.",
@@ -143,6 +141,8 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
             listOf(UIMessagePart.Text(text.ifEmpty { "No artifacts found for: $query" }))
         },
     )
+
+    val all: List<Tool> = listOf(npmSearch, pipSearch, mavenSearch)
 
     private fun httpGet(urlStr: String): String {
         val url = URI(urlStr).toURL()

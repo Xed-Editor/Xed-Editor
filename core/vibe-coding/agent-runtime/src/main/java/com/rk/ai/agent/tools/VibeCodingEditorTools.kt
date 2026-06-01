@@ -14,12 +14,6 @@ import java.io.File
 
 class VibeCodingEditorTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(
-        getOpenFiles, getActiveFile, getSelection,
-        openFile, replaceSelection, insertAtCursor,
-        saveOpenFiles, refreshOpenEditors, refreshFile,
-    )
-
     private val getOpenFiles = Tool(
         name = "getOpenFiles",
         description = "Lists all files currently open in editor tabs.",
@@ -146,5 +140,11 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
             ideService.refreshEditors(filePath, false)
             listOf(UIMessagePart.Text("Refreshed $filePath"))
         },
+    )
+
+    val all: List<Tool> = listOf(
+        getOpenFiles, getActiveFile, getSelection,
+        openFile, replaceSelection, insertAtCursor,
+        saveOpenFiles, refreshOpenEditors, refreshFile,
     )
 }

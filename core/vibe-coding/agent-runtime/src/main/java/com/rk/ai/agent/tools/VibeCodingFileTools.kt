@@ -17,13 +17,6 @@ import java.io.File
 
 class VibeCodingFileTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(
-        readFile, cat, readFiles, writeFile, editFile, applyBatchEdits,
-        createFile, deleteFile, renameFile,
-        listFiles, ls, findFiles, glob,
-        head, tail, wc, countLines, stat,
-    )
-
     private val readFile = Tool(
         name = "readFile",
         description = "Read the contents of a file. Supports startLine/endLine (1-indexed, inclusive). Content truncated at 250KB.",
@@ -587,6 +580,13 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             }.toString()
             listOf(UIMessagePart.Text(result))
         },
+    )
+
+    val all: List<Tool> = listOf(
+        readFile, cat, readFiles, writeFile, editFile, applyBatchEdits,
+        createFile, deleteFile, renameFile,
+        listFiles, ls, findFiles, glob,
+        head, tail, wc, countLines, stat,
     )
 
     private fun humanReadableSize(bytes: Long): String {

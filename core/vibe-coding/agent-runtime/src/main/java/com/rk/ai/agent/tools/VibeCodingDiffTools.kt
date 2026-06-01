@@ -14,8 +14,6 @@ import java.io.File
 
 class VibeCodingDiffTools(private val ideService: IdeService) {
 
-    val all: List<Tool> = listOf(openDiff, getDiffResult, rejectDiff)
-
     private val openDiff = Tool(
         name = "openDiff",
         description = "Opens a side-by-side diff view for user review.",
@@ -76,4 +74,6 @@ class VibeCodingDiffTools(private val ideService: IdeService) {
             listOf(UIMessagePart.Text("Rejected patch for $filePath"))
         },
     )
+
+    val all: List<Tool> = listOf(openDiff, getDiffResult, rejectDiff)
 }

@@ -3,8 +3,6 @@ package com.rk.ai.agent.tools
 
 import kotlinx.serialization.json.buildJsonObject
 import kotlin.uuid.ExperimentalUuidApi
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
@@ -61,12 +59,12 @@ fun createSkillTools(
                 )
             },
             execute = {
-                val name = it.jsonObject["name"]?.jsonPrimitive?.content
+                val name = it.asJsonObject["name"]?.asJsonPrimitive?.asString
                     ?: error("name is required")
                 if (name !in enabledSkills) {
                     error("Skill '$name' is not available. Available skills: ${enabledSkills.joinToString()}")
                 }
-                val path = it.jsonObject["path"]?.jsonPrimitive?.content
+                val path = it.asJsonObject["path"]?.asJsonPrimitive?.asString
                 val content = if (path.isNullOrBlank()) {
                     skillManager.readSkillBody(name)
                         ?: error("Skill '$name' not found")
