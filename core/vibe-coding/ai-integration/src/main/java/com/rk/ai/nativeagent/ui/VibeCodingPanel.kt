@@ -204,3 +204,4 @@ fun VibeCodingPanel(
         )
     }
 }
+}

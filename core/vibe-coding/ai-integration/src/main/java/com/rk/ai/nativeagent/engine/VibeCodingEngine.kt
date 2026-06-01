@@ -71,7 +71,7 @@ private fun buildDatabase(context: Context): AppDatabase =
 
 class VibeCodingEngine(
     private val context: Context,
-    private val ideService: IdeService,
+    val ideService: IdeService,
     scope: CoroutineScope? = null,
     private val json: Json = defaultJson,
     okHttpClient: OkHttpClient = buildOkHttpClient(),
