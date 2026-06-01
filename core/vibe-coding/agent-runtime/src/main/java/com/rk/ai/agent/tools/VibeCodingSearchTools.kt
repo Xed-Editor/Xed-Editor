@@ -20,10 +20,10 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Text or regex to search for")
+                    putJsonObject("query") { put("type", "string"); put("description", "Text or regex to search for") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 50)") }
                     putJsonObject("isRegex") { put("type", "boolean"); put("description", "Use regex if true") }
-                    put("path", "Directory to scope search to (optional)")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory to scope search to (optional)") }
                 },
                 required = listOf("query"),
             )
@@ -50,9 +50,9 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("pattern", "Regex pattern to search for")
+                    putJsonObject("pattern") { put("type", "string"); put("description", "Regex pattern to search for") }
                     putJsonObject("limit") { put("type", "integer") }
-                    put("path", "Directory to scope search to (optional)")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory to scope search to (optional)") }
                 },
                 required = listOf("pattern"),
             )
@@ -78,9 +78,9 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Symbol name to search for")
+                    putJsonObject("query") { put("type", "string"); put("description", "Symbol name to search for") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 50)") }
-                    put("path", "Directory to scope search to (optional)")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory to scope search to (optional)") }
                 },
                 required = listOf("query"),
             )
@@ -106,9 +106,9 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("pattern", "File name or glob pattern (e.g. *.kt, **/*.java)")
+                    putJsonObject("pattern") { put("type", "string"); put("description", "File name or glob pattern (e.g. *.kt, **/*.java)") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 100)") }
-                    put("path", "Directory to search in (optional)")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory to search in (optional)") }
                 },
                 required = listOf("pattern"),
             )

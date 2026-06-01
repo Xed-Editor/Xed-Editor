@@ -23,7 +23,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute or workspace-relative path to the file")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute or workspace-relative path to the file") }
                     putJsonObject("startLine") { put("type", "integer"); put("description", "First line to read (1-indexed)") }
                     putJsonObject("endLine") { put("type", "integer"); put("description", "Last line to read (inclusive)") }
                 },
@@ -50,9 +50,9 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute or relative path to the file")
-                    put("filePath", "Alternative to path")
-                    put("file", "Alternative to path")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute or relative path to the file") }
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Alternative to path") }
+                    putJsonObject("file") { put("type", "string"); put("description", "Alternative to path") }
                     putJsonObject("startLine") { put("type", "integer") }
                     putJsonObject("endLine") { put("type", "integer") }
                 },
@@ -79,7 +79,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePaths", "Comma-separated list of paths or JSON array of path strings")
+                    putJsonObject("filePaths") { put("type", "string"); put("description", "Comma-separated list of paths or JSON array of path strings") }
                 },
                 required = listOf("filePaths"),
             )
@@ -110,8 +110,8 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute path to the file")
-                    put("content", "The full content to write")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute path to the file") }
+                    putJsonObject("content") { put("type", "string"); put("description", "The full content to write") }
                 },
                 required = listOf("path", "content"),
             )
@@ -131,9 +131,9 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file")
-                    put("oldString", "The exact text to find and replace")
-                    put("newString", "The replacement text")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file") }
+                    putJsonObject("oldString") { put("type", "string"); put("description", "The exact text to find and replace") }
+                    putJsonObject("newString") { put("type", "string"); put("description", "The replacement text") }
                     putJsonObject("replaceAll") { put("type", "boolean"); put("description", "Replace all occurrences if true") }
                     putJsonObject("dryRun") { put("type", "boolean"); put("description", "Only report whether the edit would succeed") }
                     putJsonObject("partialMatch") { put("type", "boolean"); put("description", "Allow matching suffix/prefix if exact match fails") }
@@ -199,7 +199,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("edits", "JSON object mapping file paths to their new content: {\"path/to/file.kt\": \"new content...\"}")
+                    putJsonObject("edits") { put("type", "string"); put("description", "JSON object mapping file paths to their new content: {\"path/to/file.kt\": \"new content...\"}") }
                 },
                 required = listOf("edits"),
             )
@@ -224,8 +224,8 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path for the new file")
-                    put("content", "Initial file content (optional)")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path for the new file") }
+                    putJsonObject("content") { put("type", "string"); put("description", "Initial file content (optional)") }
                 },
                 required = listOf("filePath"),
             )
@@ -245,7 +245,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path of the file to delete")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path of the file to delete") }
                 },
                 required = listOf("filePath"),
             )
@@ -263,8 +263,8 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("sourcePath", "Current path of the file or directory")
-                    put("destPath", "New path for the file or directory")
+                    putJsonObject("sourcePath") { put("type", "string"); put("description", "Current path of the file or directory") }
+                    putJsonObject("destPath") { put("type", "string"); put("description", "New path for the file or directory") }
                 },
                 required = listOf("sourcePath", "destPath"),
             )
@@ -284,7 +284,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Directory path to list")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory path to list") }
                     putJsonObject("recursive") { put("type", "boolean"); put("description", "List files recursively (default: false)") }
                     putJsonObject("maxFiles") { put("type", "integer"); put("description", "Maximum number of files to return (default: 500, max: 5000)") }
                 },
@@ -312,8 +312,8 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Directory path to list")
-                    put("directoryPath", "Alternative to path")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory path to list") }
+                    putJsonObject("directoryPath") { put("type", "string"); put("description", "Alternative to path") }
                     putJsonObject("recursive") { put("type", "boolean"); put("description", "List files recursively (default: false)") }
                     putJsonObject("maxFiles") { put("type", "integer"); put("description", "Maximum number of files to return (default: 500, max: 5000)") }
                 },
@@ -343,10 +343,10 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "File name or glob pattern to search for (e.g. *.kt, **/*.java)")
-                    put("pattern", "Alternative to query")
+                    putJsonObject("query") { put("type", "string"); put("description", "File name or glob pattern to search for (e.g. *.kt, **/*.java)") }
+                    putJsonObject("pattern") { put("type", "string"); put("description", "Alternative to query") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 100)") }
-                    put("path", "Directory to search in (default: workspace root)")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory to search in (default: workspace root)") }
                 },
                 required = emptyList(),
             )
@@ -374,10 +374,10 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "File name or glob pattern to search for (e.g. *.kt, **/*.java)")
-                    put("pattern", "Alternative to query")
+                    putJsonObject("query") { put("type", "string"); put("description", "File name or glob pattern to search for (e.g. *.kt, **/*.java)") }
+                    putJsonObject("pattern") { put("type", "string"); put("description", "Alternative to query") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 100)") }
-                    put("path", "Directory to search in (default: workspace root)")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory to search in (default: workspace root)") }
                 },
                 required = emptyList(),
             )
@@ -405,9 +405,9 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute or relative path to the file")
-                    put("filePath", "Alternative to path")
-                    put("file", "Alternative to path")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute or relative path to the file") }
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Alternative to path") }
+                    putJsonObject("file") { put("type", "string"); put("description", "Alternative to path") }
                     putJsonObject("lines") { put("type", "integer"); put("description", "Number of lines to read from the top (default: 10, max: 10000)") }
                     putJsonObject("count") { put("type", "integer"); put("description", "Alias for lines") }
                 },
@@ -433,9 +433,9 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute or relative path to the file")
-                    put("filePath", "Alternative to path")
-                    put("file", "Alternative to path")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute or relative path to the file") }
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Alternative to path") }
+                    putJsonObject("file") { put("type", "string"); put("description", "Alternative to path") }
                     putJsonObject("lines") { put("type", "integer"); put("description", "Number of lines to read from the bottom (default: 10, max: 10000)") }
                     putJsonObject("count") { put("type", "integer"); put("description", "Alias for lines") }
                 },
@@ -463,9 +463,9 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute or relative path to the file")
-                    put("filePath", "Alternative to path")
-                    put("file", "Alternative to path")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute or relative path to the file") }
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Alternative to path") }
+                    putJsonObject("file") { put("type", "string"); put("description", "Alternative to path") }
                 },
                 required = emptyList(),
             )
@@ -503,9 +503,9 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute or relative path to the file")
-                    put("filePath", "Alternative to path")
-                    put("file", "Alternative to path")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute or relative path to the file") }
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Alternative to path") }
+                    putJsonObject("file") { put("type", "string"); put("description", "Alternative to path") }
                 },
                 required = emptyList(),
             )
@@ -546,9 +546,9 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Absolute or relative path to the file")
-                    put("filePath", "Alternative to path")
-                    put("file", "Alternative to path")
+                    putJsonObject("path") { put("type", "string"); put("description", "Absolute or relative path to the file") }
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Alternative to path") }
+                    putJsonObject("file") { put("type", "string"); put("description", "Alternative to path") }
                 },
                 required = emptyList(),
             )

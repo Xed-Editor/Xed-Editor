@@ -20,7 +20,7 @@ class VibeCodingTerminalTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("command", "Shell command to execute")
+                    putJsonObject("command") { put("type", "string"); put("description", "Shell command to execute") }
                     putJsonObject("timeoutSeconds") { put("type", "integer"); put("description", "Timeout in seconds (default: 120)") }
                 },
                 required = listOf("command"),

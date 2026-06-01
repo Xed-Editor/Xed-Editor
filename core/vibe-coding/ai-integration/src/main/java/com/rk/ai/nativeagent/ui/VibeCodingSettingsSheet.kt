@@ -484,6 +484,37 @@ private fun ProviderEditor(
     var isFetchingModels by remember { mutableStateOf(false) }
     var fetchModelsError by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(providerId) {
+        if (provider.models.isEmpty()) {
+            val apiKey = when (provider) {
+                is ProviderSetting.OpenAI -> provider.apiKey
+                is ProviderSetting.Google -> provider.apiKey
+                is ProviderSetting.Claude -> provider.apiKey
+            }
+            if (apiKey.isNotBlank()) {
+                isFetchingModels = true
+                try {
+                    val apiProvider = engine.providerManager.getProviderByType(provider)
+                    val apiModels = apiProvider.listModels(provider)
+                    val enriched = apiModels.sortedBy { it.modelId }.map { model ->
+                        model.copy(
+                            displayName = model.modelId,
+                            inputModalities = ModelRegistry.MODEL_INPUT_MODALITIES.getData(model.modelId),
+                            outputModalities = ModelRegistry.MODEL_OUTPUT_MODALITIES.getData(model.modelId),
+                            abilities = ModelRegistry.MODEL_ABILITIES.getData(model.modelId),
+                        )
+                    }
+                    engine.settingsStore.update { s ->
+                        s.copy(providers = s.providers.map { p ->
+                            if (p.id == providerId) p.copyProvider(models = enriched) else p
+                        })
+                    }
+                } catch (_: Exception) { }
+                isFetchingModels = false
+            }
+        }
+    }
+
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) {

@@ -54,7 +54,7 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file to open")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file to open") }
                 },
                 required = listOf("filePath"),
             )
@@ -76,7 +76,7 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("newContent", "Text to replace the selection with")
+                    putJsonObject("newContent") { put("type", "string"); put("description", "Text to replace the selection with") }
                 },
                 required = listOf("newContent"),
             )
@@ -94,7 +94,7 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("newContent", "Text to insert at the cursor")
+                    putJsonObject("newContent") { put("type", "string"); put("description", "Text to insert at the cursor") }
                 },
                 required = listOf("newContent"),
             )
@@ -130,7 +130,7 @@ class VibeCodingEditorTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path of the file to refresh")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path of the file to refresh") }
                 },
                 required = listOf("filePath"),
             )

@@ -20,8 +20,8 @@ class VibeCodingDiffTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file")
-                    put("newContent", "Proposed new content to diff against")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file") }
+                    putJsonObject("newContent") { put("type", "string"); put("description", "Proposed new content to diff against") }
                 },
                 required = listOf("filePath", "newContent"),
             )
@@ -44,7 +44,7 @@ class VibeCodingDiffTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file") }
                 },
                 required = listOf("filePath"),
             )
@@ -63,7 +63,7 @@ class VibeCodingDiffTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file with the pending diff")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file with the pending diff") }
                 },
                 required = listOf("filePath"),
             )

@@ -27,7 +27,7 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Package name or search term")
+                    putJsonObject("query") { put("type", "string"); put("description", "Package name or search term") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
                 },
                 required = listOf("query"),
@@ -69,7 +69,7 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Package name or search term")
+                    putJsonObject("query") { put("type", "string"); put("description", "Package name or search term") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
                 },
                 required = listOf("query"),
@@ -102,7 +102,7 @@ class VibeCodingPackageTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Search term (groupId:artifactId or name)")
+                    putJsonObject("query") { put("type", "string"); put("description", "Search term (groupId:artifactId or name)") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
                 },
                 required = listOf("query"),

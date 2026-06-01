@@ -31,8 +31,8 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("url", "The URL to fetch content from")
-                    put("format", "Response format: 'text', 'markdown', 'html', or 'raw' (default: text)")
+                    putJsonObject("url") { put("type", "string"); put("description", "The URL to fetch content from") }
+                    putJsonObject("format") { put("type", "string"); put("description", "Response format: 'text', 'markdown', 'html', or 'raw' (default: text)") }
                     putJsonObject("timeout") { put("type", "integer"); put("description", "Timeout in seconds (default: 30)") }
                     putJsonObject("maxBytes") { put("type", "integer"); put("description", "Maximum response bytes (default: 5MB)") }
                 },
@@ -71,7 +71,7 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Search query")
+                    putJsonObject("query") { put("type", "string"); put("description", "Search query") }
                     putJsonObject("numResults") { put("type", "integer"); put("description", "Number of results (default: 8, max: 20)") }
                 },
                 required = listOf("query"),
@@ -94,8 +94,8 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("url", "URL to download")
-                    put("outputPath", "Workspace file path or existing directory where the download should be saved")
+                    putJsonObject("url") { put("type", "string"); put("description", "URL to download") }
+                    putJsonObject("outputPath") { put("type", "string"); put("description", "Workspace file path or existing directory where the download should be saved") }
                     putJsonObject("timeout") { put("type", "integer"); put("description", "Timeout in seconds (default: 60)") }
                     putJsonObject("maxBytes") { put("type", "integer"); put("description", "Maximum bytes to download (default: 100MB)") }
                     putJsonObject("overwrite") { put("type", "boolean"); put("description", "Overwrite if file exists (default: false)") }
@@ -134,7 +134,7 @@ class VibeCodingWebTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Research query")
+                    putJsonObject("query") { put("type", "string"); put("description", "Research query") }
                     putJsonObject("numResults") { put("type", "integer"); put("description", "Number of results to inspect (default: 5, max: 10)") }
                     putJsonObject("fetchPages") { put("type", "boolean"); put("description", "Fetch readable excerpts from result pages (default: true)") }
                     putJsonObject("pageChars") { put("type", "integer"); put("description", "Characters per fetched page (default: 4000)") }

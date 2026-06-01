@@ -23,7 +23,7 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("workspacePath", "Path to the git repository (optional, uses primary workspace if not set)")
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional, uses primary workspace if not set)") }
                 },
                 required = emptyList<String>(),
             )
@@ -50,7 +50,7 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("workspacePath", "Path to the git repository (optional)")
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
                 },
                 required = emptyList<String>(),
             )
@@ -68,9 +68,9 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("message", "Commit message")
+                    putJsonObject("message") { put("type", "string"); put("description", "Commit message") }
                     putJsonObject("all") { put("type", "boolean"); put("description", "Auto-stage all modified/deleted files") }
-                    put("workspacePath", "Path to the git repository (optional)")
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
                 },
                 required = listOf("message"),
             )
@@ -91,8 +91,8 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("target", "Branch name or commit hash to switch to")
-                    put("workspacePath", "Path to the git repository (optional)")
+                    putJsonObject("target") { put("type", "string"); put("description", "Branch name or commit hash to switch to") }
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
                 },
                 required = listOf("target"),
             )

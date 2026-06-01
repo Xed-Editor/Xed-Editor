@@ -20,7 +20,7 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Directory path to explore")
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory path to explore") }
                     putJsonObject("maxDepth") { put("type", "integer"); put("description", "Maximum depth (default: 3)") }
                     putJsonObject("maxItems") { put("type", "integer"); put("description", "Maximum items to return (default: 200)") }
                 },
@@ -43,7 +43,7 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("path", "Project path (default: workspace root)")
+                    putJsonObject("path") { put("type", "string"); put("description", "Project path (default: workspace root)") }
                 },
                 required = emptyList<String>(),
             )
@@ -74,7 +74,7 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("workspacePath", "Project path (default: workspace root)")
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Project path (default: workspace root)") }
                 },
                 required = emptyList<String>(),
             )

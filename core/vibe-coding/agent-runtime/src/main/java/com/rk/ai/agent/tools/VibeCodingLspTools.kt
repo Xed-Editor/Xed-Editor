@@ -20,7 +20,7 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file") }
                 },
                 required = listOf("filePath"),
             )
@@ -50,7 +50,7 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file") }
                     putJsonObject("line") { put("type", "integer"); put("description", "Line number (1-indexed)") }
                     putJsonObject("column") { put("type", "integer"); put("description", "Column number (1-indexed)") }
                 },
@@ -78,7 +78,7 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file") }
                     putJsonObject("line") { put("type", "integer") }
                     putJsonObject("column") { put("type", "integer") }
                 },
@@ -106,7 +106,7 @@ class VibeCodingLspTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("filePath", "Absolute path to the file to format")
+                    putJsonObject("filePath") { put("type", "string"); put("description", "Absolute path to the file to format") }
                 },
                 required = listOf("filePath"),
             )

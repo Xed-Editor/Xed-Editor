@@ -82,7 +82,7 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("repo", "Repository in format 'owner/repo' (e.g. 'torvalds/linux')")
+                    putJsonObject("repo") { put("type", "string"); put("description", "Repository in format 'owner/repo' (e.g. 'torvalds/linux')") }
                 },
                 required = listOf("repo"),
             )
@@ -118,7 +118,7 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("repo", "Repository in format 'owner/repo'")
+                    putJsonObject("repo") { put("type", "string"); put("description", "Repository in format 'owner/repo'") }
                 },
                 required = listOf("repo"),
             )
@@ -141,9 +141,9 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("repo", "Repository in format 'owner/repo'")
-                    put("path", "File path within the repository")
-                    put("branch", "Branch name (default: repository default branch)")
+                    putJsonObject("repo") { put("type", "string"); put("description", "Repository in format 'owner/repo'") }
+                    putJsonObject("path") { put("type", "string"); put("description", "File path within the repository") }
+                    putJsonObject("branch") { put("type", "string"); put("description", "Branch name (default: repository default branch)") }
                 },
                 required = listOf("repo", "path"),
             )
@@ -172,9 +172,9 @@ class VibeCodingGitHubTools(private val ideService: IdeService) {
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("query", "Search query")
+                    putJsonObject("query") { put("type", "string"); put("description", "Search query") }
                     putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 10)") }
-                    put("repo", "Limit search to a specific repository (owner/repo)")
+                    putJsonObject("repo") { put("type", "string"); put("description", "Limit search to a specific repository (owner/repo)") }
                 },
                 required = listOf("query"),
             )

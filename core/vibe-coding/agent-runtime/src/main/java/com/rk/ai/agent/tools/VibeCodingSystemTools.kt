@@ -44,7 +44,7 @@ class VibeCodingSystemTools(
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("message", "Message text to display")
+                    putJsonObject("message") { put("type", "string"); put("description", "Message text to display") }
                 },
                 required = listOf("message"),
             )
@@ -82,7 +82,7 @@ class VibeCodingSystemTools(
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
-                    put("text", "Text to copy to clipboard")
+                    putJsonObject("text") { put("type", "string"); put("description", "Text to copy to clipboard") }
                 },
                 required = listOf("text"),
             )
