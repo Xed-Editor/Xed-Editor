@@ -119,7 +119,55 @@ class VibeCodingEngine(
         ): List<UIMessage> {
             if (injected || messages.isEmpty()) return messages
             injected = true
-            return listOf(UIMessage.system(VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)) + messages
+
+            val workspaceContext = buildString {
+                appendLine(VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)
+                appendLine()
+                appendLine("## Current Workspace Context")
+                appendLine()
+
+                try {
+                    val workspacePath = ideService.getPrimaryWorkspacePath()
+                    appendLine("Workspace: $workspacePath")
+                    appendLine()
+
+                    val projectConfig = ideService.getProjectConfig(workspacePath)
+                    val language = projectConfig["language"]?.asString
+                    val buildSystem = projectConfig["buildSystem"]?.asString
+                    if (language != null) appendLine("Language: $language")
+                    if (buildSystem != null) appendLine("Build System: $buildSystem")
+
+                    appendLine()
+                    val gitStatus = ideService.getGitStatus(workspacePath)
+                    val branch = gitStatus["branch"]?.asString ?: "unknown"
+                    val changes = gitStatus["changes"]?.asJsonArray?.size() ?: 0
+                    appendLine("Git Branch: $branch ($changes uncommitted changes)")
+                    appendLine()
+
+                    val openFiles = ideService.getOpenFiles()
+                    if (openFiles.isNotEmpty()) {
+                        appendLine("Open Files:")
+                        openFiles.forEach { f ->
+                            val path = f["path"]?.asString ?: f["filePath"]?.asString ?: ""
+                            appendLine("  - $path")
+                        }
+                        appendLine()
+                    }
+
+                    val activeFile = ideService.getActiveFile()
+                    if (activeFile != null) {
+                        val activePath = activeFile["path"]?.asString ?: activeFile["filePath"]?.asString ?: ""
+                        appendLine("Active File: $activePath")
+                        appendLine()
+                    }
+                } catch (e: Exception) {
+                    appendLine("(Workspace context unavailable: ${e.message})")
+                }
+
+                appendLine("Use the available tools to read files, search code, and make changes.")
+            }
+
+            return listOf(UIMessage.system(workspaceContext.toString())) + messages
         }
 
         fun reset() { injected = false }
@@ -247,6 +295,100 @@ class VibeCodingEngine(
 
     fun clearError() {
         _state.value = _state.value.copy(error = null)
+    }
+
+    fun approveTool(toolCallId: String) {
+        val messages = _state.value.messages.toMutableList()
+        val lastIdx = messages.lastIndex
+        if (lastIdx < 0) return
+        val last = messages[lastIdx]
+        val updatedParts = last.parts.map { part ->
+            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
+                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Approved)
+            } else part
+        }
+        messages[lastIdx] = last.copy(parts = updatedParts)
+        _state.value = _state.value.copy(messages = messages)
+        resumeGeneration()
+    }
+
+    fun denyTool(toolCallId: String, reason: String) {
+        val messages = _state.value.messages.toMutableList()
+        val lastIdx = messages.lastIndex
+        if (lastIdx < 0) return
+        val last = messages[lastIdx]
+        val updatedParts = last.parts.map { part ->
+            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
+                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Denied(reason))
+            } else part
+        }
+        messages[lastIdx] = last.copy(parts = updatedParts)
+        _state.value = _state.value.copy(messages = messages)
+        resumeGeneration()
+    }
+
+    fun answerTool(toolCallId: String, answer: String) {
+        val messages = _state.value.messages.toMutableList()
+        val lastIdx = messages.lastIndex
+        if (lastIdx < 0) return
+        val last = messages[lastIdx]
+        val updatedParts = last.parts.map { part ->
+            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
+                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Answered(answer))
+            } else part
+        }
+        messages[lastIdx] = last.copy(parts = updatedParts)
+        _state.value = _state.value.copy(messages = messages)
+        resumeGeneration()
+    }
+
+    private fun resumeGeneration() {
+        currentJob?.cancel()
+        currentJob = engineScope.launch(Dispatchers.IO) {
+            _state.value = _state.value.copy(isProcessing = true, error = null)
+            val settings = settingsStore.settingsFlow.value
+            val model = settings.findModelById(settings.chatModelId)
+            val assistant = settings.getCurrentAssistant()
+            if (model == null || assistant == null) {
+                _state.value = _state.value.copy(isProcessing = false, error = "No model or assistant configured")
+                return@launch
+            }
+
+            val memories = if (assistant.enableMemory) {
+                val memoryAssistantId = if (assistant.useGlobalMemory) {
+                    com.rk.ai.persistence.repo.MemoryRepository.GLOBAL_MEMORY_ID
+                } else {
+                    assistant.id.toString()
+                }
+                memoryRepo.getMemoriesOfAssistant(memoryAssistantId)
+            } else null
+
+            runCatching {
+                generationHandler.generateText(
+                    settings = settings,
+                    model = model,
+                    messages = _state.value.messages,
+                    assistant = assistant,
+                    memories = memories,
+                    tools = buildList {
+                        addAll(toolRegistry.allTools)
+                        addAll(localTools.getTools(assistant.localTools))
+                        if (settings.enableWebSearch) addAll(createSearchTools(settings))
+                        addAll(createSkillTools(enabledSkills = assistant.enabledSkills, allSkills = skillManager.listSkills(), skillManager = skillManager))
+                    },
+                    inputTransformers = emptyList(),
+                    outputTransformers = emptyList(),
+                ).collect { chunk ->
+                    when (chunk) {
+                        is GenerationChunk.Messages ->
+                            _state.value = _state.value.copy(messages = chunk.messages)
+                    }
+                }
+            }.onFailure { e ->
+                _state.value = _state.value.copy(isProcessing = false, error = e.message)
+            }
+            _state.value = _state.value.copy(isProcessing = false)
+        }
     }
 }
 

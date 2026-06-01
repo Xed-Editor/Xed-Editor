@@ -20,10 +20,14 @@ import androidx.compose.ui.unit.sp
 import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
+import com.rk.ai.nativeagent.ui.markdown.MarkdownContent
 
 @Composable
 fun VibeCodingMessageBubble(
     message: UIMessage,
+    onApproveTool: ((String) -> Unit)? = null,
+    onDenyTool: ((String, String) -> Unit)? = null,
+    onAnswerTool: ((String, String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val isUser = message.role == MessageRole.USER
@@ -47,8 +51,29 @@ fun VibeCodingMessageBubble(
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 message.parts.forEach { part ->
-                    MessagePartContent(part = part, isUser = isUser)
+                    MessagePartContent(
+                        part = part,
+                        isUser = isUser,
+                        onApproveTool = onApproveTool,
+                        onDenyTool = onDenyTool,
+                        onAnswerTool = onAnswerTool,
+                    )
                     Spacer(Modifier.height(4.dp))
+                }
+
+                // Token usage footer
+                message.usage?.let { usage ->
+                    val promptTokens = usage.promptTokens ?: 0
+                    val completionTokens = usage.completionTokens ?: 0
+                    val totalTokens = usage.totalTokens ?: (promptTokens + completionTokens)
+                    if (totalTokens > 0) {
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = "△ $promptTokens / ◻ $completionTokens / ∑ $totalTokens tok",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                        )
+                    }
                 }
             }
         }
@@ -56,16 +81,36 @@ fun VibeCodingMessageBubble(
 }
 
 @Composable
-private fun MessagePartContent(part: UIMessagePart, isUser: Boolean) {
+private fun MessagePartContent(
+    part: UIMessagePart,
+    isUser: Boolean,
+    onApproveTool: ((String) -> Unit)? = null,
+    onDenyTool: ((String, String) -> Unit)? = null,
+    onAnswerTool: ((String, String) -> Unit)? = null,
+) {
     val colorScheme = MaterialTheme.colorScheme
     when (part) {
-        is UIMessagePart.Text -> Text(
-            text = part.text,
-            color = if (isUser) colorScheme.onPrimaryContainer else colorScheme.onSurface,
-            style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
-        )
+        is UIMessagePart.Text -> {
+            if (isUser) {
+                Text(
+                    text = part.text,
+                    color = colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
+                )
+            } else {
+                MarkdownContent(
+                    text = part.text,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
         is UIMessagePart.Reasoning -> ReasoningBlock(part)
-        is UIMessagePart.Tool -> VibeCodingToolCard(part)
+        is UIMessagePart.Tool -> VibeCodingToolCard(
+            part = part,
+            onApprove = { onApproveTool?.invoke(part.toolCallId) },
+            onDeny = { reason -> onDenyTool?.invoke(part.toolCallId, reason) },
+            onAnswer = { answer -> onAnswerTool?.invoke(part.toolCallId, answer) },
+        )
         is UIMessagePart.Image -> AttachmentLabel("[Image: ${part.url.take(60)}]")
         is UIMessagePart.Document -> AttachmentLabel("[Document: ${part.fileName}]")
         else -> AttachmentLabel("[${part::class.simpleName}]", muted = true)

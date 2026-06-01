@@ -19,6 +19,9 @@ import kotlin.uuid.ExperimentalUuidApi
 fun VibeCodingMessageList(
     messages: List<UIMessage>,
     isProcessing: Boolean,
+    onApproveTool: ((String) -> Unit)? = null,
+    onDenyTool: ((String, String) -> Unit)? = null,
+    onAnswerTool: ((String, String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -32,7 +35,7 @@ fun VibeCodingMessageList(
     when {
         messages.isEmpty() && !isProcessing -> EmptyState(modifier)
         messages.isEmpty() && isProcessing -> LoadingState(modifier)
-        else -> MessageListContent(messages, isProcessing, listState, modifier)
+        else -> MessageListContent(messages, isProcessing, listState, onApproveTool, onDenyTool, onAnswerTool, modifier)
     }
 }
 
@@ -75,6 +78,9 @@ private fun MessageListContent(
     messages: List<UIMessage>,
     isProcessing: Boolean,
     listState: androidx.compose.foundation.lazy.LazyListState,
+    onApproveTool: ((String) -> Unit)? = null,
+    onDenyTool: ((String, String) -> Unit)? = null,
+    onAnswerTool: ((String, String) -> Unit)? = null,
     modifier: Modifier,
 ) {
     LazyColumn(
@@ -83,7 +89,12 @@ private fun MessageListContent(
         contentPadding = PaddingValues(vertical = 8.dp),
     ) {
         items(messages, key = { it.id }) { message ->
-            VibeCodingMessageBubble(message = message)
+            VibeCodingMessageBubble(
+                message = message,
+                onApproveTool = onApproveTool,
+                onDenyTool = onDenyTool,
+                onAnswerTool = onAnswerTool,
+            )
         }
 
         if (isProcessing) {

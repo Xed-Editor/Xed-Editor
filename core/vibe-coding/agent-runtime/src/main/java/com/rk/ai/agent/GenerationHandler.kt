@@ -65,7 +65,7 @@ class GenerationHandler(
     private val providerManager: ProviderManager,
     private val json: Json,
     private val memoryRepo: MemoryRepository,
-    private val conversationRepo: ConversationRepository,
+    val conversationRepo: ConversationRepository,
     private val aiLoggingManager: AILoggingManager,
 ) {
     fun generateText(
