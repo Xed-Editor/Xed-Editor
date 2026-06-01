@@ -24,15 +24,8 @@ import com.rk.activities.main.BottomPanelMode
 import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.main.gitViewModel
-import com.rk.ai.AiProvider
-import com.rk.ai.AiSessionLogic
-import com.rk.ai.GitPanel
-import com.rk.ai.ToolSheetControls
-import com.rk.ai.ToolSheetTabBar
-import com.rk.ai.UnifiedCommandBar
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.ui.VibeCodingPanel
-import com.rk.ai.service.IdeServiceImpl
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxHomeDir
 import com.rk.filetree.FileTreeTab
@@ -155,9 +148,9 @@ fun UnifiedToolSheet(
     }
 
     val vibecodingEngine = remember(activity) {
-        activity?.let {
-            val ideService = IdeServiceImpl(viewModel)
-            VibeCodingEngine(context = it, ideService = ideService)
+        activity?.let { act ->
+            val factory = AiProvider.ideServiceFactory ?: return@let null
+            VibeCodingEngine(context = act, ideService = factory.create(viewModel))
         }
     }
 

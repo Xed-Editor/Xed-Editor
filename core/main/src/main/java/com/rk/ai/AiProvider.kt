@@ -3,12 +3,14 @@ package com.rk.ai
 import android.app.Activity
 import androidx.compose.runtime.MutableState
 import com.rk.activities.main.MainViewModel
+import com.rk.ai.service.IdeService
 
 object AiProvider {
     var ideBridge: IdeBridgeProvider? = null
     var sessionManager: SessionManagerProvider? = null
     var completionEngine: CompletionEngineProvider? = null
     var agentEnvBuilder: AgentEnvBuilderProvider? = null
+    var ideServiceFactory: IdeServiceFactoryProvider? = null
 
     data class BridgeInfo(val port: Int, val token: String, val host: String = "127.0.0.1")
     data class AgentInfo(
@@ -61,5 +63,9 @@ object AiProvider {
 
     interface AgentEnvBuilderProvider {
         fun buildMinimalBridgeEnv(bridge: BridgeInfo, workingDir: String): Array<String>
+    }
+
+    fun interface IdeServiceFactoryProvider {
+        fun create(viewModel: MainViewModel): IdeService
     }
 }

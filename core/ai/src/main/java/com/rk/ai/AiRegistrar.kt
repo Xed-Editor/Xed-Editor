@@ -3,6 +3,7 @@ package com.rk.ai
 import androidx.compose.runtime.mutableStateOf
 import com.rk.ai.agents.AiAgent
 import com.rk.ai.agents.AgentTypeRegistry
+import com.rk.ai.service.IdeServiceImpl
 import com.rk.ai.session.AgentEnvironmentBuilder
 import com.rk.ai.session.AiSessionManager
 
@@ -12,6 +13,7 @@ object AiRegistrar {
         AiProvider.completionEngine = CompletionEngineProviderImpl()
         AiProvider.ideBridge = IdeBridgeProviderImpl()
         AiProvider.agentEnvBuilder = AgentEnvBuilderProviderImpl()
+        AiProvider.ideServiceFactory = IdeServiceFactoryProviderImpl()
     }
 
     private class SessionManagerProviderImpl : AiProvider.SessionManagerProvider {
@@ -103,6 +105,11 @@ object AiRegistrar {
         override fun connectedClients(): Int = IdeBridge.connectedClients()
         override fun availableTools(): Int = IdeBridge.availableTools()
         override fun setWorkspacePath(path: String) = IdeBridge.setWorkspacePath(path)
+    }
+
+    private class IdeServiceFactoryProviderImpl : AiProvider.IdeServiceFactoryProvider {
+        override fun create(viewModel: com.rk.activities.main.MainViewModel) =
+            IdeServiceImpl(viewModel)
     }
 
     private class AgentEnvBuilderProviderImpl : AiProvider.AgentEnvBuilderProvider {
