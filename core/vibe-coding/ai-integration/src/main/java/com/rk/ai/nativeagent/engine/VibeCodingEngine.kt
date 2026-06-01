@@ -4,17 +4,33 @@ package com.rk.ai.nativeagent.engine
 import android.content.Context
 import androidx.room.Room
 import com.rk.ai.agent.AILoggingManager
+import com.rk.ai.agent.AppEventBus
 import com.rk.ai.agent.GenerationChunk
 import com.rk.ai.agent.GenerationHandler
-import com.rk.ai.agent.transformers.InputMessageTransformer
-import com.rk.ai.agent.transformers.TransformerContext
-import com.rk.ai.core.AppScope
-import com.rk.ai.models.UIMessage
+import com.rk.ai.agent.files.FilesManager
+import com.rk.ai.agent.files.SkillManager
+import com.rk.ai.agent.tools.LocalTools
 import com.rk.ai.agent.tools.VibeCodingSystemTools
 import com.rk.ai.agent.tools.VibeCodingToolRegistry
+import com.rk.ai.agent.tools.createSearchTools
+import com.rk.ai.agent.tools.createSkillTools
+import com.rk.ai.agent.transformers.Base64ImageToLocalFileTransformer
+import com.rk.ai.agent.transformers.InputMessageTransformer
+import com.rk.ai.agent.transformers.PlaceholderTransformer
+import com.rk.ai.agent.transformers.PromptInjectionTransformer
+import com.rk.ai.agent.transformers.RegexOutputTransformer
+import com.rk.ai.agent.transformers.TimeReminderTransformer
+import com.rk.ai.agent.transformers.TransformerContext
+import com.rk.ai.core.AppScope
+import com.rk.ai.mcp.FileManager
+import com.rk.ai.mcp.McpManager
+import com.rk.ai.models.McpTool
+import com.rk.ai.models.Tool
+import com.rk.ai.models.UIMessage
 import com.rk.ai.persistence.db.AppDatabase
 import com.rk.ai.persistence.db.fts.MessageFtsManager
 import com.rk.ai.persistence.repo.ConversationRepository
+import com.rk.ai.persistence.repo.FilesRepository
 import com.rk.ai.persistence.repo.MemoryRepository
 import com.rk.ai.persistence.settings.SettingsStore
 import com.rk.ai.persistence.settings.findModelById
@@ -31,6 +47,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
+import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -68,9 +85,16 @@ class VibeCodingEngine(
         database = database,
         messageFtsManager = MessageFtsManager(database),
     )
+    private val filesRepo = FilesRepository(database.managedFileDao())
 
     val providerManager = ProviderManager(okHttpClient, context)
     val settingsStore = SettingsStore(context, appScope)
+
+    private val eventBus = AppEventBus()
+    private val filesManager = FilesManager(context, filesRepo, appScope)
+    private val mcpManager = McpManager(settingsStore, appScope, VibeCodingFileManager(context))
+    private val skillManager = SkillManager(context, settingsStore)
+    private val localTools = LocalTools(context, eventBus)
 
     val generationHandler = GenerationHandler(
         context = context,
@@ -127,15 +151,69 @@ class VibeCodingEngine(
                 return@launch
             }
 
+            val assistant = settings.getCurrentAssistant()
+
+            val enhancedTools = buildList {
+                addAll(toolRegistry.allTools)
+
+                addAll(localTools.getTools(assistant.localTools))
+
+                if (settings.enableWebSearch) {
+                    addAll(createSearchTools(settings))
+                }
+
+                mcpManager.getAllAvailableTools().forEach { (serverId, mcpTool) ->
+                    add(Tool(
+                        name = mcpTool.name,
+                        description = mcpTool.description ?: "",
+                        parameters = mcpTool.inputSchema?.let { schema ->
+                            { schema }
+                        } ?: { com.rk.ai.models.InputSchema.Obj(emptyMap()) },
+                        execute = { args ->
+                            val kotlinxArgs = json.parseToJsonElement(args.toString()).jsonObject
+                            mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)
+                        },
+                    ))
+                }
+
+                addAll(createSkillTools(
+                    enabledSkills = assistant.enabledSkills,
+                    allSkills = skillManager.listSkills(),
+                    skillManager = skillManager,
+                ))
+            }
+
+            val memories = if (assistant.enableMemory) {
+                val memoryAssistantId = if (assistant.useGlobalMemory) {
+                    MemoryRepository.GLOBAL_MEMORY_ID
+                } else {
+                    assistant.id.toString()
+                }
+                memoryRepo.getMemoriesOfAssistant(memoryAssistantId)
+            } else null
+
+            val inputTransformers = listOfNotNull(
+                systemPromptTransformer,
+                PlaceholderTransformer,
+                if (assistant.enableTimeReminder) TimeReminderTransformer else null,
+                PromptInjectionTransformer,
+            )
+
+            val outputTransformers = listOfNotNull(
+                RegexOutputTransformer,
+                Base64ImageToLocalFileTransformer.also { it.filesManager = filesManager },
+            )
+
             runCatching {
                 generationHandler.generateText(
                     settings = settings,
                     model = model,
                     messages = _state.value.messages,
-                    assistant = settings.getCurrentAssistant(),
-                    tools = toolRegistry.allTools,
-                    inputTransformers = listOf(systemPromptTransformer),
-                    outputTransformers = emptyList(),
+                    assistant = assistant,
+                    memories = memories,
+                    tools = enhancedTools,
+                    inputTransformers = inputTransformers,
+                    outputTransformers = outputTransformers,
                 ).collect { chunk ->
                     when (chunk) {
                         is GenerationChunk.Messages ->
@@ -169,4 +247,19 @@ class VibeCodingEngine(
     fun clearError() {
         _state.value = _state.value.copy(error = null)
     }
+}
+
+private class VibeCodingFileManager(private val context: Context) : FileManager {
+    override suspend fun saveUploadFromBytes(
+        bytes: ByteArray,
+        displayName: String,
+        mimeType: String,
+    ): String {
+        val dir = File(context.filesDir, "vibecoding_mcp").also { it.mkdirs() }
+        val file = File(dir, "${java.util.UUID.randomUUID()}_$displayName")
+        file.writeBytes(bytes)
+        return file.absolutePath
+    }
+
+    override fun getFile(id: String): File = File(id)
 }
