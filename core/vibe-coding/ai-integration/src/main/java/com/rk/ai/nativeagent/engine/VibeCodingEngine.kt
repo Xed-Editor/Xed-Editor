@@ -69,7 +69,7 @@ class VibeCodingEngine(
     private val context: Context,
     private val ideService: IdeService,
     scope: CoroutineScope? = null,
-    json: Json = defaultJson,
+    private val json: Json = defaultJson,
     okHttpClient: OkHttpClient = buildOkHttpClient(),
 ) {
     private val engineScope: CoroutineScope =
@@ -168,7 +168,7 @@ class VibeCodingEngine(
                         description = mcpTool.description ?: "",
                         parameters = mcpTool.inputSchema?.let { schema ->
                             { schema }
-                        } ?: { com.rk.ai.models.InputSchema.Obj(emptyMap()) },
+                        } ?: { com.rk.ai.models.InputSchema.Obj(kotlinx.serialization.json.buildJsonObject { }) },
                         execute = { args ->
                             val kotlinxArgs = json.parseToJsonElement(args.toString()).jsonObject
                             mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)

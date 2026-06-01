@@ -24,15 +24,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.rk.ai.models.Assistant
 import com.rk.ai.models.McpCommonOptions
 import com.rk.ai.models.McpServerConfig
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
+import com.rk.ai.persistence.settings.getCurrentAssistant
 import com.rk.ai.providers.Model
 import com.rk.ai.providers.ModelType
 import com.rk.ai.providers.ProviderSetting
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
+
+private val McpServerConfig.displayUrl: String get() = when (this) {
+    is McpServerConfig.SseTransportServer -> url
+    is McpServerConfig.StreamableHTTPServer -> url
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -991,7 +998,7 @@ private fun AdvancedSection(
                                             fontWeight = FontWeight.Medium,
                                         )
                                         Text(
-                                            text = server.url.take(50),
+                                            text = server.displayUrl.take(50),
                                             style = MaterialTheme.typography.labelSmall,
                                             color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         )
@@ -1033,7 +1040,7 @@ private fun McpServerEditDialog(
 ) {
     val isNew = server == null
     var name by remember(server) { mutableStateOf(server?.commonOptions?.name ?: "") }
-    var url by remember(server) { mutableStateOf(server?.url ?: "") }
+    var url by remember(server) { mutableStateOf(server?.displayUrl ?: "") }
     var useSse by remember(server) { mutableStateOf(server is McpServerConfig.SseTransportServer) }
     var enabled by remember(server) { mutableStateOf(server?.commonOptions?.enable ?: true) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
