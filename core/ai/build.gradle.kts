@@ -56,7 +56,7 @@ dependencies {
     implementation(project(":core:extension"))
 
     // VibeCoding Native Agent - Rikka AI Core
-    implementation(project(":core:agent-runtime"))
+    implementation(project(":core:vibe-coding:agent-runtime"))
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
