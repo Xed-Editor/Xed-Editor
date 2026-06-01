@@ -42,7 +42,16 @@ android {
     }
     kotlin { jvmToolchain(21) }
 
-    packaging { jniLibs { useLegacyPackaging = true } }
+    packaging {
+        jniLibs { useLegacyPackaging = true }
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/LICENSE"
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/NOTICE"
+            excludes += "/META-INF/NOTICE.md"
+        }
+    }
 
     signingConfigs {
         create("release") {
