@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -32,6 +31,12 @@ fun MarkdownContent(
     text: String,
     modifier: Modifier = Modifier,
 ) {
+    // Detect diff output and render with diff viewer
+    if (DiffParser.isDiff(text.trimStart())) {
+        DiffContent(diffText = text, modifier = modifier)
+        return
+    }
+
     val blocks = remember(text) { MarkdownParser.parse(text) }
     Column(modifier = modifier) {
         blocks.forEach { block ->
@@ -216,12 +221,11 @@ private fun MarkdownBlockRenderer(block: MarkdownBlock) {
         is MarkdownBlock.Link -> {
             ClickableText(
                 text = buildAnnotatedString {
-                    withStyle(SpanStyle(
+                    append(block.text)
+                    addStyle(SpanStyle(
                         color = colorScheme.primary,
                         textDecoration = TextDecoration.Underline,
-                    )) {
-                        append(block.text)
-                    }
+                    ), 0, block.text.length)
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 onClick = { /* open URL: block.url */ },
@@ -340,21 +344,22 @@ private fun InlineStyleText(
     }
 
     val annotated = buildAnnotatedString {
+        val spans = mutableListOf<Triple<SpanStyle, Int, Int>>()
+        var pos = 0
         styles.forEach { s ->
-            val baseColor = if (s.code) MaterialTheme.colorScheme.primary else color
-            val baseWeight = style.fontWeight ?: FontWeight.Normal
-            val baseStyle = style.fontStyle ?: FontStyle.Normal
-
-            withStyle(SpanStyle(
-                color = baseColor,
+            val start = pos
+            append(s.text)
+            pos += s.text.length
+            spans.add(Triple(SpanStyle(
+                color = if (s.code) MaterialTheme.colorScheme.primary else color,
                 fontWeight = when {
                     s.bold && s.italic -> FontWeight.Bold
                     s.bold -> FontWeight.Bold
-                    else -> baseWeight
+                    else -> style.fontWeight ?: FontWeight.Normal
                 },
                 fontStyle = when {
                     s.italic -> FontStyle.Italic
-                    else -> FontStyle.Normal
+                    else -> style.fontStyle ?: FontStyle.Normal
                 },
                 fontFamily = when {
                     s.code -> FontFamily.Monospace
@@ -365,14 +370,10 @@ private fun InlineStyleText(
                     s.link != null -> TextDecoration.Underline
                     else -> TextDecoration.None
                 },
-                fontSize = when {
-                    s.code -> 13.sp
-                    else -> style.fontSize
-                },
-            )) {
-                append(s.text)
-            }
+                fontSize = if (s.code) 13.sp else style.fontSize,
+            ), start, pos))
         }
+        spans.forEach { addStyle(it.first, it.second, it.third) }
     }
 
     if (styles.any { it.link != null }) {

@@ -26,7 +26,9 @@ import com.rk.ai.mcp.FileManager
 import com.rk.ai.mcp.McpManager
 import com.rk.ai.models.McpTool
 import com.rk.ai.models.Tool
+import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
+import com.rk.ai.models.UIMessagePart
 import com.rk.ai.persistence.db.AppDatabase
 import com.rk.ai.persistence.db.fts.MessageFtsManager
 import com.rk.ai.persistence.repo.ConversationRepository
@@ -47,6 +49,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.decodeFromString
 import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -77,7 +80,7 @@ class VibeCodingEngine(
         scope ?: CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val appScope = AppScope()
 
-    private val database = buildDatabase(context)
+    val database = buildDatabase(context)
     private val memoryRepo = MemoryRepository(database.memoryDao())
     private val conversationRepo = ConversationRepository(
         conversationDAO = database.conversationDao(),
@@ -107,6 +110,10 @@ class VibeCodingEngine(
     )
 
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
+
+    fun openFileInEditor(path: String) {
+        ideService.openFile(java.io.File(path))
+    }
 
     private var currentJob: Job? = null
 
@@ -181,13 +188,16 @@ class VibeCodingEngine(
     val messages: List<UIMessage> get() = _state.value.messages
     val isProcessing: Boolean get() = _state.value.isProcessing
 
-    fun sendMessage(text: String) {
+    fun sendMessage(text: String, extraParts: List<UIMessagePart> = emptyList()) {
         currentJob?.cancel()
         currentJob = engineScope.launch(Dispatchers.IO) {
             val trimmed = text.trim()
             _state.value = _state.value.copy(isProcessing = true, error = null)
             _state.value = _state.value.copy(
-                messages = _state.value.messages + UIMessage.user(trimmed),
+                messages = _state.value.messages + UIMessage(
+                    role = MessageRole.USER,
+                    parts = listOf(UIMessagePart.Text(trimmed)) + extraParts,
+                ),
             )
 
             val settings = settingsStore.settingsFlow.value
@@ -291,6 +301,26 @@ class VibeCodingEngine(
     fun clearConversation() {
         _state.value = VibeCodingState()
         systemPromptTransformer.reset()
+    }
+
+    fun loadConversation(conversation: com.rk.ai.models.Conversation) {
+        engineScope.launch(Dispatchers.IO) {
+            try {
+                val nodes = conversationRepo.getConversationById(conversation.id)
+                if (nodes != null) {
+                    // Deserialize the stored messages from the first node
+                    val entityNodes = database.messageNodeDao().getNodesOfConversation(
+                        conversation.id.toString()
+                    )
+                    if (entityNodes.isNotEmpty()) {
+                        val storedMessages = json.decodeFromString<List<UIMessage>>(
+                            entityNodes.first().messages
+                        )
+                        _state.value = _state.value.copy(messages = storedMessages, error = null)
+                    }
+                }
+            } catch (_: Exception) { }
+        }
     }
 
     fun clearError() {

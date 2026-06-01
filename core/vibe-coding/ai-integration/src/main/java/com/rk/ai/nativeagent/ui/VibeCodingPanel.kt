@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Settings
@@ -30,9 +31,28 @@ fun VibeCodingPanel(
     val colorScheme = MaterialTheme.colorScheme
     var showSettings by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
+    var showFiles by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            // File tree sidebar (left)
+            AnimatedVisibility(
+                visible = showFiles,
+                enter = slideInHorizontally { -it },
+                exit = slideOutHorizontally { -it },
+            ) {
+                VibeCodingFileTreeSidebar(
+                    ideService = engine.ideService,
+                    workspacePath = "/",
+                    onOpenFile = { path -> engine.openFileInEditor(path) },
+                    onDismiss = { showFiles = false },
+                    modifier = Modifier
+                        .width(260.dp)
+                        .fillMaxHeight(),
+                )
+            }
+
+            Column(modifier = Modifier.fillMaxSize()) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = colorScheme.surfaceContainerLow,
@@ -62,6 +82,16 @@ fun VibeCodingPanel(
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        FilledTonalIconButton(
+                            onClick = { showFiles = !showFiles },
+                            modifier = Modifier.size(28.dp),
+                        ) {
+                            Icon(
+                                Icons.Outlined.Code,
+                                contentDescription = "Files",
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
                         FilledTonalIconButton(
                             onClick = { showHistory = !showHistory },
                             modifier = Modifier.size(28.dp),
@@ -141,7 +171,7 @@ fun VibeCodingPanel(
 
             VibeCodingInput(
                 isProcessing = state.isProcessing,
-                onSend = { engine.sendMessage(it) },
+                onSend = { text, parts -> engine.sendMessage(text, parts) },
                 onStop = { engine.stopGeneration() },
             )
         }
@@ -155,7 +185,10 @@ fun VibeCodingPanel(
             VibeCodingConversationSidebar(
                 conversationRepo = engine.generationHandler.conversationRepo,
                 currentConversationId = null,
-                onSelectConversation = { /* TODO: load conversation */ },
+                onSelectConversation = { conversation ->
+                    engine.loadConversation(conversation)
+                    showHistory = false
+                },
                 onDismiss = { showHistory = false },
                 modifier = Modifier
                     .width(260.dp)
