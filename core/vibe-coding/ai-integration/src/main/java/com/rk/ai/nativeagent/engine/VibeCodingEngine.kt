@@ -8,8 +8,8 @@ import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.TransformerContext
 import com.rk.ai.core.AppScope
 import com.rk.ai.models.UIMessage
-import com.rk.ai.nativeagent.tools.VibeCodingSystemTools
-import com.rk.ai.nativeagent.tools.VibeCodingToolRegistry
+import com.rk.ai.agent.tools.VibeCodingSystemTools
+import com.rk.ai.agent.tools.VibeCodingToolRegistry
 import com.rk.ai.persistence.db.AppDatabase
 import com.rk.ai.persistence.repo.ConversationRepository
 import com.rk.ai.persistence.repo.MemoryRepository

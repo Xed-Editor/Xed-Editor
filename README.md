@@ -322,18 +322,17 @@ The project is a multi-module Gradle project with 15+ modules:
 ### Vibe-Coding / AI Core (under :core:vibe-coding:)
 
 ```
-:core:vibe-coding:ai-integration -- Native in-process AI agent: engine, tools, Compose UI
-:core:vibe-coding:ai-core        -- Base types: MessageRole, TokenUsage, caching
-:core:vibe-coding:ai-streaming   -- SSE streaming, KeyRoulette, error parsing
-:core:vibe-coding:ai-models      -- Data models: Message, Conversation, Tool, Image
-:core:vibe-coding:ai-providers   -- LLM providers: OpenAI, Google, Claude
-:core:vibe-coding:ai-mcp-client  -- MCP client (SSE + Streamable HTTP)
-:core:vibe-coding:ai-persistence -- Room DB + DataStore persistence
-:core:vibe-coding:agent-runtime  -- AI orchestration engine: GenerationHandler, transformers
+:core:vibe-coding:ai-integration   -- Native agent: engine wiring, Compose UI, app integration
+:core:vibe-coding:ai-service       -- IDE service interfaces (IdeService, FileOps, EditorOps, etc.)
+:core:vibe-coding:ai-core          -- Base types: MessageRole, TokenUsage, caching
+:core:vibe-coding:ai-streaming     -- SSE streaming, KeyRoulette, error parsing
+:core:vibe-coding:ai-models        -- Data models: Message, Conversation, Tool, Image
+:core:vibe-coding:ai-providers     -- LLM providers: OpenAI, Google, Claude
+:core:vibe-coding:ai-mcp-client    -- MCP client (SSE + Streamable HTTP)
+:core:vibe-coding:ai-persistence   -- Room DB + DataStore persistence
+:core:vibe-coding:agent-runtime    -- AI orchestration engine + all tools (GenerationHandler, transformers, tools)
 :core:vibe-coding:agent-tools-search -- 15+ web search providers
 ```
-```
-
 ### SoraX Editor Engine (Git Submodules)
 
 ```
@@ -362,9 +361,12 @@ plugin-sdk/             -- Standalone JVM Gradle project that produces sdk.jar f
 | `com.rk.file` | `:core:main` | File management, operations, types |
 | `com.rk.settings` | `:core:main` | Full settings hierarchy |
 | `com.rk.theme` | `:core:main` | Theme engine, Material 3 theming |
-| `com.rk.ai` | `:core:ai` | AI agents, MCP bridge, sessions, profiles |
+| `com.rk.ai` | `:core:ai` | External AI agents, MCP bridge, sessions, profiles |
 | `com.rk.ai.bridge.server` | `:core:ai` | NanoHTTPD MCP server |
 | `com.rk.ai.bridge.tools` | `:core:ai` | 21+ MCP tool implementations |
+| `com.rk.ai.service` | `:core:vibe-coding:ai-service` | IdeService & IDE operation interfaces |
+| `com.rk.ai.nativeagent` | `:core:vibe-coding:ai-integration` | Native AI agent: engine, Compose UI |
+| `com.rk.ai.agent` | `:core:vibe-coding:agent-runtime` | GenerationHandler, transformers & all tools |
 | `com.termux.terminal` | `:core:terminal-emulator` | Terminal emulator engine |
 | `com.termux.view` | `:core:terminal-view` | Terminal rendering |
 

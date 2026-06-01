@@ -34,6 +34,7 @@ dependencies {
     api(project(":core:vibe-coding:ai-mcp-client"))
     api(project(":core:vibe-coding:agent-tools-search"))
     api(project(":core:vibe-coding:ai-persistence"))
+    api(project(":core:vibe-coding:ai-service"))
 
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.coroutines)

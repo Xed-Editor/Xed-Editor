@@ -1,4 +1,4 @@
-package com.rk.ai.nativeagent.tools
+package com.rk.ai.agent.tools
 
 import com.google.gson.JsonObject
 import com.rk.ai.models.InputSchema

@@ -31,6 +31,7 @@ include(
     ":core:main",
     ":core:ai",
     ":core:vibe-coding:ai-integration",
+    ":core:vibe-coding:ai-service",
     ":core:vibe-coding:ai-core",
     ":core:vibe-coding:ai-streaming",
     ":core:vibe-coding:ai-models",
