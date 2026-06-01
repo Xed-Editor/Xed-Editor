@@ -100,33 +100,5 @@ class VibeCodingSearchTools(private val ideService: IdeService) {
         },
     )
 
-    private val findFiles = Tool(
-        name = "findFiles",
-        description = "Finds files by name patterns using glob matching.",
-        parameters = {
-            InputSchema.Obj(
-                properties = buildJsonObject {
-                    putJsonObject("pattern") { put("type", "string"); put("description", "File name or glob pattern (e.g. *.kt, **/*.java)") }
-                    putJsonObject("limit") { put("type", "integer"); put("description", "Maximum results (default: 100)") }
-                    putJsonObject("path") { put("type", "string"); put("description", "Directory to search in (optional)") }
-                },
-                required = listOf("pattern"),
-            )
-        },
-        execute = { args ->
-            val obj = args.asJsonObject
-            val pattern = obj["pattern"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing pattern"))
-            val limit = obj["limit"]?.asJsonPrimitive?.asInt ?: 100
-            val path = obj["path"]?.asJsonPrimitive?.asString
-            val results = ideService.findFiles(pattern, limit, path)
-            if (results.size() > 0) {
-                val text = results.joinToString("\n") { it.asString }
-                listOf(UIMessagePart.Text(text))
-            } else {
-                listOf(UIMessagePart.Text("No files found matching: $pattern"))
-            }
-        },
-    )
-
     val all: List<Tool> = listOf(searchCode, grepSearch, searchSymbols)
 }

@@ -23,6 +23,7 @@ import kotlin.uuid.Uuid
 fun VibeCodingConversationSidebar(
     conversationRepo: ConversationRepository,
     currentConversationId: Uuid?,
+    assistantId: Uuid,
     onSelectConversation: (Conversation) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -33,7 +34,7 @@ fun VibeCodingConversationSidebar(
 
     LaunchedEffect(Unit) {
         conversations = conversationRepo.getRecentConversations(
-            assistantId = Uuid.random(),
+            assistantId = assistantId,
             limit = 50,
         )
     }

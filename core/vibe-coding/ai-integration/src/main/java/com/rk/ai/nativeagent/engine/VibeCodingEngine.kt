@@ -111,6 +111,13 @@ class VibeCodingEngine(
 
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
 
+    fun getCurrentAssistantId(): Uuid {
+        val settings = settingsStore.settingsFlow.value
+        return runCatching { settings.getCurrentAssistant().id }.getOrElse {
+            Uuid.parse("0950e2dc-9bd5-4801-afa3-aa887aa36b4e")
+        }
+    }
+
     fun openFileInEditor(path: String) {
         ideService.openFile(java.io.File(path))
     }
@@ -288,6 +295,7 @@ class VibeCodingEngine(
                 return@launch
             }
 
+            saveConversation()
             _state.value = _state.value.copy(isProcessing = false)
         }
     }
@@ -306,21 +314,46 @@ class VibeCodingEngine(
     fun loadConversation(conversation: com.rk.ai.models.Conversation) {
         engineScope.launch(Dispatchers.IO) {
             try {
-                val nodes = conversationRepo.getConversationById(conversation.id)
-                if (nodes != null) {
-                    // Deserialize the stored messages from the first node
-                    val entityNodes = database.messageNodeDao().getNodesOfConversation(
-                        conversation.id.toString()
+                val loaded = conversationRepo.getConversationById(conversation.id)
+                if (loaded != null) {
+                    val messages = loaded.currentMessages
+                    _state.value = _state.value.copy(
+                        messages = messages,
+                        currentConversationId = loaded.id,
+                        error = null,
                     )
-                    if (entityNodes.isNotEmpty()) {
-                        val storedMessages = json.decodeFromString<List<UIMessage>>(
-                            entityNodes.first().messages
-                        )
-                        _state.value = _state.value.copy(messages = storedMessages, error = null)
-                    }
                 }
             } catch (_: Exception) { }
         }
+    }
+
+    private suspend fun saveConversation() {
+        try {
+            val messages = _state.value.messages
+            if (messages.isEmpty()) return
+
+            val existingId = _state.value.currentConversationId
+            val convId = existingId ?: Uuid.random()
+            val assistantId = getCurrentAssistantId()
+
+            val title = messages.firstOrNull { it.role == MessageRole.USER }
+                ?.toText()?.take(100)?.trim() ?: "VibeCoding"
+
+            val conversation = com.rk.ai.models.Conversation(
+                id = convId,
+                assistantId = assistantId,
+                title = title,
+                messageNodes = messages.map { msg -> msg.toMessageNode() },
+            )
+
+            if (existingId != null && conversationRepo.existsConversationById(convId)) {
+                conversationRepo.updateConversation(conversation)
+            } else {
+                conversationRepo.insertConversation(conversation)
+            }
+
+            _state.value = _state.value.copy(currentConversationId = convId)
+        } catch (_: Exception) { }
     }
 
     fun clearError() {
@@ -393,6 +426,33 @@ class VibeCodingEngine(
                 memoryRepo.getMemoriesOfAssistant(memoryAssistantId)
             } else null
 
+            val resumeTools = buildList {
+                addAll(toolRegistry.allTools)
+                addAll(localTools.getTools(assistant.localTools))
+                if (settings.enableWebSearch) addAll(createSearchTools(settings))
+                mcpManager.getAllAvailableTools().forEach { (serverId, mcpTool) ->
+                    add(Tool(
+                        name = mcpTool.name,
+                        description = mcpTool.description ?: "",
+                        parameters = mcpTool.inputSchema?.let { schema ->
+                            { schema }
+                        } ?: { com.rk.ai.models.InputSchema.Obj(kotlinx.serialization.json.buildJsonObject { }) },
+                        execute = { args ->
+                            val kotlinxArgs = json.parseToJsonElement(args.toString()).jsonObject
+                            mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)
+                        },
+                    ))
+                }
+                addAll(createSkillTools(enabledSkills = assistant.enabledSkills, allSkills = skillManager.listSkills(), skillManager = skillManager))
+            }
+
+            val transformers = listOfNotNull(
+                systemPromptTransformer,
+                PlaceholderTransformer,
+                if (assistant.enableTimeReminder) TimeReminderTransformer else null,
+                PromptInjectionTransformer,
+            )
+
             runCatching {
                 generationHandler.generateText(
                     settings = settings,
@@ -400,13 +460,8 @@ class VibeCodingEngine(
                     messages = _state.value.messages,
                     assistant = assistant,
                     memories = memories,
-                    tools = buildList {
-                        addAll(toolRegistry.allTools)
-                        addAll(localTools.getTools(assistant.localTools))
-                        if (settings.enableWebSearch) addAll(createSearchTools(settings))
-                        addAll(createSkillTools(enabledSkills = assistant.enabledSkills, allSkills = skillManager.listSkills(), skillManager = skillManager))
-                    },
-                    inputTransformers = emptyList(),
+                    tools = resumeTools,
+                    inputTransformers = transformers,
                     outputTransformers = emptyList(),
                 ).collect { chunk ->
                     when (chunk) {

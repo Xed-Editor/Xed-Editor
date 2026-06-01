@@ -184,7 +184,8 @@ fun VibeCodingPanel(
         ) {
             VibeCodingConversationSidebar(
                 conversationRepo = engine.generationHandler.conversationRepo,
-                currentConversationId = null,
+                currentConversationId = state.currentConversationId,
+                assistantId = engine.getCurrentAssistantId(),
                 onSelectConversation = { conversation ->
                     engine.loadConversation(conversation)
                     showHistory = false

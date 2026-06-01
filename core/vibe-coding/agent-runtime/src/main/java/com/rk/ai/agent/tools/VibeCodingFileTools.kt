@@ -120,8 +120,10 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             val obj = args.asJsonObject
             val path = obj["path"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing path argument"))
             val content = obj["content"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing content argument"))
-            ideService.writeFile(File(path), content)
-            listOf(UIMessagePart.Text("Written to $path"))
+            val file = ideService.resolvePath(path)
+            if (file == null) return@Tool listOf(UIMessagePart.Text("Path could not be resolved: $path"))
+            ideService.writeFile(file, content)
+            listOf(UIMessagePart.Text("Written to ${file.absolutePath}"))
         },
     )
 
@@ -149,7 +151,10 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             val dryRun = obj["dryRun"]?.asJsonPrimitive?.asBoolean ?: false
             val partialMatch = obj["partialMatch"]?.asJsonPrimitive?.asBoolean ?: false
             val replaceAll = obj["replaceAll"]?.asJsonPrimitive?.asBoolean ?: false
-            val content = ideService.getFileContent(filePath, null, null) ?: return@Tool listOf(UIMessagePart.Text("File not found: $filePath"))
+            val file = ideService.resolvePath(filePath)
+            if (file == null) return@Tool listOf(UIMessagePart.Text("Path could not be resolved: $filePath"))
+            val resolvedPath = file.absolutePath
+            val content = ideService.getFileContent(resolvedPath, null, null) ?: return@Tool listOf(UIMessagePart.Text("File not found: $resolvedPath"))
 
             val matches = if (replaceAll) {
                 if (content.contains(oldString)) 1 else 0
@@ -166,29 +171,29 @@ class VibeCodingFileTools(private val ideService: IdeService) {
             }
 
             if (replaceAll && content.contains(oldString)) {
-                if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $filePath (replaceAll: ${oldString.length} chars -> ${newString.length} chars)"))
+                if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath (replaceAll: ${oldString.length} chars -> ${newString.length} chars)"))
                 val result = content.replace(oldString, newString)
-                ideService.writeFile(File(filePath), result)
-                listOf(UIMessagePart.Text("Edited $filePath (replaced all occurrences)"))
+                ideService.writeFile(file, result)
+                listOf(UIMessagePart.Text("Edited $resolvedPath (replaced all occurrences)"))
             } else if (matches == 1) {
-                if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $filePath (${oldString.length} chars -> ${newString.length} chars)"))
+                if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath (${oldString.length} chars -> ${newString.length} chars)"))
                 val result = content.replace(oldString, newString)
-                ideService.writeFile(File(filePath), result)
-                listOf(UIMessagePart.Text("Edited $filePath"))
+                ideService.writeFile(file, result)
+                listOf(UIMessagePart.Text("Edited $resolvedPath"))
             } else if (matches > 1) {
-                listOf(UIMessagePart.Text("Found $matches matches in $filePath. Provide more surrounding context in oldString to identify the correct match, or use replaceAll=true."))
+                listOf(UIMessagePart.Text("Found $matches matches in $resolvedPath. Provide more surrounding context in oldString to identify the correct match, or use replaceAll=true."))
             } else if (partialMatch) {
                 val idx = content.indexOf(oldString.take(20))
                 if (idx != -1) {
-                    if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $filePath via partial match"))
+                    if (dryRun) return@Tool listOf(UIMessagePart.Text("[dry-run] Would edit $resolvedPath via partial match"))
                     val result = content.replace(oldString, newString)
-                    ideService.writeFile(File(filePath), result)
-                    listOf(UIMessagePart.Text("Edited $filePath (partial match)"))
+                    ideService.writeFile(file, result)
+                    listOf(UIMessagePart.Text("Edited $resolvedPath (partial match)"))
                 } else {
-                    listOf(UIMessagePart.Text("Could not find the specified text in $filePath (tried partial match too)"))
+                    listOf(UIMessagePart.Text("Could not find the specified text in $resolvedPath (tried partial match too)"))
                 }
             } else {
-                listOf(UIMessagePart.Text("Could not find the specified text in $filePath"))
+                listOf(UIMessagePart.Text("Could not find the specified text in $resolvedPath"))
             }
         },
     )
@@ -476,16 +481,16 @@ class VibeCodingFileTools(private val ideService: IdeService) {
                 ?: obj["filePath"]?.asJsonPrimitive?.asString
                 ?: obj["file"]?.asJsonPrimitive?.asString
                 ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
-            val file = ideService.resolvePath(path)
-            if (file == null || !file.exists()) return@Tool listOf(UIMessagePart.Text("File not found: $path"))
-            val text = file.readText()
+            val file = ideService.resolvePath(path) ?: return@Tool listOf(UIMessagePart.Text("Path not found: $path"))
+            val text = ideService.getFileContent(file.absolutePath, null, null)
+                ?: return@Tool listOf(UIMessagePart.Text("File not found: ${file.absolutePath}"))
             val lines = if (text.isEmpty()) 0L else {
                 val count = text.count { it == '\n' }.toLong()
                 if (text.last() != '\n') count + 1 else count
             }
             val words = text.split(Regex("\\s+")).count { it.isNotBlank() }.toLong()
             val chars = text.length.toLong()
-            val bytes = file.length()
+            val bytes = text.encodeToByteArray().size.toLong()
             val result = JsonObject().apply {
                 addProperty("lines", lines)
                 addProperty("words", words)
@@ -516,22 +521,10 @@ class VibeCodingFileTools(private val ideService: IdeService) {
                 ?: obj["filePath"]?.asJsonPrimitive?.asString
                 ?: obj["file"]?.asJsonPrimitive?.asString
                 ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
-            val file = ideService.resolvePath(path)
-            if (file == null || !file.exists()) return@Tool listOf(UIMessagePart.Text("File not found: $path"))
-            var lines = 0L
-            var lastByte = -1
-            val buf = ByteArray(8192)
-            file.inputStream().use { input ->
-                var read = input.read(buf)
-                while (read != -1) {
-                    for (i in 0 until read) {
-                        if (buf[i] == 10.toByte()) lines++
-                    }
-                    if (read > 0) lastByte = buf[read - 1].toInt()
-                    read = input.read(buf)
-                }
-            }
-            if (lastByte != -1 && lastByte != 10) lines++
+            val file = ideService.resolvePath(path) ?: return@Tool listOf(UIMessagePart.Text("Path not found: $path"))
+            val text = ideService.getFileContent(file.absolutePath, null, null)
+                ?: return@Tool listOf(UIMessagePart.Text("File not found: ${file.absolutePath}"))
+            val lines = if (text.isEmpty()) 0L else text.count { it == '\n' }.toLong()
             val result = JsonObject().apply {
                 addProperty("lines", lines)
                 addProperty("path", file.absolutePath)
@@ -559,8 +552,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
                 ?: obj["filePath"]?.asJsonPrimitive?.asString
                 ?: obj["file"]?.asJsonPrimitive?.asString
                 ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
-            val file = ideService.resolvePath(path)
-            if (file == null) return@Tool listOf(UIMessagePart.Text("Path not found: $path"))
+            val file = ideService.resolvePath(path) ?: return@Tool listOf(UIMessagePart.Text("Path not found: $path"))
             val exists = file.exists()
             val result = JsonObject().apply {
                 addProperty("path", file.absolutePath)
