@@ -31,7 +31,9 @@ import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.persistence.settings.getCurrentAssistant
 import com.rk.ai.providers.Model
 import com.rk.ai.providers.ModelType
+import com.rk.ai.providers.ProviderManager
 import com.rk.ai.providers.ProviderSetting
+import com.rk.ai.providers.registry.ModelRegistry
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
@@ -479,6 +481,8 @@ private fun ProviderEditor(
     var showApiKey by remember { mutableStateOf(false) }
     var modelsExpanded by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var isFetchingModels by remember { mutableStateOf(false) }
+    var fetchModelsError by remember { mutableStateOf<String?>(null) }
 
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -572,6 +576,61 @@ private fun ProviderEditor(
                             }
                         }
                     }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            isFetchingModels = true
+                            fetchModelsError = null
+                            try {
+                                val currentProvider = engine.settingsStore.settingsFlow.value.providers
+                                    .firstOrNull { it.id == providerId } ?: return@launch
+                                val apiProvider = engine.providerManager.getProviderByType(currentProvider)
+                                val apiModels = apiProvider.listModels(currentProvider)
+                                val enrichedModels = apiModels.sortedBy { it.modelId }.map { model ->
+                                    model.copy(
+                                        displayName = model.modelId,
+                                        inputModalities = ModelRegistry.MODEL_INPUT_MODALITIES.getData(model.modelId),
+                                        outputModalities = ModelRegistry.MODEL_OUTPUT_MODALITIES.getData(model.modelId),
+                                        abilities = ModelRegistry.MODEL_ABILITIES.getData(model.modelId),
+                                    )
+                                }
+                                engine.settingsStore.update { s ->
+                                    s.copy(providers = s.providers.map { p ->
+                                        if (p.id == providerId) p.copyProvider(models = enrichedModels) else p
+                                    })
+                                }
+                            } catch (e: Exception) {
+                                fetchModelsError = e.message ?: "Failed to fetch models"
+                            } finally {
+                                isFetchingModels = false
+                            }
+                        }
+                    },
+                    enabled = !isFetchingModels,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    if (isFetchingModels) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(4.dp))
+                    } else {
+                        Icon(Icons.Outlined.CloudDownload, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(4.dp))
+                    }
+                    Text("Fetch Models", style = MaterialTheme.typography.labelMedium)
+                }
+
+                fetchModelsError?.let { error ->
+                    Text(
+                        text = error,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
                 }
             }
         }
