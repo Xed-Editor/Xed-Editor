@@ -22,8 +22,8 @@ android {
 }
 
 dependencies {
-    api(project(":core:ai-core"))
-    api(project(":core:ai-streaming"))
+    api(project(":core:vibe-coding:ai-core"))
+    api(project(":core:vibe-coding:ai-streaming"))
 
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.coroutines)

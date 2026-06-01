@@ -22,7 +22,7 @@ android {
 }
 
 dependencies {
-    api(project(":core:ai-core"))
+    api(project(":core:vibe-coding:ai-core"))
 
     api(libs.okhttp)
     api(libs.okhttp.sse)
