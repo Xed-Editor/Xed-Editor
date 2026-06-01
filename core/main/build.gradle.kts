@@ -128,6 +128,7 @@ dependencies {
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))
     implementation(project(":core:ai"))
+    implementation(project(":core:vibe-coding:ai-integration"))
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

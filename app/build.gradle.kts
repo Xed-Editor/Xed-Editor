@@ -112,4 +112,5 @@ dependencies {
     baselineProfile(project(":baselineprofile"))
     implementation(project(":core:main"))
     implementation(project(":core:ai"))
+    implementation(project(":core:vibe-coding:ai-integration"))
 }

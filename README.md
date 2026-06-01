@@ -302,7 +302,7 @@ The project is a multi-module Gradle project with 15+ modules:
 ### Application
 
 ```
-:app                    -- Thin APK shell, depends on :core:main and :core:ai
+:app                    -- Thin APK shell, depends on :core:main, :core:ai, and :core:vibe-coding:ai-integration
 :baselineprofile        -- Android Baseline Profile generation
 :benchmark / :benchmark2 -- Macrobenchmarks
 ```
@@ -311,13 +311,27 @@ The project is a multi-module Gradle project with 15+ modules:
 
 ```
 :core:main              -- Main library: editor, UI, LSP, terminal, git, search, settings, themes, extensions
-:core:ai                -- AI subsystem: agents, MCP bridge, IDE tools, session management
+:core:ai                -- External AI agent system: agents, MCP bridge, IDE tools, session management
 :core:components        -- Shared Compose UI components (appbars, preferences, icons)
 :core:resources         -- Centralized resource access (Res.kt)
 :core:extension         -- Plugin/extension system API
 :core:terminal-emulator -- Termux terminal emulator engine (Java + C/JNI)
 :core:terminal-view     -- Termux terminal rendering (TerminalView, TerminalRenderer)
 :core:termux-shared     -- Shared Termux utilities (shell commands, extra keys, preferences)
+
+### Vibe-Coding / AI Core (under :core:vibe-coding:)
+
+```
+:core:vibe-coding:ai-integration -- Native in-process AI agent: engine, tools, Compose UI
+:core:vibe-coding:ai-core        -- Base types: MessageRole, TokenUsage, caching
+:core:vibe-coding:ai-streaming   -- SSE streaming, KeyRoulette, error parsing
+:core:vibe-coding:ai-models      -- Data models: Message, Conversation, Tool, Image
+:core:vibe-coding:ai-providers   -- LLM providers: OpenAI, Google, Claude
+:core:vibe-coding:ai-mcp-client  -- MCP client (SSE + Streamable HTTP)
+:core:vibe-coding:ai-persistence -- Room DB + DataStore persistence
+:core:vibe-coding:agent-runtime  -- AI orchestration engine: GenerationHandler, transformers
+:core:vibe-coding:agent-tools-search -- 15+ web search providers
+```
 ```
 
 ### SoraX Editor Engine (Git Submodules)

@@ -27,13 +27,13 @@ android {
 }
 
 dependencies {
-    api(project(":core:ai-core"))
-    api(project(":core:ai-streaming"))
-    api(project(":core:ai-models"))
-    api(project(":core:ai-providers"))
-    api(project(":core:ai-mcp-client"))
-    api(project(":core:agent-tools-search"))
-    api(project(":core:ai-persistence"))
+    api(project(":core:vibe-coding:ai-core"))
+    api(project(":core:vibe-coding:ai-streaming"))
+    api(project(":core:vibe-coding:ai-models"))
+    api(project(":core:vibe-coding:ai-providers"))
+    api(project(":core:vibe-coding:ai-mcp-client"))
+    api(project(":core:vibe-coding:agent-tools-search"))
+    api(project(":core:vibe-coding:ai-persistence"))
 
     api(libs.kotlinx.serialization.json)
     api(libs.kotlinx.coroutines)

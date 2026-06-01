@@ -28,32 +28,22 @@ android {
 }
 
 dependencies {
-
-
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.material3)
-    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines)
     implementation(libs.okhttp)
     implementation(libs.gson)
-    implementation(libs.kotlin.reflect)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.nanohttpd)
-    implementation(libs.utilcode)
-    implementation(libs.jgit)
-    implementation(libs.commons.net)
-    implementation(libs.androidx.documentfile)
-    implementation(libs.lsp4j)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.paging.runtime)
+    ksp(libs.androidx.room.compiler)
 
-    implementation(project(":editor"))
-    implementation(project(":editor-lsp"))
-    implementation(project(":language-textmate"))
-    implementation(project(":core:terminal-view"))
-    implementation(project(":core:terminal-emulator"))
-    implementation(project(":core:resources"))
-    implementation(project(":core:extension"))
-
-
+    api(project(":core:vibe-coding:agent-runtime"))
+    implementation(project(":core:ai"))
 }
