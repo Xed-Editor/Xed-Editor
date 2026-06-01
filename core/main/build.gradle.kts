@@ -127,7 +127,7 @@ dependencies {
     implementation(project(":editor"))
     implementation(project(":editor-lsp"))
     implementation(project(":language-textmate"))
-    implementation(project(":core:ai"))
+    
     implementation(project(":core:vibe-coding:ai-integration"))
 }
 
