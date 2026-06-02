@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +50,7 @@ fun AgentConfigPanel(
     var showEditor by remember { mutableStateOf(false) }
     var editingConfig by remember { mutableStateOf<AgentConfig?>(null) }
     val currentAssistant = settings.getCurrentAssistant()
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -97,35 +99,39 @@ fun AgentConfigPanel(
                     config = editingConfig!!,
                     settings = settings,
                     onSave = { config ->
-                        settingsStore.update { s ->
-                            val updatedAssistant = Assistant(
-                                id = Uuid.parse(config.id),
-                                name = config.name,
-                                systemPrompt = config.systemPrompt,
-                                temperature = config.temperature,
-                                maxTokens = config.maxTokens,
-                                enableMemory = config.enableMemory,
-                            )
-                            val updatedList = s.assistants.map { a ->
-                                if (a.id == updatedAssistant.id) updatedAssistant else a
+                        scope.launch {
+                            settingsStore.update { s ->
+                                val updatedAssistant = Assistant(
+                                    id = Uuid.parse(config.id),
+                                    name = config.name,
+                                    systemPrompt = config.systemPrompt,
+                                    temperature = config.temperature,
+                                    maxTokens = config.maxTokens,
+                                    enableMemory = config.enableMemory,
+                                )
+                                val updatedList = s.assistants.map { a ->
+                                    if (a.id == updatedAssistant.id) updatedAssistant else a
+                                }
+                                if (updatedList.none { it.id == updatedAssistant.id }) {
+                                    s.copy(assistants = updatedList + updatedAssistant)
+                                } else {
+                                    s.copy(assistants = updatedList)
+                                }
                             }
-                            if (updatedList.none { it.id == updatedAssistant.id }) {
-                                s.copy(assistants = updatedList + updatedAssistant)
-                            } else {
-                                s.copy(assistants = updatedList)
-                            }
+                            editingConfig = null
+                            showEditor = false
                         }
-                        editingConfig = null
-                        showEditor = false
                     },
                     onDelete = {
-                        editingConfig?.let { cfg ->
-                            settingsStore.update { s ->
-                                s.copy(assistants = s.assistants.filter { it.id != Uuid.parse(cfg.id) })
+                        scope.launch {
+                            editingConfig?.let { cfg ->
+                                settingsStore.update { s ->
+                                    s.copy(assistants = s.assistants.filter { it.id != Uuid.parse(cfg.id) })
+                                }
                             }
+                            editingConfig = null
+                            showEditor = false
                         }
-                        editingConfig = null
-                        showEditor = false
                     },
                     onCancel = {
                         editingConfig = null
