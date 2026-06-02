@@ -154,11 +154,22 @@ fun AgentConfigPanel(
                         Spacer(Modifier.height(4.dp))
                         AgentCard(
                             name = currentAssistant.name,
-                            description = "Active assistant",
+                            description = currentAssistant.systemPrompt.take(120).replace("\n", " "),
                             mode = if (currentAssistant.enableMemory) "memory" else "standard",
                             color = "primary",
                             isActive = true,
                             onClick = {},
+                            onEditClick = {
+                                editingConfig = AgentConfig(
+                                    id = currentAssistant.id.toString(),
+                                    name = currentAssistant.name,
+                                    systemPrompt = currentAssistant.systemPrompt,
+                                    temperature = currentAssistant.temperature ?: 0.7f,
+                                    maxTokens = currentAssistant.maxTokens ?: 4096,
+                                    enableMemory = currentAssistant.enableMemory,
+                                )
+                                showEditor = true
+                            }
                         )
                     }
 
@@ -171,24 +182,57 @@ fun AgentConfigPanel(
                         )
                     }
 
-                    item {
-                        Surface(
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            shape = RoundedCornerShape(12.dp),
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    "Agent configuration is managed through Settings.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    "Create .md agent files in .xed/agents/",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                    val availableAssistants = settings.assistants.filter { it.id != currentAssistant.id }
+                    if (availableAssistants.isEmpty()) {
+                        item {
+                            Surface(
+                                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        "No other agents configured. Click \"New Agent\" to create one.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
+                        }
+                    } else {
+                        items(availableAssistants) { assistant ->
+                            AgentCard(
+                                name = assistant.name,
+                                description = assistant.systemPrompt.take(120).replace("\n", " "),
+                                mode = if (assistant.enableMemory) "memory" else "standard",
+                                color = "secondary",
+                                isActive = false,
+                                onClick = {
+                                    scope.launch {
+                                        settingsStore.update { s ->
+                                            s.copy(assistantId = assistant.id)
+                                        }
+                                    }
+                                },
+                                onEditClick = {
+                                    editingConfig = AgentConfig(
+                                        id = assistant.id.toString(),
+                                        name = assistant.name,
+                                        systemPrompt = assistant.systemPrompt,
+                                        temperature = assistant.temperature ?: 0.7f,
+                                        maxTokens = assistant.maxTokens ?: 4096,
+                                        enableMemory = assistant.enableMemory,
+                                    )
+                                    showEditor = true
+                                },
+                                onDeleteClick = {
+                                    scope.launch {
+                                        settingsStore.update { s ->
+                                            s.copy(assistants = s.assistants.filter { it.id != assistant.id })
+                                        }
+                                    }
+                                }
+                            )
                         }
                     }
                 }
@@ -205,6 +249,8 @@ private fun AgentCard(
     color: String,
     isActive: Boolean,
     onClick: () -> Unit,
+    onEditClick: (() -> Unit)? = null,
+    onDeleteClick: (() -> Unit)? = null,
 ) {
     val chipColor = when (color) {
         "primary" -> MaterialTheme.colorScheme.primary
@@ -248,6 +294,8 @@ private fun AgentCard(
                     description,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
             }
             Surface(
@@ -271,6 +319,28 @@ private fun AgentCard(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp),
                 )
+            }
+            if (onEditClick != null) {
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = onEditClick, modifier = Modifier.size(24.dp)) {
+                    Icon(
+                        Icons.Outlined.Edit,
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+            if (onDeleteClick != null) {
+                Spacer(Modifier.width(8.dp))
+                IconButton(onClick = onDeleteClick, modifier = Modifier.size(24.dp)) {
+                    Icon(
+                        Icons.Outlined.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
         }
     }

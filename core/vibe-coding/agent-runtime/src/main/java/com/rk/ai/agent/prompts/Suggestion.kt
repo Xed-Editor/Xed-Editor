@@ -8,9 +8,15 @@ internal val DEFAULT_SUGGESTION_PROMPT = """
     1. Reply directly with suggestions, do not add any formatting, and separate suggestions with newlines, no need to add markdown list formats.
     2. Use {locale} language.
     3. Ensure each suggestion is valid.
-    4. Each suggestion should not exceed 10 characters.
+    4. **Do not limit the length of each suggestion** – generate full useful suggestions.
     5. Imitate the user's previous conversational style.
     6. Act as a User, not an Assistant!
+
+    Output must be a JSON array of objects with the following fields:
+    - "text": the suggestion string
+    - "confidence": optional float confidence (0‑1)
+    - "source": optional short identifier (e.g., "diagnostic", "user", "model")
+    - "diagnostic": optional object with keys "file", "line", "message" if the suggestion comes from a diagnostic
 
     <content>
     {content}

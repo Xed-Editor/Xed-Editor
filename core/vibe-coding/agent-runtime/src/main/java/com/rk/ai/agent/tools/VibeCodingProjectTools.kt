@@ -104,7 +104,7 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
 
     private val getProjectInstructions = Tool(
         name = "getProjectInstructions",
-        description = "Reads the project's CLAUDE.md or similar project-level instruction files. These contain developer guidelines for AI behavior, coding conventions, and project-specific rules.",
+        description = "Reads project-level AI instruction files including CLAUDE.md, AGENTS.md (recursively from parent directories), .cursorrules, and copilot-instructions.md. These contain developer guidelines for AI behavior, coding conventions, and project-specific rules.",
         parameters = {
             InputSchema.Obj(
                 properties = buildJsonObject {
@@ -115,24 +115,85 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val workspace = args.asJsonObject["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
-            val candidates = listOf(
-                File(workspace, "CLAUDE.md"),
-                File(workspace, ".claude/CLAUDE.md"),
-                File(workspace, ".claude.md"),
-                File(workspace, ".cursorrules"),
-                File(workspace, ".github/copilot-instructions.md"),
+            val workspaceFile = File(workspace)
+            val sections = mutableListOf<String>()
+
+            val rootCandidates = listOf(
+                workspaceFile.resolve("CLAUDE.md"),
+                workspaceFile.resolve(".claude/CLAUDE.md"),
+                workspaceFile.resolve(".claude.md"),
+                workspaceFile.resolve(".cursorrules"),
+                workspaceFile.resolve(".github/copilot-instructions.md"),
             )
-            val found = candidates.firstOrNull { it.exists() && it.isFile }
-            if (found != null) {
-                listOf(UIMessagePart.Text("Project instructions (${found.name}):\n\n${found.readText()}"))
+            for (candidate in rootCandidates) {
+                if (candidate.exists() && candidate.isFile) {
+                    sections.add("=== ${candidate.name} ===\n${candidate.readText()}")
+                }
+            }
+
+            val agentsFiles = mutableListOf<File>()
+            var dir = workspaceFile
+            while (dir != null && dir.exists() && dir.isDirectory) {
+                val agentsFile = dir.resolve("AGENTS.md")
+                if (agentsFile.exists() && agentsFile.isFile) {
+                    agentsFiles.add(agentsFile)
+                }
+                dir = dir.parentFile
+            }
+            for (file in agentsFiles.reversed()) {
+                sections.add("=== AGENTS.md (${file.parentFile?.name ?: "/"}) ===\n${file.readText()}")
+            }
+
+            if (sections.isNotEmpty()) {
+                listOf(UIMessagePart.Text("Project instructions found at ${workspaceFile.name}:\n\n${sections.joinToString("\n\n")}"))
             } else {
-                listOf(UIMessagePart.Text("No project-level instructions file found (checked: ${candidates.joinToString(", ") { it.name }})"))
+                listOf(UIMessagePart.Text("No project-level instructions file found (checked: CLAUDE.md, AGENTS.md recursively, .cursorrules, copilot-instructions.md)"))
+            }
+        },
+    )
+
+    private val searchProjectInstructions = Tool(
+        name = "searchProjectInstructions",
+        description = "Searches for AGENTS.md files at or near a specific subdirectory. AGENTS.md files contain per-directory developer guidelines for AI behavior. They can exist at any level of the project tree.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("path") { put("type", "string"); put("description", "Directory path to search from. Walks up to find the nearest AGENTS.md.") }
+                },
+                required = listOf("path"),
+            )
+        },
+        execute = { args ->
+            val searchPath = args.asJsonObject["path"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Missing path argument"))
+            val searchFile = File(searchPath)
+            val found = mutableListOf<File>()
+
+            val directAgents = searchFile.resolve("AGENTS.md")
+            if (directAgents.exists() && directAgents.isFile) found.add(directAgents)
+
+            var dir = searchFile
+            while (dir != null && dir.exists() && dir.isDirectory) {
+                val agentsFile = dir.resolve("AGENTS.md")
+                if (agentsFile.exists() && agentsFile.isFile) {
+                    found.add(agentsFile)
+                }
+                dir = dir.parentFile
+            }
+
+            if (found.isNotEmpty()) {
+                val sections = found.reversed().map { file ->
+                    "=== ${file.parentFile?.name ?: "/"} (${file.absolutePath}) ===\n${file.readText()}"
+                }
+                listOf(UIMessagePart.Text("AGENTS.md files near $searchPath:\n\n${sections.joinToString("\n\n")}"))
+            } else {
+                listOf(UIMessagePart.Text("No AGENTS.md files found near: $searchPath"))
             }
         },
     )
 
     val all: List<Tool> = listOf(
         getProjectStructure, getProjectSummary, getProjectConfig,
-        getSymbolUnderCursor, getProjectInstructions,
+        getSymbolUnderCursor, getProjectInstructions, searchProjectInstructions,
     )
 }

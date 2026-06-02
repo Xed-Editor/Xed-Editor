@@ -39,7 +39,9 @@ data class SessionNode(
 )
 
 data class PermissionAutoRespondRule(
-    val pattern: String,
+    val id: String = kotlin.uuid.Uuid.random().toString(),
+    val toolPattern: String,
+    val argPattern: String = "*",
     val action: PermissionAction,
     val description: String = "",
 )
@@ -75,6 +77,7 @@ data class VibeCodingState(
     val commandCatalog: List<CommandCatalogEntry> = emptyList(),
     val dockOpen: Boolean = false,
     val dockClosing: Boolean = false,
+    val compactionReason: String? = null,
 ) {
     val hasSecurityAlerts: Boolean get() = securityAlerts.isNotEmpty()
     val activeAgents: List<AgentActivity> get() = agentActivities.filter {
@@ -101,11 +104,17 @@ data class VibeCodingState(
         return result
     }
 
-    fun shouldAutoRespondPermission(permissionType: String): PermissionAction? {
-        for (rule in permissionAutoRespondRules) {
-            if (patternMatches(rule.pattern, permissionType)) return rule.action
+    fun shouldAutoRespondPermission(toolName: String, inputJson: String): PermissionAction? {
+        for (rule in permissionAutoRespondRules.reversed()) {
+            if (patternMatches(rule.toolPattern, toolName) && patternMatches(rule.argPattern, inputJson)) {
+                return rule.action
+            }
         }
         return null
+    }
+
+    fun isToolMatchedByRule(rule: PermissionAutoRespondRule, toolName: String): Boolean {
+        return patternMatches(rule.toolPattern, toolName)
     }
 
     private fun patternMatches(pattern: String, input: String): Boolean {

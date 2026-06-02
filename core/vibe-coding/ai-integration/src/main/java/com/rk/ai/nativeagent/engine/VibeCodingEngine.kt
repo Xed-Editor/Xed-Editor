@@ -85,6 +85,9 @@ private fun buildDatabase(context: Context): AppDatabase =
     ).fallbackToDestructiveMigration().build()
 
 class VibeCodingEngine(
+    // Added suggestions Flow for UI
+    val suggestionsFlow: MutableStateFlow<List<kotlinx.serialization.json.JsonObject>> = MutableStateFlow(emptyList())
+)
     private val context: Context,
     val ideService: IdeService,
     scope: CoroutineScope? = null,
@@ -129,12 +132,25 @@ class VibeCodingEngine(
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
     val hookManager = HookManager()
 
-    private val storedAutoRespondRules = mutableListOf<com.rk.ai.nativeagent.engine.PermissionAutoRespondRule>()
+    private val storedAutoRespondRules = mutableListOf<com.rk.ai.nativeagent.engine.PermissionAutoRespondRule>(
+        PermissionAutoRespondRule(toolPattern = "readFile", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow reading files"),
+        PermissionAutoRespondRule(toolPattern = "glob", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow finding files"),
+        PermissionAutoRespondRule(toolPattern = "grep", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow searching text"),
+        PermissionAutoRespondRule(toolPattern = "gitStatus", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow git status"),
+        PermissionAutoRespondRule(toolPattern = "gitDiff", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow git diff"),
+        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*rm *", action = PermissionAction.DENY, description = "Deny file removal commands"),
+        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*git *", action = PermissionAction.ALLOW, description = "Allow Git terminal commands"),
+        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*", action = PermissionAction.ASK, description = "Ask for other shell commands"),
+        PermissionAutoRespondRule(toolPattern = "*", argPattern = "*", action = PermissionAction.ASK, description = "Ask for all other tools")
+    )
     private val storedCommandCatalog = mutableListOf<com.rk.ai.nativeagent.engine.CommandCatalogEntry>()
 
     private var sessionCounter = 0L
 
     init {
+        _state.value = _state.value.copy(
+            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+        )
         val securityHook = SecurityHook { severity, message, toolName, filePath ->
             val alert = SecurityAlert(severity, message, toolName, filePath)
             addSecurityAlert(alert)
@@ -171,8 +187,8 @@ class VibeCodingEngine(
         )
     }
 
-    fun removePermissionAutoRespondRule(pattern: String) {
-        storedAutoRespondRules.removeAll { it.pattern == pattern }
+    fun removePermissionAutoRespondRule(idOrPattern: String) {
+        storedAutoRespondRules.removeAll { it.id == idOrPattern || it.toolPattern == idOrPattern }
         _state.value = _state.value.copy(
             permissionAutoRespondRules = storedAutoRespondRules.toList(),
         )
@@ -200,6 +216,144 @@ class VibeCodingEngine(
         }
     }
 
+    private val todowriteTool = Tool(
+        name = "todowrite",
+        description = "Create and manage a structured task list for the current session. Use this to break down complex tasks into tracked subtasks. Each todo has a description and status (pending/in_progress/completed/cancelled). Call this at the start of multi-step work to create a plan, then update status as you complete each step. Pass an empty array to read the current todos.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("todos") {
+                        put("type", "string")
+                        put("description", "JSON array of todos. Each item: {\"description\": \"...\", \"status\": \"pending\"}. Options for status: pending, in_progress, completed, cancelled. Example: [{\"description\": \"Read the main file\", \"status\": \"pending\"}, {\"description\": \"Implement the fix\", \"status\": \"pending\"}]")
+                    }
+                },
+                required = listOf("todos"),
+            )
+        },
+        execute = { args ->
+            val todosJsonStr = args.asJsonObject["todos"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'todos'"))
+            val todosJson = try {
+                com.google.gson.JsonParser.parseString(todosJsonStr).asJsonArray
+            } catch (e: Exception) {
+                return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'todos': ${e.message}"))
+            }
+            val todos = todosJson.map { item ->
+                val obj = item.asJsonObject
+                val desc = obj["description"]?.asJsonPrimitive?.asString ?: "Untitled task"
+                val statusStr = obj["status"]?.asJsonPrimitive?.asString ?: "pending"
+                val status = when (statusStr.lowercase()) {
+                    "in_progress" -> SessionTodoStatus.IN_PROGRESS
+                    "completed" -> SessionTodoStatus.COMPLETED
+                    "cancelled" -> SessionTodoStatus.CANCELLED
+                    else -> SessionTodoStatus.PENDING
+                }
+                val subtasksJson = obj["subtasks"]?.asJsonArray
+                val subtasks = subtasksJson?.map { sub ->
+                    val subObj = sub.asJsonObject
+                    val subDesc = subObj["description"]?.asJsonPrimitive?.asString ?: ""
+                    val subStatusStr = subObj["status"]?.asJsonPrimitive?.asString ?: "pending"
+                    val subStatus = when (subStatusStr.lowercase()) {
+                        "in_progress" -> SessionTodoStatus.IN_PROGRESS
+                        "completed" -> SessionTodoStatus.COMPLETED
+                        "cancelled" -> SessionTodoStatus.CANCELLED
+                        else -> SessionTodoStatus.PENDING
+                    }
+                    SessionTodo(description = subDesc, status = subStatus)
+                } ?: emptyList()
+                SessionTodo(description = desc, status = status, subtasks = subtasks)
+            }
+
+            val currentTodos = _state.value.todos
+            val isReadOp = todos.isEmpty()
+            val sessionId = _state.value.activeSessionId ?: Uuid.random()
+
+            if (!isReadOp) {
+                setSessionTodos(sessionId, todos)
+            }
+
+            val displayTodos = if (isReadOp) currentTodos else todos
+            val summary = buildString {
+                if (isReadOp) {
+                    appendLine("Current task plan (${displayTodos.size} items):")
+                } else {
+                    appendLine("Task plan updated (${displayTodos.size} items):")
+                }
+                displayTodos.forEachIndexed { i, todo ->
+                    val icon = when (todo.status) {
+                        SessionTodoStatus.COMPLETED -> "[✓]"
+                        SessionTodoStatus.IN_PROGRESS -> "[→]"
+                        SessionTodoStatus.CANCELLED -> "[✗]"
+                        SessionTodoStatus.PENDING -> "[ ]"
+                    }
+                    appendLine("  $icon ${i + 1}. ${todo.description}")
+                    todo.subtasks.forEach { sub ->
+                        val subIcon = when (sub.status) {
+                            SessionTodoStatus.COMPLETED -> "[✓]"
+                            SessionTodoStatus.IN_PROGRESS -> "[→]"
+                            SessionTodoStatus.CANCELLED -> "[✗]"
+                            SessionTodoStatus.PENDING -> "[ ]"
+                        }
+                        appendLine("       $subIcon ${sub.description}")
+                    }
+                }
+                appendLine()
+                val completed = displayTodos.count { it.status == SessionTodoStatus.COMPLETED }
+                val inProgress = displayTodos.count { it.status == SessionTodoStatus.IN_PROGRESS }
+                appendLine("Progress: $completed/${displayTodos.size} completed, $inProgress in progress")
+            }
+            listOf(UIMessagePart.Text(summary))
+        },
+    )
+
+    private val planTool = Tool(
+        name = "plan",
+        description = "Create a structured multi-step execution plan. Call this BEFORE starting complex multi-file tasks. The plan creates a tracked todo list and returns a clear step-by-step breakdown. Each step should be specific and actionable.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("goal") { put("type", "string"); put("description", "The overall goal of this plan") }
+                    putJsonObject("steps") {
+                        put("type", "string")
+                        put("description", "JSON array of step strings describing each action. Example: [\"Read the current implementation in src/Foo.kt\", \"Update the Foo class to support the new feature\", \"Add tests for the new functionality\", \"Run the test suite to verify\"]")
+                    }
+                },
+                required = listOf("goal", "steps"),
+            )
+        },
+        execute = { args ->
+            val goal = args.asJsonObject["goal"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'goal'"))
+            val stepsJsonStr = args.asJsonObject["steps"]?.asJsonPrimitive?.asString
+                ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'steps'"))
+            val stepsJson = try {
+                com.google.gson.JsonParser.parseString(stepsJsonStr).asJsonArray
+            } catch (e: Exception) {
+                return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'steps': ${e.message}"))
+            }
+
+            val todos = stepsJson.map { step ->
+                SessionTodo(description = step.asString, status = SessionTodoStatus.PENDING)
+            }
+
+            val sessionId = _state.value.activeSessionId ?: Uuid.random()
+            setSessionTodos(sessionId, todos)
+
+            val planText = buildString {
+                appendLine("## Plan: $goal")
+                appendLine()
+                todos.forEachIndexed { i, todo ->
+                    appendLine("  [ ] Step ${i + 1}: ${todo.description}")
+                }
+                appendLine()
+                appendLine("---")
+                appendLine("Total: ${todos.size} steps")
+                appendLine("Start with Step 1. Update progress with `todowrite` after completing each step.")
+            }
+            listOf(UIMessagePart.Text(planText))
+        },
+    )
+
     private fun buildToolList(assistant: com.rk.ai.models.Assistant, settings: com.rk.ai.persistence.settings.Settings): List<Tool> {
         val mcpTools = mcpManager.getAllAvailableTools().map { (serverId, mcpTool) ->
             Tool(
@@ -219,7 +373,7 @@ class VibeCodingEngine(
                 },
             )
         }
-        return buildList {
+        val baseTools = buildList {
             addAll(toolRegistry.withMcpTools(mcpTools))
             addAll(localTools.getTools(assistant.localTools))
             if (settings.enableWebSearch) addAll(createSearchTools(settings))
@@ -228,6 +382,41 @@ class VibeCodingEngine(
                 allSkills = skillManager.listSkills(),
                 skillManager = skillManager,
             ))
+            add(todowriteTool)
+            add(planTool)
+        }
+
+        return baseTools.map { tool ->
+            val matchingRules = _state.value.permissionAutoRespondRules.filter {
+                _state.value.isToolMatchedByRule(it, tool.name)
+            }
+            val staticRule = matchingRules.lastOrNull { it.argPattern == "*" }
+            val needsApprovalDefault = when (staticRule?.action) {
+                PermissionAction.ALLOW -> false
+                PermissionAction.DENY -> false
+                PermissionAction.ASK -> true
+                null -> tool.needsApproval
+            }
+
+            val originalExecute = tool.execute
+            val wrappedExecute: suspend (com.google.gson.JsonElement) -> List<UIMessagePart> = { args ->
+                val argsStr = try {
+                    com.google.gson.Gson().toJson(args)
+                } catch (_: Exception) {
+                    args.toString()
+                }
+                val currentAction = _state.value.shouldAutoRespondPermission(tool.name, argsStr)
+                if (currentAction == PermissionAction.DENY) {
+                    listOf(UIMessagePart.Text("Tool '${tool.name}' execution denied by permission rule."))
+                } else {
+                    originalExecute(args)
+                }
+            }
+
+            tool.copy(
+                needsApproval = needsApprovalDefault,
+                execute = wrappedExecute
+            )
         }
     }
 
@@ -428,20 +617,6 @@ class VibeCodingEngine(
 
             val enhancedTools = buildToolList(assistant, settings)
 
-            // Auto-respond permission check
-            val pendingToolCalls = _state.value.messages.lastOrNull()
-                ?.getTools()
-                ?.filter { it.approvalState is com.rk.ai.models.ToolApprovalState.Auto }
-                .orEmpty()
-            for (tool in pendingToolCalls) {
-                val rule = _state.value.shouldAutoRespondPermission(tool.toolName)
-                when (rule) {
-                    com.rk.ai.nativeagent.engine.PermissionAction.ALLOW -> approveTool(tool.toolCallId)
-                    com.rk.ai.nativeagent.engine.PermissionAction.DENY -> denyTool(tool.toolCallId, "Auto-denied by permission rule")
-                    else -> {} // ASK -> leave as Pending for user
-                }
-            }
-
             val memories = if (assistant.enableMemory) {
                 val memoryAssistantId = if (assistant.useGlobalMemory) {
                     MemoryRepository.GLOBAL_MEMORY_ID
@@ -479,7 +654,9 @@ class VibeCodingEngine(
                             _state.value = _state.value.copy(messages = chunk.messages)
                             saveCurrentSessionMessages()
                         }
-                        else -> {}
+                        is GenerationChunk.CompactionNeeded -> {
+                            _state.value = _state.value.copy(compactionReason = chunk.reason)
+                        }
                     }
                 }
             }.onFailure { e ->
@@ -492,9 +669,14 @@ class VibeCodingEngine(
             }
 
             saveConversation()
-            _state.value = _state.value.copy(isProcessing = false)
             saveCurrentSessionMessages()
-            engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationFinished) }
+
+            if (checkAndAutoRespondPermissions()) {
+                resumeGeneration()
+            } else {
+                _state.value = _state.value.copy(isProcessing = false)
+                engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationFinished) }
+            }
         }
     }
 
@@ -652,9 +834,67 @@ class VibeCodingEngine(
             }.onFailure { e ->
                 _state.value = _state.value.copy(isProcessing = false, error = e.message)
             }
-            _state.value = _state.value.copy(isProcessing = false)
             saveCurrentSessionMessages()
+
+            if (checkAndAutoRespondPermissions()) {
+                resumeGeneration()
+            } else {
+                _state.value = _state.value.copy(isProcessing = false)
+            }
         }
+    }
+
+    private fun checkAndAutoRespondPermissions(): Boolean {
+        val lastMessage = _state.value.messages.lastOrNull() ?: return false
+        val tools = lastMessage.getTools().filter { it.isPending }
+        if (tools.isEmpty()) return false
+
+        var didChange = false
+        for (tool in tools) {
+            val action = _state.value.shouldAutoRespondPermission(tool.toolName, tool.input)
+            when (action) {
+                PermissionAction.ALLOW -> {
+                    approveToolInline(tool.toolCallId)
+                    didChange = true
+                }
+                PermissionAction.DENY -> {
+                    denyToolInline(tool.toolCallId, "Auto-denied by permission rule")
+                    didChange = true
+                }
+                else -> {
+                    // ASK or null -> leave as pending
+                }
+            }
+        }
+        return didChange
+    }
+
+    private fun approveToolInline(toolCallId: String) {
+        val messages = _state.value.messages.toMutableList()
+        val lastIdx = messages.lastIndex
+        if (lastIdx < 0) return
+        val last = messages[lastIdx]
+        val updatedParts = last.parts.map { part ->
+            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
+                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Approved)
+            } else part
+        }
+        messages[lastIdx] = last.copy(parts = updatedParts)
+        _state.value = _state.value.copy(messages = messages)
+    }
+
+    private fun denyToolInline(toolCallId: String, reason: String) {
+        val messages = _state.value.messages.toMutableList()
+        val lastIdx = messages.lastIndex
+        if (lastIdx < 0) return
+        val last = messages[lastIdx]
+        val updatedParts = last.parts.map { part ->
+            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
+                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Denied(reason))
+            } else part
+        }
+        messages[lastIdx] = last.copy(parts = updatedParts)
+        _state.value = _state.value.copy(messages = messages)
     }
 }
 

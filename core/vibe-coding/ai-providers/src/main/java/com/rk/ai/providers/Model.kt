@@ -21,6 +21,8 @@ data class Model(
     val abilities: List<ModelAbility> = emptyList(),
     val tools: Set<BuiltInTools> = emptySet(),
     val providerOverwrite: ProviderSetting? = null,
+    val contextWindow: Int = 128_000,
+    val maxOutputTokens: Int = 8_192,
 )
 
 @Serializable

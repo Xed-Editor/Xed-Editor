@@ -1,20 +1,48 @@
 package com.rk.ai.agent.prompts
 
 internal val DEFAULT_COMPRESS_PROMPT = """
-    You are a conversation compression assistant. Compress the following conversation into a concise summary.
+Output exactly the Markdown structure shown inside <template> and keep the section order unchanged. Do not include the <template> tags in your response.
+<template>
+## Goal
+- [single-sentence task summary]
 
-    Requirements:
-    1. Preserve key facts, decisions, and important context that would be needed to continue the conversation
-    2. Keep the summary in the same language as the original conversation
-    3. Target approximately {target_tokens} tokens
-    4. Output the summary directly without any explanations or meta-commentary
-    5. Format the summary as context information that can be used to continue the conversation
-    6. Use {locale} language
-    7. Start the output with a clear indicator that this is a summary (e.g., "[Summary of previous conversation]" or equivalent in the target language)
+## Constraints & Preferences
+- [user constraints, preferences, specs, or "(none)"]
 
-    {additional_context}
+## Progress
+### Done
+- [completed work or "(none)"]
 
-    <conversation>
-    {content}
-    </conversation>
+### In Progress
+- [current work or "(none)"]
+
+### Blocked
+- [blockers or "(none)"]
+
+## Key Decisions
+- [decision and why, or "(none)"]
+
+## Next Steps
+- [ordered next actions or "(none)"]
+
+## Critical Context
+- [important technical facts, errors, open questions, or "(none)"]
+
+## Relevant Files
+- [file or directory path: why it matters, or "(none)"]
+</template>
+
+Rules:
+- Keep every section, even when empty.
+- Use terse bullets, not prose paragraphs.
+- Preserve exact file paths, commands, error strings, and identifiers when known.
+- Do not mention the summary process or that context was compacted.
+- Use {locale} language.
+- Target approximately {target_tokens} tokens.
+
+{additional_context}
+
+<conversation>
+{content}
+</conversation>
 """.trimIndent()

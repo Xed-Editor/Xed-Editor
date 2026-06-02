@@ -31,6 +31,7 @@ import com.rk.ai.models.UIMessagePart
 import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.models.handleMessageChunk
 import com.rk.ai.models.limitContext
+import com.rk.ai.agent.prompts.DEFAULT_COMPRESS_PROMPT
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.MessageTransformer
 import com.rk.ai.agent.transformers.OutputMessageTransformer
@@ -52,11 +53,17 @@ import kotlin.uuid.Uuid
 import kotlin.uuid.ExperimentalUuidApi
 
 private const val TAG = "GenerationHandler"
+private const val DOOM_LOOP_THRESHOLD = 3
+private const val MAX_COMPACTIONS = 3
 
 @Serializable
 sealed interface GenerationChunk {
     data class Messages(
         val messages: List<UIMessage>
+    ) : GenerationChunk
+
+    data class CompactionNeeded(
+        val reason: String,
     ) : GenerationChunk
 }
 
@@ -68,6 +75,10 @@ class GenerationHandler(
     val conversationRepo: ConversationRepository,
     private val aiLoggingManager: AILoggingManager,
 ) {
+    private var compactionCount = 0
+    private var previousToolCalls: List<Pair<String, String>> = emptyList()
+    private var lastFinishReason: String? = null
+
     fun generateText(
         settings: Settings,
         model: Model,
@@ -89,7 +100,23 @@ class GenerationHandler(
         var messages: List<UIMessage> = messages
 
         for (stepIndex in 0 until maxSteps) {
+            lastFinishReason = null
             Log.i(TAG, "streamText: start step #$stepIndex (${model.id})")
+
+            // Check for overflow before generating next step
+            if (CompactionHandler.needsCompaction(messages, model.contextWindow, model.maxOutputTokens)) {
+                Log.w(TAG, "Context overflow detected at step #$stepIndex, compacting...")
+                if (compactionCount >= MAX_COMPACTIONS) {
+                    Log.w(TAG, "Max compactions reached ($MAX_COMPACTIONS), cannot compact further")
+                } else {
+                    val compacted = compactMessages(messages, model)
+                    messages = compacted
+                    compactionCount++
+                    emit(GenerationChunk.CompactionNeeded("context_overflow_after_step_$stepIndex"))
+                    emit(GenerationChunk.Messages(compacted))
+                    Log.i(TAG, "Compaction done, continuing with ${compacted.size} messages")
+                }
+            }
 
             val toolsInternal = buildList {
                 Log.i(TAG, "generateInternal: build tools($assistant)")
@@ -182,9 +209,29 @@ class GenerationHandler(
 
                 val tools = messages.last().getTools().filter { !it.isExecuted }
                 if (tools.isEmpty()) {
-                    // no tool calls, break
+                    val lastMessage = messages.lastOrNull()
+                    val finishReason = lastMessage?.let { msg ->
+                        msg.parts.firstOrNull()?.let { null }
+                    }
+                    // Check finish reason from the message's choices (handled via handleMessageChunk)
+                    // If the model stopped with "length" finish reason, compact and retry
+                    val hasLengthFinish = checkFinishReason(messages)
+                    if (hasLengthFinish) {
+                        Log.w(TAG, "Model stopped with 'length' finish reason, compacting...")
+                        if (compactionCount < MAX_COMPACTIONS) {
+                            val compacted = compactMessages(messages, model)
+                            messages = compacted
+                            compactionCount++
+                            emit(GenerationChunk.CompactionNeeded("length_finish"))
+                            emit(GenerationChunk.Messages(compacted))
+                            continue
+                        }
+                    }
                     break
                 }
+
+                // Reset doom loop tracking since we got new tool calls
+                previousToolCalls = emptyList()
 
                 // Check for tools that need approval
                 var hasPendingApproval = false
@@ -238,7 +285,6 @@ class GenerationHandler(
             toolsToProcess.forEach { tool ->
                 when (tool.approvalState) {
                     is ToolApprovalState.Denied -> {
-                        // Tool was denied by user
                         val reason = (tool.approvalState as ToolApprovalState.Denied).reason
                         executedTools += tool.copy(
                             output = listOf(
@@ -257,7 +303,6 @@ class GenerationHandler(
                     }
 
                     is ToolApprovalState.Answered -> {
-                        // Tool was answered by user (e.g., ask_user tool)
                         val answer = (tool.approvalState as ToolApprovalState.Answered).answer
                         executedTools += tool.copy(
                             output = listOf(
@@ -267,11 +312,9 @@ class GenerationHandler(
                     }
 
                     is ToolApprovalState.Pending -> {
-                        // Should not reach here, but just in case
                     }
 
                     else -> {
-                        // Auto or Approved - execute the tool
                         runCatching {
                             val toolDef = toolsInternal.find { toolDef -> toolDef.name == tool.toolName }
                                 ?: error("Tool ${tool.toolName} not found")
@@ -308,11 +351,22 @@ class GenerationHandler(
             }
 
             if (executedTools.isEmpty()) {
-                // No results to add (all tools were pending)
                 break
             }
 
-            // Update last message with executed tools (NOT create TOOL message)
+            // Doom loop detection: check if same tool called repeatedly with same input
+            val currentToolCalls = executedTools.map { it.toolName to it.input }
+            if (previousToolCalls.isNotEmpty() && currentToolCalls == previousToolCalls) {
+                Log.w(TAG, "Doom loop detected: same tool calls repeated ${DOOM_LOOP_THRESHOLD}+ times")
+                val doomTool = CompactionHandler.detectDoomLoop(messages)
+                if (doomTool != null) {
+                    Log.w(TAG, "Breaking doom loop for tool: $doomTool")
+                    break
+                }
+            }
+            previousToolCalls = currentToolCalls
+
+            // Update last message with executed tools
             val lastMessage = messages.last()
             val updatedParts = lastMessage.parts.map { part ->
                 if (part is UIMessagePart.Tool) {
@@ -334,6 +388,38 @@ class GenerationHandler(
         }
 
     }.flowOn(Dispatchers.IO)
+
+    private suspend fun compactMessages(
+        messages: List<UIMessage>,
+        model: Model,
+    ): List<UIMessage> {
+        val hasOverflow = CompactionHandler.needsCompaction(messages, model.contextWindow, model.maxOutputTokens)
+        if (!hasOverflow) return messages
+
+        val compacted = CompactionHandler.pruneMessages(messages)
+        if (compacted.summary != null) {
+            val summaryMsg = UIMessage(
+                role = MessageRole.SYSTEM,
+                parts = listOf(UIMessagePart.Text("[Compacted summary of earlier context]\n${compacted.summary}")),
+            )
+            val tailMessages = if (compacted.compactedMessages.isNotEmpty()) {
+                messages.drop(compacted.compactedMessages.size)
+            } else {
+                messages
+            }
+            return listOf(summaryMsg) + tailMessages
+        }
+
+        return TokenEstimator.truncateByTokens(
+            messages,
+            TokenEstimator.usableTokens(model.contextWindow, model.maxOutputTokens),
+        )
+    }
+
+    private fun checkFinishReason(messages: List<UIMessage>): Boolean {
+        if (messages.isEmpty()) return false
+        return lastFinishReason == "length"
+    }
 
     private suspend fun generateInternal(
         assistant: Assistant,
@@ -423,9 +509,10 @@ class GenerationHandler(
                 providerSetting = provider,
                 messages = internalMessages,
                 params = params
-            ).collect {
-                messages = messages.handleMessageChunk(chunk = it, modelId = model.id)
-                it.usage?.let { usage ->
+            ).collect { chunk ->
+                lastFinishReason = chunk.choices.getOrNull(0)?.finishReason
+                messages = messages.handleMessageChunk(chunk = chunk, modelId = model.id)
+                chunk.usage?.let { usage ->
                     messages = messages.mapIndexed { index, message ->
                         if (index == messages.lastIndex) {
                             message.copy(usage = message.usage.merge(usage))
@@ -450,6 +537,7 @@ class GenerationHandler(
                 messages = internalMessages,
                 params = params,
             )
+            lastFinishReason = chunk.choices.getOrNull(0)?.finishReason
             messages = messages.handleMessageChunk(chunk = chunk, modelId = model.id)
             chunk.usage?.let { usage ->
                 messages = messages.mapIndexed { index, message ->

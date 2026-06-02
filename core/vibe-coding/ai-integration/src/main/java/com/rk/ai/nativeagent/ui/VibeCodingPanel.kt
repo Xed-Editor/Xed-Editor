@@ -48,6 +48,7 @@ fun VibeCodingPanel(
     var showHistory by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }
     var showAgentPanel by remember { mutableStateOf(false) }
+    var showSuggestionPanel by remember { mutableStateOf(false) }
     var activePanel by remember { mutableStateOf(ToolPanel.NONE) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
@@ -92,20 +93,42 @@ fun VibeCodingPanel(
                     },
                     modifier = Modifier.fillMaxHeight(0.85f),
                 )
-                ToolPanel.SKILLS -> SkillBrowserPanel(
-                    skillsDir = "$workspacePath/.xed/skills",
-                    enabledSkills = emptySet(),
-                    onToggleSkill = { _, _ -> },
-                    onEditSkill = { engine.openFileInEditor(it) },
-                    onDismiss = { activePanel = ToolPanel.NONE },
-                    modifier = Modifier.fillMaxHeight(0.85f),
-                )
+                ToolPanel.SKILLS -> {
+                    val settings by engine.settingsStore.settingsFlow.collectAsState()
+                    val currentAssistant = settings.getCurrentAssistant()
+                    SkillBrowserPanel(
+                        skillsDir = "$workspacePath/.xed/skills",
+                        enabledSkills = currentAssistant.enabledSkills,
+                        onToggleSkill = { skillName, enabled ->
+                            scope.launch {
+                                engine.settingsStore.update { s ->
+                                    s.copy(
+                                        assistants = s.assistants.map { a ->
+                                            if (a.id == currentAssistant.id) {
+                                                val updatedSkills = if (enabled) {
+                                                    a.enabledSkills + skillName
+                                                } else {
+                                                    a.enabledSkills - skillName
+                                                }
+                                                a.copy(enabledSkills = updatedSkills)
+                                            } else a
+                                        }
+                                    )
+                                }
+                            }
+                        },
+                        onEditSkill = { engine.openFileInEditor(it) },
+                        onDismiss = { activePanel = ToolPanel.NONE },
+                        modifier = Modifier.fillMaxHeight(0.85f),
+                    )
+                }
                 ToolPanel.AGENTS -> AgentConfigPanel(
                     settingsStore = engine.settingsStore,
                     onDismiss = { activePanel = ToolPanel.NONE },
                     modifier = Modifier.fillMaxHeight(0.85f),
                 )
                 ToolPanel.PERMISSIONS -> PermissionEditorPanel(
+                    engine = engine,
                     onDismiss = { activePanel = ToolPanel.NONE },
                     modifier = Modifier.fillMaxHeight(0.85f),
                 )

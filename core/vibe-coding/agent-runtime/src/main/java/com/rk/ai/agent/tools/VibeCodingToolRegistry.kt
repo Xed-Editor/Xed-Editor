@@ -28,6 +28,7 @@ class VibeCodingToolRegistry(
     private val terminalTools by lazy { VibeCodingTerminalTools(ideService) }
     private val projectTools by lazy { VibeCodingProjectTools(ideService) }
     private val systemTools by lazy { VibeCodingSystemTools(ideService, context) }
+    private val suggestionTools by lazy { SuggestionTools(ideService) }
     private val diffTools by lazy { VibeCodingDiffTools(ideService) }
     private val webTools by lazy { VibeCodingWebTools(ideService) }
     private val githubTools by lazy { VibeCodingGitHubTools(ideService) }
@@ -43,6 +44,22 @@ class VibeCodingToolRegistry(
     private val pluginProviders = mutableListOf<PluginToolProvider>()
 
     private val _coreTools: List<Tool> by lazy {
+        // include suggestion tools
+        val suggestionTools = this.suggestionTools
+        fileTools.all +
+            editorTools.all +
+            searchTools.all +
+            lspTools.all +
+            gitTools.all +
+            terminalTools.all +
+            projectTools.all +
+            systemTools.all +
+            diffTools.all +
+            webTools.all +
+            githubTools.all +
+            packageTools.all +
+            suggestionTools.all +
+            listOf(agentListTool, agentDelegateTool)
         fileTools.all +
             editorTools.all +
             searchTools.all +
