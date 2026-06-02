@@ -198,7 +198,7 @@
     <string name="tab_memory_warning">Memoria insufficiente per aprire questa scheda. Aprirla potrebbe causare il crash di Xed-Editor. Vuoi procedere comunque?</string>
     <string name="read_mode_desc">Abilita modalità lettura per impostazione predefinita</string>
     <string name="install">Installa</string>
-    <string name="ask_lsp_install">Vuoi installare il server linguistico per %s?</string>
+    <string name="ask_lsp_install">Vuoi installare il language server %s?</string>
     <string name="uninstall_terminal_warning">Disinstallare Ubuntu in modo permanente? Questa azione non può essere annullata.</string>
     <string name="uninstall">Disinstalla</string>
     <string name="uninstall_terminal">Disinstalla terminale</string>
@@ -240,7 +240,7 @@
     <string name="strict_mode">Modalità strict</string>
     <string name="strict_mode_desc">Individua dischi o accessi di rete nel thread principale</string>
     <string name="terminal_virus_notice">In alcuni dispositivi, specialmente alcuni modelli dalla Cina, è possibile imbattersi in un avviso di sicurezza di sistema quando molti processi sono in esecuzione nel terminale (per esempio durante \'apt update\' o \'apt upgrade\'). Questo è un falso positivo e non indica realmente un virus.</string>
-    <string name="ask_lsp_update">Vuoi aggiornare il server linguistico \'%s\'?</string>
+    <string name="ask_lsp_update">Vuoi aggiornare il language server \'%s\'?</string>
     <string name="anr_watchdog_desc">Termina Xed-Editor se non risponde per più di 5 secondi</string>
     <string name="verbose_errors">Errori dettagliati</string>
     <string name="verbose_errors_desc">Inclusi lo stackrace nelle finestre di dialogo di errore</string>
@@ -251,9 +251,9 @@
     <string name="discord">Community Discord</string>
     <string name="use_tabs">Inserisci carattere di tabulazione</string>
     <string name="use_tabs_desc">Usa una vera tabulazione (\\t) invece degli spazi per l\'indentazione</string>
-    <string name="language_server">Server linguistico</string>
-    <string name="manage_language_servers">Gestisci server linguistici</string>
-    <string name="manage_language_servers_desc">Installa, connetti e configura server linguistici</string>
+    <string name="language_server">Language server</string>
+    <string name="manage_language_servers">Gestisci language server</string>
+    <string name="manage_language_servers_desc">Installa, connetti e configura language server</string>
     <string name="format_on_save">Formatta al salvataggio</string>
     <string name="format_on_save_desc">Formatta il file automaticamente quando viene salvato</string>
     <string name="developer">Sviluppatore</string>
@@ -268,7 +268,7 @@
     <string name="api_error">Errore API</string>
     <string name="unknown">Sconosciuto</string>
     <string name="cant_write">Impossibile scrivere nel file (nessuna autorizzazione di scrittura)</string>
-    <string name="info_lsp">I server linguistici sono processi separati che forniscono funzionalità intelligenti, come il completamento del codice, l\'evidenziazione degli errori e la documentazione in linea.</string>
+    <string name="info_lsp">I language server sono processi separati che forniscono funzionalità intelligenti, come il completamento del codice, l\'evidenziazione degli errori e la documentazione in linea.</string>
     <string name="storage">Archiviazione</string>
     <string name="support">Assistenza</string>
     <string name="translate">Traduci</string>
@@ -461,7 +461,7 @@
     <string name="folder_already_exists">Esiste già una cartella con il nome \'%s\'</string>
     <string name="file_creation_failed">Impossibile creare il file</string>
     <string name="folder_creation_failed">Impossibile creare la cartella</string>
-    <string name="settings_backup_desc">Crea un backup di tutte le attuali impostazioni</string>
+    <string name="settings_backup_desc">Crea un backup di tutte le impostazioni attuali</string>
     <string name="settings_restore_desc">Ripristina le impostazioni da un backup</string>
     <string name="export_successful">Esportazione riuscita</string>
     <string name="export_failed">Esportazione non riuscita</string>
@@ -585,8 +585,8 @@
     <string name="manage">Gestisci</string>
     <string name="no_instances">Nessuna istanza</string>
     <string name="uptime">Tempo di attività: %s</string>
-    <string name="lsp_connection_error">Impossibile connettersi al server linguistico</string>
-    <string name="lsp_restart_required">Riavvia il server linguistico per applicare le modifiche</string>
+    <string name="lsp_connection_error">Impossibile connettersi al language server</string>
+    <string name="lsp_restart_required">Riavvia il language server per applicare le modifiche</string>
     <string name="exclude_files_drawer">Escludi i file nel drawer</string>
     <string name="exclude_files_drawer_desc">Cambia i file da escludere dall\'albero dei file</string>
     <string name="exclude_files_search">Escludi i file nella ricerca</string>
@@ -662,4 +662,11 @@
     <string name="invalid_terminal_extra_keys">Formato non valido per i tasti extra nel terminale. Verranno caricati i tasti predefiniti.</string>
     <string name="clipboard_keybindings">Scorciatoie da tastiera per gli appunti</string>
     <string name="clipboard_keybindings_desc">Abilita le scorciatoie da tastiera per copia e incolla per le tastiere fisiche.</string>
+    <string name="manage_formatters">Gestisci formattatori</string>
+    <string name="manage_formatters_desc">Ordina per priorità e configura i formattatori</string>
+    <string name="info_formatters">I formattatori vengono applicati in ordine di priorità. Verrà utilizzato il primo formattatore che supporta la lingua corrente. Puoi tenere premuto e trascinare per cambiare il loro ordine.</string>
+    <string name="document_highlight">Evidenzia occorrenze</string>
+    <string name="document_highlight_desc">Evidenzia le occorrenze del simbolo in corrispondenza del cursore.</string>
+    <string name="formatter_lsp_desc">Utilizza il language server corrente</string>
+    <string name="browse_extensions">Sfoglia estensioni</string>
 </resources>
