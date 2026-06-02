@@ -11,6 +11,7 @@ import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.service.IdeService
+import java.io.File
 
 class VibeCodingProjectTools(private val ideService: IdeService) {
 
@@ -101,5 +102,37 @@ class VibeCodingProjectTools(private val ideService: IdeService) {
         },
     )
 
-    val all: List<Tool> = listOf(getProjectStructure, getProjectSummary, getProjectConfig, getSymbolUnderCursor)
+    private val getProjectInstructions = Tool(
+        name = "getProjectInstructions",
+        description = "Reads the project's CLAUDE.md or similar project-level instruction files. These contain developer guidelines for AI behavior, coding conventions, and project-specific rules.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Project path (default: workspace root)") }
+                },
+                required = emptyList<String>(),
+            )
+        },
+        execute = { args ->
+            val workspace = args.asJsonObject["workspacePath"]?.asJsonPrimitive?.asString ?: ideService.getPrimaryWorkspacePath()
+            val candidates = listOf(
+                File(workspace, "CLAUDE.md"),
+                File(workspace, ".claude/CLAUDE.md"),
+                File(workspace, ".claude.md"),
+                File(workspace, ".cursorrules"),
+                File(workspace, ".github/copilot-instructions.md"),
+            )
+            val found = candidates.firstOrNull { it.exists() && it.isFile }
+            if (found != null) {
+                listOf(UIMessagePart.Text("Project instructions (${found.name}):\n\n${found.readText()}"))
+            } else {
+                listOf(UIMessagePart.Text("No project-level instructions file found (checked: ${candidates.joinToString(", ") { it.name }})"))
+            }
+        },
+    )
+
+    val all: List<Tool> = listOf(
+        getProjectStructure, getProjectSummary, getProjectConfig,
+        getSymbolUnderCursor, getProjectInstructions,
+    )
 }

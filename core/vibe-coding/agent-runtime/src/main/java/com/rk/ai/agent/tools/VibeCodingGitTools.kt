@@ -92,6 +92,7 @@ class VibeCodingGitTools(private val ideService: IdeService) {
             InputSchema.Obj(
                 properties = buildJsonObject {
                     putJsonObject("target") { put("type", "string"); put("description", "Branch name or commit hash to switch to") }
+                    putJsonObject("createBranch") { put("type", "boolean"); put("description", "Create the branch if it doesn't exist") }
                     putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
                 },
                 required = listOf("target"),
@@ -106,5 +107,136 @@ class VibeCodingGitTools(private val ideService: IdeService) {
         },
     )
 
-    val all: List<Tool> = listOf(getGitStatus, getGitDiff, gitCommit, gitCheckout)
+    private val gitLog = Tool(
+        name = "gitLog",
+        description = "Shows commit history for the repository.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("maxCount") { put("type", "integer"); put("description", "Maximum number of commits to show (default: 10)") }
+                    putJsonObject("branch") { put("type", "string"); put("description", "Branch name (default: current branch)") }
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
+                },
+                required = emptyList<String>(),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val maxCount = obj["maxCount"]?.asJsonPrimitive?.asInt ?: 10
+            val branch = obj["branch"]?.asJsonPrimitive?.asString
+            val workspace = args.workspaceOrPrimary()
+            val result = ideService.runCommand("git log --oneline -$maxCount ${branch ?: ""}".trimEnd(), 30)
+            listOf(UIMessagePart.Text(result.output.ifEmpty { "No commits found" }))
+        },
+    )
+
+    private val gitBranch = Tool(
+        name = "gitBranch",
+        description = "Lists, creates, or deletes git branches.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("action") { put("type", "string"); put("description", "Action: 'list', 'create', 'delete' (default: 'list')") }
+                    putJsonObject("branchName") { put("type", "string"); put("description", "Branch name (required for create/delete)") }
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
+                },
+                required = emptyList<String>(),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val action = obj["action"]?.asJsonPrimitive?.asString ?: "list"
+            val branchName = obj["branchName"]?.asJsonPrimitive?.asString
+            val workspace = args.workspaceOrPrimary()
+            val result = when (action) {
+                "create" -> {
+                    if (branchName == null) return@Tool listOf(UIMessagePart.Text("Missing branchName for create"))
+                    ideService.runCommand("git branch $branchName", 15)
+                }
+                "delete" -> {
+                    if (branchName == null) return@Tool listOf(UIMessagePart.Text("Missing branchName for delete"))
+                    ideService.runCommand("git branch -d $branchName", 15)
+                }
+                else -> ideService.runCommand("git branch", 15)
+            }
+            val text = buildString {
+                if (result.output.isNotBlank()) appendLine(result.output)
+                if (result.error.isNotBlank()) appendLine("STDERR: ${result.error}")
+            }
+            listOf(UIMessagePart.Text(text.trimEnd().ifEmpty { "Operation completed" }))
+        },
+    )
+
+    private val gitPush = Tool(
+        name = "gitPush",
+        description = "Pushes commits to a remote repository.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("remote") { put("type", "string"); put("description", "Remote name (default: origin)") }
+                    putJsonObject("branch") { put("type", "string"); put("description", "Branch name (default: current branch)") }
+                    putJsonObject("setUpstream") { put("type", "boolean"); put("description", "Set upstream tracking (-u flag)") }
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
+                },
+                required = emptyList<String>(),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val remote = obj["remote"]?.asJsonPrimitive?.asString ?: "origin"
+            val branch = obj["branch"]?.asJsonPrimitive?.asString
+            val setUpstream = obj["setUpstream"]?.asJsonPrimitive?.asBoolean ?: false
+            val workspace = args.workspaceOrPrimary()
+
+            val branchFlag = if (branch != null) branch else ""
+            val upstreamFlag = if (setUpstream && branch != null) "-u" else ""
+            val result = ideService.runCommand("git push $upstreamFlag $remote $branchFlag".trimEnd(), 60)
+            val text = buildString {
+                if (result.output.isNotBlank()) appendLine(result.output)
+                if (result.error.isNotBlank()) appendLine("STDERR: ${result.error}")
+                appendLine("Exit code: ${result.exitCode}")
+            }
+            listOf(UIMessagePart.Text(text.trimEnd()))
+        },
+    )
+
+    private val createPullRequest = Tool(
+        name = "createPullRequest",
+        description = "Creates a pull request using gh CLI. Requires gh to be installed and authenticated.",
+        parameters = {
+            InputSchema.Obj(
+                properties = buildJsonObject {
+                    putJsonObject("title") { put("type", "string"); put("description", "PR title") }
+                    putJsonObject("body") { put("type", "string"); put("description", "PR description/body") }
+                    putJsonObject("base") { put("type", "string"); put("description", "Base branch (default: main)") }
+                    putJsonObject("head") { put("type", "string"); put("description", "Head branch (default: current branch)") }
+                    putJsonObject("workspacePath") { put("type", "string"); put("description", "Path to the git repository (optional)") }
+                },
+                required = listOf("title"),
+            )
+        },
+        execute = { args ->
+            val obj = args.asJsonObject
+            val title = obj["title"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Missing title"))
+            val body = obj["body"]?.asJsonPrimitive?.asString?.replace("\"", "\\\"") ?: ""
+            val base = obj["base"]?.asJsonPrimitive?.asString ?: "main"
+            val head = obj["head"]?.asJsonPrimitive?.asString ?: ""
+            val workspace = args.workspaceOrPrimary()
+
+            val headFlag = if (head.isNotBlank()) " --head $head" else ""
+            val bodyFlag = if (body.isNotBlank()) " --body \"$body\"" else ""
+            val result = ideService.runCommand("gh pr create --title \"$title\"$bodyFlag --base $base$headFlag", 30)
+            val text = buildString {
+                if (result.output.isNotBlank()) appendLine(result.output)
+                if (result.error.isNotBlank()) appendLine("STDERR: ${result.error}")
+                appendLine("Exit code: ${result.exitCode}")
+            }
+            listOf(UIMessagePart.Text(text.trimEnd()))
+        },
+    )
+
+    val all: List<Tool> = listOf(
+        getGitStatus, getGitDiff, gitCommit, gitCheckout,
+        gitLog, gitBranch, gitPush, createPullRequest,
+    )
 }

@@ -9,6 +9,11 @@ import com.rk.ai.agent.GenerationChunk
 import com.rk.ai.agent.GenerationHandler
 import com.rk.ai.agent.files.FilesManager
 import com.rk.ai.agent.files.SkillManager
+import com.rk.ai.agent.agents.AgentResult
+import com.rk.ai.agent.hooks.HookEvent
+import com.rk.ai.agent.hooks.HookManager
+import com.rk.ai.agent.hooks.HookResult
+import com.rk.ai.agent.hooks.SecurityHook
 import com.rk.ai.agent.tools.LocalTools
 import com.rk.ai.agent.tools.VibeCodingSystemTools
 import com.rk.ai.agent.tools.VibeCodingToolRegistry
@@ -112,6 +117,12 @@ class VibeCodingEngine(
     )
 
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
+    val hookManager = HookManager()
+
+    init {
+        hookManager.register(HookEvent.BEFORE_FILE_WRITE, SecurityHook())
+        hookManager.register(HookEvent.BEFORE_FILE_EDIT, SecurityHook())
+    }
 
     fun getCurrentAssistantId(): Uuid {
         val settings = settingsStore.settingsFlow.value
@@ -122,6 +133,36 @@ class VibeCodingEngine(
 
     fun openFileInEditor(path: String) {
         ideService.openFile(java.io.File(path))
+    }
+
+    fun trackAgentActivity(activity: AgentActivity) {
+        _state.value = _state.value.copy(
+            agentActivities = _state.value.agentActivities + activity,
+        )
+    }
+
+    fun updateAgentActivity(agentName: String, status: AgentActivityStatus, result: AgentResult? = null) {
+        val activities = _state.value.agentActivities.toMutableList()
+        val idx = activities.indexOfLast { it.agentName == agentName && it.status == AgentActivityStatus.RUNNING }
+        if (idx >= 0) {
+            activities[idx] = activities[idx].copy(
+                status = status,
+                result = result,
+                completedAt = if (status == AgentActivityStatus.COMPLETED || status == AgentActivityStatus.FAILED)
+                    System.currentTimeMillis() else null,
+            )
+            _state.value = _state.value.copy(agentActivities = activities)
+        }
+    }
+
+    fun addSecurityAlert(alert: SecurityAlert) {
+        _state.value = _state.value.copy(
+            securityAlerts = _state.value.securityAlerts + alert,
+        )
+    }
+
+    fun clearSecurityAlerts() {
+        _state.value = _state.value.copy(securityAlerts = emptyList())
     }
 
     private var currentJob: Job? = null

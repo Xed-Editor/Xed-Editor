@@ -1,6 +1,7 @@
 package com.rk.ai.agent.tools
 
 import android.content.Context
+import com.rk.ai.agent.agents.AgentRegistry
 import com.rk.ai.models.Tool
 import com.rk.ai.service.IdeService
 
@@ -8,6 +9,7 @@ class VibeCodingToolRegistry(
     private val ideService: IdeService,
     private val context: Context,
 ) {
+    val agentRegistry = AgentRegistry(context, ideService)
 
     private val fileTools by lazy { VibeCodingFileTools(ideService) }
     private val editorTools by lazy { VibeCodingEditorTools(ideService) }
@@ -22,6 +24,11 @@ class VibeCodingToolRegistry(
     private val githubTools by lazy { VibeCodingGitHubTools(ideService) }
     private val packageTools by lazy { VibeCodingPackageTools(ideService) }
 
+    private val agentListTool by lazy { agentRegistry.getAgentListTool() }
+    private val agentDelegateTool by lazy { agentRegistry.getDelegateTool { name, result ->
+        // result handling is done in VibeCodingEngine
+    }}
+
     val allTools: List<Tool> by lazy {
         fileTools.all +
             editorTools.all +
@@ -34,6 +41,7 @@ class VibeCodingToolRegistry(
             diffTools.all +
             webTools.all +
             githubTools.all +
-            packageTools.all
+            packageTools.all +
+            listOf(agentListTool, agentDelegateTool)
     }
 }
