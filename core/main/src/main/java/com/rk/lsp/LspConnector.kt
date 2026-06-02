@@ -15,7 +15,7 @@ import com.rk.settings.Preference
 import com.rk.tabs.editor.EditorTab
 import com.rk.utils.dialogRes
 import com.rk.utils.errorDialog
-import com.rk.utils.info
+import com.rk.utils.logInfo
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.languageserver.LspFeature
 import io.github.rosemoe.sora.lsp.client.languageserver.ServerStatus
@@ -130,7 +130,7 @@ class LspConnector(
     suspend fun connect(wrapperLanguage: TextMateLanguage?) =
         withContext(Dispatchers.IO) {
             if (isConnected()) {
-                info("LSP servers already connected skipping...")
+                logInfo("LSP servers already connected skipping...")
                 return@withContext
             }
 
@@ -265,24 +265,30 @@ class LspConnector(
                 get() =
                     object : EventHandler.EventListener {
                         override fun onEventException(eventListener: AsyncEventListener, exception: Exception) {
-                            instance.addLog(LspLogEntry(MessageType.Error, "Event ${eventListener.eventName} failed"))
+                            instance.addLog(
+                                LspLogEntry(
+                                    MessageSource.Client,
+                                    MessageType.Error,
+                                    "Event ${eventListener.eventName} failed",
+                                )
+                            )
                             exception.localizedMessage?.let { message ->
-                                instance.addLog(LspLogEntry(MessageType.Error, message))
+                                instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Error, message))
                             }
                         }
 
                         override fun onHandlerException(exception: Exception) {
                             exception.cause?.localizedMessage?.let { message ->
-                                instance.addLog(LspLogEntry(MessageType.Error, message))
+                                instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Error, message))
                             }
                             exception.localizedMessage?.let { message ->
-                                instance.addLog(LspLogEntry(MessageType.Error, message))
+                                instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Error, message))
                             }
                         }
 
                         override fun onLogMessage(messageParams: MessageParams?) {
                             if (messageParams == null) return
-                            info(messageParams.message)
+                            logInfo(messageParams.message)
                             instance.addLog(messageParams)
                         }
 
@@ -297,7 +303,7 @@ class LspConnector(
                                 MessageType.Info ->
                                     dialogRes(title = strings.info.getString(), msg = messageParams.message)
 
-                                MessageType.Log -> info(messageParams.message)
+                                MessageType.Log -> logInfo(messageParams.message)
                                 MessageType.Debug -> {}
                             }
                         }
@@ -325,7 +331,7 @@ class LspConnector(
                                     is ServerStatus.STOPPED ->
                                         "Disconnected from LSP server (reason: ${newStatus.reason})\n"
                                 }
-                            instance.addLog(LspLogEntry(MessageType.Info, statusMessage))
+                            instance.addLog(LspLogEntry(MessageSource.Client, MessageType.Info, statusMessage))
 
                             if (
                                 oldStatus is ServerStatus.STOPPED &&

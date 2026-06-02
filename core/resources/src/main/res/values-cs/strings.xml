@@ -642,4 +642,8 @@
     <string name="sort_lines_descending">Seřadit řádky sestupně</string>
     <string name="updating">Aktualizování…</string>
     <string name="choose_runner">Vybrat spouštěč</string>
+    <string name="uninstall_ext_dialog">Odinstalovat doplňek?</string>
+    <string name="uninstall_ext_dialog_desc">Chcete opravdu odinstalovat doplňek \'%s\'?</string>
+    <string name="invalid_terminal_extra_keys">Neplatný Termux formát pro extra klávesy v terminálu. Výchozí klávesy budou načteny.</string>
+    <string name="ext_cleanup_failed">Selhalo čištění po doplňku</string>
 </resources>

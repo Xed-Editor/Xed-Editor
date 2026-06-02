@@ -648,4 +648,11 @@
     <string name="sort_lines_ascending">Urutkan baris secara menaik</string>
     <string name="sort_lines_descending">Urutkan baris secara menurun</string>
     <string name="updating">Memperbarui…</string>
+    <string name="choose_runner">Pilih runner</string>
+    <string name="ext_cleanup_failed">Pembersihan ekstensi gagal</string>
+    <string name="uninstall_ext_dialog">Hapus ekstensi?</string>
+    <string name="uninstall_ext_dialog_desc">Apakah Anda yakin ingin menghapus ekstensi \'%s\'?</string>
+    <string name="invalid_terminal_extra_keys">Format tombol tambahan terminal tidak valid. Tombol default akan dimuat.</string>
+    <string name="clipboard_keybindings">Tombol pintas untuk papan klip</string>
+    <string name="clipboard_keybindings_desc">Aktifkan pintasan tombol salin dan tempel untuk keyboard fisik.</string>
 </resources>

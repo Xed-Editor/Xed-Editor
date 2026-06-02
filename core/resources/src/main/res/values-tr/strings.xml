@@ -655,4 +655,9 @@
     <string name="updating">Güncelleniyor…</string>
     <string name="choose_runner">Çalıştırıcıyı seç</string>
     <string name="ext_cleanup_failed">Uzantı temizleme başarısız oldu</string>
+    <string name="uninstall_ext_dialog">Uzantı kaldırılsın mı?</string>
+    <string name="uninstall_ext_dialog_desc">\'%s\' uzantısını kaldırmak istediğinizden emin misiniz?</string>
+    <string name="invalid_terminal_extra_keys">Terminal ek tuşları için geçersiz biçim. Varsayılan tuşlar yüklenecektir.</string>
+    <string name="clipboard_keybindings">Pano kısayol tuşları</string>
+    <string name="clipboard_keybindings_desc">Donanım klavyeleri için kopyala ve yapıştır tuş kısayollarını etkinleştir.</string>
 </resources>

@@ -21,8 +21,6 @@ import com.rk.file.FileObject
 import com.rk.icons.Error
 import com.rk.icons.XedIcons
 import com.rk.resources.strings
-import com.rk.settings.debugOptions.LogEntry
-import com.rk.settings.debugOptions.LogLevel
 import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.theme.greenStatus
@@ -44,20 +42,19 @@ enum class LspConnectionStatus {
     TIMEOUT,
 }
 
-private fun MessageType.toLogLevel() =
-    when (this) {
-        MessageType.Error -> LogLevel.ERROR
-        MessageType.Warning -> LogLevel.WARN
-        MessageType.Info -> LogLevel.INFO
-        MessageType.Log -> LogLevel.DEBUG
-        MessageType.Debug -> LogLevel.DEBUG
-    }
-
-data class LspLogEntry(val level: MessageType, val message: String, val timestamp: Long = System.currentTimeMillis()) {
-    fun toLogEntry(): LogEntry {
-        return LogEntry(level = level.toLogLevel(), message = message, timestamp = timestamp)
-    }
+enum class MessageSource {
+    RPC,
+    LSP,
+    Runtime,
+    Client,
 }
+
+data class LspLogEntry(
+    val source: MessageSource,
+    val type: MessageType?,
+    val message: String,
+    val timestamp: Long = System.currentTimeMillis(),
+)
 
 data class LspServerInstance(val server: LspServer, internal val lspProject: LspProject, val projectRoot: FileObject) {
     val id = "${server.id}_${projectRoot.getAbsolutePath().hashCode()}"
@@ -68,17 +65,15 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     var hasError by mutableStateOf(false)
 
     fun addLog(messageParams: MessageParams) {
-        logs.add(LspLogEntry(level = messageParams.type, message = messageParams.message))
+        logs.add(LspLogEntry(type = messageParams.type, message = messageParams.message, source = MessageSource.LSP))
     }
 
     fun addLog(lspLogEntry: LspLogEntry) {
-        if (lspLogEntry.level == MessageType.Error) hasError = true
+        if (lspLogEntry.type == MessageType.Error) hasError = true
         logs.add(lspLogEntry)
     }
 
     fun getLspLogs() = logs.toList()
-
-    fun getLogs() = getLspLogs().map { it.toLogEntry() }
 
     fun getWrapper(): LanguageServerWrapper? {
         return server.supportedExtensions.firstOrNull()?.let {
@@ -86,7 +81,7 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
         }
             ?: run {
                 hasError = true
-                addLog(LspLogEntry(MessageType.Error, "Language server instance not found..."))
+                addLog(LspLogEntry(MessageSource.Client, MessageType.Error, "Language server instance not found..."))
                 return null
             }
     }
@@ -94,7 +89,7 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     /** Stops this language server instance */
     suspend fun stop() {
         withContext(Dispatchers.IO) {
-            addLog(LspLogEntry(MessageType.Info, "User stopped language server instance..."))
+            addLog(LspLogEntry(MessageSource.Client, MessageType.Info, "User stopped language server instance..."))
             val wrapper = getWrapper() ?: return@withContext
             DefinitionPrevention.register(lspProject, server)
             try {
@@ -108,7 +103,7 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
     /** Restarts this language server instance */
     suspend fun restart() {
         withContext(Dispatchers.IO) {
-            addLog(LspLogEntry(MessageType.Info, "User restarted language server instance..."))
+            addLog(LspLogEntry(MessageSource.Client, MessageType.Info, "User restarted language server instance..."))
             val wrapper = getWrapper() ?: return@withContext
             try {
                 wrapper.restartAndReconnect()
@@ -125,7 +120,7 @@ data class LspServerInstance(val server: LspServer, internal val lspProject: Lsp
      */
     suspend fun start(): List<EditorTab> {
         return withContext(Dispatchers.IO) {
-            addLog(LspLogEntry(MessageType.Info, "User started language server instance..."))
+            addLog(LspLogEntry(MessageSource.Client, MessageType.Info, "User started language server instance..."))
             val wrapper = getWrapper() ?: return@withContext emptyList()
             hasError = false
             DefinitionPrevention.unregister(lspProject, server)

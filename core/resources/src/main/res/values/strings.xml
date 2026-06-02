@@ -667,4 +667,6 @@
     <string name="document_highlight_desc">Highlight occurrences of the symbol at the cursor.</string>
     <string name="formatter_lsp_desc">Use current language server</string>
     <string name="browse_extensions">Browse extensions</string>
+    <string name="clipboard_keybindings">Clipboard keybindings</string>
+    <string name="clipboard_keybindings_desc">Enable copy and paste keybindings for hardware keyboards.</string>
 </resources>
