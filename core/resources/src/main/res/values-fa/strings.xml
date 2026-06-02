@@ -89,7 +89,6 @@
     <string name="installed">نصب شده</string>
     <string name="auto_save_desc">ذخیره خودکار فایل</string>
     <string name="value_invalid">مقدار نامعتبر</string>
-    <string name="value_small"></string>
     <string name="text_size_desc">تنظیم اندازه متن</string>
     <string name="app_desc">تنظیمات کلی برنامه</string>
     <string name="editor_desc">تنظیمات عمومی ویرایشگر</string>
