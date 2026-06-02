@@ -55,7 +55,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.buildJsonObject
 import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -120,8 +120,60 @@ class VibeCodingEngine(
     val hookManager = HookManager()
 
     init {
-        hookManager.register(HookEvent.BEFORE_FILE_WRITE, SecurityHook())
-        hookManager.register(HookEvent.BEFORE_FILE_EDIT, SecurityHook())
+        val securityHook = SecurityHook { severity, message, toolName, filePath ->
+            addSecurityAlert(SecurityAlert(severity, message, toolName, filePath))
+        }
+        hookManager.register(HookEvent.BEFORE_FILE_WRITE, securityHook)
+        hookManager.register(HookEvent.BEFORE_FILE_EDIT, securityHook)
+
+        toolRegistry.onAgentResult = { name, result ->
+            val status = when (result) {
+                is AgentResult.Success -> AgentActivityStatus.COMPLETED
+                is AgentResult.Failure -> AgentActivityStatus.FAILED
+            }
+            updateAgentActivity(name, status, result)
+        }
+    }
+
+    suspend fun evaluateHooks(event: HookEvent, context: com.rk.ai.agent.hooks.HookContext): com.rk.ai.agent.hooks.HookResult {
+        return hookManager.checkAll(event, context)
+    }
+
+    private fun buildToolList(assistant: com.rk.ai.models.Assistant, settings: com.rk.ai.persistence.settings.Settings): List<Tool> {
+        val mcpTools = mcpManager.getAllAvailableTools().map { (serverId, mcpTool) ->
+            Tool(
+                name = mcpTool.name,
+                description = mcpTool.description ?: "",
+                parameters = mcpTool.inputSchema?.let { schema ->
+                    { schema }
+                } ?: { com.rk.ai.models.InputSchema.Obj(kotlinx.serialization.json.buildJsonObject { }) },
+                execute = { args ->
+                    val argsStr = try {
+                        com.google.gson.Gson().toJson(args)
+                    } catch (_: Exception) {
+                        args.toString()
+                    }
+                    val kotlinxArgs = json.parseToJsonElement(argsStr).jsonObject
+                    mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)
+                },
+            )
+        }
+        return buildList {
+            addAll(toolRegistry.withMcpTools(mcpTools))
+            addAll(localTools.getTools(assistant.localTools))
+            if (settings.enableWebSearch) addAll(createSearchTools(settings))
+            addAll(createSkillTools(
+                enabledSkills = assistant.enabledSkills,
+                allSkills = skillManager.listSkills(),
+                skillManager = skillManager,
+            ))
+        }
+    }
+
+    fun dispose() {
+        currentJob?.cancel()
+        currentJob = null
+        database.close()
     }
 
     fun getCurrentAssistantId(): Uuid {
@@ -262,35 +314,7 @@ class VibeCodingEngine(
 
             val assistant = settings.getCurrentAssistant()
 
-            val enhancedTools = buildList {
-                addAll(toolRegistry.allTools)
-
-                addAll(localTools.getTools(assistant.localTools))
-
-                if (settings.enableWebSearch) {
-                    addAll(createSearchTools(settings))
-                }
-
-                mcpManager.getAllAvailableTools().forEach { (serverId, mcpTool) ->
-                    add(Tool(
-                        name = mcpTool.name,
-                        description = mcpTool.description ?: "",
-                        parameters = mcpTool.inputSchema?.let { schema ->
-                            { schema }
-                        } ?: { com.rk.ai.models.InputSchema.Obj(kotlinx.serialization.json.buildJsonObject { }) },
-                        execute = { args ->
-                            val kotlinxArgs = json.parseToJsonElement(args.toString()).jsonObject
-                            mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)
-                        },
-                    ))
-                }
-
-                addAll(createSkillTools(
-                    enabledSkills = assistant.enabledSkills,
-                    allSkills = skillManager.listSkills(),
-                    skillManager = skillManager,
-                ))
-            }
+            val enhancedTools = buildToolList(assistant, settings)
 
             val memories = if (assistant.enableMemory) {
                 val memoryAssistantId = if (assistant.useGlobalMemory) {
@@ -366,7 +390,11 @@ class VibeCodingEngine(
                         error = null,
                     )
                 }
-            } catch (_: Exception) { }
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    error = "Failed to load conversation: ${e.message}",
+                )
+            }
         }
     }
 
@@ -396,7 +424,9 @@ class VibeCodingEngine(
             }
 
             _state.value = _state.value.copy(currentConversationId = convId)
-        } catch (_: Exception) { }
+        } catch (e: Exception) {
+            android.util.Log.e("VibeCodingEngine", "Failed to save conversation", e)
+        }
     }
 
     fun clearError() {
@@ -469,25 +499,7 @@ class VibeCodingEngine(
                 memoryRepo.getMemoriesOfAssistant(memoryAssistantId)
             } else null
 
-            val resumeTools = buildList {
-                addAll(toolRegistry.allTools)
-                addAll(localTools.getTools(assistant.localTools))
-                if (settings.enableWebSearch) addAll(createSearchTools(settings))
-                mcpManager.getAllAvailableTools().forEach { (serverId, mcpTool) ->
-                    add(Tool(
-                        name = mcpTool.name,
-                        description = mcpTool.description ?: "",
-                        parameters = mcpTool.inputSchema?.let { schema ->
-                            { schema }
-                        } ?: { com.rk.ai.models.InputSchema.Obj(kotlinx.serialization.json.buildJsonObject { }) },
-                        execute = { args ->
-                            val kotlinxArgs = json.parseToJsonElement(args.toString()).jsonObject
-                            mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)
-                        },
-                    ))
-                }
-                addAll(createSkillTools(enabledSkills = assistant.enabledSkills, allSkills = skillManager.listSkills(), skillManager = skillManager))
-            }
+            val resumeTools = buildToolList(assistant, settings)
 
             val transformers = listOfNotNull(
                 systemPromptTransformer,

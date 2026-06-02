@@ -13,6 +13,7 @@ This is a modular AI SDK for Android, comprising 8 library modules that provide 
 - **Agent runtime** with transformers, skills, prompts
 - **Image generation & editing** (DALL-E, Gemini Imagen)
 - **Embedding generation**
+- **VibeCoding GUI** — Compose-based multi-panel AI coding assistant with agents, security hooks, command palette, skill browser, plugin manager, permission editor, and project instructions viewer
 
 ## Module Architecture
 
@@ -401,3 +402,118 @@ Each module includes a `consumer-rules.pro`. Key rules:
 8. **Key Roulette** provides LRU-based round-robin or random API key selection.
 9. **All I/O is on Dispatchers.IO** — flows are `flowOn(Dispatchers.IO)` automatically.
 10. **Error details** are recursively parsed from provider error responses via `parseErrorDetail()`.
+
+---
+
+## VibeCoding Module — OpenCode-Inspired AI Coding Agent
+
+The VibeCoding module (`ai-integration` + `agent-runtime`) provides a full-featured AI coding assistant inspired by OpenCode, with a Jetpack Compose GUI.
+
+### Architecture
+
+```
+VibeCodingPanel (Compose UI)
+  ├── Toolbar      — model selector, tool buttons (Commands, Skills, Agents, Files,
+  │                  History, Rules, Plugins, Perms, Settings, Clear)
+  ├── MessageList  — chat messages with markdown rendering, code highlighting, diffs
+  ├── VibeCodingInput — text input with attachment support
+  ├── StatusBar    — security alerts, agent activity, processing state
+  ├── FileTreeSidebar — project file browser
+  ├── ConversationSidebar — session history
+  └── BottomSheet Panels:
+      ├── CommandPaletteSheet — 13+ built-in commands (/init, /review, /commit, etc.)
+      ├── SkillBrowserPanel — SKILL.md discovery, toggle on/off
+      ├── AgentConfigPanel — agent manager (create/edit/save agents)
+      ├── PermissionEditorPanel — visual permission rule editor
+      ├── InstructionsEditorPanel — AGENTS.md/CLAUDE.md viewer/editor
+      └── PluginManagerPanel — plugin browser and activator
+
+VibeCodingEngine (business logic)
+  ├── sendMessage()  → GenerationHandler.generateText()
+  ├── resumeGeneration() → tool approval resumption
+  ├── HookManager + SecurityHook → guard system (8 dangerous patterns)
+  ├── ToolRegistry → 80+ tools (file, editor, search, LSP, git, terminal, etc.)
+  ├── AgentRegistry → 4 sub-agents (code-reviewer, bug-hunter, architect, test-generator)
+  └── StateFlow<VibeCodingState> → reactive UI state
+```
+
+### Key Features
+
+| Feature | Description | OpenCode Equivalent |
+|---|---|---|
+| **Agent Manager** | Create/edit/save agent personas with custom system prompts, temps, memory | `opencode.json` `agent` config + .md agent files |
+| **Command Palette** | 13 built-in commands: init, review, test, commit, push, changelog, spellcheck, translate, summarize, compact, learn, rmslop, issues | `/` slash commands in TUI |
+| **Skill Browser** | Discover and toggle SKILL.md files from `.opencode/skills/` | `skill` tool discovery |
+| **Plugin Manager** | Browse, activate/deactivate built-in and external plugins | `.opencode/plugins/` + npm plugins |
+| **Permission Editor** | Visual pattern-based permission rules (allow/ask/deny) with wildcard support | `permission` config field |
+| **Instructions Editor** | View/edit AGENTS.md, CLAUDE.md with syntax highlighting | `AGENTS.md` / `CLAUDE.md` |
+| **Security Hooks** | 8 dangerous pattern detectors (unsafe deserialization, XSS, SQLi, hardcoded secrets, path traversal, etc.) with CRITICAL/HIGH/MEDIUM severity | Security Guidance plugin + hooks |
+| **Sub-Agents** | 4 specialized agents: code-reviewer, bug-hunter, architect, test-generator | opencode `agent` subagent system |
+| **Git Workflow** | status, diff, log, branch, commit, push, PR creation | opencode git tools |
+| **MCP Support** | SSE/HTTP MCP server connections with auto-reconnect | MCP server config |
+
+### New Files
+
+```
+ai-integration/src/main/java/com/rk/ai/nativeagent/ui/components/
+├── AgentConfigPanel.kt          — Agent manager GUI
+├── CommandPaletteSheet.kt       — Command palette bottom sheet
+├── SkillBrowserPanel.kt         — Skill browser/editor
+├── PluginManagerPanel.kt        — Plugin manager
+├── PermissionEditorPanel.kt     — Permission rule editor
+├── InstructionsEditorPanel.kt   — AGENTS.md viewer/editor
+├── AgentActivityCard.kt         — Sub-agent status card
+├── SecurityAlertBanner.kt       — Security warning banner
+├── VibeCodingStatusBar.kt       — Processing/metrics bar
+└── WorkflowPhaseIndicator.kt    — Multi-phase workflow progress
+```
+
+### Tool Distribution (80+ tools)
+
+| Group | Tools | File |
+|---|---|---|
+| **File** | readFile, writeFile, createFile, deleteFile, moveFile, listFiles, findFiles, glob, grep, searchFile, head, tail, wc, stat | VibeCodingFileTools.kt |
+| **Editor** | getOpenFiles, getActiveFile, getSelection, getSymbolUnderCursor, openFile | VibeCodingEditorTools.kt |
+| **Search** | searchCode (regex + plain) | VibeCodingSearchTools.kt |
+| **LSP** | getDiagnostics, findDefinitions, findReferences, renameSymbol | VibeCodingLspTools.kt |
+| **Git** | gitStatus, gitDiff, gitLog, gitBranch, gitCheckout, gitCommit, gitPush, createPullRequest | VibeCodingGitTools.kt |
+| **Terminal** | runCommand | VibeCodingTerminalTools.kt |
+| **Project** | getProjectStructure, getProjectConfig, getProjectSummary, getProjectInstructions, getSystemInfo | VibeCodingProjectTools.kt |
+| **System** | getClipboard, writeToClipboard, insertAtCursor, getIdeInfo, getEnvironment | VibeCodingSystemTools.kt |
+| **Diff** | openDiff, rejectDiff | VibeCodingDiffTools.kt |
+| **Web** | webSearch, webFetch, webResearch, webDownload | VibeCodingWebTools.kt |
+| **GitHub** | githubRepoInfo, githubReadme, githubFileFetch, githubSearchCode | VibeCodingGitHubTools.kt |
+| **Packages** | mavenSearch, npmSearch, pipSearch | VibeCodingPackageTools.kt |
+| **Agents** | listAgents, delegateTask | AgentRegistry.kt |
+
+### Security Hook Patterns
+
+| Pattern | Severity |
+|---|---|
+| Unsafe YAML deserialization (`yaml.load`) | HIGH |
+| Unsafe pickle deserialization | CRITICAL |
+| XSS (innerHTML, dangerouslySetInnerHTML) | HIGH |
+| Hardcoded credentials | CRITICAL |
+| Dynamic code execution (exec, eval) | HIGH |
+| Destructive commands (rm -rf) | CRITICAL |
+| SQL injection | HIGH |
+| Path traversal (../) | MEDIUM |
+
+### Integration with VibeCodingEngine
+
+```kotlin
+// Initialize the engine
+val engine = VibeCodingEngine(
+    context = applicationContext,
+    ideService = yourIdeService,
+)
+
+// Hooks auto-register in init block
+// Security alerts flow to UI via state.securityAlerts
+
+// Agent results update state.agentActivities automatically
+// via toolRegistry.onAgentResult callback
+
+// Dispose when done
+engine.dispose()
+```

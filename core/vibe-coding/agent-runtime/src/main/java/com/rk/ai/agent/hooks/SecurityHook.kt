@@ -9,7 +9,11 @@ data class SecurityPattern(
 
 enum class SecuritySeverity { LOW, MEDIUM, HIGH, CRITICAL }
 
-class SecurityHook : ToolHook {
+typealias SecurityAlertCallback = (severity: String, message: String, toolName: String?, filePath: String?) -> Unit
+
+class SecurityHook(
+    private val onAlert: SecurityAlertCallback? = null,
+) : ToolHook {
 
     private val patterns = listOf(
         SecurityPattern(
@@ -72,6 +76,16 @@ class SecurityHook : ToolHook {
         val highestSeverity = findings.maxOf { it.severity }
         val messages = findings.joinToString("\n") {
             "[${it.severity.name}] ${it.description}\n  Suggestion: ${it.suggestion}"
+        }
+
+        // Fire callback for each finding
+        findings.forEach { finding ->
+            onAlert?.invoke(
+                finding.severity.name,
+                finding.description,
+                context.toolName,
+                context.filePath,
+            )
         }
 
         return when {

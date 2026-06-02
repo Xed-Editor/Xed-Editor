@@ -93,7 +93,7 @@ class GenerationHandler(
 
             val toolsInternal = buildList {
                 Log.i(TAG, "generateInternal: build tools($assistant)")
-                if (assistant?.enableMemory == true) {
+                if (assistant.enableMemory) {
                     val memoryAssistantId = if (assistant.useGlobalMemory) {
                         MemoryRepository.GLOBAL_MEMORY_ID
                     } else {
@@ -192,7 +192,7 @@ class GenerationHandler(
                     val toolDef = toolsInternal.find { it.name == tool.toolName }
                     when {
                         // Tool needs approval and state is Auto -> set to Pending
-                        toolDef?.needsApproval == true && tool.approvalState is ToolApprovalState.Auto -> {
+                        toolDef != null && toolDef.needsApproval && tool.approvalState is ToolApprovalState.Auto -> {
                             hasPendingApproval = true
                             tool.copy(approvalState = ToolApprovalState.Pending)
                         }
@@ -364,7 +364,7 @@ class GenerationHandler(
                     append(effectiveSystemPrompt)
                 }
 
-                // 记忆
+                // Memory
                 if (assistant.enableMemory) {
                     appendLine()
                     append(buildMemoryPrompt(memories = memories))
@@ -374,7 +374,7 @@ class GenerationHandler(
                     append(buildRecentChatsPrompt(assistant, conversationRepo))
                 }
 
-                // 工具prompt
+                // Tool prompts
                 tools.forEach { tool ->
                     appendLine()
                     append(tool.systemPrompt(model.id, messages))
@@ -424,7 +424,7 @@ class GenerationHandler(
                 messages = internalMessages,
                 params = params
             ).collect {
-                messages = messages.handleMessageChunk(chunk = it, modelId = model?.id)
+                messages = messages.handleMessageChunk(chunk = it, modelId = model.id)
                 it.usage?.let { usage ->
                     messages = messages.mapIndexed { index, message ->
                         if (index == messages.lastIndex) {
@@ -450,7 +450,7 @@ class GenerationHandler(
                 messages = internalMessages,
                 params = params,
             )
-            messages = messages.handleMessageChunk(chunk = chunk, modelId = model?.id)
+            messages = messages.handleMessageChunk(chunk = chunk, modelId = model.id)
             chunk.usage?.let { usage ->
                 messages = messages.mapIndexed { index, message ->
                     if (index == messages.lastIndex) {

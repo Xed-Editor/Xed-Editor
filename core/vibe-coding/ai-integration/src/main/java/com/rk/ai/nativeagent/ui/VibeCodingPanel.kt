@@ -22,6 +22,11 @@ import androidx.compose.ui.unit.dp
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.ui.components.*
 
+enum class ToolPanel {
+    NONE, COMMANDS, SKILLS, AGENTS, PERMISSIONS, INSTRUCTIONS, PLUGINS
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VibeCodingPanel(
     engine: VibeCodingEngine,
@@ -33,6 +38,60 @@ fun VibeCodingPanel(
     var showHistory by remember { mutableStateOf(false) }
     var showFiles by remember { mutableStateOf(false) }
     var showAgentPanel by remember { mutableStateOf(false) }
+    var activePanel by remember { mutableStateOf(ToolPanel.NONE) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val workspacePath = remember {
+        try {
+            engine.ideService.getPrimaryWorkspacePath()
+        } catch (_: Exception) { "/" }
+    }
+
+    // Bottom sheet panel content
+    if (activePanel != ToolPanel.NONE) {
+        ModalBottomSheet(
+            onDismissRequest = { activePanel = ToolPanel.NONE },
+            sheetState = sheetState,
+        ) {
+            when (activePanel) {
+                ToolPanel.COMMANDS -> CommandPaletteSheet(
+                    onDismiss = { activePanel = ToolPanel.NONE },
+                    onExecuteCommand = { command ->
+                        engine.sendMessage(command.prompt)
+                        activePanel = ToolPanel.NONE
+                    },
+                    modifier = Modifier.fillMaxHeight(0.85f),
+                )
+                ToolPanel.SKILLS -> SkillBrowserPanel(
+                    skillsDir = "$workspacePath/.opencode/skills",
+                    enabledSkills = emptySet(),
+                    onToggleSkill = { _, _ -> },
+                    onEditSkill = { engine.openFileInEditor(it) },
+                    onDismiss = { activePanel = ToolPanel.NONE },
+                    modifier = Modifier.fillMaxHeight(0.85f),
+                )
+                ToolPanel.AGENTS -> AgentConfigPanel(
+                    settingsStore = engine.settingsStore,
+                    onDismiss = { activePanel = ToolPanel.NONE },
+                    modifier = Modifier.fillMaxHeight(0.85f),
+                )
+                ToolPanel.PERMISSIONS -> PermissionEditorPanel(
+                    onDismiss = { activePanel = ToolPanel.NONE },
+                    modifier = Modifier.fillMaxHeight(0.85f),
+                )
+                ToolPanel.INSTRUCTIONS -> InstructionsEditorPanel(
+                    workspacePath = workspacePath,
+                    onDismiss = { activePanel = ToolPanel.NONE },
+                    modifier = Modifier.fillMaxHeight(0.85f),
+                )
+                ToolPanel.PLUGINS -> PluginManagerPanel(
+                    onDismiss = { activePanel = ToolPanel.NONE },
+                    modifier = Modifier.fillMaxHeight(0.85f),
+                )
+                ToolPanel.NONE -> {}
+            }
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -43,7 +102,7 @@ fun VibeCodingPanel(
             ) {
                 VibeCodingFileTreeSidebar(
                     ideService = engine.ideService,
-                    workspacePath = "/",
+                    workspacePath = workspacePath,
                     onOpenFile = { path -> engine.openFileInEditor(path) },
                     onDismiss = { showFiles = false },
                     modifier = Modifier
@@ -83,59 +142,57 @@ fun VibeCodingPanel(
                         }
 
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            FilledTonalIconButton(
+                            ToolbarButton(
+                                icon = Icons.Outlined.Terminal,
+                                label = "Commands",
+                                onClick = { activePanel = ToolPanel.COMMANDS },
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.AutoAwesome,
+                                label = "Skills",
+                                onClick = { activePanel = ToolPanel.SKILLS },
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.Psychology,
+                                label = "Agents",
+                                onClick = { activePanel = ToolPanel.AGENTS },
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.Code,
+                                label = "Files",
                                 onClick = { showFiles = !showFiles },
-                                modifier = Modifier.size(28.dp),
-                            ) {
-                                Icon(
-                                    Icons.Outlined.Code,
-                                    contentDescription = "Files",
-                                    modifier = Modifier.size(14.dp),
-                                )
-                            }
-                            FilledTonalIconButton(
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.List,
+                                label = "History",
                                 onClick = { showHistory = !showHistory },
-                                modifier = Modifier.size(28.dp),
-                            ) {
-                                Icon(
-                                    Icons.Outlined.List,
-                                    contentDescription = "History",
-                                    modifier = Modifier.size(14.dp),
-                                )
-                            }
-                            if (state.agentActivities.isNotEmpty()) {
-                                FilledTonalIconButton(
-                                    onClick = { showAgentPanel = !showAgentPanel },
-                                    modifier = Modifier.size(28.dp),
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.Psychology,
-                                        contentDescription = "Agents",
-                                        modifier = Modifier.size(14.dp),
-                                    )
-                                }
-                            }
-                            FilledTonalIconButton(
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.Description,
+                                label = "Rules",
+                                onClick = { activePanel = ToolPanel.INSTRUCTIONS },
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.Extension,
+                                label = "Plugins",
+                                onClick = { activePanel = ToolPanel.PLUGINS },
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.Security,
+                                label = "Perms",
+                                onClick = { activePanel = ToolPanel.PERMISSIONS },
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.Settings,
+                                label = "Settings",
                                 onClick = { showSettings = true },
-                                modifier = Modifier.size(28.dp),
-                            ) {
-                                Icon(
-                                    Icons.Outlined.Settings,
-                                    contentDescription = "Settings",
-                                    modifier = Modifier.size(14.dp),
-                                )
-                            }
-                            FilledTonalIconButton(
+                            )
+                            ToolbarButton(
+                                icon = Icons.Outlined.Delete,
+                                label = "Clear",
                                 onClick = { engine.clearConversation() },
-                                modifier = Modifier.size(28.dp),
                                 enabled = state.messages.isNotEmpty(),
-                            ) {
-                                Icon(
-                                    Icons.Outlined.Delete,
-                                    contentDescription = "Clear",
-                                    modifier = Modifier.size(14.dp),
-                                )
-                            }
+                            )
                         }
                     }
                 }
@@ -150,7 +207,7 @@ fun VibeCodingPanel(
                         items(state.securityAlerts.takeLast(3)) { alert ->
                             SecurityAlertBanner(
                                 alert = alert,
-                                onDismiss = { /* engine handles dismissal */ },
+                                onDismiss = { engine.clearSecurityAlerts() },
                             )
                         }
                     }
@@ -260,6 +317,26 @@ fun VibeCodingPanel(
         VibeCodingSettingsSheet(
             engine = engine,
             onDismiss = { showSettings = false },
+        )
+    }
+}
+
+@Composable
+private fun ToolbarButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+) {
+    FilledTonalIconButton(
+        onClick = onClick,
+        modifier = Modifier.size(28.dp),
+        enabled = enabled,
+    ) {
+        Icon(
+            icon,
+            contentDescription = label,
+            modifier = Modifier.size(14.dp),
         )
     }
 }

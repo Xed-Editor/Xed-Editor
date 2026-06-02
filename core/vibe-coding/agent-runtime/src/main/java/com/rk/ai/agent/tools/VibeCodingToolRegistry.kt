@@ -24,12 +24,14 @@ class VibeCodingToolRegistry(
     private val githubTools by lazy { VibeCodingGitHubTools(ideService) }
     private val packageTools by lazy { VibeCodingPackageTools(ideService) }
 
+    var onAgentResult: ((String, com.rk.ai.agent.agents.AgentResult) -> Unit)? = null
+
     private val agentListTool by lazy { agentRegistry.getAgentListTool() }
     private val agentDelegateTool by lazy { agentRegistry.getDelegateTool { name, result ->
-        // result handling is done in VibeCodingEngine
+        onAgentResult?.invoke(name, result)
     }}
 
-    val allTools: List<Tool> by lazy {
+    private val _coreTools: List<Tool> by lazy {
         fileTools.all +
             editorTools.all +
             searchTools.all +
@@ -44,4 +46,8 @@ class VibeCodingToolRegistry(
             packageTools.all +
             listOf(agentListTool, agentDelegateTool)
     }
+
+    val allTools: List<Tool> get() = _coreTools
+
+    fun withMcpTools(mcpTools: List<Tool>): List<Tool> = _coreTools + mcpTools
 }
