@@ -2,7 +2,7 @@ package com.rk.ai.agent
 
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
-import com.rk.ai.models.MessageRole
+import com.rk.ai.core.MessageRole
 
 object CompactionHandler {
     private const val PRUNE_MINIMUM = 20_000

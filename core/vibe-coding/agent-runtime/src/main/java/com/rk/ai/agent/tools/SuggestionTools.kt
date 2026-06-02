@@ -1,4 +1,3 @@
-@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.tools
 
 import com.rk.ai.models.InputSchema
@@ -6,13 +5,8 @@ import com.rk.ai.models.Tool
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.service.IdeService
 import com.google.gson.JsonObject
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
-import kotlinx.serialization.json.putJsonObject
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import kotlinx.serialization.json.*
+import java.io.File
 
 /**
  * Tools that provide structured suggestions to the user and allow applying them.
@@ -116,21 +110,25 @@ class SuggestionTools(private val ideService: IdeService) {
             if (diag == null) {
                 return@Tool listOf(UIMessagePart.Text("Error: suggestion must include diagnostic info for location"))
             }
-            val file = diag["file"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Error: diagnostic missing file"))
+            val filePath = diag["file"]?.asJsonPrimitive?.asString ?: return@Tool listOf(UIMessagePart.Text("Error: diagnostic missing file"))
             val line = diag["line"]?.asJsonPrimitive?.asInt ?: 0
-            // Use editFile tool under the hood – we construct a find‑replace based on line number.
-            // Since editFile works with find/replace patterns, we read the file, locate the line, and replace that line.
-            // For simplicity we delegate to the existing editFile tool via ideService.
-            val editResult = ideService.editFile(
-                path = file,
-                find = "^.*$", // placeholder regex – we will replace the whole line
-                replace = text,
-                lineNumber = line,
-                dryRun = dryRun,
-                replaceAll = false
-            )
-            // The editFile tool returns a UIMessagePart.Text with either diff preview or success.
-            editResult
+            val resolvedFile = ideService.resolvePath(filePath)
+                ?: return@Tool listOf(UIMessagePart.Text("Error: could not resolve file: $filePath"))
+            val content = ideService.getFileContent(resolvedFile.absolutePath, null, null)
+                ?: return@Tool listOf(UIMessagePart.Text("Error: file not found: ${resolvedFile.absolutePath}"))
+            val lines = content.split("\n", limit = Int.MAX_VALUE)
+            if (line < 1 || line > lines.size) {
+                return@Tool listOf(UIMessagePart.Text("Error: line $line out of range (file has ${lines.size} lines)"))
+            }
+            val newLines = lines.toMutableList()
+            newLines[line - 1] = text
+            val newContent = newLines.joinToString("\n")
+            if (dryRun) {
+                listOf(UIMessagePart.Text("[dry-run] Would edit line $line in ${resolvedFile.absolutePath}\n---\n$newContent\n---"))
+            } else {
+                ideService.writeFile(resolvedFile, newContent)
+                listOf(UIMessagePart.Text("Applied suggestion to ${resolvedFile.absolutePath} at line $line"))
+            }
         }
     )
 
@@ -164,10 +162,10 @@ metadata:
 **SuggestionId:** $id
 **Timestamp:** ${java.time.Instant.now()}
 """.trimIndent()
-            // Write using the standard memory location – use the same path as other memories.
-            // The IDE service can write arbitrary files; we use it to write into the .claude directory.
             val memPath = ".claude/memories/suggestion-feedback-$id.md"
-            ideService.writeFile(memPath, memoryContent)
+            val memFile = ideService.resolvePath(memPath)
+                ?: return@Tool listOf(UIMessagePart.Text("Error: could not resolve memory path: $memPath"))
+            ideService.writeFile(memFile, memoryContent)
             listOf(UIMessagePart.Text("Feedback recorded for suggestion $id"))
         }
     )
