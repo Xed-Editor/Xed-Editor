@@ -2,6 +2,7 @@ package com.rk.ai.nativeagent.ui.markdown
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -54,7 +56,6 @@ object DiffParser {
                     currentLines.add(DiffLine(line, DiffLineType.REMOVED))
                 line.startsWith("---") || line.startsWith("+++") ||
                     line.startsWith("diff --git") || line.startsWith("index") -> {
-                    // Skip file headers, handled via header detection
                 }
                 else -> currentLines.add(DiffLine(line, DiffLineType.CONTEXT))
             }
@@ -74,13 +75,22 @@ fun DiffContent(
     diffText: String,
     modifier: Modifier = Modifier,
 ) {
-    val hunks = DiffParser.parse(diffText)
-    val colorScheme = MaterialTheme.colorScheme
+    val hunks = remember(diffText) { DiffParser.parse(diffText) }
+    val isDark = isSystemInDarkTheme()
+
+    val bg = if (isDark) Color(0xFF1E1E1E) else Color(0xFFF7F7F7)
+    val headerBg = if (isDark) Color(0xFF2D2D2D) else Color(0xFFE8E8E8)
+    val headerColor = if (isDark) Color(0xFF569CD6) else Color(0xFF0451A5)
+    val addedBg = if (isDark) Color(0x2E6A8759) else Color(0xFFE6FFE6)
+    val removedBg = if (isDark) Color(0x2ECC7832) else Color(0xFFFFE6E6)
+    val addedColor = if (isDark) Color(0xFF6A8759) else Color(0xFF006100)
+    val removedColor = if (isDark) Color(0xFFCC7832) else Color(0xFFCC0000)
+    val contextColor = if (isDark) Color(0xFFA9B7C6) else Color(0xFF1E1E1E)
 
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        color = Color(0xFF1E1E1E),
+        color = bg,
     ) {
         Column(
             modifier = Modifier
@@ -93,30 +103,30 @@ fun DiffContent(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF2D2D2D))
+                            .background(headerBg)
                             .padding(horizontal = 8.dp, vertical = 2.dp),
                     ) {
                         Text(
                             text = hunk.header,
                             fontFamily = FontFamily.Monospace,
                             fontSize = 11.sp,
-                            color = Color(0xFF569CD6),
+                            color = headerColor,
                             fontWeight = FontWeight.Medium,
                         )
                     }
                 }
                 hunk.lines.forEach { line ->
                     val bgColor = when (line.type) {
-                        DiffLineType.ADDED -> Color(0x2E6A8759)
-                        DiffLineType.REMOVED -> Color(0x2ECC7832)
+                        DiffLineType.ADDED -> addedBg
+                        DiffLineType.REMOVED -> removedBg
                         DiffLineType.CONTEXT -> Color.Transparent
-                        DiffLineType.HEADER -> Color(0xFF2D2D2D)
+                        DiffLineType.HEADER -> headerBg
                     }
                     val textColor = when (line.type) {
-                        DiffLineType.ADDED -> Color(0xFF6A8759)
-                        DiffLineType.REMOVED -> Color(0xFFCC7832)
-                        DiffLineType.CONTEXT -> Color(0xFFA9B7C6)
-                        DiffLineType.HEADER -> Color(0xFF569CD6)
+                        DiffLineType.ADDED -> addedColor
+                        DiffLineType.REMOVED -> removedColor
+                        DiffLineType.CONTEXT -> contextColor
+                        DiffLineType.HEADER -> headerColor
                     }
                     Row(
                         modifier = Modifier

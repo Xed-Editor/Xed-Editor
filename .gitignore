@@ -27,3 +27,7 @@ core/wasm3
 
 /.opencode
 core/rikkahub
+
+/core/vibe_coding/help_resources/claude-code-main
+
+/core/vibe-coding/help_resources

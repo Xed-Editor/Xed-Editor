@@ -29,6 +29,7 @@ import com.rk.ai.models.Tool
 import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
+import com.rk.ai.models.toMessageNode
 import com.rk.ai.persistence.db.AppDatabase
 import com.rk.ai.persistence.db.fts.MessageFtsManager
 import com.rk.ai.persistence.repo.ConversationRepository
@@ -54,6 +55,7 @@ import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 private val defaultJson = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 

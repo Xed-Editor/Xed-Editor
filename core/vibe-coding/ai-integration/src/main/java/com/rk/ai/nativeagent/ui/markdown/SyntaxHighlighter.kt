@@ -1,5 +1,9 @@
 package com.rk.ai.nativeagent.ui.markdown
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -8,44 +12,124 @@ import androidx.compose.ui.text.font.FontWeight
 
 object SyntaxHighlighter {
 
-    private val KEYWORD = SpanStyle(color = Color(0xFFCC7832), fontWeight = FontWeight.Medium)
-    private val STRING = SpanStyle(color = Color(0xFF6A8759))
-    private val COMMENT = SpanStyle(color = Color(0xFF808080), fontWeight = FontWeight.Light)
-    private val NUMBER = SpanStyle(color = Color(0xFF6897BB))
-    private val ANNOTATION = SpanStyle(color = Color(0xFFBBB529))
-    private val FUNCTION = SpanStyle(color = Color(0xFFFFC66D))
-    private val TYPE = SpanStyle(color = Color(0xFFA9B7C6), fontWeight = FontWeight.Medium)
-    private val OPERATOR = SpanStyle(color = Color(0xFF9876AA))
-    private val PROPERTY = SpanStyle(color = Color(0xFF6C9EF8))
-    private val DEFAULT = SpanStyle(color = Color(0xFFA9B7C6))
-    private val XML_TAG = SpanStyle(color = Color(0xFFCC7832))
-    private val XML_ATTR = SpanStyle(color = Color(0xFF6C9EF8))
-    private val XML_VALUE = SpanStyle(color = Color(0xFF6A8759))
-    private val YAML_KEY = SpanStyle(color = Color(0xFF6C9EF8))
-    private val YAML_VALUE = SpanStyle(color = Color(0xFFA9B7C6))
+    data class ThemeColors(
+        val background: Color,
+        val headerBar: Color,
+        val headerText: Color,
+        val copyButton: Color,
+        val copyText: Color,
+        val keyword: Color,
+        val string: Color,
+        val comment: Color,
+        val number: Color,
+        val annotation: Color,
+        val function: Color,
+        val type: Color,
+        val operator: Color,
+        val property: Color,
+        val default: Color,
+        val xmlTag: Color,
+        val xmlAttr: Color,
+        val xmlValue: Color,
+        val yamlKey: Color,
+        val yamlValue: Color,
+    )
 
+    private val darkTheme = ThemeColors(
+        background = Color(0xFF1E1E1E),
+        headerBar = Color(0xFF2D2D2D),
+        headerText = Color(0xFF808080),
+        copyButton = Color(0xFF3D3D3D),
+        copyText = Color(0xFFA9B7C6),
+        keyword = Color(0xFFCC7832),
+        string = Color(0xFF6A8759),
+        comment = Color(0xFF808080),
+        number = Color(0xFF6897BB),
+        annotation = Color(0xFFBBB529),
+        function = Color(0xFFFFC66D),
+        type = Color(0xFFA9B7C6),
+        operator = Color(0xFF9876AA),
+        property = Color(0xFF6C9EF8),
+        default = Color(0xFFA9B7C6),
+        xmlTag = Color(0xFFCC7832),
+        xmlAttr = Color(0xFF6C9EF8),
+        xmlValue = Color(0xFF6A8759),
+        yamlKey = Color(0xFF6C9EF8),
+        yamlValue = Color(0xFFA9B7C6),
+    )
+
+    private val lightTheme = ThemeColors(
+        background = Color(0xFFF7F7F7),
+        headerBar = Color(0xFFE8E8E8),
+        headerText = Color(0xFF888888),
+        copyButton = Color(0xFFDCDCDC),
+        copyText = Color(0xFF555555),
+        keyword = Color(0xFFAF00DB),
+        string = Color(0xFF00A000),
+        comment = Color(0xFF808080),
+        number = Color(0xFF098658),
+        annotation = Color(0xFF643820),
+        function = Color(0xFF795E26),
+        type = Color(0xFF267F99),
+        operator = Color(0xFF000000),
+        property = Color(0xFF0451A5),
+        default = Color(0xFF1E1E1E),
+        xmlTag = Color(0xFF800000),
+        xmlAttr = Color(0xFF0451A5),
+        xmlValue = Color(0xFF00A000),
+        yamlKey = Color(0xFF0451A5),
+        yamlValue = Color(0xFF1E1E1E),
+    )
+
+    @Composable
+    fun rememberColors(): ThemeColors {
+        val isDark = isSystemInDarkTheme()
+        return remember(isDark) { if (isDark) darkTheme else lightTheme }
+    }
+
+    @Composable
     fun highlight(code: String, language: String?): AnnotatedString {
+        val colors = rememberColors()
+        return highlightWithColors(code, language, colors)
+    }
+
+    fun highlightWithColors(code: String, language: String?, colors: ThemeColors): AnnotatedString {
         val sb = StringBuilder()
         val spans = mutableListOf<Triple<SpanStyle, Int, Int>>()
 
+        val keyword = SpanStyle(color = colors.keyword, fontWeight = FontWeight.Medium)
+        val string = SpanStyle(color = colors.string)
+        val comment = SpanStyle(color = colors.comment, fontWeight = FontWeight.Light)
+        val number = SpanStyle(color = colors.number)
+        val annotation = SpanStyle(color = colors.annotation)
+        val function = SpanStyle(color = colors.function)
+        val type = SpanStyle(color = colors.type, fontWeight = FontWeight.Medium)
+        val property = SpanStyle(color = colors.property)
+        val default = SpanStyle(color = colors.default)
+        val xmlTag = SpanStyle(color = colors.xmlTag)
+        val xmlAttr = SpanStyle(color = colors.xmlAttr)
+        val xmlValue = SpanStyle(color = colors.xmlValue)
+        val yamlKey = SpanStyle(color = colors.yamlKey)
+        val yamlValue = SpanStyle(color = colors.yamlValue)
+
         when {
-            language in listOf("kotlin", "kts", "kt") -> highlightLanguage(sb, spans, code, kotlinKeywords, true)
-            language in listOf("java") -> highlightLanguage(sb, spans, code, javaKeywords, true)
-            language in listOf("python", "py") -> highlightLanguage(sb, spans, code, pythonKeywords, false)
+            language in listOf("kotlin", "kts", "kt") -> highlightLanguage(sb, spans, code, kotlinKeywords, true, keyword, string, comment, number, annotation, function, type)
+            language in listOf("java") -> highlightLanguage(sb, spans, code, javaKeywords, true, keyword, string, comment, number, annotation, function, type)
+            language in listOf("python", "py") -> highlightLanguage(sb, spans, code, pythonKeywords, false, keyword, string, comment, number, annotation, function, type)
             language in listOf("javascript", "js", "typescript", "ts", "jsx", "tsx") ->
-                highlightLanguage(sb, spans, code, jsKeywords, false)
-            language in listOf("go") -> highlightLanguage(sb, spans, code, goKeywords, false)
-            language in listOf("rust", "rs") -> highlightLanguage(sb, spans, code, rustKeywords, false)
-            language in listOf("shell", "bash", "sh", "zsh") -> highlightLanguage(sb, spans, code, shellKeywords, false)
-            language in listOf("sql") -> highlightSql(sb, spans, code)
-            language in listOf("xml", "html", "svg") -> highlightXml(sb, spans, code)
-            language in listOf("json") -> highlightJson(sb, spans, code)
-            language in listOf("css") -> highlightCss(sb, spans, code)
-            language in listOf("yaml", "yml") -> highlightYaml(sb, spans, code)
-            language in listOf("gradle", "groovy") -> highlightLanguage(sb, spans, code, gradleKeywords, false)
-            language in listOf("properties", "conf") -> highlightProperties(sb, spans, code)
-            language in listOf("diff", "patch") -> highlightDiff(sb, spans, code)
-            else -> highlightFallback(sb, spans, code)
+                highlightLanguage(sb, spans, code, jsKeywords, false, keyword, string, comment, number, annotation, function, type)
+            language in listOf("go") -> highlightLanguage(sb, spans, code, goKeywords, false, keyword, string, comment, number, annotation, function, type)
+            language in listOf("rust", "rs") -> highlightLanguage(sb, spans, code, rustKeywords, false, keyword, string, comment, number, annotation, function, type)
+            language in listOf("shell", "bash", "sh", "zsh") -> highlightLanguage(sb, spans, code, shellKeywords, false, keyword, string, comment, number, annotation, function, type)
+            language in listOf("sql") -> highlightSql(sb, spans, code, keyword, string, comment, number)
+            language in listOf("xml", "html", "svg") -> highlightXml(sb, spans, code, comment, xmlTag, xmlAttr, xmlValue)
+            language in listOf("json") -> highlightJson(sb, spans, code, comment, string, number, keyword, yamlKey)
+            language in listOf("css") -> highlightCss(sb, spans, code, comment, type, property, string, number)
+            language in listOf("yaml", "yml") -> highlightYaml(sb, spans, code, comment, yamlKey, string, keyword, number, yamlValue)
+            language in listOf("gradle", "groovy") -> highlightLanguage(sb, spans, code, gradleKeywords, false, keyword, string, comment, number, annotation, function, type)
+            language in listOf("properties", "conf") -> highlightProperties(sb, spans, code, comment, yamlKey, string)
+            language in listOf("diff", "patch") -> highlightDiff(sb, spans, code, type, keyword, string, annotation)
+            else -> highlightFallback(sb, spans, code, comment, string, number)
         }
 
         return buildAnnotatedString {
@@ -61,6 +145,8 @@ object SyntaxHighlighter {
     private fun highlightLanguage(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>,
         code: String, keywords: Set<String>, hasAnnotations: Boolean,
+        keyword: SpanStyle, string: SpanStyle, comment: SpanStyle, number: SpanStyle,
+        annotation: SpanStyle, function: SpanStyle, type: SpanStyle,
     ) {
         val lines = code.split("\n")
         for ((lineIndex, line) in lines.withIndex()) {
@@ -71,50 +157,50 @@ object SyntaxHighlighter {
                 when {
                     line.startsWith("//", i) -> {
                         sb.append(line.substring(i))
-                        spans.add(Triple(COMMENT, start, sb.length))
+                        spans.add(Triple(comment, start, sb.length))
                         i = line.length
                     }
                     line.startsWith("/*", i) -> {
                         val end = line.indexOf("*/", i + 2)
                         if (end >= 0) {
                             sb.append(line.substring(i, end + 2))
-                            spans.add(Triple(COMMENT, start, sb.length))
+                            spans.add(Triple(comment, start, sb.length))
                             i = end + 2
                         } else {
                             sb.append(line.substring(i))
-                            spans.add(Triple(COMMENT, start, sb.length))
+                            spans.add(Triple(comment, start, sb.length))
                             i = line.length
                         }
                     }
                     line[i] == '"' -> {
                         val end = findEndOfString(line, i, '"')
                         sb.append(line.substring(i, end))
-                        spans.add(Triple(STRING, start, sb.length))
+                        spans.add(Triple(string, start, sb.length))
                         i = end
                     }
                     line[i] == '\'' -> {
                         val end = findEndOfString(line, i, '\'')
                         sb.append(line.substring(i, end))
-                        spans.add(Triple(STRING, start, sb.length))
+                        spans.add(Triple(string, start, sb.length))
                         i = end
                     }
                     line[i] == '`' -> {
                         val end = line.indexOf('`', i + 1)
                         val endIdx = if (end >= 0) end + 1 else line.length
                         sb.append(line.substring(i, endIdx))
-                        spans.add(Triple(STRING, start, sb.length))
+                        spans.add(Triple(string, start, sb.length))
                         i = endIdx
                     }
                     line[i] == '@' && hasAnnotations -> {
                         val end = findWordEnd(line, i + 1)
                         sb.append(line.substring(i, end))
-                        spans.add(Triple(ANNOTATION, start, sb.length))
+                        spans.add(Triple(annotation, start, sb.length))
                         i = end
                     }
                     line[i].isDigit() && (i == 0 || !line[i - 1].isLetterOrDigit()) -> {
                         val end = findNumberEnd(line, i)
                         sb.append(line.substring(i, end))
-                        spans.add(Triple(NUMBER, start, sb.length))
+                        spans.add(Triple(number, start, sb.length))
                         i = end
                     }
                     line[i].isLetter() || line[i] == '_' || line[i] == '$' -> {
@@ -122,11 +208,11 @@ object SyntaxHighlighter {
                         val word = line.substring(i, end)
                         sb.append(word)
                         when {
-                            word in keywords -> spans.add(Triple(KEYWORD, start, sb.length))
+                            word in keywords -> spans.add(Triple(keyword, start, sb.length))
                             word.firstOrNull()?.isUpperCase() == true ->
-                                spans.add(Triple(TYPE, start, sb.length))
+                                spans.add(Triple(type, start, sb.length))
                             end < line.length && line[end] == '(' ->
-                                spans.add(Triple(FUNCTION, start, sb.length))
+                                spans.add(Triple(function, start, sb.length))
                             else -> {}
                         }
                         i = end
@@ -142,6 +228,7 @@ object SyntaxHighlighter {
 
     private fun highlightSql(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        keyword: SpanStyle, string: SpanStyle, comment: SpanStyle, number: SpanStyle,
     ) {
         val lines = code.split("\n")
         for ((lineIndex, line) in lines.withIndex()) {
@@ -152,13 +239,13 @@ object SyntaxHighlighter {
                 when {
                     line.startsWith("--", i) -> {
                         sb.append(line.substring(i))
-                        spans.add(Triple(COMMENT, start, sb.length))
+                        spans.add(Triple(comment, start, sb.length))
                         i = line.length
                     }
                     line[i] == '\'' || line[i] == '"' -> {
                         val end = findEndOfString(line, i, line[i])
                         sb.append(line.substring(i, end))
-                        spans.add(Triple(STRING, start, sb.length))
+                        spans.add(Triple(string, start, sb.length))
                         i = end
                     }
                     line[i].isLetter() || line[i] == '_' -> {
@@ -166,14 +253,14 @@ object SyntaxHighlighter {
                         val word = line.substring(i, end)
                         sb.append(word)
                         if (word.uppercase() in sqlKeywords) {
-                            spans.add(Triple(KEYWORD, start, sb.length))
+                            spans.add(Triple(keyword, start, sb.length))
                         }
                         i = end
                     }
                     line[i].isDigit() -> {
                         val end = findNumberEnd(line, i)
                         sb.append(line.substring(i, end))
-                        spans.add(Triple(NUMBER, start, sb.length))
+                        spans.add(Triple(number, start, sb.length))
                         i = end
                     }
                     else -> { sb.append(line[i]); i++ }
@@ -184,6 +271,7 @@ object SyntaxHighlighter {
 
     private fun highlightXml(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        comment: SpanStyle, xmlTag: SpanStyle, xmlAttr: SpanStyle, xmlValue: SpanStyle,
     ) {
         var i = 0
         while (i < code.length) {
@@ -193,7 +281,7 @@ object SyntaxHighlighter {
                     val end = code.indexOf("-->", i + 4)
                     val endIdx = if (end >= 0) end + 3 else code.length
                     sb.append(code.substring(i, endIdx))
-                    spans.add(Triple(COMMENT, start, sb.length))
+                    spans.add(Triple(comment, start, sb.length))
                     i = endIdx
                 }
                 code[i] == '<' -> {
@@ -205,7 +293,7 @@ object SyntaxHighlighter {
                             sb.append("</")
                             sb.append(tag.substring(1, nameEnd))
                             sb.append(">")
-                            spans.add(Triple(XML_TAG, start, sb.length))
+                            spans.add(Triple(xmlTag, start, sb.length))
                             i = tagEnd + 1
                         } else if (tag.endsWith("/")) {
                             val cleaned = tag.removeSuffix("/").trimEnd()
@@ -213,16 +301,14 @@ object SyntaxHighlighter {
                             if (spaceIdx >= 0) {
                                 val tagName = cleaned.substring(0, spaceIdx)
                                 sb.append("<").append(tagName)
-                                // attributes
-                                val attrStart = sb.length
                                 val attrPart = cleaned.substring(spaceIdx + 1)
-                                appendXmlAttributes(sb, spans, attrPart)
+                                appendXmlAttributes(sb, spans, attrPart, xmlAttr, xmlValue)
                                 sb.append("/>")
-                                spans.add(Triple(XML_TAG, start, sb.length))
+                                spans.add(Triple(xmlTag, start, sb.length))
                                 i = tagEnd + 1
                             } else {
                                 sb.append(code.substring(i, tagEnd + 1))
-                                spans.add(Triple(XML_TAG, start, sb.length))
+                                spans.add(Triple(xmlTag, start, sb.length))
                                 i = tagEnd + 1
                             }
                         } else {
@@ -231,13 +317,13 @@ object SyntaxHighlighter {
                                 val tagName = tag.substring(0, spaceIdx)
                                 sb.append("<").append(tagName)
                                 val attrPart = tag.substring(spaceIdx + 1)
-                                appendXmlAttributes(sb, spans, attrPart)
+                                appendXmlAttributes(sb, spans, attrPart, xmlAttr, xmlValue)
                                 sb.append(">")
-                                spans.add(Triple(XML_TAG, start, sb.length))
+                                spans.add(Triple(xmlTag, start, sb.length))
                                 i = tagEnd + 1
                             } else {
                                 sb.append(code.substring(i, tagEnd + 1))
-                                spans.add(Triple(XML_TAG, start, sb.length))
+                                spans.add(Triple(xmlTag, start, sb.length))
                                 i = tagEnd + 1
                             }
                         }
@@ -262,6 +348,7 @@ object SyntaxHighlighter {
 
     private fun appendXmlAttributes(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, attrText: String,
+        xmlAttr: SpanStyle, xmlValue: SpanStyle,
     ) {
         var j = 0
         while (j < attrText.length) {
@@ -273,7 +360,7 @@ object SyntaxHighlighter {
                     val attrStart = sb.length
                     val end = findWordEnd(attrText, j)
                     sb.append(attrText.substring(j, end))
-                    spans.add(Triple(XML_ATTR, attrStart, sb.length))
+                    spans.add(Triple(xmlAttr, attrStart, sb.length))
                     j = end
                 }
                 attrText[j] == '=' -> { sb.append(attrText[j]); j++ }
@@ -281,7 +368,7 @@ object SyntaxHighlighter {
                     val valStart = sb.length
                     val end = findEndOfString(attrText, j, attrText[j])
                     sb.append(attrText.substring(j, end))
-                    spans.add(Triple(XML_VALUE, valStart, sb.length))
+                    spans.add(Triple(xmlValue, valStart, sb.length))
                     j = end
                 }
                 else -> { sb.append(attrText[j]); j++ }
@@ -291,6 +378,7 @@ object SyntaxHighlighter {
 
     private fun highlightJson(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        comment: SpanStyle, string: SpanStyle, number: SpanStyle, keyword: SpanStyle, yamlKey: SpanStyle,
     ) {
         var i = 0
         while (i < code.length) {
@@ -300,7 +388,7 @@ object SyntaxHighlighter {
                     val end = code.indexOf('\n', i)
                     val endIdx = if (end >= 0) end else code.length
                     sb.append(code.substring(i, endIdx))
-                    spans.add(Triple(COMMENT, start, sb.length))
+                    spans.add(Triple(comment, start, sb.length))
                     i = endIdx
                 }
                 code[i] == '"' -> {
@@ -310,24 +398,24 @@ object SyntaxHighlighter {
                     while (k < code.length && (code[k] == ' ' || code[k] == '\t')) k++
                     if (k < code.length && code[k] == ':') {
                         sb.append(content)
-                        spans.add(Triple(YAML_KEY, start, sb.length))
+                        spans.add(Triple(yamlKey, start, sb.length))
                     } else {
                         sb.append(content)
-                        spans.add(Triple(STRING, start, sb.length))
+                        spans.add(Triple(string, start, sb.length))
                     }
                     i = end
                 }
                 code[i].isDigit() || code[i] == '-' -> {
                     val end = findNumberEnd(code, i)
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(NUMBER, start, sb.length))
+                    spans.add(Triple(number, start, sb.length))
                     i = end
                 }
                 code.startsWith("true", i) || code.startsWith("false", i) ||
                     code.startsWith("null", i) -> {
                     val end = findWordEnd(code, i)
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(KEYWORD, start, sb.length))
+                    spans.add(Triple(keyword, start, sb.length))
                     i = end
                 }
                 else -> { sb.append(code[i]); i++ }
@@ -337,6 +425,7 @@ object SyntaxHighlighter {
 
     private fun highlightCss(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        comment: SpanStyle, type: SpanStyle, property: SpanStyle, string: SpanStyle, number: SpanStyle,
     ) {
         var i = 0
         while (i < code.length) {
@@ -346,20 +435,20 @@ object SyntaxHighlighter {
                     val end = code.indexOf("*/", i + 2)
                     val endIdx = if (end >= 0) end + 2 else code.length
                     sb.append(code.substring(i, endIdx))
-                    spans.add(Triple(COMMENT, start, sb.length))
+                    spans.add(Triple(comment, start, sb.length))
                     i = endIdx
                 }
                 code.startsWith("//", i) -> {
                     val end = code.indexOf('\n', i)
                     val endIdx = if (end >= 0) end else code.length
                     sb.append(code.substring(i, endIdx))
-                    spans.add(Triple(COMMENT, start, sb.length))
+                    spans.add(Triple(comment, start, sb.length))
                     i = endIdx
                 }
                 code[i] == '.' || code[i] == '#' || code[i] == '*' -> {
                     val end = findWordEnd(code, i)
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(TYPE, start, sb.length))
+                    spans.add(Triple(type, start, sb.length))
                     i = end
                 }
                 code[i].isLetter() || code[i] == '-' -> {
@@ -368,7 +457,7 @@ object SyntaxHighlighter {
                     while (k < code.length && code[k] == ' ') k++
                     if (k < code.length && code[k] == ':') {
                         sb.append(code.substring(i, end))
-                        spans.add(Triple(PROPERTY, start, sb.length))
+                        spans.add(Triple(property, start, sb.length))
                     } else {
                         sb.append(code.substring(i, end))
                     }
@@ -377,13 +466,13 @@ object SyntaxHighlighter {
                 code[i] == '"' || code[i] == '\'' -> {
                     val end = findEndOfString(code, i, code[i])
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(STRING, start, sb.length))
+                    spans.add(Triple(string, start, sb.length))
                     i = end
                 }
                 code[i].isDigit() -> {
                     val end = findNumberEnd(code, i)
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(NUMBER, start, sb.length))
+                    spans.add(Triple(number, start, sb.length))
                     i = end
                 }
                 else -> { sb.append(code[i]); i++ }
@@ -393,6 +482,7 @@ object SyntaxHighlighter {
 
     private fun highlightYaml(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        comment: SpanStyle, yamlKey: SpanStyle, string: SpanStyle, keyword: SpanStyle, number: SpanStyle, yamlValue: SpanStyle,
     ) {
         val lines = code.split("\n")
         for ((lineIndex, line) in lines.withIndex()) {
@@ -401,7 +491,7 @@ object SyntaxHighlighter {
             if (line.trimStart().startsWith("#")) {
                 val start = sb.length
                 sb.append(line)
-                spans.add(Triple(COMMENT, start, sb.length))
+                spans.add(Triple(comment, start, sb.length))
                 continue
             }
             val colonIdx = line.indexOf(':')
@@ -410,7 +500,7 @@ object SyntaxHighlighter {
                 val value = line.substring(colonIdx)
                 val keyStart = sb.length
                 sb.append(key)
-                spans.add(Triple(YAML_KEY, keyStart, sb.length))
+                spans.add(Triple(yamlKey, keyStart, sb.length))
                 if (value == ":") { sb.append(":"); continue }
                 val trimmedValue = value.substring(1)
                 val leadingSpaces = value.length - 1 - trimmedValue.length
@@ -420,19 +510,22 @@ object SyntaxHighlighter {
                 when {
                     trimmedValue.startsWith("\"") || trimmedValue.startsWith("'") -> {
                         sb.append(trimmedValue)
-                        spans.add(Triple(STRING, valStart, sb.length))
+                        spans.add(Triple(string, valStart, sb.length))
                     }
                     trimmedValue.trim() == "true" || trimmedValue.trim() == "false" ||
                         trimmedValue.trim() == "null" -> {
                         sb.append(trimmedValue)
-                        spans.add(Triple(KEYWORD, valStart, sb.length))
+                        spans.add(Triple(keyword, valStart, sb.length))
                     }
                     trimmedValue.trim().isNotEmpty() &&
                         (trimmedValue.trim()[0].isDigit() || trimmedValue.trim() == "-") -> {
                         sb.append(trimmedValue)
-                        spans.add(Triple(NUMBER, valStart, sb.length))
+                        spans.add(Triple(number, valStart, sb.length))
                     }
-                    else -> sb.append(trimmedValue)
+                    else -> {
+                        sb.append(trimmedValue)
+                        spans.add(Triple(yamlValue, valStart, sb.length))
+                    }
                 }
             } else {
                 sb.append(line)
@@ -442,13 +535,14 @@ object SyntaxHighlighter {
 
     private fun highlightProperties(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        comment: SpanStyle, yamlKey: SpanStyle, string: SpanStyle,
     ) {
         val lines = code.split("\n")
         for ((lineIndex, line) in lines.withIndex()) {
             if (lineIndex > 0) sb.append("\n")
             if (line.isBlank()) continue
             if (line.trimStart().startsWith("#") || line.trimStart().startsWith("!")) {
-                val start = sb.length; sb.append(line); spans.add(Triple(COMMENT, start, sb.length))
+                val start = sb.length; sb.append(line); spans.add(Triple(comment, start, sb.length))
                 continue
             }
             val eqIdx = line.indexOf('=')
@@ -459,10 +553,10 @@ object SyntaxHighlighter {
             }
             if (sepIdx >= 0) {
                 val keyStart = sb.length; sb.append(line.substring(0, sepIdx))
-                spans.add(Triple(YAML_KEY, keyStart, sb.length))
+                spans.add(Triple(yamlKey, keyStart, sb.length))
                 sb.append(line[sepIdx])
                 val valStart = sb.length; sb.append(line.substring(sepIdx + 1))
-                spans.add(Triple(STRING, valStart, sb.length))
+                spans.add(Triple(string, valStart, sb.length))
             } else {
                 sb.append(line)
             }
@@ -471,6 +565,7 @@ object SyntaxHighlighter {
 
     private fun highlightDiff(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        type: SpanStyle, keyword: SpanStyle, string: SpanStyle, annotation: SpanStyle,
     ) {
         val lines = code.split("\n")
         for ((lineIndex, line) in lines.withIndex()) {
@@ -478,19 +573,20 @@ object SyntaxHighlighter {
             val start = sb.length; sb.append(line)
             when {
                 line.startsWith("+++") || line.startsWith("---") ->
-                    spans.add(Triple(TYPE, start, sb.length))
+                    spans.add(Triple(type, start, sb.length))
                 line.startsWith("@@") ->
-                    spans.add(Triple(KEYWORD, start, sb.length))
+                    spans.add(Triple(keyword, start, sb.length))
                 line.startsWith("+") ->
-                    spans.add(Triple(STRING, start, sb.length))
+                    spans.add(Triple(string, start, sb.length))
                 line.startsWith("-") ->
-                    spans.add(Triple(ANNOTATION, start, sb.length))
+                    spans.add(Triple(annotation, start, sb.length))
             }
         }
     }
 
     private fun highlightFallback(
         sb: StringBuilder, spans: MutableList<Triple<SpanStyle, Int, Int>>, code: String,
+        comment: SpanStyle, string: SpanStyle, number: SpanStyle,
     ) {
         var i = 0
         while (i < code.length) {
@@ -500,32 +596,32 @@ object SyntaxHighlighter {
                     val end = code.indexOf('\n', i)
                     val endIdx = if (end >= 0) end else code.length
                     sb.append(code.substring(i, endIdx))
-                    spans.add(Triple(COMMENT, start, sb.length))
+                    spans.add(Triple(comment, start, sb.length))
                     i = endIdx
                 }
                 code.startsWith("/*", i) -> {
                     val end = code.indexOf("*/", i + 2)
                     val endIdx = if (end >= 0) end + 2 else code.length
                     sb.append(code.substring(i, endIdx))
-                    spans.add(Triple(COMMENT, start, sb.length))
+                    spans.add(Triple(comment, start, sb.length))
                     i = endIdx
                 }
                 code[i] == '"' -> {
                     val end = findEndOfString(code, i, '"')
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(STRING, start, sb.length))
+                    spans.add(Triple(string, start, sb.length))
                     i = end
                 }
                 code[i] == '\'' -> {
                     val end = findEndOfString(code, i, '\'')
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(STRING, start, sb.length))
+                    spans.add(Triple(string, start, sb.length))
                     i = end
                 }
                 code[i].isDigit() -> {
                     val end = findNumberEnd(code, i)
                     sb.append(code.substring(i, end))
-                    spans.add(Triple(NUMBER, start, sb.length))
+                    spans.add(Triple(number, start, sb.length))
                     i = end
                 }
                 else -> { sb.append(code[i]); i++ }
@@ -579,8 +675,11 @@ object SyntaxHighlighter {
         return text.length
     }
 
-    fun getBackgroundColor(): Color = Color(0xFF1E1E1E)
-    fun getDefaultLineColor(): Color = Color(0xFFA9B7C6)
+    @Composable
+    fun getBackgroundColor(): Color = rememberColors().background
+
+    @Composable
+    fun getDefaultLineColor(): Color = rememberColors().default
 
     private val kotlinKeywords = setOf(
         "val", "var", "fun", "class", "object", "interface", "enum", "sealed",

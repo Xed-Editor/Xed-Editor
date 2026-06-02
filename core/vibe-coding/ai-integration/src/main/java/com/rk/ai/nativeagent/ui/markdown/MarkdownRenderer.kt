@@ -239,23 +239,24 @@ private fun CodeBlockRenderer(
     code: String,
     language: String?,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val highlighted = remember(code, language) { SyntaxHighlighter.highlight(code, language) }
+    val colors = SyntaxHighlighter.rememberColors()
     val clipboardManager = LocalClipboardManager.current
     var showCopied by remember { mutableStateOf(false) }
+    val highlighted = remember(code, language, colors) {
+        SyntaxHighlighter.highlightWithColors(code, language, colors)
+    }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        color = SyntaxHighlighter.getBackgroundColor(),
+        color = colors.background,
         tonalElevation = 0.dp,
     ) {
         Column {
-            // Header bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF2D2D2D))
+                    .background(colors.headerBar)
                     .padding(horizontal = 12.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -266,7 +267,7 @@ private fun CodeBlockRenderer(
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
                     ),
-                    color = Color(0xFF808080),
+                    color = colors.headerText,
                 )
                 Surface(
                     onClick = {
@@ -274,12 +275,12 @@ private fun CodeBlockRenderer(
                         showCopied = true
                     },
                     shape = RoundedCornerShape(4.dp),
-                    color = Color(0xFF3D3D3D),
+                    color = colors.copyButton,
                 ) {
                     Text(
                         text = if (showCopied) "Copied!" else "Copy",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = Color(0xFFA9B7C6),
+                        color = colors.copyText,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                     )
                 }
@@ -290,7 +291,6 @@ private fun CodeBlockRenderer(
                     }
                 }
             }
-            // Code content
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
