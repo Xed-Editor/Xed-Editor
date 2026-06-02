@@ -61,6 +61,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.putJsonObject
 import okhttp3.OkHttpClient
 import java.io.File
@@ -153,6 +154,7 @@ class VibeCodingEngine(
             val status = when (result) {
                 is AgentResult.Success -> AgentActivityStatus.COMPLETED
                 is AgentResult.Failure -> AgentActivityStatus.FAILED
+                is AgentResult.NotAttempted -> AgentActivityStatus.PENDING
             }
             updateAgentActivity(name, status, result)
         }

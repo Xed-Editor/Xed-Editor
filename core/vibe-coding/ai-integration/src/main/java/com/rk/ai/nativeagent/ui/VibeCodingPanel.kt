@@ -345,7 +345,6 @@ fun VibeCodingPanel(
                         items(state.agentActivities.takeLast(5)) { activity ->
                             AgentActivityCard(
                                 activity = activity,
-                                onToggle = { showAgentPanel = !showAgentPanel },
                             )
                         }
                     }

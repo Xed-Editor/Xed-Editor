@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.ai.models.Assistant
 import com.rk.ai.persistence.settings.Settings
 import com.rk.ai.persistence.settings.SettingsStore
-import com.rk.ai.core.ReasoningLevel
+import com.rk.ai.persistence.settings.getCurrentAssistant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -48,7 +48,7 @@ fun AgentConfigPanel(
     var selectedAgentId by remember { mutableStateOf<String?>(null) }
     var showEditor by remember { mutableStateOf(false) }
     var editingConfig by remember { mutableStateOf<AgentConfig?>(null) }
-    var currentAssistant by remember { mutableStateOf(settings.currentAssistant) }
+    val currentAssistant = settings.getCurrentAssistant()
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -97,11 +97,33 @@ fun AgentConfigPanel(
                     config = editingConfig!!,
                     settings = settings,
                     onSave = { config ->
-                        settingsStore.updateCurrentAssistant(config.id, config.name, config.systemPrompt)
+                        settingsStore.update { s ->
+                            val updatedAssistant = Assistant(
+                                id = Uuid.parse(config.id),
+                                name = config.name,
+                                systemPrompt = config.systemPrompt,
+                                temperature = config.temperature,
+                                maxTokens = config.maxTokens,
+                                enableMemory = config.enableMemory,
+                            )
+                            val updatedList = s.assistants.map { a ->
+                                if (a.id == updatedAssistant.id) updatedAssistant else a
+                            }
+                            if (updatedList.none { it.id == updatedAssistant.id }) {
+                                s.copy(assistants = updatedList + updatedAssistant)
+                            } else {
+                                s.copy(assistants = updatedList)
+                            }
+                        }
                         editingConfig = null
                         showEditor = false
                     },
                     onDelete = {
+                        editingConfig?.let { cfg ->
+                            settingsStore.update { s ->
+                                s.copy(assistants = s.assistants.filter { it.id != Uuid.parse(cfg.id) })
+                            }
+                        }
                         editingConfig = null
                         showEditor = false
                     },
@@ -125,11 +147,9 @@ fun AgentConfigPanel(
                         )
                         Spacer(Modifier.height(4.dp))
                         AgentCard(
-                            name = settings.currentAssistant,
+                            name = currentAssistant.name,
                             description = "Active assistant",
-                            mode = settings.getCurrentAssistant()?.run {
-                                if (enableMemory) "memory" else "standard"
-                            } ?: "standard",
+                            mode = if (currentAssistant.enableMemory) "memory" else "standard",
                             color = "primary",
                             isActive = true,
                             onClick = {},

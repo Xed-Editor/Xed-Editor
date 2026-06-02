@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.nativeagent.ui.components
 
 import androidx.compose.foundation.layout.*
