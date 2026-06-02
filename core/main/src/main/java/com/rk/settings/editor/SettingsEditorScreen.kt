@@ -24,7 +24,7 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.settings.SettingsRoutes
 import com.rk.activities.settings.settingsNavController
-import com.rk.components.EditorSettingsToggle
+import com.rk.components.EditorSettingsItem
 import com.rk.components.NextScreenCard
 import com.rk.components.SettingsItem
 import com.rk.components.SingleInputDialog
@@ -66,21 +66,14 @@ fun SettingsEditorScreen(navController: NavController) {
                     route = SettingsRoutes.LspSettings,
                 )
 
-                EditorSettingsToggle(
-                    label = stringResource(strings.format_on_save),
-                    description = stringResource(strings.format_on_save_desc),
-                    default = Settings.format_on_save,
-                    sideEffect = { Settings.format_on_save = it },
-                )
-
-                EditorSettingsToggle(
+                EditorSettingsItem(
                     label = stringResource(strings.insert_final_newline),
                     description = stringResource(strings.insert_final_newline_desc),
                     default = Settings.insert_final_newline,
                     sideEffect = { Settings.insert_final_newline = it },
                 )
 
-                EditorSettingsToggle(
+                EditorSettingsItem(
                     label = stringResource(strings.trim_trailing_whitespace),
                     description = stringResource(strings.trim_trailing_whitespace_desc),
                     default = Settings.trim_trailing_whitespace,
@@ -89,8 +82,23 @@ fun SettingsEditorScreen(navController: NavController) {
             }
         }
 
+        PreferenceGroup(heading = stringResource(strings.formatting)) {
+            NextScreenCard(
+                label = stringResource(strings.manage_formatters),
+                description = stringResource(strings.manage_formatters_desc),
+                onClick = { navController.navigate(SettingsRoutes.Formatters.route) },
+            )
+
+            EditorSettingsItem(
+                label = stringResource(strings.format_on_save),
+                description = stringResource(strings.format_on_save_desc),
+                default = Settings.format_on_save,
+                sideEffect = { Settings.format_on_save = it },
+            )
+        }
+
         PreferenceGroup(heading = stringResource(strings.intelligent_features)) {
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.auto_close_tags),
                 description = stringResource(strings.auto_close_tags_desc),
                 default = Settings.auto_close_tags,
@@ -100,7 +108,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.bullet_continuation),
                 description = stringResource(strings.bullet_continuation_desc),
                 default = Settings.bullet_continuation,
@@ -115,7 +123,7 @@ fun SettingsEditorScreen(navController: NavController) {
             val wordWrap = remember { mutableStateOf(Settings.word_wrap) }
             val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_text || Settings.word_wrap) }
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.word_wrap),
                 description = stringResource(id = strings.word_wrap_desc),
                 state = wordWrap,
@@ -128,7 +136,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.txt_word_wrap),
                 description = stringResource(strings.txt_word_wrap_desc),
                 isEnabled = !wordWrap.value,
@@ -139,7 +147,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.read_mode),
                 description = stringResource(strings.read_mode_desc),
                 default = Settings.read_only_default,
@@ -148,14 +156,14 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.disable_virtual_kbd),
                 description = stringResource(strings.disable_virtual_kbd_desc),
                 default = Settings.hide_soft_keyboard_if_hardware,
                 sideEffect = { Settings.hide_soft_keyboard_if_hardware = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.line_spacing),
                 description = stringResource(id = strings.line_spacing_desc),
                 showSwitch = false,
@@ -163,56 +171,56 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { showLineSpacingDialog = true },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
                 default = Settings.cursor_animation,
                 sideEffect = { Settings.cursor_animation = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.show_minimap),
                 description = stringResource(strings.show_minimap_desc),
                 default = Settings.show_minimap,
                 sideEffect = { Settings.show_minimap = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.show_line_number),
                 description = stringResource(id = strings.show_line_number),
                 default = Settings.show_line_numbers,
                 sideEffect = { Settings.show_line_numbers = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.pin_line_number),
                 description = stringResource(id = strings.pin_line_number),
                 default = Settings.pin_line_number,
                 sideEffect = { Settings.pin_line_number = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.render_whitespace),
                 description = stringResource(id = strings.render_whitespace_desc),
                 default = Settings.render_whitespace,
                 sideEffect = { Settings.render_whitespace = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.show_suggestions),
                 description = stringResource(id = strings.show_suggestions),
                 default = Settings.show_suggestions,
                 sideEffect = { Settings.show_suggestions = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.enable_sticky_scroll),
                 description = stringResource(id = strings.enable_sticky_scroll_desc),
                 default = Settings.sticky_scroll,
                 sideEffect = { Settings.sticky_scroll = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.enable_quick_deletion),
                 description = stringResource(id = strings.enable_quick_deletion_desc),
                 default = Settings.quick_deletion,
@@ -237,14 +245,14 @@ fun SettingsEditorScreen(navController: NavController) {
                 scope.launch { refreshEditorSettings() }
             }
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.auto_closing_bracket),
                 description = stringResource(strings.auto_closing_bracket_desc),
                 default = Settings.auto_closing_bracket,
                 sideEffect = { Settings.auto_closing_bracket = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.complete_on_enter),
                 description = stringResource(strings.complete_on_enter_desc),
                 default = Settings.complete_on_enter,
@@ -295,7 +303,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 scope.launch { refreshEditorSettings() }
             }
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.use_tabs),
                 description = stringResource(strings.use_tabs_desc),
                 default = Settings.actual_tabs,
@@ -321,14 +329,14 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.ToolbarActions,
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
                 default = Settings.show_extra_keys,
                 sideEffect = { Settings.show_extra_keys = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.extra_key_bg),
                 description = stringResource(id = strings.extra_key_bg_desc),
                 isEnabled = Settings.show_extra_keys,
@@ -336,7 +344,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = { Settings.extra_keys_bg = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.split_extra_keys),
                 description = stringResource(id = strings.split_extra_keys_desc),
                 isEnabled = Settings.show_extra_keys,
@@ -353,21 +361,21 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.drawer)) {
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.keep_drawer_locked),
                 description = stringResource(id = strings.drawer_lock_desc),
                 default = Settings.keep_drawer_locked,
                 sideEffect = { Settings.keep_drawer_locked = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.sort_mode),
                 description = stringResource(id = strings.sort_mode_desc),
                 showSwitch = false,
                 sideEffect = { showSortingModeDialog = true },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.show_hidden_files_drawer),
                 description = stringResource(id = strings.show_hidden_files_drawer_desc),
                 default = Settings.show_hidden_files_drawer,
@@ -380,21 +388,21 @@ fun SettingsEditorScreen(navController: NavController) {
                 onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/true") },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.compact_folders_drawer),
                 description = stringResource(id = strings.compact_folders_drawer_desc),
                 default = Settings.compact_folders_drawer,
                 sideEffect = { Settings.compact_folders_drawer = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.show_hidden_files_search),
                 description = stringResource(id = strings.show_hidden_files_search_desc),
                 default = Settings.show_hidden_files_search,
                 sideEffect = { Settings.show_hidden_files_search = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.always_index_projects),
                 description = stringResource(strings.always_index_projects_desc),
                 default = Settings.always_index_projects,
@@ -407,7 +415,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 onClick = { settingsNavController.get()!!.navigate("${SettingsRoutes.ExcludeFiles.route}/false") },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.auto_open_new_files),
                 description = stringResource(strings.auto_open_new_files_desc),
                 default = Settings.auto_open_new_files,
@@ -416,35 +424,35 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.other)) {
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.detect_bin_files),
                 description = stringResource(strings.detect_bin_files_desc),
                 default = Settings.detect_bin_files,
                 sideEffect = { Settings.detect_bin_files = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(strings.oom_prediction),
                 description = stringResource(strings.oom_prediction_desc),
                 default = Settings.oom_prediction,
                 sideEffect = { Settings.oom_prediction = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.restore_sessions),
                 description = stringResource(id = strings.restore_sessions_desc),
                 default = Settings.restore_sessions,
                 sideEffect = { Settings.restore_sessions = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
                 default = Settings.smooth_tabs,
                 sideEffect = { Settings.smooth_tabs = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.show_tab_icons),
                 description = stringResource(id = strings.show_tab_icons_desc),
                 default = Settings.show_tab_icons,
@@ -463,21 +471,21 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.DefaultLineEnding,
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.auto_save),
                 description = stringResource(id = strings.auto_save_desc),
                 default = Settings.auto_save,
                 sideEffect = { Settings.auto_save = it },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.auto_save_delay),
                 description = stringResource(id = strings.auto_save_delay_desc),
                 showSwitch = false,
                 sideEffect = { showAutoSaveDialog = true },
             )
 
-            EditorSettingsToggle(
+            EditorSettingsItem(
                 label = stringResource(id = strings.enable_editorconfig),
                 description = stringResource(id = strings.enable_editorconfig_desc),
                 default = Settings.enable_editorconfig,

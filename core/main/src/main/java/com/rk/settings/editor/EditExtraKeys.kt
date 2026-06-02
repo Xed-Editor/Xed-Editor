@@ -33,7 +33,7 @@ import com.mohamedrejeb.compose.dnd.reorder.ReorderContainer
 import com.mohamedrejeb.compose.dnd.reorder.ReorderableItem
 import com.mohamedrejeb.compose.dnd.reorder.rememberReorderState
 import com.rk.commands.CommandProvider
-import com.rk.components.EditorSettingsToggle
+import com.rk.components.EditorSettingsItem
 import com.rk.components.InfoBlock
 import com.rk.components.ResetButton
 import com.rk.components.SingleInputDialog
@@ -156,7 +156,7 @@ fun EditExtraKeys(modifier: Modifier = Modifier) {
 
                     item {
                         PreferenceGroup(heading = stringResource(strings.symbols), modifier = Modifier.animateItem()) {
-                            EditorSettingsToggle(
+                            EditorSettingsItem(
                                 label = stringResource(id = strings.change_extra_symbols),
                                 description = stringResource(id = strings.change_extra_symbols_desc),
                                 showSwitch = false,

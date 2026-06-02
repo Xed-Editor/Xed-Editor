@@ -233,6 +233,9 @@ class LspConnector(
 
             override val disabledFeatures: Set<LspFeature>
                 get() = buildSet {
+                    if (!Preference.getBoolean("lsp_${id}_document_highlight", true)) {
+                        add(LspFeature.DocumentHighlight)
+                    }
                     if (!Preference.getBoolean("lsp_${id}_hover", true)) {
                         add(LspFeature.Hover)
                     }

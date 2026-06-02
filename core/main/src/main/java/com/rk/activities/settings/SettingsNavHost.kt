@@ -21,6 +21,7 @@ import com.rk.settings.editor.EditExtraKeys
 import com.rk.settings.editor.EditToolbarActions
 import com.rk.settings.editor.EditorFontScreen
 import com.rk.settings.editor.ExcludeFiles
+import com.rk.settings.editor.FormatterSettings
 import com.rk.settings.editor.SettingsEditorScreen
 import com.rk.settings.editor.TerminalFontScreen
 import com.rk.settings.extension.ExtensionDetail
@@ -76,7 +77,8 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.LanguageScreen.route) { LanguageScreen() }
         composable(SettingsRoutes.Runners.route) { RunnerSettings(navController = navController) }
         composable(SettingsRoutes.HtmlRunner.route) { HtmlRunnerSettings() }
-        composable(SettingsRoutes.LspSettings.route) { LspSettings(navController = navController) }
+        composable(SettingsRoutes.Formatters.route) { FormatterSettings(navController) }
+        composable(SettingsRoutes.LspSettings.route) { LspSettings(navController) }
         composable(
             "${SettingsRoutes.LspServerDetail.route}/{serverId}",
             arguments = listOf(navArgument("serverId", builder = { type = NavType.StringType })),
