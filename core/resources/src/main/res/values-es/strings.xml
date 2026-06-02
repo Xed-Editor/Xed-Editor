@@ -636,4 +636,11 @@
     <string name="confirm_exit_dialog_desc">Muestra un diálogo de confirmación antes de cerrar la aplicación</string>
     <string name="sort_lines_ascending">Ordena líneas ascencentes</string>
     <string name="sort_lines_descending">Ordenar líneas descendentes</string>
+    <string name="choose_runner">Elija corredor</string>
+    <string name="ext_cleanup_failed">Limpieza de extensión incorrecta</string>
+    <string name="uninstall_ext_dialog">¿Desinstalo extensión?</string>
+    <string name="uninstall_ext_dialog_desc">¿Seguro que desea desinstalar la extensión \'%s\'?</string>
+    <string name="invalid_terminal_extra_keys">Formato no válido para teclas de terminal extras. Se cargaran las teclas por defecto.</string>
+    <string name="clipboard_keybindings">Vínculos del portapapel</string>
+    <string name="clipboard_keybindings_desc">Habilita copia y pega vínculos de teclas para teclados de hardware.</string>
 </resources>
