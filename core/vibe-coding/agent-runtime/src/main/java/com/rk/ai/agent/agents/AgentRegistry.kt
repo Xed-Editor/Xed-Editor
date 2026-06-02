@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.agents
 
 import android.content.Context
@@ -59,7 +60,6 @@ class AgentRegistry(
         )
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     fun getDelegateTool(onResult: suspend (String, AgentResult) -> Unit): Tool = Tool(
         name = "delegateTask",
         description = "Delegates a task to a specialized sub-agent for parallel execution. Use this for code review, architecture analysis, bug hunting, or test generation while you continue other work.",

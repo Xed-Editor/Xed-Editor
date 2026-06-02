@@ -2,12 +2,18 @@
 package com.rk.ai.nativeagent.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,11 +22,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import kotlin.uuid.ExperimentalUuidApi
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.ui.components.*
+import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
 
 enum class ToolPanel {
     NONE, COMMANDS, SKILLS, AGENTS, PERMISSIONS, INSTRUCTIONS, PLUGINS
@@ -40,12 +50,32 @@ fun VibeCodingPanel(
     var showAgentPanel by remember { mutableStateOf(false) }
     var activePanel by remember { mutableStateOf(ToolPanel.NONE) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
 
     val workspacePath = remember {
         try {
             engine.ideService.getPrimaryWorkspacePath()
         } catch (_: Exception) { "/" }
     }
+
+    val dockProgress by animateDpAsState(
+        targetValue = if (state.dockOpen) 0.dp else (-200).dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow,
+        ),
+        label = "dockAnimation",
+    )
+
+    val hasTodos = state.todos.isNotEmpty() && state.dockOpen
+    val todoProgress by animateDpAsState(
+        targetValue = if (hasTodos) 0.dp else (-120).dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow,
+        ),
+        label = "todoAnimation",
+    )
 
     // Bottom sheet panel content
     if (activePanel != ToolPanel.NONE) {
@@ -95,6 +125,7 @@ fun VibeCodingPanel(
 
     Box(modifier = modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxSize()) {
+            // File tree sidebar
             AnimatedVisibility(
                 visible = showFiles,
                 enter = slideInHorizontally { -it },
@@ -118,80 +149,97 @@ fun VibeCodingPanel(
                     color = colorScheme.surfaceContainerLow,
                     tonalElevation = 0.5.dp,
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            val settings by engine.settingsStore.settingsFlow.collectAsState()
-                            val modelName = remember(settings.chatModelId, settings.providers) {
-                                val model = settings.providers.flatMap { it.models }
-                                    .firstOrNull { it.id == settings.chatModelId }
-                                model?.displayName?.ifEmpty { model.modelId } ?: "No model"
+                    Column {
+                        // Main toolbar row
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                val settings by engine.settingsStore.settingsFlow.collectAsState()
+                                val modelName = remember(settings.chatModelId, settings.providers) {
+                                    val model = settings.providers.flatMap { it.models }
+                                        .firstOrNull { it.id == settings.chatModelId }
+                                    model?.displayName?.ifEmpty { model.modelId } ?: "No model"
+                                }
+
+                                Text(
+                                    text = modelName,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = colorScheme.primary,
+                                )
                             }
 
-                            Text(
-                                text = modelName,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = colorScheme.primary,
-                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Terminal,
+                                    label = "Commands",
+                                    onClick = { activePanel = ToolPanel.COMMANDS },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.AutoAwesome,
+                                    label = "Skills",
+                                    onClick = { activePanel = ToolPanel.SKILLS },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Psychology,
+                                    label = "Agents",
+                                    onClick = { activePanel = ToolPanel.AGENTS },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Code,
+                                    label = "Files",
+                                    onClick = { showFiles = !showFiles },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.List,
+                                    label = "History",
+                                    onClick = { showHistory = !showHistory },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Description,
+                                    label = "Rules",
+                                    onClick = { activePanel = ToolPanel.INSTRUCTIONS },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Extension,
+                                    label = "Plugins",
+                                    onClick = { activePanel = ToolPanel.PLUGINS },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Security,
+                                    label = "Perms",
+                                    onClick = { activePanel = ToolPanel.PERMISSIONS },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Settings,
+                                    label = "Settings",
+                                    onClick = { showSettings = true },
+                                )
+                                ToolbarButton(
+                                    icon = Icons.Outlined.Delete,
+                                    label = "Clear",
+                                    onClick = { engine.clearConversation() },
+                                    enabled = state.messages.isNotEmpty(),
+                                )
+                            }
                         }
 
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            ToolbarButton(
-                                icon = Icons.Outlined.Terminal,
-                                label = "Commands",
-                                onClick = { activePanel = ToolPanel.COMMANDS },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.AutoAwesome,
-                                label = "Skills",
-                                onClick = { activePanel = ToolPanel.SKILLS },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.Psychology,
-                                label = "Agents",
-                                onClick = { activePanel = ToolPanel.AGENTS },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.Code,
-                                label = "Files",
-                                onClick = { showFiles = !showFiles },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.List,
-                                label = "History",
-                                onClick = { showHistory = !showHistory },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.Description,
-                                label = "Rules",
-                                onClick = { activePanel = ToolPanel.INSTRUCTIONS },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.Extension,
-                                label = "Plugins",
-                                onClick = { activePanel = ToolPanel.PLUGINS },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.Security,
-                                label = "Perms",
-                                onClick = { activePanel = ToolPanel.PERMISSIONS },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.Settings,
-                                label = "Settings",
-                                onClick = { showSettings = true },
-                            )
-                            ToolbarButton(
-                                icon = Icons.Outlined.Delete,
-                                label = "Clear",
-                                onClick = { engine.clearConversation() },
-                                enabled = state.messages.isNotEmpty(),
+                        // Session tabs row
+                        if (state.sessionTree.isNotEmpty()) {
+                            SessionTabsRow(
+                                sessionTree = state.sessionTree,
+                                activeSessionId = state.activeSessionId,
+                                isProcessing = state.isProcessing,
+                                onSwitchSession = { engine.switchToSession(it) },
+                                onNewBranch = {
+                                    val parent = state.activeSessionId ?: return@SessionTabsRow
+                                    engine.createBranchSession(parent)
+                                },
                             )
                         }
                     }
@@ -213,6 +261,74 @@ fun VibeCodingPanel(
                     }
                 }
 
+                // Todo dock (animated, inspired by OpenCode's SessionTodoDock)
+                AnimatedVisibility(
+                    visible = hasTodos,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        color = colorScheme.surfaceContainerHigh,
+                        tonalElevation = 2.dp,
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(
+                                    text = "Tasks (${state.completedTodos}/${state.todos.size})",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                                TextButton(
+                                    onClick = { engine.setSessionTodos(state.activeSessionId ?: return@TextButton, emptyList()) },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                                ) {
+                                    Text("Clear", style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                            Spacer(Modifier.height(4.dp))
+                            state.todos.take(3).forEach { todo ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 2.dp),
+                                ) {
+                                    val icon = when (todo.status) {
+                                        SessionTodoStatus.COMPLETED -> Icons.Outlined.CheckCircle
+                                        SessionTodoStatus.CANCELLED -> Icons.Outlined.Cancel
+                                        SessionTodoStatus.PENDING -> Icons.Outlined.RadioButtonUnchecked
+                                    }
+                                    Icon(
+                                        icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp),
+                                        tint = when (todo.status) {
+                                            SessionTodoStatus.COMPLETED -> colorScheme.primary
+                                            SessionTodoStatus.CANCELLED -> colorScheme.error
+                                            SessionTodoStatus.PENDING -> colorScheme.onSurfaceVariant
+                                        },
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = todo.description,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Agent activity panel (collapsible)
                 AnimatedVisibility(
                     visible = showAgentPanel && state.agentActivities.isNotEmpty(),
@@ -227,7 +343,10 @@ fun VibeCodingPanel(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         items(state.agentActivities.takeLast(5)) { activity ->
-                            AgentActivityCard(activity = activity)
+                            AgentActivityCard(
+                                activity = activity,
+                                onToggle = { showAgentPanel = !showAgentPanel },
+                            )
                         }
                     }
                 }
@@ -318,6 +437,91 @@ fun VibeCodingPanel(
             engine = engine,
             onDismiss = { showSettings = false },
         )
+    }
+}
+
+@Composable
+private fun SessionTabsRow(
+    sessionTree: List<com.rk.ai.nativeagent.engine.SessionNode>,
+    activeSessionId: kotlin.uuid.Uuid?,
+    isProcessing: Boolean,
+    onSwitchSession: (kotlin.uuid.Uuid) -> Unit,
+    onNewBranch: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+    ) {
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            items(sessionTree) { node ->
+                val isActive = node.id == activeSessionId
+                SessionTab(
+                    title = node.title,
+                    isActive = isActive,
+                    isBranch = node.parentId != null,
+                    onClick = { onSwitchSession(node.id) },
+                )
+            }
+            item {
+                FilledTonalIconButton(
+                    onClick = onNewBranch,
+                    modifier = Modifier.size(24.dp),
+                    enabled = !isProcessing,
+                ) {
+                    Icon(
+                        Icons.Outlined.Add,
+                        contentDescription = "New Branch",
+                        modifier = Modifier.size(12.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SessionTab(
+    title: String,
+    isActive: Boolean,
+    isBranch: Boolean,
+    onClick: () -> Unit,
+) {
+    val bg = if (isActive) MaterialTheme.colorScheme.surfaceContainerHigh
+    else MaterialTheme.colorScheme.surfaceContainerLow
+
+    val maxWidth = 160.dp
+
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(6.dp),
+        color = bg,
+        modifier = Modifier.widthIn(max = maxWidth),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (isBranch) {
+                Icon(
+                    Icons.Outlined.SubdirectoryArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(10.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(Modifier.width(2.dp))
+            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 

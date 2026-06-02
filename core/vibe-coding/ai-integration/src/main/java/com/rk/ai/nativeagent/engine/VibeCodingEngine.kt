@@ -2,14 +2,20 @@
 package com.rk.ai.nativeagent.engine
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.rk.ai.agent.AILoggingManager
 import com.rk.ai.agent.AppEventBus
 import com.rk.ai.agent.GenerationChunk
 import com.rk.ai.agent.GenerationHandler
+import com.rk.ai.agent.events.SessionTodo
+import com.rk.ai.agent.events.SessionTodoStatus
+import com.rk.ai.agent.events.VibeCodingEvent
+import com.rk.ai.agent.events.VibeCodingEventBus
 import com.rk.ai.agent.files.FilesManager
 import com.rk.ai.agent.files.SkillManager
 import com.rk.ai.agent.agents.AgentResult
+import com.rk.ai.agent.hooks.HookContext
 import com.rk.ai.agent.hooks.HookEvent
 import com.rk.ai.agent.hooks.HookManager
 import com.rk.ai.agent.hooks.HookResult
@@ -54,14 +60,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.putJsonObject
 import okhttp3.OkHttpClient
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+private const val TAG = "VibeCodingEngine"
 private val defaultJson = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
 private fun buildOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
@@ -107,6 +114,8 @@ class VibeCodingEngine(
     private val skillManager = SkillManager(context, settingsStore)
     private val localTools = LocalTools(context, eventBus)
 
+    val vibeEventBus = VibeCodingEventBus()
+
     val generationHandler = GenerationHandler(
         context = context,
         providerManager = providerManager,
@@ -119,9 +128,23 @@ class VibeCodingEngine(
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
     val hookManager = HookManager()
 
+    private val storedAutoRespondRules = mutableListOf<com.rk.ai.nativeagent.engine.PermissionAutoRespondRule>()
+    private val storedCommandCatalog = mutableListOf<com.rk.ai.nativeagent.engine.CommandCatalogEntry>()
+
+    private var sessionCounter = 0L
+
     init {
         val securityHook = SecurityHook { severity, message, toolName, filePath ->
-            addSecurityAlert(SecurityAlert(severity, message, toolName, filePath))
+            val alert = SecurityAlert(severity, message, toolName, filePath)
+            addSecurityAlert(alert)
+            engineScope.launch {
+                vibeEventBus.emit(VibeCodingEvent.SecurityAlert(
+                    severity = severity,
+                    message = message,
+                    toolName = toolName,
+                    filePath = filePath,
+                ))
+            }
         }
         hookManager.register(HookEvent.BEFORE_FILE_WRITE, securityHook)
         hookManager.register(HookEvent.BEFORE_FILE_EDIT, securityHook)
@@ -135,8 +158,44 @@ class VibeCodingEngine(
         }
     }
 
-    suspend fun evaluateHooks(event: HookEvent, context: com.rk.ai.agent.hooks.HookContext): com.rk.ai.agent.hooks.HookResult {
+    suspend fun evaluateHooks(event: HookEvent, context: HookContext): HookResult {
         return hookManager.checkAll(event, context)
+    }
+
+    fun addPermissionAutoRespondRule(rule: com.rk.ai.nativeagent.engine.PermissionAutoRespondRule) {
+        storedAutoRespondRules.add(rule)
+        _state.value = _state.value.copy(
+            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+        )
+    }
+
+    fun removePermissionAutoRespondRule(pattern: String) {
+        storedAutoRespondRules.removeAll { it.pattern == pattern }
+        _state.value = _state.value.copy(
+            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+        )
+    }
+
+    fun addCommandToCatalog(entry: com.rk.ai.nativeagent.engine.CommandCatalogEntry) {
+        storedCommandCatalog.removeAll { it.id == entry.id }
+        storedCommandCatalog.add(entry)
+        _state.value = _state.value.copy(
+            commandCatalog = storedCommandCatalog.toList(),
+        )
+    }
+
+    fun removeCommandFromCatalog(id: String) {
+        storedCommandCatalog.removeAll { it.id == id }
+        _state.value = _state.value.copy(
+            commandCatalog = storedCommandCatalog.toList(),
+        )
+    }
+
+    fun setSessionTodos(sessionId: Uuid, todos: List<SessionTodo>) {
+        _state.value = _state.value.copy(todos = todos)
+        engineScope.launch {
+            vibeEventBus.emit(VibeCodingEvent.TodoUpdated(sessionId, todos))
+        }
     }
 
     private fun buildToolList(assistant: com.rk.ai.models.Assistant, settings: com.rk.ai.persistence.settings.Settings): List<Tool> {
@@ -290,10 +349,58 @@ class VibeCodingEngine(
     val messages: List<UIMessage> get() = _state.value.messages
     val isProcessing: Boolean get() = _state.value.isProcessing
 
+    fun createBranchSession(parentSessionId: Uuid, title: String = "Branch"): Uuid {
+        val newId = Uuid.random()
+        val node = SessionNode(
+            id = newId,
+            parentId = parentSessionId,
+            title = title,
+        )
+        _state.value = _state.value.copy(
+            sessionTree = _state.value.sessionTree + node,
+            activeSessionId = newId,
+            parentSessionId = parentSessionId,
+        )
+        engineScope.launch {
+            vibeEventBus.emit(VibeCodingEvent.SessionCreated(newId, parentSessionId))
+        }
+        return newId
+    }
+
+    fun switchToSession(sessionId: Uuid) {
+        val node = _state.value.sessionTree.find { it.id == sessionId } ?: return
+        _state.value = _state.value.copy(
+            messages = node.messages,
+            activeSessionId = sessionId,
+            parentSessionId = node.parentId,
+        )
+    }
+
+    private fun saveCurrentSessionMessages() {
+        val sessionId = _state.value.activeSessionId ?: return
+        val tree = _state.value.sessionTree.toMutableList()
+        val idx = tree.indexOfFirst { it.id == sessionId }
+        if (idx >= 0) {
+            tree[idx] = tree[idx].copy(messages = _state.value.messages)
+            _state.value = _state.value.copy(sessionTree = tree)
+        }
+    }
+
     fun sendMessage(text: String, extraParts: List<UIMessagePart> = emptyList()) {
         currentJob?.cancel()
         currentJob = engineScope.launch(Dispatchers.IO) {
             val trimmed = text.trim()
+
+            // Ensure a session exists
+            val sessionId = _state.value.activeSessionId ?: Uuid.random()
+            if (_state.value.activeSessionId == null) {
+                val node = SessionNode(id = sessionId, title = trimmed.take(80))
+                _state.value = _state.value.copy(
+                    sessionTree = _state.value.sessionTree + node,
+                    activeSessionId = sessionId,
+                )
+            }
+
             _state.value = _state.value.copy(isProcessing = true, error = null)
             _state.value = _state.value.copy(
                 messages = _state.value.messages + UIMessage(
@@ -302,6 +409,8 @@ class VibeCodingEngine(
                 ),
             )
 
+            engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationStarted) }
+
             val settings = settingsStore.settingsFlow.value
             val model = settings.findModelById(settings.chatModelId)
             if (model == null) {
@@ -309,12 +418,27 @@ class VibeCodingEngine(
                     isProcessing = false,
                     error = "No model selected. Configure a provider and model in VibeCoding settings.",
                 )
+                engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationError) }
                 return@launch
             }
 
             val assistant = settings.getCurrentAssistant()
 
             val enhancedTools = buildToolList(assistant, settings)
+
+            // Auto-respond permission check
+            val pendingToolCalls = _state.value.messages.lastOrNull()
+                ?.getTools()
+                ?.filter { it.approvalState is com.rk.ai.models.ToolApprovalState.Auto }
+                .orEmpty()
+            for (tool in pendingToolCalls) {
+                val rule = _state.value.shouldAutoRespondPermission(tool.toolName)
+                when (rule) {
+                    com.rk.ai.nativeagent.engine.PermissionAction.ALLOW -> approveTool(tool.toolCallId)
+                    com.rk.ai.nativeagent.engine.PermissionAction.DENY -> denyTool(tool.toolCallId, "Auto-denied by permission rule")
+                    else -> {} // ASK -> leave as Pending for user
+                }
+            }
 
             val memories = if (assistant.enableMemory) {
                 val memoryAssistantId = if (assistant.useGlobalMemory) {
@@ -349,8 +473,10 @@ class VibeCodingEngine(
                     outputTransformers = outputTransformers,
                 ).collect { chunk ->
                     when (chunk) {
-                        is GenerationChunk.Messages ->
+                        is GenerationChunk.Messages -> {
                             _state.value = _state.value.copy(messages = chunk.messages)
+                            saveCurrentSessionMessages()
+                        }
                         else -> {}
                     }
                 }
@@ -359,11 +485,14 @@ class VibeCodingEngine(
                     isProcessing = false,
                     error = e.message ?: "Generation failed",
                 )
+                engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationError) }
                 return@launch
             }
 
             saveConversation()
             _state.value = _state.value.copy(isProcessing = false)
+            saveCurrentSessionMessages()
+            engineScope.launch { vibeEventBus.emit(VibeCodingEvent.GenerationFinished) }
         }
     }
 
@@ -374,7 +503,10 @@ class VibeCodingEngine(
     }
 
     fun clearConversation() {
-        _state.value = VibeCodingState()
+        _state.value = VibeCodingState(
+            commandCatalog = storedCommandCatalog.toList(),
+            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+        )
         systemPromptTransformer.reset()
     }
 
@@ -389,6 +521,7 @@ class VibeCodingEngine(
                         currentConversationId = loaded.id,
                         error = null,
                     )
+                    saveCurrentSessionMessages()
                 }
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
@@ -425,7 +558,7 @@ class VibeCodingEngine(
 
             _state.value = _state.value.copy(currentConversationId = convId)
         } catch (e: Exception) {
-            android.util.Log.e("VibeCodingEngine", "Failed to save conversation", e)
+            Log.e(TAG, "Failed to save conversation", e)
         }
     }
 
@@ -434,43 +567,31 @@ class VibeCodingEngine(
     }
 
     fun approveTool(toolCallId: String) {
-        val messages = _state.value.messages.toMutableList()
-        val lastIdx = messages.lastIndex
-        if (lastIdx < 0) return
-        val last = messages[lastIdx]
-        val updatedParts = last.parts.map { part ->
-            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Approved)
-            } else part
+        updateToolApproval(toolCallId) {
+            com.rk.ai.models.ToolApprovalState.Approved
         }
-        messages[lastIdx] = last.copy(parts = updatedParts)
-        _state.value = _state.value.copy(messages = messages)
-        resumeGeneration()
     }
 
-    fun denyTool(toolCallId: String, reason: String) {
-        val messages = _state.value.messages.toMutableList()
-        val lastIdx = messages.lastIndex
-        if (lastIdx < 0) return
-        val last = messages[lastIdx]
-        val updatedParts = last.parts.map { part ->
-            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Denied(reason))
-            } else part
+    fun denyTool(toolCallId: String, reason: String = "") {
+        updateToolApproval(toolCallId) {
+            com.rk.ai.models.ToolApprovalState.Denied(reason)
         }
-        messages[lastIdx] = last.copy(parts = updatedParts)
-        _state.value = _state.value.copy(messages = messages)
-        resumeGeneration()
     }
 
     fun answerTool(toolCallId: String, answer: String) {
+        updateToolApproval(toolCallId) {
+            com.rk.ai.models.ToolApprovalState.Answered(answer)
+        }
+    }
+
+    private fun updateToolApproval(toolCallId: String, stateFn: () -> com.rk.ai.models.ToolApprovalState) {
         val messages = _state.value.messages.toMutableList()
         val lastIdx = messages.lastIndex
         if (lastIdx < 0) return
         val last = messages[lastIdx]
         val updatedParts = last.parts.map { part ->
             if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Answered(answer))
+                part.copy(approvalState = stateFn())
             } else part
         }
         messages[lastIdx] = last.copy(parts = updatedParts)
@@ -520,14 +641,17 @@ class VibeCodingEngine(
                     outputTransformers = emptyList(),
                 ).collect { chunk ->
                     when (chunk) {
-                        is GenerationChunk.Messages ->
+                        is GenerationChunk.Messages -> {
                             _state.value = _state.value.copy(messages = chunk.messages)
+                            saveCurrentSessionMessages()
+                        }
                     }
                 }
             }.onFailure { e ->
                 _state.value = _state.value.copy(isProcessing = false, error = e.message)
             }
             _state.value = _state.value.copy(isProcessing = false)
+            saveCurrentSessionMessages()
         }
     }
 }

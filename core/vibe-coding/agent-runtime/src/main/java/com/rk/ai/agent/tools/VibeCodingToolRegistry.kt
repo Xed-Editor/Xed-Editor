@@ -1,9 +1,18 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.tools
 
 import android.content.Context
 import com.rk.ai.agent.agents.AgentRegistry
 import com.rk.ai.models.Tool
 import com.rk.ai.service.IdeService
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+
+interface PluginToolProvider {
+    val pluginId: String
+    val pluginName: String
+    fun getTools(): List<Tool>
+}
 
 class VibeCodingToolRegistry(
     private val ideService: IdeService,
@@ -31,6 +40,8 @@ class VibeCodingToolRegistry(
         onAgentResult?.invoke(name, result)
     }}
 
+    private val pluginProviders = mutableListOf<PluginToolProvider>()
+
     private val _coreTools: List<Tool> by lazy {
         fileTools.all +
             editorTools.all +
@@ -47,7 +58,24 @@ class VibeCodingToolRegistry(
             listOf(agentListTool, agentDelegateTool)
     }
 
-    val allTools: List<Tool> get() = _coreTools
+    val allTools: List<Tool> get() {
+        val pluginTools = pluginProviders.flatMap { it.getTools() }
+        return _coreTools + pluginTools
+    }
 
-    fun withMcpTools(mcpTools: List<Tool>): List<Tool> = _coreTools + mcpTools
+    fun withMcpTools(mcpTools: List<Tool>): List<Tool> {
+        val pluginTools = pluginProviders.flatMap { it.getTools() }
+        return _coreTools + mcpTools + pluginTools
+    }
+
+    fun registerPluginProvider(provider: PluginToolProvider) {
+        pluginProviders.removeAll { it.pluginId == provider.pluginId }
+        pluginProviders.add(provider)
+    }
+
+    fun unregisterPluginProvider(pluginId: String) {
+        pluginProviders.removeAll { it.pluginId == pluginId }
+    }
+
+    fun getRegisteredPlugins(): List<PluginToolProvider> = pluginProviders.toList()
 }

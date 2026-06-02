@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.nativeagent.engine
 
 import com.rk.ai.agent.agents.AgentResult
+import com.rk.ai.agent.events.SessionTodo
+import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.models.UIMessage
 import kotlin.uuid.Uuid
 import kotlin.uuid.ExperimentalUuidApi
@@ -26,6 +29,33 @@ data class SecurityAlert(
     val timestamp: Long = System.currentTimeMillis(),
 )
 
+data class SessionNode(
+    val id: Uuid,
+    val parentId: Uuid? = null,
+    val title: String = "New Session",
+    val createdAt: Long = System.currentTimeMillis(),
+    val messages: List<UIMessage> = emptyList(),
+    val isArchived: Boolean = false,
+)
+
+data class PermissionAutoRespondRule(
+    val pattern: String,
+    val action: PermissionAction,
+    val description: String = "",
+)
+
+enum class PermissionAction { ALLOW, ASK, DENY }
+
+data class CommandCatalogEntry(
+    val id: String,
+    val title: String,
+    val description: String = "",
+    val category: String = "custom",
+    val slash: String = "",
+    val prompt: String = "",
+    val hidden: Boolean = false,
+)
+
 @OptIn(ExperimentalUuidApi::class)
 data class VibeCodingState(
     val messages: List<UIMessage> = emptyList(),
@@ -34,9 +64,55 @@ data class VibeCodingState(
     val currentConversationId: Uuid? = null,
     val agentActivities: List<AgentActivity> = emptyList(),
     val securityAlerts: List<SecurityAlert> = emptyList(),
+
+    val sessionTree: List<SessionNode> = emptyList(),
+    val activeSessionId: Uuid? = null,
+    val parentSessionId: Uuid? = null,
+
+    val todos: List<SessionTodo> = emptyList(),
+    val permissionAutoRespondRules: List<PermissionAutoRespondRule> = emptyList(),
+
+    val commandCatalog: List<CommandCatalogEntry> = emptyList(),
+    val dockOpen: Boolean = false,
+    val dockClosing: Boolean = false,
 ) {
     val hasSecurityAlerts: Boolean get() = securityAlerts.isNotEmpty()
     val activeAgents: List<AgentActivity> get() = agentActivities.filter {
         it.status == AgentActivityStatus.RUNNING || it.status == AgentActivityStatus.PENDING
+    }
+
+    val currentSessionNode: SessionNode? get() {
+        val id = activeSessionId ?: return null
+        return sessionTree.find { it.id == id }
+    }
+
+    val hasParentSession: Boolean get() = parentSessionId != null
+
+    val completedTodos: Int get() = todos.count { it.status == SessionTodoStatus.COMPLETED }
+    val pendingTodos: Int get() = todos.count { it.status == SessionTodoStatus.PENDING }
+
+    fun sessionLineage(sessionId: Uuid): List<Uuid> {
+        val result = mutableListOf(sessionId)
+        var current = sessionTree.find { it.id == sessionId }
+        while (current?.parentId != null) {
+            result.add(current.parentId!!)
+            current = sessionTree.find { it.id == current.parentId }
+        }
+        return result
+    }
+
+    fun shouldAutoRespondPermission(permissionType: String): PermissionAction? {
+        for (rule in permissionAutoRespondRules) {
+            if (patternMatches(rule.pattern, permissionType)) return rule.action
+        }
+        return null
+    }
+
+    private fun patternMatches(pattern: String, input: String): Boolean {
+        val regex = pattern
+            .replace(".", "\\.")
+            .replace("*", ".*")
+            .toRegex(RegexOption.IGNORE_CASE)
+        return regex.matches(input)
     }
 }
