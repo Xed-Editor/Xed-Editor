@@ -43,6 +43,8 @@ sealed class SettingsRoutes(val route: String) {
 
     data object Support : SettingsRoutes("support")
 
+    data object Formatters : SettingsRoutes("formatters")
+
     data object LanguageScreen : SettingsRoutes("language")
 
     data object Runners : SettingsRoutes("runners")

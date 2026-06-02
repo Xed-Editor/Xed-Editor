@@ -236,6 +236,13 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
 
         PreferenceGroup(heading = stringResource(strings.features)) {
             LspFeatureToggle(
+                label = stringResource(strings.document_highlight),
+                description = stringResource(strings.document_highlight_desc),
+                preferenceId = "lsp_${server.id}_document_highlight",
+                server = server,
+            )
+
+            LspFeatureToggle(
                 label = stringResource(strings.hover_information),
                 description = stringResource(strings.hover_information_desc),
                 preferenceId = "lsp_${server.id}_hover",

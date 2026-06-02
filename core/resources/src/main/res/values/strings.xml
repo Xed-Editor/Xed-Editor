@@ -660,4 +660,11 @@
     <string name="uninstall_ext_dialog">Uninstall extension?</string>
     <string name="uninstall_ext_dialog_desc">Are you sure you want to uninstall the extension \'%s\'?</string>
     <string name="invalid_terminal_extra_keys">Invalid format for terminal extra keys. Default keys will be loaded.</string>
+    <string name="manage_formatters">Manage formatters</string>
+    <string name="manage_formatters_desc">Prioritize and configure formatters</string>
+    <string name="info_formatters">Formatters are applied by priority. The first formatter that supports the current language will be used. You can long-press and drag to change their order.</string>
+    <string name="document_highlight">Highlight occurrences</string>
+    <string name="document_highlight_desc">Highlight occurrences of the symbol at the cursor.</string>
+    <string name="formatter_lsp_desc">Use current language server</string>
+    <string name="browse_extensions">Browse extensions</string>
 </resources>

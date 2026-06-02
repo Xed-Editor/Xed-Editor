@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun EditorSettingsToggle(
+fun EditorSettingsItem(
     modifier: Modifier = Modifier,
     label: String,
     description: String? = null,

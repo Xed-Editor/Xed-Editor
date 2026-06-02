@@ -148,6 +148,7 @@ object Settings {
     var excluded_files_drawer by
         CachedPreference("excluded_files_drawer", DEFAULT_EXCLUDED_FILES_DRAWER.joinToString("\n"))
     var file_mask by CachedPreference("file_mask", "")
+    var formatters by CachedPreference("formatters", "")
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
