@@ -184,7 +184,7 @@ fun AgentConfigPanel(
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    "Inspired by opencode's markdown-agent system: create .md files in .opencode/agents/",
+                                    "Create .md agent files in .xed/agents/",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

@@ -93,7 +93,7 @@ fun VibeCodingPanel(
                     modifier = Modifier.fillMaxHeight(0.85f),
                 )
                 ToolPanel.SKILLS -> SkillBrowserPanel(
-                    skillsDir = "$workspacePath/.opencode/skills",
+                    skillsDir = "$workspacePath/.xed/skills",
                     enabledSkills = emptySet(),
                     onToggleSkill = { _, _ -> },
                     onEditSkill = { engine.openFileInEditor(it) },
@@ -261,7 +261,7 @@ fun VibeCodingPanel(
                     }
                 }
 
-                // Todo dock (animated, inspired by OpenCode's SessionTodoDock)
+                // Todo dock (animated)
                 AnimatedVisibility(
                     visible = hasTodos,
                     enter = fadeIn(),

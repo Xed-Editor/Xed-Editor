@@ -156,12 +156,12 @@ fun PluginManagerPanel(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        "Inspired by opencode's plugin system:",
+                        "Plugin System:",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        "Local plugins from .opencode/plugins/ and npm packages via opencode.json",
+                        "Register plugins via .xed/plugins/",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

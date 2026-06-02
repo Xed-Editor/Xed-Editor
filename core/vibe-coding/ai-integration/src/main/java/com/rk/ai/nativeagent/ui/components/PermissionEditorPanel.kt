@@ -181,7 +181,7 @@ fun PermissionEditorPanel(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "Configure in opencode.json under the \"permission\" key",
+                        "Configure permissions in .xed/agent.json",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

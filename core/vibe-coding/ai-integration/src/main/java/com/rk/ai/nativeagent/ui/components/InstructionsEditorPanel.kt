@@ -32,8 +32,8 @@ fun InstructionsEditorPanel(
         listOf(
             InstructionsSource.Project("$workspacePath/AGENTS.md"),
             InstructionsSource.Project("$workspacePath/CLAUDE.md"),
-            InstructionsSource.Project("$workspacePath/.opencode/instructions.md"),
-            InstructionsSource.Global("~/.config/opencode/AGENTS.md"),
+            InstructionsSource.Project("$workspacePath/.xed/instructions.md"),
+            InstructionsSource.Global("~/.config/xed-editor/AGENTS.md"),
             InstructionsSource.Claude("~/.claude/CLAUDE.md"),
         ).filter {
             when (it) {
@@ -223,7 +223,7 @@ fun InstructionsEditorPanel(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        "Precedence: Project AGENTS.md > Project CLAUDE.md > Global ~/.config/opencode/AGENTS.md",
+                        "Precedence: Project AGENTS.md > Project CLAUDE.md > Global ~/.config/xed-editor/AGENTS.md",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

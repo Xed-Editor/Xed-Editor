@@ -405,9 +405,9 @@ Each module includes a `consumer-rules.pro`. Key rules:
 
 ---
 
-## VibeCoding Module — OpenCode-Inspired AI Coding Agent
+## VibeCoding Module — AI Coding Agent
 
-The VibeCoding module (`ai-integration` + `agent-runtime`) provides a full-featured AI coding assistant inspired by OpenCode, with a Jetpack Compose GUI.
+The VibeCoding module (`ai-integration` + `agent-runtime`) provides a full-featured AI coding assistant with a Jetpack Compose GUI.
 
 ### Architecture
 
@@ -439,18 +439,18 @@ VibeCodingEngine (business logic)
 
 ### Key Features
 
-| Feature | Description | OpenCode Equivalent |
-|---|---|---|
-| **Agent Manager** | Create/edit/save agent personas with custom system prompts, temps, memory | `opencode.json` `agent` config + .md agent files |
-| **Command Palette** | 13 built-in commands: init, review, test, commit, push, changelog, spellcheck, translate, summarize, compact, learn, rmslop, issues | `/` slash commands in TUI |
-| **Skill Browser** | Discover and toggle SKILL.md files from `.opencode/skills/` | `skill` tool discovery |
-| **Plugin Manager** | Browse, activate/deactivate built-in and external plugins | `.opencode/plugins/` + npm plugins |
-| **Permission Editor** | Visual pattern-based permission rules (allow/ask/deny) with wildcard support | `permission` config field |
-| **Instructions Editor** | View/edit AGENTS.md, CLAUDE.md with syntax highlighting | `AGENTS.md` / `CLAUDE.md` |
-| **Security Hooks** | 8 dangerous pattern detectors (unsafe deserialization, XSS, SQLi, hardcoded secrets, path traversal, etc.) with CRITICAL/HIGH/MEDIUM severity | Security Guidance plugin + hooks |
-| **Sub-Agents** | 4 specialized agents: code-reviewer, bug-hunter, architect, test-generator | opencode `agent` subagent system |
-| **Git Workflow** | status, diff, log, branch, commit, push, PR creation | opencode git tools |
-| **MCP Support** | SSE/HTTP MCP server connections with auto-reconnect | MCP server config |
+| Feature | Description |
+|---|---|
+| **Agent Manager** | Create/edit/save agent personas with custom system prompts, temps, memory |
+| **Command Palette** | 13 built-in commands: init, review, test, commit, push, changelog, spellcheck, translate, summarize, compact, learn, rmslop, issues |
+| **Skill Browser** | Discover and toggle SKILL.md files from `.xed/skills/` |
+| **Plugin Manager** | Browse, activate/deactivate built-in and external plugins from `.xed/plugins/` |
+| **Permission Editor** | Visual pattern-based permission rules (allow/ask/deny) with wildcard support |
+| **Instructions Editor** | View/edit AGENTS.md, CLAUDE.md with syntax highlighting |
+| **Security Hooks** | 8 dangerous pattern detectors (unsafe deserialization, XSS, SQLi, hardcoded secrets, path traversal, etc.) with CRITICAL/HIGH/MEDIUM severity |
+| **Sub-Agents** | 4 specialized agents: code-reviewer, bug-hunter, architect, test-generator |
+| **Git Workflow** | status, diff, log, branch, commit, push, PR creation |
+| **MCP Support** | SSE/HTTP MCP server connections with auto-reconnect |
 
 ### New Files
 

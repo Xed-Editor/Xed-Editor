@@ -109,7 +109,7 @@ fun SkillBrowserPanel(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            "Create .opencode/skills/<name>/SKILL.md files",
+                            "Create .xed/skills/<name>/SKILL.md files",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         )
@@ -196,7 +196,7 @@ fun SkillBrowserPanel(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "Skills are SKILL.md files discovered from .opencode/skills/",
+                        "Skills are SKILL.md files discovered from .xed/skills/",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
