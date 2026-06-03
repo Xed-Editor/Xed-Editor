@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package com.rk.ai.nativeagent.engine
 
 import com.rk.ai.models.Tool
