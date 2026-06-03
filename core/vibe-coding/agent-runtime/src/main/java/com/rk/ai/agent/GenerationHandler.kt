@@ -374,7 +374,7 @@ class GenerationHandler(
             val failedTools = executedTools.filter { it.executionState is ExecutionState.Error }
             var recoveryInjected = false
             for (failed in failedTools) {
-                val errorMsg = (failed.executionState as? ExecutionState.Error)?.message ?: continue
+                val errorMsg = (failed.executionState as? ExecutionState.Error)?.error ?: continue
                 val action = recoveryEngine.analyzeFailure(failed.toolName, errorMsg, failed.input, null)
                 if (action != null) {
                     when (action.action) {

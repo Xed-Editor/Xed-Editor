@@ -85,7 +85,7 @@ class WorkspaceContextCollector(
                 openFiles = openFilesData.mapNotNull { f ->
                     f["path"]?.asString ?: f["filePath"]?.asString
                 },
-                selection = selectionData?.asString ?: "",
+                selection = selectionData ?: "",
                 cursorPosition = activeFileData?.let {
                     it["cursorLine"]?.asInt ?: -1
                 } ?: -1,

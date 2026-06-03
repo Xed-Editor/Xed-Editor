@@ -48,7 +48,7 @@ class RecoveryEngine {
             val path = extractPath(errorMessage, toolInput)
             return RecoveryAction(
                 action = "permission_error",
-                params = mapOf("path" to path ?: "unknown"),
+                params = mapOf("path" to (path ?: "unknown")),
                 message = "Permission denied for path. Suggest using workspace root.",
             )
         }
