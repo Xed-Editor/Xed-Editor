@@ -660,4 +660,11 @@
     <string name="invalid_terminal_extra_keys">Terminal ek tuşları için geçersiz biçim. Varsayılan tuşlar yüklenecektir.</string>
     <string name="clipboard_keybindings">Pano kısayol tuşları</string>
     <string name="clipboard_keybindings_desc">Donanım klavyeleri için kopyala ve yapıştır tuş kısayollarını etkinleştir.</string>
+    <string name="manage_formatters">Biçimlendiricileri yönet</string>
+    <string name="manage_formatters_desc">Önceliklendir ve biçimlendiricileri yapılandır</string>
+    <string name="info_formatters">Biçimlendiriciler önceliğe göre uygulanır. Mevcut dili destekleyen ilk biçimlendirici kullanılacaktır. Sıralarını değiştirmek için uzun basıp sürükleyebilirsiniz.</string>
+    <string name="document_highlight">Olayları vurgula</string>
+    <string name="document_highlight_desc">İmleçteki sembolün geçtiği yerleri vurgula.</string>
+    <string name="formatter_lsp_desc">Mevcut dil sunucusunu kullan</string>
+    <string name="browse_extensions">Uzantılara Göz At</string>
 </resources>
