@@ -655,4 +655,11 @@
     <string name="invalid_terminal_extra_keys">Format tombol tambahan terminal tidak valid. Tombol default akan dimuat.</string>
     <string name="clipboard_keybindings">Tombol pintas untuk papan klip</string>
     <string name="clipboard_keybindings_desc">Aktifkan pintasan tombol salin dan tempel untuk keyboard fisik.</string>
+    <string name="manage_formatters">Kelola pemformatan</string>
+    <string name="manage_formatters_desc">Prioritaskan dan konfigurasikan pemformatan</string>
+    <string name="info_formatters">Penerapan pemformatan dilakukan berdasarkan prioritas. Pemformatan pertama yang mendukung bahasa saat ini akan digunakan. Anda dapat menekan dan menahan, lalu menyeret untuk mengubah urutannya.</string>
+    <string name="document_highlight">Sorot kemunculan</string>
+    <string name="document_highlight_desc">Sorot kemunculan simbol pada kursor.</string>
+    <string name="formatter_lsp_desc">Gunakan server bahasa saat ini</string>
+    <string name="browse_extensions">Jelajahi ekstensi</string>
 </resources>
