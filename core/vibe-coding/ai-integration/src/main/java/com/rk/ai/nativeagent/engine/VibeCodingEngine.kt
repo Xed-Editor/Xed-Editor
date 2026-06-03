@@ -35,6 +35,7 @@ import com.rk.ai.agent.transformers.TransformerContext
 import com.rk.ai.core.AppScope
 import com.rk.ai.mcp.FileManager
 import com.rk.ai.mcp.McpManager
+import com.rk.ai.models.InputSchema
 import com.rk.ai.models.McpTool
 import com.rk.ai.models.Tool
 import com.rk.ai.core.MessageRole
@@ -62,6 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
 import okhttp3.OkHttpClient
 import java.io.File
@@ -85,15 +87,13 @@ private fun buildDatabase(context: Context): AppDatabase =
     ).fallbackToDestructiveMigration().build()
 
 class VibeCodingEngine(
-    // Added suggestions Flow for UI
-    val suggestionsFlow: MutableStateFlow<List<kotlinx.serialization.json.JsonObject>> = MutableStateFlow(emptyList())
-)
     private val context: Context,
     val ideService: IdeService,
     scope: CoroutineScope? = null,
     private val json: Json = defaultJson,
     okHttpClient: OkHttpClient = buildOkHttpClient(),
 ) {
+    val suggestionsFlow: MutableStateFlow<List<kotlinx.serialization.json.JsonObject>> = MutableStateFlow(emptyList())
     private val engineScope: CoroutineScope =
         scope ?: CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val appScope = AppScope()
@@ -146,6 +146,9 @@ class VibeCodingEngine(
     private val storedCommandCatalog = mutableListOf<com.rk.ai.nativeagent.engine.CommandCatalogEntry>()
 
     private var sessionCounter = 0L
+
+    private val _state = MutableStateFlow(VibeCodingState())
+    val state: StateFlow<VibeCodingState> = _state.asStateFlow()
 
     init {
         _state.value = _state.value.copy(
@@ -238,7 +241,7 @@ class VibeCodingEngine(
             } catch (e: Exception) {
                 return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'todos': ${e.message}"))
             }
-            val todos = todosJson.map { item ->
+            val todos = todosJson.mapIndexed { index, item ->
                 val obj = item.asJsonObject
                 val desc = obj["description"]?.asJsonPrimitive?.asString ?: "Untitled task"
                 val statusStr = obj["status"]?.asJsonPrimitive?.asString ?: "pending"
@@ -248,20 +251,8 @@ class VibeCodingEngine(
                     "cancelled" -> SessionTodoStatus.CANCELLED
                     else -> SessionTodoStatus.PENDING
                 }
-                val subtasksJson = obj["subtasks"]?.asJsonArray
-                val subtasks = subtasksJson?.map { sub ->
-                    val subObj = sub.asJsonObject
-                    val subDesc = subObj["description"]?.asJsonPrimitive?.asString ?: ""
-                    val subStatusStr = subObj["status"]?.asJsonPrimitive?.asString ?: "pending"
-                    val subStatus = when (subStatusStr.lowercase()) {
-                        "in_progress" -> SessionTodoStatus.IN_PROGRESS
-                        "completed" -> SessionTodoStatus.COMPLETED
-                        "cancelled" -> SessionTodoStatus.CANCELLED
-                        else -> SessionTodoStatus.PENDING
-                    }
-                    SessionTodo(description = subDesc, status = subStatus)
-                } ?: emptyList()
-                SessionTodo(description = desc, status = status, subtasks = subtasks)
+                val id = obj["id"]?.asJsonPrimitive?.asString ?: "todo-${Uuid.random()}"
+                SessionTodo(id = id, description = desc, status = status)
             }
 
             val currentTodos = _state.value.todos
@@ -287,15 +278,6 @@ class VibeCodingEngine(
                         SessionTodoStatus.PENDING -> "[ ]"
                     }
                     appendLine("  $icon ${i + 1}. ${todo.description}")
-                    todo.subtasks.forEach { sub ->
-                        val subIcon = when (sub.status) {
-                            SessionTodoStatus.COMPLETED -> "[✓]"
-                            SessionTodoStatus.IN_PROGRESS -> "[→]"
-                            SessionTodoStatus.CANCELLED -> "[✗]"
-                            SessionTodoStatus.PENDING -> "[ ]"
-                        }
-                        appendLine("       $subIcon ${sub.description}")
-                    }
                 }
                 appendLine()
                 val completed = displayTodos.count { it.status == SessionTodoStatus.COMPLETED }
@@ -332,8 +314,8 @@ class VibeCodingEngine(
                 return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'steps': ${e.message}"))
             }
 
-            val todos = stepsJson.map { step ->
-                SessionTodo(description = step.asString, status = SessionTodoStatus.PENDING)
+            val todos = stepsJson.mapIndexed { index, step ->
+                SessionTodo(id = "step-${Uuid.random()}", description = step.asString, status = SessionTodoStatus.PENDING)
             }
 
             val sessionId = _state.value.activeSessionId ?: Uuid.random()
@@ -533,9 +515,6 @@ class VibeCodingEngine(
     }
 
     private val systemPromptTransformer = SystemPromptTransformer()
-
-    private val _state = MutableStateFlow(VibeCodingState())
-    val state: StateFlow<VibeCodingState> = _state.asStateFlow()
 
     val messages: List<UIMessage> get() = _state.value.messages
     val isProcessing: Boolean get() = _state.value.isProcessing
