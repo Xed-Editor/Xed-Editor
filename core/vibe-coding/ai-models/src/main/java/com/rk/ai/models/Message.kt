@@ -93,6 +93,14 @@ data class UIMessage(
                         }
                     }
 
+                    is UIMessagePart.StepStart -> {
+                        acc + deltaPart
+                    }
+
+                    is UIMessagePart.StepFinish -> {
+                        acc + deltaPart
+                    }
+
                     is UIMessagePart.Tool -> {
                         if (deltaPart.toolCallId.isBlank()) {
                             // No ID yet - append to the last Tool if it also has no ID
@@ -316,6 +324,34 @@ fun List<UIMessage>.limitContext(size: Int): List<UIMessage> {
 }
 
 @Serializable
+sealed class ExecutionState {
+    @Serializable
+    @SerialName("pending")
+    data object Pending : ExecutionState()
+
+    @Serializable
+    @SerialName("running")
+    data class Running(
+        val startedAt: String? = null,
+    ) : ExecutionState()
+
+    @Serializable
+    @SerialName("completed")
+    data class Completed(
+        val startedAt: String? = null,
+        val completedAt: String? = null,
+        val title: String? = null,
+    ) : ExecutionState()
+
+    @Serializable
+    @SerialName("error")
+    data class Error(
+        val error: String,
+        val startedAt: String? = null,
+    ) : ExecutionState()
+}
+
+@Serializable
 sealed class ToolApprovalState {
     @Serializable
     @SerialName("auto")
@@ -439,23 +475,45 @@ sealed class UIMessagePart {
     ) : UIMessagePart()
 
     @Serializable
+    @SerialName("step-start")
+    data class StepStart(
+        val stepIndex: Int = 0,
+        override var metadata: JsonObject? = null
+    ) : UIMessagePart()
+
+    @Serializable
+    @SerialName("step-finish")
+    data class StepFinish(
+        val stepIndex: Int = 0,
+        val cost: Float = 0f,
+        val inputTokens: Int = 0,
+        val outputTokens: Int = 0,
+        val reasoningTokens: Int = 0,
+        override var metadata: JsonObject? = null
+    ) : UIMessagePart()
+
+    @Serializable
     @SerialName("tool")
     data class Tool(
         val toolCallId: String,
         val toolName: String,
         val input: String,
         val output: List<UIMessagePart> = emptyList(),
+        val executionState: ExecutionState = ExecutionState.Pending,
         val approvalState: ToolApprovalState = ToolApprovalState.Auto,
         override var metadata: JsonObject? = null
     ) : UIMessagePart() {
-        /** Whether the tool has been executed (has output) */
-        val isExecuted: Boolean get() = output.isNotEmpty()
+        /** Whether the tool has been executed (has output or completed/error state) */
+        val isExecuted: Boolean get() = output.isNotEmpty() || executionState is ExecutionState.Completed || executionState is ExecutionState.Error
+
+        /** Whether the tool is currently executing */
+        val isRunning: Boolean get() = executionState is ExecutionState.Running
 
         /** Whether the tool is pending user approval */
         val isPending: Boolean get() = approvalState is ToolApprovalState.Pending
 
         /** Whether generation can resume and handle this tool immediately */
-        val canResumeExecution: Boolean get() = !isExecuted && approvalState.canResumeToolExecution()
+        val canResumeExecution: Boolean get() = !isExecuted && !isRunning && approvalState.canResumeToolExecution()
 
         /** Parse input string as JsonElement */
         fun inputAsJson(): JsonElement = runCatching {
@@ -468,6 +526,7 @@ sealed class UIMessagePart {
                 toolName = toolName + other.toolName,
                 input = input + other.input,
                 output = output + other.output,
+                executionState = other.executionState.takeIf { it !is ExecutionState.Pending } ?: executionState,
                 approvalState = approvalState,
                 metadata = if (other.metadata != null) other.metadata else metadata,
             )
@@ -498,7 +557,9 @@ fun List<UIMessagePart>.toSortedMessageParts(): List<UIMessagePart> {
     }
     return sortedBy { part ->
         when (part) {
+            is UIMessagePart.StepStart -> -2
             is UIMessagePart.Reasoning -> -1
+            is UIMessagePart.StepFinish -> 0
             is UIMessagePart.Text -> 0
             is UIMessagePart.Tool -> 0
             is UIMessagePart.ToolCall -> 0

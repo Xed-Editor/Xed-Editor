@@ -23,9 +23,6 @@ import com.rk.ai.agent.hooks.SecurityHook
 import com.rk.ai.agent.tools.LocalTools
 import com.rk.ai.agent.tools.VibeCodingSystemTools
 import com.rk.ai.agent.tools.VibeCodingToolRegistry
-import com.rk.ai.agent.tools.createSearchTools
-import com.rk.ai.agent.tools.createSkillTools
-import com.rk.ai.agent.tools.SuggestionStore
 import com.rk.ai.agent.transformers.Base64ImageToLocalFileTransformer
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.PlaceholderTransformer
@@ -33,12 +30,16 @@ import com.rk.ai.agent.transformers.PromptInjectionTransformer
 import com.rk.ai.agent.transformers.RegexOutputTransformer
 import com.rk.ai.agent.transformers.TimeReminderTransformer
 import com.rk.ai.agent.transformers.TransformerContext
+import com.rk.ai.agent.tools.createSearchTools
+import com.rk.ai.agent.tools.createSkillTools
+import com.rk.ai.agent.tools.SuggestionStore
 import com.rk.ai.core.AppScope
 import com.rk.ai.mcp.FileManager
 import com.rk.ai.mcp.McpManager
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.McpTool
 import com.rk.ai.models.Tool
+import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
@@ -428,67 +429,19 @@ class VibeCodingEngine(
 
     private var currentJob: Job? = null
 
-    private inner class SystemPromptTransformer : InputMessageTransformer {
-        private var injected = false
+    private val systemPromptBuilder = SystemPromptBuilder(ideService)
 
+    private inner class SystemPromptTransformer : InputMessageTransformer {
         override suspend fun transform(
             ctx: TransformerContext,
             messages: List<UIMessage>,
         ): List<UIMessage> {
-            if (injected || messages.isEmpty()) return messages
-            injected = true
-
-            val workspaceContext = buildString {
-                appendLine(VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)
-                appendLine()
-                appendLine("## Current Workspace Context")
-                appendLine()
-
-                try {
-                    val workspacePath = ideService.getPrimaryWorkspacePath()
-                    appendLine("Workspace: $workspacePath")
-                    appendLine()
-
-                    val projectConfig = ideService.getProjectConfig(workspacePath)
-                    val language = projectConfig["language"]?.asString
-                    val buildSystem = projectConfig["buildSystem"]?.asString
-                    if (language != null) appendLine("Language: $language")
-                    if (buildSystem != null) appendLine("Build System: $buildSystem")
-
-                    appendLine()
-                    val gitStatus = ideService.getGitStatus(workspacePath)
-                    val branch = gitStatus["branch"]?.asString ?: "unknown"
-                    val changes = gitStatus["changes"]?.asJsonArray?.size() ?: 0
-                    appendLine("Git Branch: $branch ($changes uncommitted changes)")
-                    appendLine()
-
-                    val openFiles = ideService.getOpenFiles()
-                    if (openFiles.isNotEmpty()) {
-                        appendLine("Open Files:")
-                        openFiles.forEach { f ->
-                            val path = f["path"]?.asString ?: f["filePath"]?.asString ?: ""
-                            appendLine("  - $path")
-                        }
-                        appendLine()
-                    }
-
-                    val activeFile = ideService.getActiveFile()
-                    if (activeFile != null) {
-                        val activePath = activeFile["path"]?.asString ?: activeFile["filePath"]?.asString ?: ""
-                        appendLine("Active File: $activePath")
-                        appendLine()
-                    }
-                } catch (e: Exception) {
-                    appendLine("(Workspace context unavailable: ${e.message})")
-                }
-
-                appendLine("Use the available tools to read files, search code, and make changes.")
-            }
-
+            if (systemPromptBuilder.isInjected() || messages.isEmpty()) return messages
+            val workspaceContext = systemPromptBuilder.build()
             return listOf(UIMessage.system(workspaceContext.toString())) + messages
         }
 
-        fun reset() { injected = false }
+        fun reset() { systemPromptBuilder.reset() }
     }
 
     private val systemPromptTransformer = SystemPromptTransformer()
@@ -612,6 +565,23 @@ class VibeCodingEngine(
                         }
                         is GenerationChunk.CompactionNeeded -> {
                             _state.value = _state.value.copy(compactionReason = chunk.reason)
+                        }
+                        is GenerationChunk.ToolStateChanged -> {
+                            engineScope.launch {
+                                val success = chunk.executionState is ExecutionState.Completed
+                                vibeEventBus.emit(VibeCodingEvent.ToolExecuted(
+                                    sessionId = _state.value.activeSessionId ?: Uuid.random(),
+                                    toolName = chunk.toolName,
+                                    success = success,
+                                ))
+                            }
+                        }
+                        is GenerationChunk.StepStarted -> { }
+                        is GenerationChunk.StepFinished -> { }
+                        is GenerationChunk.GenerationError -> {
+                            _state.value = _state.value.copy(
+                                error = chunk.errorMessage,
+                            )
                         }
                     }
                 }
@@ -787,6 +757,21 @@ class VibeCodingEngine(
                          }
                          is GenerationChunk.CompactionNeeded -> {
                              _state.value = _state.value.copy(compactionReason = chunk.reason)
+                         }
+                         is GenerationChunk.ToolStateChanged -> {
+                             engineScope.launch {
+                                 val success = chunk.executionState is ExecutionState.Completed
+                                 vibeEventBus.emit(VibeCodingEvent.ToolExecuted(
+                                     sessionId = _state.value.activeSessionId ?: Uuid.random(),
+                                     toolName = chunk.toolName,
+                                     success = success,
+                                 ))
+                             }
+                         }
+                         is GenerationChunk.StepStarted -> { }
+                         is GenerationChunk.StepFinished -> { }
+                         is GenerationChunk.GenerationError -> {
+                             _state.value = _state.value.copy(error = chunk.errorMessage)
                          }
                      }
                  }

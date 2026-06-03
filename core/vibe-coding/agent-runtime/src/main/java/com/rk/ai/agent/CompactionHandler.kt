@@ -168,18 +168,26 @@ ${conversation.joinToString("\n") { m ->
         threshold: Int = 3,
     ): String? {
         if (messages.isEmpty()) return null
-        val lastMessage = messages.last()
-        val tools = lastMessage.getTools().filter { it.isExecuted }
-        if (tools.isEmpty()) return null
 
-        val recentTools = tools.takeLast(threshold)
-        if (recentTools.size < threshold) return null
-
-        val toolNames = recentTools.map { it.toolName }.toSet()
-        val toolInputs = recentTools.map { it.input }.toSet()
-        if (toolNames.size == 1 && toolInputs.size == 1) {
-            return toolNames.first()
+        val allToolCalls = messages.flatMap { msg ->
+            msg.getTools().filter { it.isExecuted }
         }
+
+        val recentToolCalls = allToolCalls.takeLast(threshold)
+        if (recentToolCalls.size < threshold) return null
+
+        val toolEntry = mutableListOf<Pair<String, String>>()
+        for (toolResult in recentToolCalls) {
+            val key = toolResult.toolName to toolResult.input.take(200)
+            toolEntry.add(key)
+        }
+
+        val allSameName = toolEntry.all { it.first == toolEntry.first().first }
+        val allSameInput = toolEntry.all { it.second == toolEntry.first().second }
+        if (allSameName && allSameInput) {
+            return toolEntry.first().first
+        }
+
         return null
     }
 }

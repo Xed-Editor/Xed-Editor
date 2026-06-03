@@ -15,6 +15,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import java.io.StringWriter
+import java.io.PrintWriter
 import com.rk.ai.core.MessageRole
 import com.rk.ai.core.ReasoningLevel
 import com.rk.ai.models.Tool
@@ -29,6 +31,7 @@ import com.rk.ai.providers.registry.ModelRegistry
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
 import com.rk.ai.models.ToolApprovalState
+import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.handleMessageChunk
 import com.rk.ai.models.limitContext
 import com.rk.ai.agent.prompts.DEFAULT_COMPRESS_PROMPT
@@ -64,6 +67,29 @@ sealed interface GenerationChunk {
 
     data class CompactionNeeded(
         val reason: String,
+    ) : GenerationChunk
+
+    data class ToolStateChanged(
+        val toolCallId: String,
+        val toolName: String,
+        val executionState: ExecutionState,
+    ) : GenerationChunk
+
+    data class StepStarted(
+        val stepIndex: Int,
+    ) : GenerationChunk
+
+    data class StepFinished(
+        val stepIndex: Int,
+        val cost: Float = 0f,
+        val inputTokens: Int = 0,
+        val outputTokens: Int = 0,
+        val reasoningTokens: Int = 0,
+    ) : GenerationChunk
+
+    data class GenerationError(
+        val errorMessage: String,
+        val errorType: String = "UnknownError",
     ) : GenerationChunk
 }
 
@@ -102,6 +128,7 @@ class GenerationHandler(
         for (stepIndex in 0 until maxSteps) {
             lastFinishReason = null
             Log.i(TAG, "streamText: start step #$stepIndex (${model.id})")
+            emit(GenerationChunk.StepStarted(stepIndex))
 
             // Check for overflow before generating next step
             if (CompactionHandler.needsCompaction(messages, model.contextWindow, model.maxOutputTokens)) {
@@ -286,35 +313,31 @@ class GenerationHandler(
                 when (tool.approvalState) {
                     is ToolApprovalState.Denied -> {
                         val reason = (tool.approvalState as ToolApprovalState.Denied).reason
-                        executedTools += tool.copy(
+                        val deniedTool = tool.copy(
+                            executionState = ExecutionState.Error("Denied by user: ${reason.ifBlank { "No reason provided" }}"),
                             output = listOf(
-                                UIMessagePart.Text(
-                                    json.encodeToString(
-                                        buildJsonObject {
-                                            put(
-                                                "error",
-                                                JsonPrimitive("Tool execution denied by user. Reason: ${reason.ifBlank { "No reason provided" }}")
-                                            )
-                                        }
-                                    )
-                                )
+                                UIMessagePart.Text("Tool '${tool.toolName}' execution denied by user. Reason: ${reason.ifBlank { "No reason provided" }}")
                             )
                         )
+                        executedTools += deniedTool
+                        emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, deniedTool.executionState))
                     }
 
                     is ToolApprovalState.Answered -> {
                         val answer = (tool.approvalState as ToolApprovalState.Answered).answer
-                        executedTools += tool.copy(
-                            output = listOf(
-                                UIMessagePart.Text(answer)
-                            )
+                        val answeredTool = tool.copy(
+                            executionState = ExecutionState.Completed(title = "answered"),
+                            output = listOf(UIMessagePart.Text(answer))
                         )
+                        executedTools += answeredTool
+                        emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, answeredTool.executionState))
                     }
 
                     is ToolApprovalState.Pending -> {
                     }
 
                     else -> {
+                        emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, ExecutionState.Running()))
                         runCatching {
                             val toolDef = toolsInternal.find { toolDef -> toolDef.name == tool.toolName }
                                 ?: error("Tool ${tool.toolName} not found")
@@ -325,26 +348,20 @@ class GenerationHandler(
                             }
                             Log.i(TAG, "generateText: executing tool ${toolDef.name} with args: $args")
                             val result = toolDef.execute(args)
-                            executedTools += tool.copy(output = result)
-                        }.onFailure {
-                            it.printStackTrace()
-                            executedTools += tool.copy(
-                                output = listOf(
-                                    UIMessagePart.Text(
-                                        json.encodeToString(
-                                            buildJsonObject {
-                                                put(
-                                                    "error",
-                                                    JsonPrimitive(buildString {
-                                                        append("[${it.javaClass.name}] ${it.message}")
-                                                        append("\n${it.stackTraceToString()}")
-                                                    })
-                                                )
-                                            }
-                                        )
-                                    )
-                                )
+                            val completedTool = tool.copy(
+                                executionState = ExecutionState.Completed(title = toolDef.name),
+                                output = result
                             )
+                            executedTools += completedTool
+                            emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, completedTool.executionState))
+                        }.onFailure {
+                            Log.w(TAG, "Tool execution failed: ${tool.toolName}", it)
+                            val errorTool = tool.copy(
+                                executionState = ExecutionState.Error(it.message ?: "Unknown error"),
+                                output = listOf(UIMessagePart.Text("Error: ${it.message}"))
+                            )
+                            executedTools += errorTool
+                            emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, errorTool.executionState))
                         }
                     }
                 }
@@ -385,6 +402,21 @@ class GenerationHandler(
                     )
                 )
             )
+
+            val tokenEstimate = TokenEstimator.estimate(messages)
+            emit(GenerationChunk.StepFinished(
+                stepIndex = stepIndex,
+                cost = 0f,
+                inputTokens = tokenEstimate,
+                outputTokens = executedTools.sumOf { t ->
+                    t.output.sumOf { p ->
+                        when (p) {
+                            is UIMessagePart.Text -> TokenEstimator.estimate(p.text)
+                            else -> 0
+                        }
+                    }
+                },
+            ))
         }
 
     }.flowOn(Dispatchers.IO)

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rk.ai.models.ToolApprovalState
+import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.UIMessagePart
 
 private const val MAX_PREVIEW_CHARS = 500
@@ -41,21 +42,26 @@ fun VibeCodingToolCard(
 
     val isPending = part.approvalState is ToolApprovalState.Pending
     val isAnswered = part.approvalState is ToolApprovalState.Answered
+    val isRunning = part.isRunning
 
-    val statusColor = when (part.approvalState) {
-        is ToolApprovalState.Auto,
-        is ToolApprovalState.Approved -> colorScheme.primary
-        is ToolApprovalState.Pending -> colorScheme.tertiary
-        is ToolApprovalState.Denied -> colorScheme.error
-        is ToolApprovalState.Answered -> colorScheme.secondary
+    val statusColor = when {
+        isRunning -> colorScheme.tertiary
+        part.executionState is ExecutionState.Error -> colorScheme.error
+        part.approvalState is ToolApprovalState.Denied -> colorScheme.error
+        part.approvalState is ToolApprovalState.Pending -> colorScheme.tertiary
+        part.approvalState is ToolApprovalState.Answered -> colorScheme.secondary
+        else -> colorScheme.primary
     }
 
-    val statusLabel = when (part.approvalState) {
-        is ToolApprovalState.Auto -> "auto"
-        is ToolApprovalState.Pending -> "pending"
-        is ToolApprovalState.Approved -> "approved"
-        is ToolApprovalState.Denied -> "denied"
-        is ToolApprovalState.Answered -> "answered"
+    val statusLabel = when {
+        isRunning -> "running…"
+        part.executionState is ExecutionState.Completed -> "completed"
+        part.executionState is ExecutionState.Error -> "error"
+        part.approvalState is ToolApprovalState.Pending -> "pending"
+        part.approvalState is ToolApprovalState.Denied -> "denied"
+        part.approvalState is ToolApprovalState.Answered -> "answered"
+        part.approvalState is ToolApprovalState.Approved -> "approved"
+        else -> "auto"
     }
 
     Surface(

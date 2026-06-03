@@ -111,6 +111,35 @@ private fun MessagePartContent(
             onDeny = { reason -> onDenyTool?.invoke(part.toolCallId, reason) },
             onAnswer = { answer -> onAnswerTool?.invoke(part.toolCallId, answer) },
         )
+        is UIMessagePart.StepStart -> {
+            val colorScheme = MaterialTheme.colorScheme
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = colorScheme.primaryContainer.copy(alpha = 0.3f),
+            ) {
+                Text(
+                    text = "Step ${part.stepIndex + 1}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                )
+            }
+        }
+        is UIMessagePart.StepFinish -> {
+            val colorScheme = MaterialTheme.colorScheme
+            val tokenInfo = buildString {
+                if (part.inputTokens > 0) append("Δ ${part.inputTokens} ")
+                if (part.outputTokens > 0) append("◻ ${part.outputTokens} ")
+                if (part.reasoningTokens > 0) append("~ ${part.reasoningTokens} ")
+                if (part.cost > 0f) append("$${String.format("%.4f", part.cost)}")
+            }
+            Text(
+                text = "Step ${part.stepIndex + 1} done | ${tokenInfo.ifEmpty { "done" }}",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
+                color = colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+            )
+        }
         is UIMessagePart.Image -> AttachmentLabel("[Image: ${part.url.take(60)}]")
         is UIMessagePart.Document -> AttachmentLabel("[Document: ${part.fileName}]")
         else -> AttachmentLabel("[${part::class.simpleName}]", muted = true)
