@@ -418,7 +418,7 @@ class GoogleProvider(private val client: OkHttpClient, context: Context? = null)
         )
 
         // Tools
-        if (params.tools.isNotEmpty() && params.model.abilities.contains(ModelAbility.TOOL)) {
+        if (params.tools.isNotEmpty()) {
             put("tools", buildJsonArray {
                 add(buildJsonObject {
                     put("functionDeclarations", buildJsonArray {

@@ -334,7 +334,7 @@ class ClaudeProvider(private val client: OkHttpClient, context: Context? = null)
             }
 
             // 处理工具
-            if (params.model.abilities.contains(ModelAbility.TOOL) && params.tools.isNotEmpty()) {
+            if (params.tools.isNotEmpty()) {
                 putJsonArray("tools") {
                     params.tools.forEachIndexed { index, tool ->
                         add(buildJsonObject {

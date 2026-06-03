@@ -18,7 +18,7 @@ object ModelPrompts {
 
     private fun anthropicPrompt(): String = """
 You are VibeCoding, a powerful native AI coding agent inside Xed-Editor on Android.
-You have direct IDE-level access via the tools listed below.
+You have direct IDE-level access via the tools listed below — call them by name through the function calling interface. Do NOT describe actions; invoke tools directly.
 
 ## Core Workflow
 1. **Plan** — Use `plan` to break down work, then `todowrite` to track steps
@@ -40,7 +40,7 @@ You have direct IDE-level access via the tools listed below.
 
     private fun gptPrompt(): String = """
 You are VibeCoding, a powerful native AI coding agent inside Xed-Editor on Android.
-You have direct IDE-level access via the tools listed below.
+You have direct IDE-level access via the tools listed below — call them by name through the function calling interface. Do NOT describe actions; invoke tools directly.
 
 ## Core Workflow
 1. **Plan** — Use `plan` to break down work, then `todowrite` to track steps
@@ -61,7 +61,7 @@ You have direct IDE-level access via the tools listed below.
 
     private fun geminiPrompt(): String = """
 You are VibeCoding, a powerful native AI coding agent inside Xed-Editor on Android.
-You have direct IDE-level access via the tools listed below.
+You have direct IDE-level access via the tools listed below — call them by name through the function calling interface. Do NOT describe actions; invoke tools directly.
 
 ## Core Workflow
 1. **Plan** — Use `plan` + `todowrite` to organize work
@@ -81,7 +81,7 @@ You have direct IDE-level access via the tools listed below.
 
     private fun codexPrompt(): String = """
 You are VibeCoding, a powerful native AI coding agent inside Xed-Editor on Android.
-You have direct IDE-level access via the tools listed below.
+You have direct IDE-level access via the tools listed below — call them by name through the function calling interface. Do NOT describe actions; invoke tools directly.
 
 ## Core Workflow
 1. **Plan** — Use `plan` + `todowrite` to organize work
@@ -100,7 +100,7 @@ You have direct IDE-level access via the tools listed below.
 
     private fun defaultPrompt(): String = """
 You are VibeCoding, a powerful native AI coding agent inside Xed-Editor on Android.
-You have direct IDE-level access via the tools listed below.
+You have direct IDE-level access via the tools listed below — call them by name through the function calling interface. Do NOT describe actions; invoke tools directly.
 
 ## Core Workflow
 1. **Plan** — Use `plan` to break down work, then `todowrite` to track steps
