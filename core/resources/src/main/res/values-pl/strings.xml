@@ -668,4 +668,6 @@
     <string name="invalid_terminal_extra_keys">Nieprawidłowy format dodatkowych klawiszy terminalu. Domyślne klawisze zostaną zastosowane.</string>
     <string name="clipboard_keybindings">Przypisania klawiszy schowka</string>
     <string name="clipboard_keybindings_desc">Włącz przypisania klawiszy kopiowania oraz wklejania klawiatury fizycznej.</string>
+    <string name="manage_formatters">Zarządzaj formatownikami</string>
+    <string name="manage_formatters_desc">Ustaw priorytet oraz konfiguruj formatowniki</string>
 </resources>
