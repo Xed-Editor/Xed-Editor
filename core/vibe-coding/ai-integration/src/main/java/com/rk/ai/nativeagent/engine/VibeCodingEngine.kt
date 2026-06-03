@@ -25,6 +25,7 @@ import com.rk.ai.agent.tools.VibeCodingSystemTools
 import com.rk.ai.agent.tools.VibeCodingToolRegistry
 import com.rk.ai.agent.tools.createSearchTools
 import com.rk.ai.agent.tools.createSkillTools
+import com.rk.ai.agent.tools.SuggestionStore
 import com.rk.ai.agent.transformers.Base64ImageToLocalFileTransformer
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.PlaceholderTransformer
@@ -38,6 +39,7 @@ import com.rk.ai.mcp.McpManager
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.McpTool
 import com.rk.ai.models.Tool
+import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.core.MessageRole
 import com.rk.ai.models.UIMessage
 import com.rk.ai.models.UIMessagePart
@@ -86,6 +88,15 @@ private fun buildDatabase(context: Context): AppDatabase =
         "vibecoding_db",
     ).fallbackToDestructiveMigration().build()
 
+private val shutdownHooksRegistered = java.util.concurrent.atomic.AtomicBoolean(false)
+private fun registerShutdownHookForDatabase(db: AppDatabase) {
+    if (shutdownHooksRegistered.compareAndSet(false, true)) {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            try { db.close() } catch (_: Exception) { }
+        })
+    }
+}
+
 class VibeCodingEngine(
     private val context: Context,
     val ideService: IdeService,
@@ -131,19 +142,8 @@ class VibeCodingEngine(
 
     val toolRegistry = VibeCodingToolRegistry(ideService, context)
     val hookManager = HookManager()
-
-    private val storedAutoRespondRules = mutableListOf<com.rk.ai.nativeagent.engine.PermissionAutoRespondRule>(
-        PermissionAutoRespondRule(toolPattern = "readFile", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow reading files"),
-        PermissionAutoRespondRule(toolPattern = "glob", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow finding files"),
-        PermissionAutoRespondRule(toolPattern = "grep", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow searching text"),
-        PermissionAutoRespondRule(toolPattern = "gitStatus", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow git status"),
-        PermissionAutoRespondRule(toolPattern = "gitDiff", argPattern = "*", action = PermissionAction.ALLOW, description = "Allow git diff"),
-        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*rm *", action = PermissionAction.DENY, description = "Deny file removal commands"),
-        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*git *", action = PermissionAction.ALLOW, description = "Allow Git terminal commands"),
-        PermissionAutoRespondRule(toolPattern = "runCommand", argPattern = "*", action = PermissionAction.ASK, description = "Ask for other shell commands"),
-        PermissionAutoRespondRule(toolPattern = "*", argPattern = "*", action = PermissionAction.ASK, description = "Ask for all other tools")
-    )
-    private val storedCommandCatalog = mutableListOf<com.rk.ai.nativeagent.engine.CommandCatalogEntry>()
+    val permissionManager = PermissionManager()
+    private val storedCommandCatalog = mutableListOf<CommandCatalogEntry>()
 
     private var sessionCounter = 0L
 
@@ -151,9 +151,13 @@ class VibeCodingEngine(
     val state: StateFlow<VibeCodingState> = _state.asStateFlow()
 
     init {
+        registerShutdownHookForDatabase(database)
         _state.value = _state.value.copy(
-            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+            permissionAutoRespondRules = permissionManager.rules,
         )
+        engineScope.launch {
+            SuggestionStore.suggestions.collect { suggestionsFlow.value = it }
+        }
         val securityHook = SecurityHook { severity, message, toolName, filePath ->
             val alert = SecurityAlert(severity, message, toolName, filePath)
             addSecurityAlert(alert)
@@ -183,21 +187,21 @@ class VibeCodingEngine(
         return hookManager.checkAll(event, context)
     }
 
-    fun addPermissionAutoRespondRule(rule: com.rk.ai.nativeagent.engine.PermissionAutoRespondRule) {
-        storedAutoRespondRules.add(rule)
+    fun addPermissionAutoRespondRule(rule: PermissionAutoRespondRule) {
+        permissionManager.addRule(rule)
         _state.value = _state.value.copy(
-            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+            permissionAutoRespondRules = permissionManager.rules,
         )
     }
 
     fun removePermissionAutoRespondRule(idOrPattern: String) {
-        storedAutoRespondRules.removeAll { it.id == idOrPattern || it.toolPattern == idOrPattern }
+        permissionManager.removeRule(idOrPattern)
         _state.value = _state.value.copy(
-            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+            permissionAutoRespondRules = permissionManager.rules,
         )
     }
 
-    fun addCommandToCatalog(entry: com.rk.ai.nativeagent.engine.CommandCatalogEntry) {
+    fun addCommandToCatalog(entry: CommandCatalogEntry) {
         storedCommandCatalog.removeAll { it.id == entry.id }
         storedCommandCatalog.add(entry)
         _state.value = _state.value.copy(
@@ -211,6 +215,8 @@ class VibeCodingEngine(
             commandCatalog = storedCommandCatalog.toList(),
         )
     }
+
+    fun getCommandCatalog(): List<CommandCatalogEntry> = storedCommandCatalog.toList()
 
     fun setSessionTodos(sessionId: Uuid, todos: List<SessionTodo>) {
         _state.value = _state.value.copy(todos = todos)
@@ -343,7 +349,7 @@ class VibeCodingEngine(
                 description = mcpTool.description ?: "",
                 parameters = mcpTool.inputSchema?.let { schema ->
                     { schema }
-                } ?: { com.rk.ai.models.InputSchema.Obj(kotlinx.serialization.json.buildJsonObject { }) },
+                } ?: { InputSchema.Obj(kotlinx.serialization.json.buildJsonObject { }) },
                 execute = { args ->
                     val argsStr = try {
                         com.google.gson.Gson().toJson(args)
@@ -369,36 +375,7 @@ class VibeCodingEngine(
         }
 
         return baseTools.map { tool ->
-            val matchingRules = _state.value.permissionAutoRespondRules.filter {
-                _state.value.isToolMatchedByRule(it, tool.name)
-            }
-            val staticRule = matchingRules.lastOrNull { it.argPattern == "*" }
-            val needsApprovalDefault = when (staticRule?.action) {
-                PermissionAction.ALLOW -> false
-                PermissionAction.DENY -> false
-                PermissionAction.ASK -> true
-                null -> tool.needsApproval
-            }
-
-            val originalExecute = tool.execute
-            val wrappedExecute: suspend (com.google.gson.JsonElement) -> List<UIMessagePart> = { args ->
-                val argsStr = try {
-                    com.google.gson.Gson().toJson(args)
-                } catch (_: Exception) {
-                    args.toString()
-                }
-                val currentAction = _state.value.shouldAutoRespondPermission(tool.name, argsStr)
-                if (currentAction == PermissionAction.DENY) {
-                    listOf(UIMessagePart.Text("Tool '${tool.name}' execution denied by permission rule."))
-                } else {
-                    originalExecute(args)
-                }
-            }
-
-            tool.copy(
-                needsApproval = needsApprovalDefault,
-                execute = wrappedExecute
-            )
+            permissionManager.wrapToolWithPermissionCheck(tool) { _state.value }
         }
     }
 
@@ -668,7 +645,7 @@ class VibeCodingEngine(
     fun clearConversation() {
         _state.value = VibeCodingState(
             commandCatalog = storedCommandCatalog.toList(),
-            permissionAutoRespondRules = storedAutoRespondRules.toList(),
+            permissionAutoRespondRules = permissionManager.rules,
         )
         systemPromptTransformer.reset()
     }
@@ -731,29 +708,29 @@ class VibeCodingEngine(
 
     fun approveTool(toolCallId: String) {
         updateToolApproval(toolCallId) {
-            com.rk.ai.models.ToolApprovalState.Approved
+            ToolApprovalState.Approved
         }
     }
 
     fun denyTool(toolCallId: String, reason: String = "") {
         updateToolApproval(toolCallId) {
-            com.rk.ai.models.ToolApprovalState.Denied(reason)
+            ToolApprovalState.Denied(reason)
         }
     }
 
     fun answerTool(toolCallId: String, answer: String) {
         updateToolApproval(toolCallId) {
-            com.rk.ai.models.ToolApprovalState.Answered(answer)
+            ToolApprovalState.Answered(answer)
         }
     }
 
-    private fun updateToolApproval(toolCallId: String, stateFn: () -> com.rk.ai.models.ToolApprovalState) {
+    private fun updateToolApproval(toolCallId: String, stateFn: () -> ToolApprovalState) {
         val messages = _state.value.messages.toMutableList()
         val lastIdx = messages.lastIndex
         if (lastIdx < 0) return
         val last = messages[lastIdx]
         val updatedParts = last.parts.map { part ->
-            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
+            if (part is UIMessagePart.Tool && part.toolCallId == toolCallId) {
                 part.copy(approvalState = stateFn())
             } else part
         }
@@ -776,7 +753,7 @@ class VibeCodingEngine(
 
             val memories = if (assistant.enableMemory) {
                 val memoryAssistantId = if (assistant.useGlobalMemory) {
-                    com.rk.ai.persistence.repo.MemoryRepository.GLOBAL_MEMORY_ID
+                    MemoryRepository.GLOBAL_MEMORY_ID
                 } else {
                     assistant.id.toString()
                 }
@@ -833,19 +810,17 @@ class VibeCodingEngine(
 
         var didChange = false
         for (tool in tools) {
-            val action = _state.value.shouldAutoRespondPermission(tool.toolName, tool.input)
+            val action = permissionManager.getAction(tool.toolName, tool.input)
             when (action) {
                 PermissionAction.ALLOW -> {
-                    updateToolApproval(tool.toolCallId) { com.rk.ai.models.ToolApprovalState.Approved }
+                    updateToolApproval(tool.toolCallId) { ToolApprovalState.Approved }
                     didChange = true
                 }
                 PermissionAction.DENY -> {
-                    updateToolApproval(tool.toolCallId) { com.rk.ai.models.ToolApprovalState.Denied("Auto-denied by permission rule") }
+                    updateToolApproval(tool.toolCallId) { ToolApprovalState.Denied("Auto-denied by permission rule") }
                     didChange = true
                 }
-                else -> {
-                    // ASK or null -> leave as pending
-                }
+                else -> { }
             }
         }
         return didChange

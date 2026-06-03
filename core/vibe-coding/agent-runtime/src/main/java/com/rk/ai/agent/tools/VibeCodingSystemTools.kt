@@ -71,7 +71,7 @@ class VibeCodingSystemTools(
         name = "getClipboard",
         description = "Returns the current device clipboard content.",
         execute = { _ ->
-            val cm = context?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+            val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
             val text = cm?.primaryClip?.getItemAt(0)?.text?.toString().orEmpty()
             listOf(UIMessagePart.Text(text.ifEmpty { "Clipboard is empty" }))
         },

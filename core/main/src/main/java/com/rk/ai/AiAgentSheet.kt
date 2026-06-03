@@ -154,6 +154,12 @@ fun UnifiedToolSheet(
         }
     }
 
+    DisposableEffect(activity) {
+        onDispose {
+            vibecodingEngine?.dispose()
+        }
+    }
+
     ToolSheetContainer(
         onDismissRequest = onDismissRequest,
         cwd = cwd.value,
