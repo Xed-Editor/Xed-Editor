@@ -34,6 +34,8 @@ import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.handleMessageChunk
 import com.rk.ai.models.limitContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import com.rk.ai.agent.prompts.DEFAULT_COMPRESS_PROMPT
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.MessageTransformer
@@ -309,76 +311,57 @@ class GenerationHandler(
                 toolsToProcess = messages.last().getTools().filter { it.canResumeExecution }
             }
 
-            // Handle tools (execute approved tools, handle denied tools)
-            val executedTools = arrayListOf<UIMessagePart.Tool>()
-            toolsToProcess.forEach { tool ->
+            // Handle tools — read-only tools run in parallel, writes run sequentially, order preserved
+            val readOnlyPrefixes = setOf("read", "get", "list", "find", "search", "grep", "glob", "head", "tail", "wc", "stat", "count")
+            val deferreds = arrayListOf<Pair<Int, kotlinx.coroutines.Deferred<UIMessagePart.Tool>>>()
+            val immediateResults = arrayListOf<Pair<Int, UIMessagePart.Tool>>()
+
+            toolsToProcess.forEachIndexed { idx, tool ->
                 when (tool.approvalState) {
                     is ToolApprovalState.Denied -> {
                         val reason = (tool.approvalState as ToolApprovalState.Denied).reason
                         val deniedTool = tool.copy(
                             executionState = ExecutionState.Error("Denied by user: ${reason.ifBlank { "No reason provided" }}"),
-                            output = listOf(
-                                UIMessagePart.Text("Tool '${tool.toolName}' execution denied by user. Reason: ${reason.ifBlank { "No reason provided" }}")
-                            )
+                            output = listOf(UIMessagePart.Text("Tool '${tool.toolName}' execution denied by user. Reason: ${reason.ifBlank { "No reason provided" }}"))
                         )
-                        executedTools += deniedTool
                         emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, deniedTool.executionState))
+                        immediateResults += idx to deniedTool
                     }
-
                     is ToolApprovalState.Answered -> {
                         val answer = (tool.approvalState as ToolApprovalState.Answered).answer
                         val answeredTool = tool.copy(
                             executionState = ExecutionState.Completed(title = "answered"),
                             output = listOf(UIMessagePart.Text(answer))
                         )
-                        executedTools += answeredTool
                         emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, answeredTool.executionState))
+                        immediateResults += idx to answeredTool
                     }
-
-                    is ToolApprovalState.Pending -> {
-                    }
-
+                    is ToolApprovalState.Pending -> { }
                     else -> {
+                        val isReadOnly = readOnlyPrefixes.any { tool.toolName.startsWith(it) }
                         emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, ExecutionState.Running()))
-                        runCatching {
-                            val toolDef = toolsInternal.find { toolDef -> toolDef.name == tool.toolName }
-                                ?: error("Tool ${tool.toolName} not found")
-                            val args = runCatching {
-                                com.google.gson.JsonParser.parseString(tool.input.ifBlank { "{}" })
-                            }.getOrElse {
-                                error("Invalid tool arguments JSON for ${tool.toolName}: ${it.message}")
-                            }
-                            Log.i(TAG, "generateText: executing tool ${toolDef.name} with args: $args")
-                            val result = toolDef.execute(args)
-                            val truncatedOutput = result.map { part ->
-                                when (part) {
-                                    is UIMessagePart.Text -> {
-                                        val text = part.text
-                                        if (text.length > MAX_TOOL_OUTPUT_CHARS) {
-                                            part.copy(text = text.take(MAX_TOOL_OUTPUT_CHARS) + TOOL_OUTPUT_TRUNCATION_SUFFIX)
-                                        } else part
-                                    }
-                                    else -> part
-                                }
-                            }
-                            val completedTool = tool.copy(
-                                executionState = ExecutionState.Completed(title = toolDef.name),
-                                output = truncatedOutput
-                            )
-                            executedTools += completedTool
-                            emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, completedTool.executionState))
-                        }.onFailure {
-                            Log.w(TAG, "Tool execution failed: ${tool.toolName}", it)
-                            val errorTool = tool.copy(
-                                executionState = ExecutionState.Error(it.message ?: "Unknown error"),
-                                output = listOf(UIMessagePart.Text("Error: ${it.message}"))
-                            )
-                            executedTools += errorTool
-                            emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, errorTool.executionState))
+                        if (isReadOnly) {
+                            deferreds += idx to async { executeSingleTool(tool, toolsInternal) }
+                        } else {
+                            immediateResults += idx to executeSingleTool(tool, toolsInternal)
+                            emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, immediateResults.last().second.executionState))
                         }
                     }
                 }
             }
+
+            if (deferreds.isNotEmpty()) {
+                deferreds.map { it.second }.awaitAll()
+                deferreds.forEach { (_, d) ->
+                    val resultTool = d.getCompleted()
+                    emit(GenerationChunk.ToolStateChanged(resultTool.toolCallId, resultTool.toolName, resultTool.executionState))
+                }
+            }
+
+            val executedTools = (immediateResults + deferreds.map { (_, d) -> d.getCompleted() })
+                .sortedBy { it.first }
+                .map { it.second }
+                .toCollection(arrayListOf())
 
             if (executedTools.isEmpty()) {
                 break
@@ -390,7 +373,18 @@ class GenerationHandler(
                 Log.w(TAG, "Doom loop detected: same tool calls repeated ${DOOM_LOOP_THRESHOLD}+ times")
                 val doomTool = CompactionHandler.detectDoomLoop(messages)
                 if (doomTool != null) {
-                    Log.w(TAG, "Breaking doom loop for tool: $doomTool")
+                    Log.w(TAG, "Breaking doom loop for tool: $doomTool, injecting recovery hint")
+                    val recoveryMsg = UIMessage(
+                        role = MessageRole.SYSTEM,
+                        parts = listOf(UIMessagePart.Text(
+                            "[SYSTEM: The tool '$doomTool' has been called repeatedly with the same arguments. " +
+                            "This appears to be a loop. Try a fundamentally different approach: " +
+                            "check the tool's output more carefully, read the relevant file first, " +
+                            "or try an alternative strategy. Do NOT call '$doomTool' again with the same input.]"
+                        ))
+                    )
+                    messages = messages + recoveryMsg
+                    emit(GenerationChunk.Messages(messages))
                     break
                 }
             }
@@ -459,6 +453,44 @@ class GenerationHandler(
             messages,
             TokenEstimator.usableTokens(model.contextWindow, model.maxOutputTokens),
         )
+    }
+
+    private suspend fun executeSingleTool(
+        tool: UIMessagePart.Tool,
+        toolsInternal: List<Tool>,
+    ): UIMessagePart.Tool {
+        runCatching {
+            val toolDef = toolsInternal.find { it.name == tool.toolName }
+                ?: error("Tool ${tool.toolName} not found")
+            val args = runCatching {
+                com.google.gson.JsonParser.parseString(tool.input.ifBlank { "{}" })
+            }.getOrElse {
+                error("Invalid tool arguments JSON for ${tool.toolName}: ${it.message}")
+            }
+            Log.i(TAG, "executeSingleTool: ${toolDef.name} args: $args")
+            val result = toolDef.execute(args)
+            val truncatedOutput = result.map { part ->
+                when (part) {
+                    is UIMessagePart.Text -> {
+                        val text = part.text
+                        if (text.length > MAX_TOOL_OUTPUT_CHARS) {
+                            part.copy(text = text.take(MAX_TOOL_OUTPUT_CHARS) + TOOL_OUTPUT_TRUNCATION_SUFFIX)
+                        } else part
+                    }
+                    else -> part
+                }
+            }
+            return tool.copy(
+                executionState = ExecutionState.Completed(title = toolDef.name),
+                output = truncatedOutput
+            )
+        }.onFailure { e ->
+            Log.w(TAG, "executeSingleTool failed: ${tool.toolName}", e)
+            return tool.copy(
+                executionState = ExecutionState.Error(e.message ?: "Unknown error"),
+                output = listOf(UIMessagePart.Text("Error: ${e.message}"))
+            )
+        }
     }
 
     private fun checkFinishReason(messages: List<UIMessage>): Boolean {

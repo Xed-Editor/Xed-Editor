@@ -22,7 +22,7 @@ You have direct IDE-level access via native tools — you read, write, search, r
 ## Tool Format
 When using tools, use this exact XML format:
 <tool_calls>
-<invoke name="$tool_name">
+<invoke name="tool_name">
 <parameter name="param1">value1</parameter>
 </invoke>
 </tool_calls>
