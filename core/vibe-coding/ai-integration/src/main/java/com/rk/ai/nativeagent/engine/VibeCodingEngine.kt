@@ -29,6 +29,7 @@ import com.rk.ai.agent.transformers.PlaceholderTransformer
 import com.rk.ai.agent.transformers.PromptInjectionTransformer
 import com.rk.ai.agent.transformers.RegexOutputTransformer
 import com.rk.ai.agent.transformers.TimeReminderTransformer
+import com.rk.ai.agent.transformers.ToolTagSanitizerTransformer
 import com.rk.ai.agent.transformers.TransformerContext
 import com.rk.ai.agent.tools.createSearchTools
 import com.rk.ai.agent.tools.createSkillTools
@@ -543,6 +544,7 @@ class VibeCodingEngine(
             )
 
             val outputTransformers = listOfNotNull(
+                ToolTagSanitizerTransformer,
                 RegexOutputTransformer,
                 Base64ImageToLocalFileTransformer.also { it.filesManager = filesManager },
             )
