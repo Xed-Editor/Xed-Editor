@@ -664,4 +664,11 @@
     <string name="invalid_terminal_extra_keys">Format invalide pour les touches additionnelles du terminal. Les touches par défaut seront chargées.</string>
     <string name="clipboard_keybindings">Raccourcis clavier du presse-papier</string>
     <string name="clipboard_keybindings_desc">Permet de copier et coller les raccourcis clavier pour les claviers physiques.</string>
+    <string name="manage_formatters">Gérer les formateurs</string>
+    <string name="manage_formatters_desc">Prioriser et configurer les formateurs</string>
+    <string name="info_formatters">Les formateurs sont appliqués par ordre de priorité. Le premier formateur qui gère la langue actuelle sera utilisé. Vous pouvez faire un appui long et le déplacer pour changer cet ordre.</string>
+    <string name="document_highlight">Surligner les occurrences</string>
+    <string name="document_highlight_desc">Surligne les occurrences du symbole au niveau du curseur.</string>
+    <string name="formatter_lsp_desc">Utilise le serveur de langue actuel</string>
+    <string name="browse_extensions">Parcourir les extensions</string>
 </resources>
