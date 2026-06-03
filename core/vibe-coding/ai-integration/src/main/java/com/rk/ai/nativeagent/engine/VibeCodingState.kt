@@ -79,6 +79,8 @@ data class VibeCodingState(
     val dockClosing: Boolean = false,
     val compactionReason: String? = null,
 ) {
+    val sessionById: Map<Uuid, SessionNode> get() = sessionTree.associateBy { it.id }
+
     val hasSecurityAlerts: Boolean get() = securityAlerts.isNotEmpty()
     val activeAgents: List<AgentActivity> get() = agentActivities.filter {
         it.status == AgentActivityStatus.RUNNING || it.status == AgentActivityStatus.PENDING
@@ -86,7 +88,7 @@ data class VibeCodingState(
 
     val currentSessionNode: SessionNode? get() {
         val id = activeSessionId ?: return null
-        return sessionTree.find { it.id == id }
+        return sessionById[id]
     }
 
     val hasParentSession: Boolean get() = parentSessionId != null
@@ -96,10 +98,10 @@ data class VibeCodingState(
 
     fun sessionLineage(sessionId: Uuid): List<Uuid> {
         val result = mutableListOf(sessionId)
-        var current = sessionTree.find { it.id == sessionId }
+        var current = sessionById[sessionId]
         while (current?.parentId != null) {
             result.add(current.parentId!!)
-            current = sessionTree.find { it.id == current.parentId }
+            current = sessionById[current.parentId]
         }
         return result
     }

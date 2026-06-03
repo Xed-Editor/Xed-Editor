@@ -559,7 +559,7 @@ class VibeCodingEngine(
     }
 
     fun switchToSession(sessionId: Uuid) {
-        val node = _state.value.sessionTree.find { it.id == sessionId } ?: return
+        val node = _state.value.sessionById[sessionId] ?: return
         _state.value = _state.value.copy(
             messages = node.messages,
             activeSessionId = sessionId,
@@ -854,11 +854,11 @@ class VibeCodingEngine(
             val action = _state.value.shouldAutoRespondPermission(tool.toolName, tool.input)
             when (action) {
                 PermissionAction.ALLOW -> {
-                    approveToolInline(tool.toolCallId)
+                    updateToolApproval(tool.toolCallId) { com.rk.ai.models.ToolApprovalState.Approved }
                     didChange = true
                 }
                 PermissionAction.DENY -> {
-                    denyToolInline(tool.toolCallId, "Auto-denied by permission rule")
+                    updateToolApproval(tool.toolCallId) { com.rk.ai.models.ToolApprovalState.Denied("Auto-denied by permission rule") }
                     didChange = true
                 }
                 else -> {
@@ -869,33 +869,7 @@ class VibeCodingEngine(
         return didChange
     }
 
-    private fun approveToolInline(toolCallId: String) {
-        val messages = _state.value.messages.toMutableList()
-        val lastIdx = messages.lastIndex
-        if (lastIdx < 0) return
-        val last = messages[lastIdx]
-        val updatedParts = last.parts.map { part ->
-            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Approved)
-            } else part
-        }
-        messages[lastIdx] = last.copy(parts = updatedParts)
-        _state.value = _state.value.copy(messages = messages)
-    }
 
-    private fun denyToolInline(toolCallId: String, reason: String) {
-        val messages = _state.value.messages.toMutableList()
-        val lastIdx = messages.lastIndex
-        if (lastIdx < 0) return
-        val last = messages[lastIdx]
-        val updatedParts = last.parts.map { part ->
-            if (part is com.rk.ai.models.UIMessagePart.Tool && part.toolCallId == toolCallId) {
-                part.copy(approvalState = com.rk.ai.models.ToolApprovalState.Denied(reason))
-            } else part
-        }
-        messages[lastIdx] = last.copy(parts = updatedParts)
-        _state.value = _state.value.copy(messages = messages)
-    }
 }
 
 private class VibeCodingFileManager(private val context: Context) : FileManager {

@@ -16,6 +16,13 @@ import com.rk.ai.service.IdeService
 import java.io.File
 
 class VibeCodingFileTools(private val ideService: IdeService) {
+    companion object {
+        private fun extractPath(obj: com.google.gson.JsonObject): String? {
+            return obj["path"]?.asJsonPrimitive?.asString
+                ?: obj["filePath"]?.asJsonPrimitive?.asString
+                ?: obj["file"]?.asJsonPrimitive?.asString
+        }
+    }
 
     private val readFile = Tool(
         name = "readFile",
@@ -61,10 +68,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val obj = args.asJsonObject
-            val path = obj["path"]?.asJsonPrimitive?.asString
-                ?: obj["filePath"]?.asJsonPrimitive?.asString
-                ?: obj["file"]?.asJsonPrimitive?.asString
-                ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file argument"))
+            val path = extractPath(obj) ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file argument"))
             val startLine = obj["startLine"]?.asJsonPrimitive?.asInt
             val endLine = obj["endLine"]?.asJsonPrimitive?.asInt
             val content = ideService.getFileContent(path, startLine, endLine)
@@ -421,10 +425,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val obj = args.asJsonObject
-            val path = obj["path"]?.asJsonPrimitive?.asString
-                ?: obj["filePath"]?.asJsonPrimitive?.asString
-                ?: obj["file"]?.asJsonPrimitive?.asString
-                ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
+            val path = extractPath(obj) ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
             val n = (obj["lines"]?.asJsonPrimitive?.asInt ?: obj["count"]?.asJsonPrimitive?.asInt ?: 10).coerceIn(1, 10000)
             val content = ideService.getFileContent(path, 1, n)
             if (content != null) listOf(UIMessagePart.Text(content))
@@ -449,10 +450,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val obj = args.asJsonObject
-            val path = obj["path"]?.asJsonPrimitive?.asString
-                ?: obj["filePath"]?.asJsonPrimitive?.asString
-                ?: obj["file"]?.asJsonPrimitive?.asString
-                ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
+            val path = extractPath(obj) ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
             val n = (obj["lines"]?.asJsonPrimitive?.asInt ?: obj["count"]?.asJsonPrimitive?.asInt ?: 10).coerceIn(1, 10000)
             val fullContent = ideService.getFileContent(path, null, null)
             if (fullContent == null) return@Tool listOf(UIMessagePart.Text("File not found: $path"))
@@ -477,10 +475,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val obj = args.asJsonObject
-            val path = obj["path"]?.asJsonPrimitive?.asString
-                ?: obj["filePath"]?.asJsonPrimitive?.asString
-                ?: obj["file"]?.asJsonPrimitive?.asString
-                ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
+            val path = extractPath(obj) ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
             val file = ideService.resolvePath(path) ?: return@Tool listOf(UIMessagePart.Text("Path not found: $path"))
             val text = ideService.getFileContent(file.absolutePath, null, null)
                 ?: return@Tool listOf(UIMessagePart.Text("File not found: ${file.absolutePath}"))
@@ -517,10 +512,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val obj = args.asJsonObject
-            val path = obj["path"]?.asJsonPrimitive?.asString
-                ?: obj["filePath"]?.asJsonPrimitive?.asString
-                ?: obj["file"]?.asJsonPrimitive?.asString
-                ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
+            val path = extractPath(obj) ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
             val file = ideService.resolvePath(path) ?: return@Tool listOf(UIMessagePart.Text("Path not found: $path"))
             val text = ideService.getFileContent(file.absolutePath, null, null)
                 ?: return@Tool listOf(UIMessagePart.Text("File not found: ${file.absolutePath}"))
@@ -548,10 +540,7 @@ class VibeCodingFileTools(private val ideService: IdeService) {
         },
         execute = { args ->
             val obj = args.asJsonObject
-            val path = obj["path"]?.asJsonPrimitive?.asString
-                ?: obj["filePath"]?.asJsonPrimitive?.asString
-                ?: obj["file"]?.asJsonPrimitive?.asString
-                ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
+            val path = extractPath(obj) ?: return@Tool listOf(UIMessagePart.Text("Missing path/filePath/file"))
             val file = ideService.resolvePath(path) ?: return@Tool listOf(UIMessagePart.Text("Path not found: $path"))
             val exists = file.exists()
             val result = JsonObject().apply {

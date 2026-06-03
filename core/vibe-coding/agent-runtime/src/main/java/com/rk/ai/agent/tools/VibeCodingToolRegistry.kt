@@ -44,8 +44,6 @@ class VibeCodingToolRegistry(
     private val pluginProviders = mutableListOf<PluginToolProvider>()
 
     private val _coreTools: List<Tool> by lazy {
-        // include suggestion tools
-        val suggestionTools = this.suggestionTools
         fileTools.all +
             editorTools.all +
             searchTools.all +
@@ -59,19 +57,6 @@ class VibeCodingToolRegistry(
             githubTools.all +
             packageTools.all +
             suggestionTools.all +
-            listOf(agentListTool, agentDelegateTool)
-        fileTools.all +
-            editorTools.all +
-            searchTools.all +
-            lspTools.all +
-            gitTools.all +
-            terminalTools.all +
-            projectTools.all +
-            systemTools.all +
-            diffTools.all +
-            webTools.all +
-            githubTools.all +
-            packageTools.all +
             listOf(agentListTool, agentDelegateTool)
     }
 

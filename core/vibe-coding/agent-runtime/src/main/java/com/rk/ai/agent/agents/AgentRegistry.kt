@@ -91,10 +91,8 @@ class AgentRegistry(
                 maxSteps = 20,
             )
 
-            kotlinx.coroutines.runBlocking {
-                val result = agent.execute(task)
-                onResult(agentName, result)
-            }
+            val result = agent.execute(task)
+            onResult(agentName, result)
 
             listOf(UIMessagePart.Text("Task delegated to '$agentName'. Check the agent activity panel for results."))
         },

@@ -73,7 +73,7 @@ data class SessionTodo(
     val status: SessionTodoStatus = SessionTodoStatus.PENDING,
 )
 
-enum class SessionTodoStatus { PENDING, COMPLETED, CANCELLED }
+enum class SessionTodoStatus { PENDING, IN_PROGRESS, COMPLETED, CANCELLED }
 
 class VibeCodingEventBus {
     private val mutex = Mutex()
