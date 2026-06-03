@@ -58,6 +58,8 @@ import kotlin.uuid.ExperimentalUuidApi
 private const val TAG = "GenerationHandler"
 private const val DOOM_LOOP_THRESHOLD = 3
 private const val MAX_COMPACTIONS = 3
+private const val MAX_TOOL_OUTPUT_CHARS = 10_000
+private const val TOOL_OUTPUT_TRUNCATION_SUFFIX = "\n\n[Output truncated at $MAX_TOOL_OUTPUT_CHARS characters]"
 
 @Serializable
 sealed interface GenerationChunk {
@@ -348,9 +350,20 @@ class GenerationHandler(
                             }
                             Log.i(TAG, "generateText: executing tool ${toolDef.name} with args: $args")
                             val result = toolDef.execute(args)
+                            val truncatedOutput = result.map { part ->
+                                when (part) {
+                                    is UIMessagePart.Text -> {
+                                        val text = part.text
+                                        if (text.length > MAX_TOOL_OUTPUT_CHARS) {
+                                            part.copy(text = text.take(MAX_TOOL_OUTPUT_CHARS) + TOOL_OUTPUT_TRUNCATION_SUFFIX)
+                                        } else part
+                                    }
+                                    else -> part
+                                }
+                            }
                             val completedTool = tool.copy(
                                 executionState = ExecutionState.Completed(title = toolDef.name),
-                                output = result
+                                output = truncatedOutput
                             )
                             executedTools += completedTool
                             emit(GenerationChunk.ToolStateChanged(tool.toolCallId, tool.toolName, completedTool.executionState))

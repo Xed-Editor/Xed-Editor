@@ -1,31 +1,35 @@
 package com.rk.ai.nativeagent.engine
 
 import com.rk.ai.agent.tools.VibeCodingSystemTools
+import com.rk.ai.providers.Model
 import com.rk.ai.service.IdeService
 
-/**
- * Builds structured system prompts for the VibeCoding AI agent,
- * inspired by opencode's template-based prompt system.
- *
- * Each section is independently constructable and can be overridden
- * without affecting the others.
- */
 class SystemPromptBuilder(
     private val ideService: IdeService,
 ) {
     private var injected = false
+    private var modelPromptInjected = false
 
     fun isInjected(): Boolean = injected
 
     fun reset() {
         injected = false
+        modelPromptInjected = false
     }
 
-    suspend fun build(): String {
+    suspend fun build(model: Model? = null): String {
         if (injected) return ""
         injected = true
+
+        val modelPrompt = if (model != null && !modelPromptInjected) {
+            modelPromptInjected = true
+            ModelPrompts.forModel(model, VibeCodingSystemTools.SYSTEM_INSTRUCTIONS)
+        } else {
+            VibeCodingSystemTools.SYSTEM_INSTRUCTIONS
+        }
+
         return (listOf(
-            VibeCodingSystemTools.SYSTEM_INSTRUCTIONS,
+            modelPrompt,
             "",
             buildWorkspaceContext(),
             "",

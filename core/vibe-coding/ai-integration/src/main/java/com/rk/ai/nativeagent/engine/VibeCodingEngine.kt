@@ -437,7 +437,7 @@ class VibeCodingEngine(
             messages: List<UIMessage>,
         ): List<UIMessage> {
             if (systemPromptBuilder.isInjected() || messages.isEmpty()) return messages
-            val workspaceContext = systemPromptBuilder.build()
+            val workspaceContext = systemPromptBuilder.build(ctx.model)
             return listOf(UIMessage.system(workspaceContext.toString())) + messages
         }
 
