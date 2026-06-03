@@ -24,54 +24,56 @@ class SystemPromptBuilder(
     suspend fun build(): String {
         if (injected) return ""
         injected = true
-        return buildString {
-            append(VibeCodingSystemTools.SYSTEM_INSTRUCTIONS + "\n")
-            append("\n")
-            appendWorkspaceContext()
-            append("\n")
-            append("Use the available tools to read files, search code, and make changes.\n")
-        }
+        return (listOf(
+            VibeCodingSystemTools.SYSTEM_INSTRUCTIONS,
+            "",
+            buildWorkspaceContext(),
+            "",
+            "Use the available tools to read files, search code, and make changes.",
+        )).joinToString("\n")
     }
 
-    private suspend fun appendWorkspaceContext() {
-        append("## Current Workspace Context\n")
-        append("\n")
+    private suspend fun buildWorkspaceContext(): String {
+        val lines = mutableListOf<String>()
+        lines.add("## Current Workspace Context")
+        lines.add("")
         try {
             val workspacePath = ideService.getPrimaryWorkspacePath()
-            append("Workspace: $workspacePath\n")
-            append("\n")
+            lines.add("Workspace: $workspacePath")
+            lines.add("")
 
             val projectConfig = ideService.getProjectConfig(workspacePath)
             val language = projectConfig["language"]?.asString
             val buildSystem = projectConfig["buildSystem"]?.asString
-            if (language != null) append("Language: $language\n")
-            if (buildSystem != null) append("Build System: $buildSystem\n")
-            append("\n")
+            if (language != null) lines.add("Language: $language")
+            if (buildSystem != null) lines.add("Build System: $buildSystem")
+            lines.add("")
 
             val gitStatus = ideService.getGitStatus(workspacePath)
             val branch = gitStatus["branch"]?.asString ?: "unknown"
             val changes = gitStatus["changes"]?.asJsonArray?.size() ?: 0
-            append("Git Branch: $branch ($changes uncommitted changes)\n")
-            append("\n")
+            lines.add("Git Branch: $branch ($changes uncommitted changes)")
+            lines.add("")
 
             val openFiles = ideService.getOpenFiles()
             if (openFiles.isNotEmpty()) {
-                append("Open Files:\n")
+                lines.add("Open Files:")
                 openFiles.forEach { f ->
                     val path = f["path"]?.asString ?: f["filePath"]?.asString ?: ""
-                    append("  - $path\n")
+                    lines.add("  - $path")
                 }
-                append("\n")
+                lines.add("")
             }
 
             val activeFile = ideService.getActiveFile()
             if (activeFile != null) {
                 val activePath = activeFile["path"]?.asString ?: activeFile["filePath"]?.asString ?: ""
-                append("Active File: $activePath\n")
-                append("\n")
+                lines.add("Active File: $activePath")
+                lines.add("")
             }
         } catch (e: Exception) {
-            append("(Workspace context unavailable: ${e.message})\n")
+            lines.add("(Workspace context unavailable: ${e.message})")
         }
+        return lines.joinToString("\n")
     }
 }
