@@ -34,6 +34,7 @@ import com.rk.ai.models.ToolApprovalState
 import com.rk.ai.models.ExecutionState
 import com.rk.ai.models.handleMessageChunk
 import com.rk.ai.models.limitContext
+import com.rk.ai.agent.RecoveryEngine
 import com.rk.ai.agent.prompts.DEFAULT_COMPRESS_PROMPT
 import com.rk.ai.agent.transformers.InputMessageTransformer
 import com.rk.ai.agent.transformers.MessageTransformer
@@ -367,6 +368,65 @@ class GenerationHandler(
                 }
             }
             previousToolCalls = currentToolCalls
+
+            // Auto-recovery: check for failed tools and attempt recovery
+            val recoveryEngine = RecoveryEngine()
+            val failedTools = executedTools.filter { it.executionState is ExecutionState.Error }
+            var recoveryInjected = false
+            for (failed in failedTools) {
+                val errorMsg = (failed.executionState as? ExecutionState.Error)?.message ?: continue
+                val action = recoveryEngine.analyzeFailure(failed.toolName, errorMsg, failed.input, null)
+                if (action != null) {
+                    when (action.action) {
+                        "create_directory" -> {
+                            val dirPath = action.params["path"]
+                            if (dirPath != null) {
+                                try {
+                                    val dir = java.io.File(dirPath)
+                                    dir.mkdirs()
+                                    Log.i(TAG, "Recovery: created directory $dirPath")
+                                    val recoveryMsg = UIMessage(
+                                        role = MessageRole.SYSTEM,
+                                        parts = listOf(UIMessagePart.Text(
+                                            "[RECOVERY] Tool '${failed.toolName}' failed because directory '$dirPath' did not exist. " +
+                                            "The directory has been auto-created. Retrying the tool call now. " +
+                                            "Action: ${action.message}"
+                                        ))
+                                    )
+                                    messages = messages + recoveryMsg
+                                    emit(GenerationChunk.Messages(messages))
+                                    recoveryInjected = true
+                                } catch (e: Exception) {
+                                    Log.w(TAG, "Recovery failed for directory creation: $dirPath", e)
+                                }
+                            }
+                        }
+                        "skip_missing_file" -> {
+                            val path = action.params["path"]
+                            val recoveryMsg = UIMessage(
+                                role = MessageRole.SYSTEM,
+                                parts = listOf(UIMessagePart.Text(
+                                    "[RECOVERY] File '$path' does not exist (requested by '${failed.toolName}'). " +
+                                    "Report this as a missing file and try a different approach. ${action.message}"
+                                ))
+                            )
+                            messages = messages + recoveryMsg
+                            emit(GenerationChunk.Messages(messages))
+                            recoveryInjected = true
+                        }
+                        else -> {
+                            val recoveryMsg = recoveryEngine.buildRecoveryMessage(failed.toolName, errorMsg, action)
+                            messages = messages + recoveryMsg
+                            emit(GenerationChunk.Messages(messages))
+                            recoveryInjected = true
+                        }
+                    }
+                }
+            }
+            if (recoveryInjected) {
+                Log.i(TAG, "Recovery injected, continuing agent loop")
+                continue
+            }
 
             // Update last message with executed tools
             val lastMessage = messages.last()
