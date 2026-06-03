@@ -1,3 +1,4 @@
+@file:OptIn(ExperimentalUuidApi::class)
 package com.rk.ai.agent.tools
 
 import com.rk.ai.models.InputSchema
@@ -6,6 +7,7 @@ import com.rk.ai.models.UIMessagePart
 import com.rk.ai.service.IdeService
 import com.google.gson.JsonObject
 import kotlinx.serialization.json.*
+import kotlin.uuid.ExperimentalUuidApi
 import java.io.File
 
 /**
