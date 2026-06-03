@@ -803,13 +803,16 @@ class VibeCodingEngine(
                     inputTransformers = transformers,
                     outputTransformers = emptyList(),
                 ).collect { chunk ->
-                    when (chunk) {
-                        is GenerationChunk.Messages -> {
-                            _state.value = _state.value.copy(messages = chunk.messages)
-                            saveCurrentSessionMessages()
-                        }
-                    }
-                }
+                     when (chunk) {
+                         is GenerationChunk.Messages -> {
+                             _state.value = _state.value.copy(messages = chunk.messages)
+                             saveCurrentSessionMessages()
+                         }
+                         is GenerationChunk.CompactionNeeded -> {
+                             _state.value = _state.value.copy(compactionReason = chunk.reason)
+                         }
+                     }
+                 }
             }.onFailure { e ->
                 _state.value = _state.value.copy(isProcessing = false, error = e.message)
             }

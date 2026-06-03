@@ -90,16 +90,16 @@ private fun SuggestionItem(suggestion: JsonObject, engine: VibeCodingEngine) {
             Row {
                 TextButton(onClick = {
                     // Apply suggestion via engine tool
-                    engine.sendMessage("applySuggestion", "{\"suggestion\":${suggestion.toString()},\"dryRun\":false}")
+                    engine.sendMessage("applySuggestion", listOf(UIMessagePart.Text("{\"suggestion\":${suggestion.toString()},\"dryRun\":false}")))
                 }) { Text("Apply") }
                 TextButton(onClick = {
                     // Copy to clipboard
-                    engine.sendMessage("writeToClipboard", "{\"text\":\"${text}\"}")
+                    engine.sendMessage("writeToClipboard", listOf(UIMessagePart.Text("{\"text\":\"${text}\"}")))
                 }) { Text("Copy") }
                 TextButton(onClick = {
                     // Record dismissal feedback
                     val id = suggestion["id"]?.jsonPrimitive?.content ?: java.util.UUID.randomUUID().toString()
-                    engine.sendMessage("recordSuggestionFeedback", "{\"suggestionId\":\"$id\",\"accepted\":false}")
+                    engine.sendMessage("recordSuggestionFeedback", listOf(UIMessagePart.Text("{\"suggestionId\":\"$id\",\"accepted\":false}")))
                 }) { Text("Dismiss") }
             }
         }

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.nativeagent.engine.VibeCodingEngine
 import com.rk.ai.nativeagent.ui.components.*
+import com.rk.ai.persistence.settings.getCurrentAssistant
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -326,6 +327,7 @@ fun VibeCodingPanel(
                                 ) {
                                     val icon = when (todo.status) {
                                         SessionTodoStatus.COMPLETED -> Icons.Outlined.CheckCircle
+                                        SessionTodoStatus.IN_PROGRESS -> Icons.Outlined.PlayCircle
                                         SessionTodoStatus.CANCELLED -> Icons.Outlined.Cancel
                                         SessionTodoStatus.PENDING -> Icons.Outlined.RadioButtonUnchecked
                                     }
@@ -335,6 +337,7 @@ fun VibeCodingPanel(
                                         modifier = Modifier.size(14.dp),
                                         tint = when (todo.status) {
                                             SessionTodoStatus.COMPLETED -> colorScheme.primary
+                                            SessionTodoStatus.IN_PROGRESS -> colorScheme.tertiary
                                             SessionTodoStatus.CANCELLED -> colorScheme.error
                                             SessionTodoStatus.PENDING -> colorScheme.onSurfaceVariant
                                         },
