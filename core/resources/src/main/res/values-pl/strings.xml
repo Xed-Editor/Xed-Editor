@@ -670,4 +670,9 @@
     <string name="clipboard_keybindings_desc">Włącz przypisania klawiszy kopiowania oraz wklejania klawiatury fizycznej.</string>
     <string name="manage_formatters">Zarządzaj formatownikami</string>
     <string name="manage_formatters_desc">Ustaw priorytet oraz konfiguruj formatowniki</string>
+    <string name="info_formatters">Formatowniki są stosowane według priorytetu. Pierwszy formatownik wspierający obecny język zostanie użyty. Zmień kolejność przytrzymując i przeciągając.</string>
+    <string name="document_highlight">Podświetlanie wystąpienia</string>
+    <string name="document_highlight_desc">Podświetl wystąpienia symbolu pod kursorem.</string>
+    <string name="formatter_lsp_desc">Użyj obecnego serwera językowego</string>
+    <string name="browse_extensions">Przeglądaj rozszerzenia</string>
 </resources>
