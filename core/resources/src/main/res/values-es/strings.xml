@@ -643,4 +643,31 @@
     <string name="invalid_terminal_extra_keys">Formato no válido para teclas de terminal extras. Se cargaran las teclas por defecto.</string>
     <string name="clipboard_keybindings">Vínculos del portapapel</string>
     <string name="clipboard_keybindings_desc">Habilita copia y pega vínculos de teclas para teclados de hardware.</string>
+    <plurals name="time_seconds_ago">
+        <item quantity="one">Hace %d segundo</item>
+        <item quantity="many">Hace %d segundos</item>
+        <item quantity="other">Hace %d segundos</item>
+    </plurals>
+    <plurals name="time_minutes_ago">
+        <item quantity="one">Hace %d minuto</item>
+        <item quantity="many">Hace %d minutos</item>
+        <item quantity="other">Hace %d minutos</item>
+    </plurals>
+    <plurals name="time_hours_ago">
+        <item quantity="one">Hace %d hora</item>
+        <item quantity="many">Hace %d horas</item>
+        <item quantity="other">Hace %d horas</item>
+    </plurals>
+    <plurals name="time_days_ago">
+        <item quantity="one">Hace %d día</item>
+        <item quantity="many">Hace %d días</item>
+        <item quantity="other">Hace %d días</item>
+    </plurals>
+    <string name="manage_formatters">Gestionar formatos</string>
+    <string name="manage_formatters_desc">Priorizar y configurar formatos</string>
+    <string name="info_formatters">Formateadores están aplicado por prioridad. Será utilizado el primer formateador que admite el idioma actual. Puedes pulsar más tiempo y arrastrar para cambiar su ordenación.</string>
+    <string name="document_highlight">Sucesos destacados</string>
+    <string name="document_highlight_desc">Sucesos resaltados del símbolo en el cursor.</string>
+    <string name="formatter_lsp_desc">Un servidor de idioma personalizado</string>
+    <string name="browse_extensions">Extensiones del navegador</string>
 </resources>
