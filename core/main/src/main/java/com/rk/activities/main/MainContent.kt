@@ -113,7 +113,7 @@ fun MainContent(
             if (mainViewModel.tabs.isEmpty()) {
                 EmptyEditorState(
                     onNewFile = {
-                        com.rk.file.FileManager(context).createNewFile(mimeType = "*/*", title = "newfile.txt") { file ->
+                        com.rk.file.FileManager(context as androidx.activity.ComponentActivity).createNewFile(mimeType = "*/*", title = "newfile.txt") { file ->
                             if (file != null) {
                                 mainViewModel.editorManager.addEditorTab(file, null, true)
                             }
