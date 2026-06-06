@@ -34,9 +34,9 @@ abstract class ScriptedLspServer : LspServer() {
             terminalCommand =
                 TerminalCommand(
                     exe = "/bin/bash",
-                    args = arrayOf(installScript.absolutePath, *flags),
+                    args = listOf(installScript.absolutePath, *flags),
                     id = installId,
-                    env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
+                    env = listOf("DEBIAN_FRONTEND=noninteractive"),
                 ),
         )
     }

@@ -12,21 +12,18 @@ object FontCache {
 
     fun loadFont(context: Context, path: String, isAsset: Boolean) {
         if (cachedFonts.containsKey(path)) return
-        doLoadFont(context, path, isAsset).onFailure { it.printStackTrace() }
+        loadFontInternal(context, path, isAsset)
     }
 
-    private fun doLoadFont(context: Context, path: String, isAsset: Boolean) = runCatching {
+    private fun loadFontInternal(context: Context, path: String, isAsset: Boolean) {
         val font =
             if (isAsset) {
-                context.assets.open(path).close()
                 val typeface = Typeface.createFromAsset(context.assets, path)
                 val composeFont = Font(path, context.assets)
                 CachedFont(typeface, composeFont)
             } else {
                 val file = File(path)
-                if (!file.exists()) {
-                    return@runCatching
-                }
+                if (!file.exists()) return
                 val typeface = Typeface.createFromFile(file)
                 val composeFont = Font(file)
                 CachedFont(typeface, composeFont)
@@ -34,28 +31,18 @@ object FontCache {
         cachedFonts[path] = font
     }
 
-    private fun getCachedFont(context: Context, path: String, isAsset: Boolean): CachedFont? {
-        if (cachedFonts.containsKey(path)) {
-            return cachedFonts[path]
-        } else {
-            doLoadFont(context, path, isAsset)
-                .fold(
-                    onFailure = {
-                        it.printStackTrace()
-                        return null
-                    },
-                    onSuccess = {
-                        return cachedFonts[path]
-                    },
-                )
-        }
+    private fun getOrLoadFont(context: Context, path: String, isAsset: Boolean): CachedFont? {
+        val cached = cachedFonts[path]
+        if (cached != null) return cached
+        loadFontInternal(context, path, isAsset)
+        return cachedFonts[path]
     }
 
     fun getTypeface(context: Context, path: String, isAsset: Boolean): Typeface? {
-        return getCachedFont(context, path, isAsset)?.typeface
+        return getOrLoadFont(context, path, isAsset)?.typeface
     }
 
     fun getFont(context: Context, path: String, isAsset: Boolean): Font? {
-        return getCachedFont(context, path, isAsset)?.composeFont
+        return getOrLoadFont(context, path, isAsset)?.composeFont
     }
 }

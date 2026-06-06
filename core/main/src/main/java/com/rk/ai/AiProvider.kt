@@ -62,7 +62,7 @@ object AiProvider {
     }
 
     interface AgentEnvBuilderProvider {
-        fun buildMinimalBridgeEnv(bridge: BridgeInfo, workingDir: String): Array<String>
+        fun buildMinimalBridgeEnv(bridge: BridgeInfo, workingDir: String): List<String>
     }
 
     fun interface IdeServiceFactoryProvider {

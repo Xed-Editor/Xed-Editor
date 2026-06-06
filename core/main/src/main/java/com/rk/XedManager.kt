@@ -28,7 +28,11 @@ object XedManager {
             override fun onActivityPaused(activity: Activity) {}
             override fun onActivityStopped(activity: Activity) {}
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-            override fun onActivityDestroyed(activity: Activity) { if (currentActivity == activity) _currentActivity.clear() }
+            override fun onActivityDestroyed(activity: Activity) {
+                if (_currentActivity.get() == activity) {
+                    _currentActivity.clear()
+                }
+            }
         })
     }
 }

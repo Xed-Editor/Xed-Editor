@@ -24,7 +24,7 @@ class Shell : RunnerImpl() {
                 TerminalCommand(
                     sandbox = true,
                     exe = "/bin/bash",
-                    args = arrayOf(fileObject.getAbsolutePath()),
+                    args = listOf(fileObject.getAbsolutePath()),
                     id = "shell-runner",
                     terminatePreviousSession = true,
                     workingDir = fileObject.getParentFile()?.getAbsolutePath() ?: "/",

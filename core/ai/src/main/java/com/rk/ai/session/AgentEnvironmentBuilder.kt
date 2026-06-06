@@ -144,7 +144,7 @@ object AgentEnvironmentBuilder {
         runCatching { sandboxHomeDir().let { if (it.exists()) File(it, AiConfig.Discovery.xedBridgeEnvHomeFile).writeText(envContent) } }
     }
 
-    fun buildMinimalBridgeEnv(bridge: IdeBridge.Info, workingDir: String): Array<String> = arrayOf(
+    fun buildMinimalBridgeEnv(bridge: IdeBridge.Info, workingDir: String): List<String> = listOf(
         "WKDIR=$workingDir",
         "GEMINI_CLI_IDE_SERVER_PORT=${bridge.port}",
         "GEMINI_CLI_IDE_AUTH_TOKEN=${bridge.token}",

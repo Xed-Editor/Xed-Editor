@@ -109,42 +109,40 @@ object MkSession {
 
         pendingCommand?.env?.let { env.addAll(it) }
 
+
         setupTerminalFiles()
 
         val sandboxSH = localBinDir().child("sandbox")
         val setupSH = localBinDir().child("setup")
 
-        val args: Array<String>
-
         val pcmd = pendingCommand
-        val shell =
-            if (pcmd == null) {
-                args =
-                    if (Settings.sandbox) {
-                        arrayOf(sandboxSH.absolutePath)
-                    } else {
-                        arrayOf()
-                    }
-                "/system/bin/sh"
-            } else if (pcmd.sandbox.not()) {
-                args = pcmd.args
-                pcmd.exe
-            } else {
-                args =
-                    mutableListOf(sandboxSH.absolutePath, pcmd.exe, *pcmd.args)
-                        .toTypedArray<String>()
+        val shell: String
+        val args: List<String>
 
-                "/system/bin/sh"
-            }
+        if (pcmd == null) {
+            args =
+                if (Settings.sandbox) {
+                    listOf(sandboxSH.absolutePath)
+                } else {
+                    emptyList()
+                }
+            shell = "/system/bin/sh"
+        } else if (pcmd.sandbox.not()) {
+            args = pcmd.args
+            shell = pcmd.exe
+        } else {
+            args = listOf(sandboxSH.absolutePath, pcmd.exe) + pcmd.args
+            shell = "/system/bin/sh"
+        }
 
         val actualShell: String
         val actualArgs: Array<String> =
             if (getNextStage(activity) == NEXT_STAGE.EXTRACTION) {
                 actualShell = "/system/bin/sh"
-                mutableListOf("-c", setupSH.absolutePath, *args).toTypedArray()
+                (listOf("-c", setupSH.absolutePath) + args).toTypedArray()
             } else {
                 actualShell = shell
-                arrayOf("-c", *args)
+                (listOf("-c") + args).toTypedArray()
             }
 
         pendingCommand = null

@@ -116,7 +116,7 @@ object AiRegistrar {
         override fun buildMinimalBridgeEnv(
             bridge: AiProvider.BridgeInfo,
             workingDir: String,
-        ): Array<String> = AgentEnvironmentBuilder.buildMinimalBridgeEnv(
+        ): List<String> = AgentEnvironmentBuilder.buildMinimalBridgeEnv(
             IdeBridge.Info(port = bridge.port, token = bridge.token, host = bridge.host),
             workingDir,
         )

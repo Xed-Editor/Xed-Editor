@@ -42,7 +42,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
         val args = buildList {
                 add(launcher)
                 addAll(agentArgs)
-            }.toTypedArray()
+            }
 
         launchTerminal(
             actionContext.currentActivity,
@@ -52,7 +52,7 @@ class AiCliCommand(commandContext: CommandContext) : GlobalCommand(commandContex
                 id = "${agent.name}-cli",
                 terminatePreviousSession = false,
                 workingDir = workspaceDir,
-                env = AiProvider.agentEnvBuilder?.buildMinimalBridgeEnv(bridge, workspaceDir) ?: emptyArray(),
+                env = AiProvider.agentEnvBuilder?.buildMinimalBridgeEnv(bridge, workspaceDir) ?: emptyList(),
             ),
         )
     }

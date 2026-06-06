@@ -35,10 +35,23 @@ jobs:
           distribution: "temurin"
           cache: gradle
 
+      - name: Validate secrets
+        run: |
+          if [ -z "${{ secrets.KEYSTORE }}" ]; then
+            echo "::error::Missing secret: KEYSTORE (base64-encoded keystore)"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PROP }}" ]; then
+            echo "::error::Missing secret: PROP (base64-encoded signing.properties)"
+            exit 1
+          fi
+          echo "All required secrets are present"
+
       - name: Decode and create secrets
         run: |
           echo "${{ secrets.KEYSTORE }}" | base64 -d > /tmp/xed.keystore
           echo "${{ secrets.PROP }}" | base64 -d > /tmp/signing.properties
+          echo "Secrets decoded successfully"
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -48,9 +61,9 @@ jobs:
         run: |
           VERSION_NAME="${{ github.event.inputs.version_name }}"
           if [ -z "$VERSION_NAME" ]; then
-            VERSION_NAME=$(grep "versionName" app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+            VERSION_NAME=$(grep -E "^[[:space:]]*versionName" app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
           fi
-          VERSION_CODE=$(grep "versionCode" app/build.gradle.kts | sed 's/.*= *\([0-9]*\).*/\1/')
+          VERSION_CODE=$(grep -E "^[[:space:]]*versionCode" app/build.gradle.kts | sed 's/.*=[[:space:]]*\([0-9]*\).*/\1/')
           COMMIT_HASH=$(git rev-parse --short HEAD)
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
@@ -61,10 +74,8 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version_name }}"
           ./gradlew assembleRelease --no-daemon
-          mv app/build/outputs/apk/release/*.apk "app/Xed-Editor-v${VERSION}.apk"
-        env:
-          KEYSTORE_FILE: /tmp/xed.keystore
-          SIGNING_PROPERTIES_FILE: /tmp/signing.properties
+          mkdir -p app/dist
+          cp app/build/outputs/apk/release/*.apk "app/dist/Xed-Editor-v${VERSION}.apk"
 
       - name: Generate release notes
         id: notes
@@ -72,6 +83,12 @@ jobs:
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           echo "## Changelog" > /tmp/release-notes.md
           echo "" >> /tmp/release-notes.md
+          if [ -f changelog.txt ]; then
+            cat changelog.txt >> /tmp/release-notes.md
+            echo "" >> /tmp/release-notes.md
+            echo "---" >> /tmp/release-notes.md
+            echo "" >> /tmp/release-notes.md
+          fi
           if [ -n "$PREV_TAG" ]; then
             git log "$PREV_TAG..HEAD" --oneline --no-decorate >> /tmp/release-notes.md || true
           else
@@ -80,12 +97,13 @@ jobs:
           echo "" >> /tmp/release-notes.md
           echo "**Commit:** ${{ steps.version.outputs.commit_hash }}" >> /tmp/release-notes.md
           echo "**Version Code:** ${{ steps.version.outputs.version_code }}" >> /tmp/release-notes.md
+          echo "**Pre-release:** ${{ github.event.inputs.pre_release }}" >> /tmp/release-notes.md
 
       - name: Archive APK
         uses: actions/upload-artifact@v7
         with:
           name: Xed-Editor-v${{ steps.version.outputs.version_name }}
-          path: app/Xed-Editor-v${{ steps.version.outputs.version_name }}.apk
+          path: app/dist/*.apk
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -93,7 +111,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: Xed-Editor v${{ steps.version.outputs.version_name }}
           body_path: /tmp/release-notes.md
-          files: app/Xed-Editor-v${{ steps.version.outputs.version_name }}.apk
+          files: app/dist/*.apk
           prerelease: ${{ github.event.inputs.pre_release }}
           generate_release_notes: false
         env:

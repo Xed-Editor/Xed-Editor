@@ -55,7 +55,7 @@ class UniversalRunner : RunnerImpl() {
                 TerminalCommand(
                     sandbox = true,
                     exe = "/bin/bash",
-                    args = arrayOf(localBinDir().child("universal_runner").absolutePath, fileObject.getAbsolutePath()),
+                    args = listOf(localBinDir().child("universal_runner").absolutePath, fileObject.getAbsolutePath()),
                     id = "universal_runner",
                     terminatePreviousSession = true,
                     workingDir = fileObject.getParentFile()?.getAbsolutePath() ?: "/",

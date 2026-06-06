@@ -27,6 +27,9 @@ core/wasm3
 
 /.opencode
 core/rikkahub
+app/xed.keystore
+/tmp/signing.properties
+/tmp/xed.keystore
 
 /core/vibe_coding/help_resources/claude-code-main
 

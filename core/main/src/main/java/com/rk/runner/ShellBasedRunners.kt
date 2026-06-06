@@ -76,7 +76,7 @@ data class ShellBasedRunner(private val name: String, val regex: String) : Runne
             context,
             TerminalCommand(
                 exe = "/bin/bash",
-                args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),
+                args = listOf(script.absolutePath, fileObject.getAbsolutePath()),
                 id = name,
             ),
         )

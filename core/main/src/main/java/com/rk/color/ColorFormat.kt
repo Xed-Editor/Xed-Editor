@@ -21,26 +21,6 @@ sealed class ColorFormat(val label: String) {
         override fun getColor(string: String) = string.parseHsl()
     }
 
-    object LCH : ColorFormat("LCH") {
-        override fun getString(color: Color): String {
-            TODO("Not yet implemented")
-        }
-
-        override fun getColor(string: String): Color {
-            TODO("Not yet implemented")
-        }
-    }
-
-    object OKLCH : ColorFormat("OKLCH") {
-        override fun getString(color: Color): String {
-            TODO("Not yet implemented")
-        }
-
-        override fun getColor(string: String): Color {
-            TODO("Not yet implemented")
-        }
-    }
-
     abstract fun getString(color: Color): String
 
     abstract fun getColor(string: String): Color?
@@ -51,8 +31,6 @@ sealed class ColorFormat(val label: String) {
                 HEX,
                 RGB,
                 HSL,
-                // LCH,
-                // OKLCH
             )
         }
     }
