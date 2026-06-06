@@ -184,7 +184,7 @@ class GenerationHandler(
 
             // Skip generation if we have approved/denied tool calls to handle
             if (pendingTools.isEmpty()) {
-                generateInternal(
+                lastFinishReason = generateInternal(
                     assistant = assistant,
                     settings = settings,
                     messages = messages,
@@ -559,7 +559,8 @@ class GenerationHandler(
         conversationSystemPrompt: String? = null,
         conversationModeInjectionIds: Set<Uuid> = emptySet(),
         conversationLorebookIds: Set<Uuid> = emptySet(),
-    ) {
+    ): String? {
+        var finishReason: String? = null
         val internalMessages = buildList {
             val system = buildString {
                 val effectiveSystemPrompt =
@@ -632,7 +633,7 @@ class GenerationHandler(
                 messages = internalMessages,
                 params = params
             ).collect { chunk ->
-                lastFinishReason = chunk.choices.getOrNull(0)?.finishReason
+                finishReason = chunk.choices.getOrNull(0)?.finishReason
                 messages = messages.handleMessageChunk(chunk = chunk, modelId = model.id)
                 chunk.usage?.let { usage ->
                     messages = messages.mapIndexed { index, message ->
@@ -659,7 +660,7 @@ class GenerationHandler(
                 messages = internalMessages,
                 params = params,
             )
-            lastFinishReason = chunk.choices.getOrNull(0)?.finishReason
+            finishReason = chunk.choices.getOrNull(0)?.finishReason
             messages = messages.handleMessageChunk(chunk = chunk, modelId = model.id)
             chunk.usage?.let { usage ->
                 messages = messages.mapIndexed { index, message ->
@@ -674,6 +675,7 @@ class GenerationHandler(
             }
             onUpdateMessages(messages)
         }
+        return finishReason
     }
 
     fun translateText(
