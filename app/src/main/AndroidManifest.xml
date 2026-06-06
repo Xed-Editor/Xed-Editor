@@ -53,6 +53,7 @@
             android:name="com.rk.activities.main.MainActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
+            tools:ignore="Instantiatable"
             android:inputType="textFilter"
             android:launchMode="singleTask"
             android:persistableMode="persistAcrossReboots"
