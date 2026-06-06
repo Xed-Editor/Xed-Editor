@@ -66,7 +66,13 @@ class SessionService : Service() {
             val s = weakService.get() ?: return null
             return s.sessionWorkDirs.keys
                 .find { s.sessionWorkDirs[it] == pwd }
-                ?.let { SessionInfo(it, s.sessionWorkDirs[it]!!, s.sessions[it]!!) }
+                ?.let { id ->
+                    val workDir = s.sessionWorkDirs[id]
+                    val session = s.sessions[id]
+                    if (workDir != null && session != null) {
+                        SessionInfo(id, workDir, session)
+                    } else null
+                }
         }
 
         fun terminateSession(id: SessionId) {

@@ -67,6 +67,11 @@ class MarkdownImageProvider : SimpleMarkdownRenderer.ImageProvider {
         val originalWidth = svg.documentWidth
         val originalHeight = svg.documentHeight
 
+        if (originalWidth <= 0f || originalHeight <= 0f ||
+            originalWidth.isNaN() || originalHeight.isNaN() ||
+            !originalWidth.isFinite() || !originalHeight.isFinite()
+        ) return null
+
         val clampedWidth = originalWidth.coerceIn(175f, 800f)
         val clampedHeight = originalHeight.coerceIn(175f, 800f)
 

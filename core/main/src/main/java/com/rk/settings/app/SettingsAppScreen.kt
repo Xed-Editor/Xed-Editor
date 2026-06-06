@@ -264,11 +264,11 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
 
                                     val fixedValue =
                                         when (expectedType) {
-                                            Float::class -> (value as Number).toFloat()
-                                            Int::class -> (value as Number).toInt()
-                                            Long::class -> (value as Number).toLong()
-                                            Boolean::class -> value as Boolean
-                                            String::class -> value as String
+                                            Float::class -> (value as? Number)?.toFloat() ?: value.toString().toFloatOrNull() ?: 0f
+                                            Int::class -> (value as? Number)?.toInt() ?: value.toString().toIntOrNull() ?: 0
+                                            Long::class -> (value as? Number)?.toLong() ?: value.toString().toLongOrNull() ?: 0L
+                                            Boolean::class -> (value as? Boolean) ?: value.toString().toBooleanStrictOrNull() ?: false
+                                            String::class -> value.toString()
                                             else -> value
                                         }
 

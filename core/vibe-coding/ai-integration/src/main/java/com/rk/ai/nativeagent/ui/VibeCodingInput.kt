@@ -37,9 +37,9 @@ fun VibeCodingInput(
     ) { uri: Uri? ->
         uri?.let {
             try {
-                val inputStream = context.contentResolver.openInputStream(it)
-                val bytes = inputStream?.readBytes() ?: return@let
-                inputStream.close()
+                val bytes = context.contentResolver.openInputStream(it)?.use { stream ->
+                    stream.readBytes()
+                } ?: return@let
                 val fileName = it.lastPathSegment ?: "file"
                 val mimeType = context.contentResolver.getType(it) ?: "application/octet-stream"
                 when {
@@ -66,9 +66,9 @@ fun VibeCodingInput(
     ) { uri: Uri? ->
         uri?.let {
             try {
-                val inputStream = context.contentResolver.openInputStream(it)
-                val bytes = inputStream?.readBytes() ?: return@let
-                inputStream.close()
+                context.contentResolver.openInputStream(it)?.use { stream ->
+                    stream.readBytes()
+                }
                 attachedParts = attachedParts + UIMessagePart.Image(
                     url = it.toString(),
                 )

@@ -14,7 +14,6 @@ import com.rk.settings.editor.DEFAULT_EXTRA_KEYS_SYMBOLS
 import com.rk.utils.application
 import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 object UpdateManager {

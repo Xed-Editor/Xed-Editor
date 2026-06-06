@@ -68,7 +68,7 @@ private class LruKeyRoulette(
 
             // 优先选从未使用的 key，否则选最久未使用的
             val selected = keyList.firstOrNull { it !in providerCache }
-                ?: providerCache.minByOrNull { it.value }!!.key
+                ?: providerCache.minByOrNull { it.value }?.key ?: return
 
             providerCache[selected] = now
             allCache[providerId] = providerCache

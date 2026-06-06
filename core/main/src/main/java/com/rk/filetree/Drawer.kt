@@ -89,9 +89,7 @@ import com.rk.utils.application
 import com.rk.utils.dialog
 import com.rk.utils.toast
 import java.io.File
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

@@ -47,9 +47,11 @@ class ProcessConnection(private val cmd: Array<String>, instance: LspServerInsta
 
         scope!!.launch {
             runCatching {
-                process!!.errorStream.bufferedReader().forEachLine { line ->
-                    Log.e("ProcessConnection", "[stderr] $line")
-                    instance.addLog(LspLogEntry(MessageType.Error, line))
+                process!!.errorStream.bufferedReader().use { reader ->
+                    reader.forEachLine { line ->
+                        Log.e("ProcessConnection", "[stderr] $line")
+                        instance.addLog(LspLogEntry(MessageType.Error, line))
+                    }
                 }
             }
         }
