@@ -104,10 +104,6 @@ class GenerationHandler(
     val conversationRepo: ConversationRepository,
     private val aiLoggingManager: AILoggingManager,
 ) {
-    private var compactionCount = 0
-    private var previousToolCalls: List<Pair<String, String>> = emptyList()
-    private var lastFinishReason: String? = null
-
     fun generateText(
         settings: Settings,
         model: Model,
@@ -123,10 +119,17 @@ class GenerationHandler(
         conversationModeInjectionIds: Set<Uuid> = emptySet(),
         conversationLorebookIds: Set<Uuid> = emptySet(),
     ): Flow<GenerationChunk> = flow {
+        // Per-call state — reset for each generateText() invocation to prevent bleed between sessions
+        var compactionCount = 0
+        var previousToolCalls: List<Pair<String, String>> = emptyList()
+        var lastFinishReason: String? = null
+
         val provider = model.findProvider(settings.providers) ?: error("Provider not found")
         val providerImpl = providerManager.getProviderByType(provider)
 
         var messages: List<UIMessage> = messages
+
+        var consecutiveRepetitions = 0
 
         for (stepIndex in 0 until maxSteps) {
             lastFinishReason = null
@@ -245,7 +248,7 @@ class GenerationHandler(
                     }
                     // Check finish reason from the message's choices (handled via handleMessageChunk)
                     // If the model stopped with "length" finish reason, compact and retry
-                    val hasLengthFinish = checkFinishReason(messages)
+                    val hasLengthFinish = checkFinishReason(messages, lastFinishReason)
                     if (hasLengthFinish) {
                         Log.w(TAG, "Model stopped with 'length' finish reason, compacting...")
                         if (compactionCount < MAX_COMPACTIONS) {
@@ -259,9 +262,6 @@ class GenerationHandler(
                     }
                     break
                 }
-
-                // Reset doom loop tracking since we got new tool calls
-                previousToolCalls = emptyList()
 
                 // Check for tools that need approval
                 var hasPendingApproval = false
@@ -348,8 +348,14 @@ class GenerationHandler(
 
             // Doom loop detection: check if same tool called repeatedly with same input
             val currentToolCalls = executedTools.map { it.toolName to it.input }
-            if (previousToolCalls.isNotEmpty() && currentToolCalls == previousToolCalls) {
-                Log.w(TAG, "Doom loop detected: same tool calls repeated ${DOOM_LOOP_THRESHOLD}+ times")
+            if (currentToolCalls == previousToolCalls) {
+                consecutiveRepetitions++
+            } else {
+                consecutiveRepetitions = 0
+            }
+            previousToolCalls = currentToolCalls
+            if (consecutiveRepetitions >= DOOM_LOOP_THRESHOLD) {
+                Log.w(TAG, "Doom loop detected: same tool calls repeated ${consecutiveRepetitions + 1} times")
                 val doomTool = CompactionHandler.detectDoomLoop(messages)
                 if (doomTool != null) {
                     Log.w(TAG, "Breaking doom loop for tool: $doomTool, injecting recovery hint")
@@ -367,7 +373,6 @@ class GenerationHandler(
                     break
                 }
             }
-            previousToolCalls = currentToolCalls
 
             // Auto-recovery: check for failed tools and attempt recovery
             val recoveryEngine = RecoveryEngine()
@@ -389,7 +394,7 @@ class GenerationHandler(
                                         role = MessageRole.SYSTEM,
                                         parts = listOf(UIMessagePart.Text(
                                             "[RECOVERY] Tool '${failed.toolName}' failed because directory '$dirPath' did not exist. " +
-                                            "The directory has been auto-created. Retrying the tool call now. " +
+                                            "The directory has been auto-created. You may retry the tool call. " +
                                             "Action: ${action.message}"
                                         ))
                                     )
@@ -474,16 +479,18 @@ class GenerationHandler(
         if (!hasOverflow) return messages
 
         val compacted = CompactionHandler.pruneMessages(messages)
-        if (compacted.summary != null) {
+        if (compacted.compactedMessages.isNotEmpty() && compacted.prunedCount > 0) {
+            val summaryText = buildString {
+                appendLine("[Compacted summary of earlier context]")
+                appendLine("Previous ${compacted.compactedMessages.size} messages consumed ${compacted.prunedCount} tokens of tool output.")
+                appendLine("The remaining context contains the most recent turns.")
+                appendLine("Tool outputs in the compacted portion have been truncated to save context.")
+            }
             val summaryMsg = UIMessage(
                 role = MessageRole.SYSTEM,
-                parts = listOf(UIMessagePart.Text("[Compacted summary of earlier context]\n${compacted.summary}")),
+                parts = listOf(UIMessagePart.Text(summaryText)),
             )
-            val tailMessages = if (compacted.compactedMessages.isNotEmpty()) {
-                messages.drop(compacted.compactedMessages.size)
-            } else {
-                messages
-            }
+            val tailMessages = messages.drop(compacted.compactedMessages.size)
             return listOf(summaryMsg) + tailMessages
         }
 
@@ -531,9 +538,9 @@ class GenerationHandler(
         }
     }
 
-    private fun checkFinishReason(messages: List<UIMessage>): Boolean {
+    private fun checkFinishReason(messages: List<UIMessage>, finishReason: String?): Boolean {
         if (messages.isEmpty()) return false
-        return lastFinishReason == "length"
+        return finishReason == "length"
     }
 
     private suspend fun generateInternal(

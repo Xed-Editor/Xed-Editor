@@ -429,6 +429,8 @@ class VibeCodingEngine(
     }
 
     private var currentJob: Job? = null
+    private var autoRespondDepth = 0
+    private val MAX_AUTO_RESPOND_DEPTH = 5
 
     private val systemPromptBuilder = SystemPromptBuilder(ideService)
 
@@ -679,18 +681,21 @@ class VibeCodingEngine(
     }
 
     fun approveTool(toolCallId: String) {
+        if (isProcessing) return
         updateToolApproval(toolCallId) {
             ToolApprovalState.Approved
         }
     }
 
     fun denyTool(toolCallId: String, reason: String = "") {
+        if (isProcessing) return
         updateToolApproval(toolCallId) {
             ToolApprovalState.Denied(reason)
         }
     }
 
     fun answerTool(toolCallId: String, answer: String) {
+        if (isProcessing) return
         updateToolApproval(toolCallId) {
             ToolApprovalState.Answered(answer)
         }
@@ -734,11 +739,17 @@ class VibeCodingEngine(
 
             val resumeTools = buildToolList(assistant, settings)
 
-            val transformers = listOfNotNull(
+            val inputTransformers = listOfNotNull(
                 systemPromptTransformer,
                 PlaceholderTransformer,
                 if (assistant.enableTimeReminder) TimeReminderTransformer else null,
                 PromptInjectionTransformer,
+            )
+
+            val outputTransformers = listOfNotNull(
+                ToolTagSanitizerTransformer,
+                RegexOutputTransformer,
+                Base64ImageToLocalFileTransformer.also { it.filesManager = filesManager },
             )
 
             runCatching {
@@ -749,8 +760,8 @@ class VibeCodingEngine(
                     assistant = assistant,
                     memories = memories,
                     tools = resumeTools,
-                    inputTransformers = transformers,
-                    outputTransformers = emptyList(),
+                    inputTransformers = inputTransformers,
+                    outputTransformers = outputTransformers,
                 ).collect { chunk ->
                      when (chunk) {
                          is GenerationChunk.Messages -> {
@@ -791,11 +802,20 @@ class VibeCodingEngine(
     }
 
     private fun checkAndAutoRespondPermissions(): Boolean {
+        if (autoRespondDepth >= MAX_AUTO_RESPOND_DEPTH) {
+            Log.w(TAG, "Auto-respond depth limit reached ($MAX_AUTO_RESPOND_DEPTH), stopping recursion")
+            autoRespondDepth = 0
+            return false
+        }
         val lastMessage = _state.value.messages.lastOrNull() ?: return false
         val tools = lastMessage.getTools().filter { it.isPending }
-        if (tools.isEmpty()) return false
+        if (tools.isEmpty()) {
+            autoRespondDepth = 0
+            return false
+        }
 
         var didChange = false
+        autoRespondDepth++
         for (tool in tools) {
             val action = permissionManager.getAction(tool.toolName, tool.input)
             when (action) {
@@ -810,6 +830,7 @@ class VibeCodingEngine(
                 else -> { }
             }
         }
+        if (!didChange) autoRespondDepth = 0
         return didChange
     }
 
