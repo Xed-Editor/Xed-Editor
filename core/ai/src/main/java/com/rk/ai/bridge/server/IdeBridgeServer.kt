@@ -48,10 +48,6 @@ class IdeBridgeServer(
     val toolsCount: Int get() = toolRegistry.listSchemas().size()
 
     var ideService: IdeService = initialIdeService
-        set(value) {
-            field = value
-            toolRegistry = McpToolRegistry().also { registerTools(it) }
-        }
 
     companion object {
         private const val MCP_SESSION_ID_HEADER = "mcp-session-id"

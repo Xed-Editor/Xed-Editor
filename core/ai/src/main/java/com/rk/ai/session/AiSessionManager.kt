@@ -93,17 +93,21 @@ object AiSessionManager {
 
             withContext(Dispatchers.Main) {
                 ideService = IdeServiceImpl(viewModel)
-                val newSession = createAgentSession(
-                    activity = activity,
-                    agent = currentAgent,
-                    bridge = bridgeInfo,
-                    workingDir = workingDir,
-                    extraArgs = effectiveExtraArgs,
-                )
+            }
+
+            val newSession = createAgentSession(
+                activity = activity,
+                agent = currentAgent,
+                bridge = bridgeInfo,
+                workingDir = workingDir,
+                extraArgs = effectiveExtraArgs,
+            )
+
+            withContext(Dispatchers.Main) {
                 session = newSession
                 cwd = workingDir
-                newSession
             }
+            newSession
         }
     }
 

@@ -36,7 +36,14 @@ object IdeBridge {
 
     fun ensureStarted(viewModel: MainViewModel, workspacePath: String? = null): Info? {
         workspacePath?.let { setWorkspacePath(it) }
-        synchronized(stateLock) { if (server != null) return getBridgeInfo() }
+        synchronized(stateLock) {
+            if (server != null) {
+                server?.stop()
+                server = null
+                token = null
+                port = 0
+            }
+        }
 
         runCatching {
             val t = newToken()

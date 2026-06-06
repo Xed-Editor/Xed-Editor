@@ -95,13 +95,21 @@ class SseManager(
         scope.launch {
             while (isActive) {
                 delay(keepaliveIntervalMs)
-                synchronized(sseLock) {
-                    val w = sseClients[sessionId] ?: return@synchronized
-                    w.print(": keepalive\n\n"); w.flush()
-                    if (w.checkError()) {
-                        sseClients.remove(sessionId); onClientsChanged(sseClients.size)
-                        return@launch
+                val writer = synchronized(sseLock) { sseClients[sessionId] } ?: return@launch
+                val dead = runCatching {
+                    synchronized(writer) {
+                        writer.print(": keepalive\n\n")
+                        writer.flush()
+                        writer.checkError()
                     }
+                }.getOrDefault(true)
+                if (dead) {
+                    synchronized(sseLock) {
+                        if (sseClients.remove(sessionId) != null) {
+                            onClientsChanged(sseClients.size)
+                        }
+                    }
+                    return@launch
                 }
             }
         }

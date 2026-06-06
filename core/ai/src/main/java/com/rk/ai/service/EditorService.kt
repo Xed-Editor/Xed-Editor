@@ -11,6 +11,7 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.EditorPatch
 import com.rk.utils.toast
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -277,7 +278,7 @@ class EditorService(
         }
     }
 
-    private val editorTabCache = mutableMapOf<String, EditorTab>()
+    private val editorTabCache = ConcurrentHashMap<String, EditorTab>()
 
     private fun findTabByPath(path: String): EditorTab? {
         val file = File(path)
