@@ -267,7 +267,7 @@ private fun CompactTabItem(
 
             IconButton(
                 onClick = { onCloseTab(mainViewModel, tabState) },
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(28.dp),
             ) {
                 Icon(
                     painter = painterResource(drawables.close),
@@ -446,7 +446,7 @@ private fun EmptyEditorState(
             Spacer(Modifier.height(16.dp))
 
             Text(
-                text = "Xed-Editor",
+                text = stringResource(strings.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -455,7 +455,7 @@ private fun EmptyEditorState(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "AI-Powered Code Editor",
+                text = stringResource(strings.app_tagline),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

@@ -15,7 +15,7 @@ import com.rk.theme.DesignTokens
 fun XedBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberModalBottomSheetState(),
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     dragHandle: @Composable (() -> Unit)? = { XedDragHandle() },
     content: @Composable ColumnScope.() -> Unit,
 ) {

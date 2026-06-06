@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Xed-Editor</string>
+    <string name="app_tagline">AI-Powered Code Editor</string>
     <string name="unsupported_content">Unsupported content</string>
     <string name="restart_required">Restart required</string>
     <string name="save">Save</string>

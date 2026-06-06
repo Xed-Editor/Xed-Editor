@@ -86,7 +86,7 @@ fun FindingsDialog(title: String, description: String, codeItems: List<CodeItem>
                 }
             }
         },
-        confirmButton = {},
-        dismissButton = { TextButton(onClick = onFinish) { Text(stringResource(id = strings.cancel)) } },
+        confirmButton = { TextButton(onClick = onFinish) { Text(stringResource(strings.close)) } },
+        dismissButton = { TextButton(onClick = onFinish) { Text(stringResource(strings.cancel)) } },
     )
 }

@@ -554,8 +554,7 @@ fun DrawerContent(fullscreen: Boolean) {
                                 )
                             }
                         },
-                        onDismissRequest = {},
-                        confirmButton = {},
+                        onDismissRequest = { monitor.cancel() },
                         dismissButton = { TextButton({ monitor.cancel() }) { Text(stringResource(strings.cancel)) } },
                     )
                 }
