@@ -61,27 +61,27 @@ class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalVi
     }
 
     override fun logError(tag: String?, message: String?) {
-        Log.e(tag, message)
+        Log.e(tag.orEmpty(), message.orEmpty())
     }
 
     override fun logWarn(tag: String?, message: String?) {
-        Log.w(tag, message)
+        Log.w(tag.orEmpty(), message.orEmpty())
     }
 
     override fun logInfo(tag: String?, message: String?) {
-        Log.i(tag, message)
+        Log.i(tag.orEmpty(), message.orEmpty())
     }
 
     override fun logDebug(tag: String?, message: String?) {
-        Log.d(tag, message)
+        Log.d(tag.orEmpty(), message.orEmpty())
     }
 
     override fun logVerbose(tag: String?, message: String?) {
-        Log.v(tag, message)
+        Log.v(tag.orEmpty(), message.orEmpty())
     }
 
     override fun logStackTraceWithMessage(tag: String?, message: String?, e: Exception?) {
-        Log.e(tag, message)
+        Log.e(tag.orEmpty(), message.orEmpty())
         e?.printStackTrace()
     }
 
