@@ -66,16 +66,17 @@ jobs:
           VERSION_CODE=$(grep -E "^[[:space:]]*versionCode" app/build.gradle.kts | sed 's/.*=[[:space:]]*\([0-9]*\).*/\1/')
           COMMIT_HASH=$(git rev-parse --short HEAD)
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_name_sanitized=$SANITIZED_NAME" >> $GITHUB_OUTPUT
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "tag=v$SANITIZED_NAME" >> $GITHUB_OUTPUT
 
       - name: Build with Gradle
         run: |
           VERSION="${{ steps.version.outputs.version_name }}"
           ./gradlew assembleRelease --no-daemon
           mkdir -p app/dist
-          cp app/build/outputs/apk/release/*.apk "app/dist/Xed-Editor-v${VERSION}.apk"
+          cp app/build/outputs/apk/release/*.apk "app/dist/Xed-Editor-v${SANITIZED_NAME}.apk"
 
       - name: Generate release notes
         id: notes
