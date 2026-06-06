@@ -4,11 +4,12 @@ import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.AppDispatchers
+import com.rk.AppScope
 import com.rk.file.child
 import com.rk.utils.errorDialog
 import java.io.File
 import java.util.zip.ZipFile
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -25,14 +26,14 @@ val Context.extensionDir: File
 
 internal fun Context.compiledDexDir() = extensionDir.resolve("oat")
 
-open class ExtensionManager(private val context: Application) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
+open class ExtensionManager(private val context: Application) {
     private val mutex = Mutex()
     val localExtensions = mutableStateMapOf<ExtensionId, LocalExtension>()
     val storeExtension = mutableStateMapOf<ExtensionId, StoreExtension>()
     val json = Json { ignoreUnknownKeys = true }
 
     init {
-        launch(Dispatchers.IO) {
+        AppScope.launch(AppDispatchers.IO) {
             runCatching {
                 indexLocalExtensions()
                 indexStoreExtensions()

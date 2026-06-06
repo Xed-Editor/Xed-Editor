@@ -232,7 +232,7 @@ fun SettingsAppScreen(activity: SettingsActivity, navController: NavController) 
                         scope.launch(Dispatchers.IO) {
                             try {
                                 val json = gson.toJson(Preference.getAll())
-                                fileObject.getOutPutStream(false).use { outputStream ->
+                                fileObject.getOutputStream(false).use { outputStream ->
                                     outputStream.write(json.toByteArray())
                                 }
                                 toast(strings.export_successful)

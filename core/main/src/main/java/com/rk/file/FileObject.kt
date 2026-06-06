@@ -46,7 +46,7 @@ interface FileObject : Serializable {
      */
     suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R
 
-    suspend fun getOutPutStream(append: Boolean): OutputStream
+    suspend fun getOutputStream(append: Boolean): OutputStream
 
     suspend fun <R> useOutputStream(append: Boolean, block: suspend (OutputStream) -> R): R
 

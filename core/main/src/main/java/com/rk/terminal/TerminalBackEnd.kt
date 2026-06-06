@@ -11,8 +11,6 @@ import android.app.Activity
 import com.rk.settings.Settings
 import com.rk.settings.terminal.TerminalCursorStyle
 import com.rk.terminal.virtualkeys.SpecialButton
-import com.rk.AppDispatchers
-import com.rk.AppScope
 import com.rk.terminal.changeTerminalSession
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -20,7 +18,6 @@ import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalViewClient
 import java.lang.ref.WeakReference
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalViewClient, TerminalSessionClient {
@@ -64,27 +61,27 @@ class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalVi
     }
 
     override fun logError(tag: String?, message: String?) {
-        Log.e(tag.toString(), message.toString())
+        Log.e(tag, message)
     }
 
     override fun logWarn(tag: String?, message: String?) {
-        Log.w(tag.toString(), message.toString())
+        Log.w(tag, message)
     }
 
     override fun logInfo(tag: String?, message: String?) {
-        Log.i(tag.toString(), message.toString())
+        Log.i(tag, message)
     }
 
     override fun logDebug(tag: String?, message: String?) {
-        Log.d(tag.toString(), message.toString())
+        Log.d(tag, message)
     }
 
     override fun logVerbose(tag: String?, message: String?) {
-        Log.v(tag.toString(), message.toString())
+        Log.v(tag, message)
     }
 
     override fun logStackTraceWithMessage(tag: String?, message: String?, e: Exception?) {
-        Log.e(tag.toString(), message.toString())
+        Log.e(tag, message)
         e?.printStackTrace()
     }
 

@@ -72,7 +72,7 @@ class NetWrapper(private val url: URL) : FileObject {
         return withContext(Dispatchers.IO) { url.openStream().use { block(it) } }
     }
 
-    override suspend fun getOutPutStream(append: Boolean): OutputStream {
+    override suspend fun getOutputStream(append: Boolean): OutputStream {
         throw UnsupportedOperationException("URL is read-only")
     }
 

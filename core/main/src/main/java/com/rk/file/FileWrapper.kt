@@ -98,7 +98,7 @@ class FileWrapper(var file: File) : FileObject {
         return withContext(Dispatchers.IO) { FileInputStream(file).use { block(it) } }
     }
 
-    override suspend fun getOutPutStream(append: Boolean): OutputStream =
+    override suspend fun getOutputStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             return@withContext if (append) {
                 FileOutputStream(file, true)
@@ -108,7 +108,7 @@ class FileWrapper(var file: File) : FileObject {
         }
 
     override suspend fun <R> useOutputStream(append: Boolean, block: suspend (OutputStream) -> R): R {
-        return withContext(Dispatchers.IO) { getOutPutStream(append).use { block(it) } }
+        return withContext(Dispatchers.IO) { getOutputStream(append).use { block(it) } }
     }
 
     override fun getAbsolutePath(): String {

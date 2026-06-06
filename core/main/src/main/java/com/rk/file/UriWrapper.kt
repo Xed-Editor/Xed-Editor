@@ -124,7 +124,7 @@ class UriWrapper : FileObject {
 
     override suspend fun writeText(text: String) =
         withContext(Dispatchers.IO) {
-            return@withContext getOutPutStream(false).use { outputStream ->
+            return@withContext getOutputStream(false).use { outputStream ->
                 try {
                     outputStream.write(text.toByteArray())
                     outputStream.flush()
@@ -148,7 +148,7 @@ class UriWrapper : FileObject {
         }
     }
 
-    override suspend fun getOutPutStream(append: Boolean): OutputStream =
+    override suspend fun getOutputStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             val mode = if (append) "wa" else "wt"
             return@withContext application!!.contentResolver?.openOutputStream(file.uri, mode)
@@ -156,7 +156,7 @@ class UriWrapper : FileObject {
         }
 
     override suspend fun <R> useOutputStream(append: Boolean, block: suspend (OutputStream) -> R): R {
-        return withContext(Dispatchers.IO) { getOutPutStream(append).use { block(it) } }
+        return withContext(Dispatchers.IO) { getOutputStream(append).use { block(it) } }
     }
 
     override suspend fun getMimeType(context: Context): String? =
@@ -275,7 +275,7 @@ class UriWrapper : FileObject {
     override suspend fun writeText(content: String, charset: Charset): Boolean =
         withContext(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
-                getOutPutStream(false).use {
+                getOutputStream(false).use {
                     it.write(content.toByteArray(charset))
                     it.flush()
                 }

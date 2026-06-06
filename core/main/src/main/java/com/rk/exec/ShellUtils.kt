@@ -4,8 +4,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.withContext
 
 object ShellUtils {
@@ -18,39 +16,7 @@ object ShellUtils {
             val process = ProcessBuilder(*command)
                 .redirectErrorStream(false)
                 .start()
-
-            val stdout = StringBuilder(1024)
-            val stderr = StringBuilder(512)
-
-            val outputThread = Thread {
-                readStream(process.inputStream, stdout)
-            }
-            val errorThread = Thread {
-                readStream(process.errorStream, stderr)
-            }
-
-            outputThread.start()
-            errorThread.start()
-
-            val timedOut =
-                if (timeoutSeconds != null) {
-                    !process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
-                } else {
-                    process.waitFor()
-                    false
-                }
-
-            if (timedOut) process.destroyForcibly()
-
-            outputThread.join(2000)
-            errorThread.join(2000)
-
-            Result(
-                exitCode = if (timedOut) -1 else process.exitValue(),
-                output = stdout.trimEnd().toString(),
-                error = stderr.trimEnd().toString(),
-                timedOut = timedOut,
-            )
+            executeAndRead(process, timeoutSeconds)
         }
 
     suspend fun runUbuntu(
@@ -61,39 +27,7 @@ object ShellUtils {
     ): Result =
         withContext(Dispatchers.IO) {
             val process = ubuntuProcess(workingDir = workingDir, command = command.toList(), extraEnv = extraEnv)
-
-            val stdout = StringBuilder(1024)
-            val stderr = StringBuilder(512)
-
-            val outputThread = Thread {
-                readStream(process.inputStream, stdout)
-            }
-            val errorThread = Thread {
-                readStream(process.errorStream, stderr)
-            }
-
-            outputThread.start()
-            errorThread.start()
-
-            val timedOut =
-                if (timeoutSeconds != null) {
-                    !process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
-                } else {
-                    process.waitFor()
-                    false
-                }
-
-            if (timedOut) process.destroyForcibly()
-
-            outputThread.join(2000)
-            errorThread.join(2000)
-
-            Result(
-                exitCode = if (timedOut) -1 else process.exitValue(),
-                output = stdout.trimEnd().toString(),
-                error = stderr.trimEnd().toString(),
-                timedOut = timedOut,
-            )
+            executeAndRead(process, timeoutSeconds)
         }
 
     suspend fun runUbuntuStreaming(
@@ -129,22 +63,15 @@ object ShellUtils {
             outputThread.start()
             errorThread.start()
 
-            var timedOut = false
-            try {
-                val startedAt = System.currentTimeMillis()
-                while (process.isAlive) {
-                    coroutineContext.ensureActive()
-                    if (timeoutSeconds != null && System.currentTimeMillis() - startedAt > timeoutSeconds * 1000) {
-                        timedOut = true
-                        process.destroyForcibly()
-                        break
-                    }
-                    Thread.sleep(100)
+            val timedOut =
+                if (timeoutSeconds != null) {
+                    !process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
+                } else {
+                    process.waitFor()
+                    false
                 }
-                if (!timedOut) process.waitFor()
-            } finally {
-                if (process.isAlive) process.destroyForcibly()
-            }
+
+            if (timedOut) process.destroyForcibly()
 
             outputThread.join(1000)
             errorThread.join(1000)
@@ -153,6 +80,42 @@ object ShellUtils {
                 exitCode = if (timedOut) -1 else runCatching { process.exitValue() }.getOrDefault(-1),
                 output = output.trimEnd().toString(),
                 error = error.trimEnd().toString(),
+                timedOut = timedOut,
+            )
+        }
+
+    private suspend fun executeAndRead(process: Process, timeoutSeconds: Long?): Result =
+        withContext(Dispatchers.IO) {
+            val stdout = StringBuilder(1024)
+            val stderr = StringBuilder(512)
+
+            val outputThread = Thread {
+                readStream(process.inputStream, stdout)
+            }
+            val errorThread = Thread {
+                readStream(process.errorStream, stderr)
+            }
+
+            outputThread.start()
+            errorThread.start()
+
+            val timedOut =
+                if (timeoutSeconds != null) {
+                    !process.waitFor(timeoutSeconds, TimeUnit.SECONDS)
+                } else {
+                    process.waitFor()
+                    false
+                }
+
+            if (timedOut) process.destroyForcibly()
+
+            outputThread.join(2000)
+            errorThread.join(2000)
+
+            Result(
+                exitCode = if (timedOut) -1 else process.exitValue(),
+                output = stdout.trimEnd().toString(),
+                error = stderr.trimEnd().toString(),
                 timedOut = timedOut,
             )
         }

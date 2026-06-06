@@ -259,7 +259,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
                                     loading.hide()
 
                                     targetFile.inputStream().use { inputStream ->
-                                        fileObject.getOutPutStream(false).use { outputStream ->
+                                        fileObject.getOutputStream(false).use { outputStream ->
                                             inputStream.copyTo(outputStream)
                                         }
                                     }
