@@ -84,7 +84,10 @@ fun toast(message: String?) {
         Log.w("TOAST", message)
         return
     }
-    runOnUiThread { Toast.makeText(application!!, message, Toast.LENGTH_SHORT).show() }
+    runOnUiThread {
+        val ctx = application ?: return@runOnUiThread
+        Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
+    }
 }
 
 /** Returns true if the currently selected user theme is dark. If it's set to system, the system theme is used. */

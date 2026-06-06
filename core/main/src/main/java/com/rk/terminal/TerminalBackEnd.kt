@@ -38,7 +38,7 @@ class TerminalBackEnd(terminalViewModel: TerminalViewModel? = null) : TerminalVi
     }
 
     override fun onPasteTextFromClipboard(session: TerminalSession?) {
-        val clip = ClipboardUtils.getText().toString()
+        val clip = ClipboardUtils.getText()?.toString().orEmpty()
         if (clip.trim { it <= ' ' }.isNotEmpty() && terminalViewModel?.terminalView?.mEmulator != null) {
             terminalViewModel?.terminalView?.mEmulator?.paste(clip)
         }

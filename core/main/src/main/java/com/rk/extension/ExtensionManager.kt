@@ -2,6 +2,7 @@ package com.rk.extension
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.AppDispatchers
@@ -113,7 +114,7 @@ open class ExtensionManager(private val context: Application) {
                 }
                 installExtensionFromDir(tempDir)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("ExtensionManager", "install extension failed", e)
                 errorDialog(e)
                 InstallResult.ValidationFailed(e)
             } finally {

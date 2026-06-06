@@ -83,7 +83,7 @@ object MkSession {
                 "TZ=UTC",
                 "DOTNET_GCHeapHardLimit=1C0000000",
                 "SOURCE_DIR=${activity.applicationInfo.sourceDir}",
-                "TERMUX_X11_SOURCE_DIR=${getSourceDirOfPackage(activity.application!!,"com.termux.x11")}",
+                "TERMUX_X11_SOURCE_DIR=${activity.application?.let { getSourceDirOfPackage(it, "com.termux.x11") }.orEmpty()}",
                 "DISPLAY=:0",
                 "XED_ACTIVE_FILE=$activeFile",
                 "XED_ACTIVE_PROJECT=$activeProject",
@@ -164,7 +164,7 @@ object MkSession {
         }
 
         if (intent.hasExtra("cwd")) {
-            return intent.getStringExtra("cwd").toString()
+            return intent.getStringExtra("cwd") ?: ""
         }
 
         val currentTab = MainActivity.instance?.viewModel?.tabManager?.currentTab

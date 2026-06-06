@@ -27,18 +27,19 @@ class SocketConnection(private val port: Int, private val host: String? = null, 
     @Throws(IOException::class)
     override fun start() {
         if (socket != null) return
-        socket = Socket()
+        val s = Socket()
+        socket = s
 
-        socket!!.connect(InetSocketAddress(host ?: "localhost", port), 20)
-        socket!!.soTimeout = 0
+        s.connect(InetSocketAddress(host ?: "localhost", port), 20)
+        s.soTimeout = 0
 
         loggingInput =
-            LoggingInputStream(socket!!.getInputStream()) { json ->
+            LoggingInputStream(s.getInputStream()) { json ->
                 Log.d("SocketConnection", "[stdout] $json")
                 instance.addLog(LspLogEntry(MessageType.Log, "→ $json"))
             }
         loggingOutput =
-            LoggingOutputStream(socket!!.getOutputStream()) { json ->
+            LoggingOutputStream(s.getOutputStream()) { json ->
                 Log.d("SocketConnection", "[stdin] $json")
                 instance.addLog(LspLogEntry(MessageType.Log, "← $json"))
             }

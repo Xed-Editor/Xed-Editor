@@ -137,13 +137,15 @@ class UriWrapper : FileObject {
     @Throws(FileNotFoundException::class, SecurityException::class)
     override suspend fun getInputStream(): InputStream =
         withContext(Dispatchers.IO) {
-            return@withContext application!!.contentResolver?.openInputStream(file.uri)
+            val app = application ?: throw IOException("Application context not initialized")
+            return@withContext app.contentResolver?.openInputStream(file.uri)
                 ?: throw IOException("Could not open input stream for: ${file.uri}")
         }
 
     override suspend fun <R> useInputStream(block: suspend (InputStream) -> R): R {
         return withContext(Dispatchers.IO) {
-            application!!.contentResolver?.openInputStream(file.uri)?.use { block(it) }
+            val app = application ?: throw IOException("Application context not initialized")
+            app.contentResolver?.openInputStream(file.uri)?.use { block(it) }
                 ?: throw IOException("Could not open input stream for: ${file.uri}")
         }
     }
@@ -151,7 +153,8 @@ class UriWrapper : FileObject {
     override suspend fun getOutputStream(append: Boolean): OutputStream =
         withContext(Dispatchers.IO) {
             val mode = if (append) "wa" else "wt"
-            return@withContext application!!.contentResolver?.openOutputStream(file.uri, mode)
+            val app = application ?: throw IOException("Application context not initialized")
+            return@withContext app.contentResolver?.openOutputStream(file.uri, mode)
                 ?: throw IOException("Could not open input stream for: ${file.uri}")
         }
 
@@ -259,7 +262,8 @@ class UriWrapper : FileObject {
     override suspend fun readText(): String? =
         withContext(Dispatchers.IO) {
             val uri: Uri = file.uri
-            return@withContext application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+            val app = application ?: throw IOException("Application context not initialized")
+            return@withContext app.contentResolver.openInputStream(uri)?.use { inputStream ->
                 BufferedReader(InputStreamReader(inputStream)).use { reader -> reader.readText() }
             }
         }
@@ -267,7 +271,8 @@ class UriWrapper : FileObject {
     override suspend fun readText(charset: Charset): String? =
         withContext(Dispatchers.IO) {
             val uri: Uri = file.uri
-            return@withContext application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+            val app = application ?: throw IOException("Application context not initialized")
+            return@withContext app.contentResolver.openInputStream(uri)?.use { inputStream ->
                 BufferedReader(InputStreamReader(inputStream, charset)).use { reader -> reader.readText() }
             }
         }
@@ -304,10 +309,11 @@ class UriWrapper : FileObject {
 
     companion object {
         fun Uri.getDocumentFile(isTree: Boolean): DocumentFile? {
+            val app = application ?: throw IllegalStateException("Application context not initialized")
             return if (isTree) {
-                DocumentFile.fromTreeUri(application!!, this)
+                DocumentFile.fromTreeUri(app, this)
             } else {
-                DocumentFile.fromSingleUri(application!!, this)
+                DocumentFile.fromSingleUri(app, this)
             }
         }
     }
