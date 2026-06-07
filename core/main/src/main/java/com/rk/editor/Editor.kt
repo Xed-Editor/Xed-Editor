@@ -47,6 +47,7 @@ class Editor : CodeEditor {
         val editorSurface: Int,
         val surfaceContainer: Int,
         val highSurfaceContainer: Int,
+        val highestSurfaceContainer: Int,
         val onSurface: Int,
         val colorPrimary: Int,
         val selectionBg: Int,
@@ -68,6 +69,7 @@ class Editor : CodeEditor {
         val surfaceColor = if (isDarkMode) colorScheme.surfaceDim else colorScheme.surface
         val surfaceContainer = colorScheme.surfaceContainer
         val highSurfaceContainer = colorScheme.surfaceContainerHigh
+        val highestSurfaceContainer = colorScheme.surfaceContainerHighest
         val onSurfaceColor = colorScheme.onSurface
         val colorPrimary = colorScheme.primary
         val divider = colorScheme.outlineVariant
@@ -84,6 +86,7 @@ class Editor : CodeEditor {
             editorSurface = surfaceColor.toArgb(),
             surfaceContainer = surfaceContainer.toArgb(),
             highSurfaceContainer = highSurfaceContainer.toArgb(),
+            highestSurfaceContainer = highestSurfaceContainer.toArgb(),
             onSurface = onSurfaceColor.toArgb(),
             colorPrimary = colorPrimary.toArgb(),
             selectionBg = selectionBackground.toArgb(),
@@ -100,6 +103,7 @@ class Editor : CodeEditor {
         editorSurface: Int,
         surfaceContainer: Int,
         highSurfaceContainer: Int,
+        highestSurfaceContainer: Int,
         onSurface: Int,
         colorPrimary: Int,
         selectionBg: Int,
@@ -115,6 +119,7 @@ class Editor : CodeEditor {
                 editorSurface,
                 surfaceContainer,
                 highSurfaceContainer,
+                highestSurfaceContainer,
                 onSurface,
                 colorPrimary,
                 selectionBg,

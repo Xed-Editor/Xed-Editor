@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import com.rk.color.ColorFormat
 import com.rk.editor.Editor
 import com.rk.runner.Runner
@@ -38,8 +39,8 @@ data class CodeEditorState(val initialContent: Content? = null) {
     var searchRegex by mutableStateOf(false)
     var searchWholeWord by mutableStateOf(false)
     var showOptionsMenu by mutableStateOf(false)
-    var searchKeyword by mutableStateOf("")
-    var replaceKeyword by mutableStateOf("")
+    var searchKeyword by mutableStateOf(TextFieldValue(""))
+    var replaceKeyword by mutableStateOf(TextFieldValue(""))
 
     var showFindingsDialog by mutableStateOf(false)
     var findingsItems by mutableStateOf(listOf<CodeItem>())

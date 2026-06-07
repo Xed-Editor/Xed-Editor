@@ -30,6 +30,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,7 +45,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.rk.components.StyledTextField
 import com.rk.resources.strings
 import com.rk.tabs.editor.CodeEditorState
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
@@ -65,7 +65,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
 
     // Search execution logic
     fun tryCommitSearch() {
-        val query = editorState.searchKeyword
+        val query = editorState.searchKeyword.text
         if (query.isNotEmpty()) {
             try {
                 val searchOptions =
@@ -139,7 +139,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                             )
                         }
 
-                        StyledTextField(
+                        TextField(
                             modifier =
                                 Modifier.weight(1f)
                                     .height(42.dp)
@@ -245,6 +245,8 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                             onClick = {
                                 editorState.isSearching = false
                                 editor.get()?.searcher?.stopSearch()
+                                hasSearchError = false
+                                isSearchingInternal = false
                             }
                         ) {
                             Icon(imageVector = Icons.Outlined.Close, null)
@@ -257,7 +259,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                         Row(Modifier.fillMaxWidth()) {
                             Spacer(Modifier.width(48.dp))
 
-                            StyledTextField(
+                            TextField(
                                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp).height(42.dp),
                                 value = editorState.replaceKeyword,
                                 onValueChange = { editorState.replaceKeyword = it },
@@ -292,14 +294,14 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                     if (editorState.isReplaceShown && editorState.editable) {
                         TextButton(
                             enabled = isSearchingInternal,
-                            onClick = { editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword) },
+                            onClick = { editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword.text) },
                         ) {
                             Text(stringResource(strings.replace).uppercase())
                         }
 
                         TextButton(
                             enabled = isSearchingInternal,
-                            onClick = { editor.get()?.searcher?.replaceAll(editorState.replaceKeyword) },
+                            onClick = { editor.get()?.searcher?.replaceAll(editorState.replaceKeyword.text) },
                         ) {
                             Text(stringResource(strings.replace_all).uppercase())
                         }
@@ -316,6 +318,8 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
         BackHandler {
             editorState.isSearching = false
             editor.get()?.searcher?.stopSearch()
+            hasSearchError = false
+            isSearchingInternal = false
         }
     }
 }

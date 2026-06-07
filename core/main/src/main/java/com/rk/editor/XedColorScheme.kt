@@ -44,6 +44,7 @@ class XedColorScheme(
                 editorSurface,
                 surfaceContainer,
                 highSurfaceContainer,
+                highestSurfaceContainer,
                 onSurface,
                 colorPrimary,
                 selectionBg,
@@ -70,12 +71,17 @@ class XedColorScheme(
                 SIGNATURE_BACKGROUND,
                 HOVER_BACKGROUND,
                 LINE_NUMBER_PANEL,
+                TEXT_INLAY_HINT_BACKGROUND,
             )
 
             setColors(setAlpha(surfaceContainer, 0.4f), MINIMAP_BACKGROUND)
             setColors(setAlpha(highSurfaceContainer, 0.6f), MINIMAP_VIEWPORT, MINIMAP_VIEWPORT_BORDER)
 
-            setColors(highSurfaceContainer, COMPLETION_WND_ITEM_CURRENT)
+            setColors(highSurfaceContainer, COMPLETION_WND_ITEM_CURRENT, TEXT_HIGHLIGHT_BACKGROUND)
+
+            setColors(highestSurfaceContainer, SNIPPET_BACKGROUND_EDITING, TEXT_HIGHLIGHT_STRONG_BACKGROUND)
+            setColors(setAlpha(highestSurfaceContainer, 0.8f), SNIPPET_BACKGROUND_RELATED)
+            setColors(setAlpha(highestSurfaceContainer, 0.6f), SNIPPET_BACKGROUND_INACTIVE)
 
             setColors(
                 onSurface,
@@ -89,6 +95,7 @@ class XedColorScheme(
                 LINE_NUMBER,
                 LINE_NUMBER_CURRENT,
                 LINE_NUMBER_PANEL_TEXT,
+                TEXT_INLAY_HINT_FOREGROUND,
             )
 
             setColors(handleColor, SELECTION_HANDLE)

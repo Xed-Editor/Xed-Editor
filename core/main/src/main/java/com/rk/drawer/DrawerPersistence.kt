@@ -65,7 +65,7 @@ object DrawerPersistence {
                     if (expandedNodeFile.exists() && expandedNodeFile.canRead()) {
                         fileTreeViewModel
                             .get()
-                            ?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Boolean>)
+                            ?.setExpandedNodes(expandedNodeFile.readObject() as Map<FileObject, Set<FileObject>>)
                     }
                 }
                 .onFailure {

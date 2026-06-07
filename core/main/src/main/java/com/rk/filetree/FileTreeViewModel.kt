@@ -14,6 +14,7 @@ import com.rk.activities.main.searchViewModel
 import com.rk.file.FileObject
 import com.rk.search.GlobExcluder
 import com.rk.settings.Settings
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -133,18 +134,19 @@ class FileTreeViewModel : ViewModel() {
     private val selectedFiles = mutableStateMapOf<FileObject, List<FileObject>>()
     private val focusedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<FileObject, List<FileTreeNode>>()
-    private val expandedNodes = mutableStateMapOf<FileObject, Boolean>()
+    private val expandedNodes = mutableStateMapOf<FileObject, Set<FileObject>>()
     private val collapsedNameCache = mutableStateMapOf<FileObject, String>()
     private var fileOperationsCount by mutableIntStateOf(0)
 
     private val excluder by derivedStateOf { GlobExcluder(Settings.excluded_files_drawer) }
 
-    fun getExpandedNodes(): Map<FileObject, Boolean> {
-        return mutableMapOf<FileObject, Boolean>().apply { expandedNodes.forEach { set(it.key, it.value) } }
+    fun getExpandedNodes(): Map<FileObject, Set<FileObject>> {
+        // Convert to java `Set` to make serialization possible
+        return expandedNodes.mapValues { (_, value) -> HashSet(value) }
     }
 
-    fun setExpandedNodes(map: Map<FileObject, Boolean>) {
-        map.forEach { expandedNodes[it.key] = it.value }
+    fun setExpandedNodes(map: Map<FileObject, Set<FileObject>>) {
+        map.forEach { (key, value) -> expandedNodes[key] = expandedNodes[key]?.plus(value) ?: value }
     }
 
     fun toggleSelection(projectRoot: FileObject, fileObject: FileObject) {
@@ -215,7 +217,8 @@ class FileTreeViewModel : ViewModel() {
     // Track loading states to avoid showing spinners incorrectly
     private val _loadingStates = mutableStateMapOf<FileObject, Boolean>()
 
-    fun isNodeExpanded(fileObject: FileObject): Boolean = expandedNodes[fileObject] == true
+    fun isNodeExpanded(projectRoot: FileObject, fileObject: FileObject): Boolean =
+        expandedNodes[projectRoot]?.contains(fileObject) ?: false
 
     fun isNodeLoading(fileObject: FileObject): Boolean = _loadingStates[fileObject] == true
 
@@ -241,12 +244,27 @@ class FileTreeViewModel : ViewModel() {
         return diagnosedNodes[fileObject] ?: -1
     }
 
-    fun toggleNodeExpansion(fileObject: FileObject) {
-        val wasExpanded = expandedNodes[fileObject] == true
-        expandedNodes[fileObject] = !wasExpanded
+    fun toggleNodeExpansion(projectRoot: FileObject, fileObject: FileObject) {
+        val wasExpanded = isNodeExpanded(projectRoot, fileObject)
+        if (wasExpanded) {
+            collapseFile(projectRoot, fileObject)
+        } else {
+            expandFile(projectRoot, fileObject)
+        }
+    }
+
+    private fun collapseFile(projectRoot: FileObject, fileObject: FileObject) {
+        expandedNodes[projectRoot] = expandedNodes[projectRoot]?.minus(fileObject) ?: emptySet()
+        if (expandedNodes[projectRoot]?.isEmpty() == true) {
+            expandedNodes.remove(projectRoot)
+        }
+    }
+
+    private fun expandFile(projectRoot: FileObject, fileObject: FileObject) {
+        expandedNodes[projectRoot] = expandedNodes[projectRoot]?.plus(fileObject) ?: setOf(fileObject)
 
         // If we're expanding and haven't loaded yet, trigger a load
-        if (!wasExpanded && !fileListCache.containsKey(fileObject)) {
+        if (!fileListCache.containsKey(fileObject)) {
             _loadingStates[fileObject] = true
         }
     }
@@ -255,13 +273,11 @@ class FileTreeViewModel : ViewModel() {
         return collapsedNameCache[node.file] ?: node.name
     }
 
-    suspend fun collapseNode(node: FileTreeNode): FileTreeNode {
+    suspend fun collapseNode(projectFile: FileObject, node: FileTreeNode): FileTreeNode {
         var currentNode = node
         var collapsedName = node.name
         while (true) {
-            if (!isNodeExpanded(currentNode.file)) {
-                toggleNodeExpansion(currentNode.file)
-            }
+            expandFile(projectFile, currentNode.file)
             loadChildrenForNodeSynchronous(currentNode)
             val children = getNodeChildren(currentNode)
             if (children.size != 1) {
@@ -302,11 +318,8 @@ class FileTreeViewModel : ViewModel() {
 
                 fileListCache[file] = sortedFiles
 
-                viewModelScope.launch {
-                    delay(300)
-                    _loadingStates[file] = false
-                }
-            } catch (e: Exception) {
+                viewModelScope.launch { clearLoadingState(file) }
+            } catch (_: Exception) {
                 _loadingStates[file] = false
             }
         }
@@ -317,22 +330,23 @@ class FileTreeViewModel : ViewModel() {
     suspend fun goToFolder(projectFile: FileObject, fileObject: FileObject) {
         focusedFile[projectFile] = fileObject
         viewModelScope.launch {
-            delay(1000)
+            delay(1000.milliseconds)
             focusedFile.remove(projectFile)
         }
 
         var currentFile: FileObject? = fileObject
         while (currentFile != null && currentFile != projectFile) {
-            expandedNodes[currentFile] = true
+            expandFile(projectFile, currentFile)
 
             // If we're expanding and haven't loaded yet, trigger a load
-            if (!fileListCache.containsKey(fileObject)) {
+            if (!fileListCache.containsKey(currentFile)) {
                 _loadingStates[currentFile] = true
             }
 
             currentFile = currentFile.getParentFile()
         }
-        expandedNodes[projectFile] = true
+
+        expandFile(projectFile, projectFile)
     }
 
     suspend fun refreshEverything() =
@@ -367,10 +381,7 @@ class FileTreeViewModel : ViewModel() {
                 val sortedFiles = sortAndFilterFiles(fileList)
 
                 fileListCache[node.file] = sortedFiles
-                viewModelScope.launch {
-                    delay(300)
-                    _loadingStates[node.file] = false
-                }
+                viewModelScope.launch { clearLoadingState(node.file) }
             } catch (_: Exception) {
                 _loadingStates[node.file] = false
             }
@@ -401,13 +412,16 @@ class FileTreeViewModel : ViewModel() {
             val sortedFiles = sortAndFilterFiles(fileList)
 
             fileListCache[node.file] = sortedFiles
-            viewModelScope.launch {
-                delay(300)
-                _loadingStates[node.file] = false
-            }
+            viewModelScope.launch { clearLoadingState(node.file) }
         } catch (_: Exception) {
             _loadingStates[node.file] = false
         }
+    }
+
+    private suspend fun clearLoadingState(file: FileObject) {
+        // Use delay to avoid flickering
+        delay(300.milliseconds)
+        _loadingStates[file] = false
     }
 
     private suspend fun calculateFileSizes(fileObjects: List<FileObject>): Map<FileObject, Long> {

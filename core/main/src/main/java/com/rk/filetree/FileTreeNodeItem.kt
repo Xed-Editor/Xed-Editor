@@ -55,7 +55,7 @@ fun FileTreeNodeItem(
     val isHidden = node.file.getName().startsWith(".")
     if (isHidden && !Settings.show_hidden_files_drawer) return
 
-    val isExpanded = viewModel.isNodeExpanded(node.file)
+    val isExpanded = viewModel.isNodeExpanded(root, node.file)
     val horizontalPadding = (depth * 16).dp
 
     val isLoading = viewModel.isNodeLoading(node.file)
@@ -101,7 +101,7 @@ fun FileTreeNodeItem(
     LaunchedEffect(children, Settings.compact_folders_drawer) {
         displayedChildren =
             if (Settings.compact_folders_drawer && children.size == 1 && children[0].isDirectory) {
-                val collapsedNode = viewModel.collapseNode(node)
+                val collapsedNode = viewModel.collapseNode(root, node)
                 viewModel.getNodeChildren(collapsedNode)
             } else children
         displayName =
@@ -123,7 +123,7 @@ fun FileTreeNodeItem(
                             }
 
                             if (node.isDirectory) {
-                                viewModel.toggleNodeExpansion(node.file)
+                                viewModel.toggleNodeExpansion(root, node.file)
                                 return@combinedClickable
                             }
 
