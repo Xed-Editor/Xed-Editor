@@ -253,4 +253,9 @@
     <string name="discord">디스코드 커뮤니티</string>
     <string name="use_tabs">탭 문자 삽입</string>
     <string name="more">더</string>
+    <string name="updating">업데이트 중…</string>
+    <string name="language_server">언어 서버</string>
+    <string name="manage_language_servers">언어 서버 관리</string>
+    <string name="manage_language_servers_desc">언어 서버를 설치, 연결, 구성하기</string>
+    <string name="format_on_save">저장 시 포맷</string>
 </resources>
