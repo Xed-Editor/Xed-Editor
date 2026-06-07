@@ -34,7 +34,7 @@ fun AppLogs() {
 private fun buildLogs(logLevel: LogLevel): String {
     val entries =
         LogCollector.logs
-            .filter { it.level.ordinal >= logLevel.ordinal }
+            .filter { it.level.ordinal <= logLevel.ordinal }
             .joinToString("\n") { "[${it.level.name.uppercase()}] ${it.message}" }
 
     val packageInfo = with(application!!) { packageManager.getPackageInfo(packageName, 0) }

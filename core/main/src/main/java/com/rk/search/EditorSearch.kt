@@ -30,7 +30,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +44,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.rk.components.StyledTextField
 import com.rk.resources.strings
 import com.rk.tabs.editor.CodeEditorState
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
@@ -139,7 +139,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                             )
                         }
 
-                        TextField(
+                        StyledTextField(
                             modifier =
                                 Modifier.weight(1f)
                                     .height(42.dp)
@@ -147,7 +147,6 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                                     .focusRequester(focusRequester),
                             shape = RoundedCornerShape(8.dp),
                             maxLines = 1,
-                            // Show error state with red text color
                             textStyle =
                                 LocalTextStyle.current.copy(
                                     color =
@@ -259,7 +258,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                         Row(Modifier.fillMaxWidth()) {
                             Spacer(Modifier.width(48.dp))
 
-                            TextField(
+                            StyledTextField(
                                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp).height(42.dp),
                                 value = editorState.replaceKeyword,
                                 onValueChange = { editorState.replaceKeyword = it },
