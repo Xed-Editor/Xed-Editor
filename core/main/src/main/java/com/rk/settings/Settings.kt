@@ -80,7 +80,7 @@ object Settings {
     var fullscreen by CachedPreference("fullscreen", false)
 
     // ─── UI / Layout ─────────────────────────────────────────────────
-    var show_extra_keys by CachedPreference("show_extra_keys", hasHardwareKeyboard(application!!).not())
+    var show_extra_keys by CachedPreference("show_extra_keys", application?.let { hasHardwareKeyboard(it).not() } ?: true)
     var extra_keys_symbols by CachedPreference("extra_keys_symbols", DEFAULT_EXTRA_KEYS_SYMBOLS)
     var extra_keys_commands by CachedPreference("extra_keys_commands", DEFAULT_EXTRA_KEYS_COMMANDS)
     var split_extra_keys by CachedPreference("split_extra_keys", false)
@@ -140,7 +140,7 @@ object Settings {
 
     // ─── General ─────────────────────────────────────────────────────
     var current_lang by
-        CachedPreference("current_lang", application!!.resources.configuration.locales[0].language)
+        CachedPreference("current_lang", application?.resources?.configuration?.locales?.get(0)?.language ?: "en")
     var shown_disclaimer by CachedPreference("shown_disclaimer", false)
     var detect_bin_files by CachedPreference("detect_bin_files", true)
     var oom_prediction by CachedPreference("disable_oom_prediction", false)

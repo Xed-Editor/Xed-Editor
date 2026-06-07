@@ -30,6 +30,8 @@ class TerminalViewModel : BaseViewModel() {
         get() = _virtualKeysView.get()
         set(value) { _virtualKeysView = WeakReference(value) }
 
+    private var _bindContext: Context? = null
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             sessionBinder = service as SessionService.SessionBinder
@@ -43,11 +45,13 @@ class TerminalViewModel : BaseViewModel() {
     }
 
     fun bindService(context: Context) {
+        _bindContext = context
         val intent = Intent(context, SessionService::class.java)
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     fun unbindService(context: Context) {
+        _bindContext = null
         if (isBound) {
             context.unbindService(serviceConnection)
             isBound = false
@@ -59,5 +63,13 @@ class TerminalViewModel : BaseViewModel() {
         super.onCleared()
         _terminalView.clear()
         _virtualKeysView.clear()
+        _bindContext?.let {
+            if (isBound) {
+                it.unbindService(serviceConnection)
+                isBound = false
+                sessionBinder = null
+            }
+            _bindContext = null
+        }
     }
 }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.util.Log
 
 fun FileObject.toFileTreeNode(): FileTreeNode {
     return FileTreeNode(file = this, isFile = isFile(), isDirectory = isDirectory(), name = getAppropriateName())
@@ -74,8 +75,9 @@ class FileTreeCacheManager(
                     fileListCache[file] = sortedFiles
                     scope.launch { delay(300); _loadingStates[file] = false }
                 }
-            } catch (_: Exception) {
-                scope.launch(Dispatchers.Main) { _loadingStates[file] = false }
+                } catch (e: Exception) {
+                    Log.e("FileTreeCache", "updateCache failed for ${file.getAbsolutePath()}", e)
+                    scope.launch(Dispatchers.Main) { _loadingStates[file] = false }
             }
         }
     }
@@ -98,7 +100,8 @@ class FileTreeCacheManager(
                     fileListCache[node.file] = sortedFiles
                     scope.launch { delay(300); _loadingStates[node.file] = false }
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("FileTreeCache", "loadChildrenForNode failed for ${node.file.getAbsolutePath()}", e)
                 scope.launch(Dispatchers.Main) { _loadingStates[node.file] = false }
             }
         }
@@ -123,7 +126,8 @@ class FileTreeCacheManager(
                 fileListCache[node.file] = sortedFiles
                 scope.launch { delay(300); _loadingStates[node.file] = false }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("FileTreeCache", "loadChildrenForNodeSynchronous failed for ${node.file.getAbsolutePath()}", e)
             withContext(Dispatchers.Main) { _loadingStates[node.file] = false }
         }
     }

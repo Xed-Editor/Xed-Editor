@@ -11,6 +11,7 @@ import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
 import java.net.URLConnection
 import kotlinx.coroutines.runBlocking
+import java.io.ByteArrayOutputStream
 
 class HttpServer(
     val context: Context,
@@ -90,11 +91,11 @@ class HttpServer(
 
     private suspend fun serveFileWithoutEruda(file: FileObject): Response {
         return try {
+            val fileBytes = file.getInputStream().use { it.readBytes() }
             newFixedLengthResponse(
                 Status.OK,
                 URLConnection.guessContentTypeFromName(file.getName()) ?: "application/octet-stream",
-                file.getInputStream(),
-                file.length(),
+                fileBytes,
             )
         } catch (_: SecurityException) {
             forbiddenError(file)

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.provider.DocumentsContract
+import android.util.Log
 
 object PathUtils {
     fun Uri.toPath(): String {
@@ -110,7 +111,7 @@ object PathUtils {
                 }
             }
         } catch (e: Exception) {
-            // Log the exception or handle it as needed
+            Log.w("PathUtils", "getDataColumn failed for uri=$uri", e)
         }
         return null
     }
@@ -138,7 +139,7 @@ object PathUtils {
                 }
             }
         } catch (e: Exception) {
-            // Log the exception or handle it as needed
+            Log.w("PathUtils", "getFilePath failed for uri=$uri", e)
         }
         return null
     }

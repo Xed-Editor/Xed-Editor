@@ -118,6 +118,7 @@ class LspConnector(
     private val servers: List<LspServer>,
 ) {
     var lspEditor: LspEditor? = null
+    private var beforeConnectJob: kotlinx.coroutines.Job? = null
 
     companion object {
         private val projectCache = ConcurrentHashMap<String, LspProject>()
@@ -162,7 +163,7 @@ class LspConnector(
                     }
                 }
 
-            launch { servers.forEach { it.beforeConnect() } }
+            beforeConnectJob = launch { servers.forEach { it.beforeConnect() } }
 
             try {
                 lspEditor?.apply {
@@ -379,19 +380,16 @@ class LspConnector(
     @Throws(Exception::class)
     suspend fun requestDefinition(editor: CodeEditor): Either<List<Location>, List<LocationLink>> {
         return withContext(Dispatchers.IO) {
-            val req = requireNotNull(
-                lspEditor?.languageServerWrapper?.requestManager,
-                { "requestManager not initialized" }
-            )
-            requireNotNull(
-                req.definition(
+            val req = lspEditor?.languageServerWrapper?.requestManager
+                ?: throw IllegalStateException("requestManager not initialized")
+            val future = req.definition(
                     DefinitionParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                     )
-                ),
-                { "definition future is null" }
-            ).get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
+                )
+                ?: throw IllegalStateException("definition future is null")
+            future.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
     }
 
@@ -404,20 +402,17 @@ class LspConnector(
     @Throws(Exception::class)
     suspend fun requestReferences(editor: CodeEditor): List<Location?> {
         return withContext(Dispatchers.IO) {
-            val req = requireNotNull(
-                lspEditor?.languageServerWrapper?.requestManager,
-                { "requestManager not initialized" }
-            )
-            requireNotNull(
-                req.references(
+            val req = lspEditor?.languageServerWrapper?.requestManager
+                ?: throw IllegalStateException("requestManager not initialized")
+            val future = req.references(
                     ReferenceParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                         ReferenceContext(true),
                     )
-                ),
-                { "references future is null" }
-            ).get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
+                )
+                ?: throw IllegalStateException("references future is null")
+            future.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
     }
 
@@ -430,20 +425,17 @@ class LspConnector(
     @Throws(Exception::class)
     suspend fun requestRenameSymbol(editor: CodeEditor, newName: String): WorkspaceEdit {
         return withContext(Dispatchers.IO) {
-            val req = requireNotNull(
-                lspEditor?.languageServerWrapper?.requestManager,
-                { "requestManager not initialized" }
-            )
-            requireNotNull(
-                req.rename(
+            val req = lspEditor?.languageServerWrapper?.requestManager
+                ?: throw IllegalStateException("requestManager not initialized")
+            val future = req.rename(
                     RenameParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
                         Position(editor.cursor.leftLine, editor.cursor.leftColumn),
                         newName,
                     )
-                ),
-                { "rename future is null" }
-            ).get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
+                )
+                ?: throw IllegalStateException("rename future is null")
+            future.get(Timeout[Timeouts.EXECUTE_COMMAND].toLong(), TimeUnit.MILLISECONDS)
         }
     }
 
@@ -458,10 +450,8 @@ class LspConnector(
         editor: CodeEditor
     ): Either3<Range?, PrepareRenameResult?, PrepareRenameDefaultBehavior?>? {
         return withContext(Dispatchers.IO) {
-            val req = requireNotNull(
-                lspEditor?.languageServerWrapper?.requestManager,
-                { "requestManager not initialized" }
-            )
+            val req = lspEditor?.languageServerWrapper?.requestManager
+                ?: throw IllegalStateException("requestManager not initialized")
             req.prepareRename(
                     PrepareRenameParams(
                         TextDocumentIdentifier(fileObject.toUri().toString()),
@@ -489,6 +479,8 @@ class LspConnector(
     }
 
     suspend fun disconnect() {
+        beforeConnectJob?.cancel()
+        beforeConnectJob = null
         runCatching {
                 lspEditor?.disposeAsync()
                 lspEditor = null

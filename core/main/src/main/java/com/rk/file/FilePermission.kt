@@ -28,12 +28,24 @@ object FilePermission {
         scope: CoroutineScope,
         activity: Activity,
     ) {
-        // check permission for old devices
         if (requestCode == REQUEST_CODE_STORAGE_PERMISSIONS) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                // permission denied ask again
-
-                scope.launch { verifyStoragePermission(activity) }
+                scope.launch {
+                    dialog(
+                        context = activity,
+                        title = strings.permission_denied.getString(),
+                        msg = strings.manage_storage_reason.getString(),
+                        okString = strings.settings,
+                        cancelString = strings.ignore,
+                        onOk = {
+                            val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            intent.data = "package:${activity.packageName}".toUri()
+                            activity.startActivity(intent)
+                        },
+                        onCancel = { Settings.ignore_storage_permission = true },
+                        cancelable = false,
+                    )
+                }
             }
         }
     }

@@ -564,7 +564,9 @@ class SearchViewModel : ViewModel() {
                 try {
                     file.useInputStream { stream ->
                         val buffer = CharArray(1024)
-                        val charsRead = InputStreamReader(stream, charset).read(buffer, 0, buffer.size)
+                        val charsRead = InputStreamReader(stream, charset).use { reader ->
+                            reader.read(buffer, 0, buffer.size)
+                        }
                         val sample = String(buffer, 0, charsRead)
                         hasBinaryChars(sample)
                     }

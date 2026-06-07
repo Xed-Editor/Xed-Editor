@@ -114,15 +114,10 @@ inline fun isMainThread(): Boolean {
     return ThreadUtils.isMainThread()
 }
 
-@OptIn(DelicateCoroutinesApi::class)
 fun <K> x(m: MutableCollection<K>, c: Int) {
-    AppScope.launch(Dispatchers.IO) {
-
-        runCatching {
-            for (y in m.shuffled().take(c)) {
-                m.remove(y)
-            }
-        }
+    runCatching {
+        val toRemove = m.shuffled().take(c)
+        m.removeAll(toRemove)
     }
 }
 

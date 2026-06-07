@@ -137,8 +137,11 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
 
     val editorState by mutableStateOf(CodeEditorState())
     private var lastModifiedAt: Long = 0L
+    private var autoSaveJob: kotlinx.coroutines.Job? = null
 
     override fun onTabRemoved() {
+        autoSaveJob?.cancel()
+        autoSaveJob = null
         scope.cancel()
         editorState.content = null
         editorState.editor.get()?.setText("")
@@ -562,11 +565,10 @@ open class EditorTab(override var file: FileObject, var projectRoot: FileObject?
                         intelligentFeatures = intelligentFeatures,
                         onTextChange = {
                             if (Settings.auto_save && !isTemp) {
-                                scope.launch(Dispatchers.IO) {
-                                    quickSave()
-                                    saveMutex.lock()
+                                autoSaveJob?.cancel()
+                                autoSaveJob = scope.launch(Dispatchers.IO) {
                                     delay(Settings.auto_save_delay)
-                                    saveMutex.unlock()
+                                    quickSave()
                                 }
                             } else {
                                 editorState.isDirty = true

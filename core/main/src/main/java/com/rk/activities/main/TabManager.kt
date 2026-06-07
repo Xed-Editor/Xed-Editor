@@ -5,11 +5,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import com.rk.tabs.base.Tab
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 class TabManager {
-    private val mutex = Mutex()
     private val _tabs = mutableStateListOf<Tab>()
     val tabs: List<Tab>
         get() = _tabs.toList()

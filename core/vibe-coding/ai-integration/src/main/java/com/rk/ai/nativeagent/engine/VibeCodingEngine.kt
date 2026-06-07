@@ -242,12 +242,18 @@ class VibeCodingEngine(
             )
         },
         execute = { args ->
-            val todosJsonStr = args.asJsonObject["todos"]?.asJsonPrimitive?.asString
+            val todosElement = args.asJsonObject["todos"]
                 ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'todos'"))
-            val todosJson = try {
-                com.google.gson.JsonParser.parseString(todosJsonStr).asJsonArray
-            } catch (e: Exception) {
-                return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'todos': ${e.message}"))
+            val todosJson = when {
+                todosElement.isJsonArray -> todosElement.asJsonArray
+                todosElement.isJsonPrimitive && todosElement.asJsonPrimitive.isString -> {
+                    try {
+                        com.google.gson.JsonParser.parseString(todosElement.asString).asJsonArray
+                    } catch (e: Exception) {
+                        return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'todos': ${e.message}"))
+                    }
+                }
+                else -> return@Tool listOf(UIMessagePart.Text("Error: 'todos' must be a JSON array or a JSON string"))
             }
             val todos = todosJson.mapIndexed { index, item ->
                 val obj = item.asJsonObject
@@ -314,12 +320,18 @@ class VibeCodingEngine(
         execute = { args ->
             val goal = args.asJsonObject["goal"]?.asJsonPrimitive?.asString
                 ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'goal'"))
-            val stepsJsonStr = args.asJsonObject["steps"]?.asJsonPrimitive?.asString
+            val stepsElement = args.asJsonObject["steps"]
                 ?: return@Tool listOf(UIMessagePart.Text("Error: missing required argument 'steps'"))
-            val stepsJson = try {
-                com.google.gson.JsonParser.parseString(stepsJsonStr).asJsonArray
-            } catch (e: Exception) {
-                return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'steps': ${e.message}"))
+            val stepsJson = when {
+                stepsElement.isJsonArray -> stepsElement.asJsonArray
+                stepsElement.isJsonPrimitive && stepsElement.asJsonPrimitive.isString -> {
+                    try {
+                        com.google.gson.JsonParser.parseString(stepsElement.asString).asJsonArray
+                    } catch (e: Exception) {
+                        return@Tool listOf(UIMessagePart.Text("Error: invalid JSON in 'steps': ${e.message}"))
+                    }
+                }
+                else -> return@Tool listOf(UIMessagePart.Text("Error: 'steps' must be a JSON array or a JSON string"))
             }
 
             val todos = stepsJson.mapIndexed { index, step ->
@@ -384,6 +396,7 @@ class VibeCodingEngine(
     fun dispose() {
         currentJob?.cancel()
         currentJob = null
+        appScope.coroutineContext[Job]?.cancel()
         database.close()
     }
 
@@ -598,8 +611,12 @@ class VibeCodingEngine(
                 return@launch
             }
 
-            saveConversation()
-            saveCurrentSessionMessages()
+            runCatching {
+                saveConversation()
+                saveCurrentSessionMessages()
+            }.onFailure { e ->
+                Log.e(TAG, "Failed to save conversation state", e)
+            }
 
             if (checkAndAutoRespondPermissions()) {
                 resumeGeneration()
@@ -713,6 +730,7 @@ class VibeCodingEngine(
         }
         messages[lastIdx] = last.copy(parts = updatedParts)
         _state.value = _state.value.copy(messages = messages)
+        saveCurrentSessionMessages()
         resumeGeneration()
     }
 
@@ -791,7 +809,11 @@ class VibeCodingEngine(
             }.onFailure { e ->
                 _state.value = _state.value.copy(isProcessing = false, error = e.message)
             }
-            saveCurrentSessionMessages()
+            runCatching {
+                saveCurrentSessionMessages()
+            }.onFailure { e ->
+                Log.e(TAG, "Failed to save session state", e)
+            }
 
             if (checkAndAutoRespondPermissions()) {
                 resumeGeneration()

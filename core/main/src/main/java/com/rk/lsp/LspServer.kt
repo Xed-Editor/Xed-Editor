@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import com.rk.activities.main.MainActivity
 import com.rk.exec.TerminalCommand
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import com.rk.exec.launchTerminal
 import com.rk.file.FileObject
@@ -76,12 +79,14 @@ abstract class LspServer {
     val instances: List<LspServerInstance>
         get() = _instances.toList()
 
+    private val instanceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     fun addInstance(instance: LspServerInstance) {
-        kotlinx.coroutines.MainScope().launch { _instances.add(instance) }
+        instanceScope.launch { _instances.add(instance) }
     }
 
     fun removeInstance(instance: LspServerInstance) {
-        kotlinx.coroutines.MainScope().launch { _instances.remove(instance) }
+        instanceScope.launch { _instances.remove(instance) }
     }
 
     abstract suspend fun isInstalled(context: Context): Boolean

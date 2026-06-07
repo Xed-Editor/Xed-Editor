@@ -43,22 +43,26 @@ object ShellUtils {
             val output = StringBuilder(1024)
             val error = StringBuilder(512)
 
-            val outputThread = Thread {
+            val outputThread = Thread(null, {
                 runCatching {
-                    BufferedReader(InputStreamReader(process.inputStream), BUFFER_SIZE).forEachLine { line ->
-                        output.appendLine(line)
-                        onStdout(line)
+                    BufferedReader(InputStreamReader(process.inputStream), BUFFER_SIZE).use { reader ->
+                        reader.forEachLine { line ->
+                            output.appendLine(line)
+                            onStdout(line)
+                        }
                     }
                 }
-            }
-            val errorThread = Thread {
+            }, "shell-stdout").apply { isDaemon = true }
+            val errorThread = Thread(null, {
                 runCatching {
-                    BufferedReader(InputStreamReader(process.errorStream), BUFFER_SIZE).forEachLine { line ->
-                        error.appendLine(line)
-                        onStderr(line)
+                    BufferedReader(InputStreamReader(process.errorStream), BUFFER_SIZE).use { reader ->
+                        reader.forEachLine { line ->
+                            error.appendLine(line)
+                            onStderr(line)
+                        }
                     }
                 }
-            }
+            }, "shell-stderr").apply { isDaemon = true }
 
             outputThread.start()
             errorThread.start()
@@ -73,8 +77,8 @@ object ShellUtils {
 
             if (timedOut) process.destroyForcibly()
 
-            outputThread.join(1000)
-            errorThread.join(1000)
+            outputThread.join(2000)
+            errorThread.join(2000)
 
             Result(
                 exitCode = if (timedOut) -1 else runCatching { process.exitValue() }.getOrDefault(-1),
