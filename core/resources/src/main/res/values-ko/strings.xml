@@ -258,4 +258,19 @@
     <string name="manage_language_servers">언어 서버 관리</string>
     <string name="manage_language_servers_desc">언어 서버를 설치, 연결, 구성하기</string>
     <string name="format_on_save">저장 시 포맷</string>
+    <string name="use_tabs_desc">들여 쓰기에 스페이스 대신 Tab 키를 사용하기</string>
+    <string name="format_on_save_desc">파일이 저장되었을 때 자동으로 형식을 지정합니다</string>
+    <string name="developer">개발자</string>
+    <string name="build_info">빌드 정보</string>
+    <string name="community">커뮤니티</string>
+    <string name="failsafe_mode">안전 모드</string>
+    <string name="failsafe_mode_desc">터미널을 안전 모드로 시작합니다</string>
+    <string name="render_whitespace">화이트스페이스 표시</string>
+    <string name="render_whitespace_desc">공백, 탭, 그리고 줄바꿈을 보이는 기호처럼 표시합니다</string>
+    <string name="ask_refresh">정말 이 문서를 새로고침 하시겠어요? 저장되지 않은 변경점들은 모두 사라집니다.</string>
+    <string name="docs">도움말</string>
+    <string name="github_stars">GitHub 스타</string>
+    <string name="api_error">API 오류</string>
+    <string name="unknown">알 수 없음</string>
+    <string name="cant_write">파일을 작성할 수 없습니다(쓰기 권한 없음)</string>
 </resources>
