@@ -330,9 +330,11 @@ private suspend fun applySort(
 ): List<Extension> =
     when (currentSortOption) {
         ExtensionSortOptions.NAME -> filteredExtensions.sortedBy { it.name }
-        ExtensionSortOptions.RATING -> filteredExtensions.sortedBy { it.id } // TODO: RATING
-
-        ExtensionSortOptions.DATE_ADDED -> filteredExtensions.sortedBy { it.id } // TODO: DATE_ADDED
+        ExtensionSortOptions.RATING -> {
+            val ratings = filteredExtensions.associateWith { it.getRating() ?: 0f }
+            filteredExtensions.sortedByDescending { ratings[it] ?: 0f }
+        }
+        ExtensionSortOptions.DATE_ADDED -> filteredExtensions.sortedBy { it.id } // Fallback to id as date is not available
     }
 
 private fun applyFilter(

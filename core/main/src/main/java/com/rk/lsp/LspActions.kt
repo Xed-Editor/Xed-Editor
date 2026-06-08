@@ -247,21 +247,66 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                         runCatching {
                                 val workspaceEdit = baseLspConnector.requestRenameSymbol(editor, newName)
 
-                                // TODO: Handle documentChanges too
-                                val changes = workspaceEdit.changes
-
-                                // Edits only supported in currently opened file
-                                // TODO: Support edits in other files
-                                if (changes.size > 1) {
-                                    toast(strings.rename_symbol_multiple_files)
-                                    return@launch
+                                val allChanges = mutableMapOf<String, List<org.eclipse.lsp4j.TextEdit>>()
+                                workspaceEdit.changes?.let { allChanges.putAll(it) }
+                                workspaceEdit.documentChanges?.forEach { either ->
+                                    if (either.isLeft) {
+                                        val docEdit = either.left
+                                        val uri = docEdit.textDocument.uri
+                                        val edits = docEdit.edits
+                                        if (uri != null && edits != null) {
+                                            allChanges[uri] = (allChanges[uri] ?: emptyList()) + edits
+                                        }
+                                    }
                                 }
 
-                                val edits = changes[file.toUri().toString()] ?: return@launch
-                                val eventManager = baseLspConnector.getEventManager() ?: return@launch
-                                eventManager.emitAsync(EventType.applyEdits) {
-                                    put("edits", edits)
-                                    put(editor.text)
+                                val context = editor.context
+                                val currentFileUriStr = file.toUri().toString()
+
+                                for ((uriString, edits) in allChanges) {
+                                    val fixedUriString = fixHomeLocation(context, uriString)
+                                    
+                                    if (fixedUriString == currentFileUriStr || uriString == currentFileUriStr) {
+                                        val eventManager = baseLspConnector.getEventManager() ?: continue
+                                        withContext(Dispatchers.Main) {
+                                            eventManager.emitAsync(EventType.applyEdits) {
+                                                put("edits", edits)
+                                                put(editor.text)
+                                            }
+                                        }
+                                    } else {
+                                        val fixedUri = fixedUriString.toUri()
+                                        val targetFile = if (fixedUri.scheme == null) File(fixedUriString).toFileWrapper() else fixedUri.toFileObject(true)
+                                        val targetTab = editorTab.viewModel.tabs.filterIsInstance<EditorTab>().find { it.file == targetFile }
+
+                                        if (targetTab != null) {
+                                            val targetLspConnector = targetTab.lspConnector
+                                            val targetEditor = targetTab.editorState.editor.get()
+                                            if (targetLspConnector != null && targetEditor != null && targetLspConnector.isConnected()) {
+                                                val targetEventManager = targetLspConnector.getEventManager()
+                                                if (targetEventManager != null) {
+                                                    withContext(Dispatchers.Main) {
+                                                        targetEventManager.emitAsync(EventType.applyEdits) {
+                                                            put("edits", edits)
+                                                            put(targetEditor.text)
+                                                        }
+                                                    }
+                                                    continue
+                                                }
+                                            }
+                                            if (targetEditor != null) {
+                                                val currentText = targetEditor.text.toString()
+                                                val newText = applyEditsToString(currentText, edits)
+                                                withContext(Dispatchers.Main) {
+                                                    targetEditor.setText(newText)
+                                                }
+                                            }
+                                        } else {
+                                            val currentText = targetFile.readText() ?: ""
+                                            val newText = applyEditsToString(currentText, edits)
+                                            targetFile.writeText(newText)
+                                        }
+                                    }
                                 }
                             }
                             .onFailure {
@@ -375,4 +420,38 @@ fun createLspTextActions(
         }
 
     return listOf(goToDefinition, goToReferences, renameSymbol)
+}
+
+private fun applyEditsToString(text: String, edits: List<org.eclipse.lsp4j.TextEdit>): String {
+    val lineOffsets = ArrayList<Int>()
+    lineOffsets.add(0)
+    var idx = 0
+    while (idx < text.length) {
+        if (text[idx] == '\n') {
+            lineOffsets.add(idx + 1)
+        }
+        idx++
+    }
+
+    fun getOffset(pos: org.eclipse.lsp4j.Position): Int {
+        val line = pos.line.coerceIn(0, lineOffsets.size - 1)
+        val lineStart = lineOffsets[line]
+        val lineEnd = if (line + 1 < lineOffsets.size) lineOffsets[line + 1] - 1 else text.length
+        val charOffset = pos.character.coerceIn(0, lineEnd - lineStart)
+        return lineStart + charOffset
+    }
+
+    val sortedEdits = edits.map { edit ->
+        val startOffset = getOffset(edit.range.start)
+        val endOffset = getOffset(edit.range.end)
+        Triple(startOffset, endOffset, edit.newText)
+    }.sortedByDescending { it.first }
+
+    var result = text
+    for ((start, end, newText) in sortedEdits) {
+        val safeStart = start.coerceIn(0, result.length)
+        val safeEnd = end.coerceIn(safeStart, result.length)
+        result = result.substring(0, safeStart) + newText + result.substring(safeEnd)
+    }
+    return result
 }

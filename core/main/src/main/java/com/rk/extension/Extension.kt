@@ -79,7 +79,7 @@ data class StoreExtension(val manifest: ExtensionManifest, val verified: Boolean
     override val changelogUrl
         get() = ExtensionRegistry.getChangelogUrl(manifest.id)
 
-    override suspend fun calcSize() = 0L // TODO
+    override suspend fun calcSize() = ExtensionRegistry.getZipSize(manifest.id)
 
     override suspend fun getReviews(): List<Review> = emptyList()
 

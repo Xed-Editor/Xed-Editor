@@ -17,7 +17,7 @@ interface Provider<T : ProviderSetting> {
     suspend fun listModels(providerSetting: T): List<Model>
 
     suspend fun getBalance(providerSetting: T): String {
-        return "TODO"
+        return "Not Supported"
     }
 
     suspend fun generateText(

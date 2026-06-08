@@ -47,6 +47,21 @@ object ExtensionRegistry {
 
     suspend fun getDownloadCount(id: String): Int? = getDetails(id)?.downloads
 
+    suspend fun getZipSize(id: String): Long =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val zipUrl = getDetails(id)?.download?.zip ?: return@runCatching 0L
+                val request = Request.Builder().url(zipUrl).head().build()
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        response.header("Content-Length")?.toLongOrNull() ?: 0L
+                    } else {
+                        0L
+                    }
+                }
+            }.getOrElse { 0L }
+        }
+
     private suspend fun getDetails(id: String): ExtensionDetail? =
         runCatching {
                 withContext(Dispatchers.IO) {

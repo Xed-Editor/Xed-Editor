@@ -53,12 +53,12 @@ private val cmake = drawables.cmake
 private val powershell = drawables.powershell
 private val r = drawables.r
 
-// TODO: Add icon for FileType.EXECUTABLE
-// TODO: Add icon for FileType.PASCAL
-// TODO: Add icon for FileType.ASSEMBLY
-// TODO: Add icon for FileType.SMALI
-// TODO: Add icon for FileType.LOG
-// TODO: Add icon for FileType.ROCQ
+private val executable = drawables.executable
+private val pascal = drawables.pascal
+private val assembly = drawables.assembly
+private val smali = drawables.smali
+private val log = drawables.log
+private val rocq = drawables.rocq
 
 /**
  * Interface representing a file type and its associated metadata.
@@ -260,7 +260,7 @@ enum class BuiltinFileType(
     PASCAL(
         extensions = listOf("p", "pas"),
         textmateScope = "source.pascal",
-        icon = null,
+        icon = pascal,
         title = "Pascal",
         markdownNames = listOf("pascal"),
     ),
@@ -268,7 +268,7 @@ enum class BuiltinFileType(
     NIM(extensions = listOf("nim"), textmateScope = "source.nim", icon = nim, title = "Nim"),
     SWIFT(extensions = listOf("swift"), textmateScope = "source.swift", icon = swift, title = "Swift"),
     DART(extensions = listOf("dart"), textmateScope = "source.dart", icon = dart, title = "Dart"),
-    ROCQ(extensions = listOf("v", "coq"), textmateScope = "source.coq", icon = null, title = "Rocq (Coq)"),
+    ROCQ(extensions = listOf("v", "coq"), textmateScope = "source.coq", icon = rocq, title = "Rocq (Coq)"),
     KOTLIN(
         extensions = listOf("kt", "kts"),
         textmateScope = "source.kotlin",
@@ -311,8 +311,8 @@ enum class BuiltinFileType(
         title = "PowerShell",
         markdownNames = listOf("powershell", "ps"),
     ),
-    SMALI(extensions = listOf("smali"), textmateScope = "source.smali", icon = null, title = "Smali"),
-    ASSEMBLY(extensions = listOf("asm"), textmateScope = "source.asm", icon = null, title = "Assembly"),
+    SMALI(extensions = listOf("smali"), textmateScope = "source.smali", icon = smali, title = "Smali"),
+    ASSEMBLY(extensions = listOf("asm"), textmateScope = "source.asm", icon = assembly, title = "Assembly"),
     CMAKE(
         extensions = emptyList(),
         names = listOf("cmakelists.txt"),
@@ -350,7 +350,7 @@ enum class BuiltinFileType(
         title = "Plain text",
         markdownNames = listOf("plaintext", "text"),
     ),
-    LOG(extensions = listOf("log"), textmateScope = "text.log", icon = null, title = "Log"),
+    LOG(extensions = listOf("log"), textmateScope = "text.log", icon = log, title = "Log"),
     LATEX(extensions = listOf("latex", "tex", "ltx"), textmateScope = "text.tex.latex", icon = latex, title = "LaTeX"),
     IMAGE(
         extensions = listOf("jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "heic", "heif", "avif"),
@@ -374,7 +374,7 @@ enum class BuiltinFileType(
     EXECUTABLE(
         extensions = listOf("exe", "dll", "so", "dylib", "bin"),
         textmateScope = null,
-        icon = null,
+        icon = executable,
         title = "Executable",
     ),
     APK(extensions = listOf("apk", "xapk", "apks"), textmateScope = null, icon = apk, title = "APK"),
