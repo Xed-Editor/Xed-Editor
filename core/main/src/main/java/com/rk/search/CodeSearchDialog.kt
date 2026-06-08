@@ -68,6 +68,7 @@ import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.rememberNumberFormatter
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
@@ -84,7 +85,11 @@ fun CodeSearchDialog(
     val context = LocalContext.current
     val viewportHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
 
-    val textFieldSearchState = rememberTextFieldState(searchViewModel.codeSearchQuery)
+    val editorTab = mainViewModel.currentTab as? EditorTab
+    val textFieldSearchState =
+        rememberTextFieldState(
+            editorTab?.editorState?.editor?.get()?.getSelectedText() ?: searchViewModel.codeSearchQuery
+        )
     LaunchedEffect(textFieldSearchState.text) { searchViewModel.codeSearchQuery = textFieldSearchState.text.toString() }
 
     val textFieldReplaceState = rememberTextFieldState(searchViewModel.codeReplaceQuery)

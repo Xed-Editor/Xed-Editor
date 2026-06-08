@@ -1,8 +1,7 @@
 package com.rk.exec
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
-import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.file.child
 import com.rk.file.localDir
@@ -28,9 +27,9 @@ suspend fun isTerminalWorking(): Boolean =
         return@withContext process.waitFor() == 0
     }
 
-fun launchTerminal(context: Context, terminalCommand: TerminalCommand) {
-    showTerminalNotice(activity = MainActivity.instance!!) {
+fun launchTerminal(activity: Activity, terminalCommand: TerminalCommand) {
+    showTerminalNotice(activity = activity) {
         pendingCommand = terminalCommand
-        context.startActivity(Intent(context, Terminal::class.java))
+        activity.startActivity(Intent(activity, Terminal::class.java))
     }
 }

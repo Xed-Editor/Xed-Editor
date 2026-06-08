@@ -1,6 +1,7 @@
 package com.rk.commands.editor
 
 import android.view.KeyEvent
+import androidx.compose.ui.text.TextRange
 import com.rk.commands.EditorActionContext
 import com.rk.commands.EditorCommand
 import com.rk.commands.KeyCombination
@@ -16,7 +17,9 @@ class SearchCommand : EditorCommand() {
 
     override fun action(editorActionContext: EditorActionContext) {
         editorActionContext.editorTab.editorState.apply {
-            editorActionContext.editor.getSelectedText()?.let { searchKeyword = it }
+            editorActionContext.editor.getSelectedText()?.let {
+                searchKeyword = searchKeyword.copy(text = it, selection = TextRange(it.length))
+            }
             isSearching = true
             isReplaceShown = false
         }

@@ -72,8 +72,8 @@ fun FileTree(
 ) {
     // Auto-expand root node on first composition
     LaunchedEffect(rootNode.file) {
-        if (!viewModel.isNodeExpanded(rootNode.file)) {
-            viewModel.toggleNodeExpansion(rootNode.file)
+        if (!viewModel.isNodeExpanded(rootNode.file, rootNode.file)) {
+            viewModel.toggleNodeExpansion(rootNode.file, rootNode.file)
             viewModel.loadChildrenForNode(rootNode)
         }
     }

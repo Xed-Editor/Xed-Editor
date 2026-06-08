@@ -81,6 +81,7 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
 
     if (fileSearchDialog && drawerViewModel.currentDrawerTab is FileTreeTab) {
         FileSearchDialog(
+            mainViewModel = viewModel,
             searchViewModel = searchViewModel.get()!!,
             projectFile = (drawerViewModel.currentDrawerTab as FileTreeTab).root,
             onFinish = { fileSearchDialog = false },

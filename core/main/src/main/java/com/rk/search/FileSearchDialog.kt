@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rk.activities.main.MainViewModel
 import com.rk.components.XedDialog
 import com.rk.components.compose.utils.addIf
 import com.rk.file.FileObject
@@ -47,12 +48,14 @@ import com.rk.filetree.FileIcon
 import com.rk.filetree.getAppropriateName
 import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
+import com.rk.tabs.editor.EditorTab
 import com.rk.utils.getGitColor
 import com.rk.utils.rememberNumberFormatter
 import java.io.File
 
 @Composable
 fun FileSearchDialog(
+    mainViewModel: MainViewModel,
     searchViewModel: SearchViewModel,
     projectFile: FileObject,
     onFinish: () -> Unit,
@@ -61,7 +64,12 @@ fun FileSearchDialog(
     val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
 
-    val textFieldState = rememberTextFieldState(searchViewModel.fileSearchQuery)
+    val editorTab = mainViewModel.currentTab as? EditorTab
+    val textFieldState =
+        rememberTextFieldState(
+            editorTab?.editorState?.editor?.get()?.getSelectedText() ?: searchViewModel.fileSearchQuery
+        )
+
     LaunchedEffect(textFieldState.text) { searchViewModel.fileSearchQuery = textFieldState.text.toString() }
 
     LaunchedEffect(searchViewModel.isIndexing(projectFile), searchViewModel.fileSearchQuery) {

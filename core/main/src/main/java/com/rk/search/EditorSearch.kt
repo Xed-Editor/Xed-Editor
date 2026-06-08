@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import com.rk.components.StyledTextField
 import com.rk.resources.strings
 import com.rk.tabs.editor.CodeEditorState
+import com.rk.utils.logError
+import com.rk.utils.toast
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -63,9 +65,15 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
     var searchMatchesCount by remember { mutableIntStateOf(0) }
     var searchCurrentIndex by remember { mutableIntStateOf(0) }
 
+    fun stopEditorSearch() {
+        hasSearchError = false
+        isSearchingInternal = false
+        editor.get()?.searcher?.stopSearch()
+    }
+
     // Search execution logic
     fun tryCommitSearch() {
-        val query = editorState.searchKeyword
+        val query = editorState.searchKeyword.text
         if (query.isNotEmpty()) {
             try {
                 val searchOptions =
@@ -78,9 +86,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                 isSearchingInternal = false
             }
         } else {
-            editor.get()?.searcher?.stopSearch()
-            hasSearchError = false
-            isSearchingInternal = false
+            stopEditorSearch()
         }
     }
 
@@ -97,6 +103,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
 
     // Execute search when keyword changes
     LaunchedEffect(
+        editorState.editor.get(),
         editorState.isSearching,
         editorState.searchKeyword,
         editorState.ignoreCase,
@@ -147,7 +154,6 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                                     .focusRequester(focusRequester),
                             shape = RoundedCornerShape(8.dp),
                             maxLines = 1,
-                            // Show error state with red text color
                             textStyle =
                                 LocalTextStyle.current.copy(
                                     color =
@@ -244,7 +250,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                         IconButton(
                             onClick = {
                                 editorState.isSearching = false
-                                editor.get()?.searcher?.stopSearch()
+                                stopEditorSearch()
                             }
                         ) {
                             Icon(imageVector = Icons.Outlined.Close, null)
@@ -279,27 +285,59 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
                     horizontalArrangement = Arrangement.Start,
                     modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()).padding(horizontal = 8.dp),
                 ) {
-                    TextButton(enabled = isSearchingInternal, onClick = { editor.get()?.searcher?.gotoPrevious() }) {
+                    TextButton(
+                        enabled = isSearchingInternal,
+                        onClick = {
+                            runCatching { editor.get()?.searcher?.gotoPrevious() }
+                                .onFailure {
+                                    logError(it)
+                                    toast(strings.unknown_err)
+                                }
+                        },
+                    ) {
                         Text(stringResource(strings.go_prev).uppercase())
                     }
 
                     Spacer(Modifier.height(10.dp))
 
-                    TextButton(enabled = isSearchingInternal, onClick = { editor.get()?.searcher?.gotoNext() }) {
+                    TextButton(
+                        enabled = isSearchingInternal,
+                        onClick = {
+                            runCatching { editor.get()?.searcher?.gotoNext() }
+                                .onFailure {
+                                    logError(it)
+                                    toast(strings.unknown_err)
+                                }
+                        },
+                    ) {
                         Text(stringResource(strings.go_next).uppercase())
                     }
 
                     if (editorState.isReplaceShown && editorState.editable) {
                         TextButton(
                             enabled = isSearchingInternal,
-                            onClick = { editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword) },
+                            onClick = {
+                                runCatching {
+                                        editor.get()?.searcher?.replaceCurrentMatch(editorState.replaceKeyword.text)
+                                    }
+                                    .onFailure {
+                                        logError(it)
+                                        toast(strings.unknown_err)
+                                    }
+                            },
                         ) {
                             Text(stringResource(strings.replace).uppercase())
                         }
 
                         TextButton(
                             enabled = isSearchingInternal,
-                            onClick = { editor.get()?.searcher?.replaceAll(editorState.replaceKeyword) },
+                            onClick = {
+                                runCatching { editor.get()?.searcher?.replaceAll(editorState.replaceKeyword.text) }
+                                    .onFailure {
+                                        logError(it)
+                                        toast(strings.unknown_err)
+                                    }
+                            },
                         ) {
                             Text(stringResource(strings.replace_all).uppercase())
                         }
@@ -315,7 +353,7 @@ fun EditorSearchPanel(editorState: CodeEditorState, modifier: Modifier = Modifie
 
         BackHandler {
             editorState.isSearching = false
-            editor.get()?.searcher?.stopSearch()
+            stopEditorSearch()
         }
     }
 }
