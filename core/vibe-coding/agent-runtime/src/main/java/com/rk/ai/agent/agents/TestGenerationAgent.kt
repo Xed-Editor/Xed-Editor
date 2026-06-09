@@ -18,6 +18,7 @@ class TestGenerationAgent(private val ideService: IdeService) : SubAgent {
             val workspace = ideService.getPrimaryWorkspacePath()
             val fileRefs = extractFileReferences(task)
 
+            val testFramework = detectTestFramework(workspace)
             val report = buildString {
                 appendLine("# Test Analysis Report")
                 appendLine()
@@ -30,7 +31,6 @@ class TestGenerationAgent(private val ideService: IdeService) : SubAgent {
                 appendLine("Files to cover: ${fileRefs.size}")
                 appendLine()
 
-                val testFramework = detectTestFramework(workspace)
                 appendLine("## Environment")
                 appendLine("- Detected test framework: $testFramework")
                 appendLine("- Workspace: $workspace")
