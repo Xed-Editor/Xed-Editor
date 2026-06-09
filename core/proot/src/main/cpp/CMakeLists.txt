@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(proot C)
+project(proot C ASM)
 
 # Compatibility flags and headers
 add_definitions(-D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -D__STDC_WANT_LIB_EXT1__=1)

@@ -569,12 +569,11 @@ static int indent_level = 0;
 void __cyg_profile_func_enter(void *this_function, void *call_site) DONT_INSTRUMENT;
 void __cyg_profile_func_enter(void *this_function, void *call_site)
 {
+#ifdef __GLIBC__
 	void *const pointers[] = { this_function, call_site };
 	char **symbols = NULL;
 
-#ifdef __GLIBC__
 	symbols = backtrace_symbols(pointers, 2);
-#endif
 	if (symbols == NULL)
 		goto end;
 
@@ -583,6 +582,10 @@ void __cyg_profile_func_enter(void *this_function, void *call_site)
 end:
 	if (symbols != NULL)
 		free(symbols);
+#else
+	(void)this_function;
+	(void)call_site;
+#endif
 
 	if (indent_level < INT_MAX)
 		indent_level++;
