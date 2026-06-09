@@ -1,7 +1,7 @@
+@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package com.rk.ai.nativeagent.engine
 
 import com.rk.ai.models.UIMessage
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 data class ChatState(

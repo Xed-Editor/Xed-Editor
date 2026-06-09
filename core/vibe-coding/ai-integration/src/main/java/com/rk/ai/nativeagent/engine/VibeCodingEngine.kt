@@ -158,7 +158,7 @@ class VibeCodingEngine(
     val configProvider = ConfigProvider(
         context = context,
         settingsStore = settingsStore,
-        workspacePath = { xedConfig.workspacePath ?: "" },
+        workspacePath = { ideService.getPrimaryWorkspacePath() },
         scope = engineScope,
     )
 
