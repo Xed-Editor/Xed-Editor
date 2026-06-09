@@ -47,7 +47,6 @@ import com.rk.XedConstants
 import com.rk.exec.isTerminalInstalled
 import com.rk.file.child
 import com.rk.file.localBinDir
-import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.resources.getString
 import com.rk.resources.strings
