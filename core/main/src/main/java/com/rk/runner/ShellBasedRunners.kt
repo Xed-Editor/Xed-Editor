@@ -1,5 +1,6 @@
 package com.rk.runner
 
+import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.Gson
@@ -78,7 +79,8 @@ data class ShellBasedRunner(override val label: String, val regex: String) : Run
     override suspend fun run(context: Context, fileObject: FileObject) {
         val script = runnerDir().child("${label}.sh").createFileIfNot()
         launchTerminal(
-            context,
+            //TODO
+            activity = context as Activity,
             TerminalCommand(
                 exe = "/bin/bash",
                 args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),

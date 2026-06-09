@@ -1,5 +1,6 @@
 package com.rk.lsp
 
+import android.app.Activity
 import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -30,7 +31,8 @@ abstract class ScriptedLspServer : LspServer() {
 
     protected fun launchInstaller(context: Context, vararg flags: String) {
         launchTerminal(
-            context = context,
+            //TODO
+            activity = context as Activity,
             terminalCommand =
                 TerminalCommand(
                     exe = "/bin/bash",

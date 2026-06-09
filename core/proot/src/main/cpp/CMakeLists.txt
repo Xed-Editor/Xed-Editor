@@ -7,7 +7,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/tall
 
 # Compiler flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O2")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack")
+# Reproducibility flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=. -fno-ident")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,noexecstack -Wl,--build-id=sha1")
 
 # Tools from environment (NDK)
 find_program(OBJCOPY_TOOL NAMES ${CMAKE_OBJCOPY} $ENV{OBJCOPY} llvm-objcopy objcopy)
@@ -281,6 +283,12 @@ set_target_properties(proot PROPERTIES
     OUTPUT_NAME "proot"
     PREFIX "lib"
     SUFFIX ".so"
+)
+
+add_custom_command(
+    TARGET proot POST_BUILD
+    COMMAND ${STRIP_TOOL} --strip-unneeded $<TARGET_FILE:proot>
+    COMMENT "Stripping libproot.so"
 )
 
 install(TARGETS proot DESTINATION bin)

@@ -1,6 +1,7 @@
 package com.rk.runner.runners
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Environment
 import com.rk.DefaultScope
@@ -62,7 +63,8 @@ object UniversalRunner : Runner() {
 
     suspend fun launchUniversalRunner(context: Context, fileObject: FileObject) {
         launchTerminal(
-            context,
+            //TODO
+            activity = context as Activity,
             terminalCommand =
                 TerminalCommand(
                     sandbox = true,
