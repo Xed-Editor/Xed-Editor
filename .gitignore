@@ -22,3 +22,16 @@ Todo.md
 **/build
 .vscode
 core/wasm3
+
+# Binary artifacts
+*.exe
+*.o
+*.so
+*.a
+*.la
+*.lo
+*.lai
+*.pyc
+__pycache__/
+.DS_Store
+*~

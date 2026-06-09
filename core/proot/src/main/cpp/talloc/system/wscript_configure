@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+# solaris variants of getXXent_r
+conf.CHECK_C_PROTOTYPE('getpwent_r',
+                       'struct passwd *getpwent_r(struct passwd *src, char *buf, int buflen)',
+                       define='SOLARIS_GETPWENT_R', headers='pwd.h')
+conf.CHECK_C_PROTOTYPE('getgrent_r',
+                       'struct group *getgrent_r(struct group *src, char *buf, int buflen)',
+                       define='SOLARIS_GETGRENT_R', headers='grp.h')
+
+# the irix variants
+conf.CHECK_C_PROTOTYPE('getpwent_r',
+                       'struct passwd *getpwent_r(struct passwd *src, char *buf, size_t buflen)',
+                       define='SOLARIS_GETPWENT_R', headers='pwd.h')
+conf.CHECK_C_PROTOTYPE('getgrent_r',
+                       'struct group *getgrent_r(struct group *src, char *buf, size_t buflen)',
+                       define='SOLARIS_GETGRENT_R', headers='grp.h')
+
