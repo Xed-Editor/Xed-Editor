@@ -645,4 +645,21 @@
     <string name="auto_closing_bracket_desc">自動插入對應的閉合括號</string>
     <string name="confirm_exit_dialog">結束確認對話框</string>
     <string name="confirm_exit_dialog_desc">關閉應用程式前顯示確認對話框</string>
+    <string name="updating">更新中…</string>
+    <string name="sort_lines_ascending">遞增排序行內容</string>
+    <string name="sort_lines_descending">遞減排序行內容</string>
+    <string name="choose_runner">選擇執行器</string>
+    <string name="ext_cleanup_failed">擴充功能清理失敗</string>
+    <string name="uninstall_ext_dialog">要解除安裝擴充功能嗎？</string>
+    <string name="uninstall_ext_dialog_desc">確定要解除安裝擴充功能「%s」嗎？</string>
+    <string name="invalid_terminal_extra_keys">終端機額外按鍵格式無效。將載入預設按鍵。</string>
+    <string name="manage_formatters">管理格式化工具</string>
+    <string name="manage_formatters_desc">設定格式化工具優先順序與配置</string>
+    <string name="info_formatters">格式化工具會依照優先順序套用。系統將使用第一個支援目前語言的格式化工具。您可以長按並拖曳來調整順序。</string>
+    <string name="document_highlight">醒目標示出現項目</string>
+    <string name="document_highlight_desc">醒目標示游標所在符號的所有出現位置。</string>
+    <string name="formatter_lsp_desc">使用目前語言伺服器</string>
+    <string name="browse_extensions">瀏覽擴充功能</string>
+    <string name="clipboard_keybindings">剪貼簿快捷鍵</string>
+    <string name="clipboard_keybindings_desc">啟用實體鍵盤的複製與貼上快捷鍵。</string>
 </resources>
