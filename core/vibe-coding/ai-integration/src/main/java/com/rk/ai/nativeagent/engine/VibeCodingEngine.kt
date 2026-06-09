@@ -16,6 +16,8 @@ import com.rk.ai.agent.files.CommandFileLoader
 import com.rk.ai.agent.files.DefaultContentSeeder
 import com.rk.ai.agent.files.FilesManager
 import com.rk.ai.agent.files.SkillManager
+import com.rk.ai.agent.files.XedConfig
+import com.rk.ai.agent.files.XedConfigLoader
 import com.rk.ai.agent.agents.AgentResult
 import com.rk.ai.agent.hooks.HookContext
 import com.rk.ai.agent.hooks.HookEvent
@@ -148,6 +150,7 @@ class VibeCodingEngine(
     val hookManager = HookManager()
     val permissionManager = PermissionManager()
     private val storedCommandCatalog = mutableListOf<CommandCatalogEntry>()
+    private var xedConfig = XedConfig()
 
     private var sessionCounter = 0L
 
@@ -188,6 +191,46 @@ class VibeCodingEngine(
 
         DefaultContentSeeder.seedIfNeeded(context)
         loadFileCommandsIntoCatalog()
+        loadProjectConfig()
+    }
+
+    fun loadProjectConfig() {
+        val workspace = try {
+            ideService.getPrimaryWorkspacePath()
+        } catch (_: Exception) { return }
+        xedConfig = XedConfigLoader.loadConfig(workspace)
+        applyConfigPermissions()
+        xedConfig.instructions?.let {
+            if (it.isNotBlank()) {
+                systemPromptBuilder.projectInstructions = it
+            }
+        }
+    }
+
+    fun refreshProjectConfig() {
+        systemPromptBuilder.reset()
+        loadProjectConfig()
+        loadFileCommandsIntoCatalog()
+    }
+
+    fun isToolEnabled(toolName: String): Boolean {
+        return xedConfig.tools[toolName] ?: true
+    }
+
+    fun applyConfigPermissions() {
+        for (rule in xedConfig.permission) {
+            val action = when (rule.action.lowercase()) {
+                "allow" -> PermissionAction.ALLOW
+                "deny" -> PermissionAction.DENY
+                else -> PermissionAction.ASK
+            }
+            permissionManager.addRule(PermissionAutoRespondRule(
+                toolPattern = rule.tool,
+                argPattern = rule.arg,
+                action = action,
+                description = rule.description,
+            ))
+        }
     }
 
     fun loadFileCommandsIntoCatalog() {

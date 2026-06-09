@@ -253,7 +253,8 @@ fun renameSymbol(scope: CoroutineScope, editorTab: EditorTab) {
                                     if (either.isLeft) {
                                         val docEdit = either.left
                                         val uri = docEdit.textDocument.uri
-                                        val edits = docEdit.edits
+                                        @Suppress("UNCHECKED_CAST")
+                                        val edits = docEdit.edits as? List<org.eclipse.lsp4j.TextEdit>
                                         if (uri != null && edits != null) {
                                             allChanges[uri] = (allChanges[uri] ?: emptyList()) + edits
                                         }

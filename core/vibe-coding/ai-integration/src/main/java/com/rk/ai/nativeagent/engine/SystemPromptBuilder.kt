@@ -11,6 +11,7 @@ class SystemPromptBuilder(
     private var injected = false
     private var modelPromptInjected = false
     private val contextCollector = WorkspaceContextCollector(ideService)
+    var projectInstructions: String? = null
 
     fun isInjected(): Boolean = injected
 
@@ -31,11 +32,13 @@ class SystemPromptBuilder(
         }
 
         val ctxBlock = buildWorkspaceContext()
+        val instructionsBlock = buildProjectInstructions()
 
-        return (listOf(
+        return (listOfNotNull(
             modelPrompt,
             "",
             ctxBlock,
+            instructionsBlock,
         )).joinToString("\n")
     }
 
@@ -43,5 +46,14 @@ class SystemPromptBuilder(
         val snapshot = contextCollector.snapshot()
         if (snapshot.isEmpty()) return ""
         return snapshot.buildContextBlock()
+    }
+
+    private fun buildProjectInstructions(): String? {
+        val instructions = projectInstructions?.takeIf { it.isNotBlank() } ?: return null
+        return buildString {
+            appendLine("<project_instructions>")
+            appendLine(instructions.trim())
+            appendLine("</project_instructions>")
+        }
     }
 }
