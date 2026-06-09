@@ -66,14 +66,11 @@ data class VibeCodingState(
     val currentConversationId: Uuid? = null,
     val agentActivities: List<AgentActivity> = emptyList(),
     val securityAlerts: List<SecurityAlert> = emptyList(),
-
     val sessionTree: List<SessionNode> = emptyList(),
     val activeSessionId: Uuid? = null,
     val parentSessionId: Uuid? = null,
-
     val todos: List<SessionTodo> = emptyList(),
     val permissionAutoRespondRules: List<PermissionAutoRespondRule> = emptyList(),
-
     val commandCatalog: List<CommandCatalogEntry> = emptyList(),
     val dockOpen: Boolean = false,
     val dockClosing: Boolean = false,
@@ -126,4 +123,11 @@ data class VibeCodingState(
             .toRegex(RegexOption.IGNORE_CASE)
         return regex.matches(input)
     }
+
+    fun toChatState(): ChatState = ChatState(messages, isProcessing, error, currentConversationId)
+    fun toAgentActivityState(): AgentActivityState = AgentActivityState(agentActivities)
+    fun toSecurityState(): SecurityState = SecurityState(securityAlerts, permissionAutoRespondRules)
+    fun toSessionNavigationState(): SessionNavigationState = SessionNavigationState(sessionTree, activeSessionId, parentSessionId)
+    fun toTaskState(): TaskState = TaskState(todos)
+    fun toUIState(): UIState = UIState(commandCatalog, dockOpen, dockClosing, compactionReason)
 }

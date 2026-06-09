@@ -151,7 +151,7 @@ class BugHunterAgent(private val ideService: IdeService) : SubAgent {
         val issues = mutableListOf<String>()
         if (content.contains("runCatching") && !content.contains(".onFailure"))
             issues.add("runCatching without onFailure handler - errors may be silently swallowed")
-        if (content.contains("catch (e: Exception)") && content.contains("e.printStackTrace()") || content.contains("Log.e"))
+        if (content.contains("catch (e: Exception)") && (content.contains("e.printStackTrace()") || content.contains("Log.e")))
             issues.add("Generic Exception catch with only logging - consider more specific handling")
         if (content.contains("catch (e: Throwable)"))
             issues.add("Catching Throwable is too broad - catches OutOfMemoryError etc.")

@@ -13,11 +13,14 @@ import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.agent.events.VibeCodingEvent
 import com.rk.ai.agent.events.VibeCodingEventBus
 import com.rk.ai.agent.files.CommandFileLoader
+import com.rk.ai.agent.files.ConfigProvider
 import com.rk.ai.agent.files.DefaultContentSeeder
 import com.rk.ai.agent.files.FilesManager
 import com.rk.ai.agent.files.SkillManager
+import com.rk.ai.agent.files.UnifiedConfig
 import com.rk.ai.agent.files.XedConfig
 import com.rk.ai.agent.files.XedConfigLoader
+import com.rk.ai.agent.tools.ToolValidator
 import com.rk.ai.agent.agents.AgentResult
 import com.rk.ai.agent.hooks.HookContext
 import com.rk.ai.agent.hooks.HookEvent
@@ -151,6 +154,13 @@ class VibeCodingEngine(
     val permissionManager = PermissionManager()
     private val storedCommandCatalog = mutableListOf<CommandCatalogEntry>()
     private var xedConfig = XedConfig()
+    private val toolValidator = ToolValidator()
+    val configProvider = ConfigProvider(
+        context = context,
+        settingsStore = settingsStore,
+        workspacePath = { xedConfig.workspacePath ?: "" },
+        scope = engineScope,
+    )
 
     private var sessionCounter = 0L
 
@@ -162,6 +172,14 @@ class VibeCodingEngine(
         _state.value = _state.value.copy(
             permissionAutoRespondRules = permissionManager.rules,
         )
+        configProvider.unifiedConfig.value.let { cfg ->
+            applyPermissionRules(cfg)
+        }
+        engineScope.launch {
+            configProvider.unifiedConfig.collect { cfg ->
+                applyPermissionRules(cfg)
+            }
+        }
         engineScope.launch {
             SuggestionStore.suggestions.collect { suggestionsFlow.value = it }
         }
@@ -447,6 +465,24 @@ class VibeCodingEngine(
         },
     )
 
+    private fun applyPermissionRules(cfg: UnifiedConfig) {
+        for (rule in cfg.permissionRules) {
+            val action = when (rule.action.lowercase()) {
+                "allow" -> PermissionAction.ALLOW
+                "deny" -> PermissionAction.DENY
+                else -> PermissionAction.ASK
+            }
+            permissionManager.addRule(
+                PermissionAutoRespondRule(
+                    toolPattern = rule.toolPattern,
+                    argPattern = rule.argPattern,
+                    action = action,
+                    description = rule.description,
+                )
+            )
+        }
+    }
+
     private fun buildToolList(assistant: com.rk.ai.models.Assistant, settings: com.rk.ai.persistence.settings.Settings): List<Tool> {
         val mcpTools = mcpManager.getAllAvailableTools().map { (serverId, mcpTool) ->
             Tool(
@@ -462,6 +498,10 @@ class VibeCodingEngine(
                         args.toString()
                     }
                     val kotlinxArgs = json.parseToJsonElement(argsStr).jsonObject
+                    toolValidator.validateAndThrow(
+                        Tool(name = mcpTool.name, description = mcpTool.description ?: ""),
+                        args,
+                    )
                     mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)
                 },
             )
@@ -480,9 +520,12 @@ class VibeCodingEngine(
             add(listCustomCommandsTool)
         }
 
-        return baseTools.map { tool ->
-            permissionManager.wrapToolWithPermissionCheck(tool) { _state.value }
-        }
+        val cfg = configProvider.unifiedConfig.value
+        return baseTools
+            .filter { tool -> cfg.isToolEnabled(tool.name) }
+            .map { tool ->
+                permissionManager.wrapToolWithPermissionCheck(tool) { _state.value }
+            }
     }
 
     fun dispose() {
