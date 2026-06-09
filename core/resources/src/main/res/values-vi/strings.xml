@@ -452,4 +452,16 @@
     <string name="failsafe_mode_desc">Khởi động terminal ở chế độ bảo trì</string>
     <string name="info_lsp">Language server là các tiến trình riêng biệt cung cấp các tính năng thông minh, như tự động hoàn thành code, tô sáng lỗi và tài liệu nội dòng.</string>
     <string name="storage">Bộ nhớ</string>
+    <string name="updating">Đang cập nhật…</string>
+    <string name="ignore_case">Bỏ qua trường hợp</string>
+    <string name="regex">Regex</string>
+    <string name="whole_word">Toàn bộ từ</string>
+    <string name="format_selection">Lựa chọn định dạng</string>
+    <string name="enable_sticky_scroll">Bật cuộn dính</string>
+    <string name="enable_sticky_scroll_desc">Giữ cho tiêu đề đoạn code hiện tại luôn hiển thị khi cuộn trang</string>
+    <string name="enable_quick_deletion">Cho phép xóa dòng nhanh</string>
+    <string name="recently_used">(Mới sử dụng gần đây)</string>
+    <string name="command_palette">Bảng lệnh</string>
+    <string name="debug_mode_warn">Chế độ gỡ lỗi vô hiệu hóa các hạn chế an toàn, điều này có thể dẫn đến mất dữ liệu hoặc các sự cố khác nếu sử dụng sai cách. Chỉ bật chế độ này nếu bạn biết mình đang làm gì.</string>
+    <string name="desktop_mode">Chế độ máy tính để bàn (Thử nghiệm)</string>
 </resources>
