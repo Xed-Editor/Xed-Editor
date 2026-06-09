@@ -53,6 +53,9 @@ jobs:
       - name: Clone submodules
         run: git submodule update --init --recursive
 
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
+
       - name: Build with Gradle
         run: ./gradlew assembleRelease --no-daemon && mv app/build/outputs/apk/release/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
         env:
