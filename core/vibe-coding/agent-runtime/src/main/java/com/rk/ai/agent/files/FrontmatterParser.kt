@@ -13,12 +13,12 @@ object FrontmatterParser {
     private val frontmatterEndRegex = Regex("""\r?\n---(?:\r?\n|$)""")
 
     fun parseRaw(content: String): Pair<Map<String, String>, String> {
-        if (!content.startsWith("---")) return emptyMap() to content.trim()
+        if (!content.startsWith("---")) return emptyMap<String, String>() to content.trim()
 
         val endRange = findFrontmatterEndRange(content)
         if (endRange == null) {
             Log.w(TAG, "Frontmatter start marker found but no end marker")
-            return emptyMap() to content.trim()
+            return emptyMap<String, String>() to content.trim()
         }
 
         val yaml = content.substring(3, endRange.first).trim()
@@ -38,14 +38,14 @@ object FrontmatterParser {
         return fields to body
     }
 
-    fun parse<T>(content: String, filePath: String? = null, builder: (Map<String, String>, String) -> T): FrontmatterResult<T> {
+    fun <T> parse(content: String, filePath: String? = null, builder: (Map<String, String>, String) -> T): FrontmatterResult<T> {
         return try {
             val (frontmatter, body) = parseRaw(content)
             val result = builder(frontmatter, body)
-            Success(frontmatter, body, result)
+            FrontmatterResult.Success(frontmatter, body, result)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to parse frontmatter from $filePath", e)
-            Error(e.message ?: "Unknown parse error", filePath)
+            FrontmatterResult.Error(e.message ?: "Unknown parse error", filePath)
         }
     }
 

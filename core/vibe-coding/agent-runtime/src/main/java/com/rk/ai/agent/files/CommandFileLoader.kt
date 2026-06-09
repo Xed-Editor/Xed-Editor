@@ -16,6 +16,18 @@ data class CommandDefinition(
     val sourceFile: File? = null,
 )
 
+private fun guessCategory(content: String): String {
+    val lower = content.lowercase()
+    return when {
+        "git" in lower || "commit" in lower || "push" in lower || "branch" in lower -> "Git"
+        "test" in lower || "build" in lower || "compile" in lower -> "Code"
+        "feature" in lower || "implement" in lower || "design" in lower || "architect" in lower -> "Feature"
+        "translate" in lower || "doc" in lower || "changelog" in lower -> "Project"
+        "review" in lower || "audit" in lower || "security" in lower -> "Code"
+        else -> "General"
+    }
+}
+
 object CommandFileLoader : MarkdownFrontmatterLoader<CommandDefinition>(
     subDir = "commands",
     tag = "CommandFileLoader",
@@ -46,16 +58,4 @@ object CommandFileLoader : MarkdownFrontmatterLoader<CommandDefinition>(
 ) {
     fun getCommandsDir(context: Context): File = getDir(context)
     fun listCommands(context: Context): List<CommandDefinition> = list(context)
-
-    private fun guessCategory(content: String): String {
-        val lower = content.lowercase()
-        return when {
-            "git" in lower || "commit" in lower || "push" in lower || "branch" in lower -> "Git"
-            "test" in lower || "build" in lower || "compile" in lower -> "Code"
-            "feature" in lower || "implement" in lower || "design" in lower || "architect" in lower -> "Feature"
-            "translate" in lower || "doc" in lower || "changelog" in lower -> "Project"
-            "review" in lower || "audit" in lower || "security" in lower -> "Code"
-            else -> "General"
-        }
-    }
 }

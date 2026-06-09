@@ -2,12 +2,10 @@ package com.rk.ai.agent.tools
 
 import android.util.Log
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
 import com.rk.ai.agent.VibeCodingError
 import com.rk.ai.models.InputSchema
 import com.rk.ai.models.Tool
-import kotlinx.serialization.json.JsonElement as KxJsonElement
-import kotlinx.serialization.json.JsonObject as KxJsonObject
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 
@@ -36,9 +34,7 @@ class ToolValidator {
         val properties = schema.properties
         val errors = mutableListOf<String>()
 
-        val argsObj = try {
-            args.asJsonObject
-        } catch (e: Exception) {
+        val argsObj = if (args.isJsonObject) args.getAsJsonObject() else {
             return ValidationResult.error("Arguments must be a JSON object, got ${args::class.simpleName}")
         }
 
@@ -48,28 +44,29 @@ class ToolValidator {
             }
         }
 
-        for ((key, value) in properties.entries) {
-            val fieldSchema = value.asJsonObject
-            val expectedType = fieldSchema["type"]?.asString
+        for ((key, value) in properties) {
+            val fieldSchema = value.jsonObject
+            val typeElement = fieldSchema["type"]
+            val expectedType = typeElement?.jsonPrimitive?.contentOrNull
             val actual = argsObj.get(key) ?: continue
 
             if (actual.isJsonNull) continue
 
             when (expectedType) {
-                "string" -> if (!actual.isJsonPrimitive || !actual.asJsonPrimitive.isString) {
-                    errors.add("Field '$key' must be a string, got ${actual.asJsonPrimitive?.let { if (it.isString) "string" else "number" } ?: actual::class.simpleName}")
+                "string" -> if (!actual.isJsonPrimitive || !actual.getAsJsonPrimitive().isString) {
+                    errors.add("Field '$key' must be a string")
                 }
-                "integer", "number" -> if (!actual.isJsonPrimitive || !actual.asJsonPrimitive.isNumber) {
-                    errors.add("Field '$key' must be a number, got ${actual.asJsonPrimitive?.let { "primitive" } ?: actual::class.simpleName}")
+                "integer", "number" -> if (!actual.isJsonPrimitive || !actual.getAsJsonPrimitive().isNumber) {
+                    errors.add("Field '$key' must be a number")
                 }
-                "boolean" -> if (!actual.isJsonPrimitive || !actual.asJsonPrimitive.isBoolean) {
-                    errors.add("Field '$key' must be a boolean, got ${actual.asJsonPrimitive?.let { "primitive" } ?: actual::class.simpleName}")
+                "boolean" -> if (!actual.isJsonPrimitive || !actual.getAsJsonPrimitive().isBoolean) {
+                    errors.add("Field '$key' must be a boolean")
                 }
                 "array" -> if (!actual.isJsonArray) {
-                    errors.add("Field '$key' must be an array, got ${actual::class.simpleName}")
+                    errors.add("Field '$key' must be an array")
                 }
                 "object" -> if (!actual.isJsonObject) {
-                    errors.add("Field '$key' must be an object, got ${actual::class.simpleName}")
+                    errors.add("Field '$key' must be an object")
                 }
             }
         }
@@ -84,9 +81,24 @@ class ToolValidator {
     fun validateAndThrow(tool: Tool, args: JsonElement) {
         val result = validate(tool, args)
         if (!result.isValid) {
-            throw VibeCodingError.ToolError.InvalidArgs(
+            val error = VibeCodingError.ToolError.InvalidArgs(
                 toolName = tool.name,
                 validationErrors = result.errors,
+            )
+            throw RuntimeException(error.toString())
+        }
+    }
+
+    fun validateWithSchema(toolName: String, schema: InputSchema?, args: JsonElement) {
+        if (schema == null) return
+        val tool = Tool(name = toolName, description = "", parameters = { schema })
+        val result = validate(tool, args)
+        if (!result.isValid) {
+            throw RuntimeException(
+                VibeCodingError.ToolError.InvalidArgs(
+                    toolName = toolName,
+                    validationErrors = result.errors,
+                ).toString()
             )
         }
     }

@@ -1,10 +1,9 @@
+@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
 package com.rk.ai.agent.files
 
 import android.content.Context
 import android.util.Log
 import com.rk.ai.agent.VibeCodingError
-import com.rk.ai.agent.events.SessionTodo
-import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.models.McpServerConfig
 import com.rk.ai.persistence.settings.Settings
 import com.rk.ai.persistence.settings.SettingsStore
@@ -14,8 +13,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -112,7 +109,7 @@ class ConfigProvider(
 
         val mcpServers = buildList {
             addAll(settings.mcpServers.map { it.toMcpConfigDef() })
-            addAll(xed.mcp.map { it.toMcpConfigDef() }.filter { !it.disabled })
+            addAll(xed.mcp.map { it.toConfigDef() }.filter { !it.disabled })
         }
 
         val toolOverrides = xed.tools
@@ -120,7 +117,7 @@ class ConfigProvider(
             .firstOrNull { it.id == settings.assistantId }
             ?.enabledSkills?.associateWith { true } ?: emptyMap()
 
-        UnifiedConfig(
+        return UnifiedConfig(
             permissionRules = permissionRules,
             mcpServers = mcpServers,
             modelConfig = xed.model?.let { ModelConfigDef(provider = it.provider, model = it.model) },
@@ -148,6 +145,16 @@ private fun com.rk.ai.models.McpServerConfig.toMcpConfigDef(): McpServerConfigDe
     }
 }
 
+private fun XedMcpConfig.toConfigDef(): McpServerConfigDef {
+    return McpServerConfigDef(
+        name = name,
+        command = command.ifBlank { null },
+        args = args,
+        env = env,
+        disabled = disabled,
+    )
+}
+
 private fun XedPermissionRule.toPermissionRuleDef(): PermissionRuleDef {
     return PermissionRuleDef(
         toolPattern = tool,
@@ -155,9 +162,4 @@ private fun XedPermissionRule.toPermissionRuleDef(): PermissionRuleDef {
         action = action,
         description = description,
     )
-}
-
-private fun McpServerConfigDef.toMcpServerConfig(): McpServerConfig? {
-    url?.let { return McpServerConfig.SseTransportServer(url = it) }
-    return null
 }

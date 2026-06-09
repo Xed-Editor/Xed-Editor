@@ -498,9 +498,10 @@ class VibeCodingEngine(
                         args.toString()
                     }
                     val kotlinxArgs = json.parseToJsonElement(argsStr).jsonObject
-                    toolValidator.validateAndThrow(
-                        Tool(name = mcpTool.name, description = mcpTool.description ?: ""),
-                        args,
+                    toolValidator.validateWithSchema(
+                        toolName = mcpTool.name,
+                        schema = mcpTool.inputSchema,
+                        args = args,
                     )
                     mcpManager.callTool(serverId, mcpTool.name, kotlinxArgs)
                 },
