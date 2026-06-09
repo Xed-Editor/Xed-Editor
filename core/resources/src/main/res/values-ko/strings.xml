@@ -273,4 +273,9 @@
     <string name="api_error">API 오류</string>
     <string name="unknown">알 수 없음</string>
     <string name="cant_write">파일을 작성할 수 없습니다(쓰기 권한 없음)</string>
+    <string name="info_lsp">언어 서버는 코드 완성, 오류 표시 그리고 인라인 문서 같은 인텔리전스 기능을 제공하는 별도의 프로세스 입니다.</string>
+    <string name="storage">저장공간</string>
+    <string name="support">지원</string>
+    <string name="support_desc">개발 지원</string>
+    <string name="translate">번역</string>
 </resources>
