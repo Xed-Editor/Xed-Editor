@@ -83,7 +83,7 @@ object MkSession {
 
             val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
             if (File(loader32).exists()) {
-                env.add("LOADER32=$loader32")
+                env.add("PROOT_LOADER_32=$loader32")
             }
 
             if (Settings.seccomp) {
