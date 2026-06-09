@@ -1,6 +1,7 @@
 package com.rk.tabs.editor
 
 import android.content.Context
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
@@ -557,12 +558,14 @@ private fun EditorTab.RunnerSheet(context: Context) {
 
             Column {
                 editorState.runnersToShow.forEach { runner ->
+                    val activity = LocalActivity.current
+
                     AddDialogItem(
                         icon = runner.getIcon(context) ?: Icon.ResourceIcon(drawableRes = drawables.run),
                         title = runner.label,
                     ) {
                         DefaultScope.launch {
-                            runner.run(context, file)
+                            activity?.let { runner.run(it, file) }
                             editorState.showRunnerDialog = false
                             editorState.runnersToShow = emptyList()
                         }

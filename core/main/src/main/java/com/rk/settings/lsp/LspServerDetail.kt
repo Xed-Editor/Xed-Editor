@@ -1,5 +1,6 @@
 package com.rk.settings.lsp
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,6 +74,7 @@ enum class LspInstallationAction {
 fun LspServerDetail(navController: NavHostController, server: LspServer) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val activity = LocalActivity.current
 
     var refreshKey by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -98,7 +100,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
         if (!server.canBeUninstalled) return
 
         FilledTonalButton(
-            onClick = { server.uninstall(context) },
+            onClick = { activity?.let { server.uninstall(it) } },
             colors =
                 ButtonDefaults.filledTonalButtonColors()
                     .copy(
@@ -114,7 +116,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
 
     @Composable
     fun UpdateButton() {
-        FilledTonalButton(onClick = { server.update(context) }) {
+        FilledTonalButton(onClick = { activity?.let { server.update(it) } }) {
             Icon(painter = painterResource(drawables.update), contentDescription = stringResource(strings.update))
             Spacer(Modifier.width(12.dp))
             Text(stringResource(strings.update))
@@ -123,7 +125,7 @@ fun LspServerDetail(navController: NavHostController, server: LspServer) {
 
     @Composable
     fun DownloadButton() {
-        FilledTonalButton(onClick = { server.install(context) }) {
+        FilledTonalButton(onClick = { activity?.let { server.install(it) } }) {
             Icon(painter = painterResource(drawables.download), contentDescription = stringResource(strings.download))
             Spacer(Modifier.width(12.dp))
             Text(stringResource(strings.install))

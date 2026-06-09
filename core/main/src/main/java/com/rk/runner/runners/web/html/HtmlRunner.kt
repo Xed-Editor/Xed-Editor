@@ -1,5 +1,6 @@
 package com.rk.runner.runners.web.html
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.browser.customtabs.CustomTabsIntent
@@ -33,12 +34,12 @@ object HtmlRunner : Runner() {
 
     override val onConfigure: () -> Unit = { settingsNavController.get()?.navigate(SettingsRoutes.HtmlRunner.route) }
 
-    override suspend fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(activity: Activity, fileObject: FileObject) {
         stop()
 
         val port = Settings.http_server_port
         try {
-            httpServer = HttpServer(context, port, fileObject.getParentFile() ?: fileObject)
+            httpServer = HttpServer(activity, port, fileObject.getParentFile() ?: fileObject)
         } catch (_: BindException) {
             toast(strings.http_server_port_error.getFilledString(port))
             return
@@ -50,14 +51,14 @@ object HtmlRunner : Runner() {
         val url = "$address/${fileObject.getName()}"
         if (Settings.launch_in_browser) {
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-            context.startActivity(intent)
+            activity.startActivity(intent)
             return
         }
         CustomTabsIntent.Builder()
             .setShowTitle(true)
             .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
             .build()
-            .launchUrl(context, url.toUri())
+            .launchUrl(activity, url.toUri())
     }
 
     override fun getIcon(context: Context): Icon? {

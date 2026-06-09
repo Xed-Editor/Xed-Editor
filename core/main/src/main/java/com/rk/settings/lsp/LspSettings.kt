@@ -1,6 +1,7 @@
 package com.rk.settings.lsp
 
 import android.content.Context
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -228,10 +229,11 @@ private fun LspServerItem(
         },
         endWidget = {
             val status by rememberLspInstallStatus(context, server, refreshKey)
+            val activity = LocalActivity.current
 
             when (status) {
                 LspInstallationAction.INSTALL -> {
-                    IconButton(onClick = { server.install(context) }) {
+                    IconButton(onClick = { activity?.let { server.install(it) } }) {
                         Icon(
                             painter = painterResource(drawables.download),
                             contentDescription = stringResource(strings.download),
@@ -240,7 +242,7 @@ private fun LspServerItem(
                 }
 
                 LspInstallationAction.UPDATE -> {
-                    IconButton(onClick = { server.update(context) }) {
+                    IconButton(onClick = { activity?.let { server.update(it) } }) {
                         Icon(
                             painter = painterResource(drawables.update),
                             contentDescription = stringResource(strings.update),

@@ -1,5 +1,6 @@
 package com.rk.lsp.servers
 
+import android.app.Activity
 import android.content.Context
 import com.rk.file.FileTypeManager
 import com.rk.lsp.LspConnectionConfig
@@ -19,13 +20,13 @@ data class ExternalProcessServer(
 
     override suspend fun isInstalled(context: Context) = true
 
-    override fun install(context: Context) {}
+    override fun install(activity: Activity) {}
 
-    override fun uninstall(context: Context) {}
+    override fun uninstall(activity: Activity) {}
 
     override suspend fun isUpdatable(context: Context) = false
 
-    override fun update(context: Context) {}
+    override fun update(activity: Activity) {}
 
     override fun getConnectionConfig(): LspConnectionConfig {
         return LspConnectionConfig.Process(
