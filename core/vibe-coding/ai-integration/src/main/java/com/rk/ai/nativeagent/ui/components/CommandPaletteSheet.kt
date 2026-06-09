@@ -1,6 +1,5 @@
 package com.rk.ai.nativeagent.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rk.ai.agent.files.CommandDefinition
 
 data class PaletteCommand(
     val id: String,
@@ -23,35 +23,45 @@ data class PaletteCommand(
     val icon: @Composable () -> Unit = { Icon(Icons.Outlined.Terminal, contentDescription = null) },
 )
 
+fun CommandDefinition.toPaletteCommand(): PaletteCommand {
+    val icon: @Composable () -> Unit = when (category.lowercase()) {
+        "git" -> { { Icon(Icons.Outlined.Code, contentDescription = null) } }
+        "code" -> { { Icon(Icons.Outlined.BugReport, contentDescription = null) } }
+        "feature" -> { { Icon(Icons.Outlined.AutoAwesome, contentDescription = null) } }
+        "project" -> { { Icon(Icons.Outlined.Folder, contentDescription = null) } }
+        else -> { { Icon(Icons.Outlined.Terminal, contentDescription = null) } }
+    }
+    return PaletteCommand(
+        id = id,
+        name = name,
+        description = description,
+        prompt = prompt,
+        category = category,
+        icon = icon,
+    )
+}
+
 @Composable
 fun CommandPaletteSheet(
+    builtinCommands: List<PaletteCommand>,
+    fileCommands: List<PaletteCommand>,
     onDismiss: () -> Unit,
     onExecuteCommand: (PaletteCommand) -> Unit,
+    onRefreshCommands: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    var showBuiltins by remember { mutableStateOf(true) }
+    var showFileCommands by remember { mutableStateOf(true) }
 
-    val commands = remember {
-        listOf(
-            PaletteCommand("init", "Init", "Initialize project instructions (AGENTS.md)", "Initialize project with AGENTS.md based on codebase analysis", "Project"),
-            PaletteCommand("review", "Review", "Review recent code changes", "Review all uncommitted changes for bugs and quality", "Code"),
-            PaletteCommand("test", "Test", "Run tests and analyze results", "Run the test suite and report failures with fix suggestions", "Code"),
-            PaletteCommand("commit", "Commit", "Stage and commit changes", "Stage all changes and create a descriptive commit", "Git"),
-            PaletteCommand("push", "Push", "Push commits to remote", "Push the current branch to origin", "Git"),
-            PaletteCommand("changelog", "Changelog", "Generate changelog from recent commits", "Generate a changelog file from git history", "Project"),
-            PaletteCommand("spellcheck", "Spell Check", "Check spelling in markdown files", "Run spell check on all changed markdown files", "Code"),
-            PaletteCommand("translate", "Translate", "Translate documentation", "Translate changed documentation to configured languages", "Project"),
-            PaletteCommand("summarize", "Summarize", "Summarize current conversation", "Create a summary of the conversation context", "General"),
-            PaletteCommand("compact", "Compact", "Compact conversation context", "Compact the conversation to free context window", "General"),
-            PaletteCommand("learn", "Learn", "Extract learnings to AGENTS.md", "Analyze session and extract non-obvious learnings", "Project"),
-            PaletteCommand("rmslop", "Remove Slop", "Remove AI-generated code slop", "Clean up unnecessary comments and defensive code", "Code"),
-            PaletteCommand("issues", "Issues", "Find matching GitHub issues", "Search GitHub issues matching the current context", "Git"),
-        )
+    val allCommands = remember(builtinCommands, fileCommands) {
+        builtinCommands.map { it.copy(category = "${it.category} (built-in)") } +
+            fileCommands.map { it.copy(category = "${it.category} (custom)") }
     }
 
-    val filteredCommands = remember(searchQuery) {
-        if (searchQuery.isBlank()) commands
-        else commands.filter {
+    val filteredCommands = remember(searchQuery, allCommands) {
+        if (searchQuery.isBlank()) allCommands
+        else allCommands.filter {
             it.name.contains(searchQuery, ignoreCase = true) ||
             it.description.contains(searchQuery, ignoreCase = true) ||
             it.category.contains(searchQuery, ignoreCase = true)
@@ -85,6 +95,11 @@ fun CommandPaletteSheet(
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f),
                         )
+                        if (onRefreshCommands != null) {
+                            IconButton(onClick = onRefreshCommands) {
+                                Icon(Icons.Outlined.Refresh, contentDescription = "Refresh commands")
+                            }
+                        }
                         IconButton(onClick = onDismiss) {
                             Icon(Icons.Outlined.Close, contentDescription = "Close")
                         }
@@ -99,6 +114,14 @@ fun CommandPaletteSheet(
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                     )
+                    if (fileCommands.isNotEmpty()) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "${fileCommands.size} custom commands available from .xed/commands/",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
             }
 

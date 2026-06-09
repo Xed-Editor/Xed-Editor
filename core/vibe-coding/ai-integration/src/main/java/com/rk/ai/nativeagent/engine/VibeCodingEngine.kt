@@ -12,6 +12,8 @@ import com.rk.ai.agent.events.SessionTodo
 import com.rk.ai.agent.events.SessionTodoStatus
 import com.rk.ai.agent.events.VibeCodingEvent
 import com.rk.ai.agent.events.VibeCodingEventBus
+import com.rk.ai.agent.files.CommandFileLoader
+import com.rk.ai.agent.files.DefaultContentSeeder
 import com.rk.ai.agent.files.FilesManager
 import com.rk.ai.agent.files.SkillManager
 import com.rk.ai.agent.agents.AgentResult
@@ -128,7 +130,7 @@ class VibeCodingEngine(
     private val eventBus = AppEventBus()
     private val filesManager = FilesManager(context, filesRepo, appScope)
     private val mcpManager = McpManager(settingsStore, appScope, VibeCodingFileManager(context))
-    private val skillManager = SkillManager(context, settingsStore)
+    private     val skillManager = SkillManager(context, settingsStore)
     private val localTools = LocalTools(context, eventBus)
 
     val vibeEventBus = VibeCodingEventBus()
@@ -182,6 +184,24 @@ class VibeCodingEngine(
                 is AgentResult.NotAttempted -> AgentActivityStatus.PENDING
             }
             updateAgentActivity(name, status, result)
+        }
+
+        DefaultContentSeeder.seedIfNeeded(context)
+        loadFileCommandsIntoCatalog()
+    }
+
+    fun loadFileCommandsIntoCatalog() {
+        val fileCommands = CommandFileLoader.listCommands(context)
+        for (cmd in fileCommands) {
+            if (cmd.hidden) continue
+            addCommandToCatalog(CommandCatalogEntry(
+                id = "file:${cmd.id}",
+                title = cmd.name,
+                description = cmd.description,
+                category = cmd.category,
+                slash = cmd.id,
+                prompt = cmd.prompt,
+            ))
         }
     }
 
@@ -302,6 +322,34 @@ class VibeCodingEngine(
         },
     )
 
+    fun refreshCommands() {
+        storedCommandCatalog.removeAll { it.id.startsWith("file:") }
+        loadFileCommandsIntoCatalog()
+        _state.value = _state.value.copy(commandCatalog = storedCommandCatalog.toList())
+    }
+
+    private val listCustomCommandsTool = Tool(
+        name = "listCustomCommands",
+        description = "Lists all custom commands loaded from .xed/commands/. These are user-defined or project-specific commands that can be executed by invoking their prompt template.",
+        execute = { _ ->
+            val customCmds = storedCommandCatalog.filter { it.id.startsWith("file:") }
+            val text = buildString {
+                if (customCmds.isEmpty()) {
+                    appendLine("No custom commands found. Add .md files to .xed/commands/ to create custom commands.")
+                } else {
+                    appendLine("Custom commands (${customCmds.size}):")
+                    customCmds.forEach { cmd ->
+                        appendLine("  /${cmd.slash} - ${cmd.title}")
+                        appendLine("    ${cmd.description}")
+                        appendLine()
+                    }
+                    appendLine("Use the prompt content of a command as a template for your own tasks.")
+                }
+            }
+            listOf(UIMessagePart.Text(text))
+        },
+    )
+
     private val planTool = Tool(
         name = "plan",
         description = "Create a structured multi-step execution plan. Call this BEFORE starting complex multi-file tasks. The plan creates a tracked todo list and returns a clear step-by-step breakdown. Each step should be specific and actionable.",
@@ -386,6 +434,7 @@ class VibeCodingEngine(
             ))
             add(todowriteTool)
             add(planTool)
+            add(listCustomCommandsTool)
         }
 
         return baseTools.map { tool ->
