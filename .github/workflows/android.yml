@@ -54,7 +54,7 @@ jobs:
         run: git submodule update --init --recursive
 
       - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses || true
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build with Gradle
         run: ./gradlew assembleRelease --no-daemon && mv app/build/outputs/apk/release/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
