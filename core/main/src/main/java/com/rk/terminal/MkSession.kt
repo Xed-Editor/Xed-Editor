@@ -1,6 +1,5 @@
 package com.rk.terminal
 
-import android.os.Build
 import com.rk.activities.main.MainActivity
 import com.rk.activities.terminal.Terminal
 import com.rk.exec.pendingCommand
@@ -83,7 +82,7 @@ object MkSession {
                 )
 
             val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
-            if (File(loader32).exists()){
+            if (File(loader32).exists()) {
                 env.add("LOADER32=$loader32")
             }
 

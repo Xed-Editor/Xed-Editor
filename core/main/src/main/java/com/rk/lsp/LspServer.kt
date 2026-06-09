@@ -23,16 +23,15 @@ abstract class ScriptedLspServer : LspServer() {
     abstract val installScript: File
     abstract val installId: String
 
-    override fun install(context: Context) = launchInstaller(context)
+    override fun install(activity: Activity) = launchInstaller(activity)
 
-    override fun uninstall(context: Context) = launchInstaller(context, "--uninstall")
+    override fun uninstall(activity: Activity) = launchInstaller(activity, "--uninstall")
 
-    override fun update(context: Context) = launchInstaller(context, "--update")
+    override fun update(activity: Activity) = launchInstaller(activity, "--update")
 
-    protected fun launchInstaller(context: Context, vararg flags: String) {
+    protected fun launchInstaller(activity: Activity, vararg flags: String) {
         launchTerminal(
-            //TODO
-            activity = context as Activity,
+            activity = activity,
             terminalCommand =
                 TerminalCommand(
                     exe = "/bin/bash",
@@ -97,13 +96,13 @@ abstract class LspServer {
 
     abstract suspend fun isInstalled(context: Context): Boolean
 
-    abstract fun install(context: Context)
+    abstract fun install(activity: Activity)
 
-    abstract fun uninstall(context: Context)
+    abstract fun uninstall(activity: Activity)
 
     abstract suspend fun isUpdatable(context: Context): Boolean
 
-    abstract fun update(context: Context)
+    abstract fun update(activity: Activity)
 
     abstract fun getConnectionConfig(): LspConnectionConfig
 

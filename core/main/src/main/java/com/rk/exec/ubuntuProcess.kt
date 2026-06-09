@@ -1,7 +1,6 @@
 package com.rk.exec
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.util.Log
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -171,7 +170,7 @@ suspend fun ubuntuProcess(
                 "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}:${System.getenv("PATH")}"
 
             val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
-            if (File(loader32).exists()){
+            if (File(loader32).exists()) {
                 env["LOADER32"] = loader32
             }
 

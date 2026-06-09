@@ -22,7 +22,7 @@ abstract class Runner {
 
     abstract fun matcher(fileObject: FileObject): Boolean
 
-    abstract suspend fun run(context: Context, fileObject: FileObject)
+    abstract suspend fun run(activity: Activity, fileObject: FileObject)
 
     abstract suspend fun isRunning(): Boolean
 

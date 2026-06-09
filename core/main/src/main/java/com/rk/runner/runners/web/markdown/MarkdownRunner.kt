@@ -1,5 +1,6 @@
 package com.rk.runner.runners.web.markdown
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import com.rk.file.BuiltinFileType
@@ -25,10 +26,10 @@ object MarkdownRunner : Runner() {
         return Regex(".*\\.($markdownExtensions)$").matches(fileObject.getName())
     }
 
-    override suspend fun run(context: Context, fileObject: FileObject) {
-        val intent = Intent(context, MDViewer::class.java)
+    override suspend fun run(activity: Activity, fileObject: FileObject) {
+        val intent = Intent(activity, MDViewer::class.java)
         toPreviewFile = fileObject
-        context.startActivity(intent)
+        activity.startActivity(intent)
     }
 
     override fun getIcon(context: Context): Icon? {

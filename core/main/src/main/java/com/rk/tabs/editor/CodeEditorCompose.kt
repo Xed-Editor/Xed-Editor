@@ -1,6 +1,6 @@
 package com.rk.tabs.editor
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.view.KeyEvent
 import android.view.View
@@ -255,8 +255,9 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
         val editorConfigProps = editorState.editorConfigLoaded?.await()
         editorConfigProps?.let { withContext(Dispatchers.Main) { editor.applySettings(it) } }
 
-        val builtin = getBuiltinServers(editor.context)
-        val extension = getExtensionServers(editor.context)
+        val activity = editor.context as? Activity ?: return@launch
+        val builtin = getBuiltinServers(activity)
+        val extension = getExtensionServers(activity)
         val external = getExternalServers()
         val servers = builtin + extension + external
         if (servers.isEmpty()) return@launch
@@ -294,48 +295,51 @@ fun EditorTab.applyHighlightingAndConnectLSP() {
     }
 }
 
-private suspend fun EditorTab.getBuiltinServers(context: Context): List<LspServer> {
+private suspend fun EditorTab.getBuiltinServers(activity: Activity): List<LspServer> {
     val servers = LspRegistry.builtInServer.filter { it.isSupported(file) }
-    return findActiveLspServers(servers, context)
+    return findActiveLspServers(servers, activity)
 }
 
-private fun EditorTab.promptLspInstall(context: Context, server: LspServer) {
+private fun EditorTab.promptLspInstall(activity: Activity, server: LspServer) {
     scope.launch {
         val snackbarHost = snackbarHostStateRef.get() ?: return@launch
         val result =
             snackbarHost.showSnackbar(
-                message = strings.ask_lsp_install.getFilledString(server.languageName, context),
+                message = strings.ask_lsp_install.getFilledString(server.languageName, activity),
                 actionLabel = strings.install.getString(),
                 withDismissAction = true,
                 duration = SnackbarDuration.Short,
             )
         if (result == SnackbarResult.ActionPerformed) {
-            server.install(context)
+            server.install(activity)
         }
     }
 }
 
-private fun EditorTab.promptLspUpdate(context: Context, server: LspServer) {
+private fun EditorTab.promptLspUpdate(activity: Activity, server: LspServer) {
     scope.launch {
         val snackbarHost = snackbarHostStateRef.get() ?: return@launch
         val result =
             snackbarHost.showSnackbar(
-                message = strings.ask_lsp_update.getFilledString(server.languageName, context),
+                message = strings.ask_lsp_update.getFilledString(server.languageName, activity),
                 actionLabel = strings.update.getString(),
                 duration = SnackbarDuration.Long,
             )
         if (result == SnackbarResult.ActionPerformed) {
-            server.update(context)
+            server.update(activity)
         }
     }
 }
 
-private suspend fun EditorTab.getExtensionServers(context: Context): List<LspServer> {
+private suspend fun EditorTab.getExtensionServers(activity: Activity): List<LspServer> {
     val servers = LspRegistry.extensionServers.filter { server -> server.isSupported(file) }
-    return findActiveLspServers(servers, context)
+    return findActiveLspServers(servers, activity)
 }
 
-private suspend fun EditorTab.findActiveLspServers(servers: List<LspServer>, context: Context): MutableList<LspServer> {
+private suspend fun EditorTab.findActiveLspServers(
+    servers: List<LspServer>,
+    activity: Activity,
+): MutableList<LspServer> {
     val matchedServers = mutableListOf<LspServer>()
 
     servers.forEach { server ->
@@ -343,16 +347,16 @@ private suspend fun EditorTab.findActiveLspServers(servers: List<LspServer>, con
             return@forEach
         }
 
-        if (InbuiltFeatures.terminal.state.value && !server.isInstalled(context) && file is FileWrapper) {
+        if (InbuiltFeatures.terminal.state.value && !server.isInstalled(activity) && file is FileWrapper) {
             logInfo("Server ${server.id} is not installed")
-            promptLspInstall(context, server)
+            promptLspInstall(activity, server)
             return@forEach
         }
 
         scope.launch(Dispatchers.IO) {
-            if (server.isUpdatable(context)) {
+            if (server.isUpdatable(activity)) {
                 logInfo("Server ${server.id} is updatable")
-                promptLspUpdate(context, server)
+                promptLspUpdate(activity, server)
             }
         }
 

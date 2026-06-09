@@ -34,7 +34,7 @@ object UniversalRunner : Runner() {
     }
 
     @SuppressLint("SdCardPath")
-    override suspend fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(activity: Activity, fileObject: FileObject) {
         setupAssetFile("universal_runner")
 
         if (fileObject !is FileWrapper) {
@@ -53,18 +53,17 @@ object UniversalRunner : Runner() {
                 msg = strings.sdcard_filetype.getString(),
                 okRes = strings.continue_action,
                 onCancel = {},
-                onOk = { DefaultScope.launch { launchUniversalRunner(context, fileObject) } },
+                onOk = { DefaultScope.launch { launchUniversalRunner(activity, fileObject) } },
             )
             return
         }
 
-        launchUniversalRunner(context, fileObject)
+        launchUniversalRunner(activity, fileObject)
     }
 
-    suspend fun launchUniversalRunner(context: Context, fileObject: FileObject) {
+    suspend fun launchUniversalRunner(activity: Activity, fileObject: FileObject) {
         launchTerminal(
-            //TODO
-            activity = context as Activity,
+            activity = activity,
             terminalCommand =
                 TerminalCommand(
                     sandbox = true,

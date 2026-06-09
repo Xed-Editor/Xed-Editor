@@ -76,11 +76,10 @@ data class ShellBasedRunner(override val label: String, val regex: String) : Run
         return Regex(regex).matches(fileObject.getName())
     }
 
-    override suspend fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(activity: Activity, fileObject: FileObject) {
         val script = runnerDir().child("${label}.sh").createFileIfNot()
         launchTerminal(
-            //TODO
-            activity = context as Activity,
+            activity = activity,
             TerminalCommand(
                 exe = "/bin/bash",
                 args = arrayOf(script.absolutePath, fileObject.getAbsolutePath()),
