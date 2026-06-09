@@ -660,4 +660,9 @@
     <string name="invalid_terminal_extra_keys">Ungültiges Format für die Terminal-Zusatztasten. Standardtasten werden geladen.</string>
     <string name="clipboard_keybindings">Tastenkombinationen für die Zwischenablage</string>
     <string name="clipboard_keybindings_desc">Tastenkombinationen zum Kopieren und Einfügen für Hardware-Tastaturen aktivieren.</string>
+    <string name="manage_formatters">Formatierer verwalten</string>
+    <string name="manage_formatters_desc">Formatierer priorisieren und konfigurieren</string>
+    <string name="info_formatters">Formatierer werden nach Priorität angewendet. Der erste Formatierer, der die aktuelle Sprache unterstützt, wird verwendet. Du kannst die Reihenfolge durch langes Drücken und Ziehen ändern.</string>
+    <string name="formatter_lsp_desc">Aktuellen Sprachserver verwenden</string>
+    <string name="browse_extensions">Erweiterungen durchsuchen</string>
 </resources>
