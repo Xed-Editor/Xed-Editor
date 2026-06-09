@@ -256,11 +256,6 @@ fun getTempDir(): File {
     return tmp
 }
 
-val isFDroid by lazy {
-    val targetSdkVersion = application!!.applicationInfo.targetSdkVersion
-    targetSdkVersion == 28
-}
-
 /** Converts a [Spanned] text object to an [AnnotatedString]. */
 fun Spanned.toAnnotatedString(): AnnotatedString {
     val builder = AnnotatedString.Builder(this.toString())

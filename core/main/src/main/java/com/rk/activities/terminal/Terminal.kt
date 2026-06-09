@@ -215,36 +215,7 @@ class Terminal : AppCompatActivity() {
             try {
                 val abi = Build.SUPPORTED_ABIS
 
-                val filesToDownload =
-                    listOf(
-                            DownloadFile(
-                                url =
-                                    if (abi.contains("x86_64")) {
-                                        XedConstants.TALLOC_X64
-                                    } else if (abi.contains("arm64-v8a")) {
-                                        XedConstants.TALLOC_ARM64
-                                    } else if (abi.contains("armeabi-v7a")) {
-                                        XedConstants.TALLOC_ARM
-                                    } else {
-                                        throw RuntimeException("Unsupported CPU")
-                                    },
-                                outputFile = localLibDir().child("libtalloc.so.2"),
-                            ),
-                            DownloadFile(
-                                url =
-                                    if (abi.contains("x86_64")) {
-                                        XedConstants.PROOT_X64
-                                    } else if (abi.contains("arm64-v8a")) {
-                                        XedConstants.PROOT_ARM64
-                                    } else if (abi.contains("armeabi-v7a")) {
-                                        XedConstants.PROOT_ARM
-                                    } else {
-                                        throw RuntimeException("Unsupported CPU")
-                                    },
-                                outputFile = localBinDir().child("proot"),
-                            ),
-                        )
-                        .toMutableList()
+                val filesToDownload = mutableListOf<DownloadFile>()
 
                 if (isTerminalInstalled().not()) {
                     filesToDownload.add(

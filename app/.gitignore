@@ -3,3 +3,6 @@
 src/main/jniLibs/arm64-v8a/libproot-loader*.so
 src/main/jniLibs/armeabi-v7a/libproot-loader*.so
 src/main/jniLibs/x86_64/libproot-loader*.so
+src/main/jniLibs/arm64-v8a/libloader*.so
+src/main/jniLibs/armeabi-v7a/libloader*.so
+src/main/jniLibs/x86_64/libloader*.so

@@ -13,7 +13,6 @@ import com.rk.settings.Settings
 import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
-import com.rk.utils.isFDroid
 import com.rk.xededitor.BuildConfig
 import java.io.File
 import java.io.IOException
@@ -93,7 +92,7 @@ suspend fun ubuntuProcess(
 
         val args =
             mutableListOf<String>().apply {
-                add(localBinDir().child("proot").absolutePath)
+                add("${application!!.applicationInfo.nativeLibraryDir}/libproot.so")
                 add("--kill-on-exit")
 
                 if (workingDir != null) {
@@ -145,7 +144,8 @@ suspend fun ubuntuProcess(
                     "/system/bin/linker"
                 }
             env["NATIVE_LIB_DIR"] = application!!.applicationInfo.nativeLibraryDir
-            env["FDROID"] = isFDroid.toString()
+            env["PROOT"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot.so"
+            env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libloader.so"
             env["SANDBOX"] = Settings.sandbox.toString()
             env["TMP_DIR"] = getTempDir().absolutePath
             env["TMPDIR"] = getTempDir().absolutePath
@@ -170,14 +170,9 @@ suspend fun ubuntuProcess(
             env["PATH"] =
                 "/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:${localBinDir()}:${System.getenv("PATH")}"
 
-            if (!isFDroid) {
-                env["PROOT_LOADER"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader.so"
-                if (
-                    Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
-                        File(application!!.applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()
-                ) {
-                    env["PROOT_LOADER32"] = "${application!!.applicationInfo.nativeLibraryDir}/libproot-loader32.so"
-                }
+            val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
+            if (File(loader32).exists()){
+                env["LOADER32"] = loader32
             }
 
             if (Settings.seccomp) {

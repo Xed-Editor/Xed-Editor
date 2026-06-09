@@ -12,9 +12,9 @@ import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
 import com.rk.settings.Settings
 import com.rk.tabs.editor.EditorTab
+import com.rk.utils.application
 import com.rk.utils.getSourceDirOfPackage
 import com.rk.utils.getTempDir
-import com.rk.utils.isFDroid
 import com.rk.xededitor.BuildConfig
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -55,6 +55,8 @@ object MkSession {
 
             val env =
                 mutableListOf(
+                    "PROOT=${application!!.applicationInfo.nativeLibraryDir}/libproot.so",
+                    "PROOT_LOADER=${application!!.applicationInfo.nativeLibraryDir}/libloader.so",
                     "PROOT_TMP_DIR=${tmpDir.absolutePath}",
                     "WKDIR=${workingDir}",
                     "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
@@ -70,7 +72,6 @@ object MkSession {
                     "PROMPT_DIRTRIM=2",
                     "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                     "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
-                    "FDROID=${isFDroid}",
                     "SANDBOX=${Settings.sandbox}",
                     "TMP_DIR=${getTempDir()}",
                     "TMPDIR=${getTempDir()}",
@@ -81,14 +82,9 @@ object MkSession {
                     "DISPLAY=:0",
                 )
 
-            if (!isFDroid) {
-                env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
-                if (
-                    Build.SUPPORTED_32_BIT_ABIS.isNotEmpty() &&
-                        File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()
-                ) {
-                    env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
-                }
+            val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
+            if (File(loader32).exists()){
+                env.add("LOADER32=$loader32")
             }
 
             if (Settings.seccomp) {

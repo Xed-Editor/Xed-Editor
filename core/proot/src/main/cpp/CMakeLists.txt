@@ -24,6 +24,8 @@ endif()
 # Feature Detection (build.h)
 include(CheckCSourceCompiles)
 
+add_definitions(-DPROOT_UNBUNDLE_LOADER)
+
 function(check_feature FEATURE_NAME SOURCE_CODE DEFINE_VAR)
     check_c_source_compiles("${SOURCE_CODE}" ${DEFINE_VAR})
     if(${${DEFINE_VAR}})
@@ -214,10 +216,11 @@ set_target_properties(cli_obj PROPERTIES COMPILE_FLAGS "-I${CMAKE_CURRENT_BINARY
 
 # Build loaders
 function(build_loader SUFFIX EXTRA_CFLAGS LOADER_ADDR)
-    set(LOADER_NAME loader${SUFFIX})
     set(LOADER_TARGET loader_${SUFFIX})
     if(SUFFIX STREQUAL "64")
         set(LOADER_NAME loader)
+    else()
+        set(LOADER_NAME loader32)
     endif()
 
     add_executable(${LOADER_TARGET} loader/loader.c loader/assembly.S)
@@ -226,35 +229,21 @@ function(build_loader SUFFIX EXTRA_CFLAGS LOADER_ADDR)
         LINK_FLAGS "-static -nostdlib ${EXTRA_CFLAGS} -Wl,-Ttext=${LOADER_ADDR},--rosegment,-z,noexecstack"
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/loader
         OUTPUT_NAME ${LOADER_NAME}
+        PREFIX "lib"
+        SUFFIX ".so"
     )
 
-    # Generate wrapper script
-    file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/loader/wrap_${LOADER_NAME}.sh
-         CONTENT "#!/bin/sh
-set -e
-CLI_OBJ=\"$<TARGET_OBJECTS:cli_obj>\"
-OUTPUT_TARGET=\"$(${OBJDUMP_TOOL} -f \"$CLI_OBJ\" | grep 'file format' | awk '{print $4}')\"
-ARCH=\"$(${OBJDUMP_TOOL} -f \"$CLI_OBJ\" | grep architecture | cut -f 1 -d , | awk '{print $2}')\"
-\"${OBJCOPY_TOOL}\" --input-target=binary --output-target=\"$OUTPUT_TARGET\" --binary-architecture \"$ARCH\" ${LOADER_NAME}.exe ${LOADER_NAME}-wrapped.o
-")
-
-    # Loader wrapping logic
     add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/loader/${LOADER_NAME}-wrapped.o
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${LOADER_TARGET}> ${LOADER_NAME}.exe
-        COMMAND ${STRIP_TOOL} ${LOADER_NAME}.exe
-        COMMAND sh wrap_${LOADER_NAME}.sh
-        DEPENDS ${LOADER_TARGET} cli_obj ${CMAKE_CURRENT_BINARY_DIR}/loader/wrap_${LOADER_NAME}.sh
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/loader
+        TARGET ${LOADER_TARGET} POST_BUILD
+        COMMAND ${STRIP_TOOL} $<TARGET_FILE:${LOADER_TARGET}>
+        COMMENT "Stripping ${LOADER_NAME}"
     )
 endfunction()
 
 build_loader("64" "${LOADER_ARCH_CFLAGS_64}" "${LOADER_ADDRESS_64}")
-list(APPEND EXTRA_OBJECTS ${CMAKE_CURRENT_BINARY_DIR}/loader/loader-wrapped.o)
 
 if(HAS_LOADER_32BIT)
     build_loader("-m32" "${LOADER_ARCH_CFLAGS_32}" "${LOADER_ADDRESS_32}")
-    list(APPEND EXTRA_OBJECTS ${CMAKE_CURRENT_BINARY_DIR}/loader/loader-m32-wrapped.o)
 endif()
 
 if(HAS_POKEDATA_WORKAROUND)
@@ -262,7 +251,7 @@ if(HAS_POKEDATA_WORKAROUND)
     set(LOADER_INFO_C "${CMAKE_CURRENT_BINARY_DIR}/loader/loader-info.c")
     add_custom_command(
         OUTPUT "${LOADER_INFO_C}"
-        COMMAND ${READELF_TOOL} -s "${CMAKE_CURRENT_BINARY_DIR}/loader/loader" | awk -f "${CMAKE_CURRENT_SOURCE_DIR}/loader/loader-info.awk" > "${LOADER_INFO_C}"
+        COMMAND ${READELF_TOOL} -s "$<TARGET_FILE:loader_64>" | awk -f "${CMAKE_CURRENT_SOURCE_DIR}/loader/loader-info.awk" > "${LOADER_INFO_C}"
         DEPENDS loader_64
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         VERBATIM
@@ -270,7 +259,7 @@ if(HAS_POKEDATA_WORKAROUND)
     list(APPEND PROOT_SOURCES "${LOADER_INFO_C}")
 endif()
 
-add_executable(proot ${PROOT_SOURCES} ${TALLOC_SOURCES} ${EXTRA_OBJECTS})
+add_executable(proot ${PROOT_SOURCES} ${TALLOC_SOURCES})
 add_dependencies(proot cli_obj loader_64)
 if(HAS_LOADER_32BIT)
     add_dependencies(proot loader_-m32)

@@ -564,10 +564,10 @@ static inline const char *get_loader_path(const Tracee *tracee)
 #if defined(PROOT_UNBUNDLE_LOADER)
 #if defined(HAS_LOADER_32BIT)
 	if (IS_CLASS32(tracee->load_info->elf_header)) {
-		return getenv("PROOT_LOADER_32") ?: PROOT_UNBUNDLE_LOADER "/loader32";
+		return getenv("PROOT_LOADER_32") ?: "libloader32.so";
 	}
 #endif
-	return getenv("PROOT_LOADER") ?: PROOT_UNBUNDLE_LOADER "/loader";
+	return getenv("PROOT_LOADER") ?: "libloader.so";
 #else
 	static char *loader_path = NULL;
 

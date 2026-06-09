@@ -16,8 +16,7 @@ android {
         applicationId = "com.rk.xededitor"
         minSdk = 26
 
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk = 28
+        targetSdk = 37
 
         // versioning
         versionCode = 92
