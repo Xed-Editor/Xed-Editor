@@ -171,7 +171,7 @@ suspend fun ubuntuProcess(
 
             val loader32 = "${application!!.applicationInfo.nativeLibraryDir}/libloader32.so"
             if (File(loader32).exists()) {
-                env["LOADER32"] = loader32
+                env["PROOT_LOADER_32"] = loader32
             }
 
             if (Settings.seccomp) {
