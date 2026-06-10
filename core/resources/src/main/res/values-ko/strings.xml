@@ -278,4 +278,18 @@
     <string name="support">지원</string>
     <string name="support_desc">개발 지원</string>
     <string name="translate">번역</string>
+    <string name="terminal_feature">터미널과 러너</string>
+    <string name="folder_name">폴더 이름</string>
+    <string name="invalid_characters">유효하지 않는 문자</string>
+    <string name="properties">속성</string>
+    <string name="rename_folder">폴더 이름 바꾸기</string>
+    <string name="ignore_case">사례 무시</string>
+    <string name="regex">정규식</string>
+    <string name="whole_word">전체 단어</string>
+    <string name="go_to_definition">정의로 이동</string>
+    <string name="go_to_references">참조로 이동</string>
+    <string name="rename_symbol">이름 바꾸기</string>
+    <string name="format_document">문서 서식 지정</string>
+    <string name="format_selection">선택 영역 형식 지정</string>
+    <string name="go_to_definition_desc">‐정의 위치로 이동하려면 %s개의 정의 중 하나를 선택하세요.</string>
 </resources>
