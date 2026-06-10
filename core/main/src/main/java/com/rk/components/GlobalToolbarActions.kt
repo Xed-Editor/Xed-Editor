@@ -10,8 +10,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -62,11 +62,12 @@ object GlobalActionManager {
     val commands: SnapshotStateList<Command>
         get() {
             if (_commands == null) {
-                _commands = mutableStateListOf(
-                    CommandProvider.NewFileCommand,
-                    CommandProvider.TerminalCommand,
-                    CommandProvider.SettingsCommand
-                )
+                _commands =
+                    mutableStateListOf(
+                        CommandProvider.NewFileCommand,
+                        CommandProvider.TerminalCommand,
+                        CommandProvider.SettingsCommand,
+                    )
             }
             return _commands!!
         }
