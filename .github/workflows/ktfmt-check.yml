@@ -29,6 +29,9 @@ jobs:
       - name: Clone submodules
         run: git submodule update --init --recursive
 
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Run ktfmt format
         run: ./gradlew ktfmtFormat --no-daemon
 
