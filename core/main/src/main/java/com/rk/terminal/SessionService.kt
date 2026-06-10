@@ -38,7 +38,7 @@ class SessionService : Service() {
         }
 
         fun createSession(id: SessionId, client: TerminalSessionClient, activity: Terminal): SessionInfo {
-            return MkSession.createSession(activity, client, id).let {
+            return MkSession.createSession(activity, client, id, activity.installNextStage != null && activity.installNextStage == NEXT_STAGE.EXTRACTION).let {
                 val (session, pwd) = it
                 sessions[id] = session
                 sessionWorkDirs[id] = pwd
