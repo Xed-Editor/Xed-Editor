@@ -33,13 +33,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
 import com.rk.commands.ActionContext
-import com.rk.commands.CommandProvider
 import com.rk.commands.KeybindingsManager
 import com.rk.commands.ToggleableCommand
+import com.rk.commands.ToolbarConfiguration
 import com.rk.icons.Icon
 import com.rk.icons.XedIcon
 import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.terminal.isV
 import com.rk.theme.Typography
 import com.rk.utils.x
@@ -51,7 +50,7 @@ fun EditorToolbarActions(modifier: Modifier = Modifier, viewModel: MainViewModel
     val activity = LocalActivity.current
 
     val allActions by remember {
-        derivedStateOf { Settings.action_items.split("|").mapNotNull { CommandProvider.getForId(it) } }
+        derivedStateOf { ToolbarConfiguration.editorCommands }
     }
 
     BoxWithConstraints(modifier = modifier) {

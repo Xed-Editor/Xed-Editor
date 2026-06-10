@@ -1,8 +1,8 @@
 package com.rk.components
 
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,14 +11,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -29,10 +26,8 @@ import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
-import com.rk.commands.Command
-import com.rk.commands.CommandProvider
+import com.rk.commands.ToolbarConfiguration
 import com.rk.drawer.DrawerViewModel
-import com.rk.extension.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -46,7 +41,6 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.search.CodeSearchDialog
 import com.rk.search.FileSearchDialog
-import com.rk.settings.app.InbuiltFeatures
 import com.rk.utils.application
 import com.rk.utils.errorDialog
 import com.rk.utils.getTempDir
@@ -57,66 +51,26 @@ var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
 var codeSearchDialog by mutableStateOf(false)
 
-object GlobalActionManager {
-    private var _commands: SnapshotStateList<Command>? = null
-
-    val commands: SnapshotStateList<Command>
-        get() {
-            if (_commands == null) {
-                _commands =
-                    mutableStateListOf(
-                        CommandProvider.NewFileCommand,
-                        CommandProvider.TerminalCommand,
-                        CommandProvider.SettingsCommand,
-                    )
-            }
-            return _commands!!
-        }
-
-    @XedExtensionPoint
-    fun addCommand(command: Command, index: Int = -1) {
-        val cmds = commands
-        val existingCommand = cmds.find { it.id == command.id }
-        if (existingCommand != null) {
-            val oldIndex = cmds.indexOf(existingCommand)
-            cmds.removeAt(oldIndex)
-            val targetIndex = if (index != -1) index.coerceIn(0, cmds.size) else oldIndex
-            cmds.add(targetIndex.coerceIn(0, cmds.size), command)
-            return
-        }
-
-        if (index in 0..cmds.size) {
-            cmds.add(index, command)
-        } else {
-            cmds.add(command)
-        }
-    }
-
-    @XedExtensionPoint
-    fun removeCommand(command: Command) {
-        commands.removeIf { it.id == command.id }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
-    val context = LocalContext.current
+    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     var tempFileNameDialog by remember { mutableStateOf(false) }
 
-    val commands by remember { derivedStateOf { GlobalActionManager.commands.toList() } }
+    val commands by remember { derivedStateOf { ToolbarConfiguration.globalCommands } }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
         for (command in commands) {
-            if (command == CommandProvider.TerminalCommand) {
-                if (InbuiltFeatures.terminal.state.value) {
-                    IconButton(onClick = { command.action(ActionContext(context as Activity)) }) {
-                        XedIcon(command.getIcon())
-                    }
-                }
-            } else {
-                IconButton(onClick = { command.action(ActionContext(context as Activity)) }) {
+            if (command.isSupported()) {
+                IconButton(
+                    enabled = command.isEnabled(),
+                    onClick = {
+                        activity?.let {
+                            command.performCommand(ActionContext(it))
+                        }
+                    },
+                ) {
                     XedIcon(command.getIcon())
                 }
             }

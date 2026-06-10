@@ -1,7 +1,6 @@
 package com.rk.commands
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.rk.commands.editor.CopyCommand
 import com.rk.commands.editor.CutCommand
 import com.rk.commands.editor.DuplicateLineCommand
@@ -39,10 +38,9 @@ import com.rk.commands.lsp.GoToDefinitionCommand
 import com.rk.commands.lsp.GoToReferencesCommand
 import com.rk.commands.lsp.RenameSymbolCommand
 import com.rk.extension.XedExtensionPoint
-import com.rk.settings.Settings
 
 object CommandProvider {
-    private val _commandList: SnapshotStateList<Command> = mutableStateListOf()
+    private val _commandList = mutableStateListOf<Command>()
     val commandList: List<Command>
         get() = _commandList
 
@@ -130,18 +128,10 @@ object CommandProvider {
     }
 
     @XedExtensionPoint
-    fun registerCommand(command: Command, index: Int = -1) {
-        val existingCommand = _commandList.find { it.id == command.id }
-        if (existingCommand != null) {
-            val oldIndex = _commandList.indexOf(existingCommand)
-            _commandList.removeAt(oldIndex)
-            val targetIndex = if (index != -1) index.coerceIn(0, _commandList.size) else oldIndex
-            _commandList.add(targetIndex.coerceIn(0, _commandList.size), command)
-            return
-        }
-
-        if (index in 0.._commandList.size) {
-            _commandList.add(index, command)
+    fun registerCommand(command: Command) {
+        val index = _commandList.indexOf(command)
+        if (index >= 0) {
+            _commandList[index] = command
         } else {
             _commandList.add(command)
         }
@@ -149,35 +139,7 @@ object CommandProvider {
 
     @XedExtensionPoint
     fun unregisterCommand(command: Command) {
-        _commandList.removeIf { it.id == command.id }
-    }
-
-    @XedExtensionPoint
-    fun addEditorToolbarCommand(commandId: String, index: Int = -1) {
-        val items = Settings.action_items.split("|").filter { it.isNotEmpty() }.toMutableList()
-        if (items.contains(commandId)) {
-            if (index != -1) {
-                items.remove(commandId)
-                items.add(index.coerceIn(0, items.size), commandId)
-                Settings.action_items = items.joinToString("|")
-            }
-            return
-        }
-
-        if (index in 0..items.size) {
-            items.add(index, commandId)
-        } else {
-            items.add(commandId)
-        }
-        Settings.action_items = items.joinToString("|")
-    }
-
-    @XedExtensionPoint
-    fun removeEditorToolbarCommand(commandId: String) {
-        val items = Settings.action_items.split("|").toMutableList()
-        if (items.remove(commandId)) {
-            Settings.action_items = items.joinToString("|")
-        }
+        _commandList.remove(command)
     }
 
     fun getForId(id: String): Command? = findRecursive(id, commandList)

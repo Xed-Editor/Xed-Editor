@@ -1,13 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktfmt)
 }
 
 android {
     namespace = "org.robok.engine.core.components"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26

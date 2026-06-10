@@ -15,9 +15,9 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.utils.dialogRes
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 object FilePermission {
     private const val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
@@ -80,7 +80,7 @@ object FilePermission {
                 onOk = {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.setData("package:${activity.packageName}".toUri())
+                        intent.data = "package:${activity.packageName}".toUri()
                         activity.startActivity(intent)
                     } else {
                         // below 11

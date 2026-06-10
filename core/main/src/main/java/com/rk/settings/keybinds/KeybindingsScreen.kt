@@ -78,21 +78,22 @@ fun KeybindingsScreen() {
     val commands = CommandProvider.commandList
     val filteredCommands =
         if (searchQuery.text.isEmpty()) {
-            commands
-        } else {
-            val query = searchQuery.text
+                commands
+            } else {
+                val query = searchQuery.text
 
-            commands.filter { command ->
-                val labelMatch = command.getLabel().contains(query, ignoreCase = true)
-                val prefixMatch = command.prefix?.contains(query, ignoreCase = true) == true
-                val keybindMatch =
-                    KeybindingsManager.getKeyCombinationForCommand(command.id)
-                        ?.getDisplayName()
-                        ?.contains(query, ignoreCase = true) == true
+                commands.filter { command ->
+                    val labelMatch = command.getLabel().contains(query, ignoreCase = true)
+                    val prefixMatch = command.prefix?.contains(query, ignoreCase = true) == true
+                    val keybindMatch =
+                        KeybindingsManager.getKeyCombinationForCommand(command.id)
+                            ?.getDisplayName()
+                            ?.contains(query, ignoreCase = true) == true
 
-                labelMatch || prefixMatch || keybindMatch
+                    labelMatch || prefixMatch || keybindMatch
+                }
             }
-        }
+            .sortedBy { it.getLabel() }
 
     PreferenceLayoutLazyColumn(
         label = stringResource(id = strings.keybindings),

@@ -30,12 +30,13 @@ import com.rk.tabs.editor.EditorTab
 import com.rk.tabs.editor.applyHighlightingAndConnectLSP
 import com.rk.utils.errorDialog
 import com.rk.utils.toast
-import java.lang.ref.WeakReference
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.milliseconds
 
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
@@ -75,8 +76,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             handleIntent(intent)
             foregroundListener.values.forEach { it.invoke(true) }
-            delay(1000)
-            handleSupport()
 
             val lspConfigChanges = LspRegistry.getConfigurationChanges(this@MainActivity)
             if (lspConfigChanges.isNotEmpty()) {
@@ -86,6 +85,9 @@ class MainActivity : AppCompatActivity() {
                     .filter { affectedExtensions.contains(it.file.getExtension()) }
                     .forEach { tab -> tab.applyHighlightingAndConnectLSP() }
             }
+
+            delay(1000.milliseconds)
+            handleSupport()
         }
     }
 
@@ -145,7 +147,9 @@ class MainActivity : AppCompatActivity() {
             ) {
                 composable(MainRoutes.Main.route) {
                     MainContentHost()
-                    LaunchedEffect(Unit) { FilePermission.verifyStoragePermission(this@MainActivity) }
+                    LaunchedEffect(Unit) {
+                        FilePermission.verifyStoragePermission(this@MainActivity)
+                    }
                 }
                 composable(MainRoutes.Disclaimer.route) { DisclaimerScreen(navController) { finishAffinity() } }
             }

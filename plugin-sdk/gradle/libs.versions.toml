@@ -1,11 +1,10 @@
 [versions]
 
-# kotlin, agp and r8 must be compatible with each other aftr update
-agp = "8.13.1"
-kotlin = "2.3.0"
-ksp = "2.3.0"
-kotlinReflect = "2.3.0"
-r8 = "8.13.19"
+# kotlin and agp must be compatible with each other after update
+agp = "9.2.1"
+kotlin = "2.3.20"
+ksp = "2.3.2"
+kotlinReflect = "2.3.20"
 
 annotation = "1.9.1"
 anrwatchdog = "1.4.0"
@@ -147,7 +146,6 @@ androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "junit
 androidx-test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
-r8 = { module = "com.android.tools:r8", version.ref = "r8" }
 tests-robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 tests-google-truth = { module = "com.google.truth:truth", version.ref = "truth" }
 leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
@@ -160,7 +158,6 @@ androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstall
 # Misc
 material = { module = "com.google.android.material:material", version.ref = "material" }
 photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photoview" }
-quickjs-android = { module = "app.cash.quickjs:quickjs-android", version.ref = "quickjsAndroid" }
 jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" }
 jcodings = { module = "org.jruby.jcodings:jcodings", version.ref = "jcodings" }

@@ -8,8 +8,6 @@ import com.rk.file.child
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.utils.errorDialog
-import java.io.File
-import java.util.zip.ZipFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -19,6 +17,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import java.io.File
+import java.util.zip.ZipFile
 
 private val Context.localDir: File
     get() = filesDir.parentFile!!.resolve("local").apply { if (!exists()) mkdirs() }
@@ -74,24 +74,23 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
         return getSyncedExtensions().filter { it is StoreExtension || it is UpdatableExtension }
     }
 
-    suspend fun indexLocalExtensions() =
-        mutex.withLock {
-            localExtensions.clear()
+    suspend fun indexLocalExtensions() = mutex.withLock {
+        localExtensions.clear()
 
-            withContext(Dispatchers.IO) {
-                val extensionFolders = context.extensionDir.listFiles()?.filter { it.isDirectory }
-                extensionFolders?.forEach { dir ->
-                    val extensionJson = dir.resolve("manifest.json")
-                    if (extensionJson.exists()) {
-                        runCatching {
-                            val extensionManifest = json.decodeFromString<ExtensionManifest>(extensionJson.readText())
-                            val extension = LocalExtension(manifest = extensionManifest, installPath = dir.absolutePath)
-                            localExtensions[extensionManifest.id] = extension
-                        }
+        withContext(Dispatchers.IO) {
+            val extensionFolders = context.extensionDir.listFiles()?.filter { it.isDirectory }
+            extensionFolders?.forEach { dir ->
+                val extensionJson = dir.resolve("manifest.json")
+                if (extensionJson.exists()) {
+                    runCatching {
+                        val extensionManifest = json.decodeFromString<ExtensionManifest>(extensionJson.readText())
+                        val extension = LocalExtension(manifest = extensionManifest, installPath = dir.absolutePath)
+                        localExtensions[extensionManifest.id] = extension
                     }
                 }
             }
         }
+    }
 
     suspend fun indexStoreExtensions() =
         withContext(Dispatchers.IO) {
@@ -164,8 +163,10 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val extensionInfo = validation.getOrThrow()
             val targetDir = context.extensionDir.resolve(extensionInfo.id)
 
+            var performedUpdate = false
             if (targetDir.exists()) {
                 uninstallExtension(extensionInfo.id, update = true)
+                performedUpdate = true
             }
 
             val pm = context.packageManager
@@ -182,7 +183,7 @@ open class ExtensionManager(private val context: Application) : CoroutineScope b
             val extension = LocalExtension(manifest = extensionInfo, installPath = targetDir.absolutePath)
             localExtensions[extensionInfo.id] = extension
 
-            InstallResult.Success(extension)
+            InstallResult.Success(extension, performedUpdate)
         }
 
     suspend fun uninstallExtension(extensionId: ExtensionId, update: Boolean = false) =
