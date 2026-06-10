@@ -37,6 +37,7 @@ import com.rk.settings.runners.HtmlRunnerSettings
 import com.rk.settings.runners.RunnerSettings
 import com.rk.settings.support.Support
 import com.rk.settings.terminal.SettingsTerminalScreen
+import com.rk.settings.terminal.TerminalCheckScreen
 import com.rk.settings.terminal.TerminalExtraKeys
 import com.rk.settings.theme.ThemeScreen
 
@@ -119,5 +120,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
             ExtensionSettings(extension)
         }
         composable(SettingsRoutes.Git.route) { GitSettings() }
+        composable(SettingsRoutes.TerminalCheck.route) { TerminalCheckScreen() }
     }
 }

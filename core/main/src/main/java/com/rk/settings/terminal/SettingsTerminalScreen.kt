@@ -79,6 +79,42 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
         val context = LocalContext.current
         val activity = LocalActivity.current as? AppCompatActivity
 
+        PreferenceGroup(heading = stringResource(strings.advanced)) {
+            if (InbuiltFeatures.debugMode.state.value) {
+                SettingsItem(
+                    label = stringResource(strings.failsafe_mode),
+                    description = stringResource(strings.failsafe_mode_desc),
+                    default = !Settings.sandbox,
+                    sideEffect = { Settings.sandbox = !it },
+                )
+            }
+
+            var seccomp by remember { mutableStateOf(Settings.seccomp) }
+
+            SettingsItem(
+                label = "SECCOMP",
+                default = seccomp,
+                description = stringResource(strings.seccomp_desc),
+                sideEffect = {
+                    Settings.seccomp = it
+                    seccomp = it
+                },
+                showSwitch = true,
+            )
+
+
+            SettingsItem(
+                label = "Terminal Health",
+                description = "Check if terminal is working",
+                sideEffect = {
+                    settingsNavController.get()?.navigate(SettingsRoutes.TerminalCheck.route)
+                },
+                showSwitch = false,
+                default = false
+            )
+
+        }
+
         var showCursorStyleDialog by remember { mutableStateOf(false) }
         var cursorStyleValue by remember {
             mutableStateOf(TerminalCursorStyle.fromString(Settings.terminal_cursor_style))
@@ -315,29 +351,7 @@ fun SettingsTerminalScreen(overrideNavController: NavController? = null) {
             )
         }
 
-        PreferenceGroup(heading = stringResource(strings.advanced)) {
-            if (InbuiltFeatures.debugMode.state.value) {
-                SettingsItem(
-                    label = stringResource(strings.failsafe_mode),
-                    description = stringResource(strings.failsafe_mode_desc),
-                    default = !Settings.sandbox,
-                    sideEffect = { Settings.sandbox = !it },
-                )
-            }
 
-            var seccomp by remember { mutableStateOf(Settings.seccomp) }
-
-            SettingsItem(
-                label = "SECCOMP",
-                default = seccomp,
-                description = stringResource(strings.seccomp_desc),
-                sideEffect = {
-                    Settings.seccomp = it
-                    seccomp = it
-                },
-                showSwitch = true,
-            )
-        }
 
         PreferenceGroup(heading = stringResource(strings.other)) {
             NextScreenCard(
