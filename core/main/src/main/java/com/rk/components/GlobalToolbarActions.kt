@@ -11,9 +11,11 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -26,8 +28,10 @@ import com.rk.activities.main.drawerStateRef
 import com.rk.activities.main.fileTreeViewModel
 import com.rk.activities.main.searchViewModel
 import com.rk.commands.ActionContext
+import com.rk.commands.Command
 import com.rk.commands.CommandProvider
 import com.rk.drawer.DrawerViewModel
+import com.rk.extension.XedExtensionPoint
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
@@ -52,6 +56,39 @@ var addDialog by mutableStateOf(false)
 var fileSearchDialog by mutableStateOf(false)
 var codeSearchDialog by mutableStateOf(false)
 
+object GlobalActionManager {
+    private var _commands: SnapshotStateList<Command>? = null
+
+    val commands: SnapshotStateList<Command>
+        get() {
+            if (_commands == null) {
+                _commands = mutableStateListOf(
+                    CommandProvider.NewFileCommand,
+                    CommandProvider.TerminalCommand,
+                    CommandProvider.SettingsCommand
+                )
+            }
+            return _commands!!
+        }
+
+    @XedExtensionPoint
+    fun addCommand(command: Command, index: Int = -1) {
+        val cmds = commands
+        if (!cmds.contains(command)) {
+            if (index in 0..cmds.size) {
+                cmds.add(index, command)
+            } else {
+                cmds.add(command)
+            }
+        }
+    }
+
+    @XedExtensionPoint
+    fun removeCommand(command: Command) {
+        commands.remove(command)
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewModel) {
@@ -60,22 +97,18 @@ fun GlobalToolbarActions(viewModel: MainViewModel, drawerViewModel: DrawerViewMo
     var tempFileNameDialog by remember { mutableStateOf(false) }
 
     if (viewModel.tabs.isEmpty() || viewModel.currentTab?.showGlobalActions == true) {
-        val newFileCommand = CommandProvider.NewFileCommand
-        val terminalCommand = CommandProvider.TerminalCommand
-        val settingsCommand = CommandProvider.SettingsCommand
-
-        IconButton(onClick = { newFileCommand.action(ActionContext(context as Activity)) }) {
-            XedIcon(newFileCommand.getIcon())
-        }
-
-        if (InbuiltFeatures.terminal.state.value) {
-            IconButton(onClick = { terminalCommand.action(ActionContext(context as Activity)) }) {
-                XedIcon(terminalCommand.getIcon())
+        for (command in GlobalActionManager.commands) {
+            if (command == CommandProvider.TerminalCommand) {
+                if (InbuiltFeatures.terminal.state.value) {
+                    IconButton(onClick = { command.action(ActionContext(context as Activity)) }) {
+                        XedIcon(command.getIcon())
+                    }
+                }
+            } else {
+                IconButton(onClick = { command.action(ActionContext(context as Activity)) }) {
+                    XedIcon(command.getIcon())
+                }
             }
-        }
-
-        IconButton(onClick = { settingsCommand.action(ActionContext(context as Activity)) }) {
-            XedIcon(settingsCommand.getIcon())
         }
     }
 
